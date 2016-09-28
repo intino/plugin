@@ -1,0 +1,34 @@
+dsl Proteo
+
+Concept:Named Project
+	var string groupId
+	var string version
+	has Repository
+	Concept:Named DSL > var string version
+
+	Concept:{0..1} Generation
+		Concept:Named OutDSL
+			var string version
+		var string workingPackage = ""
+		var boolean persistent = false
+		var integer refactorId = -1
+
+	Concept Dependencies
+		Concept Dependency
+			var string groupId
+			var string artifactId
+			var string version
+			var boolean transitive = true
+			sub Compile
+			sub Runtime
+			sub Test
+
+Concept Repository is component
+	var string url
+
+Concept SnapshotRepository extends Repository
+
+Facet Level on Project
+	sub Platform
+	sub Application
+	sub System

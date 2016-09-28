@@ -1,0 +1,37 @@
+<idea-plugin version="2">
+    <id>org.siani.tara.legio</id>
+    <name>Legio</name>
+    <version>1.0.0</version>
+    <vendor email="tara@siani.es" url="http://www.siani.es">Siani</vendor>
+
+    <description><![CDATA[
+
+    ]]></description>
+
+    <depends>siani.dev.tara</depends>
+    <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+    </change-notes>
+    <idea-version since-build="143.375"/>
+
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileDocumentManagerListener
+                implementation="org.siani.legio.plugin.project.ConfigurationListener"/>
+        <fileTypeFactory implementation="org.siani.legio.plugin.file.LegioFileTypeFactory"/>
+        <errorHandler implementation="org.siani.legio.plugin.errorreporting.PluginErrorReportSubmitter"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <application-components>
+        <component>
+            <implementation-class>org.siani.legio.plugin.project.LegioAppComponent</implementation-class>
+        </component>
+    </application-components>
+
+</idea-plugin>
