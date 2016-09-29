@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.ui.Messages.showErrorDialog;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static tara.intellij.messages.MessageProvider.message;
 import static tara.intellij.project.configuration.Configuration.ModuleType.System;
@@ -96,8 +97,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private void doPublish(Map<Module, String> dslsToPublish) {
 		ApplicationManager.getApplication().invokeLater(() -> {
 			publishLanguage(dslsToPublish);
-			if (!errorMessages.isEmpty())
-				Messages.showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
+			if (!errorMessages.isEmpty()) showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
 			else if (!successMessages.isEmpty()) processMessages(successMessages, dslsToPublish);
 		});
 	}
@@ -105,7 +105,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private void publishLanguage(final Map<Module, String> modules) {
 		saveAll(modules.keySet().iterator().next().getProject());
 		for (Module module : modules.keySet())
-			if (checkOverrideVersion(module, modules.get(module)) && !publish(module, modules.get(module))) return;
+			if (checkOverrideVersion(module, modules.get(module)) && !publish(module)) return;
 		reloadProject();
 	}
 

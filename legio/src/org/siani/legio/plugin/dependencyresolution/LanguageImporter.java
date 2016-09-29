@@ -37,7 +37,7 @@ public class LanguageImporter {
 	public String importLanguage(String dsl, String version) {
 		try {
 			if (!PROTEO.equals(dsl) && !VERSO.equals(dsl)) return "";
-			final List<String> repositories = configuration.repository();
+			final List<String> repositories = configuration.repositories();
 			final String versionCode = getVersion(dsl, version, repositories);
 			downloadLanguage(dsl, versionCode, repositories);
 			configuration.dslVersion(versionCode);

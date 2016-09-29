@@ -85,13 +85,13 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public List<String> repository() {
+	public List<String> repositories() {
 		return legio.project().repositories().releaseList().stream().
 				map(Release::url).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<String> snapshotRepository() {
+	public List<String> snapshotRepositories() {
 		return legio.project().repositories().snapshotList().stream().
 				map(Snapshot::url).collect(Collectors.toList());
 	}
@@ -99,10 +99,6 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public String dsl() {
 		return safe(() -> legio.project().factory().modeling().language());
-	}
-
-	public boolean isImportedDsl() {
-		return false;
 	}
 
 	@Override
@@ -165,6 +161,10 @@ public class LegioConfiguration implements Configuration {
 		} catch (NullPointerException e) {
 			return defaultValue;
 		}
+	}
+
+	public List<Project.Dependencies.Compile> dependencies() {
+		return legio.project().dependencies().compileList();
 	}
 
 	private interface StringWrapper {

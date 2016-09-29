@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.siani</groupId>
@@ -109,7 +108,11 @@
             <scope>test</scope>
             <version>LATEST</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-invoker</artifactId>
+            <version>2.0.11</version>
+        </dependency>
         <!--SLACK-->
         <dependency>
             <groupId>com.github.Ullink</groupId>
@@ -121,5 +124,11 @@
             <artifactId>itrules</artifactId>
             <version>LATEST</version>
         </dependency>
-    </dependencies>
+  <dependency>
+      <groupId>org.siani.tara</groupId>
+      <artifactId>proteo</artifactId>
+      <version>LATEST</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
 </project>

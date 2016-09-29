@@ -13,7 +13,7 @@ public class AcceptedStashBuilder {
 	@Test
 	public void should_create_stash() throws Exception {
 		final File tara = new File("/Users/oroncal/workspace/tara/ide/legio/legio-core/test/legio/Example.tara");
-		StashBuilder builder = new StashBuilder(tara, "Legio", "legio");
+		StashBuilder builder = new StashBuilder(tara, "Legio","1.0.0", "legio");
 		Assert.assertNotNull(builder.build());
 	}
 }
