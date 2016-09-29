@@ -3,18 +3,15 @@ dsl Proteo
 Concept:Named Project
 	var string groupId
 	var string version
-	has Repository
-	Concept:Named DSL > var string version
-
-	Concept:{0..1} Generation
-		Concept:Named OutDSL
-			var string version
-		var string workingPackage = ""
-		var boolean persistent = false
-		var integer refactorId = -1
-
-	Concept Dependencies
+	Concept:{0..1} Repositories
+		Concept Repository
+        	var string url
+        	sub Release
+        	sub Snapshot
+	Concept:{0..1} Dependencies
 		Concept Dependency
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string name = '"Legio: " + self.identifier()' is private reactive
 			var string groupId
 			var string artifactId
 			var string version
@@ -23,12 +20,15 @@ Concept:Named Project
 			sub Runtime
 			sub Test
 
-Concept Repository is component
-	var string url
+	Concept:{0..1} Factory
+		Concept:{0..1} Modeling
+			var string language
+			var string version
+		var string generationPackage = ""
+		var boolean persistent = false
+		var integer refactorId = -1
 
-Concept SnapshotRepository extends Repository
-
-Facet Level on Project
+Facet Level on Project.Factory
 	sub Platform
 	sub Application
 	sub System

@@ -8,10 +8,10 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	protected Graph graph;
 	private org.siani.legio.Project project;
-	private List<org.siani.legio.level.LevelProject> levelProjectList;
-	private List<org.siani.legio.platform.PlatformProject> platformProjectList;
-	private List<org.siani.legio.application.ApplicationProject> applicationProjectList;
-	private List<org.siani.legio.system.SystemProject> systemProjectList;
+	private List<org.siani.legio.level.project.LevelFactory> levelFactoryList;
+	private List<org.siani.legio.platform.project.PlatformFactory> platformFactoryList;
+	private List<org.siani.legio.application.project.ApplicationFactory> applicationFactoryList;
+	private List<org.siani.legio.system.project.SystemFactory> systemFactoryList;
 
 	public GraphWrapper(Graph graph) {
 		this.graph = graph;
@@ -21,28 +21,28 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	protected void update() {
 		project = this.graph.rootList(org.siani.legio.Project.class).stream().findFirst().orElse(null);
-		levelProjectList = this.graph.rootList(org.siani.legio.level.LevelProject.class);
-		platformProjectList = this.graph.rootList(org.siani.legio.platform.PlatformProject.class);
-		applicationProjectList = this.graph.rootList(org.siani.legio.application.ApplicationProject.class);
-		systemProjectList = this.graph.rootList(org.siani.legio.system.SystemProject.class);
+		levelFactoryList = this.graph.rootList(org.siani.legio.level.project.LevelFactory.class);
+		platformFactoryList = this.graph.rootList(org.siani.legio.platform.project.PlatformFactory.class);
+		applicationFactoryList = this.graph.rootList(org.siani.legio.application.project.ApplicationFactory.class);
+		systemFactoryList = this.graph.rootList(org.siani.legio.system.project.SystemFactory.class);
 	}
 
 	@Override
 	protected void addNode(tara.magritte.Node node) {
 		if (node.is("Project")) this.project = node.as(org.siani.legio.Project.class);
-		if (node.is("LevelProject")) this.levelProjectList.add(node.as(org.siani.legio.level.LevelProject.class));
-		if (node.is("PlatformProject")) this.platformProjectList.add(node.as(org.siani.legio.platform.PlatformProject.class));
-		if (node.is("ApplicationProject")) this.applicationProjectList.add(node.as(org.siani.legio.application.ApplicationProject.class));
-		if (node.is("SystemProject")) this.systemProjectList.add(node.as(org.siani.legio.system.SystemProject.class));
+		if (node.is("LevelFactory")) this.levelFactoryList.add(node.as(org.siani.legio.level.project.LevelFactory.class));
+		if (node.is("PlatformFactory")) this.platformFactoryList.add(node.as(org.siani.legio.platform.project.PlatformFactory.class));
+		if (node.is("ApplicationFactory")) this.applicationFactoryList.add(node.as(org.siani.legio.application.project.ApplicationFactory.class));
+		if (node.is("SystemFactory")) this.systemFactoryList.add(node.as(org.siani.legio.system.project.SystemFactory.class));
 	}
 
 	@Override
 	protected void removeNode(tara.magritte.Node node) {
 		if (node.is("Project")) this.project = null;
-		if (node.is("LevelProject")) this.levelProjectList.remove(node.as(org.siani.legio.level.LevelProject.class));
-		if (node.is("PlatformProject")) this.platformProjectList.remove(node.as(org.siani.legio.platform.PlatformProject.class));
-		if (node.is("ApplicationProject")) this.applicationProjectList.remove(node.as(org.siani.legio.application.ApplicationProject.class));
-		if (node.is("SystemProject")) this.systemProjectList.remove(node.as(org.siani.legio.system.SystemProject.class));
+		if (node.is("LevelFactory")) this.levelFactoryList.remove(node.as(org.siani.legio.level.project.LevelFactory.class));
+		if (node.is("PlatformFactory")) this.platformFactoryList.remove(node.as(org.siani.legio.platform.project.PlatformFactory.class));
+		if (node.is("ApplicationFactory")) this.applicationFactoryList.remove(node.as(org.siani.legio.application.project.ApplicationFactory.class));
+		if (node.is("SystemFactory")) this.systemFactoryList.remove(node.as(org.siani.legio.system.project.SystemFactory.class));
 	}
 
 	public String message(String language, String key, Object... parameters) {
@@ -101,52 +101,52 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	    return project;
 	}
 
-	public List<org.siani.legio.level.LevelProject> levelProjectList() {
-	    return levelProjectList;
+	public List<org.siani.legio.level.project.LevelFactory> levelFactoryList() {
+	    return levelFactoryList;
 	}
 
-	public List<org.siani.legio.platform.PlatformProject> platformProjectList() {
-	    return platformProjectList;
+	public List<org.siani.legio.platform.project.PlatformFactory> platformFactoryList() {
+	    return platformFactoryList;
 	}
 
-	public List<org.siani.legio.application.ApplicationProject> applicationProjectList() {
-	    return applicationProjectList;
+	public List<org.siani.legio.application.project.ApplicationFactory> applicationFactoryList() {
+	    return applicationFactoryList;
 	}
 
-	public List<org.siani.legio.system.SystemProject> systemProjectList() {
-	    return systemProjectList;
+	public List<org.siani.legio.system.project.SystemFactory> systemFactoryList() {
+	    return systemFactoryList;
 	}
 
-	public List<org.siani.legio.level.LevelProject> levelProjectList(java.util.function.Predicate<org.siani.legio.level.LevelProject> predicate) {
-	    return levelProjectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public List<org.siani.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<org.siani.legio.level.project.LevelFactory> predicate) {
+	    return levelFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public org.siani.legio.level.LevelProject levelProject(int index) {
-		return levelProjectList.get(index);
+	public org.siani.legio.level.project.LevelFactory levelFactory(int index) {
+		return levelFactoryList.get(index);
 	}
 
-	public List<org.siani.legio.platform.PlatformProject> platformProjectList(java.util.function.Predicate<org.siani.legio.platform.PlatformProject> predicate) {
-	    return platformProjectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public List<org.siani.legio.platform.project.PlatformFactory> platformFactoryList(java.util.function.Predicate<org.siani.legio.platform.project.PlatformFactory> predicate) {
+	    return platformFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public org.siani.legio.platform.PlatformProject platformProject(int index) {
-		return platformProjectList.get(index);
+	public org.siani.legio.platform.project.PlatformFactory platformFactory(int index) {
+		return platformFactoryList.get(index);
 	}
 
-	public List<org.siani.legio.application.ApplicationProject> applicationProjectList(java.util.function.Predicate<org.siani.legio.application.ApplicationProject> predicate) {
-	    return applicationProjectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public List<org.siani.legio.application.project.ApplicationFactory> applicationFactoryList(java.util.function.Predicate<org.siani.legio.application.project.ApplicationFactory> predicate) {
+	    return applicationFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public org.siani.legio.application.ApplicationProject applicationProject(int index) {
-		return applicationProjectList.get(index);
+	public org.siani.legio.application.project.ApplicationFactory applicationFactory(int index) {
+		return applicationFactoryList.get(index);
 	}
 
-	public List<org.siani.legio.system.SystemProject> systemProjectList(java.util.function.Predicate<org.siani.legio.system.SystemProject> predicate) {
-	    return systemProjectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public List<org.siani.legio.system.project.SystemFactory> systemFactoryList(java.util.function.Predicate<org.siani.legio.system.project.SystemFactory> predicate) {
+	    return systemFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public org.siani.legio.system.SystemProject systemProject(int index) {
-		return systemProjectList.get(index);
+	public org.siani.legio.system.project.SystemFactory systemFactory(int index) {
+		return systemFactoryList.get(index);
 	}
 
 	public tara.magritte.Graph graph() {
@@ -181,26 +181,26 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public org.siani.legio.level.LevelProject levelProject() {
-			org.siani.legio.level.LevelProject newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.level.LevelProject.class, namespace, name).as(org.siani.legio.level.LevelProject.class);
+		public org.siani.legio.level.project.LevelFactory levelFactory() {
+			org.siani.legio.level.project.LevelFactory newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.level.project.LevelFactory.class, namespace, name).as(org.siani.legio.level.project.LevelFactory.class);
 			
 			return newElement;
 		}
 
-		public org.siani.legio.platform.PlatformProject platformProject() {
-			org.siani.legio.platform.PlatformProject newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.platform.PlatformProject.class, namespace, name).as(org.siani.legio.platform.PlatformProject.class);
+		public org.siani.legio.platform.project.PlatformFactory platformFactory() {
+			org.siani.legio.platform.project.PlatformFactory newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.platform.project.PlatformFactory.class, namespace, name).as(org.siani.legio.platform.project.PlatformFactory.class);
 			
 			return newElement;
 		}
 
-		public org.siani.legio.application.ApplicationProject applicationProject() {
-			org.siani.legio.application.ApplicationProject newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.application.ApplicationProject.class, namespace, name).as(org.siani.legio.application.ApplicationProject.class);
+		public org.siani.legio.application.project.ApplicationFactory applicationFactory() {
+			org.siani.legio.application.project.ApplicationFactory newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.application.project.ApplicationFactory.class, namespace, name).as(org.siani.legio.application.project.ApplicationFactory.class);
 			
 			return newElement;
 		}
 
-		public org.siani.legio.system.SystemProject systemProject() {
-			org.siani.legio.system.SystemProject newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.system.SystemProject.class, namespace, name).as(org.siani.legio.system.SystemProject.class);
+		public org.siani.legio.system.project.SystemFactory systemFactory() {
+			org.siani.legio.system.project.SystemFactory newElement = GraphWrapper.this.graph.createRoot(org.siani.legio.system.project.SystemFactory.class, namespace, name).as(org.siani.legio.system.project.SystemFactory.class);
 			
 			return newElement;
 		}

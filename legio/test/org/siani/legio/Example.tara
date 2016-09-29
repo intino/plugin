@@ -1,9 +1,5 @@
 dsl Legio
 
-Project("org.siani.monet", "1.0") monet as Platform
-	DSL(version = "1.0.0") Proteo
-	Generation
-		OutDSL(version = "1.0.0") Monet
-	Repository("fsdfsfdsfs")
+Project("org.siani.monet", "1.0") monet
 	Dependencies
 		Compile("org.siani.javafmi", "fmu-wrapper", "1.0")

@@ -25,13 +25,32 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+        <group id="TaraMenu" text="Tara" description="Tara Menu">
+            <action id="PublishLanguage" class="org.siani.legio.plugin.actions.publish.PublishLanguageAction"
+                    text="Publish Language..."
+                    description="Publish Language...">
+                <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
+            </action>
+            <action id="PublishSnapshotLanguage"
+                    class="org.siani.legio.plugin.actions.publish.PublishSnapshotLanguageAction"
+                    text="Publish Snapshot Language..." description="Publish Snapshot Language...">
+                <keyboard-shortcut keymap="$default" first-keystroke="control alt S"/>
+            </action>
+            <action id="UpdateLanguage" class="org.siani.legio.plugin.actions.UpdateLanguageAction"
+                    text="Update Language"
+                    description="Update Language">
+                <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
+            </action>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
     </actions>
 
     <application-components>
         <component>
             <implementation-class>org.siani.legio.plugin.project.LegioAppComponent</implementation-class>
         </component>
+
+
     </application-components>
 
 </idea-plugin>
