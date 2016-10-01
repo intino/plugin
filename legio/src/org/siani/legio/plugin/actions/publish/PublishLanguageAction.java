@@ -19,8 +19,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.siani.legio.plugin.LegioIcons;
 import org.siani.legio.plugin.dependencyresolution.ArtifactoryConnector;
 import tara.intellij.lang.TaraIcons;
@@ -85,37 +83,39 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 
 	void publish(final Map<Module, String> dsls, Project project) {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(dsls));
+		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(project, dsls));
 	}
 
-	private CompileStatusNotification publish(final Map<Module, String> modules) {
+	private CompileStatusNotification publish(Project project, final Map<Module, String> modules) {
 		return (aborted, errors, warnings, compileContext) -> {
-			if (!aborted && errors == 0) doPublish(modules);
+			if (!aborted && errors == 0) doPublish(project, modules);
 		};
 	}
 
-	private void doPublish(Map<Module, String> dslsToPublish) {
+	private void doPublish(Project project, Map<Module, String> dslMap) {
 		ApplicationManager.getApplication().invokeLater(() -> {
-			publishLanguage(dslsToPublish);
+			publishLanguage(project, dslMap);
 			if (!errorMessages.isEmpty()) showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
-			else if (!successMessages.isEmpty()) processMessages(successMessages, dslsToPublish);
+			else if (!successMessages.isEmpty()) processMessages(successMessages, dslMap);
 		});
 	}
 
-	private void publishLanguage(final Map<Module, String> modules) {
-		saveAll(modules.keySet().iterator().next().getProject());
+	private void publishLanguage(Project project, final Map<Module, String> modules) {
+		saveAll(project);
 		for (Module module : modules.keySet())
 			if (checkOverrideVersion(module, modules.get(module)) && !publish(module)) return;
 		reloadProject();
 	}
 
+
+
 	private boolean checkOverrideVersion(Module module, String dsl) {
-		final MavenProject mavenProject = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
+		final Configuration configuration = TaraUtil.configurationOf(module);
 		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), message("artifactory.overrides"), "Artifactory", TaraIcons.LOGO_80, STATIC_SHOW_CONFIRMATION);
 		dialog.setDoNotAskOption(null);
-		if (mavenProject == null) return false;
-		final String version = mavenProject.getMavenId().getVersion();
-		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || TaraSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
+		if (configuration == null) return false;
+		final String version = configuration.modelVersion();
+		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !TaraSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
 
 	}
 

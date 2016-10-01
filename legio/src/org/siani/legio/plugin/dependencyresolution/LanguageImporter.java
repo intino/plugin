@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.TreeMap;
 
 import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
-import static tara.dsl.ProteoConstants.PROTEO;
-import static tara.dsl.ProteoConstants.VERSO;
 
 public class LanguageImporter {
 
@@ -36,10 +34,9 @@ public class LanguageImporter {
 
 	public String importLanguage(String dsl, String version) {
 		try {
-			if (!PROTEO.equals(dsl) && !VERSO.equals(dsl)) return "";
 			final List<String> repositories = configuration.repositories();
-			final String versionCode = getVersion(dsl, version, repositories);
-			downloadLanguage(dsl, versionCode, repositories);
+			final String versionCode = effectiveVersion(dsl, version, repositories);
+			downloadLanguage(dsl, versionCode, configuration.snapshotRepositories(), configuration.snapshotRepositories(), configuration.snapshotRepositories());
 			configuration.dslVersion(versionCode);
 			reload(dsl, module.getProject());
 			return versionCode;
@@ -53,8 +50,7 @@ public class LanguageImporter {
 		try {
 			final File taraDirectory = new File(LanguageManager.getTaraDirectory().getPath());
 			File dslFile = new File(new File(taraDirectory, name + File.separator + version), name + "-" + version + ".jar");
-			for (String repository : repositories)
-				new ArtifactoryConnector(settings, repository).get(dslFile, name, version);
+			new ArtifactoryConnector(settings, repository).get(dslFile, name, version);
 			return dslFile;
 		} catch (IOException e) {
 			error(e);
@@ -62,7 +58,7 @@ public class LanguageImporter {
 		}
 	}
 
-	private String getVersion(String key, String version, List<String> repositories) throws IOException {
+	private String effectiveVersion(String key, String version, List<String> repositories) throws IOException {
 		if (LATEST_VERSION.equals(version)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
 			for (String repository : repositories)

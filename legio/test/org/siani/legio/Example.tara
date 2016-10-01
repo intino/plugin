@@ -1,5 +1,0 @@
-dsl Legio
-
-Project("org.siani.monet", "1.0") monet
-	Dependencies
-		Compile("org.siani.javafmi", "fmu-wrapper", "1.0")

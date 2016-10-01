@@ -19,6 +19,7 @@ def type(pom)
 			<testOutputDirectory>out/test/$artifactId+lowercase</testOutputDirectory>
 			<directory>out/build/$artifactId+lowercase</directory>
 			<plugins>
+				[$withsources
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
@@ -31,12 +32,18 @@ def type(pom)
 						</execution>
 					</executions>
 				</plugin>
+				]
 			</plugins>
 		</build>
 
+
 		<repositories>
-            $repository
+            $repository+release...[$NL]
         </repositories>
+
+		<distributionManagement>
+			$repository+distribution...[$NL]
+		</distributionManagement>
 
         <dependencies>
             $dependency...[$NL]
@@ -44,10 +51,20 @@ def type(pom)
     </project>
 end
 
-def type(repository)
+def type(repository) type(Distribution) trigger(distribution)
 	<repository>
-		<id>$id</id>
-		<name>$id~-$type</name>
+		<id>$name</id>
+		<name>$name~-$type</name>
+		<url>$url</url>
+	</repository>
+end
+def trigger(distribution)
+end
+
+def type(repository) !type(Distribution) trigger(release)
+	<repository>
+		<id>$name</id>
+		<name>$name~-$type</name>
 		<url>$url</url>
 	</repository>
 end

@@ -8,6 +8,8 @@ Concept:Named Project
         	var string url
         	sub Release
         	sub Snapshot
+        	sub Distribution
+        	sub Language
 	Concept:{0..1} Dependencies
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive

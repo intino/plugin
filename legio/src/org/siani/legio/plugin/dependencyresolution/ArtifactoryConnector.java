@@ -17,26 +17,25 @@ import java.util.List;
 
 import static java.lang.String.valueOf;
 import static java.nio.channels.Channels.newChannel;
-import static tara.dsl.ProteoConstants.PROTEO;
-import static tara.dsl.ProteoConstants.PROTEO_GROUP_ID;
+import static tara.dsl.ProteoConstants.*;
 import static tara.intellij.lang.LanguageManager.LANGUAGE_EXTENSION;
 
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
 	private static final String SECURE_SOURCE = "https://artifactory.siani.es/artifactory/languages-release/";
-	private static final String SOURCE = "http://artifactory.siani.es/artifactory/languages-release/";
-	private static final String SOURCE_API = "http://artifactory.siani.es/artifactory/api/storage/languages-release/";
+	private static final String PUBLISH_API = "http://artifactory.siani.es/artifactory/api/storage/languages-release/";
 	private static final String LIBS_SOURCE_API = "http://artifactory.siani.es/artifactory/api/storage/libs-release-local/";
 	private TaraSettings settings;
-	private String snapshotRepository;
+	private final List<String> release;
+	private final List<String> snapshot;
+	private final List<String> language;
 
-	public ArtifactoryConnector(TaraSettings settings, String snapshotRepository) {
+	public ArtifactoryConnector(TaraSettings settings, List<String> release, List<String> snapshot, List<String> language) {
 		this.settings = settings;
-		this.snapshotRepository = snapshotRepository != null ? snapshotRepository.replace("artifactory/", "artifactory/api/storage/") + "-local/" : null;
-	}
-
-	public ArtifactoryConnector() {
+		this.release = release;
+		this.snapshot = snapshot;
+		this.language = language;
 	}
 
 	public File get(File destiny, String name, String version) throws IOException {
@@ -56,7 +55,7 @@ public class ArtifactoryConnector {
 	}
 
 	public List<String> versions(String dsl) throws IOException {
-		if (dsl.equals(PROTEO)) return proteoVersions();
+		if (dsl.equals(PROTEO) || dsl.equals(VERSO)) return proteoVersions();
 		URL url = new URL(getApiUrl(dsl + "/"));
 		final JsonObject o = responseFrom(url);
 		return extractUris(o);
@@ -64,6 +63,9 @@ public class ArtifactoryConnector {
 
 	private List<String> proteoVersions() throws IOException {
 		List<String> versions = new ArrayList<>();
+		for (String s : release) {
+
+		}
 		if (snapshotRepository != null) {
 			URL url = new URL(snapshotRepository + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
 			final JsonObject o = responseFrom(url);
@@ -121,6 +123,11 @@ public class ArtifactoryConnector {
 		return everything.toString();
 	}
 
+	@NotNull
+	private String toPublish(String uri) {
+		return uri.replace("artifactory/", "artifactory/api/storage/") + "-local/";
+	}
+
 
 	@NotNull
 	private String getUrl(String path) {
@@ -134,7 +141,7 @@ public class ArtifactoryConnector {
 
 	@NotNull
 	private String getApiUrl(String path) {
-		return SOURCE_API + path;
+		return PUBLISH_API + path;
 	}
 
 }

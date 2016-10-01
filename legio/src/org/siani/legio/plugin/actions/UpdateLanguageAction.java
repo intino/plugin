@@ -49,7 +49,7 @@ public class UpdateLanguageAction extends AnAction implements DumbAware {
 
 	private void updateDsl(String version, Module module, Configuration conf) {
 		ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-			final ProgressIndicator progressIndicator = createProgressIndicator();
+			createProgressIndicator();
 			final String dsl = conf.dsl();
 			if (dsl == null || dsl.isEmpty()) {
 				error(module.getProject());

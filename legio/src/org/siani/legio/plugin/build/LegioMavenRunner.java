@@ -50,9 +50,9 @@ public class LegioMavenRunner {
 		FileUtil.delete(pom);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
-				throw new IOException("Failed to publish accessor.", result.getExecutionException());
-			else throw new IOException("Failed to publish accessor. Exit code: " + result.getExitCode());
-		} else if (result == null) throw new IOException("Failed to publish accessor. Maven HOME not found");
+				throw new IOException("Failed to publish language.", result.getExecutionException());
+			else throw new IOException("Failed to publish language. Exit code: " + result.getExitCode());
+		} else if (result == null) throw new IOException("Failed to publish language. Maven HOME not found");
 	}
 
 	private InvocationResult invoke(File pom) throws MavenInvocationException, IOException {

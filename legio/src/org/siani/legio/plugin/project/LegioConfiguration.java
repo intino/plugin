@@ -1,19 +1,25 @@
 package org.siani.legio.plugin.project;
 
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.psi.PsiFile;
 import org.siani.legio.LegioApplication;
 import org.siani.legio.Project;
 import org.siani.legio.Project.Repositories.Release;
+import org.siani.legio.Project.Repositories.Repository;
 import org.siani.legio.Project.Repositories.Snapshot;
 import org.siani.legio.plugin.dependencyresolution.DependencyResolver;
 import org.siani.legio.plugin.dependencyresolution.LanguageResolver;
 import tara.StashBuilder;
+import tara.intellij.lang.psi.TaraModel;
 import tara.intellij.project.configuration.Configuration;
+import tara.lang.model.Node;
+import tara.lang.model.Parameter;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +27,7 @@ public class LegioConfiguration implements Configuration {
 
 	private static final String CONFIGURATION_LEGIO = "configuration.legio";
 	private final Module module;
-	private PsiFile legioConf;
+	private TaraModel legioConf;
 	private LegioApplication legio;
 
 	public LegioConfiguration(Module module) {
@@ -30,8 +36,8 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Configuration init() {
-		legioConf = new LegioModuleCreator(module).create();
-		reloadInfo();
+		legioConf = (TaraModel) new LegioModuleCreator(module).create();
+		reloadInfo(null);
 		return this;
 	}
 
@@ -43,12 +49,16 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public void reload() {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification("Configuration has changed", "<a href=\"#\">Reload Configuration</a>", NotificationType.INFORMATION, (n, e) -> reloadInfo()).setImportant(true).notify(module.getProject());
+		balloon.createNotification("Configuration has changed", "<a href=\"#\">Reload Configuration</a>", NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
 	}
 
-	private void reloadInfo() {
+	private void reloadInfo(Notification notification) {
 		reloadGraph();
 		reloadDependencies();
+		if (notification != null) {
+			notification.expire();
+			notification.hideBalloon();
+		}
 	}
 
 	private void reloadGraph() {
@@ -86,6 +96,11 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<String> repositories() {
+		return legio.project().repositories().repositoryList().stream().
+				map(Repository::url).collect(Collectors.toList());
+	}
+
+	public List<String> releaseRepositories() {
 		return legio.project().repositories().releaseList().stream().
 				map(Release::url).collect(Collectors.toList());
 	}
@@ -103,7 +118,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String outDSL() {
-		return safe(() -> legio.project().factory().modeling().language(), dsl());
+		return safe(() -> legio.project().name());
 	}
 
 	@Override
@@ -113,6 +128,16 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void dslVersion(String version) {
+		legio.project().factory().modeling().version(version);
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			final Node factory = legioConf.components().get(0).components().stream().filter(f -> f.type().equals("Factory")).findFirst().orElse(null);
+			if (factory == null) return;
+			final Node modeling = factory.components().stream().filter(f -> f.type().equals(f.type())).findFirst().orElse(null);
+			if (modeling == null) return;
+			final Parameter versionParameter = modeling.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+			versionParameter.values(Collections.singletonList(version));
+		});
+
 		reload();
 	}
 
@@ -165,6 +190,10 @@ public class LegioConfiguration implements Configuration {
 
 	public List<Project.Dependencies.Compile> dependencies() {
 		return legio.project().dependencies().compileList();
+	}
+
+	public List<Repository> legioRepositories() {
+		return legio.project().repositories().repositoryList();
 	}
 
 	private interface StringWrapper {

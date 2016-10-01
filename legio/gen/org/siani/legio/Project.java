@@ -142,6 +142,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		protected java.util.List<org.siani.legio.Project.Repositories.Repository> repositoryList = new java.util.ArrayList<>();
 		protected java.util.List<org.siani.legio.Project.Repositories.Release> releaseList = new java.util.ArrayList<>();
 		protected java.util.List<org.siani.legio.Project.Repositories.Snapshot> snapshotList = new java.util.ArrayList<>();
+		protected java.util.List<org.siani.legio.Project.Repositories.Distribution> distributionList = new java.util.ArrayList<>();
+		protected java.util.List<org.siani.legio.Project.Repositories.Language> languageList = new java.util.ArrayList<>();
 
 		public Repositories(tara.magritte.Node node) {
 			super(node);
@@ -183,6 +185,34 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return snapshotList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
+		public java.util.List<org.siani.legio.Project.Repositories.Distribution> distributionList() {
+			return distributionList;
+		}
+
+		public org.siani.legio.Project.Repositories.Distribution distribution(int index) {
+			return distributionList.get(index);
+		}
+
+		public java.util.List<org.siani.legio.Project.Repositories.Distribution> distributionList(java.util.function.Predicate<org.siani.legio.Project.Repositories.Distribution> predicate) {
+			return distributionList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		public java.util.List<org.siani.legio.Project.Repositories.Language> languageList() {
+			return languageList;
+		}
+
+		public org.siani.legio.Project.Repositories.Language language(int index) {
+			return languageList.get(index);
+		}
+
+		public java.util.List<org.siani.legio.Project.Repositories.Language> languageList(java.util.function.Predicate<org.siani.legio.Project.Repositories.Language> predicate) {
+			return languageList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		
+
+		
+
 		
 
 		
@@ -194,6 +224,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			repositoryList.stream().forEach(c -> components.add(c.node()));
 			releaseList.stream().forEach(c -> components.add(c.node()));
 			snapshotList.stream().forEach(c -> components.add(c.node()));
+			distributionList.stream().forEach(c -> components.add(c.node()));
+			languageList.stream().forEach(c -> components.add(c.node()));
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -213,6 +245,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			if (node.is("Project$Repositories$Repository")) this.repositoryList.add(node.as(org.siani.legio.Project.Repositories.Repository.class));
 			if (node.is("Project$Repositories$Release")) this.releaseList.add(node.as(org.siani.legio.Project.Repositories.Release.class));
 			if (node.is("Project$Repositories$Snapshot")) this.snapshotList.add(node.as(org.siani.legio.Project.Repositories.Snapshot.class));
+			if (node.is("Project$Repositories$Distribution")) this.distributionList.add(node.as(org.siani.legio.Project.Repositories.Distribution.class));
+			if (node.is("Project$Repositories$Language")) this.languageList.add(node.as(org.siani.legio.Project.Repositories.Language.class));
 		}
 
 		@Override
@@ -221,6 +255,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	        if (node.is("Project$Repositories$Repository")) this.repositoryList.remove(node.as(org.siani.legio.Project.Repositories.Repository.class));
 	        if (node.is("Project$Repositories$Release")) this.releaseList.remove(node.as(org.siani.legio.Project.Repositories.Release.class));
 	        if (node.is("Project$Repositories$Snapshot")) this.snapshotList.remove(node.as(org.siani.legio.Project.Repositories.Snapshot.class));
+	        if (node.is("Project$Repositories$Distribution")) this.distributionList.remove(node.as(org.siani.legio.Project.Repositories.Distribution.class));
+	        if (node.is("Project$Repositories$Language")) this.languageList.remove(node.as(org.siani.legio.Project.Repositories.Language.class));
 	    }
 
 		@Override
@@ -258,6 +294,18 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 			public org.siani.legio.Project.Repositories.Snapshot snapshot(java.lang.String url) {
 			    org.siani.legio.Project.Repositories.Snapshot newElement = graph().concept(org.siani.legio.Project.Repositories.Snapshot.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Snapshot.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+			    return newElement;
+			}
+
+			public org.siani.legio.Project.Repositories.Distribution distribution(java.lang.String url) {
+			    org.siani.legio.Project.Repositories.Distribution newElement = graph().concept(org.siani.legio.Project.Repositories.Distribution.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Distribution.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+			    return newElement;
+			}
+
+			public org.siani.legio.Project.Repositories.Language language(java.lang.String url) {
+			    org.siani.legio.Project.Repositories.Language newElement = graph().concept(org.siani.legio.Project.Repositories.Language.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Language.class);
 				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
 			    return newElement;
 			}
@@ -388,6 +436,104 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 			public tara.magritte.Concept concept() {
 				return this.graph().concept(org.siani.legio.Project.Repositories.Snapshot.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create extends org.siani.legio.Project.Repositories.Repository.Create {
+				
+
+				public Create(java.lang.String name) {
+					super(name);
+				}
+				
+			}
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class Distribution extends org.siani.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+			
+
+			public Distribution(tara.magritte.Node node) {
+				super(node);
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Repositories.Distribution.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create extends org.siani.legio.Project.Repositories.Repository.Create {
+				
+
+				public Create(java.lang.String name) {
+					super(name);
+				}
+				
+			}
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class Language extends org.siani.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+			
+
+			public Language(tara.magritte.Node node) {
+				super(node);
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Repositories.Language.class);
 			}
 
 			@Override
