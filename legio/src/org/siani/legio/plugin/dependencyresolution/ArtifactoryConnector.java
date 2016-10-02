@@ -1,6 +1,8 @@
 package org.siani.legio.plugin.dependencyresolution;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +27,7 @@ public class ArtifactoryConnector {
 
 	private static final String SECURE_SOURCE = "https://artifactory.siani.es/artifactory/languages-release/";
 	private static final String PUBLISH_API = "http://artifactory.siani.es/artifactory/api/storage/languages-release/";
-	private static final String LIBS_SOURCE_API = "http://artifactory.siani.es/artifactory/api/storage/libs-release-local/";
+	private static final String LIB_RELEASE_LOCAL = "http://artifactory.siani.es/artifactory/api/storage/libs-release-local/";
 	private TaraSettings settings;
 	private final List<String> release;
 	private final List<String> snapshot;
@@ -57,24 +59,29 @@ public class ArtifactoryConnector {
 	public List<String> versions(String dsl) throws IOException {
 		if (dsl.equals(PROTEO) || dsl.equals(VERSO)) return proteoVersions();
 		URL url = new URL(getApiUrl(dsl + "/"));
-		final JsonObject o = responseFrom(url);
-		return extractUris(o);
+		return extractUris(responseFrom(url));
 	}
 
 	private List<String> proteoVersions() throws IOException {
 		List<String> versions = new ArrayList<>();
 		for (String s : release) {
-
+			URL url = new URL(LIB_RELEASE_LOCAL + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
+			versions.addAll(extractVersions(responseFrom(url)));
 		}
-		if (snapshotRepository != null) {
-			URL url = new URL(snapshotRepository + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
-			final JsonObject o = responseFrom(url);
-			versions.addAll(extractUris(o));
+		if (!snapshot.isEmpty()) {
+			URL url = new URL(snapshot.get(0) + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
+			versions.addAll(extractVersions(responseFrom(url)));
 		}
-		URL url = new URL(LIBS_SOURCE_API + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
-		final JsonObject o = responseFrom(url);
-		versions.addAll(extractUris(o));
 		return versions;
+	}
+
+	private List<? extends String> extractVersions(JsonObject versions) {
+		List<String> list = new ArrayList<>();
+		JsonArray array = versions.get("result").getAsJsonArray();
+		for (JsonElement element : array) {
+			list.add(element.toString());
+		}
+		return list;
 	}
 
 	private JsonObject responseFrom(URL url) throws IOException {
