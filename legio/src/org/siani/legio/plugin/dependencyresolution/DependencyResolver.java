@@ -33,17 +33,14 @@ public class DependencyResolver {
 		this.dependencies = dependencies;
 	}
 
-	public void resolve() {
-		ApplicationManager.getApplication().runWriteAction(() -> {
-			List<Library> newLibraries = new ArrayList<>();
-			dependencies.dependencyList().forEach(d -> {
-				final List<Library> resolved = manager.registerOrGetLibrary(collectArtifacts(d));
-				manager.addToModule(resolved, d.is(Dependencies.Test.class));
-				newLibraries.addAll(resolved);
-			});
-			manager.removeOldLibraries(newLibraries);
-
-		});
+	public List<Library> resolve() {
+		List<Library> newLibraries = new ArrayList<>();
+		ApplicationManager.getApplication().runWriteAction(() -> dependencies.dependencyList().forEach(d -> {
+			final List<Library> resolved = manager.registerOrGetLibrary(collectArtifacts(d));
+			manager.addToModule(resolved, d.is(Dependencies.Test.class));
+			newLibraries.addAll(resolved);
+		}));
+		return newLibraries;
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {

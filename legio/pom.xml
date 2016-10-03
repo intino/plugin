@@ -106,14 +106,14 @@
 
         <dependency>
             <groupId>org.siani.tara</groupId>
-            <artifactId>proteo</artifactId>
+            <artifactId>proteo-alone</artifactId>
             <version>LATEST</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.siani.tara</groupId>
-                    <artifactId>io</artifactId>
-                </exclusion>
-            </exclusions>
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.siani.tara</groupId>-->
+            <!--<artifactId>io</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
         </dependency>
 
         <dependency>

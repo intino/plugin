@@ -4,7 +4,8 @@ import com.intellij.openapi.module.Module;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.siani.legio.plugin.dependencyresolution.ArtifactoryConnector;
-import tara.intellij.project.configuration.maven.MavenHelper;
+import tara.intellij.lang.psi.impl.TaraUtil;
+import tara.intellij.project.configuration.Configuration;
 import tara.intellij.settings.TaraSettings;
 
 import java.io.File;
@@ -23,7 +24,8 @@ public class LanguagePublisher {
 	}
 
 	public int export() throws IOException {
-		ArtifactoryConnector connector = new ArtifactoryConnector(TaraSettings.getSafeInstance(module.getProject()), new MavenHelper(module).snapshotRepository());
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		ArtifactoryConnector connector = new ArtifactoryConnector(TaraSettings.getSafeInstance(module.getProject()), configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository());
 		return connector.put(source, dsl, version());
 	}
 

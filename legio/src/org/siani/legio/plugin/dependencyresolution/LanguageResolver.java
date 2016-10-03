@@ -34,23 +34,25 @@ public class LanguageResolver {
 		this.factory = factory;
 	}
 
-	public void resolve() {
+	public List<Library> resolve() {
 		final String language = factory.modeling().language();
 		final String version = factory.modeling().version();
 		LanguageManager.reloadLanguage(this.module.getProject(), language, version);
+		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(ProteoConstants.PROTEO) || language.equals(ProteoConstants.VERSO))
-			addProteoFramework(version);
-
+			libraries.addAll(addProteoFramework(version));
+		return libraries;
 	}
 
-	private void addProteoFramework(String version) {
+	private List<Library> addProteoFramework(String version) {
+		List<Library> libraries = new ArrayList<>();
 		ApplicationManager.getApplication().runWriteAction(() -> {
 			final LibraryManager manager = new LibraryManager(module);
 			final String proteoID = proteoGroupId + ":" + proteoArtifactId + ":" + version;
-			final List<Library> libraries = manager.registerOrGetLibrary(findLanguageFramework(proteoID));
+			libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(proteoID)));
 			manager.addToModule(libraries, false);
-			manager.removeOldVersionsOf(libraries);
 		});
+		return libraries;
 	}
 
 

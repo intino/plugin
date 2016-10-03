@@ -1,5 +1,6 @@
 package org.siani.legio.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
@@ -43,25 +44,30 @@ public class LibraryManager {
 		return result;
 	}
 
-	void removeOldLibraries(List<Library> libraries) {
+	public static void removeOldLibraries(Module module, List<Library> libraries) {
+		final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
 		List<Library> toRemove = new ArrayList<>();
 		for (Library library : table.getLibraries()) if (!libraries.contains(library)) toRemove.add(library);
-		toRemove.forEach(table::removeLibrary);
+		if (toRemove.isEmpty()) return;
 		final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
-		final LibraryTable moduleLibraryTable = modifiableModel.getModuleLibraryTable();
-		final List<Library> moduleLibraries = Arrays.asList(moduleLibraryTable.getLibraries());
-		toRemove.stream().filter(moduleLibraries::contains).forEach(l -> moduleLibraryTable.getModifiableModel().removeLibrary(l));
-		moduleLibraryTable.getModifiableModel().commit();
+		final List<LibraryOrderEntry> invalidEntries = Arrays.stream(modifiableModel.getOrderEntries()).
+				filter(e -> e instanceof LibraryOrderEntry && toRemove.contains(((LibraryOrderEntry) e).getLibrary())).
+				map(l -> (LibraryOrderEntry) l).
+				collect(Collectors.toList());
+		invalidEntries.forEach(modifiableModel::removeOrderEntry);
+		if (ApplicationManager.getApplication().isWriteAccessAllowed()) {
+			commit(table, toRemove, modifiableModel);
+		} else ApplicationManager.getApplication().runWriteAction(() -> commit(table, toRemove, modifiableModel));
+	}
+
+	private static void commit(LibraryTable table, List<Library> toRemove, ModifiableRootModel modifiableModel) {
 		modifiableModel.commit();
+		toRemove.forEach(table::removeLibrary);
 	}
 
 	void addToModule(List<Library> libraries, boolean test) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
 		libraries.stream().filter(library -> !isRegistered(registered, library)).forEach(library -> addDependency(module, library, test ? TEST : COMPILE, false));
-	}
-
-	void removeOldVersionsOf(List<Library> libraries) {
-		//TODO
 	}
 
 	private Library registerLibrary(Artifact dependency) {

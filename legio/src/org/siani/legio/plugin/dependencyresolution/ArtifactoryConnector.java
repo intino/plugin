@@ -1,12 +1,9 @@
 package org.siani.legio.plugin.dependencyresolution;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
-import tara.dsl.ProteoConstants;
 import tara.intellij.settings.TaraSettings;
 
 import java.io.*;
@@ -14,8 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
 import static java.nio.channels.Channels.newChannel;
@@ -27,23 +26,22 @@ public class ArtifactoryConnector {
 
 	private static final String SECURE_SOURCE = "https://artifactory.siani.es/artifactory/languages-release/";
 	private static final String PUBLISH_API = "http://artifactory.siani.es/artifactory/api/storage/languages-release/";
-	private static final String LIB_RELEASE_LOCAL = "http://artifactory.siani.es/artifactory/api/storage/libs-release-local/";
 	private TaraSettings settings;
-	private final List<String> release;
-	private final List<String> snapshot;
-	private final List<String> language;
+	private final String languageRepository;
+	private final List<String> releaseRepositories;
+	private final List<String> snapshotRepositories;
 
-	public ArtifactoryConnector(TaraSettings settings, List<String> release, List<String> snapshot, List<String> language) {
+	public ArtifactoryConnector(TaraSettings settings, List<String> releaseRepositories, List<String> snapshotRepositories, String languageRepository) {
 		this.settings = settings;
-		this.release = release;
-		this.snapshot = snapshot;
-		this.language = language;
+		this.releaseRepositories = releaseRepositories;
+		this.snapshotRepositories = snapshotRepositories;
+		this.languageRepository = languageRepository;
 	}
 
 	public File get(File destiny, String name, String version) throws IOException {
 		destiny.getParentFile().mkdirs();
 		final FileOutputStream stream = new FileOutputStream(destiny);
-		stream.getChannel().transferFrom(newChannel(new URL(getUrl(dslName(name, version))).openStream()), 0, Long.MAX_VALUE);
+		stream.getChannel().transferFrom(newChannel(new URL(dslName(name, version)).openStream()), 0, Long.MAX_VALUE);
 		stream.close();
 		return destiny;
 	}
@@ -64,24 +62,24 @@ public class ArtifactoryConnector {
 
 	private List<String> proteoVersions() throws IOException {
 		List<String> versions = new ArrayList<>();
-		for (String s : release) {
-			URL url = new URL(LIB_RELEASE_LOCAL + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
-			versions.addAll(extractVersions(responseFrom(url)));
+		for (String repo : releaseRepositories) {
+			URL url = new URL(repo + "/" + PROTEO_GROUP_ID.replace(".", "/") + "/" + PROTEO_ARTIFACT_ID + "/maven-metadata.xml");
+			final String mavenMetadata = new String(read(url.openStream()).toByteArray());
+			versions.addAll(extractVersions(mavenMetadata));
 		}
-		if (!snapshot.isEmpty()) {
-			URL url = new URL(snapshot.get(0) + PROTEO_GROUP_ID.replace(".", "/") + "/" + ProteoConstants.PROTEO_ARTIFACT_ID);
-			versions.addAll(extractVersions(responseFrom(url)));
+		for (String repo : snapshotRepositories) {
+			URL url = new URL(repo + "/" + PROTEO_GROUP_ID.replace(".", "/") + "/" + PROTEO_ARTIFACT_ID + "/maven-metadata.xml");
+			final String mavenMetadata = new String(read(url.openStream()).toByteArray());
+			versions.addAll(extractVersions(mavenMetadata));
 		}
 		return versions;
 	}
 
-	private List<? extends String> extractVersions(JsonObject versions) {
-		List<String> list = new ArrayList<>();
-		JsonArray array = versions.get("result").getAsJsonArray();
-		for (JsonElement element : array) {
-			list.add(element.toString());
-		}
-		return list;
+	private List<String> extractVersions(String metadata) {
+		metadata = metadata.substring(metadata.indexOf("<versions>")).substring("<versions>".length() + 1);
+		metadata = metadata.substring(0, metadata.indexOf("</versions>"));
+		metadata = metadata.replace("<version>", "").replace("</version>", "");
+		return Arrays.stream(metadata.trim().split("\n")).map(String::trim).collect(Collectors.toList());
 	}
 
 	private JsonObject responseFrom(URL url) throws IOException {
@@ -135,20 +133,28 @@ public class ArtifactoryConnector {
 		return uri.replace("artifactory/", "artifactory/api/storage/") + "-local/";
 	}
 
-
-	@NotNull
-	private String getUrl(String path) {
-		return SOURCE + path;
-	}
-
 	@NotNull
 	private String getSecureUrl(String path) {
 		return SECURE_SOURCE + path;
 	}
 
+
 	@NotNull
 	private String getApiUrl(String path) {
 		return PUBLISH_API + path;
+	}
+
+	private ByteArrayOutputStream read(InputStream stream) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			byte[] byteChunk = new byte[4096]; // Or whatever size you want to read in at a time.
+			int n;
+			while ((n = stream.read(byteChunk)) > 0)
+				baos.write(byteChunk, 0, n);
+		} finally {
+			stream.close();
+		}
+		return baos;
 	}
 
 }

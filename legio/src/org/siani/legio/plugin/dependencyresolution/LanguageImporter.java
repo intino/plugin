@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
+import tara.dsl.ProteoConstants;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.project.configuration.Configuration;
 import tara.intellij.settings.TaraSettings;
@@ -25,18 +26,23 @@ public class LanguageImporter {
 
 	private Module module;
 	private final Configuration configuration;
+	private List<String> releaseRepositories;
+	private List<String> snapshotRepositories;
+	private String languageRepository;
 
 	public LanguageImporter(Module module, Configuration configuration) {
 		this.module = module;
 		this.configuration = configuration;
 		settings = TaraSettings.getSafeInstance(module.getProject());
+		releaseRepositories = configuration.releaseRepositories();
+		snapshotRepositories = configuration.snapshotRepositories();
+		languageRepository = configuration.languageRepository();
 	}
 
 	public String importLanguage(String dsl, String version) {
 		try {
-			final List<String> repositories = configuration.repositories();
-			final String versionCode = effectiveVersion(dsl, version, repositories);
-			downloadLanguage(dsl, versionCode, configuration.snapshotRepositories(), configuration.snapshotRepositories(), configuration.snapshotRepositories());
+			final String versionCode = effectiveVersion(dsl, version);
+			downloadLanguage(dsl, versionCode);
 			configuration.dslVersion(versionCode);
 			reload(dsl, module.getProject());
 			return versionCode;
@@ -46,23 +52,21 @@ public class LanguageImporter {
 		}
 	}
 
-	private File downloadLanguage(String name, String version, List<String> repositories) {
+	private void downloadLanguage(String name, String version) {
 		try {
+			if (name.equals(ProteoConstants.PROTEO) || name.equals(ProteoConstants.VERSO)) return;
 			final File taraDirectory = new File(LanguageManager.getTaraDirectory().getPath());
 			File dslFile = new File(new File(taraDirectory, name + File.separator + version), name + "-" + version + ".jar");
-			new ArtifactoryConnector(settings, repository).get(dslFile, name, version);
-			return dslFile;
+			new ArtifactoryConnector(settings, releaseRepositories, snapshotRepositories, languageRepository).get(dslFile, name, version);
 		} catch (IOException e) {
 			error(e);
-			return null;
 		}
 	}
 
-	private String effectiveVersion(String key, String version, List<String> repositories) throws IOException {
+	private String effectiveVersion(String key, String version) throws IOException {
 		if (LATEST_VERSION.equals(version)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			for (String repository : repositories)
-				new ArtifactoryConnector(settings, repository).versions(key).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(settings, releaseRepositories, snapshotRepositories, languageRepository).versions(key).forEach(v -> versions.put(indexOf(v), v));
 			return versions.get(versions.lastKey());
 		} else return version;
 	}

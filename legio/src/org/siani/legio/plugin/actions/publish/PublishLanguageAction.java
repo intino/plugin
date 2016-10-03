@@ -25,7 +25,6 @@ import tara.intellij.lang.TaraIcons;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.project.TaraModuleType;
 import tara.intellij.project.configuration.Configuration;
-import tara.intellij.project.configuration.maven.MavenHelper;
 import tara.intellij.settings.TaraSettings;
 
 import java.io.IOException;
@@ -108,7 +107,6 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	}
 
 
-
 	private boolean checkOverrideVersion(Module module, String dsl) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), message("artifactory.overrides"), "Artifactory", TaraIcons.LOGO_80, STATIC_SHOW_CONFIRMATION);
@@ -120,8 +118,9 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	}
 
 	private boolean exists(Module module, String dsl, String version) {
+		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
-			return new ArtifactoryConnector(null, new MavenHelper(module).snapshotRepository()).versions(dsl).contains(version);
+			return new ArtifactoryConnector(null, configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository()).versions(dsl).contains(version);
 		} catch (IOException e) {
 			return false;
 		}
