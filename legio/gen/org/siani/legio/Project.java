@@ -1,6 +1,8 @@
 package org.siani.legio;
 
-import java.util.List;
+import org.siani.legio.*;
+
+import java.util.*;
 
 public class Project extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;

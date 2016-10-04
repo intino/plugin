@@ -11,15 +11,21 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import tara.dsl.ProteoConstants;
 import tara.intellij.lang.LanguageManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+
+import static tara.dsl.ProteoConstants.PROTEO;
+import static tara.dsl.ProteoConstants.VERSO;
 
 public class LanguageResolver {
 	private final Module module;
@@ -39,12 +45,13 @@ public class LanguageResolver {
 		final String version = factory.modeling().version();
 		LanguageManager.reloadLanguage(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
-		if (language.equals(ProteoConstants.PROTEO) || language.equals(ProteoConstants.VERSO))
-			libraries.addAll(addProteoFramework(version));
+		if (language.equals(PROTEO) || language.equals(VERSO))
+			libraries.addAll(proteoFramework(version));
+		else libraries.addAll(frameworkOfLanguage(language, version));
 		return libraries;
 	}
 
-	private List<Library> addProteoFramework(String version) {
+	private List<Library> proteoFramework(String version) {
 		List<Library> libraries = new ArrayList<>();
 		ApplicationManager.getApplication().runWriteAction(() -> {
 			final LibraryManager manager = new LibraryManager(module);
@@ -55,9 +62,33 @@ public class LanguageResolver {
 		return libraries;
 	}
 
+	private List<Library> frameworkOfLanguage(String language, String version) {
+		List<Library> libraries = new ArrayList<>();
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			final LibraryManager manager = new LibraryManager(module);
+			libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(findLanguageId(language, version))));
+			manager.addToModule(libraries, false);
+		});
+		return libraries;
+	}
+
+	private String findLanguageId(String language, String version) {
+		final File languageFile = LanguageManager.getLanguageFile(language, version);
+		if (!languageFile.exists()) return null;
+		else try {
+			Manifest manifest = new JarFile(languageFile).getManifest();
+			final Attributes tara = manifest.getAttributes("tara");
+			if (tara == null) return null;
+			return tara.getValue("framework");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	private List<Artifact> findLanguageFramework(String dependencyID) {
 		try {
+			if (dependencyID == null) return Collections.emptyList();
 			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(dependencyID), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException ignored) {

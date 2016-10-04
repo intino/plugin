@@ -18,12 +18,17 @@ import org.siani.legio.plugin.dependencyresolution.DependencyResolver;
 import org.siani.legio.plugin.dependencyresolution.LanguageResolver;
 import org.siani.legio.plugin.dependencyresolution.LibraryManager;
 import tara.StashBuilder;
+import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.TaraModel;
 import tara.intellij.project.configuration.Configuration;
+import tara.io.Stash;
+import tara.io.StashSerializer;
 import tara.lang.model.Node;
 import tara.lang.model.Parameter;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +72,18 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadGraph() {
-		legio = GraphLoader.loadGraph(module, new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build());
+		final Stash legioStash = new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
+		saveStash(legioStash);
+		this.legio = GraphLoader.loadGraph(module, legioStash);
+	}
+
+	private void saveStash(Stash legioStash) {
+		try {
+			File file = new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+			Files.write(file.toPath(), StashSerializer.serialize(legioStash));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void reloadDependencies() {
