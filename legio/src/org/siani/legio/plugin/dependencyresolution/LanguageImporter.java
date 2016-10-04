@@ -7,13 +7,20 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
+import com.jcabi.aether.Aether;
+import org.jetbrains.annotations.NotNull;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.resolution.DependencyResolutionException;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.artifact.JavaScopes;
 import tara.dsl.ProteoConstants;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.project.configuration.Configuration;
-import tara.intellij.settings.TaraSettings;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -22,7 +29,6 @@ import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 public class LanguageImporter {
 
 	private static final Logger LOG = Logger.getInstance(LanguageImporter.class.getName());
-	private final TaraSettings settings;
 
 	private Module module;
 	private final Configuration configuration;
@@ -33,7 +39,6 @@ public class LanguageImporter {
 	public LanguageImporter(Module module, Configuration configuration) {
 		this.module = module;
 		this.configuration = configuration;
-		settings = TaraSettings.getSafeInstance(module.getProject());
 		releaseRepositories = configuration.releaseRepositories();
 		snapshotRepositories = configuration.snapshotRepositories();
 		languageRepository = configuration.languageRepository();
@@ -55,18 +60,22 @@ public class LanguageImporter {
 	private void downloadLanguage(String name, String version) {
 		try {
 			if (name.equals(ProteoConstants.PROTEO) || name.equals(ProteoConstants.VERSO)) return;
-			final File taraDirectory = new File(LanguageManager.getTaraDirectory().getPath());
-			File dslFile = new File(new File(taraDirectory, name + File.separator + version), name + "-" + version + ".jar");
-			new ArtifactoryConnector(settings, releaseRepositories, snapshotRepositories, languageRepository).get(dslFile, name, version);
-		} catch (IOException e) {
+			final File languagesDirectory = new File(LanguageManager.getLanguagesDirectory().getPath());
+			final List<Artifact> jar = new Aether(repository(), languagesDirectory).resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
+		} catch (DependencyResolutionException e) {
 			error(e);
 		}
+	}
+
+	@NotNull
+	private List<RemoteRepository> repository() {
+		return Collections.singletonList(new RemoteRepository(configuration.languageRepositoryId(), "default", configuration.languageRepository()));
 	}
 
 	private String effectiveVersion(String key, String version) throws IOException {
 		if (LATEST_VERSION.equals(version)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			new ArtifactoryConnector(settings, releaseRepositories, snapshotRepositories, languageRepository).versions(key).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(releaseRepositories, snapshotRepositories, languageRepository).versions(key).forEach(v -> versions.put(indexOf(v), v));
 			return versions.get(versions.lastKey());
 		} else return version;
 	}
@@ -88,7 +97,7 @@ public class LanguageImporter {
 		LanguageManager.reloadLanguage(project, FileUtil.getNameWithoutExtension(fileName));
 	}
 
-	private void error(IOException e) {
+	private void error(Exception e) {
 		Bus.notify(new Notification("Tara Language", "Error connecting with Artifactory.", e.getMessage(), NotificationType.ERROR));
 	}
 }

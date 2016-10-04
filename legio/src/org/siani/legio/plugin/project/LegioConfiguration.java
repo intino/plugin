@@ -54,7 +54,7 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public void reload() {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification("Configuration has changed", "<a href=\"#\">Reload Configuration</a>", NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
+		balloon.createNotification("Configuration of " + module.getName() + " has changed", "<a href=\"#\">Reload Configuration</a>", NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
 	}
 
 	private void reloadInfo(Notification notification) {
@@ -71,6 +71,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadDependencies() {
+		if (legio == null || legio.project() == null) return;
 		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
 		newLibraries.addAll(new LanguageResolver(module, legio.project().repositories(), legio.project().factory()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
@@ -78,7 +79,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public ModuleType type() {
-		if (legio == null) return null;
+		if (legio == null || legio.project() == null) return null;
 		final Project.Factory factory = legio.project().factory();
 		if (factory == null) return null;
 		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse("Platform");
@@ -121,7 +122,11 @@ public class LegioConfiguration implements Configuration {
 	public String languageRepository() {
 		return legio.project().repositories().languageList().stream().
 				map(Language::url).findFirst().orElse(null);
+	}
 
+	public String languageRepositoryId() {
+		return legio.project().repositories().languageList().stream().
+				map(Language::mavenId).findFirst().orElse(null);
 	}
 
 	@Override

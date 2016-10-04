@@ -2,7 +2,7 @@ package org.siani.legio.natives.project.dependencies.dependency;
 
 
 
-/**#/Users/oroncal/workspace/legio/legio/src/org/siani/legio/Main.tara#16#3**/
+/**#/Users/oroncal/workspace/legio/legio/src/org/siani/legio/Main.tara#17#3**/
 public class Name_0 implements tara.magritte.Expression<String> {
 	private org.siani.legio.Project.Dependencies.Dependency self;
 

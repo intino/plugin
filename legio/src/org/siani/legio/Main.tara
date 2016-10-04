@@ -6,6 +6,7 @@ Concept:Named Project
 	Concept:{0..1} Repositories
 		Concept Repository
         	var string url
+        	var string mavenId
         	sub Release
         	sub Snapshot
         	sub Distribution

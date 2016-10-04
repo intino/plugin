@@ -18,8 +18,8 @@ import java.nio.file.Files;
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 
-	static File createPom(Module module) throws IOException {
-		return createPom(module, pom(module));
+	static File createFrameworkPom(Module module) throws IOException {
+		return createFrameworkPom(module, pom(module));
 	}
 
 	@NotNull
@@ -27,7 +27,7 @@ class PomCreator {
 		return new File(new File(module.getModuleFilePath()).getParent(), "pom2.xml");
 	}
 
-	private static File createPom(Module module, File pom) {
+	private static File createFrameworkPom(Module module, File pom) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		Frame frame = new Frame();
 		frame.addTypes("pom");

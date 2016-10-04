@@ -18,6 +18,7 @@ def type(pom)
 			<outputDirectory>out/production/$artifactId+lowercase</outputDirectory>
 			<testOutputDirectory>out/test/$artifactId+lowercase</testOutputDirectory>
 			<directory>out/build/$artifactId+lowercase</directory>
+
 			<plugins>
 				[$withsources
 				<plugin>

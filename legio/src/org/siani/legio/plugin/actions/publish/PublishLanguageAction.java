@@ -82,7 +82,8 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 
 	void publish(final Map<Module, String> dsls, Project project) {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(project, dsls));
+		doPublish(project, dsls);
+//		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(project, dsls));
 	}
 
 	private CompileStatusNotification publish(Project project, final Map<Module, String> modules) {
@@ -106,7 +107,6 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 		reloadProject();
 	}
 
-
 	private boolean checkOverrideVersion(Module module, String dsl) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), message("artifactory.overrides"), "Artifactory", TaraIcons.LOGO_80, STATIC_SHOW_CONFIRMATION);
@@ -120,7 +120,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
-			return new ArtifactoryConnector(null, configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository()).versions(dsl).contains(version);
+			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository()).versions(dsl).contains(version);
 		} catch (IOException e) {
 			return false;
 		}

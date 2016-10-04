@@ -1,8 +1,6 @@
 package org.siani.legio;
 
-import org.siani.legio.*;
-
-import java.util.*;
+import java.util.List;
 
 public class Project extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
@@ -286,27 +284,31 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 			
 
-			public org.siani.legio.Project.Repositories.Release release(java.lang.String url) {
+			public org.siani.legio.Project.Repositories.Release release(java.lang.String url, java.lang.String mavenId) {
 			    org.siani.legio.Project.Repositories.Release newElement = graph().concept(org.siani.legio.Project.Repositories.Release.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Release.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 			    return newElement;
 			}
 
-			public org.siani.legio.Project.Repositories.Snapshot snapshot(java.lang.String url) {
+			public org.siani.legio.Project.Repositories.Snapshot snapshot(java.lang.String url, java.lang.String mavenId) {
 			    org.siani.legio.Project.Repositories.Snapshot newElement = graph().concept(org.siani.legio.Project.Repositories.Snapshot.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Snapshot.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 			    return newElement;
 			}
 
-			public org.siani.legio.Project.Repositories.Distribution distribution(java.lang.String url) {
+			public org.siani.legio.Project.Repositories.Distribution distribution(java.lang.String url, java.lang.String mavenId) {
 			    org.siani.legio.Project.Repositories.Distribution newElement = graph().concept(org.siani.legio.Project.Repositories.Distribution.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Distribution.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 			    return newElement;
 			}
 
-			public org.siani.legio.Project.Repositories.Language language(java.lang.String url) {
+			public org.siani.legio.Project.Repositories.Language language(java.lang.String url, java.lang.String mavenId) {
 			    org.siani.legio.Project.Repositories.Language newElement = graph().concept(org.siani.legio.Project.Repositories.Language.class).createNode(name, node()).as(org.siani.legio.Project.Repositories.Language.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 			    return newElement;
 			}
 			
@@ -314,6 +316,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		
 		public static abstract class Repository extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 			protected java.lang.String url;
+			protected java.lang.String mavenId;
 
 			public Repository(tara.magritte.Node node) {
 				super(node);
@@ -323,14 +326,23 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return url;
 			}
 
+			public java.lang.String mavenId() {
+				return mavenId;
+			}
+
 			public void url(java.lang.String value) {
 				this.url = value;
+			}
+
+			public void mavenId(java.lang.String value) {
+				this.mavenId = value;
 			}
 
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 				map.put("url", new java.util.ArrayList(java.util.Collections.singletonList(this.url)));
+				map.put("mavenId", new java.util.ArrayList(java.util.Collections.singletonList(this.mavenId)));
 				return map;
 			}
 
@@ -342,12 +354,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
 				if (name.equalsIgnoreCase("url")) this.url = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("mavenId")) this.mavenId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
 				if (name.equalsIgnoreCase("url")) this.url = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("mavenId")) this.mavenId = (java.lang.String) values.get(0);
 			}
 
 			public Create create() {

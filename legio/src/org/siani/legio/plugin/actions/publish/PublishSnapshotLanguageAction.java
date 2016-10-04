@@ -79,7 +79,7 @@ public class PublishSnapshotLanguageAction extends AnAction implements DumbAware
 	private List<Module> collectTaraModules(Project project) {
 		List<Module> taraModules = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			if (!TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).type()))
+			if (TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).type()))
 				taraModules.add(module);
 		}
 		return taraModules;
