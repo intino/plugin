@@ -21,10 +21,10 @@ import com.intellij.util.ui.ConfirmationDialog;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.plugin.LegioIcons;
 import org.siani.legio.plugin.dependencyresolution.ArtifactoryConnector;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.TaraIcons;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.project.TaraModuleType;
-import tara.intellij.project.configuration.Configuration;
 import tara.intellij.settings.TaraSettings;
 
 import java.io.IOException;
@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.ui.Messages.showErrorDialog;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static tara.compiler.shared.Configuration.Level.System;
 import static tara.intellij.messages.MessageProvider.message;
-import static tara.intellij.project.configuration.Configuration.ModuleType.System;
 
 public class PublishLanguageAction extends PublishLanguageAbstractAction {
 
@@ -141,7 +141,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private List<Module> collectTaraModules(Project project) {
 		List<Module> taraModules = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules())
-			if (TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).type()))
+			if (TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).level()))
 				taraModules.add(module);
 		return taraModules;
 	}

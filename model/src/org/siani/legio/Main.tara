@@ -5,12 +5,12 @@ Concept:Named Project
 	var string version
 	Concept:{0..1} Repositories
 		Concept Repository
-        	var string url
-        	var string mavenId
-        	sub Release
-        	sub Snapshot
-        	sub Distribution
-        	sub Language
+			var string url
+			var string mavenId
+			sub Release
+			sub Snapshot
+			sub Distribution
+			sub Language
 	Concept:{0..1} Dependencies
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
@@ -22,7 +22,6 @@ Concept:Named Project
 			sub Compile
 			sub Runtime
 			sub Test
-
 	Concept:{0..1} Factory
 		Concept:{0..1} Modeling
 			var string language

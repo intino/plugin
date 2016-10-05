@@ -12,7 +12,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.plugin.file.LegioFileType;
-import tara.intellij.project.configuration.Configuration;
+import tara.compiler.shared.Configuration;
 import tara.intellij.project.configuration.ConfigurationManager;
 
 import static tara.intellij.project.module.ModuleProvider.moduleOf;

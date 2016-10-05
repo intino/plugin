@@ -10,15 +10,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.configuration.ChooseModulesDialog;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.plugin.LegioIcons;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.project.TaraModuleType;
-import tara.intellij.project.configuration.Configuration;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static tara.compiler.shared.Configuration.Level.System;
 import static tara.intellij.messages.MessageProvider.message;
-import static tara.intellij.project.configuration.Configuration.ModuleType.System;
 
 public class PublishSnapshotLanguageAction extends AnAction implements DumbAware {
 
@@ -79,7 +79,7 @@ public class PublishSnapshotLanguageAction extends AnAction implements DumbAware
 	private List<Module> collectTaraModules(Project project) {
 		List<Module> taraModules = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			if (TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).type()))
+			if (TaraModuleType.isTara(module) && !System.equals(TaraUtil.configurationOf(module).level()))
 				taraModules.add(module);
 		}
 		return taraModules;

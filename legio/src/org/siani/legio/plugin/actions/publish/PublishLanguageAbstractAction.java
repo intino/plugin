@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.siani.legio.plugin.build.LegioMavenRunner;
 import org.siani.legio.plugin.project.LegioConfiguration;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.intellij.project.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;

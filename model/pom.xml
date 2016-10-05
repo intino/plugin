@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.siani.legio</groupId>
+    <artifactId>model</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <tara.level>Application</tara.level>
+        <tara.working.package>org.siani.legio</tara.working.package>
+        <tara.dsl>Proteo</tara.dsl>
+        <tara.dsl.version>1.0.0</tara.dsl.version>
+        <tara.out.dsl>Legio</tara.out.dsl>
+    </properties>
+
+    <build>
+        <outputDirectory>../out/production/legio</outputDirectory>
+        <testOutputDirectory>../out/test/legio</testOutputDirectory>
+        <directory>../out/build/legio</directory>
+        <resources>
+            <resource>
+                <directory>${basedir}/../.tara/refactors</directory>
+            </resource>
+        </resources>
+    </build>
+    <repositories>
+        <repository>
+            <id>siani-maven</id>
+            <name>siani-maven-releases</name>
+            <url>http://artifactory.siani.es/artifactory/libs-release</url>
+        </repository>
+        <repository>
+            <id>siani-maven-snapshot</id>
+            <name>siani-maven-snapshot</name>
+            <url>http://artifactory.siani.es/artifactory/libs-snapshot</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>siani-maven</id>
+            <name>siani-maven-releases</name>
+            <url>https://artifactory.siani.es/artifactory/libs-release-local</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.siani.tara</groupId>
+            <artifactId>proteo-alone</artifactId>
+            <version>LATEST</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>

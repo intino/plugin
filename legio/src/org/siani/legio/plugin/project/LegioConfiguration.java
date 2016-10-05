@@ -3,9 +3,15 @@ package org.siani.legio.plugin.project;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.roots.libraries.Library;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.LegioApplication;
@@ -18,9 +24,9 @@ import org.siani.legio.plugin.dependencyresolution.DependencyResolver;
 import org.siani.legio.plugin.dependencyresolution.LanguageResolver;
 import org.siani.legio.plugin.dependencyresolution.LibraryManager;
 import tara.StashBuilder;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.TaraModel;
-import tara.intellij.project.configuration.Configuration;
 import tara.io.Stash;
 import tara.io.StashSerializer;
 import tara.lang.model.Node;
@@ -63,16 +69,32 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadInfo(Notification notification) {
-		reloadGraph();
-		reloadDependencies();
+		hide(notification);
+		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+					 @Override
+					 public void run(@NotNull ProgressIndicator indicator) {
+						 reloadGraph();
+						 ApplicationManager.getApplication().invokeLater(() ->
+								 ApplicationManager.getApplication().runWriteAction(() -> reloadDependencies()));
+					 }
+				 }
+		);
+	}
+
+	private void hide(Notification notification) {
 		if (notification != null) {
 			notification.expire();
 			notification.hideBalloon();
 		}
 	}
 
+	private void withTask(Task.Backgroundable runnable) {
+		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
 	private void reloadGraph() {
 		final Stash legioStash = new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
+		if (legioStash == null) return;
 		saveStash(legioStash);
 		this.legio = GraphLoader.loadGraph(module, legioStash);
 	}
@@ -94,12 +116,12 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public ModuleType type() {
+	public Level level() {
 		if (legio == null || legio.project() == null) return null;
 		final Project.Factory factory = legio.project().factory();
 		if (factory == null) return null;
 		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse("Platform");
-		return ModuleType.valueOf(level);
+		return Level.valueOf(level);
 	}
 
 	@Override

@@ -8,8 +8,8 @@ import org.siani.legio.Project.Dependencies.Compile;
 import org.siani.legio.Project.Repositories.Repository;
 import org.siani.legio.Project.Repositories.Snapshot;
 import org.siani.legio.plugin.project.LegioConfiguration;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.intellij.project.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;

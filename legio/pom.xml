@@ -105,18 +105,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.siani.tara</groupId>
-            <artifactId>proteo-alone</artifactId>
-            <version>LATEST</version>
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>org.siani.tara</groupId>-->
-            <!--<artifactId>io</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -137,6 +125,11 @@
             <groupId>org.siani.itrules</groupId>
             <artifactId>itrules</artifactId>
             <version>LATEST</version>
+        </dependency>
+        <dependency>
+            <groupId>org.siani.legio</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -19,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.siani.legio.plugin.LegioIcons;
 import org.siani.legio.plugin.dependencyresolution.LanguageImporter;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.project.TaraModuleType;
-import tara.intellij.project.configuration.Configuration;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;

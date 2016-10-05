@@ -12,8 +12,8 @@ import org.jetbrains.idea.maven.execution.*;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
-import tara.intellij.project.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;
