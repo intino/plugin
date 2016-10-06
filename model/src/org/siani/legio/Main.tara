@@ -29,6 +29,7 @@ Concept:Named Project
 		var string generationPackage = ""
 		var boolean persistent = false
 		var integer refactorId = -1
+	Concept Build
 
 Facet Level on Project.Factory
 	sub Platform

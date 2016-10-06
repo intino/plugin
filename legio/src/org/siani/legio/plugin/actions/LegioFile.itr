@@ -1,0 +1,34 @@
+def type(legio)
+	dsl Legio
+
+	Project(groupId = "$groupId", version = "$version") $artifactId
+    	Repositories[
+			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")$isTara][
+    		$repository...[$NL]][
+    		$distribution]
+    	Dependencies[
+    		$dependeny][
+    	$factory]
+end
+
+def type(release) trigger(repository)
+	Release(url = "$url", "$id")
+end
+
+def type(snapshot) trigger(repository)
+	Snapshot(url = "$url", "$id")
+end
+
+def type(distribution)
+	Distribution(url = "$url", "$id")
+end
+
+def type(dependency)
+	$type+FirstUpperCase(groupId = "$groupId", artifactId = "$artifactId", version = "$version")
+end
+
+def type(factory)
+	Factory as $level+firstUpperCase
+		generationPackage = "$workingPackage"
+		Modeling(language="$dsl", version="$dslVersion")
+end

@@ -42,7 +42,7 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 		Configuration configuration = TaraUtil.configurationOf(module);
 		File dslFile = dslFilePath(configuration);
 		LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
-		publishLanguage(module, configuration.outDSL(), dslFile);
+		publishLanguage(module, configuration);
 	}
 
 	private void publishFramework(Module module) {
@@ -57,8 +57,7 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 		} else runner.publishNativeMaven();
 	}
 
-	private void publishLanguage(Module module, String dsl, File dslFile) {
-		Configuration configuration = TaraUtil.configurationOf(module);
+	private void publishLanguage(Module module, Configuration configuration) {
 		LegioMavenRunner runner = new LegioMavenRunner(module);
 		try {
 			runner.publishLanguage(configuration);

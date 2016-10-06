@@ -35,6 +35,8 @@ import tara.lang.model.Parameter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +55,8 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Configuration init() {
 		legioConf = (TaraModel) new LegioModuleCreator(module).create();
-		reloadInfo(null);
+		reloadGraph();
+		reloadDependencies();
 		return this;
 	}
 
@@ -82,10 +85,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void hide(Notification notification) {
-		if (notification != null) {
-			notification.expire();
-			notification.hideBalloon();
-		}
+		notification.expire();
+		notification.hideBalloon();
 	}
 
 	private void withTask(Task.Backgroundable runnable) {
@@ -93,15 +94,29 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadGraph() {
-		final Stash legioStash = new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
+		Stash legioStash = loadNewConfiguration();
 		if (legioStash == null) return;
 		saveStash(legioStash);
 		this.legio = GraphLoader.loadGraph(module, legioStash);
 	}
 
+	private Stash loadNewConfiguration() {
+		try {
+			Path temporalLegio = Files.copy(new File(legioConf.getVirtualFile().getPath()).toPath(), Files.createTempFile("_legio", null), StandardCopyOption.REPLACE_EXISTING);
+			Stash legio = new StashBuilder(temporalLegio.toFile(), "Legio", "1.0.0", module.getName()).build();
+			temporalLegio.toFile().delete();
+			return legio;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
+		}
+	}
+
 	private void saveStash(Stash legioStash) {
 		try {
 			File file = new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+			file.getParentFile().mkdirs();
+			file.createNewFile();
 			Files.write(file.toPath(), StashSerializer.serialize(legioStash));
 		} catch (IOException e) {
 			e.printStackTrace();

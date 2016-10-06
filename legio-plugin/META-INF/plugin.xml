@@ -43,6 +43,11 @@
             </action>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
+        <action id="JoinToLegio" class="org.siani.legio.plugin.actions.JoinToLegioAction"
+                text="Join To Legio"
+                description="Join module to legio or convert from maven">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
     </actions>
 
     <application-components>

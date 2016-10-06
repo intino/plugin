@@ -1,6 +1,8 @@
 package org.siani.legio.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
@@ -37,16 +39,28 @@ public class DependencyResolver {
 
 	public List<Library> resolve() {
 		List<Library> newLibraries = new ArrayList<>();
-		ApplicationManager.getApplication().runWriteAction(() -> dependencies.dependencyList().forEach(d -> {
+		Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed())
+			resolveInWriteAction(newLibraries, application);
+		else application.invokeLater(() -> resolveInWriteAction(newLibraries, application), ModalityState.NON_MODAL);
+		return newLibraries;
+	}
+
+	private void resolveInWriteAction(List<Library> newLibraries, Application application) {
+		application.runWriteAction(() -> processDependencies(newLibraries));
+	}
+
+	private void processDependencies(List<Library> newLibraries) {
+		dependencies.dependencyList().forEach(d -> {
 			Module moduleDependency = moduleOf(d);
-			if (moduleDependency != null) newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
+			if (moduleDependency != null)
+				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
 			else {
 				final List<Library> resolved = manager.registerOrGetLibrary(collectArtifacts(d));
 				manager.addToModule(resolved, d.is(Dependencies.Test.class));
 				newLibraries.addAll(resolved);
 			}
-		}));
-		return newLibraries;
+		});
 	}
 
 	private Module moduleOf(Dependency d) {

@@ -10,6 +10,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	protected org.siani.legio.Project.Repositories repositories;
 	protected org.siani.legio.Project.Dependencies dependencies;
 	protected org.siani.legio.Project.Factory factory;
+	protected java.util.List<org.siani.legio.Project.Build> buildList = new java.util.ArrayList<>();
 
 	public Project(tara.magritte.Node node) {
 		super(node);
@@ -43,6 +44,18 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		return factory;
 	}
 
+	public java.util.List<org.siani.legio.Project.Build> buildList() {
+		return buildList;
+	}
+
+	public org.siani.legio.Project.Build build(int index) {
+		return buildList.get(index);
+	}
+
+	public java.util.List<org.siani.legio.Project.Build> buildList(java.util.function.Predicate<org.siani.legio.Project.Build> predicate) {
+		return buildList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	}
+
 	public void repositories(org.siani.legio.Project.Repositories value) {
 		this.repositories = value;
 	}
@@ -55,11 +68,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		this.factory = value;
 	}
 
+	
+
 	public List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		if (repositories != null) components.add(this.repositories.node());
 		if (dependencies != null) components.add(this.dependencies.node());
 		if (factory != null) components.add(this.factory.node());
+		buildList.stream().forEach(c -> components.add(c.node()));
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -81,6 +97,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		if (node.is("Project$Repositories")) this.repositories = node.as(org.siani.legio.Project.Repositories.class);
 		if (node.is("Project$Dependencies")) this.dependencies = node.as(org.siani.legio.Project.Dependencies.class);
 		if (node.is("Project$Factory")) this.factory = node.as(org.siani.legio.Project.Factory.class);
+		if (node.is("Project$Build")) this.buildList.add(node.as(org.siani.legio.Project.Build.class));
 	}
 
 	@Override
@@ -89,6 +106,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
         if (node.is("Project$Repositories")) this.repositories = null;
         if (node.is("Project$Dependencies")) this.dependencies = null;
         if (node.is("Project$Factory")) this.factory = null;
+        if (node.is("Project$Build")) this.buildList.remove(node.as(org.siani.legio.Project.Build.class));
     }
 
 	@Override
@@ -132,6 +150,11 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 		public org.siani.legio.Project.Factory factory() {
 		    org.siani.legio.Project.Factory newElement = graph().concept(org.siani.legio.Project.Factory.class).createNode(name, node()).as(org.siani.legio.Project.Factory.class);
+		    return newElement;
+		}
+
+		public org.siani.legio.Project.Build build() {
+		    org.siani.legio.Project.Build newElement = graph().concept(org.siani.legio.Project.Build.class).createNode(name, node()).as(org.siani.legio.Project.Build.class);
 		    return newElement;
 		}
 		
@@ -1233,6 +1256,55 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
+		
+		public org.siani.legio.LegioApplication application() {
+			return ((org.siani.legio.LegioApplication) graph().application());
+		}
+	}
+	
+	public static class Build extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		
+
+		public Build(tara.magritte.Node node) {
+			super(node);
+		}
+
+		@Override
+		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			return map;
+		}
+
+		public tara.magritte.Concept concept() {
+			return this.graph().concept(org.siani.legio.Project.Build.class);
+		}
+
+		@Override
+		protected void _load(java.lang.String name, java.util.List<?> values) {
+			super._load(name, values);
+		}
+
+		@Override
+		protected void _set(java.lang.String name, java.util.List<?> values) {
+			super._set(name, values);
+		}
+
+		public Create create() {
+			return new Create(null);
+		}
+
+		public Create create(java.lang.String name) {
+			return new Create(name);
+		}
+
+		public class Create {
+			protected final java.lang.String name;
+
+			public Create(java.lang.String name) {
+				this.name = name;
+			}
+			
+		}
 		
 		public org.siani.legio.LegioApplication application() {
 			return ((org.siani.legio.LegioApplication) graph().application());
