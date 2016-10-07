@@ -48,6 +48,11 @@
                 description="Join module to legio or convert from maven">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
+        <action id="org.siani.legio.plugin.actions.ReloadConfigurationAction"
+                class="org.siani.legio.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
+                description="Reload configuration of project modules">
+            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
+        </action>
     </actions>
 
     <application-components>

@@ -7,7 +7,7 @@ def type(legio)
     		$repository...[$NL]][
     		$distribution]
     	Dependencies[
-    		$dependeny][
+    		$dependency...[$NL]][
     	$factory]
 end
 

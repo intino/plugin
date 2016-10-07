@@ -2,6 +2,7 @@ package org.siani.legio.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
 import com.jcabi.aether.Aether;
 import org.jetbrains.annotations.NotNull;
@@ -11,14 +12,13 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
+import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
+import tara.intellij.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -65,11 +65,32 @@ public class LanguageResolver {
 	private List<Library> frameworkOfLanguage(String language, String version) {
 		List<Library> libraries = new ArrayList<>();
 		ApplicationManager.getApplication().runWriteAction(() -> {
-			final LibraryManager manager = new LibraryManager(module);
-			libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(findLanguageId(language, version))));
-			manager.addToModule(libraries, false);
+			final Module module = moduleOf(language, version);
+			if (module == null) addExternalLibraries(language, version, libraries);
+			else addModuleDependency(module, libraries);
 		});
 		return libraries;
+	}
+
+	private void addModuleDependency(Module dependency, List<Library> libraries) {
+		final LibraryManager manager = new LibraryManager(this.module);
+		libraries.addAll(manager.resolveAsModuleDependency(dependency));
+	}
+
+	private void addExternalLibraries(String language, String version, List<Library> libraries) {
+		final LibraryManager manager = new LibraryManager(this.module);
+		libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(findLanguageId(language, version))));
+		manager.addToModule(libraries, false);
+	}
+
+	private Module moduleOf(String language, String version) {
+		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(this.module)).collect(Collectors.toList());
+		for (Module m : modules) {
+			final Configuration configuration = TaraUtil.configurationOf(m);
+			if (configuration == null) continue;
+			if (language.equalsIgnoreCase(configuration.artifactId())) return m;
+		}
+		return null;
 	}
 
 	private String findLanguageId(String language, String version) {

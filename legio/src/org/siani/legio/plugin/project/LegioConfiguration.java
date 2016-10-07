@@ -35,8 +35,6 @@ import tara.lang.model.Parameter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,10 +66,11 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public void reload() {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification("Configuration of " + module.getName() + " has changed", "<a href=\"#\">Reload Configuration</a>", NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
+		balloon.createNotification("Configuration of " + module.getName() + " has changed", "<a href=\"#\">Reload Configuration</a>",
+				NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
 	}
 
-	private void reloadInfo(Notification notification) {
+	public void reloadInfo(Notification notification) {
 		hide(notification);
 		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
@@ -85,6 +84,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void hide(Notification notification) {
+		if (notification == null) return;
 		notification.expire();
 		notification.hideBalloon();
 	}
@@ -101,15 +101,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private Stash loadNewConfiguration() {
-		try {
-			Path temporalLegio = Files.copy(new File(legioConf.getVirtualFile().getPath()).toPath(), Files.createTempFile("_legio", null), StandardCopyOption.REPLACE_EXISTING);
-			Stash legio = new StashBuilder(temporalLegio.toFile(), "Legio", "1.0.0", module.getName()).build();
-			temporalLegio.toFile().delete();
-			return legio;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
-		}
+		return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
 	}
 
 	private void saveStash(Stash legioStash) {
@@ -126,7 +118,8 @@ public class LegioConfiguration implements Configuration {
 	private void reloadDependencies() {
 		if (legio == null || legio.project() == null) return;
 		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
-		newLibraries.addAll(new LanguageResolver(module, legio.project().repositories(), legio.project().factory()).resolve());
+		if (legio.project().factory() != null)
+			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories(), legio.project().factory()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}
 

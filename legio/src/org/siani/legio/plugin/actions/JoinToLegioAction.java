@@ -37,7 +37,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		if (ApplicationManager.getApplication().isDispatchThread()) runnable.run();
 		else
 			MavenUtil.runInBackground(module.getProject(), "Joining to Legio", false, indicator -> runnable.run()).waitFor();
-//		ApplicationManager.getApplication().invokeLater(DisposeAwareRunnable.create(, module.getProject()));
 	}
 
 	@NotNull
@@ -99,7 +98,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			return null;
 		}
 	}
-
 
 	@Override
 	public void update(AnActionEvent e) {
