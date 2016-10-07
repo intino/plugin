@@ -8,12 +8,14 @@ import org.siani.legio.Project.Dependencies.Compile;
 import org.siani.legio.Project.Repositories.Repository;
 import org.siani.legio.Project.Repositories.Snapshot;
 import org.siani.legio.plugin.project.LegioConfiguration;
+import org.sonatype.aether.artifact.Artifact;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
@@ -36,19 +38,32 @@ class PomCreator {
 		frame.addSlot("version", configuration.modelVersion());
 		for (Compile dependency : ((LegioConfiguration) configuration).dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
+		if (configuration.outDSL() != null)
+			for (Artifact artifact : findLanguageArtifacts()) {
+				frame.addSlot("dependency", createDependencyFrame(artifact));
+			}
 		for (Repository repository : ((LegioConfiguration) configuration).legioRepositories())
 			frame.addSlot("repository", createRepositoryFrame(repository));
 		writePom(pom, frame);
 		return pom;
 	}
 
+	private static List<Artifact> findLanguageArtifacts() {
+
+
+	}
+
 	private static Frame createDependencyFrame(Compile id) {
 		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("artifactId", id.artifactId()).addSlot("version", id.version());
 	}
 
+	private static Frame createDependencyFrame(Artifact artifact) {
+		return new Frame().addTypes("dependency").addSlot("groupId", artifact.getGroupId()).addSlot("artifactId", artifact.getGroupId()).addSlot("version", artifact.getVersion());
+	}
+
 	private static Frame createRepositoryFrame(Repository repo) {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
-				addSlot("name", repo.name()).addSlot("url", repo.url()).
+				addSlot("name", repo.mavenId()).addSlot("url", repo.url()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
 	}
 

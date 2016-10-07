@@ -31,7 +31,24 @@ public class LegioMavenRunner {
 
 	public LegioMavenRunner(Module module) {
 		this.module = module;
+	}
 
+	public void publishLanguage(Configuration conf) throws MavenInvocationException, IOException {
+		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
+		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
+				"-DrepositoryId=" + conf.languageRepositoryId() + " " +
+				"-DgroupId=tara.dsl " +
+				"-DartifactId=" + conf.artifactId() + " " +
+				"-Dversion=" + conf.modelVersion() + " " +
+				"-Dfile=" + fileOfLanguage(conf));
+		final Properties properties = new Properties();
+		request.setProperties(properties);
+		final InvocationResult result = invoke(request);
+		if (result != null && result.getExitCode() != 0) {
+			if (result.getExecutionException() != null)
+				throw new IOException("Failed to publish language.", result.getExecutionException());
+			else throw new IOException("Failed to publish language. Exit code: " + result.getExitCode());
+		} else if (result == null) throw new IOException("Failed to publish language. Maven HOME not found");
 	}
 
 	public void publishNativeMaven() {
@@ -57,24 +74,6 @@ public class LegioMavenRunner {
 				throw new IOException("Failed to publish framework.", result.getExecutionException());
 			else throw new IOException("Failed to publish framework. Exit code: " + result.getExitCode());
 		} else if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
-	}
-
-	public void publishLanguage(Configuration conf) throws MavenInvocationException, IOException {
-		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
-		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
-				"-DrepositoryId=" + conf.languageRepositoryId() + " " +
-				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + conf.artifactId() + " " +
-				"-Dversion=" + conf.modelVersion() + " " +
-				"-Dfile=" + fileOfLanguage(conf));
-		final Properties properties = new Properties();
-		request.setProperties(properties);
-		final InvocationResult result = invoke(request);
-		if (result != null && result.getExitCode() != 0) {
-			if (result.getExecutionException() != null)
-				throw new IOException("Failed to publish language.", result.getExecutionException());
-			else throw new IOException("Failed to publish language. Exit code: " + result.getExitCode());
-		} else if (result == null) throw new IOException("Failed to publish language. Maven HOME not found");
 	}
 
 	@NotNull

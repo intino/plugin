@@ -45,6 +45,15 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 		publishLanguage(module, configuration);
 	}
 
+	private void publishLanguage(Module module, Configuration configuration) {
+		LegioMavenRunner runner = new LegioMavenRunner(module);
+		try {
+			runner.publishLanguage(configuration);
+		} catch (MavenInvocationException | IOException e) {
+			errorMessages.add("Error publishing language. " + e.getMessage());
+		}
+	}
+
 	private void publishFramework(Module module) {
 		Configuration configuration = TaraUtil.configurationOf(module);
 		LegioMavenRunner runner = new LegioMavenRunner(module);
@@ -55,15 +64,6 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 				errorMessages.add("Error publishing framework. " + e.getMessage());
 			}
 		} else runner.publishNativeMaven();
-	}
-
-	private void publishLanguage(Module module, Configuration configuration) {
-		LegioMavenRunner runner = new LegioMavenRunner(module);
-		try {
-			runner.publishLanguage(configuration);
-		} catch (MavenInvocationException | IOException e) {
-			errorMessages.add("Error publishing language. " + e.getMessage());
-		}
 	}
 
 	@NotNull
