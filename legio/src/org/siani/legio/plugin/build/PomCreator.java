@@ -35,6 +35,8 @@ class PomCreator {
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
+		frame.addSlot("outDirectory", module.getName());
+		frame.addSlot("testOutDirectory", module.getName());
 		frame.addSlot("version", configuration.modelVersion());
 		for (Compile dependency : ((LegioConfiguration) configuration).dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));

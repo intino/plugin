@@ -55,5 +55,11 @@
             <version>LATEST</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.siani.tara</groupId>
+            <artifactId>proteo</artifactId>
+            <version>LATEST</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

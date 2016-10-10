@@ -15,10 +15,14 @@ def type(pom)
 
 		<build>
 			<sourceDirectory>src</sourceDirectory>
-			<outputDirectory>out/production/$artifactId+lowercase</outputDirectory>
-			<testOutputDirectory>out/test/$artifactId+lowercase</testOutputDirectory>
+			<outputDirectory>out/production/$outDirectory</outputDirectory>
+			<testOutputDirectory>out/test/$testOutDirectory+lowercase</testOutputDirectory>
 			<directory>out/build/$artifactId+lowercase</directory>
-
+			<resources>
+				<resource>
+					<directory>res</directory>
+				</resource>
+		   </resources>
 			<plugins>
 				[$withsources
 				<plugin>

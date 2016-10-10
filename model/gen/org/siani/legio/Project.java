@@ -45,7 +45,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	}
 
 	public java.util.List<org.siani.legio.Project.Build> buildList() {
-		return buildList;
+		return java.util.Collections.unmodifiableList(buildList);
 	}
 
 	public org.siani.legio.Project.Build build(int index) {
@@ -173,7 +173,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Repositories.Repository> repositoryList() {
-			return repositoryList;
+			return java.util.Collections.unmodifiableList(repositoryList);
 		}
 
 		public org.siani.legio.Project.Repositories.Repository repository(int index) {
@@ -185,7 +185,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Repositories.Release> releaseList() {
-			return releaseList;
+			return java.util.Collections.unmodifiableList(releaseList);
 		}
 
 		public org.siani.legio.Project.Repositories.Release release(int index) {
@@ -197,7 +197,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Repositories.Snapshot> snapshotList() {
-			return snapshotList;
+			return java.util.Collections.unmodifiableList(snapshotList);
 		}
 
 		public org.siani.legio.Project.Repositories.Snapshot snapshot(int index) {
@@ -209,7 +209,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Repositories.Distribution> distributionList() {
-			return distributionList;
+			return java.util.Collections.unmodifiableList(distributionList);
 		}
 
 		public org.siani.legio.Project.Repositories.Distribution distribution(int index) {
@@ -221,7 +221,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Repositories.Language> languageList() {
-			return languageList;
+			return java.util.Collections.unmodifiableList(languageList);
 		}
 
 		public org.siani.legio.Project.Repositories.Language language(int index) {
@@ -625,7 +625,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Dependencies.Dependency> dependencyList() {
-			return dependencyList;
+			return java.util.Collections.unmodifiableList(dependencyList);
 		}
 
 		public org.siani.legio.Project.Dependencies.Dependency dependency(int index) {
@@ -637,7 +637,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Dependencies.Compile> compileList() {
-			return compileList;
+			return java.util.Collections.unmodifiableList(compileList);
 		}
 
 		public org.siani.legio.Project.Dependencies.Compile compile(int index) {
@@ -649,7 +649,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Dependencies.Runtime> runtimeList() {
-			return runtimeList;
+			return java.util.Collections.unmodifiableList(runtimeList);
 		}
 
 		public org.siani.legio.Project.Dependencies.Runtime runtime(int index) {
@@ -661,7 +661,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		public java.util.List<org.siani.legio.Project.Dependencies.Test> testList() {
-			return testList;
+			return java.util.Collections.unmodifiableList(testList);
 		}
 
 		public org.siani.legio.Project.Dependencies.Test test(int index) {
