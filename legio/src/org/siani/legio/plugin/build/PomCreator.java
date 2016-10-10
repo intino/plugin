@@ -4,18 +4,18 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.siani.itrules.model.Frame;
+import org.siani.legio.Project;
 import org.siani.legio.Project.Dependencies.Compile;
 import org.siani.legio.Project.Repositories.Repository;
 import org.siani.legio.Project.Repositories.Snapshot;
+import org.siani.legio.plugin.dependencyresolution.LanguageResolver;
 import org.siani.legio.plugin.project.LegioConfiguration;
-import org.sonatype.aether.artifact.Artifact;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
@@ -39,26 +39,24 @@ class PomCreator {
 		for (Compile dependency : ((LegioConfiguration) configuration).dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
 		if (configuration.outDSL() != null)
-			for (Artifact artifact : findLanguageArtifacts()) {
-				frame.addSlot("dependency", createDependencyFrame(artifact));
-			}
-		for (Repository repository : ((LegioConfiguration) configuration).legioRepositories())
-			frame.addSlot("repository", createRepositoryFrame(repository));
+			frame.addSlot("dependency", createDependencyFrame(findLanguageId(module).split(":")));
+		((LegioConfiguration) configuration).legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
+				frame.addSlot("repository", createRepositoryFrame(r)));
 		writePom(pom, frame);
 		return pom;
 	}
 
-	private static List<Artifact> findLanguageArtifacts() {
-
-
+	private static String findLanguageId(Module module) {
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		return LanguageResolver.findLanguageId(configuration.dsl(), configuration.dslVersion());
 	}
 
 	private static Frame createDependencyFrame(Compile id) {
 		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("artifactId", id.artifactId()).addSlot("version", id.version());
 	}
 
-	private static Frame createDependencyFrame(Artifact artifact) {
-		return new Frame().addTypes("dependency").addSlot("groupId", artifact.getGroupId()).addSlot("artifactId", artifact.getGroupId()).addSlot("version", artifact.getVersion());
+	private static Frame createDependencyFrame(String[] id) {
+		return new Frame().addTypes("dependency").addSlot("groupId", id[0]).addSlot("artifactId", id[1]).addSlot("version", id[2]);
 	}
 
 	private static Frame createRepositoryFrame(Repository repo) {

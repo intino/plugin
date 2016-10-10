@@ -31,7 +31,6 @@ public class ReloadConfigurationAction extends AnAction implements DumbAware {
 	private void notifyReload(Module module) {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
 		balloon.createNotification("Configuration of " + module.getName() + " reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
-
 	}
 
 	@Override

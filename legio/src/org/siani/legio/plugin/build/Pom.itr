@@ -33,7 +33,25 @@ def type(pom)
 						</execution>
 					</executions>
 				</plugin>
-				]
+				]<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.7</version>
+					<executions>
+					  <execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+						  <goal>add-source</goal>
+						</goals>
+						<configuration>
+						  <sources>
+							<source>gen</source>
+						  </sources>
+						</configuration>
+					  </execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</build>
 
@@ -48,6 +66,11 @@ def type(pom)
 
         <dependencies>
             $dependency...[$NL]
+            <dependency>
+                <groupId>com.sun.xml.security</groupId>
+                <artifactId>xml-security-impl</artifactId>
+                <version>1.0</version>
+            </dependency>
         </dependencies>
     </project>
 end
@@ -55,7 +78,7 @@ end
 def type(repository) type(Distribution) trigger(distribution)
 	<repository>
 		<id>$name</id>
-		<name>$name~-$type</name>
+		<name>$name</name>
 		<url>$url</url>
 	</repository>
 end

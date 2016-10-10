@@ -96,7 +96,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 		ApplicationManager.getApplication().invokeLater(() -> {
 			publishLanguage(project, dslMap);
 			if (!errorMessages.isEmpty()) showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
-			else if (!successMessages.isEmpty()) processMessages(successMessages, dslMap);
+			processMessages(successMessages, dslMap);
 		});
 	}
 

@@ -119,7 +119,7 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null || legio.project() == null) return;
 		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
 		if (legio.project().factory() != null)
-			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories(), legio.project().factory()).resolve());
+			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}
 

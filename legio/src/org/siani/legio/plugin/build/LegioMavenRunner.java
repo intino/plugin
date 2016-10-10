@@ -5,7 +5,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.util.io.FileUtil;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.*;
@@ -68,7 +67,7 @@ public class LegioMavenRunner {
 	public void publishFramework() throws MavenInvocationException, IOException {
 		final File pom = PomCreator.createFrameworkPom(module);
 		final InvocationResult result = invoke(pom);
-		FileUtil.delete(pom);
+//		FileUtil.delete(pom);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
 				throw new IOException("Failed to publish framework.", result.getExecutionException());
@@ -84,6 +83,7 @@ public class LegioMavenRunner {
 	private InvocationResult invoke(File pom) throws MavenInvocationException, IOException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList("install", "deploy"));
+		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
 		LOG.info("Maven HOME: " + mavenHome.getAbsolutePath());

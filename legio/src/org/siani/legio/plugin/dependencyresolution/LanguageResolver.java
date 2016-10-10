@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.jcabi.aether.Aether;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.Project;
+import org.siani.legio.Project.Repositories.Repository;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -29,12 +30,12 @@ import static tara.dsl.ProteoConstants.VERSO;
 
 public class LanguageResolver {
 	private final Module module;
-	private final Project.Repositories repositories;
+	private final List<Repository> repositories;
 	private final Project.Factory factory;
 	private static final String proteoGroupId = "org.siani.tara";
 	private static final String proteoArtifactId = "proteo";
 
-	public LanguageResolver(Module module, Project.Repositories repositories, Project.Factory factory) {
+	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory) {
 		this.module = module;
 		this.repositories = repositories;
 		this.factory = factory;
@@ -93,7 +94,20 @@ public class LanguageResolver {
 		return null;
 	}
 
-	private String findLanguageId(String language, String version) {
+
+	private List<Artifact> findLanguageFramework(String dependencyID) {
+		try {
+			if (dependencyID == null) return Collections.emptyList();
+			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(dependencyID), JavaScopes.COMPILE);
+		} catch (DependencyResolutionException ignored) {
+			return Collections.emptyList();
+		}
+	}
+
+	public static String findLanguageId(String language, String version) {
+		if (language.equals(PROTEO) || language.equals(VERSO))
+			return proteoGroupId + ":" + proteoArtifactId + ":" + version;
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
 		else try {
@@ -107,21 +121,11 @@ public class LanguageResolver {
 		}
 	}
 
-	private List<Artifact> findLanguageFramework(String dependencyID) {
-		try {
-			if (dependencyID == null) return Collections.emptyList();
-			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(dependencyID), JavaScopes.COMPILE);
-		} catch (DependencyResolutionException ignored) {
-			return Collections.emptyList();
-		}
-	}
-
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 }
