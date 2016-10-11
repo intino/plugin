@@ -14,12 +14,12 @@ import org.siani.legio.plugin.file.LegioFileType;
 
 import java.io.File;
 
-class LegioModuleCreator {
+class LegioFileCreator {
 	private final Module module;
 	private final PsiFileFactory fileFactory;
 	private final PsiManager psiManager;
 
-	LegioModuleCreator(Module module) {
+	LegioFileCreator(Module module) {
 		this.module = module;
 		this.fileFactory = PsiFileFactory.getInstance(module.getProject());
 		psiManager = PsiManager.getInstance(module.getProject());

@@ -2,6 +2,7 @@ package org.siani.legio.plugin.build;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.CompilerModuleExtension;
 import org.jetbrains.annotations.NotNull;
 import org.siani.itrules.model.Frame;
 import org.siani.legio.Project;
@@ -35,8 +36,11 @@ class PomCreator {
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
-		frame.addSlot("outDirectory", module.getName());
-		frame.addSlot("testOutDirectory", module.getName());
+		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
+		if (compilerModuleExtension != null) {
+			frame.addSlot("outDirectory", compilerModuleExtension.getCompilerOutputPath().getPath());
+			frame.addSlot("testOutDirectory", compilerModuleExtension.getCompilerOutputPathForTests().getPath());
+		}
 		frame.addSlot("version", configuration.modelVersion());
 		for (Compile dependency : ((LegioConfiguration) configuration).dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));

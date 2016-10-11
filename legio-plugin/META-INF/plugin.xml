@@ -59,8 +59,6 @@
         <component>
             <implementation-class>org.siani.legio.plugin.project.LegioAppComponent</implementation-class>
         </component>
-
-
     </application-components>
 
 </idea-plugin>

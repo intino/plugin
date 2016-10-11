@@ -52,7 +52,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Configuration init() {
-		legioConf = (TaraModel) new LegioModuleCreator(module).create();
+		legioConf = (TaraModel) new LegioFileCreator(module).create();
 		reloadGraph();
 		reloadDependencies();
 		return this;
@@ -97,7 +97,7 @@ public class LegioConfiguration implements Configuration {
 		Stash legioStash = loadNewConfiguration();
 		if (legioStash == null) return;
 		saveStash(legioStash);
-		this.legio = GraphLoader.loadGraph(module, legioStash);
+		this.legio = GraphLoader.loadGraph(legioStash);
 	}
 
 	private Stash loadNewConfiguration() {
