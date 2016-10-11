@@ -25,6 +25,7 @@ import org.siani.legio.plugin.dependencyresolution.LanguageResolver;
 import org.siani.legio.plugin.dependencyresolution.LibraryManager;
 import tara.StashBuilder;
 import tara.compiler.shared.Configuration;
+import tara.dsl.Legio;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.TaraModel;
 import tara.io.Stash;
@@ -101,7 +102,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private Stash loadNewConfiguration() {
-		return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), "Legio", "1.0.0", module.getName()).build();
+		return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), new Legio(), module.getName()).build();
 	}
 
 	private void saveStash(Stash legioStash) {
@@ -207,6 +208,10 @@ public class LegioConfiguration implements Configuration {
 		reload();
 	}
 
+	public Project.Build build() {
+		return legio.project().build();
+	}
+
 	@Override
 	public String modelVersion() {
 		return safe(() -> legio.project().version());
@@ -225,7 +230,6 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void refactorId(int i) {
-
 		reload();
 	}
 

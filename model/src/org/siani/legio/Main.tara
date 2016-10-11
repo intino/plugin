@@ -29,7 +29,22 @@ Concept:Named Project
 		var string generationPackage = ""
 		var boolean persistent = false
 		var integer refactorId = -1
-	Concept Build
+	Concept:{0..1} Build
+		var boolean attachSources = false
+		var boolean attachDoc = false
+		var boolean includeTests = false
+		var string mainClass = empty
+		var string artifactName = empty
+		Concept:{1..1} Scope
+			Concept Type
+				sub AllModules
+				sub SelectedModules > var string[] modules
+		Concept:{1..1} Package
+			var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
+		Concept Plugin
+			var string mavenCode
+		Concept License
+			var word:{GPL BSD} type
 
 Facet Level on Project.Factory
 	sub Platform

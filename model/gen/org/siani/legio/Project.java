@@ -10,7 +10,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	protected org.siani.legio.Project.Repositories repositories;
 	protected org.siani.legio.Project.Dependencies dependencies;
 	protected org.siani.legio.Project.Factory factory;
-	protected java.util.List<org.siani.legio.Project.Build> buildList = new java.util.ArrayList<>();
+	protected org.siani.legio.Project.Build build;
 
 	public Project(tara.magritte.Node node) {
 		super(node);
@@ -44,16 +44,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		return factory;
 	}
 
-	public java.util.List<org.siani.legio.Project.Build> buildList() {
-		return java.util.Collections.unmodifiableList(buildList);
-	}
-
-	public org.siani.legio.Project.Build build(int index) {
-		return buildList.get(index);
-	}
-
-	public java.util.List<org.siani.legio.Project.Build> buildList(java.util.function.Predicate<org.siani.legio.Project.Build> predicate) {
-		return buildList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public org.siani.legio.Project.Build build() {
+		return build;
 	}
 
 	public void repositories(org.siani.legio.Project.Repositories value) {
@@ -68,14 +60,16 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		this.factory = value;
 	}
 
-	
+	public void build(org.siani.legio.Project.Build value) {
+		this.build = value;
+	}
 
 	public List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		if (repositories != null) components.add(this.repositories.node());
 		if (dependencies != null) components.add(this.dependencies.node());
 		if (factory != null) components.add(this.factory.node());
-		buildList.stream().forEach(c -> components.add(c.node()));
+		if (build != null) components.add(this.build.node());
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -97,7 +91,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		if (node.is("Project$Repositories")) this.repositories = node.as(org.siani.legio.Project.Repositories.class);
 		if (node.is("Project$Dependencies")) this.dependencies = node.as(org.siani.legio.Project.Dependencies.class);
 		if (node.is("Project$Factory")) this.factory = node.as(org.siani.legio.Project.Factory.class);
-		if (node.is("Project$Build")) this.buildList.add(node.as(org.siani.legio.Project.Build.class));
+		if (node.is("Project$Build")) this.build = node.as(org.siani.legio.Project.Build.class);
 	}
 
 	@Override
@@ -106,7 +100,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
         if (node.is("Project$Repositories")) this.repositories = null;
         if (node.is("Project$Dependencies")) this.dependencies = null;
         if (node.is("Project$Factory")) this.factory = null;
-        if (node.is("Project$Build")) this.buildList.remove(node.as(org.siani.legio.Project.Build.class));
+        if (node.is("Project$Build")) this.build = null;
     }
 
 	@Override
@@ -1263,15 +1257,121 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	}
 	
 	public static class Build extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-		
+		protected boolean attachSources;
+		protected boolean attachDoc;
+		protected boolean includeTests;
+		protected java.lang.String mainClass;
+		protected java.lang.String artifactName;
+		protected org.siani.legio.Project.Build.Scope scope;
+		protected org.siani.legio.Project.Build.Package package$;
+		protected java.util.List<org.siani.legio.Project.Build.Plugin> pluginList = new java.util.ArrayList<>();
+		protected java.util.List<org.siani.legio.Project.Build.License> licenseList = new java.util.ArrayList<>();
 
 		public Build(tara.magritte.Node node) {
 			super(node);
 		}
 
+		public boolean attachSources() {
+			return attachSources;
+		}
+
+		public boolean attachDoc() {
+			return attachDoc;
+		}
+
+		public boolean includeTests() {
+			return includeTests;
+		}
+
+		public java.lang.String mainClass() {
+			return mainClass;
+		}
+
+		public java.lang.String artifactName() {
+			return artifactName;
+		}
+
+		public void attachSources(boolean value) {
+			this.attachSources = value;
+		}
+
+		public void attachDoc(boolean value) {
+			this.attachDoc = value;
+		}
+
+		public void includeTests(boolean value) {
+			this.includeTests = value;
+		}
+
+		public void mainClass(java.lang.String value) {
+			this.mainClass = value;
+		}
+
+		public void artifactName(java.lang.String value) {
+			this.artifactName = value;
+		}
+
+		public org.siani.legio.Project.Build.Scope scope() {
+			return scope;
+		}
+
+		public org.siani.legio.Project.Build.Package package$() {
+			return package$;
+		}
+
+		public java.util.List<org.siani.legio.Project.Build.Plugin> pluginList() {
+			return java.util.Collections.unmodifiableList(pluginList);
+		}
+
+		public org.siani.legio.Project.Build.Plugin plugin(int index) {
+			return pluginList.get(index);
+		}
+
+		public java.util.List<org.siani.legio.Project.Build.Plugin> pluginList(java.util.function.Predicate<org.siani.legio.Project.Build.Plugin> predicate) {
+			return pluginList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		public java.util.List<org.siani.legio.Project.Build.License> licenseList() {
+			return java.util.Collections.unmodifiableList(licenseList);
+		}
+
+		public org.siani.legio.Project.Build.License license(int index) {
+			return licenseList.get(index);
+		}
+
+		public java.util.List<org.siani.legio.Project.Build.License> licenseList(java.util.function.Predicate<org.siani.legio.Project.Build.License> predicate) {
+			return licenseList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		public void scope(org.siani.legio.Project.Build.Scope value) {
+			this.scope = value;
+		}
+
+		public void package$(org.siani.legio.Project.Build.Package value) {
+			this.package$ = value;
+		}
+
+		
+
+		
+
+		public List<tara.magritte.Node> componentList() {
+			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+			if (scope != null) components.add(this.scope.node());
+			if (package$ != null) components.add(this.package$.node());
+			pluginList.stream().forEach(c -> components.add(c.node()));
+			licenseList.stream().forEach(c -> components.add(c.node()));
+			return new java.util.ArrayList<>(components);
+		}
+
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("attachSources", new java.util.ArrayList(java.util.Collections.singletonList(this.attachSources)));
+			map.put("attachDoc", new java.util.ArrayList(java.util.Collections.singletonList(this.attachDoc)));
+			map.put("includeTests", new java.util.ArrayList(java.util.Collections.singletonList(this.includeTests)));
+			map.put("mainClass", new java.util.ArrayList(java.util.Collections.singletonList(this.mainClass)));
+			map.put("artifactName", new java.util.ArrayList(java.util.Collections.singletonList(this.artifactName)));
 			return map;
 		}
 
@@ -1280,13 +1380,41 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		@Override
+		protected void addNode(tara.magritte.Node node) {
+			super.addNode(node);
+			if (node.is("Project$Build$Scope")) this.scope = node.as(org.siani.legio.Project.Build.Scope.class);
+			if (node.is("Project$Build$Package")) this.package$ = node.as(org.siani.legio.Project.Build.Package.class);
+			if (node.is("Project$Build$Plugin")) this.pluginList.add(node.as(org.siani.legio.Project.Build.Plugin.class));
+			if (node.is("Project$Build$License")) this.licenseList.add(node.as(org.siani.legio.Project.Build.License.class));
+		}
+
+		@Override
+	    protected void removeNode(tara.magritte.Node node) {
+	        super.removeNode(node);
+	        if (node.is("Project$Build$Scope")) this.scope = null;
+	        if (node.is("Project$Build$Package")) this.package$ = null;
+	        if (node.is("Project$Build$Plugin")) this.pluginList.remove(node.as(org.siani.legio.Project.Build.Plugin.class));
+	        if (node.is("Project$Build$License")) this.licenseList.remove(node.as(org.siani.legio.Project.Build.License.class));
+	    }
+
+		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
+			if (name.equalsIgnoreCase("attachSources")) this.attachSources = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("artifactName")) this.artifactName = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
+			if (name.equalsIgnoreCase("attachSources")) this.attachSources = (java.lang.Boolean) values.get(0);
+			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = (java.lang.Boolean) values.get(0);
+			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = (java.lang.Boolean) values.get(0);
+			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("artifactName")) this.artifactName = (java.lang.String) values.get(0);
 		}
 
 		public Create create() {
@@ -1303,8 +1431,514 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			public Create(java.lang.String name) {
 				this.name = name;
 			}
+
+			public org.siani.legio.Project.Build.Scope scope() {
+			    org.siani.legio.Project.Build.Scope newElement = graph().concept(org.siani.legio.Project.Build.Scope.class).createNode(name, node()).as(org.siani.legio.Project.Build.Scope.class);
+			    return newElement;
+			}
+
+			public org.siani.legio.Project.Build.Package package$(org.siani.legio.Project.Build.Package.Type type) {
+			    org.siani.legio.Project.Build.Package newElement = graph().concept(org.siani.legio.Project.Build.Package.class).createNode(name, node()).as(org.siani.legio.Project.Build.Package.class);
+				newElement.node().set(newElement, "type", java.util.Collections.singletonList(type)); 
+			    return newElement;
+			}
+
+			public org.siani.legio.Project.Build.Plugin plugin(java.lang.String mavenCode) {
+			    org.siani.legio.Project.Build.Plugin newElement = graph().concept(org.siani.legio.Project.Build.Plugin.class).createNode(name, node()).as(org.siani.legio.Project.Build.Plugin.class);
+				newElement.node().set(newElement, "mavenCode", java.util.Collections.singletonList(mavenCode)); 
+			    return newElement;
+			}
+
+			public org.siani.legio.Project.Build.License license(org.siani.legio.Project.Build.License.Type type) {
+			    org.siani.legio.Project.Build.License newElement = graph().concept(org.siani.legio.Project.Build.License.class).createNode(name, node()).as(org.siani.legio.Project.Build.License.class);
+				newElement.node().set(newElement, "type", java.util.Collections.singletonList(type)); 
+			    return newElement;
+			}
 			
 		}
+		
+		public static class Scope extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			
+			protected java.util.List<org.siani.legio.Project.Build.Scope.Type> typeList = new java.util.ArrayList<>();
+			protected java.util.List<org.siani.legio.Project.Build.Scope.AllModules> allModulesList = new java.util.ArrayList<>();
+			protected java.util.List<org.siani.legio.Project.Build.Scope.SelectedModules> selectedModulesList = new java.util.ArrayList<>();
+
+			public Scope(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.Type> typeList() {
+				return java.util.Collections.unmodifiableList(typeList);
+			}
+
+			public org.siani.legio.Project.Build.Scope.Type type(int index) {
+				return typeList.get(index);
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.Type> typeList(java.util.function.Predicate<org.siani.legio.Project.Build.Scope.Type> predicate) {
+				return typeList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.AllModules> allModulesList() {
+				return java.util.Collections.unmodifiableList(allModulesList);
+			}
+
+			public org.siani.legio.Project.Build.Scope.AllModules allModules(int index) {
+				return allModulesList.get(index);
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.AllModules> allModulesList(java.util.function.Predicate<org.siani.legio.Project.Build.Scope.AllModules> predicate) {
+				return allModulesList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.SelectedModules> selectedModulesList() {
+				return java.util.Collections.unmodifiableList(selectedModulesList);
+			}
+
+			public org.siani.legio.Project.Build.Scope.SelectedModules selectedModules(int index) {
+				return selectedModulesList.get(index);
+			}
+
+			public java.util.List<org.siani.legio.Project.Build.Scope.SelectedModules> selectedModulesList(java.util.function.Predicate<org.siani.legio.Project.Build.Scope.SelectedModules> predicate) {
+				return selectedModulesList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			
+
+			
+
+			
+
+			public List<tara.magritte.Node> componentList() {
+				java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+				typeList.stream().forEach(c -> components.add(c.node()));
+				allModulesList.stream().forEach(c -> components.add(c.node()));
+				selectedModulesList.stream().forEach(c -> components.add(c.node()));
+				return new java.util.ArrayList<>(components);
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Build.Scope.class);
+			}
+
+			@Override
+			protected void addNode(tara.magritte.Node node) {
+				super.addNode(node);
+				if (node.is("Project$Build$Scope$Type")) this.typeList.add(node.as(org.siani.legio.Project.Build.Scope.Type.class));
+				if (node.is("Project$Build$Scope$AllModules")) this.allModulesList.add(node.as(org.siani.legio.Project.Build.Scope.AllModules.class));
+				if (node.is("Project$Build$Scope$SelectedModules")) this.selectedModulesList.add(node.as(org.siani.legio.Project.Build.Scope.SelectedModules.class));
+			}
+
+			@Override
+		    protected void removeNode(tara.magritte.Node node) {
+		        super.removeNode(node);
+		        if (node.is("Project$Build$Scope$Type")) this.typeList.remove(node.as(org.siani.legio.Project.Build.Scope.Type.class));
+		        if (node.is("Project$Build$Scope$AllModules")) this.allModulesList.remove(node.as(org.siani.legio.Project.Build.Scope.AllModules.class));
+		        if (node.is("Project$Build$Scope$SelectedModules")) this.selectedModulesList.remove(node.as(org.siani.legio.Project.Build.Scope.SelectedModules.class));
+		    }
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+
+				
+
+				public org.siani.legio.Project.Build.Scope.AllModules allModules() {
+				    org.siani.legio.Project.Build.Scope.AllModules newElement = graph().concept(org.siani.legio.Project.Build.Scope.AllModules.class).createNode(name, node()).as(org.siani.legio.Project.Build.Scope.AllModules.class);
+				    return newElement;
+				}
+
+				public org.siani.legio.Project.Build.Scope.SelectedModules selectedModules(java.util.List<java.lang.String> modules) {
+				    org.siani.legio.Project.Build.Scope.SelectedModules newElement = graph().concept(org.siani.legio.Project.Build.Scope.SelectedModules.class).createNode(name, node()).as(org.siani.legio.Project.Build.Scope.SelectedModules.class);
+					newElement.node().set(newElement, "modules", modules); 
+				    return newElement;
+				}
+				
+			}
+			
+			public static abstract class Type extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+				
+
+				public Type(tara.magritte.Node node) {
+					super(node);
+				}
+
+				@Override
+				public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+					return map;
+				}
+
+				public tara.magritte.Concept concept() {
+					return this.graph().concept(org.siani.legio.Project.Build.Scope.Type.class);
+				}
+
+				@Override
+				protected void _load(java.lang.String name, java.util.List<?> values) {
+					super._load(name, values);
+				}
+
+				@Override
+				protected void _set(java.lang.String name, java.util.List<?> values) {
+					super._set(name, values);
+				}
+
+				public Create create() {
+					return new Create(null);
+				}
+
+				public Create create(java.lang.String name) {
+					return new Create(name);
+				}
+
+				public class Create {
+					protected final java.lang.String name;
+
+					public Create(java.lang.String name) {
+						this.name = name;
+					}
+					
+				}
+				
+				public org.siani.legio.LegioApplication application() {
+					return ((org.siani.legio.LegioApplication) graph().application());
+				}
+			}
+			
+			public static class AllModules extends org.siani.legio.Project.Build.Scope.Type implements tara.magritte.tags.Terminal {
+				
+
+				public AllModules(tara.magritte.Node node) {
+					super(node);
+				}
+
+				@Override
+				public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
+					return map;
+				}
+
+				public tara.magritte.Concept concept() {
+					return this.graph().concept(org.siani.legio.Project.Build.Scope.AllModules.class);
+				}
+
+				@Override
+				protected void _load(java.lang.String name, java.util.List<?> values) {
+					super._load(name, values);
+				}
+
+				@Override
+				protected void _set(java.lang.String name, java.util.List<?> values) {
+					super._set(name, values);
+				}
+
+				public Create create() {
+					return new Create(null);
+				}
+
+				public Create create(java.lang.String name) {
+					return new Create(name);
+				}
+
+				public class Create extends org.siani.legio.Project.Build.Scope.Type.Create {
+					
+
+					public Create(java.lang.String name) {
+						super(name);
+					}
+					
+				}
+				
+				public org.siani.legio.LegioApplication application() {
+					return ((org.siani.legio.LegioApplication) graph().application());
+				}
+			}
+			
+			public static class SelectedModules extends org.siani.legio.Project.Build.Scope.Type implements tara.magritte.tags.Terminal {
+				protected java.util.List<java.lang.String> modules = new java.util.ArrayList<>();
+
+				public SelectedModules(tara.magritte.Node node) {
+					super(node);
+				}
+
+				public java.util.List<java.lang.String> modules() {
+					return modules;
+				}
+
+				public java.lang.String modules(int index) {
+					return modules.get(index);
+				}
+
+				public java.util.List<java.lang.String> modules(java.util.function.Predicate<java.lang.String> predicate) {
+					return modules().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+				}
+
+				@Override
+				public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
+					map.put("modules", this.modules);
+					return map;
+				}
+
+				public tara.magritte.Concept concept() {
+					return this.graph().concept(org.siani.legio.Project.Build.Scope.SelectedModules.class);
+				}
+
+				@Override
+				protected void _load(java.lang.String name, java.util.List<?> values) {
+					super._load(name, values);
+					if (name.equalsIgnoreCase("modules")) this.modules = tara.magritte.loaders.StringLoader.load(values, this);
+				}
+
+				@Override
+				protected void _set(java.lang.String name, java.util.List<?> values) {
+					super._set(name, values);
+					if (name.equalsIgnoreCase("modules")) this.modules = new ArrayList<>((java.util.List<java.lang.String>) values);
+				}
+
+				public Create create() {
+					return new Create(null);
+				}
+
+				public Create create(java.lang.String name) {
+					return new Create(name);
+				}
+
+				public class Create extends org.siani.legio.Project.Build.Scope.Type.Create {
+					
+
+					public Create(java.lang.String name) {
+						super(name);
+					}
+					
+				}
+				
+				public org.siani.legio.LegioApplication application() {
+					return ((org.siani.legio.LegioApplication) graph().application());
+				}
+			}
+			
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class Package extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected Type type;
+
+			public enum Type {
+				LibrariesExtracted, OnlyLibrariesLinkedByManifest, AllDependenciesLinkedByManifest;
+			}
+
+			public Package(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public Type type() {
+				return type;
+			}
+
+			public void type(org.siani.legio.Project.Build.Package.Type value) {
+				this.type = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("type", new java.util.ArrayList(java.util.Collections.singletonList(this.type)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Build.Package.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("type")) this.type = tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class Plugin extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected java.lang.String mavenCode;
+
+			public Plugin(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.lang.String mavenCode() {
+				return mavenCode;
+			}
+
+			public void mavenCode(java.lang.String value) {
+				this.mavenCode = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("mavenCode", new java.util.ArrayList(java.util.Collections.singletonList(this.mavenCode)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Build.Plugin.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("mavenCode")) this.mavenCode = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("mavenCode")) this.mavenCode = (java.lang.String) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class License extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected Type type;
+
+			public enum Type {
+				GPL, BSD;
+			}
+
+			public License(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public Type type() {
+				return type;
+			}
+
+			public void type(org.siani.legio.Project.Build.License.Type value) {
+				this.type = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("type", new java.util.ArrayList(java.util.Collections.singletonList(this.type)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(org.siani.legio.Project.Build.License.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("type")) this.type = tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public org.siani.legio.LegioApplication application() {
+				return ((org.siani.legio.LegioApplication) graph().application());
+			}
+		}
+		
 		
 		public org.siani.legio.LegioApplication application() {
 			return ((org.siani.legio.LegioApplication) graph().application());

@@ -61,7 +61,7 @@ public class LegioMavenRunner {
 		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(module.getProject()).getSettings().clone();
 		runnerSettings.setSkipTests(false);
 		runnerSettings.setRunMavenInBackground(true);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), Arrays.asList(ParametersList.parse("clean deploy")), Collections.emptyList());
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), Arrays.asList(ParametersList.parse("install deploy")), Collections.emptyList());
 		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 
@@ -83,7 +83,7 @@ public class LegioMavenRunner {
 
 	private InvocationResult invoke(File pom) throws MavenInvocationException, IOException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList("clean", "install", "deploy"));
+		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList("install", "deploy"));
 		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;

@@ -82,8 +82,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 
 	void publish(final Map<Module, String> dsls, Project project) {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		doPublish(project, dsls);
-//		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(project, dsls));
+		compilerManager.make(compilerManager.createModulesCompileScope(dsls.keySet().toArray(new Module[dsls.keySet().size()]), true), publish(project, dsls));
 	}
 
 	private CompileStatusNotification publish(Project project, final Map<Module, String> modules) {

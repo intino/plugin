@@ -21,12 +21,8 @@
         <outputDirectory>../out/production/legio</outputDirectory>
         <testOutputDirectory>../out/test/legio</testOutputDirectory>
         <directory>../out/build/legio</directory>
-        <resources>
-            <resource>
-                <directory>${basedir}/../.tara/refactors</directory>
-            </resource>
-        </resources>
     </build>
+
     <repositories>
         <repository>
             <id>siani-maven</id>

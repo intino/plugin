@@ -3,6 +3,8 @@ package org.siani.legio.plugin.build;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.siani.itrules.model.Frame;
 import org.siani.legio.Project;
@@ -16,7 +18,12 @@ import tara.intellij.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
+
+import static org.siani.legio.Project.Build.Package.Type.LibrariesExtracted;
+import static org.siani.legio.Project.Build.Package.Type.OnlyLibrariesLinkedByManifest;
 
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
@@ -31,25 +38,63 @@ class PomCreator {
 	}
 
 	private static File createFrameworkPom(Module module, File pom) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		Project.Build build = configuration.build();
 		Frame frame = new Frame();
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
 		if (compilerModuleExtension != null) {
-			frame.addSlot("outDirectory", compilerModuleExtension.getCompilerOutputPath().getPath());
-			frame.addSlot("testOutDirectory", compilerModuleExtension.getCompilerOutputPathForTests().getPath());
+			frame.addSlot("outDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrl()));
+			frame.addSlot("testOutDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrlForTests()));
 		}
 		frame.addSlot("version", configuration.modelVersion());
-		for (Compile dependency : ((LegioConfiguration) configuration).dependencies())
+		if (build != null) configureBuild(module, frame, build);
+		for (Compile dependency : configuration.dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
 		if (configuration.outDSL() != null)
 			frame.addSlot("dependency", createDependencyFrame(findLanguageId(module).split(":")));
-		((LegioConfiguration) configuration).legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
+		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		writePom(pom, frame);
 		return pom;
+	}
+
+	private static void configureBuild(Module module, Frame frame, Project.Build build) {
+		if (build.attachSources()) frame.addSlot("attachSources", "");
+		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
+		final Project.Build.Package.Type type = build.package$().type();
+		if (type.equals(OnlyLibrariesLinkedByManifest)) {
+			frame.addSlot("linkLibraries", "true");
+			addDependantModuleSources(frame, module);
+		} else if (type.equals(LibrariesExtracted)) {
+			frame.addSlot("linkLibraries", "true");
+			frame.addSlot("extractedLibraries", "");
+			addDependantModuleSources(frame, module);
+		}
+		if (build.mainClass() != null) frame.addSlot("mainClass", build.mainClass());
+		if (!build.licenseList().isEmpty())
+			for (Project.Build.License license : build.licenseList())
+				frame.addSlot("license", license.concept().name());
+
+	}
+
+	private static void addDependantModuleSources(Frame frame, Module module) {
+		final Module[] moduleDependencies = ModuleRootManager.getInstance(module).getModuleDependencies();
+		for (Module dependency : moduleDependencies) {
+			final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
+			for (VirtualFile sourceRoot : sourceRoots)
+				if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
+		}
+	}
+
+	private static String pathOf(String path) {
+		try {
+			return new File(new URL(path).getPath()).getPath();
+		} catch (MalformedURLException e) {
+			return path;
+		}
 	}
 
 	private static String findLanguageId(Module module) {
