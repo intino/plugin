@@ -3,6 +3,7 @@ package org.siani.legio.plugin.build;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
+import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,7 @@ class PomCreator {
 		if (compilerModuleExtension != null) {
 			frame.addSlot("outDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrl()));
 			frame.addSlot("testOutDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrlForTests()));
+			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
 		frame.addSlot("version", configuration.modelVersion());
 		if (build != null) configureBuild(module, frame, build);
@@ -69,14 +71,15 @@ class PomCreator {
 			frame.addSlot("linkLibraries", "true");
 			addDependantModuleSources(frame, module);
 		} else if (type.equals(LibrariesExtracted)) {
-			frame.addSlot("linkLibraries", "true");
+			frame.addSlot("linkLibraries", "false");
 			frame.addSlot("extractedLibraries", "");
 			addDependantModuleSources(frame, module);
 		}
 		if (build.mainClass() != null) frame.addSlot("mainClass", build.mainClass());
+		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (!build.licenseList().isEmpty())
 			for (Project.Build.License license : build.licenseList())
-				frame.addSlot("license", license.concept().name());
+				frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
 
 	}
 

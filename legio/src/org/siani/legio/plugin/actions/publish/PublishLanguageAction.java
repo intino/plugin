@@ -93,13 +93,13 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 
 	private void doPublish(Project project, Map<Module, String> dslMap) {
 		ApplicationManager.getApplication().invokeLater(() -> {
-			publishLanguage(project, dslMap);
+			publishLanguageAndFramework(project, dslMap);
 			if (!errorMessages.isEmpty()) showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
 			processMessages(successMessages, dslMap);
 		});
 	}
 
-	private void publishLanguage(Project project, final Map<Module, String> modules) {
+	private void publishLanguageAndFramework(Project project, final Map<Module, String> modules) {
 		saveAll(project);
 		for (Module module : modules.keySet())
 			if (checkOverrideVersion(module, modules.get(module)) && !publish(module)) return;

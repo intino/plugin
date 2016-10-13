@@ -7,14 +7,14 @@ def type(pom)
 		<groupId>$groupId+lowercase</groupId>
 		<artifactId>$artifactId+lowercase</artifactId>
 		<version>$version</version>
-		<licenses>
+		[<licenses>
 			$license...[$NL]
-		</licenses>
+		</licenses>]
+
 		<properties>
 			<maven.compiler.source>1.8</maven.compiler.source>
 			<maven.compiler.target>1.8</maven.compiler.target>
 			[<project.build.sourceEncoding>$encoding</project.build.sourceEncoding>]
-
 		</properties>
 
 		<build>
@@ -22,24 +22,51 @@ def type(pom)
 			<testSourceDirectory>test</testSourceDirectory>
 			<outputDirectory>$outDirectory</outputDirectory>
 			<testOutputDirectory>$testOutDirectory</testOutputDirectory>
-			<directory>$artifactId</directory>
+			<directory>$buildDirectory~$artifactId+lowercase</directory>
 			<resources>
 				<resource><directory>res</directory></resource>
 			</resources>
-			<plugins>
+			<plugins>[$extractedLibraries
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.3</version>
+					<executions>
+					<execution>
+					<phase>package</phase>
+					<goals>
+						<goal>shade</goal>
+					</goals>
+					<configuration>
+						<artifactSet>
+						<excludes>
+							<exclude>junit:junit</exclude>
+							<exclude>jmock:*</exclude>
+							<exclude>org.apache.maven:lib:tests</exclude>
+						</excludes>
+					  </artifactSet>
+					<filter>
+						<excludes>
+							<exclude>META-INF/*</exclude>
+						</excludes>
+					</filter>
+					</configuration>
+					</execution>
+					</executions>
+				</plugin>
+				]<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.6</version>
 					<configuration>
+						[<finalName>$finalName</finalName>]
 						<archive>
 							<manifest>
-								<addClasspath>[$linkLibraries?false]</addClasspath>
-								[<mainClass>$mainClass</mainClass>]
-								[$extractedLibraries<classpathPrefix>dependency-jars/</classpathPrefix>]
+								<addClasspath>[$linkLibraries?false]</addClasspath>[
+								<mainClass>$mainClass</mainClass>]
 							</manifest>
 						</archive>
-						</configuration>
+					</configuration>
 				</plugin>[
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -60,27 +87,7 @@ def type(pom)
 						</execution>
 					</executions>
 				</plugin>]
-				[$extractedLibraries
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-dependency-plugin</artifactId>
-					<version>2.5.1</version>
-					<executions>
-						<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeScope>runtime</includeScope>
-							<outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
-						</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
-				][$attachSources
+				[$attachSources
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
@@ -152,7 +159,6 @@ def type(moduleDependency)
 	<source>$url</source>
 end
 
-
 def type(repository) type(Distribution) trigger(distribution)
 	<repository>
 		<id>$name</id>
@@ -160,6 +166,7 @@ def type(repository) type(Distribution) trigger(distribution)
 		<url>$url</url>
 	</repository>
 end
+
 def trigger(distribution)
 end
 
@@ -175,18 +182,19 @@ def type(dependency) trigger(dependency)
 	<dependency>
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
+		<scope>compile</scope>
 		<version>$version</version>
 	</dependency>
 end
 
-def value(GPL) trigger(license)
+def type(GPL) trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 	</license>
 end
 
-def value(BSD) trigger(license)
+def type(BSD) trigger(license)
 	<license>
 		<name>BSD 3-Clause License</name>
 		<url>https://opensource.org/licenses/BSD-3-Clause</url>

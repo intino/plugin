@@ -35,7 +35,7 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 			publishLanguage(module);
 			updateProgressIndicator("Publishing Framework");
 			publishFramework(module);
-		}, message("publishing.language", TaraUtil.configurationOf(module).outDSL()), false, module.getProject());
+		}, "Publishing " + TaraUtil.configurationOf(module).artifactId(), false, module.getProject());
 	}
 
 	private void publishLanguage(Module module) {

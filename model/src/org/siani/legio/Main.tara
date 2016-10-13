@@ -34,11 +34,7 @@ Concept:Named Project
 		var boolean attachDoc = false
 		var boolean includeTests = false
 		var string mainClass = empty
-		var string artifactName = empty
-		Concept:{1..1} Scope
-			Concept Type
-				sub AllModules
-				sub SelectedModules > var string[] modules
+		var string finalName = empty
 		Concept:{1..1} Package
 			var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
 		Concept Plugin

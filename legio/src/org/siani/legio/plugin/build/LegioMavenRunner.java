@@ -1,6 +1,5 @@
 package org.siani.legio.plugin.build;
 
-import com.intellij.execution.configurations.ParametersList;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -17,10 +16,10 @@ import tara.intellij.lang.LanguageManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
+import static java.util.Arrays.asList;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
@@ -61,7 +60,7 @@ public class LegioMavenRunner {
 		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(module.getProject()).getSettings().clone();
 		runnerSettings.setSkipTests(false);
 		runnerSettings.setRunMavenInBackground(true);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), Arrays.asList(ParametersList.parse("install deploy")), Collections.emptyList());
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), asList("install", "deploy"), Collections.emptyList());
 		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 
@@ -83,7 +82,7 @@ public class LegioMavenRunner {
 
 	private InvocationResult invoke(File pom) throws MavenInvocationException, IOException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList("install", "deploy"));
+		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(asList("clean", "install", "deploy"));
 		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
