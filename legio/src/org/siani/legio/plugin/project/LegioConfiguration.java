@@ -13,6 +13,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.siani.legio.LegioApplication;
 import org.siani.legio.Project;
@@ -44,7 +46,7 @@ public class LegioConfiguration implements Configuration {
 
 	private static final String CONFIGURATION_LEGIO = "configuration.legio";
 	private final Module module;
-	private TaraModel legioConf;
+	private VirtualFile legioFile;
 	private LegioApplication legio;
 
 	public LegioConfiguration(Module module) {
@@ -53,7 +55,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Configuration init() {
-		legioConf = (TaraModel) new LegioFileCreator(module).create();
+		legioFile = new LegioFileCreator(module).create();
 		reloadGraph();
 		reloadDependencies();
 		return this;
@@ -102,7 +104,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private Stash loadNewConfiguration() {
-		return new StashBuilder(new File(legioConf.getVirtualFile().getPath()), new Legio(), module.getName()).build();
+		return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
 	}
 
 	private void saveStash(Stash legioStash) {
@@ -193,11 +195,13 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void dslVersion(String version) {
-		new WriteCommandAction(legioConf.getProject(), legioConf) {
+		final TaraModel psiFile = (TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
+		if (psiFile == null) return;
+		new WriteCommandAction(module.getProject(), psiFile) {
 			@Override
 			protected void run(@NotNull Result result) throws Throwable {
 				legio.project().factory().modeling().version(version);
-				final Node factory = legioConf.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
+				final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
 				if (factory == null) return;
 				final Node modeling = factory.components().stream().filter(f -> f.type().equals(f.type())).findFirst().orElse(null);
 				if (modeling == null) return;
@@ -219,7 +223,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void modelVersion(String s) {
-
+		//TODO
 		reload();
 	}
 

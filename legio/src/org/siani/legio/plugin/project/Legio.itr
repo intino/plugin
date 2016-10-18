@@ -1,13 +1,11 @@
 def type(legio)
 	dsl Legio
 
-	Project $name as Platform //TODO Change for your project
-		groupId = "org.sample"
-		version = "1.0.0"
-		DSL Proteo
-		OutDSL SampleApplication
-
-        Dependencies
-            Test
-		Dependency("junit:junit:LATEST", Test)
+	Project(groupId = "org.sample", version = "1.0.0") $name
+		Repositories
+			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")
+		Dependencies
+			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+		Factory as Platform
+			Modeling(language = "Verso", version = "LATEST")
 end

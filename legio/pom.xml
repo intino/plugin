@@ -130,7 +130,7 @@
             <version>LATEST</version>
         </dependency>
         <dependency>
-            <groupId>org.siani.legio</groupId>
+            <groupId>io.intino.legio</groupId>
             <artifactId>model</artifactId>
             <version>1.0.0</version>
         </dependency>

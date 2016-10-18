@@ -1,10 +1,11 @@
 package org.siani.legio.plugin.project;
 
-import org.siani.itrules.*;
+import org.siani.itrules.LineSeparator;
+import org.siani.itrules.Template;
 
 import java.util.Locale;
 
-import static org.siani.itrules.LineSeparator.*;
+import static org.siani.itrules.LineSeparator.LF;
 
 public class LegioTemplate extends Template {
 
@@ -18,7 +19,7 @@ public class LegioTemplate extends Template {
 
 	public Template define() {
 		add(
-			rule().add((condition("type", "legio"))).add(literal("dsl Legio\n\nProject ")).add(mark("name")).add(literal(" as Platform //TODO Change for your project\n\tgroupId = \"org.sample\"\n\tversion = \"1.0.0\"\n\tDSL Proteo\n\tOutDSL SampleApplication\n\n    Dependencies\n        Test\n\tDependency(\"junit:junit:LATEST\", Test)"))
+				rule().add((condition("type", "legio"))).add(literal("dsl Legio\n\nProject(groupId = \"org.sample\", version = \"1.0.0\") ")).add(mark("name")).add(literal("\n\tRepositories\n\t\tRelease(url = \"http://artifactory.siani.es/artifactory/libs-release\", \"siani-maven\")\n\tDependencies\n\t\tTest(groupId = \"junit\", artifactId = \"junit\", version = \"LATEST\")\n\tFactory as Platform\n\t\tModeling(language = \"Verso\", version = \"LATEST\")"))
 		);
 		return this;
 	}
