@@ -1,0 +1,26 @@
+package io.intino.legio.plugin.project;
+
+import org.siani.itrules.LineSeparator;
+import org.siani.itrules.Template;
+
+import java.util.Locale;
+
+import static org.siani.itrules.LineSeparator.LF;
+
+public class LegioTemplate extends Template {
+
+	protected LegioTemplate(Locale locale, LineSeparator separator) {
+		super(locale, separator);
+	}
+
+	public static Template create() {
+		return new LegioTemplate(Locale.ENGLISH, LF).define();
+	}
+
+	public Template define() {
+		add(
+				rule().add((condition("type", "legio"))).add(literal("dsl Legio\n\nProject(groupId = \"org.sample\", version = \"1.0.0\") ")).add(mark("name")).add(literal("\n\tRepositories\n\t\tRelease(url = \"http://artifactory.intino.es/artifactory/libs-release\", \"intino-maven\")\n\tDependencies\n\t\tTest(groupId = \"junit\", artifactId = \"junit\", version = \"LATEST\")\n\tFactory as Platform\n\t\tModeling(language = \"Verso\", version = \"LATEST\")"))
+		);
+		return this;
+	}
+}

@@ -19,37 +19,40 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileDocumentManagerListener
-                implementation="org.siani.legio.plugin.project.ConfigurationListener"/>
-        <fileTypeFactory implementation="org.siani.legio.plugin.file.LegioFileTypeFactory"/>
-        <errorHandler implementation="org.siani.legio.plugin.errorreporting.PluginErrorReportSubmitter"/>
+                implementation="io.intino.legio.plugin.project.ConfigurationListener"/>
+        <fileTypeFactory implementation="io.intino.legio.plugin.file.LegioFileTypeFactory"/>
+        <errorHandler implementation="io.intino.legio.plugin.errorreporting.PluginErrorReportSubmitter"/>
     </extensions>
 
     <actions>
-        <group id="TaraMenu" text="Tara" description="Tara Menu">
-            <action id="PublishLanguage" class="org.siani.legio.plugin.actions.publish.PublishLanguageAction"
-                    text="Publish Language..."
-                    description="Publish Language...">
+        <group id="LegioToolsGroup" popup="true" text="Legio" class="io.intino.legio.plugin.actions.LegioActionGroup">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+            <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.PublishLanguageAction"
+                    text="Publish Artifact..."
+                    description="Publish Artifact">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
+                <add-to-group group-id="LegioToolsGroup"/>
             </action>
             <action id="PublishSnapshotLanguage"
-                    class="org.siani.legio.plugin.actions.publish.PublishSnapshotLanguageAction"
-                    text="Publish Snapshot Language..." description="Publish Snapshot Language...">
+                    class="io.intino.legio.plugin.actions.publish.PublishSnapshotLanguageAction"
+                    text="Publish Snapshot Artifact..." description="Publish Snapshot Language and Framework">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt S"/>
+                <add-to-group group-id="LegioToolsGroup"/>
             </action>
-            <action id="UpdateLanguage" class="org.siani.legio.plugin.actions.UpdateLanguageAction"
+            <action id="UpdateLanguage" class="io.intino.legio.plugin.actions.UpdateLanguageAction"
                     text="Update Language"
                     description="Update Language">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
+                <add-to-group group-id="LegioToolsGroup"/>
             </action>
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </group>
-        <action id="JoinToLegio" class="org.siani.legio.plugin.actions.JoinToLegioAction"
+        <action id="JoinToLegio" class="io.intino.legio.plugin.actions.JoinToLegioAction"
                 text="Join To Legio"
                 description="Join module to legio or convert from maven">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <action id="org.siani.legio.plugin.actions.ReloadConfigurationAction"
-                class="org.siani.legio.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
+        <action id="io.intino.legio.plugin.actions.ReloadConfigurationAction"
+                class="io.intino.legio.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
                 description="Reload configuration of project modules">
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
@@ -57,7 +60,7 @@
 
     <application-components>
         <component>
-            <implementation-class>org.siani.legio.plugin.project.LegioAppComponent</implementation-class>
+            <implementation-class>io.intino.legio.plugin.project.LegioAppComponent</implementation-class>
         </component>
     </application-components>
 

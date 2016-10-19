@@ -3,15 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.siani</groupId>
-    <artifactId>legio</artifactId>
+    <groupId>io.intino.legio</groupId>
+    <artifactId>plugin</artifactId>
     <version>1.0.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <tara.level>Application</tara.level>
-        <tara.working.package>org.siani.legio</tara.working.package>
+        <tara.working.package>io.intino.legio</tara.working.package>
         <tara.dsl>Proteo</tara.dsl>
         <tara.dsl.version>1.0.0</tara.dsl.version>
         <tara.out.dsl>Legio</tara.out.dsl>
