@@ -19,7 +19,7 @@ public class LegioTemplate extends Template {
 
 	public Template define() {
 		add(
-				rule().add((condition("type", "legio"))).add(literal("dsl Legio\n\nProject(groupId = \"org.sample\", version = \"1.0.0\") ")).add(mark("name")).add(literal("\n\tRepositories\n\t\tRelease(url = \"http://artifactory.intino.es/artifactory/libs-release\", \"intino-maven\")\n\tDependencies\n\t\tTest(groupId = \"junit\", artifactId = \"junit\", version = \"LATEST\")\n\tFactory as Platform\n\t\tModeling(language = \"Verso\", version = \"LATEST\")"))
+				rule().add((condition("type", "legio"))).add(literal("dsl Legio\n\nProject(groupId = \"org.sample\", version = \"1.0.0\") ")).add(mark("name")).add(literal("\n\tRepositories\n\t\tRelease(url = \"http://artifactory.siani.es/artifactory/libs-release\", \"siani-maven\")\n\t\tLanguages(url = \"http://artifactory.siani.es/artifactory/lenguages-release\", \"siani-maven\")\n\tDependencies\n\t\tTest(groupId = \"junit\", artifactId = \"junit\", version = \"LATEST\")\n\tFactory as Platform\n\t\tModeling(language = \"Verso\", version = \"LATEST\")"))
 		);
 		return this;
 	}

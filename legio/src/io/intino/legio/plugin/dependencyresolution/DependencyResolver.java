@@ -7,10 +7,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
 import com.jcabi.aether.Aether;
-import org.jetbrains.annotations.NotNull;
+import com.jcabi.aspects.Loggable;
 import io.intino.legio.Project.Dependencies;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
+import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Loggable(Loggable.ERROR)
 public class DependencyResolver {
 
 	private final Module module;
@@ -51,6 +53,7 @@ public class DependencyResolver {
 	}
 
 	private void processDependencies(List<Library> newLibraries) {
+		if (dependencies == null) return;
 		dependencies.dependencyList().forEach(d -> {
 			Module moduleDependency = moduleOf(d);
 			if (moduleDependency != null)
