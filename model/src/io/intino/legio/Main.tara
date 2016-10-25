@@ -1,6 +1,6 @@
 dsl Proteo
 
-Concept:Named Project
+Concept:{1..1} Project
 	var string groupId
 	var string version
 	Concept:{0..1} Repositories

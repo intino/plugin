@@ -4,7 +4,7 @@ def type(legio)
 	Project(groupId = "org.sample", version = "1.0.0") $name
 		Repositories
 			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")
-			Languages(url = "http://artifactory.siani.es/artifactory/lenguages-release", "siani-maven")
+			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
 		Dependencies
 			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
 		Factory as Platform

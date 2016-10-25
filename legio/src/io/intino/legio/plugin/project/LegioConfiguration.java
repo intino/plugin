@@ -27,6 +27,7 @@ import io.intino.legio.Project.Repositories.Repository;
 import io.intino.legio.Project.Repositories.Snapshot;
 import io.intino.legio.plugin.dependencyresolution.DependencyResolver;
 import io.intino.legio.plugin.dependencyresolution.LanguageResolver;
+import io.intino.legio.plugin.dependencyresolution.LegioUtil;
 import io.intino.legio.plugin.dependencyresolution.LibraryManager;
 import org.jetbrains.annotations.NotNull;
 import tara.StashBuilder;
@@ -127,7 +128,7 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null || legio.project() == null) return;
 		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
 		if (legio.project().factory() != null)
-			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory()).resolve());
+			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}
 
@@ -199,6 +200,11 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.project().factory().modeling().version());
 	}
 
+
+	public String dslEffectiveVersion() {
+		return LegioUtil.effectiveVersionOf(dsl(), dslVersion(), this);
+	}
+
 	@Override
 	public void dslVersion(String version) {
 		final Application application = ApplicationManager.getApplication();
@@ -230,7 +236,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public void modelVersion(String s) {
+	public void modelVersion(String version) {
 		//TODO
 		reload();
 	}

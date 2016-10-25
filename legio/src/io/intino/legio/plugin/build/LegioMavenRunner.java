@@ -67,12 +67,14 @@ public class LegioMavenRunner {
 	public void publishFramework() throws MavenInvocationException, IOException {
 		final File pom = PomCreator.createFrameworkPom(module);
 		final InvocationResult result = invoke(pom);
-		FileUtil.delete(pom);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
 				throw new IOException("Failed to publish framework.", result.getExecutionException());
 			else throw new IOException("Failed to publish framework. Exit code: " + result.getExitCode());
-		} else if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
+		} else {
+			FileUtil.delete(pom);
+			if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
+		}
 	}
 
 	@NotNull

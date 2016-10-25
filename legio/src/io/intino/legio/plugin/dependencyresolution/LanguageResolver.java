@@ -32,18 +32,19 @@ public class LanguageResolver {
 	private final Module module;
 	private final List<Repository> repositories;
 	private final Project.Factory factory;
+	private final String version;
 	private static final String proteoGroupId = "org.siani.tara";
 	private static final String proteoArtifactId = "proteo";
 
-	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory) {
+	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory, String version) {
 		this.module = module;
 		this.repositories = repositories;
 		this.factory = factory;
+		this.version = version;
 	}
 
 	public List<Library> resolve() {
 		final String language = factory.modeling().language();
-		final String version = factory.modeling().version();
 		LanguageManager.reloadLanguage(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))

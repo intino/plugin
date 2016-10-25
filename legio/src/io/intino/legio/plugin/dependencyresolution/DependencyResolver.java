@@ -78,10 +78,21 @@ public class DependencyResolver {
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {
+		File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+		final Aether aether = new Aether(collectRemotes(), localRepository);
+		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
 		try {
-			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(dependency.identifier()), dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE);
-		} catch (DependencyResolutionException ignored) {
+			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
+		} catch (DependencyResolutionException e) {
+			return tryAsPom(aether, dependency.identifier().split(":"), scope);
+		}
+	}
+
+	private List<Artifact> tryAsPom(Aether aether, String[] dependency, String scope) {
+		if (dependency.length != 3) return Collections.emptyList();
+		try {
+			return aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope);
+		} catch (DependencyResolutionException e) {
 			return Collections.emptyList();
 		}
 	}
