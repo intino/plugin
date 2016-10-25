@@ -11,6 +11,7 @@ import org.jetbrains.idea.maven.execution.*;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import tara.compiler.core.errorcollection.TaraException;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
 
@@ -27,6 +28,7 @@ public class LegioMavenRunner {
 
 	private static final Logger LOG = Logger.getInstance(LegioMavenRunner.class.getName());
 	private final Module module;
+	private String output = "";
 
 	public LegioMavenRunner(Module module) {
 		this.module = module;
@@ -45,23 +47,9 @@ public class LegioMavenRunner {
 		final InvocationResult result = invoke(request);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
-				throw new IOException("Failed to publish language.", result.getExecutionException());
-			else throw new IOException("Failed to publish language. Exit code: " + result.getExitCode());
+				throw new IOException("Failed publishing language. " + result.getExecutionException().getMessage(), result.getExecutionException());
+			else throw new IOException("Failed publishing language.\n" + output, new TaraException(output));
 		} else if (result == null) throw new IOException("Failed to publish language. Maven HOME not found");
-	}
-
-	public void publishNativeMaven() {
-		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
-		if (project == null) return;
-		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-		generalSettings.setOutputLevel(ERROR);
-		generalSettings.setPrintErrorStackTraces(false);
-		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
-		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(module.getProject()).getSettings().clone();
-		runnerSettings.setSkipTests(false);
-		runnerSettings.setRunMavenInBackground(true);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), asList("install", "deploy"), Collections.emptyList());
-		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 
 	public void publishFramework() throws MavenInvocationException, IOException {
@@ -70,7 +58,8 @@ public class LegioMavenRunner {
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
 				throw new IOException("Failed to publish framework.", result.getExecutionException());
-			else throw new IOException("Failed to publish framework. Exit code: " + result.getExitCode());
+			else
+				throw new IOException("Failed to publish framework.\n" + output, new TaraException(output));
 		} else {
 			FileUtil.delete(pom);
 			if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
@@ -88,9 +77,9 @@ public class LegioMavenRunner {
 		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
-		LOG.info("Maven HOME: " + mavenHome.getAbsolutePath());
-		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
+		Invoker invoker = new DefaultInvoker().setLogger(new PrintStreamLogger(System.out, InvokerLogger.ERROR)).setMavenHome(mavenHome);
 		log(invoker);
+
 		config(request, mavenHome);
 		return invoker.execute(request);
 	}
@@ -99,16 +88,28 @@ public class LegioMavenRunner {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
-		LOG.info("Maven HOME: " + mavenHome.getAbsolutePath());
-		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
+		Invoker invoker = new DefaultInvoker().setLogger(new PrintStreamLogger(System.out, InvokerLogger.ERROR)).setMavenHome(mavenHome);
 		log(invoker);
 		config(request, mavenHome);
 		return invoker.execute(request);
 	}
 
+	public void publishNativeMaven() {
+		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
+		if (project == null) return;
+		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
+		generalSettings.setOutputLevel(ERROR);
+		generalSettings.setPrintErrorStackTraces(false);
+		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
+		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(module.getProject()).getSettings().clone();
+		runnerSettings.setSkipTests(false);
+		runnerSettings.setRunMavenInBackground(true);
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), asList("install", "deploy"), Collections.emptyList());
+		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
+	}
+
 	private void log(Invoker invoker) throws IOException {
-		invoker.setErrorHandler(LOG::error);
-		invoker.setOutputHandler(System.out::println);
+		invoker.setOutputHandler(s -> output += (s.startsWith("[ERROR]")) ? s + "\n" : "");
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.intellij.openapi.ui.Messages.showErrorDialog;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static tara.intellij.messages.MessageProvider.message;
 
@@ -93,8 +92,9 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private void doPublish(Project project, Map<Module, String> dslMap) {
 		ApplicationManager.getApplication().invokeLater(() -> {
 			publishLanguageAndFramework(project, dslMap);
-			if (!errorMessages.isEmpty()) showErrorDialog(errorMessages.iterator().next(), message("error.occurred"));
-			processMessages(successMessages, dslMap);
+			if (!errorMessages.isEmpty())
+				Notifications.Bus.notify(new Notification("Tara Language", message("error.occurred"), errorMessages.iterator().next(), NotificationType.ERROR), project);
+			else processMessages(successMessages, dslMap);
 		});
 	}
 
