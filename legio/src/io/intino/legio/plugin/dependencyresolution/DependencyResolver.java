@@ -7,7 +7,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
 import com.jcabi.aether.Aether;
-import com.jcabi.aspects.Loggable;
 import io.intino.legio.Project.Dependencies;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Loggable(Loggable.ERROR)
 public class DependencyResolver {
 
 	private final Module module;

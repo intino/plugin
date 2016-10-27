@@ -54,6 +54,7 @@ public class LegioConfiguration implements Configuration {
 	private VirtualFile legioFile;
 	private LegioApplication legio;
 
+
 	public LegioConfiguration(Module module) {
 		this.module = module;
 	}

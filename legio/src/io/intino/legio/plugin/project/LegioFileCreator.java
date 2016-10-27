@@ -35,7 +35,7 @@ class LegioFileCreator {
 	private Path write(String legio, File destiny) {
 		try {
 			return Files.write(destiny.toPath(), legio.getBytes());
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 		return destiny.toPath();
 	}

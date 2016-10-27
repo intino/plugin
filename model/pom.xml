@@ -18,9 +18,9 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/legio</outputDirectory>
-        <testOutputDirectory>../out/test/legio</testOutputDirectory>
-        <directory>../out/build/legio</directory>
+        <outputDirectory>../out/production/model</outputDirectory>
+        <testOutputDirectory>../out/test/model</testOutputDirectory>
+        <directory>../out/build/model</directory>
         <resources>
             <resource>
                 <directory>${basedir}/../.tara/refactors</directory>
