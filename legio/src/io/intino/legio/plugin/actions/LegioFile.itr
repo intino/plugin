@@ -3,7 +3,8 @@ def type(legio)
 
 	Project(groupId = "$groupId", version = "$version") $artifactId
     	Repositories[
-			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")$isTara][
+			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
+			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")$isTara][
     		$repository...[$NL]][
     		$distribution]
     	Dependencies[

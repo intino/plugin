@@ -1,12 +1,8 @@
 package io.intino.legio.plugin.project;
 
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import org.siani.itrules.model.Frame;
 
 import java.io.File;
@@ -18,11 +14,9 @@ import static com.intellij.openapi.vfs.VfsUtil.findFileByIoFile;
 
 class LegioFileCreator {
 	private final Module module;
-	private final PsiManager psiManager;
 
 	LegioFileCreator(Module module) {
 		this.module = module;
-		psiManager = PsiManager.getInstance(module.getProject());
 	}
 
 	VirtualFile create() {
@@ -38,14 +32,5 @@ class LegioFileCreator {
 		} catch (IOException ignored) {
 		}
 		return destiny.toPath();
-	}
-
-	private PsiFile inReadAction(final VirtualFile ioFile, Application application) {
-		return application.runReadAction(new Computable<PsiFile>() {
-			@Override
-			public PsiFile compute() {
-				return psiManager.findFile(ioFile);
-			}
-		});
 	}
 }

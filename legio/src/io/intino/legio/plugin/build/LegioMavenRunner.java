@@ -77,7 +77,7 @@ public class LegioMavenRunner {
 		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
-		Invoker invoker = new DefaultInvoker().setLogger(new PrintStreamLogger(System.out, InvokerLogger.ERROR)).setMavenHome(mavenHome);
+		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
 		log(invoker);
 
 		config(request, mavenHome);
@@ -88,7 +88,7 @@ public class LegioMavenRunner {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
-		Invoker invoker = new DefaultInvoker().setLogger(new PrintStreamLogger(System.out, InvokerLogger.ERROR)).setMavenHome(mavenHome);
+		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
 		log(invoker);
 		config(request, mavenHome);
 		return invoker.execute(request);

@@ -85,6 +85,7 @@ public class LegioConfiguration implements Configuration {
 		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
+						 if (legioFile == null) legioFile = new LegioFileCreator(module).create();
 						 reloadGraph();
 						 ApplicationManager.getApplication().invokeLater(() ->
 								 ApplicationManager.getApplication().runWriteAction(() -> reloadDependencies()));
@@ -111,7 +112,11 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private Stash loadNewConfiguration() {
-		return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
+		try {
+			return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private void saveStash(Stash legioStash) {

@@ -6,7 +6,9 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.vfs.VfsUtil;
 import io.intino.legio.plugin.LegioIcons;
+import io.intino.legio.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactNode;
@@ -15,7 +17,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.siani.itrules.model.Frame;
-import io.intino.legio.plugin.project.LegioConfiguration;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.project.TaraModuleType;
@@ -46,7 +47,8 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			else newLegio(module);
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
-			ConfigurationManager.register(module, new LegioConfiguration(module));
+			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
+			VfsUtil.markDirtyAndRefresh(true, true, false, module.getModuleFile().getParent());
 		};
 	}
 
@@ -59,7 +61,10 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 	}
 
 	private Frame newFrame(Module module) {
-		return new Frame().addTypes("legio").addSlot("groupId", "org.example").addSlot("artifactId", module.getName().toLowerCase()).addSlot("version", "1.0.0");
+		Frame frame = new Frame().addTypes("legio").addSlot("groupId", "org.example").
+				addSlot("artifactId", module.getName().toLowerCase()).addSlot("version", "1.0.0");
+		if (TaraModuleType.isTara(module)) frame.addSlot("isTara", "");
+		return frame;
 	}
 
 	private Frame fromMavenFrame(Module module, MavenProject maven) {

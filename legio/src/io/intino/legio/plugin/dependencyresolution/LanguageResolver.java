@@ -45,17 +45,12 @@ public class LanguageResolver {
 
 	public List<Library> resolve() {
 		final String language = factory.modeling().language();
-		reloadLanguage(language);
+		LanguageManager.reloadLanguage(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))
 			libraries.addAll(proteoFramework(version));
 		else libraries.addAll(frameworkOfLanguage(language, version));
 		return libraries;
-	}
-
-	private void reloadLanguage(String language) {
-		boolean reloaded = LanguageManager.reloadLanguage(this.module.getProject(), language, version);
-		if (!reloaded) new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(language, version);
 	}
 
 	private List<Library> proteoFramework(String version) {
@@ -86,6 +81,7 @@ public class LanguageResolver {
 
 	private void addExternalLibraries(String language, String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
+		if (!LanguageManager.getLanguageFile(language, version).exists()) importLanguage();
 		libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(findLanguageId(language, version))));
 		manager.addToModule(libraries, false);
 	}
@@ -125,6 +121,10 @@ public class LanguageResolver {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private void importLanguage() {
+		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(factory.modeling().language(), version);
 	}
 
 	@NotNull
