@@ -36,6 +36,7 @@ import tara.dsl.Legio;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.TaraModel;
 import tara.io.Stash;
+import tara.io.StashDeserializer;
 import tara.io.StashSerializer;
 import tara.lang.model.Node;
 import tara.lang.model.Parameter;
@@ -54,7 +55,6 @@ public class LegioConfiguration implements Configuration {
 	private VirtualFile legioFile;
 	private LegioApplication legio;
 
-
 	public LegioConfiguration(Module module) {
 		this.module = module;
 	}
@@ -62,8 +62,7 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Configuration init() {
 		legioFile = new LegioFileCreator(module).create();
-		reloadGraph();
-		reloadDependencies();
+		load();
 		return this;
 	}
 
@@ -115,19 +114,31 @@ public class LegioConfiguration implements Configuration {
 		try {
 			return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
 
 	private void saveStash(Stash legioStash) {
 		try {
-			File file = new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+			File file = stashFile();
 			file.getParentFile().mkdirs();
 			file.createNewFile();
 			Files.write(file.toPath(), StashSerializer.serialize(legioStash));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@NotNull
+	private File stashFile() {
+		return new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+	}
+
+	private void load() {
+		File file = stashFile();
+		if (!file.exists()) reloadGraph();
+		else this.legio = GraphLoader.loadGraph(StashDeserializer.stashFrom(file));
 	}
 
 	private void reloadDependencies() {
