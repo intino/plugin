@@ -45,7 +45,7 @@ public class LanguageResolver {
 
 	public List<Library> resolve() {
 		final String language = factory.modeling().language();
-		LanguageManager.reloadLanguage(this.module.getProject(), language, version);
+		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))
 			libraries.addAll(proteoFramework(version));

@@ -19,6 +19,7 @@ def type(pom)
 
 		<build>
 			<sourceDirectory>src</sourceDirectory>
+			$sourceDirectory...[$NL]
 			<testSourceDirectory>test</testSourceDirectory>
 			<outputDirectory>$outDirectory</outputDirectory>
 			<testOutputDirectory>$testOutDirectory</testOutputDirectory>
@@ -153,6 +154,10 @@ def type(pom)
 			</dependency>
 		</dependencies>
 	</project>
+end
+
+def trigger(sourceDirectory)
+	<sourceDirectory>$value</sourceDirectory>
 end
 
 def type(moduleDependency)

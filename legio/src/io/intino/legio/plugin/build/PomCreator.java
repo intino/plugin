@@ -6,14 +6,14 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.siani.itrules.model.Frame;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Compile;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.legio.Project.Repositories.Snapshot;
 import io.intino.legio.plugin.dependencyresolution.LanguageResolver;
 import io.intino.legio.plugin.project.LegioConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.siani.itrules.model.Frame;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
 
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 import static io.intino.legio.Project.Build.Package.Type.LibrariesExtracted;
 import static io.intino.legio.Project.Build.Package.Type.OnlyLibrariesLinkedByManifest;
@@ -48,6 +49,7 @@ class PomCreator {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
 		if (compilerModuleExtension != null) {
 			frame.addSlot("outDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrl()));
+			frame.addSlot("srcDirectory", srcDirectories(module));
 			frame.addSlot("testOutDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrlForTests()));
 			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
@@ -61,6 +63,12 @@ class PomCreator {
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		writePom(pom, frame);
 		return pom;
+	}
+
+	private static String[] srcDirectories(Module module) {
+		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+		final VirtualFile[] sourceRoots = manager.getSourceRoots(false);
+		return Arrays.stream(sourceRoots).map(VirtualFile::getName).toArray(String[]::new);
 	}
 
 	private static void configureBuild(Module module, Frame frame, Project.Build build) {

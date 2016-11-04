@@ -265,7 +265,6 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void refactorId(int i) {
-		reload();
 	}
 
 	@Override
