@@ -292,8 +292,8 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
-	public List<Project.Dependencies.Compile> dependencies() {
-		return legio.project().dependencies().compileList();
+	public List<Project.Dependencies.Dependency> dependencies() {
+		return legio.project().dependencies().dependencyList();
 	}
 
 	public List<Repository> legioRepositories() {

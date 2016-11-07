@@ -1,5 +1,6 @@
 package io.intino.legio.plugin.build;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
@@ -7,12 +8,14 @@ import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.Project;
-import io.intino.legio.Project.Dependencies.Compile;
+import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.legio.Project.Repositories.Snapshot;
 import io.intino.legio.plugin.dependencyresolution.LanguageResolver;
 import io.intino.legio.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
+import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.siani.itrules.model.Frame;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
@@ -22,7 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.List;
 
 import static io.intino.legio.Project.Build.Package.Type.LibrariesExtracted;
 import static io.intino.legio.Project.Build.Package.Type.OnlyLibrariesLinkedByManifest;
@@ -46,16 +49,17 @@ class PomCreator {
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
+		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(module, frame);
+		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(module, frame));
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
 		if (compilerModuleExtension != null) {
 			frame.addSlot("outDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrl()));
-			frame.addSlot("srcDirectory", srcDirectories(module));
 			frame.addSlot("testOutDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrlForTests()));
 			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
 		frame.addSlot("version", configuration.modelVersion());
 		if (build != null) configureBuild(module, frame, build);
-		for (Compile dependency : configuration.dependencies())
+		for (Dependency dependency : configuration.dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
 		if (configuration.outDSL() != null)
 			frame.addSlot("dependency", createDependencyFrame(findLanguageId(module).split(":")));
@@ -65,10 +69,21 @@ class PomCreator {
 		return pom;
 	}
 
+	private static void fillDirectories(Module module, Frame frame) {
+		frame.addSlot("sourceDirectory", srcDirectories(module));
+		frame.addSlot("resourceDirectory", resourceDirectories(module));
+	}
+
 	private static String[] srcDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final VirtualFile[] sourceRoots = manager.getSourceRoots(false);
-		return Arrays.stream(sourceRoots).map(VirtualFile::getName).toArray(String[]::new);
+		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(JavaSourceRootType.SOURCE);
+		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
+	}
+
+	private static String[] resourceDirectories(Module module) {
+		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
+		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
 	private static void configureBuild(Module module, Frame frame, Project.Build build) {
@@ -113,12 +128,12 @@ class PomCreator {
 		return LanguageResolver.findLanguageId(configuration.dsl(), configuration.dslVersion());
 	}
 
-	private static Frame createDependencyFrame(Compile id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("artifactId", id.artifactId()).addSlot("version", id.version());
+	private static Frame createDependencyFrame(Dependency id) {
+		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId()).addSlot("version", id.version());
 	}
 
 	private static Frame createDependencyFrame(String[] id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id[0]).addSlot("artifactId", id[1]).addSlot("version", id[2]);
+		return new Frame().addTypes("dependency").addSlot("groupId", id[0]).addSlot("scope", "compile").addSlot("artifactId", id[1]).addSlot("version", id[2]);
 	}
 
 	private static Frame createRepositoryFrame(Repository repo) {
