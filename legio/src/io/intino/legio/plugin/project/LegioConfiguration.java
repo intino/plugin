@@ -32,6 +32,7 @@ import io.intino.legio.plugin.dependencyresolution.LibraryManager;
 import org.jetbrains.annotations.NotNull;
 import tara.StashBuilder;
 import tara.compiler.shared.Configuration;
+import tara.compiler.shared.TaraBuildConstants;
 import tara.dsl.Legio;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.TaraModel;
@@ -46,6 +47,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 public class LegioConfiguration implements Configuration {
@@ -175,6 +179,20 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
+	public String dslWorkingPackage() {
+		try {
+			final File languageFile = LanguageManager.getLanguageFile(dsl(), dslVersion());
+			Manifest manifest = new JarFile(languageFile).getManifest();
+			final Attributes tara = manifest.getAttributes("tara");
+			if (tara == null) return null;
+			return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
 	public List<String> repositories() {
 		return legio.project().repositories().repositoryList().stream().
 				map(Repository::url).collect(Collectors.toList());
@@ -256,20 +274,6 @@ public class LegioConfiguration implements Configuration {
 	public void modelVersion(String version) {
 		//TODO
 		reload();
-	}
-
-	@Override
-	public int refactorId() {
-		return 0;
-	}
-
-	@Override
-	public void refactorId(int i) {
-	}
-
-	@Override
-	public boolean isPersistent() {
-		return safe(() -> legio.project().factory().persistent());
 	}
 
 	private String safe(StringWrapper wrapper) {
