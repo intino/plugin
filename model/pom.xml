@@ -55,5 +55,10 @@
             <version>LATEST</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.siani.tara</groupId>
+            <artifactId>language</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 </project>
