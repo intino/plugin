@@ -58,6 +58,7 @@
         <dependency>
             <groupId>org.siani.tara</groupId>
             <artifactId>language</artifactId>
+            <scope>provided</scope>
             <version>LATEST</version>
         </dependency>
     </dependencies>
