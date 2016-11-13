@@ -11,6 +11,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	protected io.intino.legio.Project.Dependencies dependencies;
 	protected io.intino.legio.Project.Factory factory;
 	protected io.intino.legio.Project.Build build;
+	protected io.intino.legio.Project.QualityAnalytics qualityAnalytics;
+	protected io.intino.legio.Project.Delivery delivery;
 
 	public Project(tara.magritte.Node node) {
 		super(node);
@@ -48,6 +50,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		return build;
 	}
 
+	public io.intino.legio.Project.QualityAnalytics qualityAnalytics() {
+		return qualityAnalytics;
+	}
+
+	public io.intino.legio.Project.Delivery delivery() {
+		return delivery;
+	}
+
 	public void repositories(io.intino.legio.Project.Repositories value) {
 		this.repositories = value;
 	}
@@ -64,12 +74,22 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		this.build = value;
 	}
 
+	public void qualityAnalytics(io.intino.legio.Project.QualityAnalytics value) {
+		this.qualityAnalytics = value;
+	}
+
+	public void delivery(io.intino.legio.Project.Delivery value) {
+		this.delivery = value;
+	}
+
 	public List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		if (repositories != null) components.add(this.repositories.node());
 		if (dependencies != null) components.add(this.dependencies.node());
 		if (factory != null) components.add(this.factory.node());
 		if (build != null) components.add(this.build.node());
+		if (qualityAnalytics != null) components.add(this.qualityAnalytics.node());
+		if (delivery != null) components.add(this.delivery.node());
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -92,6 +112,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		if (node.is("Project$Dependencies")) this.dependencies = node.as(io.intino.legio.Project.Dependencies.class);
 		if (node.is("Project$Factory")) this.factory = node.as(io.intino.legio.Project.Factory.class);
 		if (node.is("Project$Build")) this.build = node.as(io.intino.legio.Project.Build.class);
+		if (node.is("Project$QualityAnalytics")) this.qualityAnalytics = node.as(io.intino.legio.Project.QualityAnalytics.class);
+		if (node.is("Project$Delivery")) this.delivery = node.as(io.intino.legio.Project.Delivery.class);
 	}
 
 	@Override
@@ -101,6 +123,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
         if (node.is("Project$Dependencies")) this.dependencies = null;
         if (node.is("Project$Factory")) this.factory = null;
         if (node.is("Project$Build")) this.build = null;
+        if (node.is("Project$QualityAnalytics")) this.qualityAnalytics = null;
+        if (node.is("Project$Delivery")) this.delivery = null;
     }
 
 	@Override
@@ -149,6 +173,18 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 		public io.intino.legio.Project.Build build() {
 		    io.intino.legio.Project.Build newElement = graph().concept(io.intino.legio.Project.Build.class).createNode(name, node()).as(io.intino.legio.Project.Build.class);
+		    return newElement;
+		}
+
+		public io.intino.legio.Project.QualityAnalytics qualityAnalytics(java.lang.String serverUrl) {
+		    io.intino.legio.Project.QualityAnalytics newElement = graph().concept(io.intino.legio.Project.QualityAnalytics.class).createNode(name, node()).as(io.intino.legio.Project.QualityAnalytics.class);
+			newElement.node().set(newElement, "serverUrl", java.util.Collections.singletonList(serverUrl)); 
+		    return newElement;
+		}
+
+		public io.intino.legio.Project.Delivery delivery(java.lang.String cesarURL) {
+		    io.intino.legio.Project.Delivery newElement = graph().concept(io.intino.legio.Project.Delivery.class).createNode(name, node()).as(io.intino.legio.Project.Delivery.class);
+			newElement.node().set(newElement, "cesarURL", java.util.Collections.singletonList(cesarURL)); 
 		    return newElement;
 		}
 		
@@ -1263,8 +1299,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		protected java.lang.String mainClass;
 		protected java.lang.String finalName;
 		protected io.intino.legio.Project.Build.Package package$;
-		protected java.util.List<io.intino.legio.Project.Build.Plugin> pluginList = new java.util.ArrayList<>();
-		protected java.util.List<io.intino.legio.Project.Build.License> licenseList = new java.util.ArrayList<>();
+		protected io.intino.legio.Project.Build.Plugin plugin;
+		protected io.intino.legio.Project.Build.License license;
 
 		public Build(tara.magritte.Node node) {
 			super(node);
@@ -1314,43 +1350,31 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return package$;
 		}
 
-		public java.util.List<io.intino.legio.Project.Build.Plugin> pluginList() {
-			return java.util.Collections.unmodifiableList(pluginList);
+		public io.intino.legio.Project.Build.Plugin plugin() {
+			return plugin;
 		}
 
-		public io.intino.legio.Project.Build.Plugin plugin(int index) {
-			return pluginList.get(index);
-		}
-
-		public java.util.List<io.intino.legio.Project.Build.Plugin> pluginList(java.util.function.Predicate<io.intino.legio.Project.Build.Plugin> predicate) {
-			return pluginList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-		}
-
-		public java.util.List<io.intino.legio.Project.Build.License> licenseList() {
-			return java.util.Collections.unmodifiableList(licenseList);
-		}
-
-		public io.intino.legio.Project.Build.License license(int index) {
-			return licenseList.get(index);
-		}
-
-		public java.util.List<io.intino.legio.Project.Build.License> licenseList(java.util.function.Predicate<io.intino.legio.Project.Build.License> predicate) {
-			return licenseList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		public io.intino.legio.Project.Build.License license() {
+			return license;
 		}
 
 		public void package$(io.intino.legio.Project.Build.Package value) {
 			this.package$ = value;
 		}
 
-		
+		public void plugin(io.intino.legio.Project.Build.Plugin value) {
+			this.plugin = value;
+		}
 
-		
+		public void license(io.intino.legio.Project.Build.License value) {
+			this.license = value;
+		}
 
 		public List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			if (package$ != null) components.add(this.package$.node());
-			pluginList.stream().forEach(c -> components.add(c.node()));
-			licenseList.stream().forEach(c -> components.add(c.node()));
+			if (plugin != null) components.add(this.plugin.node());
+			if (license != null) components.add(this.license.node());
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -1373,16 +1397,16 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		protected void addNode(tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$Build$Package")) this.package$ = node.as(io.intino.legio.Project.Build.Package.class);
-			if (node.is("Project$Build$Plugin")) this.pluginList.add(node.as(io.intino.legio.Project.Build.Plugin.class));
-			if (node.is("Project$Build$License")) this.licenseList.add(node.as(io.intino.legio.Project.Build.License.class));
+			if (node.is("Project$Build$Plugin")) this.plugin = node.as(io.intino.legio.Project.Build.Plugin.class);
+			if (node.is("Project$Build$License")) this.license = node.as(io.intino.legio.Project.Build.License.class);
 		}
 
 		@Override
 	    protected void removeNode(tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$Build$Package")) this.package$ = null;
-	        if (node.is("Project$Build$Plugin")) this.pluginList.remove(node.as(io.intino.legio.Project.Build.Plugin.class));
-	        if (node.is("Project$Build$License")) this.licenseList.remove(node.as(io.intino.legio.Project.Build.License.class));
+	        if (node.is("Project$Build$Plugin")) this.plugin = null;
+	        if (node.is("Project$Build$License")) this.license = null;
 	    }
 
 		@Override
@@ -1628,6 +1652,220 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
+		
+		public io.intino.legio.LegioApplication application() {
+			return ((io.intino.legio.LegioApplication) graph().application());
+		}
+	}
+	
+	public static class QualityAnalytics extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		protected java.lang.String serverUrl;
+		protected io.intino.legio.Project.QualityAnalytics.Authentication authentication;
+
+		public QualityAnalytics(tara.magritte.Node node) {
+			super(node);
+		}
+
+		public java.lang.String serverUrl() {
+			return serverUrl;
+		}
+
+		public void serverUrl(java.lang.String value) {
+			this.serverUrl = value;
+		}
+
+		public io.intino.legio.Project.QualityAnalytics.Authentication authentication() {
+			return authentication;
+		}
+
+		public void authentication(io.intino.legio.Project.QualityAnalytics.Authentication value) {
+			this.authentication = value;
+		}
+
+		public List<tara.magritte.Node> componentList() {
+			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+			if (authentication != null) components.add(this.authentication.node());
+			return new java.util.ArrayList<>(components);
+		}
+
+		@Override
+		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("serverUrl", new java.util.ArrayList(java.util.Collections.singletonList(this.serverUrl)));
+			return map;
+		}
+
+		public tara.magritte.Concept concept() {
+			return this.graph().concept(io.intino.legio.Project.QualityAnalytics.class);
+		}
+
+		@Override
+		protected void addNode(tara.magritte.Node node) {
+			super.addNode(node);
+			if (node.is("Project$QualityAnalytics$Authentication")) this.authentication = node.as(io.intino.legio.Project.QualityAnalytics.Authentication.class);
+		}
+
+		@Override
+	    protected void removeNode(tara.magritte.Node node) {
+	        super.removeNode(node);
+	        if (node.is("Project$QualityAnalytics$Authentication")) this.authentication = null;
+	    }
+
+		@Override
+		protected void _load(java.lang.String name, java.util.List<?> values) {
+			super._load(name, values);
+			if (name.equalsIgnoreCase("serverUrl")) this.serverUrl = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		}
+
+		@Override
+		protected void _set(java.lang.String name, java.util.List<?> values) {
+			super._set(name, values);
+			if (name.equalsIgnoreCase("serverUrl")) this.serverUrl = (java.lang.String) values.get(0);
+		}
+
+		public Create create() {
+			return new Create(null);
+		}
+
+		public Create create(java.lang.String name) {
+			return new Create(name);
+		}
+
+		public class Create {
+			protected final java.lang.String name;
+
+			public Create(java.lang.String name) {
+				this.name = name;
+			}
+
+			public io.intino.legio.Project.QualityAnalytics.Authentication authentication(java.lang.String token) {
+			    io.intino.legio.Project.QualityAnalytics.Authentication newElement = graph().concept(io.intino.legio.Project.QualityAnalytics.Authentication.class).createNode(name, node()).as(io.intino.legio.Project.QualityAnalytics.Authentication.class);
+				newElement.node().set(newElement, "token", java.util.Collections.singletonList(token)); 
+			    return newElement;
+			}
+			
+		}
+		
+		public static class Authentication extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected java.lang.String token;
+
+			public Authentication(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.lang.String token() {
+				return token;
+			}
+
+			public void token(java.lang.String value) {
+				this.token = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("token", new java.util.ArrayList(java.util.Collections.singletonList(this.token)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(io.intino.legio.Project.QualityAnalytics.Authentication.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("token")) this.token = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("token")) this.token = (java.lang.String) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public io.intino.legio.LegioApplication application() {
+				return ((io.intino.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		
+		public io.intino.legio.LegioApplication application() {
+			return ((io.intino.legio.LegioApplication) graph().application());
+		}
+	}
+	
+	public static class Delivery extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		protected java.lang.String cesarURL;
+
+		public Delivery(tara.magritte.Node node) {
+			super(node);
+		}
+
+		public java.lang.String cesarURL() {
+			return cesarURL;
+		}
+
+		public void cesarURL(java.lang.String value) {
+			this.cesarURL = value;
+		}
+
+		@Override
+		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("cesarURL", new java.util.ArrayList(java.util.Collections.singletonList(this.cesarURL)));
+			return map;
+		}
+
+		public tara.magritte.Concept concept() {
+			return this.graph().concept(io.intino.legio.Project.Delivery.class);
+		}
+
+		@Override
+		protected void _load(java.lang.String name, java.util.List<?> values) {
+			super._load(name, values);
+			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		}
+
+		@Override
+		protected void _set(java.lang.String name, java.util.List<?> values) {
+			super._set(name, values);
+			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = (java.lang.String) values.get(0);
+		}
+
+		public Create create() {
+			return new Create(null);
+		}
+
+		public Create create(java.lang.String name) {
+			return new Create(name);
+		}
+
+		public class Create {
+			protected final java.lang.String name;
+
+			public Create(java.lang.String name) {
+				this.name = name;
+			}
+			
+		}
 		
 		public io.intino.legio.LegioApplication application() {
 			return ((io.intino.legio.LegioApplication) graph().application());

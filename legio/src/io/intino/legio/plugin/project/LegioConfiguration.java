@@ -265,6 +265,10 @@ public class LegioConfiguration implements Configuration {
 		return legio.project().build();
 	}
 
+	public Project.QualityAnalytics qualityAnalytics() {
+		return legio.project().qualityAnalytics();
+	}
+
 	@Override
 	public String modelVersion() {
 		return safe(() -> legio.project().version());

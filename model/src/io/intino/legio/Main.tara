@@ -37,10 +37,16 @@ Concept:{1..1} Project
 		var string finalName = empty
 		Concept:{1..1} Package
 			var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
-		Concept Plugin
+		Concept:{0..1} Plugin
 			var string mavenCode
-		Concept License
+		Concept:{0..1} License
 			var word:{GPL BSD} type
+	Concept:{0..1} QualityAnalytics
+		var string serverUrl
+		Concept:{0..1} Authentication
+			var string token
+	Concept:{0..1} Delivery
+		var string cesarURL
 
 Facet Level on Project.Factory
 	sub Platform

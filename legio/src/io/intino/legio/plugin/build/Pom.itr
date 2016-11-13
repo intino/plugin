@@ -15,6 +15,9 @@ def type(pom)
 			<maven.compiler.source>1.8</maven.compiler.source>
 			<maven.compiler.target>1.8</maven.compiler.target>
 			[<project.build.sourceEncoding>$encoding</project.build.sourceEncoding>]
+			<sonar.language>java</sonar.language>
+			<sonar.login></sonar.login>
+			<sonar.password></sonar.password>
 		</properties>
 
 		<build>

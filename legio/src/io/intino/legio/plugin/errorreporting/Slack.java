@@ -16,7 +16,6 @@ class Slack {
 		if (!"".equals(token)) {
 			session = SlackSessionFactory.createWebSocketSlackSession(token);
 			session.connect();
-
 		}
 	}
 
@@ -25,13 +24,12 @@ class Slack {
 		this.sendMessageToAChannel(channelName, body);
 	}
 
-	public void disconnect() throws IOException {
+	void disconnect() throws IOException {
 		session.disconnect();
 	}
 
 	private void sendMessageToAChannel(String channelName, String message) {
 		if ((!"".equals(channelName)) && (session != null)) {
-			//WARNING: First bot must be receive a invitation.
 			SlackChannel channel = session.findChannelByName(channelName);
 			session.sendMessage(channel, message);
 		} else {
