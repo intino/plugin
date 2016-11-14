@@ -100,9 +100,8 @@ class PomCreator {
 		}
 		if (build.mainClass() != null) frame.addSlot("mainClass", build.mainClass());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
-		if (!build.licenseList().isEmpty())
-			for (Project.Build.License license : build.licenseList())
-				frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
+		if (build.license() != null)
+			frame.addSlot("license", new Frame().addTypes("license", build.license().type().name()));
 
 	}
 

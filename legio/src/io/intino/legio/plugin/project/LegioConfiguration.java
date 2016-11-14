@@ -181,7 +181,8 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public String dslWorkingPackage() {
 		try {
-			final File languageFile = LanguageManager.getLanguageFile(dsl(), dslVersion());
+			final File languageFile = LanguageManager.getLanguageFile(dsl(), dslEffectiveVersion());
+			if (!languageFile.exists()) return null;
 			Manifest manifest = new JarFile(languageFile).getManifest();
 			final Attributes tara = manifest.getAttributes("tara");
 			if (tara == null) return null;
