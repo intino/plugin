@@ -7,14 +7,11 @@ import java.util.*;
 public abstract class LevelFactory extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	
 	
+	
 	protected io.intino.legio.Project.Factory _factory;
 
 	public LevelFactory(tara.magritte.Node node) {
 		super(node);
-	}
-
-	public java.lang.String generationPackage() {
-		return _factory.generationPackage();
 	}
 
 	public boolean persistent() {
@@ -25,10 +22,6 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		return _factory.refactorId();
 	}
 
-	public void generationPackage(java.lang.String value) {
-		this._factory.generationPackage(value);
-	}
-
 	public void persistent(boolean value) {
 		this._factory.persistent(value);
 	}
@@ -37,14 +30,21 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		this._factory.refactorId(value);
 	}
 
-	public io.intino.legio.Project.Factory.Modeling modeling() {
-		return _factory.modeling();
+	public io.intino.legio.Project.Factory.Language language() {
+		return _factory.language();
 	}
+
+	public io.intino.legio.Project.Factory.Generation generation() {
+		return _factory.generation();
+	}
+
+	
 
 	
 
 	public List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -90,10 +90,14 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 			this.name = name;
 		}
 
-		public io.intino.legio.Project.Factory.Modeling modeling(java.lang.String language, java.lang.String version) {
-		    io.intino.legio.Project.Factory.Modeling newElement = graph().concept(io.intino.legio.Project.Factory.Modeling.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Modeling.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
+		public io.intino.legio.Project.Factory.Language language(java.lang.String version) {
+		    io.intino.legio.Project.Factory.Language newElement = graph().concept(io.intino.legio.Project.Factory.Language.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Language.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
+		}
+
+		public io.intino.legio.Project.Factory.Generation generation() {
+		    io.intino.legio.Project.Factory.Generation newElement = graph().concept(io.intino.legio.Project.Factory.Generation.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Generation.class);
 		    return newElement;
 		}
 		

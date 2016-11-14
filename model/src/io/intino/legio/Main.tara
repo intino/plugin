@@ -1,16 +1,17 @@
 dsl Proteo
 
-Concept:{1..1} Project
+Concept:Named Project
 	var string groupId
 	var string version
+	Concept:{0..1} License
+		var word:{GPL BSD} type
 	Concept:{0..1} Repositories
 		Concept Repository
 			var string url
 			var string mavenId
 			sub Release
-			sub Snapshot
-			sub Distribution
-			sub Language
+			sub:{0..1} Snapshot
+			sub:{0..1} Language
 	Concept:{0..1} Dependencies
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
@@ -23,32 +24,58 @@ Concept:{1..1} Project
 			sub Runtime
 			sub Test
 	Concept:{0..1} Factory
-		Concept:{0..1} Modeling
-			var string language
+		Concept:Named Language
 			var string version
-		var string generationPackage = ""
+		Concept:{0..1} Generation
+			var string inPackage = ""
 		var boolean persistent = false
 		var integer refactorId = -1
-	Concept:{0..1} Build
+
+Concept:{0..1} LifeCycle
+	Concept:{0..1} Package
+		var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false
 		var string mainClass = empty
 		var string finalName = empty
-		Concept:{1..1} Package
-			var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
-		Concept:{0..1} Plugin
-			var string mavenCode
-		Concept:{0..1} License
-			var word:{GPL BSD} type
+		Concept MavenPlugin
+			var string code
+
+	Concept:{0..1} Distribution extends Project.Repositories.Repository
+
 	Concept:{0..1} QualityAnalytics
 		var string serverUrl
 		Concept:{0..1} Authentication
 			var string token
+
 	Concept:{0..1} Delivery
 		var string cesarURL
+		Concept Deployment
+			var string server
+			has:Named Parameter
+			sub PreDeploy
+			sub Deploy
 
 Facet Level on Project.Factory
 	sub Platform
 	sub Application
 	sub System
+
+Concept Parameter is component
+	var boolean required = false
+
+Facet Type on Parameter
+	var string type is reactive private
+	sub Real
+    	var double defaultValue = 0
+		var string type = "Double" is reactive private
+	sub Integer
+		var integer defaultValue = 0
+		var string type = "Integer" is reactive private
+	sub Bool
+    	var boolean defaultValue = true
+		var string type = "Boolean" is reactive private
+	sub Text
+    	var string defaultValue = ""
+		var string type = "String" is reactive private

@@ -20,11 +20,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.legio.LegioApplication;
+import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
-import io.intino.legio.Project.Repositories.Language;
 import io.intino.legio.Project.Repositories.Release;
 import io.intino.legio.Project.Repositories.Repository;
-import io.intino.legio.Project.Repositories.Snapshot;
 import io.intino.legio.plugin.dependencyresolution.DependencyResolver;
 import io.intino.legio.plugin.dependencyresolution.LanguageResolver;
 import io.intino.legio.plugin.dependencyresolution.LegioUtil;
@@ -174,7 +173,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String workingPackage() {
-		final String workingPackage = safe(() -> legio.project().factory().generationPackage(), dsl());
+		final String workingPackage = safe(() -> legio.project().factory().generation().inPackage(), dsl());
 		return workingPackage.isEmpty() ? outDSL() : workingPackage;
 	}
 
@@ -205,25 +204,22 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public List<String> snapshotRepositories() {
-		return legio.project().repositories().snapshotList().stream().
-				map(Snapshot::url).collect(Collectors.toList());
+	public String snapshotRepository() {
+		return legio.project().repositories().snapshot().url();
 	}
 
 	@Override
 	public String languageRepository() {
-		return legio.project().repositories().languageList().stream().
-				map(Language::url).findFirst().orElse(null);
+		return legio.project().repositories().language().url();
 	}
 
 	public String languageRepositoryId() {
-		return legio.project().repositories().languageList().stream().
-				map(Language::mavenId).findFirst().orElse(null);
+		return legio.project().repositories().language().mavenId();
 	}
 
 	@Override
 	public String dsl() {
-		return safe(() -> legio.project().factory().modeling().language());
+		return safe(() -> legio.project().factory().language().name());
 	}
 
 	@Override
@@ -233,7 +229,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String dslVersion() {
-		return safe(() -> legio.project().factory().modeling().version());
+		return safe(() -> legio.project().factory().language().version());
 	}
 
 
@@ -250,7 +246,7 @@ public class LegioConfiguration implements Configuration {
 		new WriteCommandAction(module.getProject(), psiFile) {
 			@Override
 			protected void run(@NotNull Result result) throws Throwable {
-				legio.project().factory().modeling().version(version);
+				legio.project().factory().language().version(version);
 				final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
 				if (factory == null) return;
 				final Node modeling = factory.components().stream().filter(f -> f.type().equals(f.type())).findFirst().orElse(null);
@@ -262,12 +258,12 @@ public class LegioConfiguration implements Configuration {
 		reload();
 	}
 
-	public Project.Build build() {
-		return legio.project().build();
+	public LifeCycle.Package build() {
+		return legio.lifeCycle().package$();
 	}
 
-	public Project.QualityAnalytics qualityAnalytics() {
-		return legio.project().qualityAnalytics();
+	public LifeCycle.QualityAnalytics qualityAnalytics() {
+		return legio.lifeCycle().qualityAnalytics();
 	}
 
 	@Override
@@ -307,6 +303,10 @@ public class LegioConfiguration implements Configuration {
 
 	public List<Repository> legioRepositories() {
 		return legio.project().repositories().repositoryList();
+	}
+
+	public Project.License licence() {
+		return legio.project().license();
 	}
 
 	private interface StringWrapper {

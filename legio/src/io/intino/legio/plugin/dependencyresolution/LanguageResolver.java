@@ -44,7 +44,7 @@ public class LanguageResolver {
 	}
 
 	public List<Library> resolve() {
-		final String language = factory.modeling().language();
+		final String language = factory.language().name();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))
@@ -124,7 +124,7 @@ public class LanguageResolver {
 	}
 
 	private void importLanguage() {
-		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(factory.modeling().language(), version);
+		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(factory.language().name(), version);
 	}
 
 	@NotNull

@@ -14,7 +14,7 @@ public class LegioUtil {
 		if (version.equals(LATEST_VERSION))
 			try {
 				TreeMap<Long, String> versions = new TreeMap<>();
-				new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository()).versions(dsl).forEach(v -> versions.put(indexOf(v), v));
+				new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepository()).versions(dsl).forEach(v -> versions.put(indexOf(v), v));
 				return versions.get(versions.lastKey());
 			} catch (IOException e) {
 				return LATEST_VERSION;

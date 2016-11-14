@@ -118,7 +118,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
-			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepositories(), configuration.languageRepository()).versions(dsl).contains(version);
+			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepository()).versions(dsl).contains(version);
 		} catch (IOException e) {
 			return false;
 		}

@@ -1,7 +1,7 @@
 package io.intino.legio.plugin.build;
 
 import com.intellij.openapi.module.Module;
-import io.intino.legio.Project;
+import io.intino.legio.LifeCycle;
 import io.intino.legio.plugin.project.LegioConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,7 +33,7 @@ public class SonarProfileRenderer {
 	public static final String SONAR_HOST_URL = "sonar.host.url";
 
 	private Document doc;
-	private final Project.QualityAnalytics analytics;
+	private final LifeCycle.QualityAnalytics analytics;
 
 	public SonarProfileRenderer(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);

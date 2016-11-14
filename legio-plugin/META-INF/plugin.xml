@@ -22,6 +22,7 @@
                 implementation="io.intino.legio.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.legio.plugin.file.LegioFileTypeFactory"/>
         <errorHandler implementation="io.intino.legio.plugin.errorreporting.PluginErrorReportSubmitter"/>
+        <copyPastePostProcessor implementation="io.intino.legio.plugin.file.LegioDependencyPasteProcessor"/>
     </extensions>
 
     <actions>
