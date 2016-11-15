@@ -18,6 +18,7 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
+        <annotator language="Tara" implementationClass=" io.intino.legio.plugin.annotators.DependencyAnnotator"/>
         <fileDocumentManagerListener
                 implementation="io.intino.legio.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.legio.plugin.file.LegioFileTypeFactory"/>
