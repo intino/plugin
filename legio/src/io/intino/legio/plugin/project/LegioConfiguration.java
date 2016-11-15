@@ -126,7 +126,6 @@ public class LegioConfiguration implements Configuration {
 		try {
 			File file = stashFile();
 			file.getParentFile().mkdirs();
-			file.createNewFile();
 			Files.write(file.toPath(), StashSerializer.serialize(legioStash));
 		} catch (IOException e) {
 			e.printStackTrace();

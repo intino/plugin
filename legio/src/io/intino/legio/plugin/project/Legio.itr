@@ -8,5 +8,11 @@ def type(legio)
 		Dependencies
 			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
 		Factory as Platform
-			Modeling(language = "Verso", version = "LATEST")
+			Language(version = "LATEST") Verso
+			Generation > inPackage = "$name+firstLowerCase"
+
+	LifeCycle
+		Package(type = AllDependenciesLinkedByManifest)
+		Distribution(url = "http://artifactory.siani.es/artifactory/libs-release-local", "siani-maven")
+
 end

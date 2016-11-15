@@ -49,7 +49,7 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 			IdeaPluginDescriptor pluginDescriptor = (IdeaPluginDescriptor) getPluginDescriptor();
 			try {
 				Slack slack = new Slack(TOKEN);
-				slack.sendMessageToAChannel("pandora", "Error in plugin v." + pluginDescriptor.getVersion(), processEvents(events) + "\n" + additionalInfo);
+				slack.sendMessageToAChannel("legio", "Error in plugin v." + pluginDescriptor.getVersion(), processEvents(events) + "\n" + additionalInfo);
 				slack.disconnect();
 			} catch (IOException e) {
 				exception[0] = e;

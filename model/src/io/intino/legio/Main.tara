@@ -24,7 +24,7 @@ Concept:Named Project
 			sub Runtime
 			sub Test
 	Concept:{0..1} Factory
-		Concept:Named Language
+		Concept:{0..1} Language
 			var string version
 		Concept:{0..1} Generation
 			var string inPackage = ""

@@ -5,11 +5,14 @@ def type(legio)
     	Repositories[
 			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
 			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")$isTara][
-    		$repository...[$NL]][
-    		$distribution]
+    		$repository...[$NL]]
     	Dependencies[
     		$dependency...[$NL]][
     	$factory]
+
+    LifeCycle
+		Package(AllDependenciesLinkedByManifest)
+    	[$distribution]
 end
 
 def type(release) trigger(repository)
@@ -20,16 +23,17 @@ def type(snapshot) trigger(repository)
 	Snapshot(url = "$url", "$id")
 end
 
-def type(distribution)
-	Distribution(url = "$url", "$id")
-end
-
 def type(dependency)
 	$type+FirstUpperCase(groupId = "$groupId", artifactId = "$artifactId", version = "$version")
 end
 
 def type(factory)
 	Factory as $level+firstUpperCase
-		generationPackage = "$workingPackage"
-		Modeling(language="$dsl", version="$dslVersion")
+		Generation > inPackage = "$workingPackage"
+		Language(version="$dslVersion") $dsl
+end
+
+
+def type(distribution)
+	Distribution(url = "$url", "$id")
 end
