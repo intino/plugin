@@ -248,13 +248,17 @@ public class LegioConfiguration implements Configuration {
 				legio.project().factory().language().version(version);
 				final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
 				if (factory == null) return;
-				final Node modeling = factory.components().stream().filter(f -> f.type().equals(f.type())).findFirst().orElse(null);
-				if (modeling == null) return;
-				final Parameter versionParameter = modeling.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+				final Node language = factory.components().stream().filter(f -> f.type().equals("Project.Factory.Language")).findFirst().orElse(null);
+				if (language == null) return;
+				final Parameter versionParameter = language.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
 				versionParameter.substituteValues(Collections.singletonList(version));
 			}
 		}.execute();
-		reload();
+		reloadInfo(null);
+	}
+
+	public LifeCycle lifeCycle() {
+		return legio.lifeCycle();
 	}
 
 	public LifeCycle.Package build() {

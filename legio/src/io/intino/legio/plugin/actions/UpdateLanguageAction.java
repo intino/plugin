@@ -16,7 +16,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.psi.PsiFile;
 import io.intino.legio.plugin.LegioIcons;
-import io.intino.legio.plugin.dependencyresolution.LanguageImporter;
+import io.intino.legio.plugin.dependencyresolution.LegioUtil;
+import io.intino.legio.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tara.compiler.shared.Configuration;
@@ -55,14 +56,13 @@ public class UpdateLanguageAction extends AnAction implements DumbAware {
 				error(module.getProject());
 				return;
 			}
-			updateLanguage(module, conf, dsl, version);
+			updateLanguage(conf, dsl, version);
 			success(module.getProject(), dsl, conf.dslVersion());
 		}, message("updating.language"), true, module.getProject());
-
 	}
 
-	private String updateLanguage(Module module, Configuration configuration, String dsl, String version) {
-		return new LanguageImporter(module, configuration).importLanguage(dsl, version);
+	private void updateLanguage(Configuration configuration, String dsl, String version) {
+		configuration.dslVersion(LegioUtil.effectiveVersionOf(dsl, version, (LegioConfiguration) configuration));
 	}
 
 	private void success(Project project, String language, String version) {
