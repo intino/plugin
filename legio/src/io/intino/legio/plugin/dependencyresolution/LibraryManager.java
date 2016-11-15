@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VfsUtil;
+import io.intino.legio.Project.Dependencies.Dependency;
 import org.sonatype.aether.artifact.Artifact;
 
 import java.util.ArrayList;
@@ -30,15 +31,21 @@ public class LibraryManager {
 	private Module module;
 	private final LibraryTable table;
 
-	LibraryManager(Module module) {
+	public LibraryManager(Module module) {
 		this.module = module;
 		table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
+	}
+
+	public Library findLibrary(Dependency dependency) {
+		for (Library library : table.getLibraries())
+			if (nameOf(dependency).equals(library.getName())) return library;
+		return null;
 	}
 
 	List<Library> registerOrGetLibrary(List<Artifact> artifacts) {
 		List<Library> result = new ArrayList<>();
 		for (Artifact artifact : artifacts) {
-			Library library = findLibrary(table, artifact);
+			Library library = findLibrary(artifact);
 			if (library == null) library = registerLibrary(artifact);
 			result.add(library);
 		}
@@ -103,6 +110,12 @@ public class LibraryManager {
 				forEach(table::removeLibrary);
 	}
 
+	private Library findLibrary(Artifact artifact) {
+		for (Library library : table.getLibraries())
+			if (nameOf(artifact).equals(library.getName())) return library;
+		return null;
+	}
+
 	private Library registerLibrary(Artifact dependency) {
 		final LibraryTable.ModifiableModel tableModel = table.getModifiableModel();
 		final Library library = tableModel.createLibrary(nameOf(dependency));
@@ -119,13 +132,11 @@ public class LibraryManager {
 		return false;
 	}
 
-	private Library findLibrary(LibraryTable libraryTable, Artifact artifact) {
-		for (Library library : libraryTable.getLibraries())
-			if (nameOf(artifact).equals(library.getName())) return library;
-		return null;
-	}
-
 	private String nameOf(Artifact dependency) {
 		return LEGIO + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
+	}
+
+	private String nameOf(Dependency dependency) {
+		return LEGIO + dependency.groupId() + ":" + dependency.artifactId() + ":" + dependency.version();
 	}
 }
