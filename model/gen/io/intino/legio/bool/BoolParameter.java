@@ -2,7 +2,6 @@ package io.intino.legio.bool;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class BoolParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
 	protected boolean defaultValue;

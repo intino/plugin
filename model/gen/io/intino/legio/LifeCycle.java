@@ -2,7 +2,6 @@ package io.intino.legio;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	
@@ -47,7 +46,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		this.delivery = value;
 	}
 
-	public List<tara.magritte.Node> componentList() {
+	public java.util.List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		if (package$ != null) components.add(this.package$.node());
 		if (distribution != null) components.add(this.distribution.node());
@@ -215,7 +214,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 
 		
 
-		public List<tara.magritte.Node> componentList() {
+		public java.util.List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			mavenPluginList.stream().forEach(c -> components.add(c.node()));
 			return new java.util.ArrayList<>(components);
@@ -433,7 +432,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			this.authentication = value;
 		}
 
-		public List<tara.magritte.Node> componentList() {
+		public java.util.List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			if (authentication != null) components.add(this.authentication.node());
 			return new java.util.ArrayList<>(components);
@@ -623,7 +622,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 
 		
 
-		public List<tara.magritte.Node> componentList() {
+		public java.util.List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			deploymentList.stream().forEach(c -> components.add(c.node()));
 			preDeployList.stream().forEach(c -> components.add(c.node()));
@@ -703,7 +702,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		
 		public static abstract class Deployment extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 			protected java.lang.String server;
-			protected io.intino.legio.Parameter parameter;
+			protected java.util.List<io.intino.legio.Parameter> parameterList = new java.util.ArrayList<>();
 
 			public Deployment(tara.magritte.Node node) {
 				super(node);
@@ -717,17 +716,23 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 				this.server = value;
 			}
 
-			public io.intino.legio.Parameter parameter() {
-				return parameter;
+			public java.util.List<io.intino.legio.Parameter> parameterList() {
+				return java.util.Collections.unmodifiableList(parameterList);
 			}
 
-			public void parameter(io.intino.legio.Parameter value) {
-				this.parameter = value;
+			public io.intino.legio.Parameter parameter(int index) {
+				return parameterList.get(index);
 			}
 
-			public List<tara.magritte.Node> componentList() {
+			public java.util.List<io.intino.legio.Parameter> parameterList(java.util.function.Predicate<io.intino.legio.Parameter> predicate) {
+				return parameterList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			
+
+			public java.util.List<tara.magritte.Node> componentList() {
 				java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
-				if (parameter != null) components.add(this.parameter.node());
+				parameterList.stream().forEach(c -> components.add(c.node()));
 				return new java.util.ArrayList<>(components);
 			}
 
@@ -745,13 +750,13 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			@Override
 			protected void addNode(tara.magritte.Node node) {
 				super.addNode(node);
-				if (node.is("Parameter")) this.parameter = node.as(io.intino.legio.Parameter.class);
+				if (node.is("Parameter")) this.parameterList.add(node.as(io.intino.legio.Parameter.class));
 			}
 
 			@Override
 		    protected void removeNode(tara.magritte.Node node) {
 		        super.removeNode(node);
-		        if (node.is("Parameter")) this.parameter = null;
+		        if (node.is("Parameter")) this.parameterList.remove(node.as(io.intino.legio.Parameter.class));
 		    }
 
 			@Override

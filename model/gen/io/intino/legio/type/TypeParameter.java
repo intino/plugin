@@ -2,7 +2,6 @@ package io.intino.legio.type;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public abstract class TypeParameter extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	protected tara.magritte.Expression<java.lang.String> type;
@@ -18,6 +17,10 @@ public abstract class TypeParameter extends tara.magritte.Layer implements tara.
 
 	public boolean required() {
 		return _parameter.required();
+	}
+
+	public void type(tara.magritte.Expression<java.lang.String> value) {
+		this.type = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
 	}
 
 	public void required(boolean value) {

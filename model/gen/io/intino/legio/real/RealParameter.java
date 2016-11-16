@@ -2,7 +2,6 @@ package io.intino.legio.real;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class RealParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
 	protected double defaultValue;

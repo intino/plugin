@@ -54,10 +54,14 @@ public class DependencyResolver {
 		if (dependencies == null) return;
 		dependencies.dependencyList().forEach(d -> {
 			Module moduleDependency = moduleOf(d);
-			if (moduleDependency != null)
+			if (moduleDependency != null) {
 				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
-			else {
-				final List<Library> resolved = manager.registerOrGetLibrary(collectArtifacts(d));
+				d.effectiveVersion(d.version());
+			} else {
+				final List<Artifact> artifacts = collectArtifacts(d);
+				final List<Library> resolved = manager.registerOrGetLibrary(artifacts);
+				if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
+				else d.effectiveVersion("");
 				manager.addToModule(resolved, d.is(Dependencies.Test.class));
 				newLibraries.addAll(resolved);
 			}

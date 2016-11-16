@@ -24,6 +24,7 @@
         <fileTypeFactory implementation="io.intino.legio.plugin.file.LegioFileTypeFactory"/>
         <errorHandler implementation="io.intino.legio.plugin.errorreporting.PluginErrorReportSubmitter"/>
         <copyPastePreProcessor implementation="io.intino.legio.plugin.file.LegioDependencyPasteProcessor"/>
+        <problemFileHighlightFilter implementation="io.intino.legio.plugin.annotators.LegioProblemFileHighlightFilter"/>
     </extensions>
 
     <actions>

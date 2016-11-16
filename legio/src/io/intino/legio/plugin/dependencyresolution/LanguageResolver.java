@@ -59,7 +59,10 @@ public class LanguageResolver {
 		ApplicationManager.getApplication().runWriteAction(() -> {
 			final LibraryManager manager = new LibraryManager(module);
 			final String proteoID = proteoGroupId + ":" + proteoArtifactId + ":" + version;
-			libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(proteoID)));
+			final List<Artifact> languageFramework = findLanguageFramework(proteoID);
+			if (!languageFramework.isEmpty()) factory.language().effectiveVersion(languageFramework.get(0).getVersion());
+			else factory.language().effectiveVersion("");
+			libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 			manager.addToModule(libraries, false);
 		});
 		return libraries;
@@ -83,7 +86,10 @@ public class LanguageResolver {
 	private void addExternalLibraries(String language, String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(language, version).exists()) importLanguage();
-		libraries.addAll(manager.registerOrGetLibrary(findLanguageFramework(findLanguageId(language, version))));
+		final List<Artifact> languageFramework = findLanguageFramework(findLanguageId(language, version));
+		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
+		if (!languageFramework.isEmpty()) factory.language().effectiveVersion(languageFramework.get(0).getVersion());
+		else factory.language().effectiveVersion("");
 		manager.addToModule(libraries, false);
 	}
 
@@ -96,7 +102,6 @@ public class LanguageResolver {
 		}
 		return null;
 	}
-
 
 	private List<Artifact> findLanguageFramework(String dependencyID) {
 		try {

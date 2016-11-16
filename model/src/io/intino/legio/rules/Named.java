@@ -7,20 +7,12 @@ import java.util.List;
 
 public class Named implements NodeRule {
 
-	public int min() {
-		return 1;
-	}
+    @Override
+    public boolean accept(Node node) {
+        return !node.isAnonymous();
+    }
 
-	public int max() {
-		return 1;
-	}
-
-	public boolean accept(List<Node> nodes) {
-		for (Node node : nodes) if (node.isAnonymous()) return false;
-		return true;
-	}
-
-	@Override
+    @Override
 	public String errorMessage() {
 		return "This element must have name";
 	}

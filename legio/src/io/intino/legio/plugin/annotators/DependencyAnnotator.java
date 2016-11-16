@@ -20,6 +20,13 @@ public class DependencyAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isDependencies(Node element) {
-		return element.simpleType().equals("Dependencies") || element.simpleType().equals("Project.Dependencies");
+		return element.simpleType().equals("Compile")
+				|| element.simpleType().equals("Test")
+				|| element.simpleType().equals("Provided")
+				|| element.simpleType().equals("Runtime")
+				|| element.simpleType().equals("Project.Dependencies.Compile")
+				|| element.simpleType().equals("Project.Dependencies.Test")
+				|| element.simpleType().equals("Project.Dependencies.Provided")
+				|| element.simpleType().equals("Project.Dependencies.Runtime");
 	}
 }

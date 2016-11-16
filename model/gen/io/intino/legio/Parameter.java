@@ -2,7 +2,6 @@ package io.intino.legio;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class Parameter extends tara.magritte.Layer implements tara.magritte.tags.Component, tara.magritte.tags.Terminal {
 	protected boolean required;

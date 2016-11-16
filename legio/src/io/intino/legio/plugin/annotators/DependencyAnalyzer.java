@@ -1,5 +1,6 @@
 package io.intino.legio.plugin.annotators;
 
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.psi.PsiElement;
 import io.intino.legio.Project;
 import io.intino.legio.plugin.dependencyresolution.LibraryManager;
@@ -14,29 +15,32 @@ import tara.lang.semantics.errorcollector.SemanticNotification;
 
 import java.util.List;
 
-public class DependencyAnalyzer extends TaraAnalyzer {
-	private final Node node;
+class DependencyAnalyzer extends TaraAnalyzer {
+	private final Node dependencyNode;
 	private final LegioConfiguration configuration;
 
-	public DependencyAnalyzer(Node node, LegioConfiguration configuration) {
-		this.node = node;
+	DependencyAnalyzer(Node node, LegioConfiguration configuration) {
+		this.dependencyNode = node;
 		this.configuration = configuration;
 	}
 
 	@Override
 	public void analyze() {
-		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) node));
-		configuration.dependencies().stream().filter(dependency -> manager.findLibrary(dependency) == null).forEach(d -> {
-			PsiElement dependencyNode = findDependencyNodeFor(d);
-			if (dependencyNode != null)
+		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
+		final Project.Dependencies.Dependency dependencyForNode = findDependencyForNode();
+		if (dependencyForNode == null)
+			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, "Dependency not found"));
+		else {
+			final Library library = manager.findLibrary(dependencyNode, dependencyForNode.effectiveVersion());
+			if (library == null)
 				results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, "Dependency not found"));
-		});
+		}
 	}
 
-	private PsiElement findDependencyNodeFor(Project.Dependencies.Dependency dependency) {
-		for (Node node : this.node.components())
-			if (node.simpleType().equals(dependency.concept().id().replace("$", ".")) && equalParameters(node.parameters(), dependency))
-				return (PsiElement) node;
+	private Project.Dependencies.Dependency findDependencyForNode() {
+		for (Project.Dependencies.Dependency dependency : configuration.dependencies())
+			if (dependencyNode.simpleType().equals(dependency.concept().id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), dependency))
+				return dependency;
 		return null;
 	}
 
@@ -54,10 +58,10 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 		return false;
 	}
 
-	private boolean artifactId(List<Parameter> parameters, String groupId) {
+	private boolean artifactId(List<Parameter> parameters, String artifactId) {
 		for (Parameter parameter : parameters) {
 			if (parameter.values() == null || parameter.values().isEmpty()) continue;
-			if (isArtifactId(groupId, parameter)) return true;
+			if (isArtifactId(artifactId, parameter)) return true;
 		}
 		return false;
 	}

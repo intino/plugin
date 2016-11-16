@@ -2,7 +2,6 @@ package io.intino.legio.text;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class TextParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
 	protected java.lang.String defaultValue;

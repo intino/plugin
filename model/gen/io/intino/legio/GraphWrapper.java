@@ -2,31 +2,29 @@ package io.intino.legio;
 
 import tara.magritte.Graph;
 
-import java.util.List;
-
 public class GraphWrapper extends tara.magritte.GraphWrapper {
 
-	protected Graph graph;
-	private io.intino.legio.Project project;
+	protected tara.magritte.Graph graph;
+	private java.util.List<io.intino.legio.Project> projectList;
 	private io.intino.legio.LifeCycle lifeCycle;
-	private List<io.intino.legio.level.project.LevelFactory> levelFactoryList;
-	private List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList;
-	private List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList;
-	private List<io.intino.legio.system.project.SystemFactory> systemFactoryList;
-	private List<io.intino.legio.type.TypeParameter> typeParameterList;
-	private List<io.intino.legio.real.RealParameter> realParameterList;
-	private List<io.intino.legio.integer.IntegerParameter> integerParameterList;
-	private List<io.intino.legio.bool.BoolParameter> boolParameterList;
-	private List<io.intino.legio.text.TextParameter> textParameterList;
+	private java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList;
+	private java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList;
+	private java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList;
+	private java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList;
+	private java.util.List<io.intino.legio.type.TypeParameter> typeParameterList;
+	private java.util.List<io.intino.legio.real.RealParameter> realParameterList;
+	private java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList;
+	private java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList;
+	private java.util.List<io.intino.legio.text.TextParameter> textParameterList;
 
-	public GraphWrapper(Graph graph) {
+	public GraphWrapper(tara.magritte.Graph graph) {
 		this.graph = graph;
 		this.graph.i18n().register("Legio");
 	    update();
 	}
 
 	protected void update() {
-		project = this.graph.rootList(io.intino.legio.Project.class).stream().findFirst().orElse(null);
+		projectList = this.graph.rootList(io.intino.legio.Project.class);
 		lifeCycle = this.graph.rootList(io.intino.legio.LifeCycle.class).stream().findFirst().orElse(null);
 		levelFactoryList = this.graph.rootList(io.intino.legio.level.project.LevelFactory.class);
 		platformFactoryList = this.graph.rootList(io.intino.legio.platform.project.PlatformFactory.class);
@@ -41,7 +39,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	@Override
 	protected void addNode(tara.magritte.Node node) {
-		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
+		if (node.is("Project")) this.projectList.add(node.as(io.intino.legio.Project.class));
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
 		if (node.is("LevelFactory")) this.levelFactoryList.add(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
@@ -56,7 +54,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	@Override
 	protected void removeNode(tara.magritte.Node node) {
-		if (node.is("Project")) this.project = null;
+		if (node.is("Project")) this.projectList.remove(node.as(io.intino.legio.Project.class));
 		if (node.is("LifeCycle")) this.lifeCycle = null;
 		if (node.is("LevelFactory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
@@ -89,11 +87,11 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return graph.concept(layerClass);
 	}
 
-	public List<tara.magritte.Concept> conceptList() {
+	public java.util.List<tara.magritte.Concept> conceptList() {
 		return graph.conceptList();
 	}
 
-	public List<tara.magritte.Concept> conceptList(java.util.function.Predicate<tara.magritte.Concept> predicate) {
+	public java.util.List<tara.magritte.Concept> conceptList(java.util.function.Predicate<tara.magritte.Concept> predicate) {
 		return graph.conceptList(predicate);
 	}
 
@@ -121,51 +119,59 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return graph.createRoot(concept, namespace, id);
 	}
 
-	public io.intino.legio.Project project() {
-	    return project;
+	public java.util.List<io.intino.legio.Project> projectList() {
+	    return projectList;
 	}
 
 	public io.intino.legio.LifeCycle lifeCycle() {
 	    return lifeCycle;
 	}
 
-	public List<io.intino.legio.level.project.LevelFactory> levelFactoryList() {
+	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList() {
 	    return levelFactoryList;
 	}
 
-	public List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList() {
+	public java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList() {
 	    return platformFactoryList;
 	}
 
-	public List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList() {
+	public java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList() {
 	    return applicationFactoryList;
 	}
 
-	public List<io.intino.legio.system.project.SystemFactory> systemFactoryList() {
+	public java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList() {
 	    return systemFactoryList;
 	}
 
-	public List<io.intino.legio.type.TypeParameter> typeParameterList() {
+	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList() {
 	    return typeParameterList;
 	}
 
-	public List<io.intino.legio.real.RealParameter> realParameterList() {
+	public java.util.List<io.intino.legio.real.RealParameter> realParameterList() {
 	    return realParameterList;
 	}
 
-	public List<io.intino.legio.integer.IntegerParameter> integerParameterList() {
+	public java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList() {
 	    return integerParameterList;
 	}
 
-	public List<io.intino.legio.bool.BoolParameter> boolParameterList() {
+	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList() {
 	    return boolParameterList;
 	}
 
-	public List<io.intino.legio.text.TextParameter> textParameterList() {
+	public java.util.List<io.intino.legio.text.TextParameter> textParameterList() {
 	    return textParameterList;
 	}
 
-	public List<io.intino.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<io.intino.legio.level.project.LevelFactory> predicate) {
+	public java.util.List<io.intino.legio.Project> projectList(java.util.function.Predicate<io.intino.legio.Project> predicate) {
+	    return projectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	}
+
+	public io.intino.legio.Project project(int index) {
+		return projectList.get(index);
+	}
+
+	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<io.intino.legio.level.project.LevelFactory> predicate) {
 	    return levelFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -173,7 +179,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return levelFactoryList.get(index);
 	}
 
-	public List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList(java.util.function.Predicate<io.intino.legio.platform.project.PlatformFactory> predicate) {
+	public java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList(java.util.function.Predicate<io.intino.legio.platform.project.PlatformFactory> predicate) {
 	    return platformFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -181,7 +187,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return platformFactoryList.get(index);
 	}
 
-	public List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList(java.util.function.Predicate<io.intino.legio.application.project.ApplicationFactory> predicate) {
+	public java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList(java.util.function.Predicate<io.intino.legio.application.project.ApplicationFactory> predicate) {
 	    return applicationFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -189,7 +195,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return applicationFactoryList.get(index);
 	}
 
-	public List<io.intino.legio.system.project.SystemFactory> systemFactoryList(java.util.function.Predicate<io.intino.legio.system.project.SystemFactory> predicate) {
+	public java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList(java.util.function.Predicate<io.intino.legio.system.project.SystemFactory> predicate) {
 	    return systemFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -197,7 +203,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return systemFactoryList.get(index);
 	}
 
-	public List<io.intino.legio.type.TypeParameter> typeParameterList(java.util.function.Predicate<io.intino.legio.type.TypeParameter> predicate) {
+	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList(java.util.function.Predicate<io.intino.legio.type.TypeParameter> predicate) {
 	    return typeParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -205,7 +211,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return typeParameterList.get(index);
 	}
 
-	public List<io.intino.legio.real.RealParameter> realParameterList(java.util.function.Predicate<io.intino.legio.real.RealParameter> predicate) {
+	public java.util.List<io.intino.legio.real.RealParameter> realParameterList(java.util.function.Predicate<io.intino.legio.real.RealParameter> predicate) {
 	    return realParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -213,7 +219,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return realParameterList.get(index);
 	}
 
-	public List<io.intino.legio.integer.IntegerParameter> integerParameterList(java.util.function.Predicate<io.intino.legio.integer.IntegerParameter> predicate) {
+	public java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList(java.util.function.Predicate<io.intino.legio.integer.IntegerParameter> predicate) {
 	    return integerParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -221,7 +227,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return integerParameterList.get(index);
 	}
 
-	public List<io.intino.legio.bool.BoolParameter> boolParameterList(java.util.function.Predicate<io.intino.legio.bool.BoolParameter> predicate) {
+	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList(java.util.function.Predicate<io.intino.legio.bool.BoolParameter> predicate) {
 	    return boolParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
@@ -229,7 +235,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return boolParameterList.get(index);
 	}
 
-	public List<io.intino.legio.text.TextParameter> textParameterList(java.util.function.Predicate<io.intino.legio.text.TextParameter> predicate) {
+	public java.util.List<io.intino.legio.text.TextParameter> textParameterList(java.util.function.Predicate<io.intino.legio.text.TextParameter> predicate) {
 	    return textParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 

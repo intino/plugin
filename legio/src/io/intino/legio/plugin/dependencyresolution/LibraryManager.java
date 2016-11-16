@@ -14,6 +14,8 @@ import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VfsUtil;
 import io.intino.legio.Project.Dependencies.Dependency;
 import org.sonatype.aether.artifact.Artifact;
+import tara.lang.model.Node;
+import tara.lang.model.Parameter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +38,11 @@ public class LibraryManager {
 		table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
 	}
 
-	public Library findLibrary(Dependency dependency) {
-		for (Library library : table.getLibraries())
-			if (nameOf(dependency).equals(library.getName())) return library;
+	public Library findLibrary(Node node, String effectiveVersion) {
+		final String dependency = nameOf(node, effectiveVersion);
+		for (Library library : table.getLibraries()) {
+			if (dependency.equals(library.getName())) return library;
+		}
 		return null;
 	}
 
@@ -137,6 +141,34 @@ public class LibraryManager {
 	}
 
 	private String nameOf(Dependency dependency) {
-		return LEGIO + dependency.groupId() + ":" + dependency.artifactId() + ":" + dependency.version();
+		return LEGIO + dependency.groupId() + ":" + dependency.artifactId() + ":" + dependency.effectiveVersion();
+	}
+
+	private String nameOf(Node dependency, String effectiveVersion) {
+		return LEGIO + groupId(dependency.parameters()) + ":" + artifactId(dependency.parameters()) + ":" + effectiveVersion;
+	}
+
+	private String groupId(List<Parameter> parameters) {
+		for (Parameter parameter : parameters) {
+			if (parameter.values() == null || parameter.values().isEmpty()) continue;
+			if (parameter.name().equals("groupId")) return (String) parameter.values().get(0);
+		}
+		return "";
+	}
+
+	private String artifactId(List<Parameter> parameters) {
+		for (Parameter parameter : parameters) {
+			if (parameter.values() == null || parameter.values().isEmpty()) continue;
+			if (parameter.name().equals("artifactId")) return (String) parameter.values().get(0);
+		}
+		return "";
+	}
+
+	private String version(List<Parameter> parameters) {
+		for (Parameter parameter : parameters) {
+			if (parameter.values() == null || parameter.values().isEmpty()) continue;
+			if (parameter.name().equals("version")) return (String) parameter.values().get(0);
+		}
+		return "";
 	}
 }

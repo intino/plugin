@@ -2,7 +2,6 @@ package io.intino.legio.platform.project;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class PlatformFactory extends io.intino.legio.level.project.LevelFactory implements tara.magritte.tags.Terminal {
 	
@@ -41,7 +40,7 @@ public class PlatformFactory extends io.intino.legio.level.project.LevelFactory 
 
 	
 
-	public List<tara.magritte.Node> componentList() {
+	public java.util.List<tara.magritte.Node> componentList() {
 		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		
 		return new java.util.ArrayList<>(components);

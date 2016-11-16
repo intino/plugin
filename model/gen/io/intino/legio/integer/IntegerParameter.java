@@ -2,7 +2,6 @@ package io.intino.legio.integer;
 
 import io.intino.legio.*;
 
-import java.util.*;
 
 public class IntegerParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
 	protected int defaultValue;

@@ -19,13 +19,16 @@ Concept:Named Project
 			var string groupId
 			var string artifactId
 			var string version
+			var string effectiveVersion = "" is private
 			var boolean transitive = true
 			sub Compile
 			sub Runtime
+			sub Provided
 			sub Test
 	Concept:{0..1} Factory
 		Concept:{0..1} Language
 			var string version
+			var string effectiveVersion = "" is private
 		Concept:{0..1} Generation
 			var string inPackage = ""
 		var boolean persistent = false
