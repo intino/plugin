@@ -776,6 +776,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			protected java.lang.String version;
 			protected java.lang.String effectiveVersion;
 			protected boolean transitive;
+			protected java.util.List<java.lang.String> artifacts = new java.util.ArrayList<>();
 
 			public Dependency(tara.magritte.Node node) {
 				super(node);
@@ -807,6 +808,18 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 			public boolean transitive() {
 				return transitive;
+			}
+
+			public java.util.List<java.lang.String> artifacts() {
+				return artifacts;
+			}
+
+			public java.lang.String artifacts(int index) {
+				return artifacts.get(index);
+			}
+
+			public java.util.List<java.lang.String> artifacts(java.util.function.Predicate<java.lang.String> predicate) {
+				return artifacts().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 			}
 
 			public void identifier(tara.magritte.Expression<java.lang.String> value) {
@@ -847,6 +860,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 				map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 				map.put("transitive", new java.util.ArrayList(java.util.Collections.singletonList(this.transitive)));
+				map.put("artifacts", this.artifacts);
 				return map;
 			}
 
@@ -864,6 +878,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = tara.magritte.loaders.StringLoader.load(values, this);
 			}
 
 			@Override
@@ -876,6 +891,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = (java.lang.Boolean) values.get(0);
+				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
 			}
 
 			public Create create() {

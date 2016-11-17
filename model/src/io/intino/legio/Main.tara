@@ -1,6 +1,6 @@
 dsl Proteo
 
-Concept:Named Project
+Concept:{1..1}:Named Project
 	var string groupId
 	var string version
 	Concept:{0..1} License
@@ -21,12 +21,13 @@ Concept:Named Project
 			var string version
 			var string effectiveVersion = "" is private
 			var boolean transitive = true
+			var string[] artifacts = empty is private
 			sub Compile
 			sub Runtime
 			sub Provided
 			sub Test
 	Concept:{0..1} Factory
-		Concept:{0..1} Language
+		Concept:{0..1}:Named Language
 			var string version
 			var string effectiveVersion = "" is private
 		Concept:{0..1} Generation

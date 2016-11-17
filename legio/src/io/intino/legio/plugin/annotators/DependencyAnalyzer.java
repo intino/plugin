@@ -28,12 +28,15 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
 		final Project.Dependencies.Dependency dependencyForNode = findDependencyForNode();
-		if (dependencyForNode == null)
+		if (dependencyForNode == null|| dependencyForNode.artifacts().isEmpty())
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, "Dependency not found"));
 		else {
-			final Library library = manager.findLibrary(dependencyNode, dependencyForNode.effectiveVersion());
-			if (library == null)
-				results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, "Dependency not found"));
+			for (String artifact : dependencyForNode.artifacts()) {
+				final Library library = manager.findLibrary(artifact);
+				if (library == null)
+					results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, "Dependency not found"));
+			}
+
 		}
 	}
 

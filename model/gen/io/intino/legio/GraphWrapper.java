@@ -1,11 +1,9 @@
 package io.intino.legio;
 
-import tara.magritte.Graph;
-
 public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	protected tara.magritte.Graph graph;
-	private java.util.List<io.intino.legio.Project> projectList;
+	private io.intino.legio.Project project;
 	private io.intino.legio.LifeCycle lifeCycle;
 	private java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList;
 	private java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList;
@@ -24,7 +22,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	}
 
 	protected void update() {
-		projectList = this.graph.rootList(io.intino.legio.Project.class);
+		project = this.graph.rootList(io.intino.legio.Project.class).stream().findFirst().orElse(null);
 		lifeCycle = this.graph.rootList(io.intino.legio.LifeCycle.class).stream().findFirst().orElse(null);
 		levelFactoryList = this.graph.rootList(io.intino.legio.level.project.LevelFactory.class);
 		platformFactoryList = this.graph.rootList(io.intino.legio.platform.project.PlatformFactory.class);
@@ -39,7 +37,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	@Override
 	protected void addNode(tara.magritte.Node node) {
-		if (node.is("Project")) this.projectList.add(node.as(io.intino.legio.Project.class));
+		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
 		if (node.is("LevelFactory")) this.levelFactoryList.add(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
@@ -54,7 +52,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	@Override
 	protected void removeNode(tara.magritte.Node node) {
-		if (node.is("Project")) this.projectList.remove(node.as(io.intino.legio.Project.class));
+		if (node.is("Project")) this.project = null;
 		if (node.is("LifeCycle")) this.lifeCycle = null;
 		if (node.is("LevelFactory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
@@ -119,8 +117,8 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return graph.createRoot(concept, namespace, id);
 	}
 
-	public java.util.List<io.intino.legio.Project> projectList() {
-	    return projectList;
+	public io.intino.legio.Project project() {
+	    return project;
 	}
 
 	public io.intino.legio.LifeCycle lifeCycle() {
@@ -161,14 +159,6 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	public java.util.List<io.intino.legio.text.TextParameter> textParameterList() {
 	    return textParameterList;
-	}
-
-	public java.util.List<io.intino.legio.Project> projectList(java.util.function.Predicate<io.intino.legio.Project> predicate) {
-	    return projectList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.Project project(int index) {
-		return projectList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<io.intino.legio.level.project.LevelFactory> predicate) {

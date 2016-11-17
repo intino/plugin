@@ -29,12 +29,14 @@ public class DependencyResolver {
 	private final Repositories repositories;
 	private final Dependencies dependencies;
 	private final LibraryManager manager;
+	private final Aether aether;
 
 	public DependencyResolver(Module module, Repositories repositories, Dependencies dependencies) {
 		this.manager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
 		this.dependencies = dependencies;
+		aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 	}
 
 	public List<Library> resolve() {
@@ -63,6 +65,8 @@ public class DependencyResolver {
 				if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
 				else d.effectiveVersion("");
 				manager.addToModule(resolved, d.is(Dependencies.Test.class));
+				d.artifacts().clear();
+				d.artifacts().addAll(artifacts.stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
 				newLibraries.addAll(resolved);
 			}
 		});
@@ -80,8 +84,6 @@ public class DependencyResolver {
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {
-		File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-		final Aether aether = new Aether(collectRemotes(), localRepository);
 		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);

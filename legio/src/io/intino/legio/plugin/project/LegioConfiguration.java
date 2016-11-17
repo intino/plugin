@@ -22,6 +22,7 @@ import com.intellij.psi.PsiManager;
 import io.intino.legio.LegioApplication;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
+import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Release;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.legio.plugin.dependencyresolution.DependencyResolver;
@@ -300,7 +301,7 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
-	public List<Project.Dependencies.Dependency> dependencies() {
+	public List<Dependency> dependencies() {
 		return legio.project().dependencies().dependencyList();
 	}
 

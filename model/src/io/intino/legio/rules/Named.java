@@ -1,9 +1,7 @@
 package io.intino.legio.rules;
 
 import tara.lang.model.Node;
-import tara.lang.model.rules.composition.NodeRule;
-
-import java.util.List;
+import tara.lang.model.rules.NodeRule;
 
 public class Named implements NodeRule {
 
