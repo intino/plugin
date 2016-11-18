@@ -194,27 +194,27 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<String> repositories() {
-		return legio.project().repositories().repositoryList().stream().
-				map(Repository::url).collect(Collectors.toList());
+		return safe(() -> legio.project().repositories().repositoryList().stream().
+				map(Repository::url).collect(Collectors.toList()));
 	}
 
 	public List<String> releaseRepositories() {
-		return legio.project().repositories().releaseList().stream().
-				map(Release::url).collect(Collectors.toList());
+		return safe(() -> legio.project().repositories().releaseList().stream().
+				map(Release::url).collect(Collectors.toList()));
 	}
 
 	@Override
 	public String snapshotRepository() {
-		return legio.project().repositories().snapshot().url();
+		return safe(() -> legio.project().repositories().snapshot().url());
 	}
 
 	@Override
 	public String languageRepository() {
-		return legio.project().repositories().language().url();
+		return safe(() -> legio.project().repositories().language().url());
 	}
 
 	public String languageRepositoryId() {
-		return legio.project().repositories().language().mavenId();
+		return safe(() -> legio.project().repositories().language().mavenId());
 	}
 
 	@Override
@@ -263,7 +263,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public LifeCycle.Package build() {
-		return legio.lifeCycle().package$();
+		return safe(() -> legio.lifeCycle().package$());
 	}
 
 	public LifeCycle.QualityAnalytics qualityAnalytics() {
@@ -285,14 +285,6 @@ public class LegioConfiguration implements Configuration {
 		return safe(wrapper, "");
 	}
 
-	private boolean safe(BooleanWrapper wrapper) {
-		try {
-			return wrapper.value();
-		} catch (NullPointerException e) {
-			return false;
-		}
-	}
-
 	private String safe(StringWrapper wrapper, String defaultValue) {
 		try {
 			return wrapper.value();
@@ -301,12 +293,28 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
+	private <T> T safe(Wrapper<T> wrapper) {
+		try {
+			return wrapper.value();
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private <T> List<T> safeList(ListWrapper<T> wrapper) {
+		try {
+			return wrapper.value();
+		} catch (NullPointerException e) {
+			return Collections.emptyList();
+		}
+	}
+
 	public List<Dependency> dependencies() {
-		return legio.project().dependencies().dependencyList();
+		return safeList(() -> legio.project().dependencies().dependencyList());
 	}
 
 	public List<Repository> legioRepositories() {
-		return legio.project().repositories().repositoryList();
+		return safeList(() -> legio.project().repositories().repositoryList());
 	}
 
 	public Project.License licence() {
@@ -317,7 +325,15 @@ public class LegioConfiguration implements Configuration {
 		String value();
 	}
 
+	private interface Wrapper<T> {
+		T value();
+	}
+
 	private interface BooleanWrapper {
 		boolean value();
+	}
+
+	private interface ListWrapper<T> {
+		List<T> value();
 	}
 }
