@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static tara.intellij.messages.MessageProvider.message;
 
-public class PublishLanguageAction extends PublishLanguageAbstractAction {
+public class PublishArtifactAction extends PublishArtifactAbstractAction {
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
@@ -48,7 +48,7 @@ public class PublishLanguageAction extends PublishLanguageAbstractAction {
 		errorMessages.clear();
 		List<Module> taraModules = collectTaraModules(project).stream().collect(Collectors.toList());
 		if (taraModules.isEmpty()) {
-			Messages.showInfoMessage(project, message("no.tara.modules"), " Language Publisher");
+			Messages.showInfoMessage(project, message("no.tara.modules"), " Artifact Publisher");
 			return;
 		}
 		if (taraModules.size() > 1) {

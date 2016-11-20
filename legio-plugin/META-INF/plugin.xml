@@ -31,16 +31,16 @@
         <group id="LegioToolsGroup" popup="true" text="Legio" class="io.intino.legio.plugin.actions.LegioActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
-            <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.PublishLanguageAction"
+            <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.PublishArtifactAction"
                     text="Publish Artifact..."
                     description="Publish Artifact">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
                 <add-to-group group-id="LegioToolsGroup"/>
             </action>
             <action id="PublishSnapshotLanguage"
-                    class="io.intino.legio.plugin.actions.publish.PublishSnapshotLanguageAction"
+                    class="io.intino.legio.plugin.actions.publish.PublishSnapshotArtifactAction"
                     text="Publish Snapshot Artifact..." description="Publish Snapshot Language and Framework">
-                <keyboard-shortcut keymap="$default" first-keystroke="control alt S"/>
+                <keyboard-shortcut keymap="$default" first-keystroke="control alt N"/>
                 <add-to-group group-id="LegioToolsGroup"/>
             </action>
             <action id="UpdateLanguage" class="io.intino.legio.plugin.actions.UpdateLanguageAction"
@@ -66,5 +66,9 @@
             <implementation-class>io.intino.legio.plugin.project.LegioAppComponent</implementation-class>
         </component>
     </application-components>
-
+    <project-components>
+        <component>
+            <implementation-class>io.intino.legio.plugin.lifecycle.LifeCycleManager</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

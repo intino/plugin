@@ -2,7 +2,7 @@ package io.intino.legio.natives.text.parameter;
 
 
 
-/**#/Users/oroncal/workspace/legio/model/src/io/intino/legio/Main.tara#85#2**/
+/**#/Users/oroncal/workspace/legio/model/src/io/intino/legio/Main.tara#88#2**/
 public class Type_0 implements tara.magritte.Expression<String> {
 	private io.intino.legio.text.TextParameter self;
 

@@ -53,10 +53,13 @@ Concept:{0..1} LifeCycle
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:{0..1} Delivery
+	Concept:{0..1} Deployment
 		var string cesarURL
-		Concept Deployment
+		Concept Integration
 			var string server
+			Concept Requirements
+				Concept Memory
+				Concept CPU
 			has:Named Parameter
 			sub PreDeploy
 			sub Deploy

@@ -12,6 +12,7 @@
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.siani.tara:proteo-alone:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.siani.tara:proteo-alone:1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.siani.tara:language:1.0" level="project" />
   </component>
 </module>

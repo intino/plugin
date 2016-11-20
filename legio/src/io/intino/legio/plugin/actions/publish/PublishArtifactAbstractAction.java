@@ -23,7 +23,7 @@ import java.util.List;
 
 import static tara.intellij.messages.MessageProvider.message;
 
-abstract class PublishLanguageAbstractAction extends AnAction implements DumbAware {
+abstract class PublishArtifactAbstractAction extends AnAction implements DumbAware {
 	private static final String JAR_EXTENSION = ".jar";
 
 	List<String> errorMessages = new ArrayList<>();
@@ -31,8 +31,10 @@ abstract class PublishLanguageAbstractAction extends AnAction implements DumbAwa
 
 	boolean publish(final Module module) {
 		return ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-			updateProgressIndicator(message("publishing.language"));
-			publishLanguage(module);
+			if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level())) {
+				updateProgressIndicator(message("publishing.language"));
+				publishLanguage(module);
+			}
 			updateProgressIndicator("Publishing Framework");
 			publishFramework(module);
 		}, "Publishing " + TaraUtil.configurationOf(module).artifactId(), false, module.getProject());

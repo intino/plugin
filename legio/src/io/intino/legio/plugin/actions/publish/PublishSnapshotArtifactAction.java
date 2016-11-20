@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static tara.compiler.shared.Configuration.Level.System;
 import static tara.intellij.messages.MessageProvider.message;
 
-public class PublishSnapshotLanguageAction extends AnAction implements DumbAware {
+public class PublishSnapshotArtifactAction extends AnAction implements DumbAware {
 
 	private static final String SNAPSHOT = "-SNAPSHOT";
 
@@ -62,7 +62,7 @@ public class PublishSnapshotLanguageAction extends AnAction implements DumbAware
 	}
 
 	private void export(List<Module> selectedModules, Project project) {
-		PublishLanguageAction action = new PublishLanguageAction();
+		PublishArtifactAction action = new PublishArtifactAction();
 		action.publish(extractDsls(selectedModules), project);
 	}
 
