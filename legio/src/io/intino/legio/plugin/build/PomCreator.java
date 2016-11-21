@@ -28,8 +28,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 
-import static io.intino.legio.LifeCycle.Package.Type.LibrariesExtracted;
-import static io.intino.legio.LifeCycle.Package.Type.OnlyLibrariesLinkedByManifest;
+import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
+import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
+
 
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
@@ -62,13 +63,26 @@ class PomCreator {
 		if (build != null) configureBuild(module, frame, configuration.licence(), build);
 		for (Dependency dependency : configuration.dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
-		if (configuration.outDSL() != null)
-			frame.addSlot("dependency", createDependencyFrame(findLanguageId(module).split(":")));
+		addModuleTypeDependencies(module, frame);
+		if (configuration.level() != null) {
+			final String languageId = findLanguageId(module);
+			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
+		}
 		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
 		writePom(pom, frame);
 		return pom;
+	}
+
+	private static void addModuleTypeDependencies(Module module, Frame frame) {
+		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
+			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
+			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
+				frame.addSlot("dependency", createDependencyFrame(d));
+			if (configuration.level() != null)
+				frame.addSlot("dependency", createDependencyFrame(findLanguageId(dependantModule).split(":")));
+		}
 	}
 
 	private static void fillDirectories(Module module, Frame frame) {
@@ -92,15 +106,12 @@ class PomCreator {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
 		final LifeCycle.Package.Type type = build.type();
-		if (type.equals(OnlyLibrariesLinkedByManifest)) {
+		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
-			addDependantModuleSources(frame, module);
-		} else if (type.equals(LibrariesExtracted)) {
-			frame.addSlot("linkLibraries", "false");
-			frame.addSlot("extractedLibraries", "");
-			addDependantModuleSources(frame, module);
-		}
+		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
+		addDependantModuleSources(frame, module);
 		if (build.mainClass() != null) frame.addSlot("mainClass", build.mainClass());
+		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null)
 			frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
@@ -110,9 +121,11 @@ class PomCreator {
 	private static void addDependantModuleSources(Frame frame, Module module) {
 		final Module[] moduleDependencies = ModuleRootManager.getInstance(module).getModuleDependencies();
 		for (Module dependency : moduleDependencies) {
-			final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
-			for (VirtualFile sourceRoot : sourceRoots)
-				if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
+			ApplicationManager.getApplication().runReadAction(() -> {
+				final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
+				for (VirtualFile sourceRoot : sourceRoots)
+					if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
+			});
 		}
 	}
 
@@ -126,7 +139,7 @@ class PomCreator {
 
 	private static String findLanguageId(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.findLanguageId(configuration.dsl(), configuration.dslVersion());
+		return LanguageResolver.moduleOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.findLanguageId(configuration.dsl(), configuration.dslVersion());
 	}
 
 	private static Frame createDependencyFrame(Dependency id) {

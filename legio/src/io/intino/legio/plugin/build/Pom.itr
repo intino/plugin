@@ -66,11 +66,33 @@ def type(pom)
 						<archive>
 							<manifest>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
-								<mainClass>$mainClass</mainClass>]
+								<mainClass>$mainClass</mainClass>][
+								<classpathPrefix>$classpathPrefix/</classpathPrefix>]
 							</manifest>
 						</archive>
 					</configuration>
-				</plugin>[
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.10</version>
+					<executions>
+						<execution>
+							<id>copy-dependencies</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+							<configuration>[
+							    <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+								<overWriteReleases>false</overWriteReleases>
+								<overWriteSnapshots>false</overWriteSnapshots>
+								<overWriteIfNewer>true</overWriteIfNewer>
+							</configuration>
+						</execution>
+					</executions>
+					</plugin>
+				[
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
@@ -142,15 +164,15 @@ def type(pom)
 end
 
 def trigger(sourceDirectory)
-	<sourceDirectory>$value</sourceDirectory>
+	<source>$value</source>
+end
+
+def trigger(moduleDependency)
+	<source>$value</source>
 end
 
 def trigger(resourceDirectory)
 	<resource><directory>$value</directory></resource>
-end
-
-def type(moduleDependency)
-	<source>$url</source>
 end
 
 def type(repository) type(Distribution) trigger(distribution)

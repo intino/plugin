@@ -24,7 +24,7 @@ public class ReloadConfigurationAction extends AnAction implements DumbAware {
 			final Configuration configuration = TaraUtil.configurationOf(module);
 			if (configuration != null && configuration instanceof LegioConfiguration) {
 				FileDocumentManager.getInstance().saveAllDocuments();
-				((LegioConfiguration) configuration).reloadInfo(null);
+				((LegioConfiguration) configuration).reloadConfiguration(null);
 				notifyReload(module);
 			}
 		}

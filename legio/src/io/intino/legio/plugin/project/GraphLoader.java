@@ -11,8 +11,12 @@ class GraphLoader {
 	static LegioApplication loadGraph(Stash stash) {
 		final ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(GraphLoader.class.getClassLoader());
-		final Graph graph = Graph.from(stash).wrap(LegioApplication.class);
-		Thread.currentThread().setContextClassLoader(currentLoader);
-		return graph.application();
+		try {
+			final Graph graph = Graph.from(stash).wrap(LegioApplication.class);
+			Thread.currentThread().setContextClassLoader(currentLoader);
+			return graph.application();
+		} catch (Throwable e) {
+			return null;
+		}
 	}
 }

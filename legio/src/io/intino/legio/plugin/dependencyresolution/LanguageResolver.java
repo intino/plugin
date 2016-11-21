@@ -60,7 +60,8 @@ public class LanguageResolver {
 			final LibraryManager manager = new LibraryManager(module);
 			final String proteoID = proteoGroupId + ":" + proteoArtifactId + ":" + version;
 			final List<Artifact> languageFramework = findLanguageFramework(proteoID);
-			if (!languageFramework.isEmpty()) factory.language().effectiveVersion(languageFramework.get(0).getVersion());
+			if (!languageFramework.isEmpty())
+				factory.language().effectiveVersion(languageFramework.get(0).getVersion());
 			else factory.language().effectiveVersion("");
 			libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 			manager.addToModule(libraries, false);
@@ -71,7 +72,7 @@ public class LanguageResolver {
 	private List<Library> frameworkOfLanguage(String language, String version) {
 		List<Library> libraries = new ArrayList<>();
 		ApplicationManager.getApplication().runWriteAction(() -> {
-			final Module module = moduleOf(language, version);
+			final Module module = moduleOf(this.module, language, version);
 			if (module == null) addExternalLibraries(language, version, libraries);
 			else addModuleDependency(module, libraries);
 		});
@@ -93,8 +94,8 @@ public class LanguageResolver {
 		manager.addToModule(libraries, false);
 	}
 
-	private Module moduleOf(String language, String version) {
-		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(this.module)).collect(Collectors.toList());
+	public static Module moduleOf(Module languageModule, String language, String version) {
+		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;

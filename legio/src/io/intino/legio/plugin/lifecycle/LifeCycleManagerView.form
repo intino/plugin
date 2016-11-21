@@ -24,7 +24,11 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="update"/>
+              <enabled value="true"/>
+              <focusPainted value="true"/>
+              <icon value="icons/icon-13.png"/>
+              <text value=""/>
+              <toolTipText value="Re-import all"/>
             </properties>
           </component>
           <hspacer id="95c9c">

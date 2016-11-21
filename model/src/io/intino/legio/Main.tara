@@ -21,7 +21,8 @@ Concept:{1..1}:Named Project
 			var string version
 			var string effectiveVersion = "" is private
 			var boolean transitive = true
-			var string[] artifacts = empty is private
+			var string[] artifacts is private
+			var boolean resolved = false is private
 			sub Compile
 			sub Runtime
 			sub Provided
@@ -37,11 +38,12 @@ Concept:{1..1}:Named Project
 
 Concept:{0..1} LifeCycle
 	Concept:{0..1} Package
-		var word:{LibrariesExtracted OnlyLibrariesLinkedByManifest AllDependenciesLinkedByManifest} type
+		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} type
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false
 		var string mainClass = empty
+		var string classpathPrefix = empty
 		var string finalName = empty
 		Concept MavenPlugin
 			var string code

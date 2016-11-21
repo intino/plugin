@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.io.FileUtil;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.*;
@@ -60,7 +61,7 @@ public class LegioMavenRunner {
 			else
 				throw new IOException("Failed to publish framework.\n" + output, new TaraException(output));
 		} else {
-//			FileUtil.delete(pom);
+			FileUtil.delete(pom);
 			if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
 		}
 	}

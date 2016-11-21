@@ -79,10 +79,10 @@ public class LegioConfiguration implements Configuration {
 	public void reload() {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
 		balloon.createNotification("Configuration of " + module.getName() + " has changed", "<a href=\"#\">Reload Configuration</a>",
-				NotificationType.INFORMATION, (n, e) -> reloadInfo(n)).setImportant(true).notify(module.getProject());
+				NotificationType.INFORMATION, (n, e) -> reloadConfiguration(n)).setImportant(true).notify(module.getProject());
 	}
 
-	public void reloadInfo(Notification notification) {
+	public void reloadConfiguration(Notification notification) {
 		hide(notification);
 		FileDocumentManager.getInstance().saveAllDocuments();
 		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
@@ -110,7 +110,7 @@ public class LegioConfiguration implements Configuration {
 	private void reloadGraph() {
 		Stash legioStash = loadNewConfiguration();
 		if (legioStash == null) return;
-		saveStash(legioStash);
+		saveStash(legioStash);//TODO save with resolved artifacts.
 		this.legio = GraphLoader.loadGraph(legioStash);
 	}
 
@@ -255,7 +255,7 @@ public class LegioConfiguration implements Configuration {
 				versionParameter.substituteValues(Collections.singletonList(version));
 			}
 		}.execute();
-		reloadInfo(null);
+		reloadConfiguration(null);
 	}
 
 	public LifeCycle lifeCycle() {

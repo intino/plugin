@@ -46,6 +46,10 @@ public class LifeCycleManagerView extends JPanel {
 
     LifeCycleManagerView(Project project) {
         modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));
+        updateButton.setBorderPainted(false);
+        updateButton.setContentAreaFilled(false);
+        updateButton.setFocusPainted(false);
+        updateButton.setOpaque(false);
         initModuleActions(Arrays.asList(ModuleManager.getInstance(project).getModules()));
     }
 
@@ -55,7 +59,6 @@ public class LifeCycleManagerView extends JPanel {
     }
 
     private void initModuleActions(List<Module> modules) {
-        modulesPanel.add(createHeaders());
         for (Module module : modules) {
             JPanel panel = new JPanel();
             BoxLayout layout = new BoxLayout(panel, BoxLayout.X_AXIS);
@@ -71,33 +74,13 @@ public class LifeCycleManagerView extends JPanel {
                 JButton button = new JButton();
                 button.setIcon(actions.get(action));
                 button.setAlignmentX(LEFT_ALIGNMENT);
+                button.setToolTipText(action);
                 panel.add(button);
             }
             panel.setAlignmentX(LEFT_ALIGNMENT);
             modulesPanel.add(panel);
         }
 
-    }
-
-    private JPanel createHeaders() {
-        JPanel panel = new JPanel();
-        BoxLayout emptyLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
-        panel.setLayout(emptyLayout);
-        JBLabel empty = new JBLabel();
-        empty.setMinimumSize(new Dimension(120, 10));
-        empty.setPreferredSize(new Dimension(120, 10));
-        empty.setMaximumSize(new Dimension(120, 10));
-        panel.add(empty);
-        for (String action : actions.keySet()) {
-            JBLabel comp = new JBLabel(action);
-            comp.setAlignmentX(CENTER_ALIGNMENT);
-            comp.setMinimumSize(new Dimension(70, 10));
-            comp.setPreferredSize(new Dimension(70, 10));
-            comp.setMaximumSize(new Dimension(70, 10));
-            panel.add(comp);
-        }
-        panel.setAlignmentX(LEFT_ALIGNMENT);
-        return panel;
     }
 
     Component contentPane() {

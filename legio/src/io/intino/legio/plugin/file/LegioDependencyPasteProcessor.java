@@ -8,6 +8,9 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 
 	private static final String GROUP_ID = "<groupId>";
@@ -24,8 +27,11 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 	@Override
 	public String preprocessOnPaste(Project project, PsiFile psiFile, Editor editor, String text, RawText rawText) {
 		if (!psiFile.getFileType().equals(LegioFileType.instance()) || !isMavenDependency(text.trim())) return text;
-		String[] parameters = extractInfoFrom(text);
-		return parameters[0] + "(\"" + parameters[1] + "\", \"" + parameters[2] + "\", \"" + parameters[3] + "\")";
+		List<String[]> parameters = extractInfoFrom(text);
+		String result = "";
+		for (String[] parameter : parameters)
+			result += parameter[0] + "(\"" + parameter[1] + "\", \"" + parameter[2] + "\", \"" + parameter[3] + "\")\n";
+		return result;
 	}
 
 	private boolean isMavenDependency(String text) {
@@ -33,11 +39,16 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 				text.contains("<groupId>") && text.contains("<artifactId>");
 	}
 
-	private String[] extractInfoFrom(String text) {
-		String scope = text.contains("<scope>test</scope>") ? "Test" : "Compile";
-		String groupId = text.substring(text.indexOf(GROUP_ID) + GROUP_ID.length(), text.indexOf("</groupId>"));
-		String artifactId = text.substring(text.indexOf(ARTIFACT_ID) + ARTIFACT_ID.length(), text.indexOf("</artifactId>"));
-		String version = text.substring(text.indexOf(VERSION) + VERSION.length(), text.indexOf("</version>"));
-		return new String[]{scope, groupId, artifactId, version};
+	private List<String[]> extractInfoFrom(String text) {
+		List<String[]> dependencyList = new ArrayList<>();
+		for (String dependency : text.split("<dependency>")) {
+			if (dependency.isEmpty()) continue;
+			String scope = dependency.contains("<scope>test</scope>") ? "Test" : "Compile";
+			String groupId = dependency.substring(dependency.indexOf(GROUP_ID) + GROUP_ID.length(), dependency.indexOf("</groupId>"));
+			String artifactId = dependency.substring(dependency.indexOf(ARTIFACT_ID) + ARTIFACT_ID.length(), dependency.indexOf("</artifactId>"));
+			String version = dependency.substring(dependency.indexOf(VERSION) + VERSION.length(), dependency.indexOf("</version>"));
+			dependencyList.add(new String[]{scope, groupId, artifactId, version});
+		}
+		return dependencyList;
 	}
 }

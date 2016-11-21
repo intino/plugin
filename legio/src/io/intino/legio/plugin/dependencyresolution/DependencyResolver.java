@@ -67,6 +67,7 @@ public class DependencyResolver {
 				manager.addToModule(resolved, d.is(Dependencies.Test.class));
 				d.artifacts().clear();
 				d.artifacts().addAll(artifacts.stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
+				d.resolved(true);
 				newLibraries.addAll(resolved);
 			}
 		});

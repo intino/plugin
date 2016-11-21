@@ -139,12 +139,13 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		protected Type type;
 
 		public enum Type {
-			LibrariesExtracted, OnlyLibrariesLinkedByManifest, AllDependenciesLinkedByManifest;
+			ModulesAndLibrariesExtracted, LibrariesLinkedByManifest, ModulesAndLibrariesLinkedByManifest;
 		}
 		protected boolean attachSources;
 		protected boolean attachDoc;
 		protected boolean includeTests;
 		protected java.lang.String mainClass;
+		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
 		protected java.util.List<io.intino.legio.LifeCycle.Package.MavenPlugin> mavenPluginList = new java.util.ArrayList<>();
 
@@ -172,6 +173,10 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			return mainClass;
 		}
 
+		public java.lang.String classpathPrefix() {
+			return classpathPrefix;
+		}
+
 		public java.lang.String finalName() {
 			return finalName;
 		}
@@ -194,6 +199,10 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 
 		public void mainClass(java.lang.String value) {
 			this.mainClass = value;
+		}
+
+		public void classpathPrefix(java.lang.String value) {
+			this.classpathPrefix = value;
 		}
 
 		public void finalName(java.lang.String value) {
@@ -228,6 +237,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			map.put("attachDoc", new java.util.ArrayList(java.util.Collections.singletonList(this.attachDoc)));
 			map.put("includeTests", new java.util.ArrayList(java.util.Collections.singletonList(this.includeTests)));
 			map.put("mainClass", new java.util.ArrayList(java.util.Collections.singletonList(this.mainClass)));
+			map.put("classpathPrefix", new java.util.ArrayList(java.util.Collections.singletonList(this.classpathPrefix)));
 			map.put("finalName", new java.util.ArrayList(java.util.Collections.singletonList(this.finalName)));
 			return map;
 		}
@@ -256,6 +266,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("finalName")) this.finalName = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
@@ -267,6 +278,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = (java.lang.Boolean) values.get(0);
 			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = (java.lang.Boolean) values.get(0);
 			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("finalName")) this.finalName = (java.lang.String) values.get(0);
 		}
 

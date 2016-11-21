@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.TaraIcons;
 import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.intellij.project.TaraModuleType;
 import tara.intellij.settings.TaraSettings;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ public class PublishArtifactAction extends PublishArtifactAbstractAction {
 	private void publish(Project project) {
 		successMessages.clear();
 		errorMessages.clear();
-		List<Module> taraModules = collectTaraModules(project).stream().collect(Collectors.toList());
+		List<Module> taraModules = collectModulesWithConfiguration(project).stream().collect(Collectors.toList());
 		if (taraModules.isEmpty()) {
 			Messages.showInfoMessage(project, message("no.tara.modules"), " Artifact Publisher");
 			return;
@@ -136,11 +135,10 @@ public class PublishArtifactAction extends PublishArtifactAbstractAction {
 		ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
 	}
 
-	private List<Module> collectTaraModules(Project project) {
+	private List<Module> collectModulesWithConfiguration(Project project) {
 		List<Module> taraModules = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules())
-			if (TaraModuleType.isTara(module))
-				taraModules.add(module);
+			if (TaraUtil.configurationOf(module) != null) taraModules.add(module);
 		return taraModules;
 	}
 
@@ -162,7 +160,7 @@ public class PublishArtifactAction extends PublishArtifactAbstractAction {
 	@Override
 	public void update(@NotNull AnActionEvent e) {
 		final Project project = e.getData(CommonDataKeys.PROJECT);
-		boolean enabled = !collectTaraModules(project).isEmpty();
+		boolean enabled = !collectModulesWithConfiguration(project).isEmpty();
 		e.getPresentation().setVisible(enabled);
 		e.getPresentation().setEnabled(enabled);
 		e.getPresentation().setIcon(LegioIcons.ICON_16);
