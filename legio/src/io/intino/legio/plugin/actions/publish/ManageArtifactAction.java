@@ -10,6 +10,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.configuration.ChooseModulesDialog;
 import com.intellij.openapi.ui.Messages;
 import io.intino.legio.plugin.LegioIcons;
+import io.intino.legio.plugin.build.ArtifactManager;
+import io.intino.legio.plugin.build.LifeCyclePhase;
 import org.jetbrains.annotations.NotNull;
 import tara.intellij.lang.psi.impl.TaraUtil;
 
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.legio.plugin.MessageProvider.message;
 
-public class PublishArtifactAction extends AnAction implements DumbAware {
+public class ManageArtifactAction extends AnAction implements DumbAware {
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
@@ -36,21 +38,21 @@ public class PublishArtifactAction extends AnAction implements DumbAware {
 		e.getPresentation().setVisible(enabled);
 		e.getPresentation().setEnabled(enabled);
 		e.getPresentation().setIcon(LegioIcons.ICON_16);
-		if (enabled) e.getPresentation().setText(message("publish.artifact"));
+		if (enabled) e.getPresentation().setText(message("distribute.artifact"));
 	}
 
 	private void publish(Project project) {
 		List<Module> validModules = collectModulesWithConfiguration(project).stream().collect(Collectors.toList());
 		if (validModules.isEmpty()) {
-			Messages.showInfoMessage(project, message("no.modules"), " Artifact Publisher");
+			Messages.showInfoMessage(project, message("no.modules"), " Artifact Distribution");
 			return;
 		}
 		if (validModules.size() > 1) {
 			ChooseModulesDialog dialog = createDialog(project, validModules);
 			dialog.show();
 			if (dialog.isOK())
-				new ArtifactPublisher(project, dialog.getChosenElements(), ArtifactPublisher.Actions.DISTRIBUTE).publish();
-		} else new ArtifactPublisher(project, validModules, ArtifactPublisher.Actions.DISTRIBUTE).publish();
+				new ArtifactManager(project, dialog.getChosenElements(), LifeCyclePhase.DISTRIBUTE).publish();
+		} else new ArtifactManager(project, validModules, LifeCyclePhase.DISTRIBUTE).publish();
 	}
 
 	private ChooseModulesDialog createDialog(Project project, List<Module> taraModules) {

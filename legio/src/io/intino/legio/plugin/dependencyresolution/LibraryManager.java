@@ -90,7 +90,7 @@ public class LibraryManager {
 		invalidEntries.forEach(modifiableModel::removeOrderEntry);
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) commit(module, table, toRemove, modifiableModel);
-		else application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel));
+		else application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
 	}
 
 	private static boolean isUsedByOthers(Module module, Library library) {

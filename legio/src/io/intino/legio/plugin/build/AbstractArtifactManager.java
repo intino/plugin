@@ -1,12 +1,9 @@
-package io.intino.legio.plugin.actions.publish;
+package io.intino.legio.plugin.build;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.legio.plugin.LegioException;
-import io.intino.legio.plugin.actions.publish.ArtifactPublisher.Actions;
-import io.intino.legio.plugin.build.LegioMavenRunner;
 import io.intino.legio.plugin.project.LegioConfiguration;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
@@ -18,28 +15,27 @@ import tara.intellij.lang.psi.impl.TaraUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static io.intino.legio.plugin.MessageProvider.message;
+import static tara.intellij.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
 
 
-abstract class AbstractArtifactPublisher {
+abstract class AbstractArtifactManager {
 	private static final String JAR_EXTENSION = ".jar";
 
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
-	protected boolean publish(final Module module, Actions actions) {
-		return ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-			if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && Arrays.asList(actions.actions()).contains("deploy")) {
-				updateProgressIndicator(message("publishing.language"));
-				publishLanguage(module);
-			}
-			updateProgressIndicator(message("publishing.framework"));
-			publishFramework(module, actions);
-		}, "Publishing " + TaraUtil.configurationOf(module).artifactId(), false, module.getProject());
+	protected boolean publish(final Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
+		if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy")) {
+			updateProgressIndicator(indicator, message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
+			publishLanguage(module);
+		}
+		updateProgressIndicator(indicator, message("framework.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
+		publishFramework(module, lifeCyclePhase);
+		return true;
 	}
 
 	private void publishLanguage(Module module) {
@@ -58,13 +54,13 @@ abstract class AbstractArtifactPublisher {
 		}
 	}
 
-	private void publishFramework(Module module, Actions actions) {
+	private void publishFramework(Module module, LifeCyclePhase lifeCyclePhase) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			try {
-				if (configuration.distributionRepository().isEmpty() && Arrays.asList(actions.actions()).contains("deploy"))
+				if (configuration.distributionRepository().isEmpty() && lifeCyclePhase.mavenActions().contains("deploy"))
 					throw new LegioException(message("distribution.repository.not.found"));
-				new LegioMavenRunner(module).publishFramework(actions);
+				new LegioMavenRunner(module).publishFramework(lifeCyclePhase);
 			} catch (MavenInvocationException | IOException | LegioException e) {
 				errorMessages.add(e.getMessage());
 			}
@@ -78,8 +74,7 @@ abstract class AbstractArtifactPublisher {
 	}
 
 	@Nullable
-	private ProgressIndicator updateProgressIndicator(String message) {
-		final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
+	private ProgressIndicator updateProgressIndicator(ProgressIndicator progressIndicator, String message) {
 		if (progressIndicator != null) {
 			progressIndicator.setText2(message);
 			progressIndicator.setIndeterminate(true);

@@ -1,8 +1,6 @@
 package io.intino.legio.plugin.project;
 
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
@@ -77,9 +75,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void reload() {
-		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification("Configuration of " + module.getName() + " has changed", "<a href=\"#\">Reload Configuration</a>",
-				NotificationType.INFORMATION, (n, e) -> reloadConfiguration(n)).setImportant(true).notify(module.getProject());
+		reloadConfiguration(null);
 	}
 
 	public void reloadConfiguration(Notification notification) {
@@ -90,8 +86,7 @@ public class LegioConfiguration implements Configuration {
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).create();
 						 reloadGraph();
-						 ApplicationManager.getApplication().invokeLater(() ->
-								 ApplicationManager.getApplication().runWriteAction(() -> reloadDependencies()));
+						 reloadDependencies();
 					 }
 				 }
 		);
@@ -327,10 +322,6 @@ public class LegioConfiguration implements Configuration {
 
 	private interface Wrapper<T> {
 		T value();
-	}
-
-	private interface BooleanWrapper {
-		boolean value();
 	}
 
 	private interface ListWrapper<T> {

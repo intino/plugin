@@ -23,16 +23,18 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import io.intino.legio.plugin.LegioIcons;
-import io.intino.legio.plugin.actions.publish.ArtifactPublisher;
+import io.intino.legio.plugin.build.ArtifactManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import static io.intino.legio.plugin.build.LifeCyclePhase.PREDEPLOY;
+import static io.intino.legio.plugin.build.LifeCyclePhase.valueOf;
+
 public class LifeCycleManagerView extends JPanel {
 	private JPanel contentPane;
-	private JButton updateButton;
 	private JPanel modulesPanel;
 	private static final Map<String, Icon> actions = new LinkedHashMap<>();
 
@@ -49,10 +51,6 @@ public class LifeCycleManagerView extends JPanel {
 	LifeCycleManagerView(Project project) {
 		this.project = project;
 		modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));
-		updateButton.setBorderPainted(false);
-		updateButton.setContentAreaFilled(false);
-		updateButton.setFocusPainted(false);
-		updateButton.setOpaque(false);
 		initModuleActions(Arrays.asList(ModuleManager.getInstance(project).getModules()));
 	}
 
@@ -74,9 +72,10 @@ public class LifeCycleManagerView extends JPanel {
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			panel.add(label);
 			for (String action : actions.keySet()) {
+				panel.add(Box.createRigidArea(new Dimension(PREDEPLOY.name().equals(action.toUpperCase()) ? 20 : 10, 0)));
 				JButton button = new JButton(actions.get(action));
 				customizeButton(button, module.getName() + "_" + action, action);
-				button.addActionListener(e -> new ArtifactPublisher(project, Collections.singletonList(module), ArtifactPublisher.Actions.valueOf(action.toUpperCase())).publish());
+				button.addActionListener(e -> new ArtifactManager(project, Collections.singletonList(module), valueOf(action.toUpperCase())).publish());
 				panel.add(button);
 			}
 			panel.setAlignmentX(LEFT_ALIGNMENT);
@@ -95,9 +94,6 @@ public class LifeCycleManagerView extends JPanel {
 		button.setContentAreaFilled(false);
 		button.setFocusPainted(false);
 		button.setOpaque(false);
-		button.setMinimumSize(new Dimension(30, 20));
-		button.setPreferredSize(new Dimension(30, 20));
-		button.setMaximumSize(new Dimension(30, 20));
 	}
 
 	Component contentPane() {

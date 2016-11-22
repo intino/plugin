@@ -31,9 +31,9 @@
         <group id="LegioToolsGroup" popup="true" text="Legio" class="io.intino.legio.plugin.actions.LegioActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
-            <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.PublishArtifactAction"
-                    text="Publish Artifact..."
-                    description="Publish Artifact">
+        <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.ManageArtifactAction"
+                text="Publish Artifact..."
+                description="Publish Artifact">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
                 <add-to-group group-id="LegioToolsGroup"/>
             </action>

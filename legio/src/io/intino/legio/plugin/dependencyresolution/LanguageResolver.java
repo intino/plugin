@@ -1,5 +1,6 @@
 package io.intino.legio.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -70,13 +71,18 @@ public class LanguageResolver {
 	}
 
 	private List<Library> frameworkOfLanguage(String language, String version) {
-		List<Library> libraries = new ArrayList<>();
-		ApplicationManager.getApplication().runWriteAction(() -> {
-			final Module module = moduleOf(this.module, language, version);
-			if (module == null) addExternalLibraries(language, version, libraries);
-			else addModuleDependency(module, libraries);
-		});
+		final List<Library> libraries = new ArrayList<>();
+		final Module module = moduleOf(this.module, language, version);
+		final Application app = ApplicationManager.getApplication();
+		if (app.isWriteAccessAllowed()) app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module));
+		else app.invokeLater(() -> app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module)));
+
 		return libraries;
+	}
+
+	private void addExternalLibraries(String language, String version, List<Library> libraries, Module module) {
+		if (module == null) addExternalLibraries(language, version, libraries);
+		else addModuleDependency(module, libraries);
 	}
 
 	private void addModuleDependency(Module dependency, List<Library> libraries) {

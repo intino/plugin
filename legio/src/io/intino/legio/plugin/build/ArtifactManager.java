@@ -1,4 +1,4 @@
-package io.intino.legio.plugin.actions.publish;
+package io.intino.legio.plugin.build;
 
 import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.notification.Notification;
@@ -9,11 +9,17 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.legio.plugin.dependencyresolution.ArtifactoryConnector;
+import org.jetbrains.annotations.NotNull;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.TaraIcons;
 import tara.intellij.lang.psi.impl.TaraUtil;
@@ -25,29 +31,15 @@ import java.util.List;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static io.intino.legio.plugin.MessageProvider.message;
 
-public class ArtifactPublisher extends AbstractArtifactPublisher {
+public class ArtifactManager extends AbstractArtifactManager {
 	private final Project project;
 	private List<Module> modules;
-	private Actions actions;
+	private LifeCyclePhase lifeCyclePhase;
 
-	public enum Actions {
-		PACKAGE("clean", "package"), INSTALL("clean", "package", "install"), DISTRIBUTE("clean", "package", "install", "deploy"), PREDEPLOY, DEPLOY;
-
-		private final String[] actions;
-
-		public String[] actions() {
-			return actions;
-		}
-
-		Actions(String... actions) {
-			this.actions = actions;
-		}
-	}
-
-	public ArtifactPublisher(Project project, final List<Module> modules, Actions action) {
+	public ArtifactManager(Project project, final List<Module> modules, LifeCyclePhase phase) {
 		this.project = project;
 		this.modules = modules;
-		this.actions = action;
+		this.lifeCyclePhase = phase;
 	}
 
 	public void publish() {
@@ -62,19 +54,29 @@ public class ArtifactPublisher extends AbstractArtifactPublisher {
 	}
 
 	private void doPublish() {
-		ApplicationManager.getApplication().invokeLater(() -> {
-			publishLanguageAndFramework();
-			if (!errorMessages.isEmpty())
-				Notifications.Bus.notify(new Notification("Tara Language", message("error.occurred"), errorMessages.iterator().next(), NotificationType.ERROR), project);
-			else processMessages(successMessages, modules);
+		saveAll(project);
+		for (Module module : modules)
+			if (!checkOverrideVersion(module, extractDSL(module))) return;
+		withTask(new Task.Backgroundable(project, firstUpperCase(lifeCyclePhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			@Override
+			public void run(@NotNull ProgressIndicator indicator) {
+				for (Module module : modules) publish(module, lifeCyclePhase, indicator);
+				ApplicationManager.getApplication().invokeLater(() -> {
+					reloadProject();
+					if (!errorMessages.isEmpty())
+						Notifications.Bus.notify(new Notification("Tara Language", message("error.occurred", lifeCyclePhase.gerund().toLowerCase()), errorMessages.iterator().next(), NotificationType.ERROR), project);
+					else processMessages(successMessages, modules);
+				});
+			}
 		});
 	}
 
-	private void publishLanguageAndFramework() {
-		saveAll(project);
-		for (Module module : modules)
-			if (checkOverrideVersion(module, extractDSL(module)) && !publish(module, actions)) return;
-		reloadProject();
+	private String firstUpperCase(String input) {
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
+	}
+
+	private void withTask(Task.Backgroundable runnable) {
+		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
 	}
 
 	private boolean checkOverrideVersion(Module module, String dsl) {
@@ -116,7 +118,7 @@ public class ArtifactPublisher extends AbstractArtifactPublisher {
 		}
 		final Module first = modules.get(0);
 		notify(first.getProject(), messageBuf.toString(), modules.size() == 1 ?
-				message("success.publish.message", first.getName()) : message("success.language.publishing.message"));
+				message("success.publish.message", lifeCyclePhase.participle()) : message("success.language.publishing.message", lifeCyclePhase.participle()));
 	}
 
 	private void notify(Project project, String title, String body) {
