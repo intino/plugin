@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="274" y="20" width="272" height="830"/>
+      <xy x="319" y="20" width="227" height="830"/>
     </constraints>
     <properties/>
     <border type="empty">
@@ -24,9 +24,13 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <borderPainted value="false"/>
+              <contentAreaFilled value="false"/>
               <enabled value="true"/>
-              <focusPainted value="true"/>
+              <focusPainted value="false"/>
               <icon value="icons/icon-13.png"/>
+              <opaque value="false"/>
+              <requestFocusEnabled value="false"/>
               <text value=""/>
               <toolTipText value="Re-import all"/>
             </properties>

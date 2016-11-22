@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
+import io.intino.legio.plugin.actions.publish.ArtifactPublisher;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.*;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Properties;
 
+import static io.intino.legio.plugin.MessageProvider.message;
 import static java.util.Arrays.asList;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
@@ -45,24 +47,17 @@ public class LegioMavenRunner {
 		final Properties properties = new Properties();
 		request.setProperties(properties);
 		final InvocationResult result = invoke(request);
-		if (result != null && result.getExitCode() != 0) {
-			if (result.getExecutionException() != null)
-				throw new IOException("Failed publishing language. " + result.getExecutionException().getMessage(), result.getExecutionException());
-			else throw new IOException("Failed publishing language.\n" + output, new TaraException(output));
-		} else if (result == null) throw new IOException("Failed to publish language. Maven HOME not found");
+		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.language");
+		else if (result == null) throw new IOException(message("error.publishing.language", "Maven HOME not found"));
 	}
 
-	public void publishFramework() throws MavenInvocationException, IOException {
+	public void publishFramework(ArtifactPublisher.Actions actions) throws MavenInvocationException, IOException {
 		final File pom = PomCreator.createFrameworkPom(module);
-		final InvocationResult result = invoke(pom);
-		if (result != null && result.getExitCode() != 0) {
-			if (result.getExecutionException() != null)
-				throw new IOException("Failed to publish framework.", result.getExecutionException());
-			else
-				throw new IOException("Failed to publish framework.\n" + output, new TaraException(output));
-		} else {
+		final InvocationResult result = invoke(pom, actions);
+		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework");
+		else {
 			FileUtil.delete(pom);
-			if (result == null) throw new IOException("Failed to publish framework. Maven HOME not found");
+			if (result == null) throw new IOException(message("error.publishing.framework", "Maven HOME not found"));
 		}
 	}
 
@@ -71,9 +66,9 @@ public class LegioMavenRunner {
 		return LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.modelVersion() + "/" + conf.artifactId() + "-" + conf.modelVersion() + ".jar ";
 	}
 
-	private InvocationResult invoke(File pom) throws MavenInvocationException, IOException {
+	private InvocationResult invoke(File pom, ArtifactPublisher.Actions actions) throws MavenInvocationException, IOException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(asList("clean", "install", "deploy"));
+		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(asList(actions.actions()));
 		request.setJavaHome(new File(System.getProperty("java.home")));
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
@@ -92,6 +87,12 @@ public class LegioMavenRunner {
 		log(invoker);
 		config(request, mavenHome);
 		return invoker.execute(request);
+	}
+
+	private void throwException(InvocationResult result, String message) throws IOException {
+		if (result.getExecutionException() != null)
+			throw new IOException(message(message, result.getExecutionException().getMessage()), result.getExecutionException());
+		else throw new IOException(message(message, output), new TaraException(output));
 	}
 
 	public void publishNativeMaven() {

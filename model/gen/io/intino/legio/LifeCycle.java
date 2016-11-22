@@ -144,7 +144,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		protected boolean attachSources;
 		protected boolean attachDoc;
 		protected boolean includeTests;
-		protected java.lang.String mainClass;
 		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
 		protected java.util.List<io.intino.legio.LifeCycle.Package.MavenPlugin> mavenPluginList = new java.util.ArrayList<>();
@@ -167,10 +166,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 
 		public boolean includeTests() {
 			return includeTests;
-		}
-
-		public java.lang.String mainClass() {
-			return mainClass;
 		}
 
 		public java.lang.String classpathPrefix() {
@@ -197,10 +192,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			this.includeTests = value;
 		}
 
-		public void mainClass(java.lang.String value) {
-			this.mainClass = value;
-		}
-
 		public void classpathPrefix(java.lang.String value) {
 			this.classpathPrefix = value;
 		}
@@ -223,6 +214,24 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 
 		
 
+		public io.intino.legio.runnable.lifecycle.RunnablePackage asRunnable() {
+			return this.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
+		}
+
+		public io.intino.legio.runnable.lifecycle.RunnablePackage asRunnable(java.lang.String mainClass) {
+			io.intino.legio.runnable.lifecycle.RunnablePackage newElement = addFacet(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
+			newElement.node().set(newElement, "mainClass", java.util.Collections.singletonList(mainClass)); 
+		    return newElement;
+		}
+
+		public boolean isRunnable() {
+			return is(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
+		}
+
+		public void removeRunnable() {
+			this.removeFacet(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
+		}
+
 		public java.util.List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			mavenPluginList.stream().forEach(c -> components.add(c.node()));
@@ -236,7 +245,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			map.put("attachSources", new java.util.ArrayList(java.util.Collections.singletonList(this.attachSources)));
 			map.put("attachDoc", new java.util.ArrayList(java.util.Collections.singletonList(this.attachDoc)));
 			map.put("includeTests", new java.util.ArrayList(java.util.Collections.singletonList(this.includeTests)));
-			map.put("mainClass", new java.util.ArrayList(java.util.Collections.singletonList(this.mainClass)));
 			map.put("classpathPrefix", new java.util.ArrayList(java.util.Collections.singletonList(this.classpathPrefix)));
 			map.put("finalName", new java.util.ArrayList(java.util.Collections.singletonList(this.finalName)));
 			return map;
@@ -265,7 +273,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			else if (name.equalsIgnoreCase("attachSources")) this.attachSources = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("finalName")) this.finalName = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
@@ -277,7 +284,6 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			else if (name.equalsIgnoreCase("attachSources")) this.attachSources = (java.lang.Boolean) values.get(0);
 			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = (java.lang.Boolean) values.get(0);
 			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = (java.lang.Boolean) values.get(0);
-			else if (name.equalsIgnoreCase("mainClass")) this.mainClass = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("finalName")) this.finalName = (java.lang.String) values.get(0);
 		}

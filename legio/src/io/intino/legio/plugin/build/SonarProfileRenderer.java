@@ -30,7 +30,7 @@ public class SonarProfileRenderer {
 	private static final String PROPERTIES = "properties";
 	private static final String ID = "id";
 	private static final String SONAR = "sonar";
-	public static final String SONAR_HOST_URL = "sonar.host.url";
+	private static final String SONAR_HOST_URL = "sonar.host.url";
 
 	private Document doc;
 	private final LifeCycle.QualityAnalytics analytics;
@@ -51,8 +51,7 @@ public class SonarProfileRenderer {
 	private Node sonarProfile() {
 		NodeList nodeList = doc.getElementsByTagName(PROFILE);
 		for (int i = 0; i < nodeList.getLength(); i++)
-			if (get(nodeList.item(i).getChildNodes(), ID).getTextContent().equals(SONAR))
-				return nodeList.item(i);
+			if (get(nodeList.item(i).getChildNodes(), ID).getTextContent().equals(SONAR)) return nodeList.item(i);
 		return null;
 	}
 

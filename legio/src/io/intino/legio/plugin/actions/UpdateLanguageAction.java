@@ -26,8 +26,8 @@ import tara.intellij.project.TaraModuleType;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
+import static io.intino.legio.plugin.MessageProvider.message;
 import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
-import static tara.intellij.messages.MessageProvider.message;
 import static tara.intellij.project.module.ModuleProvider.moduleOf;
 
 public class UpdateLanguageAction extends AnAction implements DumbAware {
@@ -66,12 +66,12 @@ public class UpdateLanguageAction extends AnAction implements DumbAware {
 	}
 
 	private void success(Project project, String language, String version) {
-		final Notification notification = new Notification("Tara Language", "Language updated successfully", language + " " + version, INFORMATION).setImportant(true);
+		final Notification notification = new Notification("Tara Language", message("language.updated.sucessfully"), language + " " + version, INFORMATION).setImportant(true);
 		Notifications.Bus.notify(notification, project);
 	}
 
 	private void error(Project project) {
-		final Notification notification = new Notification("Tara Language", "Language importation error", "Language name is empty", ERROR).setImportant(true);
+		final Notification notification = new Notification("Tara Language", message("language.update.error"), "Language name is empty", ERROR).setImportant(true);
 		Notifications.Bus.notify(notification, project);
 	}
 

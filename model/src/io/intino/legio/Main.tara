@@ -42,7 +42,6 @@ Concept:{0..1} LifeCycle
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false
-		var string mainClass = empty
 		var string classpathPrefix = empty
 		var string finalName = empty
 		Concept MavenPlugin
@@ -65,6 +64,9 @@ Concept:{0..1} LifeCycle
 			has:Named Parameter
 			sub PreDeploy
 			sub Deploy
+
+Facet Runnable on LifeCycle.Package
+	var string mainClass
 
 Facet Level on Project.Factory
 	sub Platform

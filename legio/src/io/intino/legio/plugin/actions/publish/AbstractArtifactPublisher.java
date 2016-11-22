@@ -1,16 +1,16 @@
 package io.intino.legio.plugin.actions.publish;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import io.intino.legio.plugin.LegioException;
+import io.intino.legio.plugin.actions.publish.ArtifactPublisher.Actions;
+import io.intino.legio.plugin.build.LegioMavenRunner;
+import io.intino.legio.plugin.project.LegioConfiguration;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.intino.legio.plugin.build.LegioMavenRunner;
-import io.intino.legio.plugin.project.LegioConfiguration;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.impl.TaraUtil;
@@ -18,25 +18,27 @@ import tara.intellij.lang.psi.impl.TaraUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static tara.intellij.messages.MessageProvider.message;
+import static io.intino.legio.plugin.MessageProvider.message;
 
-abstract class PublishArtifactAbstractAction extends AnAction implements DumbAware {
+
+abstract class AbstractArtifactPublisher {
 	private static final String JAR_EXTENSION = ".jar";
 
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
-	boolean publish(final Module module) {
+	protected boolean publish(final Module module, Actions actions) {
 		return ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-			if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level())) {
+			if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && Arrays.asList(actions.actions()).contains("deploy")) {
 				updateProgressIndicator(message("publishing.language"));
 				publishLanguage(module);
 			}
-			updateProgressIndicator("Publishing Framework");
-			publishFramework(module);
+			updateProgressIndicator(message("publishing.framework"));
+			publishFramework(module, actions);
 		}, "Publishing " + TaraUtil.configurationOf(module).artifactId(), false, module.getProject());
 	}
 
@@ -52,16 +54,19 @@ abstract class PublishArtifactAbstractAction extends AnAction implements DumbAwa
 			LegioMavenRunner runner = new LegioMavenRunner(module);
 			runner.publishLanguage(configuration);
 		} catch (MavenInvocationException | IOException e) {
-			errorMessages.add("Error publishing language. " + e.getMessage());
+			errorMessages.add(e.getMessage());
 		}
 	}
 
-	private void publishFramework(Module module) {
-		if (TaraUtil.configurationOf(module) instanceof LegioConfiguration) {
+	private void publishFramework(Module module, Actions actions) {
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (configuration instanceof LegioConfiguration) {
 			try {
-				new LegioMavenRunner(module).publishFramework();
-			} catch (MavenInvocationException | IOException e) {
-				errorMessages.add("Error publishing framework. " + e.getMessage());
+				if (configuration.distributionRepository().isEmpty() && Arrays.asList(actions.actions()).contains("deploy"))
+					throw new LegioException(message("distribution.repository.not.found"));
+				new LegioMavenRunner(module).publishFramework(actions);
+			} catch (MavenInvocationException | IOException | LegioException e) {
+				errorMessages.add(e.getMessage());
 			}
 		} else new LegioMavenRunner(module).publishNativeMaven();
 	}

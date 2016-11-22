@@ -17,6 +17,7 @@ public class LegioIcons {
     public static final Icon ICON_16 = RETINA ? scale(IconLoader.getIcon("/icons/icon-16-retina.png")) : IconLoader.getIcon("/icons/icon-16.png");
     public static final Icon ICON_13 = RETINA ? scale(IconLoader.getIcon("/icons/icon-13-retina.png")) : IconLoader.getIcon("/icons/icon-13.png");
 
+    public static final Icon BLUE = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/blue_32.png")) : IconLoader.getIcon("/icons/actionButtons/blue.png");
     public static final Icon GREEN = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/green_32.png")) : IconLoader.getIcon("/icons/actionButtons/green.png");
     public static final Icon YELLOW = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/yellow_32.png")) : IconLoader.getIcon("/icons/actionButtons/yellow.png");
     public static final Icon ORANGE = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/orange_32.png")) : IconLoader.getIcon("/icons/actionButtons/orange.png");

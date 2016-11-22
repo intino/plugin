@@ -70,7 +70,7 @@ class PomCreator {
 		}
 		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
-		frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
+		if (configuration.lifeCycle().distribution() != null) frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
 		writePom(pom, frame);
 		return pom;
 	}
@@ -110,7 +110,7 @@ class PomCreator {
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		addDependantModuleSources(frame, module);
-		if (build.mainClass() != null) frame.addSlot("mainClass", build.mainClass());
+		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null)
@@ -152,7 +152,8 @@ class PomCreator {
 
 	private static Frame createRepositoryFrame(Repository repo) {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
-				addSlot("name", repo.mavenId()).addSlot("url", repo.url()).
+				addSlot("name", repo.mavenId()).
+				addSlot("url", repo.url()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
 	}
 
@@ -160,7 +161,7 @@ class PomCreator {
 		try {
 			Files.write(pom.toPath(), PomTemplate.create().format(frame).getBytes());
 		} catch (IOException e) {
-			LOG.error("Error creating pom to export: " + e.getMessage());
+			LOG.error("Error creating pom to publish action: " + e.getMessage());
 		}
 	}
 }

@@ -32,7 +32,7 @@ import com.intellij.ui.content.ContentManager;
 import io.intino.legio.plugin.LegioIcons;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.legio.plugin.lifecycle.FmuExecutorConstants.*;
+import static io.intino.legio.plugin.lifecycle.LegioConstants.*;
 
 public class LifeCycleManager implements ProjectComponent {
     private final Project project;

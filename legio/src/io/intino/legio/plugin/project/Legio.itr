@@ -12,7 +12,7 @@ def type(legio)
 			Generation > inPackage = "$name+firstLowerCase"
 
 	LifeCycle
-		Package(type = AllDependenciesLinkedByManifest)
+		Package(type = ModulesAndLibrariesLinkedByManifest)
 		Distribution(url = "http://artifactory.siani.es/artifactory/libs-release-local", "siani-maven")
 
 end

@@ -11,7 +11,7 @@ def type(legio)
     	$factory]
 
     LifeCycle
-		Package(AllDependenciesLinkedByManifest)
+		Package(ModulesAndLibrariesLinkedByManifest)
     	[$distribution]
 end
 

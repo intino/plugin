@@ -42,7 +42,7 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 	private List<String[]> extractInfoFrom(String text) {
 		List<String[]> dependencyList = new ArrayList<>();
 		for (String dependency : text.split("<dependency>")) {
-			if (dependency.isEmpty()) continue;
+			if (dependency.trim().isEmpty()) continue;
 			String scope = dependency.contains("<scope>test</scope>") ? "Test" : "Compile";
 			String groupId = dependency.substring(dependency.indexOf(GROUP_ID) + GROUP_ID.length(), dependency.indexOf("</groupId>"));
 			String artifactId = dependency.substring(dependency.indexOf(ARTIFACT_ID) + ARTIFACT_ID.length(), dependency.indexOf("</artifactId>"));

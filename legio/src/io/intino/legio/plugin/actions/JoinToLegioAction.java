@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.plugin.LegioIcons;
 import io.intino.legio.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
+import static io.intino.legio.plugin.MessageProvider.message;
+
 public class JoinToLegioAction extends AnAction implements DumbAware {
 	@Override
 	public void actionPerformed(AnActionEvent e) {
@@ -37,7 +40,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		Runnable runnable = run(module, mavenProject);
 		if (ApplicationManager.getApplication().isDispatchThread()) runnable.run();
 		else
-			MavenUtil.runInBackground(module.getProject(), "Joining to Legio", false, indicator -> runnable.run()).waitFor();
+			MavenUtil.runInBackground(module.getProject(), message("join.to.legio"), false, indicator -> runnable.run()).waitFor();
 	}
 
 	@NotNull
@@ -48,7 +51,8 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
 			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
-			VfsUtil.markDirtyAndRefresh(true, true, false, module.getModuleFile().getParent());
+			final VirtualFile moduleFile = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()), true);
+			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
 		};
 	}
 

@@ -18,7 +18,7 @@
 
 package io.intino.legio.plugin.lifecycle;
 
-public interface FmuExecutorConstants {
+public interface LegioConstants {
 
 	String PLUGIN_NAME = "Legio";
 	String PROJECT_COMPONENT_NAME = "ProjectComponent";

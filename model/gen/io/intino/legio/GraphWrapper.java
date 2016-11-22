@@ -7,6 +7,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	protected tara.magritte.Graph graph;
 	private io.intino.legio.Project project;
 	private io.intino.legio.LifeCycle lifeCycle;
+	private java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList;
 	private java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList;
 	private java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList;
 	private java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList;
@@ -26,6 +27,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	protected void update() {
 		project = this.graph.rootList(io.intino.legio.Project.class).stream().findFirst().orElse(null);
 		lifeCycle = this.graph.rootList(io.intino.legio.LifeCycle.class).stream().findFirst().orElse(null);
+		runnablePackageList = this.graph.rootList(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
 		levelFactoryList = this.graph.rootList(io.intino.legio.level.project.LevelFactory.class);
 		platformFactoryList = this.graph.rootList(io.intino.legio.platform.project.PlatformFactory.class);
 		applicationFactoryList = this.graph.rootList(io.intino.legio.application.project.ApplicationFactory.class);
@@ -41,6 +43,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	protected void addNode(tara.magritte.Node node) {
 		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
+		if (node.is("RunnablePackage")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
 		if (node.is("LevelFactory")) this.levelFactoryList.add(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
 		if (node.is("ApplicationFactory")) this.applicationFactoryList.add(node.as(io.intino.legio.application.project.ApplicationFactory.class));
@@ -56,6 +59,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	protected void removeNode(tara.magritte.Node node) {
 		if (node.is("Project")) this.project = null;
 		if (node.is("LifeCycle")) this.lifeCycle = null;
+		if (node.is("RunnablePackage")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
 		if (node.is("LevelFactory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("PlatformFactory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
 		if (node.is("ApplicationFactory")) this.applicationFactoryList.remove(node.as(io.intino.legio.application.project.ApplicationFactory.class));
@@ -127,6 +131,10 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	    return lifeCycle;
 	}
 
+	public java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList() {
+	    return runnablePackageList;
+	}
+
 	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList() {
 	    return levelFactoryList;
 	}
@@ -161,6 +169,14 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	public java.util.List<io.intino.legio.text.TextParameter> textParameterList() {
 	    return textParameterList;
+	}
+
+	public java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList(java.util.function.Predicate<io.intino.legio.runnable.lifecycle.RunnablePackage> predicate) {
+	    return runnablePackageList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	}
+
+	public io.intino.legio.runnable.lifecycle.RunnablePackage runnablePackage(int index) {
+		return runnablePackageList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<io.intino.legio.level.project.LevelFactory> predicate) {
@@ -270,6 +286,12 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		public io.intino.legio.LifeCycle lifeCycle() {
 			io.intino.legio.LifeCycle newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.LifeCycle.class, namespace, name).as(io.intino.legio.LifeCycle.class);
 			
+			return newElement;
+		}
+
+		public io.intino.legio.runnable.lifecycle.RunnablePackage runnablePackage(java.lang.String mainClass) {
+			io.intino.legio.runnable.lifecycle.RunnablePackage newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.runnable.lifecycle.RunnablePackage.class, namespace, name).as(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
+			newElement.node().set(newElement, "mainClass", java.util.Collections.singletonList(mainClass));
 			return newElement;
 		}
 

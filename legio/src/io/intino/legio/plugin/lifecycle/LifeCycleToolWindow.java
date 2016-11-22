@@ -28,13 +28,8 @@ class LifeCycleToolWindow extends SimpleToolWindowPanel implements DataProvider 
 
 	private static final Logger LOG = Logger.getInstance("LifeCycleToolWindow");
 
-	private final Project project;
-	private final LifeCycleManagerView view;
-
 	LifeCycleToolWindow(Project project) {
 		super(true, true);
-		this.project = project;
-		view = new LifeCycleManagerView(project);
-		add(view.contentPane());
+		add(new LifeCycleManagerView(project).contentPane());
 	}
 }

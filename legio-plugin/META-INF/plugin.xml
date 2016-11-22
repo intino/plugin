@@ -37,12 +37,6 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
                 <add-to-group group-id="LegioToolsGroup"/>
             </action>
-            <action id="PublishSnapshotLanguage"
-                    class="io.intino.legio.plugin.actions.publish.PublishSnapshotArtifactAction"
-                    text="Publish Snapshot Artifact..." description="Publish Snapshot Language and Framework">
-                <keyboard-shortcut keymap="$default" first-keystroke="control alt N"/>
-                <add-to-group group-id="LegioToolsGroup"/>
-            </action>
             <action id="UpdateLanguage" class="io.intino.legio.plugin.actions.UpdateLanguageAction"
                     text="Update Language"
                     description="Update Language">
