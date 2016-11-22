@@ -76,7 +76,7 @@ abstract class AbstractArtifactManager {
 	@Nullable
 	private ProgressIndicator updateProgressIndicator(ProgressIndicator progressIndicator, String message) {
 		if (progressIndicator != null) {
-			progressIndicator.setText2(message);
+			progressIndicator.setText(message);
 			progressIndicator.setIndeterminate(true);
 		}
 		return progressIndicator;
