@@ -11,7 +11,9 @@ import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
+import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 
 import java.util.ArrayList;
@@ -82,15 +84,23 @@ public class LibraryManager {
 		for (Library library : table.getLibraries())
 			if (!libraries.contains(library)) toRemove.add(library);
 		if (toRemove.isEmpty()) return;
+		final Application application = ApplicationManager.getApplication();
+		final ModifiableRootModel modifiableModel = application.isReadAccessAllowed() ?
+				removeInvalidEntries(module, toRemove) :
+				application.runReadAction((Computable<ModifiableRootModel>) () -> removeInvalidEntries(module, toRemove));
+		if (application.isWriteAccessAllowed()) commit(module, table, toRemove, modifiableModel);
+		else application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
+	}
+
+	@NotNull
+	private static ModifiableRootModel removeInvalidEntries(Module module, List<Library> toRemove) {
 		final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
 		final List<LibraryOrderEntry> invalidEntries = Arrays.stream(modifiableModel.getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry && toRemove.contains(((LibraryOrderEntry) e).getLibrary())).
 				map(l -> (LibraryOrderEntry) l).
 				collect(Collectors.toList());
 		invalidEntries.forEach(modifiableModel::removeOrderEntry);
-		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) commit(module, table, toRemove, modifiableModel);
-		else application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
+		return modifiableModel;
 	}
 
 	private static boolean isUsedByOthers(Module module, Library library) {
