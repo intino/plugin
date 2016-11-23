@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
 import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
@@ -70,7 +71,8 @@ class PomCreator {
 		}
 		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
-		if (configuration.lifeCycle().distribution() != null) frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
+		if (configuration.lifeCycle().distribution() != null)
+			frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
 		writePom(pom, frame);
 		return pom;
 	}
@@ -87,7 +89,9 @@ class PomCreator {
 
 	private static void fillDirectories(Module module, Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
-		frame.addSlot("resourceDirectory", resourceDirectories(module));
+		final List<String> res = resourceDirectories(module);
+		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) res.addAll(resourceDirectories(dep));
+		frame.addSlot("resourceDirectory", res.toArray(new String[res.size()]));
 	}
 
 	private static String[] srcDirectories(Module module) {
@@ -96,10 +100,10 @@ class PomCreator {
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
-	private static String[] resourceDirectories(Module module) {
+	private static List<String> resourceDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
-		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
+		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
 	private static void configureBuild(Module module, Frame frame, Project.License license, LifeCycle.Package build) {

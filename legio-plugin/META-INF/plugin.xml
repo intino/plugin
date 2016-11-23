@@ -19,6 +19,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="Tara" implementationClass="io.intino.legio.plugin.annotators.DependencyAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.legio.plugin.annotators.MainClassAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.legio.plugin.annotators.LanguageDeclarationAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.legio.plugin.annotators.DuplicatedRepositoryAnnotator"/>
         <fileDocumentManagerListener
                 implementation="io.intino.legio.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.legio.plugin.file.LegioFileTypeFactory"/>
@@ -31,18 +34,18 @@
         <group id="LegioToolsGroup" popup="true" text="Legio" class="io.intino.legio.plugin.actions.LegioActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
-        <action id="PublishArtifact" class="io.intino.legio.plugin.actions.publish.ManageArtifactAction"
+        <action id="PublishArtifact" class="io.intino.legio.plugin.actions.DistributeArtifactAction"
                 text="Publish Artifact..."
                 description="Publish Artifact">
-                <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
-                <add-to-group group-id="LegioToolsGroup"/>
-            </action>
-            <action id="UpdateLanguage" class="io.intino.legio.plugin.actions.UpdateLanguageAction"
-                    text="Update Language"
-                    description="Update Language">
-                <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
-                <add-to-group group-id="LegioToolsGroup"/>
-            </action>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
+            <add-to-group group-id="LegioToolsGroup"/>
+        </action>
+        <action id="UpdateLanguage" class="io.intino.legio.plugin.actions.UpdateLanguageAction"
+                text="Update Language"
+                description="Update Language">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
+            <add-to-group group-id="LegioToolsGroup"/>
+        </action>
         <action id="JoinToLegio" class="io.intino.legio.plugin.actions.JoinToLegioAction"
                 text="Join To Legio"
                 description="Join module to legio or convert from maven">

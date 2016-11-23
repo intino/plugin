@@ -74,9 +74,8 @@ public class LanguageResolver {
 		final List<Library> libraries = new ArrayList<>();
 		final Module module = moduleOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
-		if (app.isWriteAccessAllowed()) app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module));
+		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module));
 		else app.invokeLater(() -> app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module)));
-
 		return libraries;
 	}
 

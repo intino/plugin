@@ -35,7 +35,7 @@ class LegioMavenRunner {
 		this.module = module;
 	}
 
-	void publishLanguage(Configuration conf) throws MavenInvocationException, IOException {
+	void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
 		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
 				"-DrepositoryId=" + conf.languageRepositoryId() + " " +
@@ -52,7 +52,7 @@ class LegioMavenRunner {
 			throw new IOException(message("error.publishing.language", LifeCyclePhase.DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	void publishFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
+	void executeFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
 		final File pom = PomCreator.createFrameworkPom(module);
 		final InvocationResult result = invoke(pom, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
@@ -63,7 +63,7 @@ class LegioMavenRunner {
 		}
 	}
 
-	void publishNativeMaven() {
+	void executeNativeMaven() {
 		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
 		if (project == null) return;
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();

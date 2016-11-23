@@ -18,6 +18,7 @@ import org.sonatype.aether.artifact.Artifact;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +35,11 @@ public class LibraryManager {
 
 	public LibraryManager(Module module) {
 		this.module = module;
-		table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
+		table = module != null ? LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject()) : null;
 	}
 
 	public Library findLibrary(String artifact) {
+		if (table == null) return null;
 		final String dependency = nameOf(artifact);
 		for (Library library : table.getLibraries())
 			if (dependency.equals(library.getName())) return library;
@@ -45,6 +47,7 @@ public class LibraryManager {
 	}
 
 	List<Library> registerOrGetLibrary(List<Artifact> artifacts) {
+		if (table == null) return Collections.emptyList();
 		List<Library> result = new ArrayList<>();
 		for (Artifact artifact : artifacts) {
 			Library library = findLibrary(artifact);
@@ -55,6 +58,7 @@ public class LibraryManager {
 	}
 
 	List<Library> resolveAsModuleDependency(Module moduleDependency) {
+		if (table == null) return Collections.emptyList();
 		final ModuleRootManager manager = ModuleRootManager.getInstance(this.module);
 		final ModifiableRootModel modifiableModel = manager.getModifiableModel();
 		if (!manager.isDependsOn(moduleDependency)) {

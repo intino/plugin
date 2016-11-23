@@ -27,6 +27,8 @@ import io.intino.legio.plugin.build.ArtifactManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -65,9 +67,9 @@ public class LifeCycleManagerView extends JPanel {
 			BoxLayout layout = new BoxLayout(panel, BoxLayout.X_AXIS);
 			panel.setLayout(layout);
 			JBLabel label = new JBLabel(module.getName());
-			label.setMinimumSize(new Dimension(100, 20));
-			label.setPreferredSize(new Dimension(100, 20));
-			label.setMaximumSize(new Dimension(100, 20));
+			label.setMinimumSize(new Dimension(100, 30));
+			label.setPreferredSize(new Dimension(100, 30));
+			label.setMaximumSize(new Dimension(100, 30));
 			label.setAlignmentX(LEFT_ALIGNMENT);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			panel.add(label);
@@ -89,11 +91,31 @@ public class LifeCycleManagerView extends JPanel {
 		button.setToolTipText(action);
 		button.setName(name);
 		button.setBorder(null);
+		button.setMinimumSize(new Dimension(20, 20));
+		button.setPreferredSize(new Dimension(20, 20));
+		button.setMaximumSize(new Dimension(20, 20));
 		button.setBorderPainted(false);
 		button.setBackground(null);
 		button.setContentAreaFilled(false);
 		button.setFocusPainted(false);
 		button.setOpaque(false);
+		button.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				button.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1)));
+				button.setBorderPainted(true);
+				button.setOpaque(true);
+				button.repaint();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				button.setOpaque(false);
+				button.setBorder(null);
+				button.setBorderPainted(false);
+				button.setBackground(UIManager.getColor("control"));
+			}
+		});
 	}
 
 	Component contentPane() {

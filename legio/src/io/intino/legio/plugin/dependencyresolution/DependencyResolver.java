@@ -1,11 +1,10 @@
 package io.intino.legio.plugin.dependencyresolution;
 
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Project.Dependencies;
 import io.intino.legio.Project.Dependencies.Dependency;
@@ -40,37 +39,32 @@ public class DependencyResolver {
 	}
 
 	public List<Library> resolve() {
+		return ApplicationManager.getApplication().runWriteAction((Computable<List<Library>>) this::processDependencies);
+	}
+
+	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
-		Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			resolveInWriteAction(newLibraries, application);
-		else application.invokeLater(() -> resolveInWriteAction(newLibraries, application), ModalityState.NON_MODAL);
-		return newLibraries;
-	}
-
-	private void resolveInWriteAction(List<Library> newLibraries, Application application) {
-		application.runWriteAction(() -> processDependencies(newLibraries));
-	}
-
-	private void processDependencies(List<Library> newLibraries) {
-		if (dependencies == null) return;
+		if (dependencies == null) return newLibraries;
 		dependencies.dependencyList().forEach(d -> {
 			Module moduleDependency = moduleOf(d);
 			if (moduleDependency != null) {
 				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
 				d.effectiveVersion(d.version());
-			} else {
-				final List<Artifact> artifacts = collectArtifacts(d);
-				final List<Library> resolved = manager.registerOrGetLibrary(artifacts);
-				if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
-				else d.effectiveVersion("");
-				manager.addToModule(resolved, d.is(Dependencies.Test.class));
-				d.artifacts().clear();
-				d.artifacts().addAll(artifacts.stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
-				d.resolved(true);
-				newLibraries.addAll(resolved);
-			}
+			} else newLibraries.addAll(asLibrary(d));
 		});
+		return newLibraries;
+	}
+
+	private List<Library> asLibrary(Dependency d) {
+		final List<Artifact> artifacts = collectArtifacts(d);
+		final List<Library> resolved = manager.registerOrGetLibrary(artifacts);
+		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
+		else d.effectiveVersion("");
+		manager.addToModule(resolved, d.is(Dependencies.Test.class));
+		d.artifacts().clear();
+		d.artifacts().addAll(artifacts.stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
+		d.resolved(true);
+		return resolved;
 	}
 
 	private Module moduleOf(Dependency d) {
@@ -78,7 +72,7 @@ public class DependencyResolver {
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
-			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().equals(configuration.artifactId().toLowerCase()))
+			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().toLowerCase().equals(configuration.artifactId().toLowerCase()))
 				return m;
 		}
 		return null;

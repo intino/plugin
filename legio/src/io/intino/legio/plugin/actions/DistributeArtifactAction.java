@@ -1,4 +1,4 @@
-package io.intino.legio.plugin.actions.publish;
+package io.intino.legio.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.legio.plugin.MessageProvider.message;
 
-public class ManageArtifactAction extends AnAction implements DumbAware {
+public class DistributeArtifactAction extends AnAction implements DumbAware {
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {

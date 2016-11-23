@@ -141,6 +141,12 @@ public class LegioConfiguration implements Configuration {
 
 	private void reloadDependencies() {
 		if (legio == null || legio.project() == null) return;
+		Application application = ApplicationManager.getApplication();
+		if (application.isDispatchThread()) resolveDependencies();
+		else application.invokeLater(this::resolveDependencies);
+	}
+
+	private void resolveDependencies() {
 		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
 		if (legio.project().factory() != null)
 			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());

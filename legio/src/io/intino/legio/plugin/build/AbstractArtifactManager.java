@@ -48,7 +48,7 @@ abstract class AbstractArtifactManager {
 	private void publishLanguage(Module module, Configuration configuration) {
 		try {
 			LegioMavenRunner runner = new LegioMavenRunner(module);
-			runner.publishLanguage(configuration);
+			runner.executeLanguage(configuration);
 		} catch (MavenInvocationException | IOException e) {
 			errorMessages.add(e.getMessage());
 		}
@@ -60,11 +60,11 @@ abstract class AbstractArtifactManager {
 			try {
 				if (configuration.distributionRepository().isEmpty() && lifeCyclePhase.mavenActions().contains("deploy"))
 					throw new LegioException(message("distribution.repository.not.found"));
-				new LegioMavenRunner(module).publishFramework(lifeCyclePhase);
+				new LegioMavenRunner(module).executeFramework(lifeCyclePhase);
 			} catch (MavenInvocationException | IOException | LegioException e) {
 				errorMessages.add(e.getMessage());
 			}
-		} else new LegioMavenRunner(module).publishNativeMaven();
+		} else new LegioMavenRunner(module).executeNativeMaven();
 	}
 
 	@NotNull
