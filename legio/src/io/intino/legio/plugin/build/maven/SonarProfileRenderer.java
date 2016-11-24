@@ -1,4 +1,4 @@
-package io.intino.legio.plugin.build;
+package io.intino.legio.plugin.build.maven;
 
 import com.intellij.openapi.module.Module;
 import io.intino.legio.LifeCycle;

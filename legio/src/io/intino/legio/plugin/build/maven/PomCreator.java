@@ -1,4 +1,4 @@
-package io.intino.legio.plugin.build;
+package io.intino.legio.plugin.build.maven;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;

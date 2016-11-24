@@ -4,6 +4,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.legio.plugin.LegioException;
+import io.intino.legio.plugin.build.cesar.PublishManager;
+import io.intino.legio.plugin.build.maven.LegioMavenRunner;
 import io.intino.legio.plugin.project.LegioConfiguration;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
@@ -28,14 +30,25 @@ abstract class AbstractArtifactManager {
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
-	protected boolean publish(final Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (!Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy")) {
+	protected boolean process(final Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+		processLanguage(module, phase, indicator);
+		processFramework(module, phase, indicator);
+		publish(module, phase, indicator);
+		return true;
+	}
+
+	private void publish(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+		if (phase.equals(LifeCyclePhase.PREDEPLOY) || phase.equals(LifeCyclePhase.DEPLOY)) {
+			updateProgressIndicator(indicator, message("publishing.artifact"));
+			new PublishManager(phase, module).execute();
+		}
+	}
+
+	private void processLanguage(Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
+		if (shouldDeployLanguage(module, lifeCyclePhase)) {
 			updateProgressIndicator(indicator, message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
 			publishLanguage(module);
 		}
-		updateProgressIndicator(indicator, message("framework.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
-		publishFramework(module, lifeCyclePhase);
-		return true;
 	}
 
 	private void publishLanguage(Module module) {
@@ -54,23 +67,33 @@ abstract class AbstractArtifactManager {
 		}
 	}
 
-	private void publishFramework(Module module, LifeCyclePhase lifeCyclePhase) {
+	private void processFramework(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+		updateProgressIndicator(indicator, message("framework.action", firstUpperCase(phase.gerund().toLowerCase())));
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			try {
-				if (configuration.distributionRepository().isEmpty() && lifeCyclePhase.mavenActions().contains("deploy"))
+				if (distributionWithoutRepository(phase, configuration))
 					throw new LegioException(message("distribution.repository.not.found"));
-				new LegioMavenRunner(module).executeFramework(lifeCyclePhase);
+				new LegioMavenRunner(module).executeFramework(phase);
 			} catch (MavenInvocationException | IOException | LegioException e) {
 				errorMessages.add(e.getMessage());
 			}
 		} else new LegioMavenRunner(module).executeNativeMaven();
 	}
 
+	private boolean distributionWithoutRepository(LifeCyclePhase lifeCyclePhase, Configuration configuration) {
+		return configuration.distributionRepository().isEmpty() && lifeCyclePhase.mavenActions().contains("deploy");
+	}
+
+	private boolean shouldDeployLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
+		return !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
+	}
+
 	@NotNull
 	private File dslFilePath(Configuration configuration) {
 		final String outDSL = configuration.outDSL();
-		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator + configuration.modelVersion() + File.separator + outDSL + "-" + configuration.modelVersion() + JAR_EXTENSION);
+		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator +
+				configuration.modelVersion() + File.separator + outDSL + "-" + configuration.modelVersion() + JAR_EXTENSION);
 	}
 
 	@Nullable

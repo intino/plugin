@@ -54,10 +54,10 @@ Concept:{0..1} LifeCycle
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:{0..1} Deployment
+	Concept:{0..1} Publishing
 		var string cesarURL
-		Concept Integration
-			var string server
+		Concept:{1..*} Destiny
+			var string publicURL
 			Concept Requirements
 				Concept Memory
 				Concept CPU
@@ -79,14 +79,14 @@ Concept Parameter is component
 Facet Type on Parameter
 	var string type is reactive private
 	sub Real
-    	var double defaultValue = 0
+    	var double value
 		var string type = "Double" is reactive private
 	sub Integer
-		var integer defaultValue = 0
+		var integer value
 		var string type = "Integer" is reactive private
 	sub Bool
-    	var boolean defaultValue = true
+    	var boolean value
 		var string type = "Boolean" is reactive private
 	sub Text
-    	var string defaultValue = ""
+    	var string value
 		var string type = "String" is reactive private

@@ -210,6 +210,11 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
+	public String distributionRepository() {
+		return safe(() -> legio.lifeCycle().distribution().url());
+	}
+
+	@Override
 	public String languageRepository() {
 		return safe(() -> legio.project().repositories().language().url());
 	}

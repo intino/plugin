@@ -4,22 +4,22 @@ import io.intino.legio.*;
 
 
 public class RealParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
-	protected double defaultValue;
+	protected double value;
 
 	public RealParameter(tara.magritte.Node node) {
 		super(node);
 	}
 
-	public double defaultValue() {
-		return defaultValue;
+	public double value() {
+		return value;
 	}
 
 	public boolean required() {
 		return _parameter.required();
 	}
 
-	public void defaultValue(double value) {
-		this.defaultValue = value;
+	public void value(double value) {
+		this.value = value;
 	}
 
 	public void required(boolean value) {
@@ -29,7 +29,7 @@ public class RealParameter extends io.intino.legio.type.TypeParameter implements
 	@Override
 	public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
-		map.put("defaultValue", new java.util.ArrayList(java.util.Collections.singletonList(this.defaultValue)));
+		map.put("value", new java.util.ArrayList(java.util.Collections.singletonList(this.value)));
 		return map;
 	}
 
@@ -41,14 +41,14 @@ public class RealParameter extends io.intino.legio.type.TypeParameter implements
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
 		_parameter.node().load(_parameter, name, values);
-		if (name.equalsIgnoreCase("defaultValue")) this.defaultValue = tara.magritte.loaders.DoubleLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("value")) this.value = tara.magritte.loaders.DoubleLoader.load(values, this).get(0);
 	}
 
 	@Override
 	protected void _set(java.lang.String name, java.util.List<?> values) {
 		super._set(name, values);
 		_parameter.node().set(_parameter, name, values);
-		if (name.equalsIgnoreCase("defaultValue")) this.defaultValue = (java.lang.Double) values.get(0);
+		if (name.equalsIgnoreCase("value")) this.value = (java.lang.Double) values.get(0);
 	}
 
 	public Create create() {

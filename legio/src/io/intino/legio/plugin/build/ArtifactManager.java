@@ -3,7 +3,7 @@ package io.intino.legio.plugin.build;
 import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -42,29 +42,28 @@ public class ArtifactManager extends AbstractArtifactManager {
 		this.lifeCyclePhase = phase;
 	}
 
-	public void publish() {
+	public void process() {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		compilerManager.make(compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true), publishArtifact());
+		compilerManager.make(compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true), processArtifact());
 	}
 
-	private CompileStatusNotification publishArtifact() {
+	private CompileStatusNotification processArtifact() {
 		return (aborted, errors, warnings, compileContext) -> {
-			if (!aborted && errors == 0) doPublish();
+			if (!aborted && errors == 0) doProcess();
 		};
 	}
 
-	private void doPublish() {
+	private void doProcess() {
 		saveAll(project);
-		for (Module module : modules)
-			if (!checkOverrideVersion(module, extractDSL(module))) return;
+		for (Module module : modules) if (!checkOverrideVersion(module, extractDSL(module))) return;
 		withTask(new Task.Backgroundable(project, firstUpperCase(lifeCyclePhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				for (Module module : modules) publish(module, lifeCyclePhase, indicator);
+				for (Module module : modules) process(module, lifeCyclePhase, indicator);
 				ApplicationManager.getApplication().invokeLater(() -> {
 					reloadProject();
 					if (!errorMessages.isEmpty())
-						Notifications.Bus.notify(new Notification("Tara Language", message("error.occurred", lifeCyclePhase.gerund().toLowerCase()), errorMessages.iterator().next(), NotificationType.ERROR), project);
+						Bus.notify(new Notification("Tara Language", message("error.occurred", lifeCyclePhase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
 					else processMessages(successMessages, modules);
 				});
 			}
@@ -122,7 +121,7 @@ public class ArtifactManager extends AbstractArtifactManager {
 	}
 
 	private void notify(Project project, String title, String body) {
-		Notifications.Bus.notify(new Notification("Tara Language", title, body, NotificationType.INFORMATION), project);
+		Bus.notify(new Notification("Tara Language", title, body, NotificationType.INFORMATION), project);
 	}
 
 	private String extractDSL(Module module) {

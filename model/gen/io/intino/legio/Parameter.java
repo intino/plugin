@@ -19,12 +19,21 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 	}
 
 	public io.intino.legio.integer.IntegerParameter asInteger() {
-		tara.magritte.Layer as = this.as(io.intino.legio.integer.IntegerParameter.class);
-		return as != null ? (io.intino.legio.integer.IntegerParameter) as : addFacet(io.intino.legio.integer.IntegerParameter.class);
+		return this.as(io.intino.legio.integer.IntegerParameter.class);
+	}
+
+	public io.intino.legio.integer.IntegerParameter asInteger(int value) {
+		io.intino.legio.integer.IntegerParameter newElement = addFacet(io.intino.legio.integer.IntegerParameter.class);
+		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+	    return newElement;
 	}
 
 	public boolean isInteger() {
 		return is(io.intino.legio.integer.IntegerParameter.class);
+	}
+
+	public void removeInteger() {
+		this.removeFacet(io.intino.legio.integer.IntegerParameter.class);
 	}
 
 	public io.intino.legio.type.TypeParameter asType() {
@@ -46,30 +55,57 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 	}
 
 	public io.intino.legio.bool.BoolParameter asBool() {
-		tara.magritte.Layer as = this.as(io.intino.legio.bool.BoolParameter.class);
-		return as != null ? (io.intino.legio.bool.BoolParameter) as : addFacet(io.intino.legio.bool.BoolParameter.class);
+		return this.as(io.intino.legio.bool.BoolParameter.class);
+	}
+
+	public io.intino.legio.bool.BoolParameter asBool(boolean value) {
+		io.intino.legio.bool.BoolParameter newElement = addFacet(io.intino.legio.bool.BoolParameter.class);
+		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+	    return newElement;
 	}
 
 	public boolean isBool() {
 		return is(io.intino.legio.bool.BoolParameter.class);
 	}
 
+	public void removeBool() {
+		this.removeFacet(io.intino.legio.bool.BoolParameter.class);
+	}
+
 	public io.intino.legio.real.RealParameter asReal() {
-		tara.magritte.Layer as = this.as(io.intino.legio.real.RealParameter.class);
-		return as != null ? (io.intino.legio.real.RealParameter) as : addFacet(io.intino.legio.real.RealParameter.class);
+		return this.as(io.intino.legio.real.RealParameter.class);
+	}
+
+	public io.intino.legio.real.RealParameter asReal(double value) {
+		io.intino.legio.real.RealParameter newElement = addFacet(io.intino.legio.real.RealParameter.class);
+		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+	    return newElement;
 	}
 
 	public boolean isReal() {
 		return is(io.intino.legio.real.RealParameter.class);
 	}
 
+	public void removeReal() {
+		this.removeFacet(io.intino.legio.real.RealParameter.class);
+	}
+
 	public io.intino.legio.text.TextParameter asText() {
-		tara.magritte.Layer as = this.as(io.intino.legio.text.TextParameter.class);
-		return as != null ? (io.intino.legio.text.TextParameter) as : addFacet(io.intino.legio.text.TextParameter.class);
+		return this.as(io.intino.legio.text.TextParameter.class);
+	}
+
+	public io.intino.legio.text.TextParameter asText(java.lang.String value) {
+		io.intino.legio.text.TextParameter newElement = addFacet(io.intino.legio.text.TextParameter.class);
+		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+	    return newElement;
 	}
 
 	public boolean isText() {
 		return is(io.intino.legio.text.TextParameter.class);
+	}
+
+	public void removeText() {
+		this.removeFacet(io.intino.legio.text.TextParameter.class);
 	}
 
 	@Override

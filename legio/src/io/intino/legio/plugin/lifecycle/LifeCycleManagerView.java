@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import io.intino.legio.plugin.LegioIcons;
 import io.intino.legio.plugin.build.ArtifactManager;
+import tara.compiler.shared.Configuration;
+import tara.intellij.lang.psi.impl.TaraUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,8 +34,7 @@ import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
-import static io.intino.legio.plugin.build.LifeCyclePhase.PREDEPLOY;
-import static io.intino.legio.plugin.build.LifeCyclePhase.valueOf;
+import static io.intino.legio.plugin.build.LifeCyclePhase.*;
 
 public class LifeCycleManagerView extends JPanel {
 	private JPanel contentPane;
@@ -77,13 +78,20 @@ public class LifeCycleManagerView extends JPanel {
 				panel.add(Box.createRigidArea(new Dimension(PREDEPLOY.name().equals(action.toUpperCase()) ? 20 : 10, 0)));
 				JButton button = new JButton(actions.get(action));
 				customizeButton(button, module.getName() + "_" + action, action);
-				button.addActionListener(e -> new ArtifactManager(project, Collections.singletonList(module), valueOf(action.toUpperCase())).publish());
+				button.addActionListener(e -> new ArtifactManager(project, Collections.singletonList(module), valueOf(action.toUpperCase())).process());
 				panel.add(button);
+				if (!isAvailable(module, action)) button.setEnabled(false);
 			}
 			panel.setAlignmentX(LEFT_ALIGNMENT);
 			modulesPanel.add(panel);
 		}
 
+	}
+
+	private boolean isAvailable(Module module, String action) {
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (!action.equalsIgnoreCase(PREDEPLOY.name()) && action.equalsIgnoreCase(DEPLOY.name())) return true;
+		return configuration != null && (configuration.level() != null || configuration.level().equals(Configuration.Level.System));
 	}
 
 	private void customizeButton(JButton button, String name, String action) {

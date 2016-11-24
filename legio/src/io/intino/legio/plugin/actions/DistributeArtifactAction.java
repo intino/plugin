@@ -51,8 +51,8 @@ public class DistributeArtifactAction extends AnAction implements DumbAware {
 			ChooseModulesDialog dialog = createDialog(project, validModules);
 			dialog.show();
 			if (dialog.isOK())
-				new ArtifactManager(project, dialog.getChosenElements(), LifeCyclePhase.DISTRIBUTE).publish();
-		} else new ArtifactManager(project, validModules, LifeCyclePhase.DISTRIBUTE).publish();
+				new ArtifactManager(project, dialog.getChosenElements(), LifeCyclePhase.DISTRIBUTE).process();
+		} else new ArtifactManager(project, validModules, LifeCyclePhase.DISTRIBUTE).process();
 	}
 
 	private ChooseModulesDialog createDialog(Project project, List<Module> taraModules) {

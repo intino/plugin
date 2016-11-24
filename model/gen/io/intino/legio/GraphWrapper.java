@@ -325,27 +325,27 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.real.RealParameter realParameter() {
+		public io.intino.legio.real.RealParameter realParameter(double value) {
 			io.intino.legio.real.RealParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.real.RealParameter.class, namespace, name).as(io.intino.legio.real.RealParameter.class);
-			
+			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}
 
-		public io.intino.legio.integer.IntegerParameter integerParameter() {
+		public io.intino.legio.integer.IntegerParameter integerParameter(int value) {
 			io.intino.legio.integer.IntegerParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.integer.IntegerParameter.class, namespace, name).as(io.intino.legio.integer.IntegerParameter.class);
-			
+			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}
 
-		public io.intino.legio.bool.BoolParameter boolParameter() {
+		public io.intino.legio.bool.BoolParameter boolParameter(boolean value) {
 			io.intino.legio.bool.BoolParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.bool.BoolParameter.class, namespace, name).as(io.intino.legio.bool.BoolParameter.class);
-			
+			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}
 
-		public io.intino.legio.text.TextParameter textParameter() {
+		public io.intino.legio.text.TextParameter textParameter(java.lang.String value) {
 			io.intino.legio.text.TextParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.text.TextParameter.class, namespace, name).as(io.intino.legio.text.TextParameter.class);
-			
+			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}
 

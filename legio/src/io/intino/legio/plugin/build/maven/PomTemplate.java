@@ -1,10 +1,11 @@
-package io.intino.legio.plugin.build;
+package io.intino.legio.plugin.build.maven;
 
-import org.siani.itrules.*;
+import org.siani.itrules.LineSeparator;
+import org.siani.itrules.Template;
 
 import java.util.Locale;
 
-import static org.siani.itrules.LineSeparator.*;
+import static org.siani.itrules.LineSeparator.LF;
 
 public class PomTemplate extends Template {
 

@@ -1,10 +1,11 @@
-package io.intino.legio.plugin.build;
+package io.intino.legio.plugin.build.maven;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
+import io.intino.legio.plugin.build.LifeCyclePhase;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.*;
@@ -25,17 +26,17 @@ import static java.util.Arrays.asList;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
-class LegioMavenRunner {
+public class LegioMavenRunner {
 
 	private static final Logger LOG = Logger.getInstance(LegioMavenRunner.class.getName());
 	private final Module module;
 	private String output = "";
 
-	LegioMavenRunner(Module module) {
+	public LegioMavenRunner(Module module) {
 		this.module = module;
 	}
 
-	void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
+	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
 		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
 				"-DrepositoryId=" + conf.languageRepositoryId() + " " +
@@ -52,7 +53,7 @@ class LegioMavenRunner {
 			throw new IOException(message("error.publishing.language", LifeCyclePhase.DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	void executeFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
+	public void executeFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
 		final File pom = PomCreator.createFrameworkPom(module);
 		final InvocationResult result = invoke(pom, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
@@ -63,7 +64,7 @@ class LegioMavenRunner {
 		}
 	}
 
-	void executeNativeMaven() {
+	public void executeNativeMaven() {
 		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
 		if (project == null) return;
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();

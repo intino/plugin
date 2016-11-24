@@ -11,16 +11,16 @@ import tara.lang.model.Node;
 import tara.lang.model.Parameter;
 import tara.lang.semantics.errorcollector.SemanticNotification;
 
-import java.io.File;
-
 import static io.intino.legio.plugin.MessageProvider.message;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	private final Node languageNode;
 	private final LegioConfiguration configuration;
+	private Module module;
 
 	LanguageDeclarationAnalyzer(Node node, Module module) {
 		this.languageNode = node;
+		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
@@ -30,8 +30,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		String version = version();
 		if ("LATEST".equals(version)) version = configuration.dslEffectiveVersion();
 		if (version == null || language == null) return;
-		final File languageFile = LanguageManager.getLanguageFile(language, version);
-		if (!languageFile.exists())
+		if (!LanguageManager.silentReload(module.getProject(), language, version))
 			results.put((PsiElement) languageNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
 	}
 
