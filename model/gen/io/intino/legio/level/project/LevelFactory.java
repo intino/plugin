@@ -1,10 +1,9 @@
 package io.intino.legio.level.project;
 
-import io.intino.legio.*;
-
-
 public abstract class LevelFactory extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-	
+	protected java.lang.String language;
+	protected java.lang.String version;
+	protected java.lang.String effectiveVersion;
 	
 	
 	protected io.intino.legio.Project.Factory _factory;
@@ -13,28 +12,44 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		super(node);
 	}
 
-	public boolean persistent() {
-		return _factory.persistent();
+	public java.lang.String language() {
+		return language;
 	}
 
-	public int refactorId() {
-		return _factory.refactorId();
+	public java.lang.String version() {
+		return version;
 	}
 
-	public void persistent(boolean value) {
-		this._factory.persistent(value);
+	public java.lang.String effectiveVersion() {
+		return effectiveVersion;
 	}
 
-	public void refactorId(int value) {
-		this._factory.refactorId(value);
+	public java.lang.String inPackage() {
+		return _factory.inPackage();
 	}
 
-	public io.intino.legio.Project.Factory.Language language() {
-		return _factory.language();
+	public void language(java.lang.String value) {
+		this.language = value;
 	}
 
-	public io.intino.legio.Project.Factory.Generation generation() {
-		return _factory.generation();
+	public void version(java.lang.String value) {
+		this.version = value;
+	}
+
+	public void effectiveVersion(java.lang.String value) {
+		this.effectiveVersion = value;
+	}
+
+	public void inPackage(java.lang.String value) {
+		this._factory.inPackage(value);
+	}
+
+	public io.intino.legio.Project.Factory.Interface interface$() {
+		return _factory.interface$();
+	}
+
+	public io.intino.legio.Project.Factory.Behavior behavior() {
+		return _factory.behavior();
 	}
 
 	
@@ -50,6 +65,9 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 	@Override
 	public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+		map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
+		map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
+		map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 		return map;
 	}
 
@@ -60,11 +78,18 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
+		if (name.equalsIgnoreCase("language")) this.language = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		else if (name.equalsIgnoreCase("effectiveVersion"))
+			this.effectiveVersion = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
 	protected void _set(java.lang.String name, java.util.List<?> values) {
 		super._set(name, values);
+		if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
+		else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+		else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 	}
 
 	@Override
@@ -89,15 +114,16 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 			this.name = name;
 		}
 
-		public io.intino.legio.Project.Factory.Language language(java.lang.String version) {
-		    io.intino.legio.Project.Factory.Language newElement = graph().concept(io.intino.legio.Project.Factory.Language.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Language.class);
+		public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {
+			io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Project.Factory.Generation generation() {
-		    io.intino.legio.Project.Factory.Generation newElement = graph().concept(io.intino.legio.Project.Factory.Generation.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Generation.class);
-		    return newElement;
+		public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
+			io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			return newElement;
 		}
 		
 	}
