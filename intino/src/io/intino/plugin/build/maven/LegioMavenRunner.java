@@ -91,7 +91,6 @@ public class LegioMavenRunner {
 		if (mavenHome == null) return null;
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
 		log(invoker);
-
 		config(request, mavenHome);
 		return invoker.execute(request);
 	}
@@ -113,7 +112,10 @@ public class LegioMavenRunner {
 	}
 
 	private void log(Invoker invoker) throws IOException {
-		invoker.setOutputHandler(s -> output += (s.startsWith("[ERROR]")) ? s + "\n" : "");
+		invoker.setOutputHandler(s -> {
+			output += (s.startsWith("[ERROR]")) ? s + "\n" : "";
+			System.out.println(s);
+		});
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")

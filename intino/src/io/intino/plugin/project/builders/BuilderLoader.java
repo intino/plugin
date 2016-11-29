@@ -1,9 +1,9 @@
 package io.intino.plugin.project.builders;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.moandjiezana.toml.Toml;
+import io.intino.plugin.IntinoIcons;
 import tara.Language;
 import tara.intellij.lang.LanguageManager;
 
@@ -54,21 +54,46 @@ class BuilderLoader {
 	}
 
 	private static void unregisterActions(List<Builder.Action> actions) {
+		final ActionManager manager = ActionManager.getInstance();
+		for (Builder.Action action : actions) if (manager.getAction(action.id) != null) manager.unregisterAction(action.id);
+		System.gc();
 
 	}
 
 	private static void registerGroups(ClassLoader classLoader, List<Builder.Group> groups) {
+		final ActionManager manager = ActionManager.getInstance();
+		for (Builder.Group group : groups) {
+			if (manager.getAction(group.id) != null) {
+				LOG.debug("group already registered: " + group.id);
+				continue;
+			}
+			final ActionGroup anAction = loadGroup(classLoader, group);
+
+			if (anAction != null) {
+				anAction.getTemplatePresentation().setIcon(IntinoIcons.PANDORA_16);
+				anAction.getTemplatePresentation().setText("Pandora");
+				anAction.getTemplatePresentation().setDescription("Pandora Actions");
+				anAction.getTemplatePresentation().setEnabled(true);
+				anAction.setPopup(true);
+				manager.registerAction(group.id, anAction);
+				((DefaultActionGroup) manager.getAction(group.groupId)).add(anAction, Constraints.LAST);
+			} else LOG.error("group is null: " + group.id);
+		}
 
 	}
 
 	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions) {
 		final ActionManager manager = ActionManager.getInstance();
 		for (Builder.Action action : actions) {
-			if (manager.getAction(action.id) != null) continue;
+			if (manager.getAction(action.id) != null) {
+				LOG.debug("action already registered: " + action.id);
+				continue;
+			}
 			final AnAction anAction = loadAction(classLoader, action);
 			if (anAction != null) {
 				manager.registerAction(action.id, anAction);
-			}
+				((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
+			} else LOG.error("action is null: " + action.id);
 		}
 
 	}
@@ -77,7 +102,15 @@ class BuilderLoader {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage());
+			return null;
+		}
+	}
+
+	private static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
+		try {
+			return (ActionGroup) classLoader.loadClass(group.aClass).newInstance();
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
 			LOG.error(e.getMessage());
 			return null;
 		}
@@ -114,6 +147,7 @@ class BuilderLoader {
 			String id;
 			String aClass;
 			String groupId;
+			String shortcut;
 			String anchor;
 		}
 
@@ -121,7 +155,7 @@ class BuilderLoader {
 			String id;
 			String popup;
 			String text;
-			String aclass;
+			String aClass;
 			String groupId;
 
 		}

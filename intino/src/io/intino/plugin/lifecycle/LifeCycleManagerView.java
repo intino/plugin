@@ -76,8 +76,7 @@ public class LifeCycleManagerView extends JPanel {
 			for (String action : actions.keySet()) {
 				panel.add(Box.createRigidArea(new Dimension(LifeCyclePhase.PREDEPLOY.name().equals(action.toUpperCase()) ? 20 : 10, 0)));
 				JButton button = new JButton(actions.get(action));
-				customizeButton(button, module.getName() + "_" + action, action);
-				button.addActionListener(e -> new ArtifactManager(project, Collections.singletonList(module), LifeCyclePhase.valueOf(action.toUpperCase())).process());
+				customizeButton(button, module, module.getName() + "_" + action, action);
 				panel.add(button);
 				if (!isAvailable(module, action)) button.setEnabled(false);
 			}
@@ -93,7 +92,7 @@ public class LifeCycleManagerView extends JPanel {
 		return configuration != null && (configuration.level() != null || configuration.level().equals(Configuration.Level.System));
 	}
 
-	private void customizeButton(JButton button, String name, String action) {
+	private void customizeButton(JButton button, Module module, String name, String action) {
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		button.setToolTipText(action);
 		button.setName(name);
@@ -121,6 +120,11 @@ public class LifeCycleManagerView extends JPanel {
 				button.setBorder(null);
 				button.setBorderPainted(false);
 				button.setBackground(UIManager.getColor("control"));
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				new ArtifactManager(project, Collections.singletonList(module), LifeCyclePhase.valueOf(action.toUpperCase())).process();
 			}
 		});
 	}

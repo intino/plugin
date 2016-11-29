@@ -92,6 +92,9 @@ class PomCreator {
 		final List<String> res = resourceDirectories(module);
 		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) res.addAll(resourceDirectories(dep));
 		frame.addSlot("resourceDirectory", res.toArray(new String[res.size()]));
+		final List<String> resTest = resourceTestDirectories(module);
+		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) resTest.addAll(resourceTestDirectories(dep));
+		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
 	}
 
 	private static String[] srcDirectories(Module module) {
@@ -103,6 +106,12 @@ class PomCreator {
 	private static List<String> resourceDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
+		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+	}
+
+	private static List<String> resourceTestDirectories(Module module) {
+		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.TEST_RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 

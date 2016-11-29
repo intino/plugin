@@ -53,7 +53,6 @@ public class InterfaceBuilderManager {
 			return aether.resolve(new DefaultArtifact("io.intino.pandora:pandora-plugin:" + version), "compile");
 		} catch (DependencyResolutionException e) {
 			LOG.error(e.getMessage());
-
 			e.printStackTrace();
 		}
 		return null;
