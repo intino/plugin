@@ -41,12 +41,6 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
             <add-to-group group-id="IntinoToolsGroup"/>
         </action>
-        <action id="UpdateLanguage" class="io.intino.plugin.actions.UpdateLanguageAction"
-                text="Update Language"
-                description="Update Language">
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
-            <add-to-group group-id="IntinoToolsGroup"/>
-        </action>
         <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
                 text="Join To Legio"
                 description="Join module to legio or convert from maven">

@@ -45,7 +45,7 @@ public class LanguageResolver {
 	}
 
 	public List<Library> resolve() {
-		if (factory == null || factory.asLevel().language() == null) return Collections.emptyList();
+		if (factory == null || factory.asLevel() == null || factory.asLevel().language() == null) return Collections.emptyList();
 		final String language = factory.asLevel().language();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();

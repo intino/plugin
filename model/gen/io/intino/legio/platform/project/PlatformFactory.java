@@ -73,15 +73,15 @@ public class PlatformFactory extends io.intino.legio.level.project.LevelFactory 
 		}
 
 		public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {
-			io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
+		    io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}
 
 		public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
-			io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+		    io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 		
 	}

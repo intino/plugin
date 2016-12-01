@@ -1,9 +1,8 @@
 package io.intino.legio.natives.bool.parameter;
 
 
-/**
- * #/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#90#2
- **/
+
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#90#2**/
 public class Type_0 implements tara.magritte.Expression<String> {
 	private io.intino.legio.bool.BoolParameter self;
 

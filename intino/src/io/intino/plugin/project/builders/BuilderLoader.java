@@ -55,9 +55,12 @@ class BuilderLoader {
 
 	private static void unregisterActions(List<Builder.Action> actions) {
 		final ActionManager manager = ActionManager.getInstance();
-		for (Builder.Action action : actions) if (manager.getAction(action.id) != null) manager.unregisterAction(action.id);
+		for (Builder.Action action : actions)
+			if (manager.getAction(action.id) != null) {
+				((DefaultActionGroup) manager.getAction(action.groupId)).remove(manager.getAction(action.id));
+				manager.unregisterAction(action.id);
+			}
 		System.gc();
-
 	}
 
 	private static void registerGroups(ClassLoader classLoader, List<Builder.Group> groups) {
@@ -68,7 +71,6 @@ class BuilderLoader {
 				continue;
 			}
 			final ActionGroup anAction = loadGroup(classLoader, group);
-
 			if (anAction != null) {
 				anAction.getTemplatePresentation().setIcon(IntinoIcons.PANDORA_16);
 				anAction.getTemplatePresentation().setText("Pandora");
@@ -79,7 +81,6 @@ class BuilderLoader {
 				((DefaultActionGroup) manager.getAction(group.groupId)).add(anAction, Constraints.LAST);
 			} else LOG.error("group is null: " + group.id);
 		}
-
 	}
 
 	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions) {
@@ -91,6 +92,7 @@ class BuilderLoader {
 			}
 			final AnAction anAction = loadAction(classLoader, action);
 			if (anAction != null) {
+				if (action.shortcut != null) anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
 				manager.registerAction(action.id, anAction);
 				((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
 			} else LOG.error("action is null: " + action.id);

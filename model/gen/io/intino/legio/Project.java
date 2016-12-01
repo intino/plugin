@@ -1,5 +1,8 @@
 package io.intino.legio;
 
+import io.intino.legio.*;
+
+
 public class Project extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
@@ -1171,8 +1174,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		public io.intino.legio.platform.project.PlatformFactory asPlatform(java.lang.String language, java.lang.String version) {
 			io.intino.legio.platform.project.PlatformFactory newElement = addFacet(io.intino.legio.platform.project.PlatformFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 
 		public boolean isPlatform() {
@@ -1190,8 +1193,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		public io.intino.legio.level.project.LevelFactory asLevel(java.lang.String language, java.lang.String version) {
 			io.intino.legio.level.project.LevelFactory newElement = addFacet(io.intino.legio.level.project.LevelFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 
 		public boolean isLevel() {
@@ -1209,8 +1212,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		public io.intino.legio.application.project.ApplicationFactory asApplication(java.lang.String language, java.lang.String version) {
 			io.intino.legio.application.project.ApplicationFactory newElement = addFacet(io.intino.legio.application.project.ApplicationFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 
 		public boolean isApplication() {
@@ -1228,8 +1231,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		public io.intino.legio.system.project.SystemFactory asSystem(java.lang.String language, java.lang.String version) {
 			io.intino.legio.system.project.SystemFactory newElement = addFacet(io.intino.legio.system.project.SystemFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 
 		public boolean isSystem() {
@@ -1268,9 +1271,9 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		@Override
 	    protected void removeNode(tara.magritte.Node node) {
 	        super.removeNode(node);
-			if (node.is("Project$Factory$Interface")) this.interface$ = null;
-			if (node.is("Project$Factory$Behavior")) this.behavior = null;
-		}
+	        if (node.is("Project$Factory$Interface")) this.interface$ = null;
+	        if (node.is("Project$Factory$Behavior")) this.behavior = null;
+	    }
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
@@ -1300,19 +1303,19 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 
 			public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {
-				io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
+			    io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
 				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 			    return newElement;
 			}
 
 			public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
-				io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
-				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-				return newElement;
+			    io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
+				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+			    return newElement;
 			}
 			
 		}
-
+		
 		public static class Interface extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 			protected java.lang.String version;
 
@@ -1372,7 +1375,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return ((io.intino.legio.LegioApplication) graph().application());
 			}
 		}
-
+		
 		public static class Behavior extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 			protected java.lang.String version;
 

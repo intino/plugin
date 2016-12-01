@@ -87,7 +87,6 @@ public class ArtifactManager extends AbstractArtifactManager {
 		if (configuration == null) return false;
 		final String version = configuration.modelVersion();
 		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !TaraSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
-
 	}
 
 	private boolean exists(Module module, String dsl, String version) {

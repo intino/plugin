@@ -1,5 +1,8 @@
 package io.intino.legio.level.project;
 
+import io.intino.legio.*;
+
+
 public abstract class LevelFactory extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 	protected java.lang.String language;
 	protected java.lang.String version;
@@ -80,8 +83,7 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		super._load(name, values);
 		if (name.equalsIgnoreCase("language")) this.language = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-		else if (name.equalsIgnoreCase("effectiveVersion"))
-			this.effectiveVersion = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
@@ -115,15 +117,15 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		}
 
 		public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {
-			io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
+		    io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}
 
 		public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
-			io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
+		    io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 		
 	}

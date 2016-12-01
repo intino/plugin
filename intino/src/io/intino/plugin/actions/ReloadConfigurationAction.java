@@ -41,7 +41,7 @@ public class ReloadConfigurationAction extends AnAction implements DumbAware {
 		boolean visible = project != null && hasLegioModules(project);
 		e.getPresentation().setVisible(visible);
 		e.getPresentation().setEnabled(visible);
-		e.getPresentation().setIcon(IntinoIcons.INTINO_16);
+		e.getPresentation().setIcon(IntinoIcons.LEGIO_16);
 	}
 
 	private boolean hasLegioModules(Project project) {
