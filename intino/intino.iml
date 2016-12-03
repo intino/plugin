@@ -105,5 +105,9 @@
     <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.0" level="project" />
     <orderEntry type="module" module-name="model" />
     <orderEntry type="library" name="Maven: org.siani.tara:proteo-alone:1.0.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.intino.pandora:pandora-plugin:1.0.6" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.swagger:swagger-codegen-cli:2.1.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.siani.cottons:cotton-utils:1.0.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
   </component>
 </module>

@@ -19,6 +19,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DependencyAnnotator"/>
+        <!--<annotator language="Tara" implementationClass="io.intino.plugin.annotators.BuildersVersionAnnotator"/>-->
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.MainClassAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.LanguageDeclarationAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DuplicatedRepositoryAnnotator"/>
@@ -40,6 +41,7 @@
                 description="Publish Artifact">
             <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
             <add-to-group group-id="IntinoToolsGroup"/>
+
         </action>
         <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
                 text="Join To Legio"

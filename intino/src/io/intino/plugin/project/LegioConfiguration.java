@@ -120,7 +120,6 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
-
 	@NotNull
 	private File stashFile() {
 		return new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
@@ -249,6 +248,10 @@ public class LegioConfiguration implements Configuration {
 			}
 		}.execute();
 		reloadConfiguration();
+	}
+
+	public Project.Factory factory() {
+		return safe(() -> legio.project().factory());
 	}
 
 	public LifeCycle lifeCycle() {
