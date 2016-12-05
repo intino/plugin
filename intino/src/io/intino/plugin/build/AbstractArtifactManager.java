@@ -86,7 +86,7 @@ abstract class AbstractArtifactManager {
 	}
 
 	private boolean shouldDeployLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
-		return !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
+		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull

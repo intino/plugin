@@ -31,16 +31,16 @@ public class InterfaceBuilderManager {
 	public void reload(String version) {
 		List<Artifact> library = pandoraLibrary(version);
 		if (library == null || library.isEmpty()) {
-			notifyError();
+			notifyError("Interface Builder cannot be loaded. None libraries are found");
 			return;
 		}
 		BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new));
 	}
 
 
-	private void notifyError() {
+	private void notifyError(String message) {
 		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification("Interface Builder cannot be loaded. None libraries are found", MessageType.ERROR).setImportant(false).notify(null);
+		balloon.createNotification(message, MessageType.ERROR).setImportant(false).notify(null);
 	}
 
 	private File pathOf(Artifact artifact) {
@@ -52,7 +52,7 @@ public class InterfaceBuilderManager {
 		try {
 			return aether.resolve(new DefaultArtifact("io.intino.pandora:pandora-plugin:" + version), "compile");
 		} catch (DependencyResolutionException e) {
-			LOG.error(e.getMessage());
+			notifyError(e.getMessage());
 			e.printStackTrace();
 		}
 		return null;

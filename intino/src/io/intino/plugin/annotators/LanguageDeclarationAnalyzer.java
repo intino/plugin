@@ -26,6 +26,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
+		if (configuration == null) return;
 		final String language = languageNode.name();
 		String version = version();
 		if ("LATEST".equals(version)) version = configuration.dslEffectiveVersion();

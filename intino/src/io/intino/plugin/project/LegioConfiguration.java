@@ -289,7 +289,7 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
-	private <T> T safe(Wrapper<T> wrapper) {
+	public static <T> T safe(Wrapper<T> wrapper) {
 		try {
 			return wrapper.value();
 		} catch (NullPointerException e) {
@@ -322,7 +322,7 @@ public class LegioConfiguration implements Configuration {
 		String value();
 	}
 
-	private interface Wrapper<T> {
+	public interface Wrapper<T> {
 
 		T value();
 	}

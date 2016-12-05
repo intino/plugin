@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
@@ -28,6 +29,7 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 	public String preprocessOnPaste(Project project, PsiFile psiFile, Editor editor, String text, RawText rawText) {
 		if (!psiFile.getFileType().equals(LegioFileType.instance()) || !isMavenDependency(text.trim())) return text;
 		List<String[]> parameters = extractInfoFrom(text);
+		if (parameters.isEmpty()) return text;
 		String result = "";
 		for (String[] parameter : parameters)
 			result += parameter[0] + "(\"" + parameter[1] + "\", \"" + parameter[2] + "\", \"" + parameter[3] + "\")\n";
@@ -43,11 +45,15 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 		List<String[]> dependencyList = new ArrayList<>();
 		for (String dependency : text.split("<dependency>")) {
 			if (dependency.trim().isEmpty()) continue;
-			String scope = dependency.contains("<scope>test</scope>") ? "Test" : "Compile";
-			String groupId = dependency.substring(dependency.indexOf(GROUP_ID) + GROUP_ID.length(), dependency.indexOf("</groupId>"));
-			String artifactId = dependency.substring(dependency.indexOf(ARTIFACT_ID) + ARTIFACT_ID.length(), dependency.indexOf("</artifactId>"));
-			String version = dependency.substring(dependency.indexOf(VERSION) + VERSION.length(), dependency.indexOf("</version>"));
-			dependencyList.add(new String[]{scope, groupId, artifactId, version});
+			try {
+				String scope = dependency.contains("<scope>test</scope>") ? "Test" : "Compile";
+				String groupId = dependency.substring(dependency.indexOf(GROUP_ID) + GROUP_ID.length(), dependency.indexOf("</groupId>"));
+				String artifactId = dependency.substring(dependency.indexOf(ARTIFACT_ID) + ARTIFACT_ID.length(), dependency.indexOf("</artifactId>"));
+				String version = dependency.substring(dependency.indexOf(VERSION) + VERSION.length(), dependency.indexOf("</version>"));
+				dependencyList.add(new String[]{scope, groupId, artifactId, version});
+			} catch (IndexOutOfBoundsException e) {
+				return Collections.emptyList();
+			}
 		}
 		return dependencyList;
 	}

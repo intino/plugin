@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Repositories.Repository;
+import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -45,8 +46,8 @@ public class LanguageResolver {
 	}
 
 	public List<Library> resolve() {
-		if (factory == null || factory.asLevel() == null || factory.asLevel().language() == null) return Collections.emptyList();
-		final String language = factory.asLevel().language();
+		final String language = LegioConfiguration.safe(() -> factory.asLevel().language());
+		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))

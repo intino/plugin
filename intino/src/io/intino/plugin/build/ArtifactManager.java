@@ -5,7 +5,6 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -17,7 +16,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.MessageProvider;
@@ -56,7 +54,7 @@ public class ArtifactManager extends AbstractArtifactManager {
 	}
 
 	private void doProcess() {
-		saveAll(project);
+		saveAll();
 		for (Module module : modules) if (!checkOverrideVersion(module, extractDSL(module))) return;
 		withTask(new Task.Backgroundable(project, firstUpperCase(lifeCyclePhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
@@ -98,8 +96,7 @@ public class ArtifactManager extends AbstractArtifactManager {
 		}
 	}
 
-	private void saveAll(Project project) {
-		ApplicationManager.getApplication().invokeAndWait(ApplicationManager.getApplication().runWriteAction((Computable<Runnable>) () -> project::save), ModalityState.current());
+	private void saveAll() {
 		FileDocumentManager.getInstance().saveAllDocuments();
 		ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
 	}
