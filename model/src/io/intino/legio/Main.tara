@@ -13,6 +13,8 @@ Concept:{1..1}:Named Project
 			sub:{0..1} Snapshot
 			sub:{0..1} Language
 	Concept:{0..1} Dependencies
+		var string[] resolutions = empty is private
+		var string webDirectory = ""
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
 			var string name = '"Legio: " + self.identifier()' is private reactive
@@ -27,6 +29,10 @@ Concept:{1..1}:Named Project
 			sub Runtime
 			sub Provided
 			sub Test
+		Concept WebComponent
+			var string url
+			var string version
+
 	Concept:{0..1} Factory
 		var string inPackage = ""
 		Concept:{0..1} Interface
@@ -46,6 +52,9 @@ Concept:{0..1} LifeCycle
 			var string code
 
 	Concept:{0..1} Distribution extends Project.Repositories.Repository
+		Concept WebRepository
+			var string gitURL
+			var string gitId
 
 	Concept:{0..1} QualityAnalytics
 		var string serverUrl
