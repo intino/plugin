@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static tara.dsl.ProteoConstants.*;
@@ -17,10 +18,10 @@ public class ArtifactoryConnector {
     private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
     private final String languageRepository;
-    private final List<String> releaseRepositories;
+    private final Map<String, String> releaseRepositories;
     private final String snapshotRepository;
 
-    public ArtifactoryConnector(List<String> releaseRepositories, String snapshotRepository, String languageRepository) {
+    public ArtifactoryConnector(Map<String, String> releaseRepositories, String snapshotRepository, String languageRepository) {
         this.releaseRepositories = releaseRepositories;
         this.snapshotRepository = snapshotRepository;
         this.languageRepository = languageRepository;
@@ -35,7 +36,7 @@ public class ArtifactoryConnector {
 
     private List<String> proteoVersions() throws IOException {
         List<String> versions = new ArrayList<>();
-        for (String repo : releaseRepositories) {
+        for (String repo : releaseRepositories.keySet()) {
             URL url = new URL(repo + "/" + PROTEO_GROUP_ID.replace(".", "/") + "/" + PROTEO_ARTIFACT_ID + "/maven-metadata.xml");
             final String mavenMetadata = new String(read(url.openStream()).toByteArray());
             versions.addAll(extractVersions(mavenMetadata));

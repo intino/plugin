@@ -20,7 +20,6 @@ import io.intino.legio.LegioApplication;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
-import io.intino.legio.Project.Repositories.Release;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.plugin.dependencyresolution.DependencyResolver;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
@@ -41,8 +40,10 @@ import tara.lang.model.Parameter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -185,9 +186,9 @@ public class LegioConfiguration implements Configuration {
 				map(Repository::url).collect(Collectors.toList()));
 	}
 
-	public List<String> releaseRepositories() {
+	public Map<String, String> releaseRepositories() {
 		return safe(() -> legio.project().repositories().releaseList().stream().
-				map(Release::url).collect(Collectors.toList()));
+				collect(Collectors.toMap(Repository::url, Repository::mavenId)));
 	}
 
 	@Override
@@ -196,8 +197,9 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public String distributionRepository() {
-		return safe(() -> legio.lifeCycle().distribution().url());
+	public AbstractMap.SimpleEntry<String, String> distributionRepository() {
+		return safe(() -> new AbstractMap.SimpleEntry<String, String>
+				(legio.lifeCycle().distribution().url(), legio.lifeCycle().distribution().mavenId()));
 	}
 
 	@Override
