@@ -5,7 +5,7 @@
 
     <groupId>io.intino.legio</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -64,9 +64,9 @@
         <dependency>
             <groupId>tara.dsl</groupId>
             <artifactId>legio</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>system</scope>
-            <systemPath>${user.home}/.tara/repository/tara/dsl/legio/${version}/Legio-${version}.jar</systemPath>
+            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${version}/Legio-${version}.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.jcabi</groupId>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>io.intino.legio</groupId>
             <artifactId>model</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>io.intino.pandora</groupId>

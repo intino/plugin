@@ -50,6 +50,7 @@ public class DependencyResolver {
 			if (moduleDependency != null) {
 				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
 				d.effectiveVersion(d.version());
+				d.toModule(true);
 			} else newLibraries.addAll(asLibrary(d));
 		});
 		return newLibraries;

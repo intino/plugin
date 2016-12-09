@@ -145,8 +145,8 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null || legio.project() == null) return null;
 		final Project.Factory factory = legio.project().factory();
 		if (factory == null) return null;
-		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse("Platform");
-		return Level.valueOf(level);
+		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		return level == null ? null : Level.valueOf(level);
 	}
 
 	@Override
@@ -197,9 +197,21 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public AbstractMap.SimpleEntry<String, String> distributionRepository() {
+	public AbstractMap.SimpleEntry<String, String> distributionLanguageRepository() {
 		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.lifeCycle().distribution().url(), legio.lifeCycle().distribution().mavenId()));
+				(legio.lifeCycle().distribution().language().url(), legio.lifeCycle().distribution().language().mavenId()));
+	}
+
+	@Override
+	public AbstractMap.SimpleEntry<String, String> distributionReleaseRepository() {
+		return safe(() -> new AbstractMap.SimpleEntry<String, String>
+				(legio.lifeCycle().distribution().release().url(), legio.lifeCycle().distribution().release().mavenId()));
+	}
+
+	@Override
+	public AbstractMap.SimpleEntry<String, String> distributionSnapshotRepository() {
+		return safe(() -> new AbstractMap.SimpleEntry<String, String>
+				(legio.lifeCycle().distribution().snapshot().url(), legio.lifeCycle().distribution().snapshot().mavenId()));
 	}
 
 	@Override

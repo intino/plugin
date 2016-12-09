@@ -1,5 +1,8 @@
 package io.intino.legio.platform.project;
 
+import io.intino.legio.*;
+
+
 public class PlatformFactory extends io.intino.legio.level.project.LevelFactory implements tara.magritte.tags.Terminal {
 	
 	

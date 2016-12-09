@@ -37,6 +37,7 @@ public class LegioMavenRunner {
 	}
 
 	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
+		if (conf.distributionLanguageRepository() == null) throw new IOException(message("none.distribution.language.repository"));
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
 		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
 				"-DrepositoryId=" + conf.languageRepositoryId() + " " +

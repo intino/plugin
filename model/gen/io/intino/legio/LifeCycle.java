@@ -114,10 +114,8 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		    return newElement;
 		}
 
-		public io.intino.legio.LifeCycle.Distribution distribution(java.lang.String url, java.lang.String mavenId) {
+		public io.intino.legio.LifeCycle.Distribution distribution() {
 		    io.intino.legio.LifeCycle.Distribution newElement = graph().concept(io.intino.legio.LifeCycle.Distribution.class).createNode(name, node()).as(io.intino.legio.LifeCycle.Distribution.class);
-			newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
-			newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 		    return newElement;
 		}
 
@@ -377,22 +375,73 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		}
 	}
 	
-	public static class Distribution extends io.intino.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+	public static class Distribution extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
 		
+		protected io.intino.legio.Project.Repositories.Release release;
+		protected io.intino.legio.Project.Repositories.Snapshot snapshot;
+		protected io.intino.legio.Project.Repositories.Language language;
 
 		public Distribution(tara.magritte.Node node) {
 			super(node);
 		}
 
+		public io.intino.legio.Project.Repositories.Release release() {
+			return release;
+		}
+
+		public io.intino.legio.Project.Repositories.Snapshot snapshot() {
+			return snapshot;
+		}
+
+		public io.intino.legio.Project.Repositories.Language language() {
+			return language;
+		}
+
+		public void release(io.intino.legio.Project.Repositories.Release value) {
+			this.release = value;
+		}
+
+		public void snapshot(io.intino.legio.Project.Repositories.Snapshot value) {
+			this.snapshot = value;
+		}
+
+		public void language(io.intino.legio.Project.Repositories.Language value) {
+			this.language = value;
+		}
+
+		public java.util.List<tara.magritte.Node> componentList() {
+			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+			if (release != null) components.add(this.release.node());
+			if (snapshot != null) components.add(this.snapshot.node());
+			if (language != null) components.add(this.language.node());
+			return new java.util.ArrayList<>(components);
+		}
+
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
-			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>(super.variables());
+			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 			return map;
 		}
 
 		public tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.LifeCycle.Distribution.class);
 		}
+
+		@Override
+		protected void addNode(tara.magritte.Node node) {
+			super.addNode(node);
+			if (node.is("Project$Repositories$Release")) this.release = node.as(io.intino.legio.Project.Repositories.Release.class);
+			if (node.is("Project$Repositories$Snapshot")) this.snapshot = node.as(io.intino.legio.Project.Repositories.Snapshot.class);
+			if (node.is("Project$Repositories$Language")) this.language = node.as(io.intino.legio.Project.Repositories.Language.class);
+		}
+
+		@Override
+	    protected void removeNode(tara.magritte.Node node) {
+	        super.removeNode(node);
+	        if (node.is("Project$Repositories$Release")) this.release = null;
+	        if (node.is("Project$Repositories$Snapshot")) this.snapshot = null;
+	        if (node.is("Project$Repositories$Language")) this.language = null;
+	    }
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
@@ -412,11 +461,32 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			return new Create(name);
 		}
 
-		public class Create extends io.intino.legio.Project.Repositories.Repository.Create {
-			
+		public class Create {
+			protected final java.lang.String name;
 
 			public Create(java.lang.String name) {
-				super(name);
+				this.name = name;
+			}
+
+			public io.intino.legio.Project.Repositories.Release release(java.lang.String url, java.lang.String mavenId) {
+			    io.intino.legio.Project.Repositories.Release newElement = graph().concept(io.intino.legio.Project.Repositories.Release.class).createNode(name, node()).as(io.intino.legio.Project.Repositories.Release.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			    return newElement;
+			}
+
+			public io.intino.legio.Project.Repositories.Snapshot snapshot(java.lang.String url, java.lang.String mavenId) {
+			    io.intino.legio.Project.Repositories.Snapshot newElement = graph().concept(io.intino.legio.Project.Repositories.Snapshot.class).createNode(name, node()).as(io.intino.legio.Project.Repositories.Snapshot.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			    return newElement;
+			}
+
+			public io.intino.legio.Project.Repositories.Language language(java.lang.String url, java.lang.String mavenId) {
+			    io.intino.legio.Project.Repositories.Language newElement = graph().concept(io.intino.legio.Project.Repositories.Language.class).createNode(name, node()).as(io.intino.legio.Project.Repositories.Language.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			    return newElement;
 			}
 			
 		}

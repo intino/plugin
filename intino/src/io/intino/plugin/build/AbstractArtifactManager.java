@@ -62,7 +62,7 @@ abstract class AbstractArtifactManager {
 		try {
 			LegioMavenRunner runner = new LegioMavenRunner(module);
 			runner.executeLanguage(configuration);
-		} catch (MavenInvocationException | IOException e) {
+		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -72,7 +72,7 @@ abstract class AbstractArtifactManager {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			try {
-				if (distributionWithoutRepository(phase, configuration))
+				if (noDistributionRepository(phase, configuration))
 					throw new IntinoException(MessageProvider.message("distribution.repository.not.found"));
 				new LegioMavenRunner(module).executeFramework(phase);
 			} catch (MavenInvocationException | IOException | IntinoException e) {
@@ -81,8 +81,8 @@ abstract class AbstractArtifactManager {
 		} else new LegioMavenRunner(module).executeNativeMaven();
 	}
 
-	private boolean distributionWithoutRepository(LifeCyclePhase lifeCyclePhase, Configuration configuration) {
-		return configuration.distributionRepository().isEmpty() && lifeCyclePhase.mavenActions().contains("deploy");
+	private boolean noDistributionRepository(LifeCyclePhase lifeCyclePhase, Configuration configuration) {
+		return configuration.distributionReleaseRepository() == null && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	private boolean shouldDeployLanguage(Module module, LifeCyclePhase lifeCyclePhase) {

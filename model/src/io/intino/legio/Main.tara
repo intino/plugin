@@ -25,6 +25,7 @@ Concept:{1..1}:Named Project
 			var boolean transitive = true
 			var string[] artifacts is private
 			var boolean resolved = false is private
+			var boolean toModule = false is private
 			sub Compile
 			sub Runtime
 			sub Provided
@@ -51,10 +52,10 @@ Concept:{0..1} LifeCycle
 		Concept MavenPlugin
 			var string code
 
-	Concept:{0..1} Distribution extends Project.Repositories.Repository
-		Concept WebRepository
-			var string gitURL
-			var string gitId
+	Concept:{0..1} Distribution
+		has:{0..1} Project.Repositories.Release
+		has:{0..1} Project.Repositories.Snapshot
+		has:{0..1} Project.Repositories.Language
 
 	Concept:{0..1} QualityAnalytics
 		var string serverUrl

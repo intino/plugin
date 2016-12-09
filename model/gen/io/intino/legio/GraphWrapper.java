@@ -1,5 +1,7 @@
 package io.intino.legio;
 
+import tara.magritte.Graph;
+
 public class GraphWrapper extends tara.magritte.GraphWrapper {
 
 	protected tara.magritte.Graph graph;
@@ -293,13 +295,6 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.level.project.LevelFactory levelFactory(java.lang.String language, java.lang.String version) {
-			io.intino.legio.level.project.LevelFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.level.project.LevelFactory.class, namespace, name).as(io.intino.legio.level.project.LevelFactory.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
-		}
-
 		public io.intino.legio.platform.project.PlatformFactory platformFactory(java.lang.String language, java.lang.String version) {
 			io.intino.legio.platform.project.PlatformFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.platform.project.PlatformFactory.class, namespace, name).as(io.intino.legio.platform.project.PlatformFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
@@ -318,12 +313,6 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 			io.intino.legio.system.project.SystemFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.system.project.SystemFactory.class, namespace, name).as(io.intino.legio.system.project.SystemFactory.class);
 			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
-			return newElement;
-		}
-
-		public io.intino.legio.type.TypeParameter typeParameter(tara.magritte.Expression<java.lang.String> type) {
-			io.intino.legio.type.TypeParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.type.TypeParameter.class, namespace, name).as(io.intino.legio.type.TypeParameter.class);
-			newElement.node().set(newElement, "type", java.util.Collections.singletonList(type));
 			return newElement;
 		}
 

@@ -28,9 +28,9 @@
     <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="Maven: tara.dsl:legio:1.0.1">
+      <library name="Maven: tara.dsl:legio:1.0.2">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.tara/repository/tara/dsl/legio/1.0.1/Legio-1.0.1.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/tara/dsl/legio/1.0.2/Legio-1.0.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

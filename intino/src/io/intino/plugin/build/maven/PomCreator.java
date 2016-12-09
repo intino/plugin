@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,25 +66,31 @@ class PomCreator {
 		for (Dependency dependency : configuration.dependencies())
 			frame.addSlot("dependency", createDependencyFrame(dependency));
 		addModuleTypeDependencies(module, frame);
+		addLevelDependency(module, configuration, frame);
+		addRepositories(configuration, frame);
+		writePom(pom, frame);
+		return pom;
+	}
+
+	private static void addRepositories(LegioConfiguration configuration, Frame frame) {
+		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
+				frame.addSlot("repository", createRepositoryFrame(r)));
+		if (configuration.distributionReleaseRepository() != null)
+			frame.addSlot("repository", createRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
+	}
+
+	private static void addLevelDependency(Module module, LegioConfiguration configuration, Frame frame) {
 		if (configuration.level() != null) {
 			final String languageId = findLanguageId(module);
 			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
 		}
-		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
-				frame.addSlot("repository", createRepositoryFrame(r)));
-		if (configuration.lifeCycle().distribution() != null)
-			frame.addSlot("repository", createRepositoryFrame(configuration.lifeCycle().distribution()));
-		writePom(pom, frame);
-		return pom;
 	}
 
 	private static void addModuleTypeDependencies(Module module, Frame frame) {
 		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
-			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
-				frame.addSlot("dependency", createDependencyFrame(d));
-			if (configuration.level() != null)
-				frame.addSlot("dependency", createDependencyFrame(findLanguageId(dependantModule).split(":")));
+//			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
+//				frame.addSlot("dependency", createDependencyFrame(d));
 		}
 	}
 
@@ -156,11 +163,11 @@ class PomCreator {
 	}
 
 	private static Frame createDependencyFrame(Dependency id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId()).addSlot("version", id.version());
+		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).addSlot("version", id.version());
 	}
 
 	private static Frame createDependencyFrame(String[] id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id[0]).addSlot("scope", "compile").addSlot("artifactId", id[1]).addSlot("version", id[2]);
+		return new Frame().addTypes("dependency").addSlot("groupId", id[0].toLowerCase()).addSlot("scope", "compile").addSlot("artifactId", id[1].toLowerCase()).addSlot("version", id[2]);
 	}
 
 	private static Frame createRepositoryFrame(Repository repo) {
@@ -168,6 +175,13 @@ class PomCreator {
 				addSlot("name", repo.mavenId()).
 				addSlot("url", repo.url()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
+	}
+
+	private static Frame createRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
+		return new Frame().addTypes("repository", "distribution",type).
+				addSlot("url", repo.getKey()).
+				addSlot("name", repo.getValue()).
+				addSlot("type", "release");
 	}
 
 	private static void writePom(File pom, Frame frame) {

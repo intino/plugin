@@ -4,6 +4,7 @@ import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -97,7 +98,8 @@ public class ArtifactManager extends AbstractArtifactManager {
 	}
 
 	private void saveAll() {
-		FileDocumentManager.getInstance().saveAllDocuments();
+		Application manager = ApplicationManager.getApplication();
+		if (manager.isWriteAccessAllowed()) FileDocumentManager.getInstance().saveAllDocuments();
 		ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
 	}
 

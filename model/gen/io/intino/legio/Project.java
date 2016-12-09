@@ -586,15 +586,37 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	}
 	
 	public static class Dependencies extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-		
+		protected java.util.List<java.lang.String> resolutions = new java.util.ArrayList<>();
+		protected java.lang.String webDirectory;
 		protected java.util.List<io.intino.legio.Project.Dependencies.Dependency> dependencyList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Compile> compileList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Runtime> runtimeList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Provided> providedList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Test> testList = new java.util.ArrayList<>();
+		protected java.util.List<io.intino.legio.Project.Dependencies.WebComponent> webComponentList = new java.util.ArrayList<>();
 
 		public Dependencies(tara.magritte.Node node) {
 			super(node);
+		}
+
+		public java.util.List<java.lang.String> resolutions() {
+			return resolutions;
+		}
+
+		public java.lang.String resolutions(int index) {
+			return resolutions.get(index);
+		}
+
+		public java.util.List<java.lang.String> resolutions(java.util.function.Predicate<java.lang.String> predicate) {
+			return resolutions().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		public java.lang.String webDirectory() {
+			return webDirectory;
+		}
+
+		public void webDirectory(java.lang.String value) {
+			this.webDirectory = value;
 		}
 
 		public java.util.List<io.intino.legio.Project.Dependencies.Dependency> dependencyList() {
@@ -657,6 +679,20 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return testList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
+		public java.util.List<io.intino.legio.Project.Dependencies.WebComponent> webComponentList() {
+			return java.util.Collections.unmodifiableList(webComponentList);
+		}
+
+		public io.intino.legio.Project.Dependencies.WebComponent webComponent(int index) {
+			return webComponentList.get(index);
+		}
+
+		public java.util.List<io.intino.legio.Project.Dependencies.WebComponent> webComponentList(java.util.function.Predicate<io.intino.legio.Project.Dependencies.WebComponent> predicate) {
+			return webComponentList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		}
+
+		
+
 		
 
 		
@@ -674,12 +710,15 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			runtimeList.stream().forEach(c -> components.add(c.node()));
 			providedList.stream().forEach(c -> components.add(c.node()));
 			testList.stream().forEach(c -> components.add(c.node()));
+			webComponentList.stream().forEach(c -> components.add(c.node()));
 			return new java.util.ArrayList<>(components);
 		}
 
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("resolutions", this.resolutions);
+			map.put("webDirectory", new java.util.ArrayList(java.util.Collections.singletonList(this.webDirectory)));
 			return map;
 		}
 
@@ -695,6 +734,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			if (node.is("Project$Dependencies$Runtime")) this.runtimeList.add(node.as(io.intino.legio.Project.Dependencies.Runtime.class));
 			if (node.is("Project$Dependencies$Provided")) this.providedList.add(node.as(io.intino.legio.Project.Dependencies.Provided.class));
 			if (node.is("Project$Dependencies$Test")) this.testList.add(node.as(io.intino.legio.Project.Dependencies.Test.class));
+			if (node.is("Project$Dependencies$WebComponent")) this.webComponentList.add(node.as(io.intino.legio.Project.Dependencies.WebComponent.class));
 		}
 
 		@Override
@@ -705,16 +745,21 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	        if (node.is("Project$Dependencies$Runtime")) this.runtimeList.remove(node.as(io.intino.legio.Project.Dependencies.Runtime.class));
 	        if (node.is("Project$Dependencies$Provided")) this.providedList.remove(node.as(io.intino.legio.Project.Dependencies.Provided.class));
 	        if (node.is("Project$Dependencies$Test")) this.testList.remove(node.as(io.intino.legio.Project.Dependencies.Test.class));
+	        if (node.is("Project$Dependencies$WebComponent")) this.webComponentList.remove(node.as(io.intino.legio.Project.Dependencies.WebComponent.class));
 	    }
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
+			if (name.equalsIgnoreCase("resolutions")) this.resolutions = tara.magritte.loaders.StringLoader.load(values, this);
+			else if (name.equalsIgnoreCase("webDirectory")) this.webDirectory = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
+			if (name.equalsIgnoreCase("resolutions")) this.resolutions = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
+			else if (name.equalsIgnoreCase("webDirectory")) this.webDirectory = (java.lang.String) values.get(0);
 		}
 
 		public Create create() {
@@ -769,6 +814,13 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				newElement.node().set(newElement, "artifacts", artifacts); 
 			    return newElement;
 			}
+
+			public io.intino.legio.Project.Dependencies.WebComponent webComponent(java.lang.String url, java.lang.String version) {
+			    io.intino.legio.Project.Dependencies.WebComponent newElement = graph().concept(io.intino.legio.Project.Dependencies.WebComponent.class).createNode(name, node()).as(io.intino.legio.Project.Dependencies.WebComponent.class);
+				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url));
+				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+			    return newElement;
+			}
 			
 		}
 		
@@ -782,6 +834,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			protected boolean transitive;
 			protected java.util.List<java.lang.String> artifacts = new java.util.ArrayList<>();
 			protected boolean resolved;
+			protected boolean toModule;
 
 			public Dependency(tara.magritte.Node node) {
 				super(node);
@@ -831,6 +884,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return resolved;
 			}
 
+			public boolean toModule() {
+				return toModule;
+			}
+
 			public void identifier(tara.magritte.Expression<java.lang.String> value) {
 				this.identifier = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
 			}
@@ -863,6 +920,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				this.resolved = value;
 			}
 
+			public void toModule(boolean value) {
+				this.toModule = value;
+			}
+
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
@@ -875,6 +936,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				map.put("transitive", new java.util.ArrayList(java.util.Collections.singletonList(this.transitive)));
 				map.put("artifacts", this.artifacts);
 				map.put("resolved", new java.util.ArrayList(java.util.Collections.singletonList(this.resolved)));
+				map.put("toModule", new java.util.ArrayList(java.util.Collections.singletonList(this.toModule)));
 				return map;
 			}
 
@@ -894,6 +956,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = tara.magritte.loaders.StringLoader.load(values, this);
 				else if (name.equalsIgnoreCase("resolved")) this.resolved = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("toModule")) this.toModule = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -908,6 +971,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = (java.lang.Boolean) values.get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
 				else if (name.equalsIgnoreCase("resolved")) this.resolved = (java.lang.Boolean) values.get(0);
+				else if (name.equalsIgnoreCase("toModule")) this.toModule = (java.lang.Boolean) values.get(0);
 			}
 
 			public Create create() {
@@ -1119,6 +1183,78 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 				public Create(java.lang.String name) {
 					super(name);
+				}
+				
+			}
+			
+			public io.intino.legio.LegioApplication application() {
+				return ((io.intino.legio.LegioApplication) graph().application());
+			}
+		}
+		
+		public static class WebComponent extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected java.lang.String url;
+			protected java.lang.String version;
+
+			public WebComponent(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.lang.String url() {
+				return url;
+			}
+
+			public java.lang.String version() {
+				return version;
+			}
+
+			public void url(java.lang.String value) {
+				this.url = value;
+			}
+
+			public void version(java.lang.String value) {
+				this.version = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("url", new java.util.ArrayList(java.util.Collections.singletonList(this.url)));
+				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(io.intino.legio.Project.Dependencies.WebComponent.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("url")) this.url = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("url")) this.url = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
 				}
 				
 			}
