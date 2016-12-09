@@ -10,6 +10,7 @@ import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,16 +32,16 @@ public class InterfaceBuilderManager {
 	public void reload(String version) {
 		List<Artifact> library = pandoraLibrary(version);
 		if (library == null || library.isEmpty()) {
-			notifyError("Interface Builder cannot be loaded. None libraries are found");
+			notifyError();
 			return;
 		}
 		BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new));
 	}
 
 
-	private void notifyError(String message) {
-		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
-		balloon.createNotification(message, MessageType.ERROR).setImportant(false).notify(null);
+	private void notifyError() {
+		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
+		if (balloon != null) balloon.createNotification("Interface Builder cannot be loaded. None libraries found", MessageType.ERROR).setImportant(false).notify(null);
 	}
 
 	private File pathOf(Artifact artifact) {
@@ -50,14 +51,12 @@ public class InterfaceBuilderManager {
 	private List<Artifact> pandoraLibrary(String version) {
 		final Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 		try {
-			return aether.resolve(new DefaultArtifact("io.intino.pandora:pandora-plugin:" + version), "compile");
+			return aether.resolve(new DefaultArtifact("io.intino.pandora:pandora-plugin:" + version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
-			notifyError(e.getMessage());
-			e.printStackTrace();
+			LOG.error(e.getMessage());
+			return null;
 		}
-		return null;
 	}
-
 
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {

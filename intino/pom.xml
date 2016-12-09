@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aether</artifactId>
-            <version>LATEST</version>
+            <version>0.10.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

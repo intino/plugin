@@ -18,9 +18,6 @@
 
 package io.intino.plugin.lifecycle;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -127,9 +124,6 @@ public class LifeCycleManagerView extends JPanel {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Application manager = ApplicationManager.getApplication();
-				if (manager.isWriteAccessAllowed()) FileDocumentManager.getInstance().saveAllDocuments();
-				else manager.invokeAndWait(() -> manager.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments()));
 				new ArtifactManager(project, Collections.singletonList(module), LifeCyclePhase.valueOf(action.toUpperCase())).process();
 			}
 		});

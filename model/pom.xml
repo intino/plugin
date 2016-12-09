@@ -22,11 +22,6 @@
         <testOutputDirectory>../out/test/model</testOutputDirectory>
         <directory>../out/build/model</directory>
         <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>${basedir}/../.tara/refactors</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
