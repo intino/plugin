@@ -39,7 +39,7 @@ public class LegioMavenRunner {
 	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
 		if (conf.distributionLanguageRepository() == null) throw new IOException(message("none.distribution.language.repository"));
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
-		request.setMavenOpts("-Durl=" + conf.languageRepository() + " " +
+		request.setMavenOpts("-Durl=" + conf.distributionLanguageRepository() + " " +
 				"-DrepositoryId=" + conf.languageRepositoryId() + " " +
 				"-DgroupId=tara.dsl " +
 				"-DartifactId=" + conf.artifactId() + " " +
