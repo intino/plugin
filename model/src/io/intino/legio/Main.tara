@@ -33,7 +33,6 @@ Concept:{1..1}:Named Project
 		Concept WebComponent
 			var string url
 			var string version
-
 	Concept:{0..1} Factory
 		var string inPackage = ""
 		Concept:{0..1} Interface

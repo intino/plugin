@@ -37,22 +37,28 @@ public class LanguageResolver {
 	private final String version;
 	private static final String proteoGroupId = "org.siani.tara";
 	private static final String proteoArtifactId = "proteo";
+	private final String language;
 
 	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory, String version) {
 		this.module = module;
 		this.repositories = repositories;
 		this.factory = factory;
+		this.language = LegioConfiguration.safe(() -> factory.asLevel().language());
 		this.version = version;
 	}
 
+	public LanguageResolver(Module module, LegioConfiguration legio) {
+		this(module, legio.project().repositories().repositoryList(), legio.project().factory(), legio.dslEffectiveVersion());
+
+	}
+
 	public List<Library> resolve() {
-		final String language = LegioConfiguration.safe(() -> factory.asLevel().language());
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
 		if (language.equals(PROTEO) || language.equals(VERSO))
 			libraries.addAll(proteoFramework(version));
-		else libraries.addAll(frameworkOfLanguage(language, version));
+		else libraries.addAll(frameworkOfLanguage());
 		return libraries;
 	}
 
@@ -60,8 +66,7 @@ public class LanguageResolver {
 		List<Library> libraries = new ArrayList<>();
 		ApplicationManager.getApplication().runWriteAction(() -> {
 			final LibraryManager manager = new LibraryManager(module);
-			final String proteoID = proteoGroupId + ":" + proteoArtifactId + ":" + version;
-			final List<Artifact> languageFramework = findLanguageFramework(proteoID);
+			final List<Artifact> languageFramework = findLanguageFramework(proteoGroupId + ":" + proteoArtifactId + ":" + version);
 			if (!languageFramework.isEmpty())
 				factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 			else factory.asLevel().effectiveVersion("");
@@ -71,29 +76,28 @@ public class LanguageResolver {
 		return libraries;
 	}
 
-	private List<Library> frameworkOfLanguage(String language, String version) {
+	private List<Library> frameworkOfLanguage() {
 		final List<Library> libraries = new ArrayList<>();
 		final Module module = moduleOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
-		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module));
-		else app.invokeLater(() -> app.runWriteAction(() -> addExternalLibraries(language, version, libraries, module)));
+		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
+		else app.invokeLater(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)));
 		return libraries;
 	}
 
-	private void addExternalLibraries(String language, String version, List<Library> libraries, Module module) {
-		if (module == null) addExternalLibraries(language, version, libraries);
+	private void addExternalLibraries(List<Library> libraries, Module module) {
+		if (module == null) addExternalLibraries(libraries);
 		else addModuleDependency(module, libraries);
 	}
 
 	private void addModuleDependency(Module dependency, List<Library> libraries) {
-		final LibraryManager manager = new LibraryManager(this.module);
-		libraries.addAll(manager.resolveAsModuleDependency(dependency));
+		libraries.addAll(new LibraryManager(this.module).resolveAsModuleDependency(dependency));
 	}
 
-	private void addExternalLibraries(String language, String version, List<Library> libraries) {
+	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(language, version).exists()) importLanguage();
-		final List<Artifact> languageFramework = findLanguageFramework(findLanguageId(language, version));
+		final List<Artifact> languageFramework = findLanguageFramework();
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 		else factory.asLevel().effectiveVersion("");
@@ -110,17 +114,23 @@ public class LanguageResolver {
 		return null;
 	}
 
-	private List<Artifact> findLanguageFramework(String dependencyID) {
+	public List<Artifact> findLanguageFramework() {
+		final String languageId = languageID(this.language, this.version);
+		return findLanguageFramework(languageId);
+	}
+
+	private List<Artifact> findLanguageFramework(String languageId) {
 		try {
-			if (dependencyID == null) return Collections.emptyList();
+			if (languageId == null) return Collections.emptyList();
 			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(dependencyID), JavaScopes.COMPILE);
+			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException ignored) {
 			return Collections.emptyList();
 		}
 	}
 
-	public static String findLanguageId(String language, String version) {
+
+	public static String languageID(String language, String version) {
 		if (language.equals(PROTEO) || language.equals(VERSO))
 			return proteoGroupId + ":" + proteoArtifactId + ":" + version;
 		final File languageFile = LanguageManager.getLanguageFile(language, version);

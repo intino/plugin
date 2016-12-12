@@ -88,7 +88,7 @@ public class LifeCycleManagerView extends JPanel {
 
 	private boolean isAvailable(Module module, String action) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (!action.equalsIgnoreCase(LifeCyclePhase.PREDEPLOY.name()) && action.equalsIgnoreCase(LifeCyclePhase.DEPLOY.name())) return true;
+		if (!LifeCyclePhase.PREDEPLOY.name().equalsIgnoreCase(action) && LifeCyclePhase.DEPLOY.name().equalsIgnoreCase(action)) return true;
 		return configuration != null && (configuration.level() != null || configuration.level().equals(Configuration.Level.System));
 	}
 

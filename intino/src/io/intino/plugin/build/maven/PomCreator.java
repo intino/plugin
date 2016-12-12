@@ -89,8 +89,13 @@ class PomCreator {
 	private static void addModuleTypeDependencies(Module module, Frame frame) {
 		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
-//			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
-//				frame.addSlot("dependency", createDependencyFrame(d));
+			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
+				frame.addSlot("dependency", createDependencyFrame(d));
+			if (configuration.level() != null) {
+				final String language = LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
+				if (language == null || language.isEmpty()) return;
+				frame.addSlot("dependency", createDependencyFrame(language.split(":")));
+			}
 		}
 	}
 
@@ -159,7 +164,7 @@ class PomCreator {
 
 	private static String findLanguageId(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.moduleOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.findLanguageId(configuration.dsl(), configuration.dslVersion());
+		return LanguageResolver.moduleOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
 	}
 
 	private static Frame createDependencyFrame(Dependency id) {
@@ -178,7 +183,7 @@ class PomCreator {
 	}
 
 	private static Frame createRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
-		return new Frame().addTypes("repository", "distribution",type).
+		return new Frame().addTypes("repository", "distribution", type).
 				addSlot("url", repo.getKey()).
 				addSlot("name", repo.getValue()).
 				addSlot("type", "release");

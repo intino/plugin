@@ -14,17 +14,20 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 class BuilderLoader {
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
+	private static List<String> loadedVersions = new ArrayList<>();
 
 	private BuilderLoader() {
 	}
 
 	static void load(String name, File[] library) {
 		try {
+			if (loadedVersions.contains(library[0].getAbsolutePath())) return;
 			final ClassLoader classLoader = createClassLoader(library);
 			if (classLoader == null) return;
 			Builder builder = Builder.from(classLoader.getResourceAsStream(name.toLowerCase() + ".toml"));
@@ -33,6 +36,7 @@ class BuilderLoader {
 			registerGroups(classLoader, builder.groups);
 			registerActions(classLoader, builder.actions);
 			addLanguage(classLoader);
+			loadedVersions.add(library[0].getAbsolutePath());
 		} catch (RuntimeException | Error e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -47,7 +51,6 @@ class BuilderLoader {
 		try {
 			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Pandora").newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			e.printStackTrace();
 			LOG.error(e.getMessage(), e);
 			return null;
 		}
@@ -70,15 +73,15 @@ class BuilderLoader {
 				LOG.debug("group already registered: " + group.id);
 				continue;
 			}
-			final ActionGroup anAction = loadGroup(classLoader, group);
-			if (anAction != null) {
-				anAction.getTemplatePresentation().setIcon(IntinoIcons.PANDORA_16);
-				anAction.getTemplatePresentation().setText("Pandora");
-				anAction.getTemplatePresentation().setDescription("Pandora Actions");
-				anAction.getTemplatePresentation().setEnabled(true);
-				anAction.setPopup(true);
-				manager.registerAction(group.id, anAction);
-				((DefaultActionGroup) manager.getAction(group.groupId)).add(anAction, Constraints.LAST);
+			final ActionGroup actionGroup = loadGroup(classLoader, group);
+			if (actionGroup != null) {
+				actionGroup.getTemplatePresentation().setIcon(IntinoIcons.PANDORA_16);
+				actionGroup.getTemplatePresentation().setText("Pandora");
+				actionGroup.getTemplatePresentation().setDescription("Pandora Actions");
+				actionGroup.getTemplatePresentation().setEnabled(true);
+				actionGroup.setPopup(true);
+				manager.registerAction(group.id, actionGroup);
+				((DefaultActionGroup) manager.getAction(group.groupId)).add(actionGroup, Constraints.LAST);
 			} else LOG.error("group is null: " + group.id);
 		}
 	}

@@ -149,11 +149,6 @@
             <artifactId>model</artifactId>
             <version>1.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>io.intino.pandora</groupId>
-            <artifactId>pandora-plugin</artifactId>
-            <version>1.0.6</version>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 </project>

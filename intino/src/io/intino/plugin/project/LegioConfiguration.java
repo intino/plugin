@@ -331,6 +331,10 @@ public class LegioConfiguration implements Configuration {
 		return legio.project().license();
 	}
 
+	public Project project() {
+		return legio.project();
+	}
+
 	private interface StringWrapper {
 
 		String value();

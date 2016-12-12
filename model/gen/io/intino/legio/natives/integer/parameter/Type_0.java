@@ -2,7 +2,7 @@ package io.intino.legio.natives.integer.parameter;
 
 
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#97#2**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#96#2**/
 public class Type_0 implements tara.magritte.Expression<String> {
 	private io.intino.legio.integer.IntegerParameter self;
 
