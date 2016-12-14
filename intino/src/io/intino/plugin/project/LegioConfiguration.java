@@ -128,16 +128,18 @@ public class LegioConfiguration implements Configuration {
 
 	private void reloadDependencies() {
 		if (legio == null || legio.project() == null) return;
-		Application application = ApplicationManager.getApplication();
-		if (application.isDispatchThread()) resolveJavaDependencies();
-		else application.invokeLater(this::resolveJavaDependencies);
-		if (legio.project().webDependencies() != null)
-			new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
+		resolveJavaDependencies();
+		if (legio.project().webDependencies() != null) resolveWebDependencies();
+	}
+
+	private void resolveWebDependencies() {
+		new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
 	}
 
 	private void resolveJavaDependencies() {
 		if (legio.project().dependencies() == null) return;
-		final List<Library> newLibraries = new JavaDependencyResolver(module, legio.project().repositories(), legio.project().dependencies().dependencyList()).resolve();
+		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), legio.project().dependencies().dependencyList());
+		final List<Library> newLibraries = resolver.resolve();
 		if (legio.project().factory() != null)
 			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);

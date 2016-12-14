@@ -47,11 +47,6 @@ public class LanguageResolver {
 		this.version = version;
 	}
 
-	public LanguageResolver(Module module, LegioConfiguration legio) {
-		this(module, legio.project().repositories().repositoryList(), legio.project().factory(), legio.dslEffectiveVersion());
-
-	}
-
 	public List<Library> resolve() {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
@@ -64,16 +59,21 @@ public class LanguageResolver {
 
 	private List<Library> proteoFramework(String version) {
 		List<Library> libraries = new ArrayList<>();
-		ApplicationManager.getApplication().runWriteAction(() -> {
-			final LibraryManager manager = new LibraryManager(module);
-			final List<Artifact> languageFramework = findLanguageFramework(proteoGroupId + ":" + proteoArtifactId + ":" + version);
-			if (!languageFramework.isEmpty())
-				factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
-			else factory.asLevel().effectiveVersion("");
-			libraries.addAll(manager.registerOrGetLibrary(languageFramework));
-			manager.addToModule(libraries, false);
-		});
+		final Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed())
+			application.runWriteAction(() -> loadProteoLibrary(version, libraries));
+		else application.invokeLater(() -> application.runWriteAction(() -> loadProteoLibrary(version, libraries)));
 		return libraries;
+	}
+
+	private void loadProteoLibrary(String version, List<Library> libraries) {
+		final LibraryManager manager = new LibraryManager(module);
+		final List<Artifact> languageFramework = findLanguageFramework(proteoGroupId + ":" + proteoArtifactId + ":" + version);
+		if (!languageFramework.isEmpty())
+			factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
+		else factory.asLevel().effectiveVersion("");
+		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
+		manager.addToModule(libraries, false);
 	}
 
 	private List<Library> frameworkOfLanguage() {

@@ -1,5 +1,6 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -29,6 +30,8 @@ public class JavaDependencyResolver {
 	private final LibraryManager manager;
 	private final Aether aether;
 	private List<Dependency> dependencies;
+	private Map<Dependency, List<Artifact>> collectedArtifacts = new HashMap<>();
+
 
 	public JavaDependencyResolver(Module module, Repositories repositories, List<Dependency> dependencies) {
 		this.manager = new LibraryManager(module);
@@ -39,25 +42,34 @@ public class JavaDependencyResolver {
 	}
 
 	public List<Library> resolve() {
-		return ApplicationManager.getApplication().runWriteAction((Computable<List<Library>>) this::processDependencies);
+		collectArtifacts();
+		final Application application = ApplicationManager.getApplication();
+		final List<Library> libraries = new ArrayList<>();
+		application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) this::processDependencies)));
+		return libraries;
+	}
+
+	private void collectArtifacts() {
+		for (Dependency dependency : dependencies)
+			if (moduleOf(dependency) == null) collectedArtifacts.put(dependency, collectArtifacts(dependency));
 	}
 
 	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
-		dependencies.forEach(d -> {
-			Module moduleDependency = moduleOf(d);
-			if (moduleDependency == null) newLibraries.addAll(asLibrary(d));
+		for (Dependency d : dependencies) {
+			if (collectedArtifacts.containsKey(d)) newLibraries.addAll(asLibrary(d));
 			else {
+				Module moduleDependency = moduleOf(d);
 				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
 				d.effectiveVersion(d.version());
 				d.toModule(true);
 			}
-		});
+		}
 		return newLibraries;
 	}
 
 	private List<Library> asLibrary(Dependency d) {
-		final List<Artifact> artifacts = collectArtifacts(d);
+		final List<Artifact> artifacts = collectedArtifacts.get(d);
 		final List<Library> resolved = manager.registerOrGetLibrary(artifacts);
 		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
 		else d.effectiveVersion("");
