@@ -21,7 +21,7 @@ import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
-import io.intino.plugin.dependencyresolution.DependencyResolver;
+import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.dependencyresolution.LegioUtil;
 import io.intino.plugin.dependencyresolution.LibraryManager;
@@ -62,7 +62,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Configuration init() {
-		legioFile = new LegioFileCreator(module).create();
+		legioFile = new EmptyLegioFileCreator(module).create();
 		load();
 		return this;
 	}
@@ -84,7 +84,7 @@ public class LegioConfiguration implements Configuration {
 		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
-						 if (legioFile == null) legioFile = new LegioFileCreator(module).create();
+						 if (legioFile == null) legioFile = new EmptyLegioFileCreator(module).create();
 						 newGraphFromLegio();
 						 reloadDependencies();
 						 reloadInterfaceBuilder();
@@ -129,12 +129,15 @@ public class LegioConfiguration implements Configuration {
 	private void reloadDependencies() {
 		if (legio == null || legio.project() == null) return;
 		Application application = ApplicationManager.getApplication();
-		if (application.isDispatchThread()) resolveDependencies();
-		else application.invokeLater(this::resolveDependencies);
+		if (application.isDispatchThread()) resolveJavaDependencies();
+		else application.invokeLater(this::resolveJavaDependencies);
+		if (legio.project().webDependencies() != null)
+			new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
 	}
 
-	private void resolveDependencies() {
-		final List<Library> newLibraries = new DependencyResolver(module, legio.project().repositories(), legio.project().dependencies()).resolve();
+	private void resolveJavaDependencies() {
+		if (legio.project().dependencies() == null) return;
+		final List<Library> newLibraries = new JavaDependencyResolver(module, legio.project().repositories(), legio.project().dependencies().dependencyList()).resolve();
 		if (legio.project().factory() != null)
 			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);

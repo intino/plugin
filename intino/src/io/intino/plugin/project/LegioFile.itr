@@ -1,0 +1,55 @@
+def type(legio & empty)
+	dsl Legio
+
+	Project(groupId = "org.sample", version = "1.0.0") $name
+		Repositories
+			Release("http://artifactory.siani.es/artifactory/libs-release", "siani-maven")
+			Language("https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
+		Dependencies
+			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+		Factory("$name+firstLowerCase") as Platform("Verso", "LATEST")
+
+	LifeCycle
+		Package(type = ModulesAndLibrariesLinkedByManifest)
+		Distribution
+			Release("http://artifactory.siani.es/artifactory/libs-release-local", "siani-maven")
+end
+
+def type(legio & !empty)
+	dsl Legio
+
+	Project(groupId = "$groupId", version = "$version") $artifactId
+    	Repositories[
+			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
+			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")$isIntino	][
+    		$repository...[$NL]]
+    	Dependencies[
+    		$dependency...[$NL]][
+    	$factory]
+
+    LifeCycle
+		Package(ModulesAndLibrariesLinkedByManifest)
+    	[$distribution...[$NL]]
+end
+
+def type(release) trigger(repository)
+	Release(url = "$url", "$id")
+end
+
+def type(snapshot) trigger(repository)
+	Snapshot(url = "$url", "$id")
+end
+
+def type(dependency)
+	$type+FirstUpperCase(groupId = "$groupId", artifactId = "$artifactId", version = "$version")
+end
+
+def type(factory)
+	Factory("$workingPackage") as $level+firstUpperCase("$dsl", "$dslVersion")
+end
+
+
+def type(distribution)
+	Distribution
+		Release("$url", "$id")
+end

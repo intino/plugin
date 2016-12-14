@@ -380,6 +380,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 		protected io.intino.legio.Project.Repositories.Release release;
 		protected io.intino.legio.Project.Repositories.Snapshot snapshot;
 		protected io.intino.legio.Project.Repositories.Language language;
+		protected io.intino.legio.LifeCycle.Distribution.Bitbucket bitbucket;
 
 		public Distribution(tara.magritte.Node node) {
 			super(node);
@@ -397,6 +398,10 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			return language;
 		}
 
+		public io.intino.legio.LifeCycle.Distribution.Bitbucket bitbucket() {
+			return bitbucket;
+		}
+
 		public void release(io.intino.legio.Project.Repositories.Release value) {
 			this.release = value;
 		}
@@ -409,11 +414,16 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			this.language = value;
 		}
 
+		public void bitbucket(io.intino.legio.LifeCycle.Distribution.Bitbucket value) {
+			this.bitbucket = value;
+		}
+
 		public java.util.List<tara.magritte.Node> componentList() {
 			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			if (release != null) components.add(this.release.node());
 			if (snapshot != null) components.add(this.snapshot.node());
 			if (language != null) components.add(this.language.node());
+			if (bitbucket != null) components.add(this.bitbucket.node());
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -433,6 +443,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 			if (node.is("Project$Repositories$Release")) this.release = node.as(io.intino.legio.Project.Repositories.Release.class);
 			if (node.is("Project$Repositories$Snapshot")) this.snapshot = node.as(io.intino.legio.Project.Repositories.Snapshot.class);
 			if (node.is("Project$Repositories$Language")) this.language = node.as(io.intino.legio.Project.Repositories.Language.class);
+			if (node.is("LifeCycle$Distribution$Bitbucket")) this.bitbucket = node.as(io.intino.legio.LifeCycle.Distribution.Bitbucket.class);
 		}
 
 		@Override
@@ -441,6 +452,7 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 	        if (node.is("Project$Repositories$Release")) this.release = null;
 	        if (node.is("Project$Repositories$Snapshot")) this.snapshot = null;
 	        if (node.is("Project$Repositories$Language")) this.language = null;
+	        if (node.is("LifeCycle$Distribution$Bitbucket")) this.bitbucket = null;
 	    }
 
 		@Override
@@ -488,8 +500,88 @@ public class LifeCycle extends tara.magritte.Layer implements tara.magritte.tags
 				newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
 			    return newElement;
 			}
+
+			public io.intino.legio.LifeCycle.Distribution.Bitbucket bitbucket(java.lang.String user, java.lang.String token) {
+			    io.intino.legio.LifeCycle.Distribution.Bitbucket newElement = graph().concept(io.intino.legio.LifeCycle.Distribution.Bitbucket.class).createNode(name, node()).as(io.intino.legio.LifeCycle.Distribution.Bitbucket.class);
+				newElement.node().set(newElement, "user", java.util.Collections.singletonList(user));
+				newElement.node().set(newElement, "token", java.util.Collections.singletonList(token)); 
+			    return newElement;
+			}
 			
 		}
+		
+		public static class Bitbucket extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+			protected java.lang.String user;
+			protected java.lang.String token;
+
+			public Bitbucket(tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.lang.String user() {
+				return user;
+			}
+
+			public java.lang.String token() {
+				return token;
+			}
+
+			public void user(java.lang.String value) {
+				this.user = value;
+			}
+
+			public void token(java.lang.String value) {
+				this.token = value;
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("user", new java.util.ArrayList(java.util.Collections.singletonList(this.user)));
+				map.put("token", new java.util.ArrayList(java.util.Collections.singletonList(this.token)));
+				return map;
+			}
+
+			public tara.magritte.Concept concept() {
+				return this.graph().concept(io.intino.legio.LifeCycle.Distribution.Bitbucket.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("user")) this.user = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("token")) this.token = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("user")) this.user = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("token")) this.token = (java.lang.String) values.get(0);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public io.intino.legio.LegioApplication application() {
+				return ((io.intino.legio.LegioApplication) graph().application());
+			}
+		}
+		
 		
 		public io.intino.legio.LegioApplication application() {
 			return ((io.intino.legio.LegioApplication) graph().application());

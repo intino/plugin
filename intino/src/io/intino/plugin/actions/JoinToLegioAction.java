@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.LegioFileTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactNode;

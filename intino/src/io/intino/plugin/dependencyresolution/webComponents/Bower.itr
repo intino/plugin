@@ -1,0 +1,21 @@
+def type(bower)
+	{
+	  "name": "$artifactID",
+	  "version": "$version",
+	  "dependencies": {
+	  		$dependency...[,$NL]
+
+	  },
+	  "resolutions": {
+			$resolution...[,$NL]
+	  }
+	}
+end
+
+def trigger(dependency)
+	"$name": "[$url#]$version"
+end
+
+def trigger(resolution)
+	"$name": "$version"
+end

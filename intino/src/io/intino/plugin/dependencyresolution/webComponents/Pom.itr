@@ -1,0 +1,59 @@
+def type(pom)
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		<modelVersion>4.0.0</modelVersion>
+
+		<groupId>$groupId+lowercase</groupId>
+		<artifactId>$artifactId+lowercase</artifactId>
+		<version>$version</version>
+
+		<properties>
+			<maven.compiler.source>1.8</maven.compiler.source>
+			<maven.compiler.target>1.8</maven.compiler.target>
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		</properties>
+
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>com.github.eirslett</groupId>
+					<artifactId>frontend-maven-plugin</artifactId>
+					<version>1.3</version>
+					<executions>
+						<execution>
+							<id>install node and npm</id>
+							<goals>
+								<goal>install-node-and-npm</goal>
+							</goals>
+							<phase>generate-resources</phase>
+						</execution>
+						<execution>
+                            <id>npm install</id>
+                            <goals>
+                                <goal>npm</goal>
+                            </goals>
+                            <configuration>
+								<workingDirectory>$${user.home}/.node/node</workingDirectory>
+							</configuration>
+                        </execution>
+						<execution>
+							<id>bower install</id>
+							<goals>
+								<goal>bower</goal>
+							</goals>
+							<configuration>
+								<workingDirectory>$${user.home}/.node/node</workingDirectory>
+							</configuration>
+						</execution>
+					</executions>
+					<configuration>
+						<nodeVersion>v6.9.2</nodeVersion>
+						<installDirectory>$${user.home}/.node</installDirectory>
+					</configuration>
+
+				</plugin>
+			</plugins>
+		</build>
+	</project>
+end

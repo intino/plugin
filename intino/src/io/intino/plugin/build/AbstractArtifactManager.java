@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.cesar.PublishManager;
-import io.intino.plugin.build.maven.LegioMavenRunner;
+import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.project.LegioConfiguration;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
@@ -47,20 +47,20 @@ abstract class AbstractArtifactManager {
 	private void processLanguage(Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
 		if (shouldDeployLanguage(module, lifeCyclePhase)) {
 			updateProgressIndicator(indicator, MessageProvider.message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
-			publishLanguage(module);
+			distributeLanguage(module);
 		}
 	}
 
-	private void publishLanguage(Module module) {
+	private void distributeLanguage(Module module) {
 		Configuration configuration = TaraUtil.configurationOf(module);
 		File dslFile = dslFilePath(configuration);
 		LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
-		publishLanguage(module, configuration);
+		distributeLanguage(module, configuration);
 	}
 
-	private void publishLanguage(Module module, Configuration configuration) {
+	private void distributeLanguage(Module module, Configuration configuration) {
 		try {
-			LegioMavenRunner runner = new LegioMavenRunner(module);
+			MavenRunner runner = new MavenRunner(module);
 			runner.executeLanguage(configuration);
 		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
@@ -74,11 +74,11 @@ abstract class AbstractArtifactManager {
 			try {
 				if (noDistributionRepository(phase, configuration))
 					throw new IntinoException(MessageProvider.message("distribution.repository.not.found"));
-				new LegioMavenRunner(module).executeFramework(phase);
+				new MavenRunner(module).executeFramework(phase);
 			} catch (MavenInvocationException | IOException | IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}
-		} else new LegioMavenRunner(module).executeNativeMaven();
+		} else new MavenRunner(module).invokeMaven("install", "deploy");
 	}
 
 	private boolean noDistributionRepository(LifeCyclePhase lifeCyclePhase, Configuration configuration) {

@@ -22,15 +22,15 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DependencyResolver {
+public class JavaDependencyResolver {
 
 	private final Module module;
 	private final Repositories repositories;
-	private final Dependencies dependencies;
 	private final LibraryManager manager;
 	private final Aether aether;
+	private List<Dependency> dependencies;
 
-	public DependencyResolver(Module module, Repositories repositories, Dependencies dependencies) {
+	public JavaDependencyResolver(Module module, Repositories repositories, List<Dependency> dependencies) {
 		this.manager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
@@ -44,14 +44,14 @@ public class DependencyResolver {
 
 	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
-		if (dependencies == null) return newLibraries;
-		dependencies.dependencyList().forEach(d -> {
+		dependencies.forEach(d -> {
 			Module moduleDependency = moduleOf(d);
-			if (moduleDependency != null) {
+			if (moduleDependency == null) newLibraries.addAll(asLibrary(d));
+			else {
 				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
 				d.effectiveVersion(d.version());
 				d.toModule(true);
-			} else newLibraries.addAll(asLibrary(d));
+			}
 		});
 		return newLibraries;
 	}

@@ -140,6 +140,8 @@ class BuilderLoader {
 		String name;
 		String version;
 		String changeNotes;
+		String gulpFileTemplate;
+		String packageJsonFileTemplate;
 
 		List<Action> actions;
 		List<Group> groups;
