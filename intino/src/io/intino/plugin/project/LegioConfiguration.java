@@ -81,10 +81,6 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public void reload() {
-		reloadConfiguration();
-	}
-
-	public void reloadConfiguration() {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
@@ -92,7 +88,7 @@ public class LegioConfiguration implements Configuration {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
-						 newGraphFromLegio();
+						 legio = newGraphFromLegio();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
 						 if (legio != null && legio.project() != null) legio.project().save();
@@ -108,8 +104,7 @@ public class LegioConfiguration implements Configuration {
 
 	private LegioApplication newGraphFromLegio() {
 		Stash legioStash = loadNewConfiguration();
-		if (legioStash == null) return null;
-		return GraphLoader.loadGraph(legioStash, stashFile());
+		return legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
 	}
 
 	private Stash loadNewConfiguration() {
@@ -266,7 +261,7 @@ public class LegioConfiguration implements Configuration {
 				versionParameter.substituteValues(Collections.singletonList(version));
 			}
 		}.execute();
-		reloadConfiguration();
+		reload();
 	}
 
 	public Project.Factory factory() {

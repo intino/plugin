@@ -59,7 +59,7 @@ public class MavenRunner {
 	}
 
 	public void executeFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
-		final File pom = PomCreator.createFrameworkPom(module);
+		final File pom = new PomCreator(module).frameworkPom();
 		final InvocationResult result = invokeMaven(pom, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {

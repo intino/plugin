@@ -15,7 +15,7 @@ def type(legio & empty)
 			Release("http://artifactory.siani.es/artifactory/libs-release-local", "siani-maven")
 end
 
-def type(legio & !empty)
+def type(legio) !type(empty)
 	dsl Legio
 
 	Project(groupId = "$groupId", version = "$version") $artifactId

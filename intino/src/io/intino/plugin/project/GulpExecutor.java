@@ -96,13 +96,16 @@ public class GulpExecutor {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
 		if (compilerModuleExtension == null) return null;
 		final List<String> resourceDirectories = resourceDirectories();
-		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().format(new Frame().addTypes("gulp").
-				addSlot("rootDirectory", rootDirectory.getPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).addSlot("resDirectory", resourceDirectories.get(0)).
-				addSlot("artifactID", project.name()).addSlot("port", new Random().nextInt(1000))));
+		final Frame frame = new Frame().addTypes("gulp").
+				addSlot("rootDirectory", rootDirectory.getPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
+				addSlot("artifactID", project.name()).addSlot("port", new Random().nextInt(1000));
+		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
+		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getPath());
+		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().format(frame));
 	}
 
 	private File createGulpPom(String task) {
-		return write(new File(rootDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
+		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
 				addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).addSlot("version", project.version()).addSlot("task", task)));
 	}
 

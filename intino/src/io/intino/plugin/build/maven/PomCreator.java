@@ -17,6 +17,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
 import tara.compiler.shared.Configuration;
 import tara.intellij.lang.psi.impl.TaraUtil;
@@ -30,63 +31,88 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
 import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
 
 
 class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
+	private final Module module;
+	private final LegioConfiguration configuration;
 
-	static File createFrameworkPom(Module module) throws IOException {
-		return createFrameworkPom(module, pom(module));
+	PomCreator(Module module) {
+		this.module = module;
+		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
-	@NotNull
-	private static File pom(Module module) throws IOException {
-		return new File(new File(module.getModuleFilePath()).getParent(), "pom2.xml");
+	File frameworkPom() throws IOException {
+		final File pom = pomFile();
+		return isWebModule(module) ? webPom(pom) : frameworkPom(pom);
 	}
 
-	private static File createFrameworkPom(Module module, File pom) {
-		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		LifeCycle.Package build = configuration.build();
+	private File webPom(File pom) {
 		Frame frame = new Frame();
-		frame.addTypes("pom");
-		frame.addSlot("groupId", configuration.groupId());
-		frame.addSlot("artifactId", configuration.artifactId());
-		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(module, frame);
-		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(module, frame));
-		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-		if (compilerModuleExtension != null) {
-			frame.addSlot("outDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrl()));
-			frame.addSlot("testOutDirectory", pathOf(compilerModuleExtension.getCompilerOutputUrlForTests()));
-			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
-		}
-		frame.addSlot("version", configuration.modelVersion());
-		if (build != null) configureBuild(module, frame, configuration.licence(), build);
-		for (Dependency dependency : configuration.dependencies())
-			frame.addSlot("dependency", createDependencyFrame(dependency));
-		addModuleTypeDependencies(module, frame);
-		addLevelDependency(module, configuration, frame);
-		addRepositories(configuration, frame);
-		writePom(pom, frame);
+		fillMavenId(frame);
+		frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
+		addRepositories(frame);
+		writePom(pom, frame, ActivityPomTemplate.create());
 		return pom;
 	}
 
-	private static void addRepositories(LegioConfiguration configuration, Frame frame) {
+	private File frameworkPom(File pom) {
+		LifeCycle.Package build = configuration.build();
+		Frame frame = new Frame();
+		fillMavenId(frame);
+		fillFramework(build, frame);
+		writePom(pom, frame, PomTemplate.create());
+		return pom;
+	}
+
+	@NotNull
+	private File pomFile() throws IOException {
+		return new File(new File(module.getModuleFilePath()).getParent(), "pom2.xml");
+	}
+
+	private void fillMavenId(Frame frame) {
+		frame.addTypes("pom");
+		frame.addSlot("groupId", configuration.groupId());
+		frame.addSlot("artifactId", configuration.artifactId());
+		frame.addSlot("version", configuration.modelVersion());
+	}
+
+	private void fillFramework(LifeCycle.Package build, Frame frame) {
+		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(frame);
+		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
+		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
+		if (extension != null) {
+			frame.addSlot("outDirectory", pathOf(extension.getCompilerOutputUrl()));
+			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
+			frame.addSlot("buildDirectory", pathOf(extension.getCompilerOutputUrl()) + File.separator + "build" + File.separator);
+		}
+		if (build != null) configureBuild(frame, configuration.licence(), build);
+		for (Dependency dependency : configuration.dependencies())
+			frame.addSlot("dependency", createDependencyFrame(dependency));
+		addModuleTypeDependencies(frame);
+		addLevelDependency(frame);
+		addRepositories(frame);
+	}
+
+	private void addRepositories(Frame frame) {
 		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		if (configuration.distributionReleaseRepository() != null)
-			frame.addSlot("repository", createRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
+			frame.addSlot("repository", createDistributionRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
 	}
 
-	private static void addLevelDependency(Module module, LegioConfiguration configuration, Frame frame) {
+	private void addLevelDependency(Frame frame) {
 		if (configuration.level() != null) {
 			final String languageId = findLanguageId(module);
 			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
 		}
 	}
 
-	private static void addModuleTypeDependencies(Module module, Frame frame) {
+	private void addModuleTypeDependencies(Frame frame) {
 		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
@@ -99,7 +125,7 @@ class PomCreator {
 		}
 	}
 
-	private static void fillDirectories(Module module, Frame frame) {
+	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
 		final List<String> res = resourceDirectories(module);
 		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) res.addAll(resourceDirectories(dep));
@@ -109,25 +135,25 @@ class PomCreator {
 		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
 	}
 
-	private static String[] srcDirectories(Module module) {
+	private String[] srcDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(JavaSourceRootType.SOURCE);
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
-	private static List<String> resourceDirectories(Module module) {
+	private List<String> resourceDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
-	private static List<String> resourceTestDirectories(Module module) {
+	private List<String> resourceTestDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.TEST_RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
-	private static void configureBuild(Module module, Frame frame, Project.License license, LifeCycle.Package build) {
+	private void configureBuild(Frame frame, Project.License license, LifeCycle.Package build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
 		final LifeCycle.Package.Type type = build.type();
@@ -143,7 +169,7 @@ class PomCreator {
 
 	}
 
-	private static void addDependantModuleSources(Frame frame, Module module) {
+	private void addDependantModuleSources(Frame frame, Module module) {
 		final Module[] moduleDependencies = ModuleRootManager.getInstance(module).getModuleDependencies();
 		for (Module dependency : moduleDependencies) {
 			ApplicationManager.getApplication().runReadAction(() -> {
@@ -154,46 +180,46 @@ class PomCreator {
 		}
 	}
 
-	private static String pathOf(String path) {
+	private String pathOf(String path) {
 		try {
-			return new File(new URL(path).getPath()).getPath();
+			return new URL(path).getFile();
 		} catch (MalformedURLException e) {
 			return path;
 		}
 	}
 
-	private static String findLanguageId(Module module) {
+	private String findLanguageId(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		return LanguageResolver.moduleOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
 	}
 
-	private static Frame createDependencyFrame(Dependency id) {
+	private Frame createDependencyFrame(Dependency id) {
 		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).addSlot("version", id.version());
 	}
 
-	private static Frame createDependencyFrame(String[] id) {
+	private Frame createDependencyFrame(String[] id) {
 		return new Frame().addTypes("dependency").addSlot("groupId", id[0].toLowerCase()).addSlot("scope", "compile").addSlot("artifactId", id[1].toLowerCase()).addSlot("version", id[2]);
 	}
 
-	private static Frame createRepositoryFrame(Repository repo) {
+	private Frame createRepositoryFrame(Repository repo) {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
 				addSlot("name", repo.mavenId()).
 				addSlot("url", repo.url()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
 	}
 
-	private static Frame createRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
+	private Frame createDistributionRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
 		return new Frame().addTypes("repository", "distribution", type).
 				addSlot("url", repo.getKey()).
 				addSlot("name", repo.getValue()).
 				addSlot("type", "release");
 	}
 
-	private static void writePom(File pom, Frame frame) {
+	private void writePom(File pom, Frame frame, Template template) {
 		try {
-			Files.write(pom.toPath(), PomTemplate.create().format(frame).getBytes());
+			Files.write(pom.toPath(), template.format(frame).getBytes());
 		} catch (IOException e) {
-			LOG.error("Error creating pom to publish action: " + e.getMessage());
+			LOG.error("Error creating pomFile to publish action: " + e.getMessage());
 		}
 	}
 }
