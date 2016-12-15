@@ -1,0 +1,244 @@
+def type(pom)
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		<modelVersion>4.0.0</modelVersion>
+
+		<groupId>$groupId+lowercase</groupId>
+		<artifactId>$artifactId+lowercase</artifactId>
+		<version>$version</version>
+		[<licenses>
+			$license...[$NL]
+		</licenses>]
+
+		<properties>
+			<maven.compiler.source>1.8</maven.compiler.source>
+			<maven.compiler.target>1.8</maven.compiler.target>
+			[<project.build.sourceEncoding>$encoding</project.build.sourceEncoding>]
+			<sonar.language>java</sonar.language>
+			<sonar.login></sonar.login>
+			<sonar.password></sonar.password>
+		</properties>
+
+		<build>
+			<testSourceDirectory>test</testSourceDirectory>
+			<outputDirectory>$outDirectory</outputDirectory>
+			<testOutputDirectory>$testOutDirectory</testOutputDirectory>
+			<directory>$buildDirectory~$artifactId+lowercase</directory>
+			[<resources>
+				$resourceDirectory
+			</resources>]
+			[<testResources>
+				$resourceTestDirectory
+			</testResources>]
+			<plugins>[
+				$extractedLibraries
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.3</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+							<configuration>
+								<artifactSet>
+									<excludes>
+										<exclude>junit:junit</exclude>
+										<exclude>jmock:*</exclude>
+										<exclude>org.apache.maven:lib:tests</exclude>
+									</excludes>
+							  	</artifactSet>
+							<filter>
+								<excludes>
+									<exclude>META-INF/*</exclude>
+								</excludes>
+							</filter>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				]<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						[<finalName>$finalName</finalName>]
+						<archive>
+							<manifest>
+								<addClasspath>[$linkLibraries?false]</addClasspath>[
+								<mainClass>$mainClass</mainClass>][
+								<classpathPrefix>$classpathPrefix/</classpathPrefix>]
+							</manifest>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.10</version>
+					<executions>
+						<execution>
+							<id>copy-dependencies</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+							<configuration>[
+							    <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+								<overWriteReleases>false</overWriteReleases>
+								<overWriteSnapshots>false</overWriteSnapshots>
+								<overWriteIfNewer>true</overWriteIfNewer>
+							</configuration>
+						</execution>
+					</executions>
+					</plugin>
+				[
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.7</version>
+					<executions>
+						<execution>
+							<id>add-source</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									$sourceDirectory...[$NL]
+									$moduleDependency...[$NL]
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>]
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.9.1</version>
+					<executions>
+					<execution>
+					<id>add-test-source</id>
+					<phase>generate-test-sources</phase>
+					<goals>
+						<goal>add-test-source</goal>
+					</goals>
+					<configuration>
+						<sources>
+							<source>test-gen</source>
+						</sources>
+					</configuration>
+					</execution>
+					</executions>
+				</plugin>
+				[$attachSources
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				][$attachJavaDoc<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+					</plugin>
+				]
+			</plugins>
+		</build>
+
+
+		<repositories>
+			$repository+release...[$NL]
+		</repositories>
+
+		<distributionManagement>
+			$repository+distribution...[$NL]
+		</distributionManagement>
+
+		<dependencies>
+			$dependency...[$NL]
+			<dependency>
+				<groupId>com.sun.xml.security</groupId>
+				<artifactId>xml-security-impl</artifactId>
+				<version>1.0</version>
+			</dependency>
+		</dependencies>
+	</project>
+end
+
+def trigger(sourceDirectory)
+	<source>$value</source>
+end
+
+def trigger(moduleDependency)
+	<source>$value</source>
+end
+
+def trigger(resourceDirectory)
+	<resource><directory>$value</directory></resource>
+end
+
+def trigger(resourceTestDirectory)
+	<testResource><directory>$value</directory></testResource>
+end
+
+def type(repository) type(Distribution) trigger(distribution)
+	<repository>
+		<id>$name</id>
+		<name>$name</name>
+		<url>$url</url>
+	</repository>
+end
+
+def trigger(distribution)
+end
+
+def type(repository) !type(Distribution) trigger(release)
+	<repository>
+		<id>$name</id>
+		<name>$name~-$type</name>
+		<url>$url</url>
+	</repository>
+end
+
+def type(dependency) trigger(dependency)
+	<dependency>
+		<groupId>$groupId</groupId>
+		<artifactId>$artifactId</artifactId>
+		<scope>$scope+lowercase</scope>
+		<version>$version</version>
+	</dependency>
+end
+
+def type(GPL) trigger(license)
+	<license>
+		<name>The GNU General Public License v3.0</name>
+		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+	</license>
+end
+
+def type(BSD) trigger(license)
+	<license>
+		<name>BSD 3-Clause License</name>
+		<url>https://opensource.org/licenses/BSD-3-Clause</url>
+	</license>
+end

@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/legio/legio.iml" filepath="$PROJECT_DIR$/legio/legio.iml" />
-      <module fileurl="file://$PROJECT_DIR$/legio-plugin/legio-plugin.iml" filepath="$PROJECT_DIR$/legio-plugin/legio-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intino/intino.iml" filepath="$PROJECT_DIR$/intino/intino.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intino-plugin/intino-plugin.iml" filepath="$PROJECT_DIR$/intino-plugin/intino-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/model/model.iml" filepath="$PROJECT_DIR$/model/model.iml" />
     </modules>
   </component>
 </project>
