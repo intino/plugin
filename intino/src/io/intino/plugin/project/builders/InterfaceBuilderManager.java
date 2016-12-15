@@ -29,13 +29,13 @@ public class InterfaceBuilderManager {
 		this.configuration = configuration;
 	}
 
-	public void reload(String version) {
+	public BuilderLoader.Builder reload(String version) {
 		List<Artifact> library = pandoraLibrary(version);
 		if (library == null || library.isEmpty()) {
 			notifyError();
-			return;
+			return null;
 		}
-		BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new));
+		return BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new));
 	}
 
 

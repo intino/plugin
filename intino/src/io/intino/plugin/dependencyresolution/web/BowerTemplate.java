@@ -1,4 +1,4 @@
-package io.intino.plugin.dependencyresolution.webComponents;
+package io.intino.plugin.dependencyresolution.web;
 
 import org.siani.itrules.*;
 

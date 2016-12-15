@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.dependencyresolution;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
@@ -11,9 +11,9 @@ import io.intino.legio.Project.WebDependencies.Resolution;
 import io.intino.legio.Project.WebDependencies.WebComponent;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
-import io.intino.plugin.dependencyresolution.webComponents.BowerTemplate;
-import io.intino.plugin.dependencyresolution.webComponents.Package_jsonTemplate;
-import io.intino.plugin.dependencyresolution.webComponents.PomTemplate;
+import io.intino.plugin.dependencyresolution.web.BowerTemplate;
+import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
+import io.intino.plugin.dependencyresolution.web.PomTemplate;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.siani.itrules.model.Frame;
@@ -25,9 +25,9 @@ import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
 
-class WebDependencyResolver {
+public class WebDependencyResolver {
 
-	private static final Logger LOG = Logger.getInstance(MavenRunner.class.getName());
+	private static final Logger LOG = Logger.getInstance(WebDependencyResolver.class.getName());
 
 	private final Module module;
 	private final Project project;
@@ -35,9 +35,9 @@ class WebDependencyResolver {
 	private final List<Resolution> resolutions;
 	private final File rootDirectory;
 	private final File bowerComponentsDirectory;
-	private File nodeDirectory;
+	private final File nodeDirectory;
 
-	WebDependencyResolver(Module module, Project project, Project.WebDependencies dependencies) {
+	public WebDependencyResolver(Module module, Project project, Project.WebDependencies dependencies) {
 		this.module = module;
 		this.project = project;
 		this.webComponents = dependencies.webComponentList();
@@ -47,7 +47,7 @@ class WebDependencyResolver {
 		this.bowerComponentsDirectory = new File(rootDirectory, "lib");
 	}
 
-	void resolve() {
+	public void resolve() {
 		File bower = createBowerFile();
 		File bowerrc = createBowerrcFile();
 		File pom = createPomFile();
@@ -78,11 +78,11 @@ class WebDependencyResolver {
 	}
 
 	private void processResult(MavenRunner mavenRunner, File pom, InvocationResult result) throws IntinoException {
-		if (result != null && result.getExecutionException() != null && result.getExitCode() != 0)
+		if (result != null && result.getExitCode() != 0 && result.getExecutionException() != null)
 			throw new IntinoException(message("error.resolving.web.dependencies", result.getExecutionException().getMessage()));
 		else {
 			FileUtil.delete(pom);
-			if (result != null)
+			if (result != null && result.getExitCode() != 0)
 				throw new IntinoException(message("error.resolving.web.dependencies", mavenRunner.output()));
 		}
 	}
@@ -113,7 +113,6 @@ class WebDependencyResolver {
 
 	private File createBowerrcFile() {
 		return write("{\"directory\": \"" + bowerComponentsDirectory.getAbsolutePath() + "\"}", new File(nodeDirectory, ".bowerrc"));
-
 	}
 
 	private Frame fill(Frame frame) {

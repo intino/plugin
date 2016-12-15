@@ -18,27 +18,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class BuilderLoader {
+public class BuilderLoader {
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
 	private static List<String> loadedVersions = new ArrayList<>();
 
 	private BuilderLoader() {
 	}
 
-	static void load(String name, File[] library) {
+	static Builder load(String name, File[] library) {
 		try {
-			if (loadedVersions.contains(library[0].getAbsolutePath())) return;
+			if (loadedVersions.contains(library[0].getAbsolutePath())) return null;
 			final ClassLoader classLoader = createClassLoader(library);
-			if (classLoader == null) return;
+			if (classLoader == null) return null;
 			Builder builder = Builder.from(classLoader.getResourceAsStream(name.toLowerCase() + ".toml"));
-			if (builder == null) return;
+			if (builder == null) return null;
 			unregisterActions(builder.actions);
 			registerGroups(classLoader, builder.groups);
 			registerActions(classLoader, builder.actions);
 			addLanguage(classLoader);
 			loadedVersions.add(library[0].getAbsolutePath());
+			return builder;
 		} catch (RuntimeException | Error e) {
 			LOG.error(e.getMessage(), e);
+			return null;
 		}
 	}
 
@@ -136,7 +138,7 @@ class BuilderLoader {
 	}
 
 
-	static class Builder {
+	public static class Builder {
 		String name;
 		String version;
 		String changeNotes;
@@ -145,6 +147,14 @@ class BuilderLoader {
 
 		List<Action> actions;
 		List<Group> groups;
+
+		public String gulpFileTemplate() {
+			return gulpFileTemplate;
+		}
+
+		public String packageJsonFileTemplate() {
+			return packageJsonFileTemplate;
+		}
 
 		static Builder from(InputStream manifest) {
 			return manifest == null ? null : new Toml().read(manifest).to(Builder.class);

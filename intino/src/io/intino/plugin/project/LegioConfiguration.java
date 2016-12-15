@@ -6,6 +6,7 @@ import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -21,10 +22,8 @@ import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
-import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
-import io.intino.plugin.dependencyresolution.LanguageResolver;
-import io.intino.plugin.dependencyresolution.LegioUtil;
-import io.intino.plugin.dependencyresolution.LibraryManager;
+import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.project.builders.BuilderLoader;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import org.jetbrains.annotations.NotNull;
 import tara.StashBuilder;
@@ -55,6 +54,7 @@ public class LegioConfiguration implements Configuration {
 	private final Module module;
 	private VirtualFile legioFile;
 	private LegioApplication legio;
+	private BuilderLoader.Builder interfaceBuilder;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -62,9 +62,16 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Configuration init() {
-		legioFile = new EmptyLegioFileCreator(module).create();
-		load();
+		this.legioFile = new LegioFileCreator(module).getOrCreate();
+		initConfiguration();
 		return this;
+	}
+
+	private void initConfiguration() {
+		File stashFile = stashFile();
+		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
+		reloadInterfaceBuilder();
+		if (WebModuleType.isWebModule(module) && this.legio != null) new GulpExecutor(this.module, legio.project()).startGulpDev();
 	}
 
 	@Override
@@ -84,10 +91,10 @@ public class LegioConfiguration implements Configuration {
 		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
-						 if (legioFile == null) legioFile = new EmptyLegioFileCreator(module).create();
+						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 newGraphFromLegio();
-						 reloadDependencies();
 						 reloadInterfaceBuilder();
+						 reloadDependencies();
 						 if (legio != null && legio.project() != null) legio.project().save();
 					 }
 				 }
@@ -96,20 +103,13 @@ public class LegioConfiguration implements Configuration {
 
 	private void reloadInterfaceBuilder() {
 		final Project.Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
-		if (interfaceNode != null) new InterfaceBuilderManager(this).reload(interfaceNode.version());
+		if (interfaceNode != null) interfaceBuilder = new InterfaceBuilderManager(this).reload(interfaceNode.version());
 	}
 
-	private void load() {
-		File stashFile = stashFile();
-		if (!stashFile.exists()) newGraphFromLegio();
-		else this.legio = GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
-		reloadInterfaceBuilder();
-	}
-
-	private void newGraphFromLegio() {
+	private LegioApplication newGraphFromLegio() {
 		Stash legioStash = loadNewConfiguration();
-		if (legioStash == null) return;
-		this.legio = GraphLoader.loadGraph(legioStash, stashFile());
+		if (legioStash == null) return null;
+		return GraphLoader.loadGraph(legioStash, stashFile());
 	}
 
 	private Stash loadNewConfiguration() {
@@ -129,11 +129,7 @@ public class LegioConfiguration implements Configuration {
 	private void reloadDependencies() {
 		if (legio == null || legio.project() == null) return;
 		resolveJavaDependencies();
-		if (legio.project().webDependencies() != null) resolveWebDependencies();
-	}
-
-	private void resolveWebDependencies() {
-		new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
+		if (WebModuleType.isWebModule(module) && legio.project().webDependencies() != null) resolveWebDependencies();
 	}
 
 	private void resolveJavaDependencies() {
@@ -143,6 +139,10 @@ public class LegioConfiguration implements Configuration {
 		if (legio.project().factory() != null)
 			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
+	}
+
+	private void resolveWebDependencies() {
+		new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
 	}
 
 	@Override

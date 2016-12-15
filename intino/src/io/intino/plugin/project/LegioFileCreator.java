@@ -12,14 +12,14 @@ import java.nio.file.Path;
 
 import static com.intellij.openapi.vfs.VfsUtil.findFileByIoFile;
 
-class EmptyLegioFileCreator {
+class LegioFileCreator {
 	private final Module module;
 
-	EmptyLegioFileCreator(Module module) {
+	LegioFileCreator(Module module) {
 		this.module = module;
 	}
 
-	VirtualFile create() {
+	VirtualFile getOrCreate() {
 		final String legio = LegioFileTemplate.create().format(new Frame().addTypes("legio", "empty").addSlot("name", module.getName()));
 		final File destiny = new File(new File(module.getModuleFilePath()).getParent(), "configuration.legio");
 		if (destiny.exists()) return findFileByIoFile(destiny, true);
