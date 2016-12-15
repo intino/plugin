@@ -1,6 +1,6 @@
 def type(bower)
 	{
-	  "name": "$artifactID",
+	  "name": "$artifactID+lowercase",
 	  "version": "$version",
 	  "dependencies": {
 	  		$dependency...[,$NL]
