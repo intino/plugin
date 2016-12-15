@@ -33,11 +33,26 @@ import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory
 public class MavenRunner {
 
 	private static final Logger LOG = Logger.getInstance(MavenRunner.class.getName());
-	private final Module module;
+	private Module module;
+	private InvocationOutputHandler handler;
 	private String output = "";
 
 	public MavenRunner(Module module) {
 		this.module = module;
+		handler = defaultHandler();
+	}
+
+	public MavenRunner(Module module, InvocationOutputHandler handler) {
+		this.module = module;
+		this.handler = handler == null ? defaultHandler() : handler;
+	}
+
+	@NotNull
+	private InvocationOutputHandler defaultHandler() {
+		return s -> {
+			output += (s.startsWith("[ERROR]")) ? s + "\n" : "";
+			System.out.println(s);
+		};
 	}
 
 	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
@@ -125,10 +140,7 @@ public class MavenRunner {
 	}
 
 	private void log(Invoker invoker) throws IOException {
-		invoker.setOutputHandler(s -> {
-			output += (s.startsWith("[ERROR]")) ? s + "\n" : "";
-			System.out.println(s);
-		});
+		invoker.setOutputHandler(handler);
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
