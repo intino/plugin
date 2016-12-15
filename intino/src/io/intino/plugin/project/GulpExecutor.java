@@ -14,6 +14,7 @@ import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
 import io.intino.plugin.project.web.GulpPomTemplate;
 import io.intino.plugin.project.web.GulpfileTemplate;
+import org.apache.maven.shared.invoker.InvocationOutputHandler;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
@@ -32,6 +33,7 @@ import static io.intino.plugin.MessageProvider.message;
 
 public class GulpExecutor {
 	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
+	private static Boolean lock = false;
 
 	private Project project;
 	private final Module module;
@@ -45,28 +47,42 @@ public class GulpExecutor {
 		this.nodeDirectory = new File(System.getProperty("user.home"), ".node" + File.separator + "node");
 	}
 
-	void startGulpDev() {
+	synchronized void startGulpDev() {
+		while (lock) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		lock = true;
 		final File gulp = createGulp();
 		final File gulpPom = createGulpPom("dev");
 		final File packageJson = createPackageFile();
-		new Thread(() -> run(gulpPom)).start();
-//		gulp.delete();
-//		gulpPom.delete();
+		new Thread(() -> run(gulpPom, line -> {
+			if (line.contains("[INFO]") && (line.contains("Finished 'dev'") || line.contains("BUILD SUCCESS"))) {
+				lock = false;
+				gulp.delete();
+				packageJson.delete();
+				gulpPom.delete();
+			}
+		})).start();
 	}
 
 	public void startGulpDeploy() {
 		final File gulp = createGulp();
 		final File packageJson = createPackageFile();
 		final File gulpPom = createGulpPom("deploy");
-		run(gulpPom);
-//		gulp.delete();
-//		gulpPom.delete();
+		run(gulpPom, null);
+		gulp.delete();
+		packageJson.delete();
+		gulpPom.delete();
 	}
 
 
-	private void run(File pom) {
+	private synchronized void run(File pom, InvocationOutputHandler handler) {
 		try {
-			final MavenRunner mavenRunner = new MavenRunner(module);
+			final MavenRunner mavenRunner = new MavenRunner(module, handler);
 			final InvocationResult result = mavenRunner.invokeMaven(pom, "generate-resources");
 			processResult(mavenRunner, pom, result);
 		} catch (MavenInvocationException | IOException e) {
@@ -106,7 +122,8 @@ public class GulpExecutor {
 
 	private File createGulpPom(String task) {
 		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
-				addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).addSlot("version", project.version()).addSlot("task", task)));
+				addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).
+				addSlot("version", project.version()).addSlot("module", module.getName()).addSlot("task", task)));
 	}
 
 	private File createPackageFile() {
@@ -132,12 +149,13 @@ public class GulpExecutor {
 	}
 
 
-	private File write(File destiny, String content) {
+	private File write(File destination, String content) {
 		try {
-			return Files.write(destiny.toPath(), content.getBytes()).toFile();
+			destination.getParentFile().mkdirs();
+			return Files.write(destination.toPath(), content.getBytes()).toFile();
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
-		return destiny;
+		return destination;
 	}
 }

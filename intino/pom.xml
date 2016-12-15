@@ -36,6 +36,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <execution>
+                    <id>gulp build</id>
+                    <goals>
+                        <goal>gulp</goal>
+                    </goals>
+
+                    <!-- optional: the default phase is "generate-resources" -->
+                    <phase>generate-resources</phase>
+
+                    <configuration>
+                        <!-- optional: if not specified, it will run gulp's default
+                        task (and you can remove this whole <configuration> section.) -->
+                        <arguments>build</arguments>
+                    </configuration>
+                </execution>
+                <!-- optional -->
+                <configuration>
+                    <workingDirectory>src/main/frontend</workingDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

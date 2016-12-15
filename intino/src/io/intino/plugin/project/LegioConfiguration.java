@@ -71,7 +71,8 @@ public class LegioConfiguration implements Configuration {
 		File stashFile = stashFile();
 		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		reloadInterfaceBuilder();
-		if (WebModuleType.isWebModule(module) && this.legio != null) new GulpExecutor(this.module, legio.project()).startGulpDev();
+		if (WebModuleType.isWebModule(module) && this.legio != null)
+			new GulpExecutor(this.module, legio.project()).startGulpDev();
 	}
 
 	@Override

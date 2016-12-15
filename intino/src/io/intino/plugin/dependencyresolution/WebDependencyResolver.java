@@ -1,5 +1,9 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -78,17 +82,40 @@ public class WebDependencyResolver {
 	private void resolveActivities() {
 		Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 		for (WebActivity webActivity : webActivities) {
+			if (isOverriding(webActivity)) continue;
 			final List<Artifact> artifacts = resolve(aether, webActivity);
-			if (!artifacts.isEmpty()) extractInLibDirectory(webActivity.artifactId(), artifacts.get(0).getFile());
+			if (!artifacts.isEmpty()) extractInLibDirectory(webActivity, artifacts.get(0).getFile());
 		}
 	}
 
-	private void extractInLibDirectory(String name, File jarFile) {
+	private boolean isOverriding(WebActivity activity) {
+		final File file = new File(libComponentsDirectory, activity.artifactId() + File.separator + "bower.json");
+		if (!file.exists()) return false;
 		try {
-			ZipUtil.extract(jarFile, new File(libComponentsDirectory, name), null);
+			JsonObject element = new JsonParser().parse(new String(Files.readAllBytes(file.toPath()))).getAsJsonObject();
+			return activity.version().equals(element.get("version").getAsString());
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	private void extractInLibDirectory(WebActivity activity, File jarFile) {
+		try {
+			final File outputDir = new File(libComponentsDirectory, activity.artifactId());
+			ZipUtil.extract(jarFile, outputDir, null);
+			FileUtil.delete(new File(outputDir, "META-INF"));
+			writeManifest(activity, outputDir);
 		} catch (IOException e) {
 			LOG.error("Error extracting widgets", e);
 		}
+	}
+
+	private void writeManifest(WebActivity activity, File outputDir) {
+		final File file = new File(outputDir, "bower.json");
+		final JsonObject jsonObject = new JsonObject();
+		jsonObject.add("name", new JsonPrimitive(activity.groupId() + "." + activity.artifactId()));
+		jsonObject.add("version", new JsonPrimitive(activity.version()));
+		write(new Gson().toJson(jsonObject), file);
 	}
 
 	private List<Artifact> resolve(Aether aether, WebActivity webActivity) {
