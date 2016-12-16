@@ -38,10 +38,10 @@ public class InterfaceBuilderManager {
 		return BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new), version);
 	}
 
-
 	private void notifyError() {
 		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null) balloon.createNotification("Interface Builder cannot be loaded. None libraries found", MessageType.ERROR).setImportant(false).notify(null);
+		if (balloon != null)
+			balloon.createNotification("Interface Builder cannot be loaded. None libraries found", MessageType.ERROR).setImportant(false).notify(null);
 	}
 
 	private File pathOf(Artifact artifact) {

@@ -23,7 +23,6 @@ import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.plugin.dependencyresolution.*;
-import io.intino.plugin.project.builders.BuilderLoader;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import org.jetbrains.annotations.NotNull;
 import tara.StashBuilder;
@@ -54,7 +53,6 @@ public class LegioConfiguration implements Configuration {
 	private final Module module;
 	private VirtualFile legioFile;
 	private LegioApplication legio;
-	private BuilderLoader.Builder interfaceBuilder;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -100,7 +98,7 @@ public class LegioConfiguration implements Configuration {
 
 	private void reloadInterfaceBuilder() {
 		final Project.Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
-		if (interfaceNode != null) interfaceBuilder = new InterfaceBuilderManager(this).reload(interfaceNode.version());
+		if (interfaceNode != null) new InterfaceBuilderManager(this).reload(interfaceNode.version());
 	}
 
 	private LegioApplication newGraphFromLegio() {
