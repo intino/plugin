@@ -35,7 +35,7 @@ public class InterfaceBuilderManager {
 			notifyError();
 			return null;
 		}
-		return BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new));
+		return BuilderLoader.load(PANDORA, library.stream().map(this::pathOf).toArray(File[]::new), version);
 	}
 
 

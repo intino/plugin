@@ -25,16 +25,15 @@ public class BuilderLoader {
 	private BuilderLoader() {
 	}
 
-	static Builder load(String name, File[] library) {
+	static Builder load(String name, File[] library, String version) {
 		try {
 			if (loadedVersions.contains(library[0].getAbsolutePath())) return null;
 			final ClassLoader classLoader = createClassLoader(library);
 			if (classLoader == null) return null;
 			Builder builder = Builder.from(classLoader.getResourceAsStream(name.toLowerCase() + ".toml"));
 			if (builder == null) return null;
-			unregisterActions(builder.actions);
 			registerGroups(classLoader, builder.groups);
-			registerActions(classLoader, builder.actions);
+			registerActions(classLoader, builder.actions, version);
 			addLanguage(classLoader);
 			loadedVersions.add(library[0].getAbsolutePath());
 			return builder;
@@ -58,16 +57,6 @@ public class BuilderLoader {
 		}
 	}
 
-	private static void unregisterActions(List<Builder.Action> actions) {
-		final ActionManager manager = ActionManager.getInstance();
-		for (Builder.Action action : actions)
-			if (manager.getAction(action.id) != null) {
-				((DefaultActionGroup) manager.getAction(action.groupId)).remove(manager.getAction(action.id));
-				manager.unregisterAction(action.id);
-			}
-		System.gc();
-	}
-
 	private static void registerGroups(ClassLoader classLoader, List<Builder.Group> groups) {
 		final ActionManager manager = ActionManager.getInstance();
 		for (Builder.Group group : groups) {
@@ -88,17 +77,17 @@ public class BuilderLoader {
 		}
 	}
 
-	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions) {
+	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions, String version) {
 		final ActionManager manager = ActionManager.getInstance();
 		for (Builder.Action action : actions) {
-			if (manager.getAction(action.id) != null) {
-				LOG.debug("action already registered: " + action.id);
+			if (manager.getAction(action.id + version) != null) {
+				LOG.debug("action already registered: " + action.id + version);
 				continue;
 			}
 			final AnAction anAction = loadAction(classLoader, action);
 			if (anAction != null) {
 				if (action.shortcut != null) anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
-				manager.registerAction(action.id, anAction);
+				manager.registerAction(action.id + version, anAction);
 				((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
 			} else LOG.error("action is null: " + action.id);
 		}
