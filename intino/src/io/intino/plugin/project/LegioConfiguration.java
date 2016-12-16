@@ -292,6 +292,16 @@ public class LegioConfiguration implements Configuration {
 		reload();
 	}
 
+	@Override
+	public String interfaceVersion() {
+		return safe(() -> legio.project().factory().interface$().version());
+	}
+
+	@Override
+	public String behaviorVersion() {
+		return safe(() -> legio.project().factory().behavior().version());
+	}
+
 	private String safe(StringWrapper wrapper) {
 		return safe(wrapper, "");
 	}
