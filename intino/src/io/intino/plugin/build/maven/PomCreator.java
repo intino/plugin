@@ -88,7 +88,7 @@ class PomCreator {
 		if (extension != null) {
 			frame.addSlot("outDirectory", pathOf(extension.getCompilerOutputUrl()));
 			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
-			frame.addSlot("buildDirectory", pathOf(extension.getCompilerOutputUrl()) + File.separator + "build" + File.separator);
+			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
 		if (build != null) configureBuild(frame, configuration.licence(), build);
 		for (Dependency dependency : configuration.dependencies())

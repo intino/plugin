@@ -27,6 +27,7 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:pandora-plugin:1.0.15" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: tara.dsl:legio:1.0.2">
         <CLASSES>
@@ -104,8 +105,8 @@
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
     <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.0" level="project" />
     <orderEntry type="module" module-name="model" />
-    <orderEntry type="library" name="Maven: org.siani.tara:proteo-alone:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:pandora-plugin:1.0.15" level="project" />
+    <orderEntry type="library" name="Maven: org.siani.tara:proteo-alone:1.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:pandora-plugin:1.0.14" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-codegen-cli:2.1.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.siani.cottons:cotton-utils:1.0.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
