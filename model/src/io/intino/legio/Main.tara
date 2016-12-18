@@ -74,7 +74,7 @@ Concept:{0..1} LifeCycle
 
 	Concept:{0..1} Publishing
 		var string cesarURL
-		Concept:{1..*} Destiny
+		Concept:{1..*} Destination
 			var string publicURL
 			Concept Requirements
 				Concept Memory
