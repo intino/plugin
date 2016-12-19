@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Repositories.Repository;
@@ -61,12 +62,13 @@ public class LanguageResolver {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
-			application.runWriteAction(() -> loadProteoLibrary(version, libraries));
-		else application.invokeLater(() -> application.runWriteAction(() -> loadProteoLibrary(version, libraries)));
+			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries)));
+		else
+			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries))));
 		return libraries;
 	}
 
-	private void loadProteoLibrary(String version, List<Library> libraries) {
+	private List<Library> loadProteoLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final List<Artifact> languageFramework = findLanguageFramework(proteoGroupId + ":" + proteoArtifactId + ":" + version);
 		if (!languageFramework.isEmpty())
@@ -74,6 +76,7 @@ public class LanguageResolver {
 		else factory.asLevel().effectiveVersion("");
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 		manager.addToModule(libraries, false);
+		return libraries;
 	}
 
 	private List<Library> frameworkOfLanguage() {
@@ -81,7 +84,7 @@ public class LanguageResolver {
 		final Module module = moduleOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
-		else app.invokeLater(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)));
+		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)));
 		return libraries;
 	}
 
@@ -114,7 +117,7 @@ public class LanguageResolver {
 		return null;
 	}
 
-	public List<Artifact> findLanguageFramework() {
+	private List<Artifact> findLanguageFramework() {
 		final String languageId = languageID(this.language, this.version);
 		return findLanguageFramework(languageId);
 	}

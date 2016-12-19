@@ -127,10 +127,10 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void resolveJavaDependencies() {
-		if (legio.project().dependencies() == null) return;
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), legio.project().dependencies().dependencyList());
+		if (dependencies() == null) return;
+		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
-		if (legio.project().factory() != null)
+		if (factory() != null)
 			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}

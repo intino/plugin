@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -19,7 +19,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DependencyAnnotator"/>
-        <!--<annotator language="Tara" implementationClass="io.intino.plugin.annotators.BuildersVersionAnnotator"/>-->
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.MainClassAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.LanguageDeclarationAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DuplicatedRepositoryAnnotator"/>
