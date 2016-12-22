@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -23,10 +24,12 @@ import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import org.jetbrains.annotations.NotNull;
 import tara.compiler.shared.Configuration;
+import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.TaraIcons;
 import tara.intellij.lang.psi.impl.TaraUtil;
 import tara.intellij.settings.TaraSettings;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,7 +48,18 @@ public class ArtifactManager extends AbstractArtifactManager {
 
 	public void process() {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		compilerManager.make(compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true), processArtifact());
+		CompileScope scope = compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true);
+		if (languageExists()) compilerManager.make(scope, processArtifact());
+		else compilerManager.compile(scope, processArtifact());
+	}
+
+	private boolean languageExists() {
+		for (Module module : modules) {
+			Configuration configuration = TaraUtil.configurationOf(module);
+			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.modelVersion());
+			if (shouldDeployLanguage(module, lifeCyclePhase) && !languageFile.exists()) return false;
+		}
+		return true;
 	}
 
 	private CompileStatusNotification processArtifact() {

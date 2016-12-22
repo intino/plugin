@@ -2,6 +2,7 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
@@ -38,14 +39,14 @@ public class JavaDependencyResolver {
 		this.module = module;
 		this.repositories = repositories;
 		this.dependencies = dependencies;
-		aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		this.aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 	}
 
 	public List<Library> resolve() {
 		collectArtifacts();
 		final Application application = ApplicationManager.getApplication();
 		final List<Library> libraries = new ArrayList<>();
-		application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) this::processDependencies)));
+		application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) this::processDependencies)), ModalityState.defaultModalityState());
 		return libraries;
 	}
 
@@ -92,6 +93,7 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {
+		System.out.println(dependency.identifier());
 		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);

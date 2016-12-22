@@ -28,6 +28,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.application.ModalityState.defaultModalityState;
 import static tara.dsl.ProteoConstants.PROTEO;
 import static tara.dsl.ProteoConstants.VERSO;
 
@@ -64,7 +65,7 @@ public class LanguageResolver {
 		if (application.isWriteAccessAllowed())
 			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries)));
 		else
-			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries))));
+			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries))), defaultModalityState());
 		return libraries;
 	}
 
@@ -84,7 +85,7 @@ public class LanguageResolver {
 		final Module module = moduleOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
-		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)));
+		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
 		return libraries;
 	}
 
