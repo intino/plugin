@@ -34,10 +34,7 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
@@ -140,9 +137,15 @@ public class WebDependencyResolver {
 	}
 
 	private void notifyError(String message) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification(message, MessageType.ERROR).setImportant(true).notify(null);
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Tara Language");
+		List<String> lines = Arrays.asList(message.split("\n"));
+		for (int i = 0; i <= lines.size() / 5; i++) {
+			String choppedMessage = "";
+			for (int j = 0; j < 5; j++)
+				if (lines.size() > j + 5 * i) choppedMessage += lines.get(j + 5 * i) + "\n";
+			balloon.createNotification(choppedMessage, MessageType.ERROR).setImportant(true).notify(this.module.getProject());
+		}
 	}
 
 	private void processResult(MavenRunner mavenRunner, File pom, InvocationResult result) throws IntinoException {
@@ -151,8 +154,15 @@ public class WebDependencyResolver {
 		else {
 			FileUtil.delete(pom);
 			if (result != null && result.getExitCode() != 0)
-				throw new IntinoException(message("error.resolving.web.dependencies", mavenRunner.output()));
+				throw new IntinoException(message("error.resolving.web.dependencies", filterBower(mavenRunner.output())));
 		}
+	}
+
+	private String filterBower(String output) {
+		String[] lines = output.split("\n");
+		String result = "";
+		for (String line : lines) if (line.contains("bower")) result += line + "\n";
+		return result;
 	}
 
 	private File createPackageFile() {
