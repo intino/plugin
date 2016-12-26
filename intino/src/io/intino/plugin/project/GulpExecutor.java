@@ -52,7 +52,7 @@ public class GulpExecutor {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.error(e.getMessage());
 			}
 		}
 		lock = true;
@@ -66,7 +66,7 @@ public class GulpExecutor {
 				packageJson.delete();
 				gulpPom.delete();
 			}
-		})).start();
+		}), "GULP").start();
 	}
 
 	public void startGulpDeploy() {

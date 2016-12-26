@@ -17,6 +17,7 @@ import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 import tara.compiler.shared.Configuration;
+import tara.dsl.Proteo;
 import tara.intellij.lang.LanguageManager;
 import tara.intellij.lang.psi.impl.TaraUtil;
 
@@ -37,8 +38,6 @@ public class LanguageResolver {
 	private final List<Repository> repositories;
 	private final Project.Factory factory;
 	private final String version;
-	private static final String proteoGroupId = "org.siani.tara";
-	private static final String proteoArtifactId = "proteo";
 	private final String language;
 
 	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory, String version) {
@@ -71,7 +70,7 @@ public class LanguageResolver {
 
 	private List<Library> loadProteoLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
-		final List<Artifact> languageFramework = findLanguageFramework(proteoGroupId + ":" + proteoArtifactId + ":" + version);
+		final List<Artifact> languageFramework = findLanguageFramework(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version);
 		if (!languageFramework.isEmpty())
 			factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 		else factory.asLevel().effectiveVersion("");
@@ -136,7 +135,7 @@ public class LanguageResolver {
 
 	public static String languageID(String language, String version) {
 		if (language.equals(PROTEO) || language.equals(VERSO))
-			return proteoGroupId + ":" + proteoArtifactId + ":" + version;
+			return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
 		else try {

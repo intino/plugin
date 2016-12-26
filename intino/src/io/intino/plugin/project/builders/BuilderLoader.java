@@ -94,16 +94,16 @@ public class BuilderLoader {
 
 	}
 
-	private static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
+	private synchronized static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e.toString() + ": " + e.getMessage());
 			return null;
 		}
 	}
 
-	private static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
+	private synchronized static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
 		try {
 			return (ActionGroup) classLoader.loadClass(group.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -121,7 +121,7 @@ public class BuilderLoader {
 		try {
 			return l.toURI().toURL();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOG.error("Malformed URL");
 			return null;
 		}
 	}

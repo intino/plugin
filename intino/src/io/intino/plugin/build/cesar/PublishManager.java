@@ -42,7 +42,9 @@ public class PublishManager {
 	}
 
 	private SystemSchema createSystem(Destination destination) {
-		return new SystemSchema().artifact(configuration.artifactId()).artifactoryList(artifactories()).parameterList(extractParameters(destination.parameterList()));
+		return new SystemSchema().artifact(configuration.artifactId()).
+				artifactoryList(artifactories()).
+				parameterList(extractParameters(destination.parameterList()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(List<Parameter> parameters) {
