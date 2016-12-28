@@ -10,7 +10,8 @@ import io.intino.legio.Parameter;
 import io.intino.pandora.exceptions.Unknown;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.magritte.Node;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,7 +50,7 @@ public class PublishManager {
 		return parameters.stream().map(p -> parametersFromNode(p.node())).collect(Collectors.toList());
 	}
 
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(tara.magritte.Node node) {
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Node node) {
 		io.intino.cesar.schemas.Parameter schema = new io.intino.cesar.schemas.Parameter();
 		final java.util.Map<String, java.util.List<?>> variables = node.variables();
 		variables.put("name", java.util.Collections.singletonList(node.name()));

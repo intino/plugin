@@ -5,13 +5,13 @@ import com.intellij.psi.PsiElement;
 import io.intino.legio.Project;
 import io.intino.plugin.dependencyresolution.LibraryManager;
 import io.intino.plugin.project.LegioConfiguration;
-import tara.intellij.annotator.TaraAnnotator;
-import tara.intellij.annotator.semanticanalizer.TaraAnalyzer;
-import tara.intellij.lang.psi.TaraNode;
-import tara.intellij.project.module.ModuleProvider;
-import tara.lang.model.Node;
-import tara.lang.model.Parameter;
-import tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.plugin.lang.psi.TaraNode;
+import io.intino.tara.plugin.project.module.ModuleProvider;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 
 import java.util.List;
 

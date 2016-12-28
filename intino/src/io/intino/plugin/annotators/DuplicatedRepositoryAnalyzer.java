@@ -2,11 +2,11 @@ package io.intino.plugin.annotators;
 
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.MessageProvider;
-import tara.intellij.annotator.TaraAnnotator;
-import tara.intellij.annotator.semanticanalizer.TaraAnalyzer;
-import tara.lang.model.Node;
-import tara.lang.model.Parameter;
-import tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 
 import java.util.HashSet;
 import java.util.Set;

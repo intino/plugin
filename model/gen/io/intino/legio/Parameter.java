@@ -3,10 +3,10 @@ package io.intino.legio;
 import io.intino.legio.*;
 
 
-public class Parameter extends tara.magritte.Layer implements tara.magritte.tags.Component, tara.magritte.tags.Terminal {
+public class Parameter extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
 	protected boolean required;
 
-	public Parameter(tara.magritte.Node node) {
+	public Parameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -40,7 +40,7 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 		return this.as(io.intino.legio.type.TypeParameter.class);
 	}
 
-	public io.intino.legio.type.TypeParameter asType(tara.magritte.Expression<java.lang.String> type) {
+	public io.intino.legio.type.TypeParameter asType(io.intino.tara.magritte.Expression<java.lang.String> type) {
 		io.intino.legio.type.TypeParameter newElement = addFacet(io.intino.legio.type.TypeParameter.class);
 		newElement.node().set(newElement, "type", java.util.Collections.singletonList(type)); 
 	    return newElement;
@@ -115,14 +115,14 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("required")) this.required = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("required")) this.required = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 	}
 
 	@Override

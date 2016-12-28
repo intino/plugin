@@ -19,8 +19,8 @@ import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;

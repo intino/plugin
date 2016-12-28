@@ -4,7 +4,7 @@ import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
-import tara.intellij.messages.UTF8Control;
+import io.intino.tara.plugin.messages.UTF8Control;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

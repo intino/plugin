@@ -1,8 +1,8 @@
 package io.intino.plugin.project;
 
 import org.jetbrains.annotations.NotNull;
-import tara.intellij.lang.LanguageManager;
-import tara.intellij.project.configuration.ConfigurationManager;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 
 public class LegioAppComponent implements com.intellij.openapi.components.ApplicationComponent {
 	@Override

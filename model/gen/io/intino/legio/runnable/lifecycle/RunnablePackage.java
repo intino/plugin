@@ -3,12 +3,12 @@ package io.intino.legio.runnable.lifecycle;
 import io.intino.legio.*;
 
 
-public class RunnablePackage extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+public class RunnablePackage extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	
 	protected io.intino.legio.LifeCycle.Package _package;
 
-	public RunnablePackage(tara.magritte.Node node) {
+	public RunnablePackage(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -16,7 +16,7 @@ public class RunnablePackage extends tara.magritte.Layer implements tara.magritt
 		return mainClass;
 	}
 
-	public io.intino.legio.LifeCycle.Package.Type type() {
+	public io.intino.legio.LifeCycle.Package.Type Type() {
 		return _package.type();
 	}
 
@@ -78,8 +78,8 @@ public class RunnablePackage extends tara.magritte.Layer implements tara.magritt
 
 	
 
-	public java.util.List<tara.magritte.Node> componentList() {
-		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+	public java.util.List<io.intino.tara.magritte.Node> componentList() {
+		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -90,14 +90,14 @@ public class RunnablePackage extends tara.magritte.Layer implements tara.magritt
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.LifeCycle.Package.class);
 	}
 
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("mainClass")) this.mainClass = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("mainClass")) this.mainClass = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class RunnablePackage extends tara.magritte.Layer implements tara.magritt
 	}
 
 	@Override
-	protected void _sync(tara.magritte.Layer layer) {
+	protected void _sync(io.intino.tara.magritte.Layer layer) {
 		super._sync(layer);
 	    if (layer instanceof io.intino.legio.LifeCycle.Package) _package = (io.intino.legio.LifeCycle.Package) layer;
 	    

@@ -5,7 +5,7 @@
 
     <groupId>io.intino.legio</groupId>
     <artifactId>model</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -66,13 +66,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.siani.tara</groupId>
-            <artifactId>proteo-alone</artifactId>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>magritte-lite</artifactId>
             <version>LATEST</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.siani.tara</groupId>
+            <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
             <version>LATEST</version>

@@ -3,7 +3,7 @@ package io.intino.plugin.file.legio;
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tara.intellij.lang.file.TaraFileType;
+import io.intino.tara.plugin.lang.file.TaraFileType;
 
 public class LegioFileType extends TaraFileType {
 	public static LegioFileType INSTANCE;

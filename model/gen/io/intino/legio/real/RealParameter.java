@@ -3,10 +3,10 @@ package io.intino.legio.real;
 import io.intino.legio.*;
 
 
-public class RealParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
+public class RealParameter extends io.intino.legio.type.TypeParameter implements io.intino.tara.magritte.tags.Terminal {
 	protected double value;
 
-	public RealParameter(tara.magritte.Node node) {
+	public RealParameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -33,7 +33,7 @@ public class RealParameter extends io.intino.legio.type.TypeParameter implements
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 
@@ -41,7 +41,7 @@ public class RealParameter extends io.intino.legio.type.TypeParameter implements
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
 		_parameter.node().load(_parameter, name, values);
-		if (name.equalsIgnoreCase("value")) this.value = tara.magritte.loaders.DoubleLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("value")) this.value = io.intino.tara.magritte.loaders.DoubleLoader.load(values, this).get(0);
 	}
 
 	@Override

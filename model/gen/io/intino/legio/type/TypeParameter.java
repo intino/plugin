@@ -3,11 +3,11 @@ package io.intino.legio.type;
 import io.intino.legio.*;
 
 
-public abstract class TypeParameter extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-	protected tara.magritte.Expression<java.lang.String> type;
+public abstract class TypeParameter extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+	protected io.intino.tara.magritte.Expression<java.lang.String> type;
 	protected io.intino.legio.Parameter _parameter;
 
-	public TypeParameter(tara.magritte.Node node) {
+	public TypeParameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -19,8 +19,8 @@ public abstract class TypeParameter extends tara.magritte.Layer implements tara.
 		return _parameter.required();
 	}
 
-	public void type(tara.magritte.Expression<java.lang.String> value) {
-		this.type = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
+	public void type(io.intino.tara.magritte.Expression<java.lang.String> value) {
+		this.type = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 	}
 
 	public void required(boolean value) {
@@ -34,24 +34,24 @@ public abstract class TypeParameter extends tara.magritte.Layer implements tara.
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("type")) this.type = tara.magritte.loaders.FunctionLoader.load(values, this, tara.magritte.Expression.class).get(0);
+		if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
 	}
 
 	@Override
 	protected void _set(java.lang.String name, java.util.List<?> values) {
 		super._set(name, values);
-		if (name.equalsIgnoreCase("type")) this.type = tara.magritte.loaders.FunctionLoader.load(values.get(0), this, tara.magritte.Expression.class);
+		if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
 	}
 
 	@Override
-	protected void _sync(tara.magritte.Layer layer) {
+	protected void _sync(io.intino.tara.magritte.Layer layer) {
 		super._sync(layer);
 	    if (layer instanceof io.intino.legio.Parameter) _parameter = (io.intino.legio.Parameter) layer;
 	    

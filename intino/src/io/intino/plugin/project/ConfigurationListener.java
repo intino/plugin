@@ -12,10 +12,10 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.file.legio.LegioFileType;
 import org.jetbrains.annotations.NotNull;
-import tara.compiler.shared.Configuration;
-import tara.intellij.project.configuration.ConfigurationManager;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 
-import static tara.intellij.project.module.ModuleProvider.moduleOf;
+import static io.intino.tara.plugin.project.module.ModuleProvider.moduleOf;
 
 public class ConfigurationListener implements FileDocumentManagerListener {
 

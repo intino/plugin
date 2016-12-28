@@ -11,14 +11,14 @@ import com.jcabi.aether.Aether;
 import io.intino.legio.Project.Dependencies;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.util.*;
@@ -93,7 +93,6 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {
-		System.out.println(dependency.identifier());
 		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);

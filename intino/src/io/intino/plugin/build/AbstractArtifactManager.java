@@ -14,9 +14,9 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.LanguageManager;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static tara.intellij.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
+import static io.intino.tara.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
 
 
 abstract class AbstractArtifactManager {

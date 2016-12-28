@@ -1,10 +1,8 @@
 package io.intino.legio;
 
-import tara.magritte.Graph;
+public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
-public class GraphWrapper extends tara.magritte.GraphWrapper {
-
-	protected tara.magritte.Graph graph;
+	protected io.intino.tara.magritte.Graph graph;
 	private io.intino.legio.Project project;
 	private io.intino.legio.LifeCycle lifeCycle;
 	private java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList;
@@ -18,7 +16,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	private java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList;
 	private java.util.List<io.intino.legio.text.TextParameter> textParameterList;
 
-	public GraphWrapper(tara.magritte.Graph graph) {
+	public GraphWrapper(io.intino.tara.magritte.Graph graph) {
 		this.graph = graph;
 		this.graph.i18n().register("Legio");
 	    update();
@@ -40,7 +38,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	}
 
 	@Override
-	protected void addNode(tara.magritte.Node node) {
+	protected void addNode(io.intino.tara.magritte.Node node) {
 		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
 		if (node.is("RunnablePackage")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
@@ -56,7 +54,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	}
 
 	@Override
-	protected void removeNode(tara.magritte.Node node) {
+	protected void removeNode(io.intino.tara.magritte.Node node) {
 		if (node.is("Project")) this.project = null;
 		if (node.is("LifeCycle")) this.lifeCycle = null;
 		if (node.is("RunnablePackage")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
@@ -83,43 +81,43 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return graph.i18n().wordsIn(language);
 	}
 
-	public tara.magritte.Concept concept(String concept) {
+	public io.intino.tara.magritte.Concept concept(String concept) {
 		return graph.concept(concept);
 	}
 
-	public tara.magritte.Concept concept(java.lang.Class<? extends tara.magritte.Layer> layerClass) {
+	public io.intino.tara.magritte.Concept concept(java.lang.Class<? extends io.intino.tara.magritte.Layer> layerClass) {
 		return graph.concept(layerClass);
 	}
 
-	public java.util.List<tara.magritte.Concept> conceptList() {
+	public java.util.List<io.intino.tara.magritte.Concept> conceptList() {
 		return graph.conceptList();
 	}
 
-	public java.util.List<tara.magritte.Concept> conceptList(java.util.function.Predicate<tara.magritte.Concept> predicate) {
+	public java.util.List<io.intino.tara.magritte.Concept> conceptList(java.util.function.Predicate<io.intino.tara.magritte.Concept> predicate) {
 		return graph.conceptList(predicate);
 	}
 
-	public tara.magritte.Node createRoot(tara.magritte.Concept concept, String namespace) {
+	public io.intino.tara.magritte.Node createRoot(io.intino.tara.magritte.Concept concept, String namespace) {
 		return graph.createRoot(concept, namespace);
 	}
 
-	public <T extends tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace) {
+	public <T extends io.intino.tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace) {
 		return graph.createRoot(layerClass, namespace);
 	}
 
-	public tara.magritte.Node createRoot(String concept, String namespace) {
+	public io.intino.tara.magritte.Node createRoot(String concept, String namespace) {
 		return graph.createRoot(concept, namespace);
 	}
 
-	public <T extends tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace, String id) {
+	public <T extends io.intino.tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace, String id) {
 		return graph.createRoot(layerClass, namespace, id);
 	}
 
-	public tara.magritte.Node createRoot(String concept, String namespace, String id) {
+	public io.intino.tara.magritte.Node createRoot(String concept, String namespace, String id) {
 		return graph.createRoot(concept, namespace, id);
 	}
 
-	public tara.magritte.Node createRoot(tara.magritte.Concept concept, String namespace, String id) {
+	public io.intino.tara.magritte.Node createRoot(io.intino.tara.magritte.Concept concept, String namespace, String id) {
 		return graph.createRoot(concept, namespace, id);
 	}
 
@@ -251,7 +249,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return textParameterList.get(index);
 	}
 
-	public tara.magritte.Graph graph() {
+	public io.intino.tara.magritte.Graph graph() {
 		return graph;
 	}
 

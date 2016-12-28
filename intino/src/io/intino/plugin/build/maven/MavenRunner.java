@@ -15,9 +15,9 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import tara.compiler.core.errorcollection.TaraException;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.LanguageManager;
+import io.intino.tara.compiler.core.errorcollection.TaraException;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
 import java.io.IOException;

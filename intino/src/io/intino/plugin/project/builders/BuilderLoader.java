@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.moandjiezana.toml.Toml;
 import io.intino.plugin.IntinoIcons;
-import tara.Language;
-import tara.intellij.lang.LanguageManager;
+import io.intino.tara.Language;
+import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
 import java.io.InputStream;

@@ -3,13 +3,13 @@ package io.intino.plugin.annotators;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.project.LegioConfiguration;
-import tara.intellij.annotator.TaraAnnotator;
-import tara.intellij.annotator.semanticanalizer.TaraAnalyzer;
-import tara.intellij.lang.LanguageManager;
-import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.lang.model.Node;
-import tara.lang.model.Parameter;
-import tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 
 import static io.intino.plugin.MessageProvider.message;
 
