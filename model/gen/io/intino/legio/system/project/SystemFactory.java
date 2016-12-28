@@ -3,12 +3,12 @@ package io.intino.legio.system.project;
 import io.intino.legio.*;
 
 
-public class SystemFactory extends io.intino.legio.level.project.LevelFactory implements tara.magritte.tags.Terminal {
+public class SystemFactory extends io.intino.legio.level.project.LevelFactory implements io.intino.tara.magritte.tags.Terminal {
 	
 	
 	
 
-	public SystemFactory(tara.magritte.Node node) {
+	public SystemFactory(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -32,8 +32,8 @@ public class SystemFactory extends io.intino.legio.level.project.LevelFactory im
 
 	
 
-	public java.util.List<tara.magritte.Node> componentList() {
-		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+	public java.util.List<io.intino.tara.magritte.Node> componentList() {
+		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		
 		return new java.util.ArrayList<>(components);
 	}
@@ -44,7 +44,7 @@ public class SystemFactory extends io.intino.legio.level.project.LevelFactory im
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Project.Factory.class);
 	}
 

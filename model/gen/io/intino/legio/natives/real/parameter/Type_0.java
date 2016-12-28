@@ -2,8 +2,8 @@ package io.intino.legio.natives.real.parameter;
 
 
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#104#2**/
-public class Type_0 implements tara.magritte.Expression<String> {
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#105#2**/
+public class Type_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.real.RealParameter self;
 
 	@Override
@@ -12,12 +12,12 @@ public class Type_0 implements tara.magritte.Expression<String> {
 	}
 
 	@Override
-	public void self(tara.magritte.Layer context) {
+	public void self(Layer context) {
 		self = (io.intino.legio.real.RealParameter) context;
 	}
 
 	@Override
-	public Class<? extends tara.magritte.Layer> selfClass() {
+	public Class<? extends Layer> selfClass() {
 		return io.intino.legio.real.RealParameter.class;
 	}
 }

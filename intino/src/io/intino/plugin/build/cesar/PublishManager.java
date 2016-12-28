@@ -10,7 +10,7 @@ import io.intino.legio.Parameter;
 import io.intino.pandora.exceptions.Unknown;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;

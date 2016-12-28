@@ -14,9 +14,9 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration;
 import tara.dsl.ProteoConstants;
-import tara.intellij.lang.LanguageManager;
+import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
 import java.util.Collections;

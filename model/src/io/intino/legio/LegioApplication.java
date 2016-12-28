@@ -1,8 +1,8 @@
 package io.intino.legio;
 
-import tara.magritte.Graph;
+import Graph;
 
-public class LegioApplication extends GraphWrapper implements tara.magritte.Application {
+public class LegioApplication extends io.intino.legio.GraphWrapper implements Application {
 
 	public LegioApplication(Graph graph) {
 		super(graph);

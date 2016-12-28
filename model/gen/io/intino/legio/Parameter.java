@@ -3,10 +3,10 @@ package io.intino.legio;
 import io.intino.legio.*;
 
 
-public class Parameter extends tara.magritte.Layer implements tara.magritte.tags.Component, tara.magritte.tags.Terminal {
+public class Parameter extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
 	protected boolean required;
 
-	public Parameter(tara.magritte.Node node) {
+	public Parameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -18,29 +18,11 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 		this.required = value;
 	}
 
-	public io.intino.legio.integer.IntegerParameter asInteger() {
-		return this.as(io.intino.legio.integer.IntegerParameter.class);
-	}
-
-	public io.intino.legio.integer.IntegerParameter asInteger(int value) {
-		io.intino.legio.integer.IntegerParameter newElement = addFacet(io.intino.legio.integer.IntegerParameter.class);
-		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
-	    return newElement;
-	}
-
-	public boolean isInteger() {
-		return is(io.intino.legio.integer.IntegerParameter.class);
-	}
-
-	public void removeInteger() {
-		this.removeFacet(io.intino.legio.integer.IntegerParameter.class);
-	}
-
 	public io.intino.legio.type.TypeParameter asType() {
 		return this.as(io.intino.legio.type.TypeParameter.class);
 	}
 
-	public io.intino.legio.type.TypeParameter asType(tara.magritte.Expression<java.lang.String> type) {
+	public io.intino.legio.type.TypeParameter asType(Expression<java.lang.String> type) {
 		io.intino.legio.type.TypeParameter newElement = addFacet(io.intino.legio.type.TypeParameter.class);
 		newElement.node().set(newElement, "type", java.util.Collections.singletonList(type)); 
 	    return newElement;
@@ -108,6 +90,24 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 		this.removeFacet(io.intino.legio.text.TextParameter.class);
 	}
 
+	public io.intino.legio.int.IntParameter asInt() {
+		return this.as(io.intino.legio.int.IntParameter.class);
+	}
+
+	public io.intino.legio.int.IntParameter asInt(int value) {
+		io.intino.legio.int.IntParameter newElement = addFacet(io.intino.legio.int.IntParameter.class);
+		newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+	    return newElement;
+	}
+
+	public boolean isInt() {
+		return is(io.intino.legio.int.IntParameter.class);
+	}
+
+	public void removeInt() {
+		this.removeFacet(io.intino.legio.int.IntParameter.class);
+	}
+
 	@Override
 	public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
@@ -115,7 +115,7 @@ public class Parameter extends tara.magritte.Layer implements tara.magritte.tags
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 

@@ -67,11 +67,11 @@
     <dependencies>
         <dependency>
             <groupId>io.intino.tara</groupId>
-            <artifactId>magritte</artifactId>
+            <artifactId>magritte-lite</artifactId>
             <version>LATEST</version>
         </dependency>
         <dependency>
-            <groupId>org.siani.tara</groupId>
+            <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
             <version>LATEST</version>

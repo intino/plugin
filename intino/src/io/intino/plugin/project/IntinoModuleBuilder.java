@@ -5,13 +5,13 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.roots.ModifiableRootModel;
-import tara.intellij.lang.TaraIcons;
-import tara.intellij.project.TaraModuleType;
-import tara.intellij.project.configuration.MavenConfiguration;
+import io.intino.tara.plugin.lang.TaraIcons;
+import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.configuration.MavenConfiguration;
 
 import javax.swing.*;
 
-import static tara.intellij.project.configuration.ConfigurationManager.*;
+import static io.intino.tara.plugin.project.configuration.ConfigurationManager.*;
 
 public class IntinoModuleBuilder extends JavaModuleBuilder {
 

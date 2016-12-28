@@ -19,10 +19,10 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.siani.itrules.model.Frame;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.intellij.project.TaraModuleType;
-import tara.intellij.project.configuration.ConfigurationManager;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 
 import java.io.File;
 import java.io.IOException;

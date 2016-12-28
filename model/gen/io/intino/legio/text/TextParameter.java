@@ -3,10 +3,10 @@ package io.intino.legio.text;
 import io.intino.legio.*;
 
 
-public class TextParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
+public class TextParameter extends io.intino.legio.type.TypeParameter implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String value;
 
-	public TextParameter(tara.magritte.Node node) {
+	public TextParameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -33,7 +33,7 @@ public class TextParameter extends io.intino.legio.type.TypeParameter implements
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 

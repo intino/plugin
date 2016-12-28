@@ -3,7 +3,7 @@ package io.intino.legio.level.project;
 import io.intino.legio.*;
 
 
-public abstract class LevelFactory extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+public abstract class LevelFactory extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String language;
 	protected java.lang.String version;
 	protected java.lang.String effectiveVersion;
@@ -11,7 +11,7 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 	
 	protected io.intino.legio.Project.Factory _factory;
 
-	public LevelFactory(tara.magritte.Node node) {
+	public LevelFactory(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -59,8 +59,8 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 
 	
 
-	public java.util.List<tara.magritte.Node> componentList() {
-		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+	public java.util.List<io.intino.tara.magritte.Node> componentList() {
+		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		
 		return new java.util.ArrayList<>(components);
 	}
@@ -74,7 +74,7 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Project.Factory.class);
 	}
 
@@ -95,7 +95,7 @@ public abstract class LevelFactory extends tara.magritte.Layer implements tara.m
 	}
 
 	@Override
-	protected void _sync(tara.magritte.Layer layer) {
+	protected void _sync(io.intino.tara.magritte.Layer layer) {
 		super._sync(layer);
 	    if (layer instanceof io.intino.legio.Project.Factory) _factory = (io.intino.legio.Project.Factory) layer;
 	    

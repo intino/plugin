@@ -25,8 +25,8 @@ import com.intellij.ui.components.JBLabel;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.ArtifactManager;
 import io.intino.plugin.build.LifeCyclePhase;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import javax.swing.*;
 import java.awt.*;

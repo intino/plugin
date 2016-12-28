@@ -5,8 +5,8 @@ import com.intellij.psi.PsiElement;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
-import tara.intellij.annotator.TaraAnnotator;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import tara.lang.model.Node;
 
 public class DependencyAnnotator extends TaraAnnotator {

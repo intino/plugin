@@ -3,7 +3,7 @@ package io.intino.legio;
 import io.intino.legio.*;
 
 
-public class Project extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+public class Project extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
 	protected io.intino.legio.Project.License license;
@@ -12,7 +12,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	protected io.intino.legio.Project.WebDependencies webDependencies;
 	protected io.intino.legio.Project.Factory factory;
 
-	public Project(tara.magritte.Node node) {
+	public Project(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -72,8 +72,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		this.factory = value;
 	}
 
-	public java.util.List<tara.magritte.Node> componentList() {
-		java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+	public java.util.List<io.intino.tara.magritte.Node> componentList() {
+		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 		if (license != null) components.add(this.license.node());
 		if (repositories != null) components.add(this.repositories.node());
 		if (dependencies != null) components.add(this.dependencies.node());
@@ -90,12 +90,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Project.class);
 	}
 
 	@Override
-	protected void addNode(tara.magritte.Node node) {
+	protected void addNode(io.intino.tara.magritte.Node node) {
 		super.addNode(node);
 		if (node.is("Project$License")) this.license = node.as(io.intino.legio.Project.License.class);
 		if (node.is("Project$Repositories")) this.repositories = node.as(io.intino.legio.Project.Repositories.class);
@@ -105,7 +105,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 	}
 
 	@Override
-    protected void removeNode(tara.magritte.Node node) {
+    protected void removeNode(io.intino.tara.magritte.Node node) {
         super.removeNode(node);
         if (node.is("Project$License")) this.license = null;
         if (node.is("Project$Repositories")) this.repositories = null;
@@ -171,14 +171,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		
 	}
 	
-	public static class License extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+	public static class License extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected Type type;
 
 		public enum Type {
 			GPL, BSD;
 		}
 
-		public License(tara.magritte.Node node) {
+		public License(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -197,14 +197,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return map;
 		}
 
-		public tara.magritte.Concept concept() {
+		public io.intino.tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.Project.License.class);
 		}
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			if (name.equalsIgnoreCase("type")) this.type = WordLoader.load(values, Type.class, this).get(0);
 		}
 
 		@Override
@@ -235,14 +235,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 	}
 	
-	public static class Repositories extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+	public static class Repositories extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		
 		protected java.util.List<io.intino.legio.Project.Repositories.Repository> repositoryList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Repositories.Release> releaseList = new java.util.ArrayList<>();
 		protected io.intino.legio.Project.Repositories.Snapshot snapshot;
 		protected io.intino.legio.Project.Repositories.Language language;
 
-		public Repositories(tara.magritte.Node node) {
+		public Repositories(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -290,8 +290,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			this.language = value;
 		}
 
-		public java.util.List<tara.magritte.Node> componentList() {
-			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		public java.util.List<io.intino.tara.magritte.Node> componentList() {
+			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			repositoryList.stream().forEach(c -> components.add(c.node()));
 			releaseList.stream().forEach(c -> components.add(c.node()));
 			if (snapshot != null) components.add(this.snapshot.node());
@@ -305,12 +305,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return map;
 		}
 
-		public tara.magritte.Concept concept() {
+		public io.intino.tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.Project.Repositories.class);
 		}
 
 		@Override
-		protected void addNode(tara.magritte.Node node) {
+		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$Repositories$Repository")) this.repositoryList.add(node.as(io.intino.legio.Project.Repositories.Repository.class));
 			if (node.is("Project$Repositories$Release")) this.releaseList.add(node.as(io.intino.legio.Project.Repositories.Release.class));
@@ -319,7 +319,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		@Override
-	    protected void removeNode(tara.magritte.Node node) {
+	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$Repositories$Repository")) this.repositoryList.remove(node.as(io.intino.legio.Project.Repositories.Repository.class));
 	        if (node.is("Project$Repositories$Release")) this.releaseList.remove(node.as(io.intino.legio.Project.Repositories.Release.class));
@@ -377,11 +377,11 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			
 		}
 		
-		public static abstract class Repository extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		public static abstract class Repository extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String url;
 			protected java.lang.String mavenId;
 
-			public Repository(tara.magritte.Node node) {
+			public Repository(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -409,7 +409,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Repositories.Repository.class);
 			}
 
@@ -449,10 +449,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Release extends io.intino.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+		public static class Release extends io.intino.legio.Project.Repositories.Repository implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Release(tara.magritte.Node node) {
+			public Release(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -462,7 +462,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Repositories.Release.class);
 			}
 
@@ -498,10 +498,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Snapshot extends io.intino.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+		public static class Snapshot extends io.intino.legio.Project.Repositories.Repository implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Snapshot(tara.magritte.Node node) {
+			public Snapshot(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -511,7 +511,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Repositories.Snapshot.class);
 			}
 
@@ -547,10 +547,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Language extends io.intino.legio.Project.Repositories.Repository implements tara.magritte.tags.Terminal {
+		public static class Language extends io.intino.legio.Project.Repositories.Repository implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Language(tara.magritte.Node node) {
+			public Language(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -560,7 +560,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Repositories.Language.class);
 			}
 
@@ -602,7 +602,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 	}
 	
-	public static class Dependencies extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+	public static class Dependencies extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		
 		protected java.util.List<io.intino.legio.Project.Dependencies.Dependency> dependencyList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Compile> compileList = new java.util.ArrayList<>();
@@ -610,7 +610,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		protected java.util.List<io.intino.legio.Project.Dependencies.Provided> providedList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.Dependencies.Test> testList = new java.util.ArrayList<>();
 
-		public Dependencies(tara.magritte.Node node) {
+		public Dependencies(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -684,8 +684,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 		
 
-		public java.util.List<tara.magritte.Node> componentList() {
-			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		public java.util.List<io.intino.tara.magritte.Node> componentList() {
+			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			dependencyList.stream().forEach(c -> components.add(c.node()));
 			compileList.stream().forEach(c -> components.add(c.node()));
 			runtimeList.stream().forEach(c -> components.add(c.node()));
@@ -700,12 +700,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return map;
 		}
 
-		public tara.magritte.Concept concept() {
+		public io.intino.tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.Project.Dependencies.class);
 		}
 
 		@Override
-		protected void addNode(tara.magritte.Node node) {
+		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$Dependencies$Dependency")) this.dependencyList.add(node.as(io.intino.legio.Project.Dependencies.Dependency.class));
 			if (node.is("Project$Dependencies$Compile")) this.compileList.add(node.as(io.intino.legio.Project.Dependencies.Compile.class));
@@ -715,7 +715,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		@Override
-	    protected void removeNode(tara.magritte.Node node) {
+	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$Dependencies$Dependency")) this.dependencyList.remove(node.as(io.intino.legio.Project.Dependencies.Dependency.class));
 	        if (node.is("Project$Dependencies$Compile")) this.compileList.remove(node.as(io.intino.legio.Project.Dependencies.Compile.class));
@@ -789,9 +789,9 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			
 		}
 		
-		public static abstract class Dependency extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-			protected tara.magritte.Expression<java.lang.String> identifier;
-			protected tara.magritte.Expression<java.lang.String> name;
+		public static abstract class Dependency extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+			protected Expression<java.lang.String> identifier;
+			protected Expression<java.lang.String> name;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
@@ -801,7 +801,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			protected boolean resolved;
 			protected boolean toModule;
 
-			public Dependency(tara.magritte.Node node) {
+			public Dependency(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -853,12 +853,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return toModule;
 			}
 
-			public void identifier(tara.magritte.Expression<java.lang.String> value) {
-				this.identifier = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
+			public void identifier(Expression<java.lang.String> value) {
+				this.identifier = FunctionLoader.load(value, this, Expression.class);
 			}
 
-			public void name(tara.magritte.Expression<java.lang.String> value) {
-				this.name = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
+			public void name(Expression<java.lang.String> value) {
+				this.name = FunctionLoader.load(value, this, Expression.class);
 			}
 
 			public void groupId(java.lang.String value) {
@@ -905,15 +905,15 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Dependency.class);
 			}
 
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = tara.magritte.loaders.FunctionLoader.load(values, this, tara.magritte.Expression.class).get(0);
-				else if (name.equalsIgnoreCase("name")) this.name = tara.magritte.loaders.FunctionLoader.load(values, this, tara.magritte.Expression.class).get(0);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values, this, Expression.class).get(0);
+				else if (name.equalsIgnoreCase("name")) this.name = FunctionLoader.load(values, this, Expression.class).get(0);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
@@ -927,8 +927,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = tara.magritte.loaders.FunctionLoader.load(values.get(0), this, tara.magritte.Expression.class);
-				else if (name.equalsIgnoreCase("name")) this.name = tara.magritte.loaders.FunctionLoader.load(values.get(0), this, tara.magritte.Expression.class);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values.get(0), this, Expression.class);
+				else if (name.equalsIgnoreCase("name")) this.name = FunctionLoader.load(values.get(0), this, Expression.class);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
@@ -961,10 +961,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Compile extends io.intino.legio.Project.Dependencies.Dependency implements tara.magritte.tags.Terminal {
+		public static class Compile extends io.intino.legio.Project.Dependencies.Dependency implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Compile(tara.magritte.Node node) {
+			public Compile(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -974,7 +974,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Compile.class);
 			}
 
@@ -1010,10 +1010,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Runtime extends io.intino.legio.Project.Dependencies.Dependency implements tara.magritte.tags.Terminal {
+		public static class Runtime extends io.intino.legio.Project.Dependencies.Dependency implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Runtime(tara.magritte.Node node) {
+			public Runtime(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1023,7 +1023,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Runtime.class);
 			}
 
@@ -1059,10 +1059,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Provided extends io.intino.legio.Project.Dependencies.Dependency implements tara.magritte.tags.Terminal {
+		public static class Provided extends io.intino.legio.Project.Dependencies.Dependency implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Provided(tara.magritte.Node node) {
+			public Provided(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1072,7 +1072,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Provided.class);
 			}
 
@@ -1108,10 +1108,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Test extends io.intino.legio.Project.Dependencies.Dependency implements tara.magritte.tags.Terminal {
+		public static class Test extends io.intino.legio.Project.Dependencies.Dependency implements io.intino.tara.magritte.tags.Terminal {
 			
 
-			public Test(tara.magritte.Node node) {
+			public Test(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1121,7 +1121,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Test.class);
 			}
 
@@ -1163,13 +1163,13 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 	}
 	
-	public static class WebDependencies extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+	public static class WebDependencies extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String webDirectory;
 		protected java.util.List<io.intino.legio.Project.WebDependencies.Resolution> resolutionList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.WebDependencies.WebComponent> webComponentList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Project.WebDependencies.WebActivity> webActivityList = new java.util.ArrayList<>();
 
-		public WebDependencies(tara.magritte.Node node) {
+		public WebDependencies(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -1223,8 +1223,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 
 		
 
-		public java.util.List<tara.magritte.Node> componentList() {
-			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		public java.util.List<io.intino.tara.magritte.Node> componentList() {
+			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			resolutionList.stream().forEach(c -> components.add(c.node()));
 			webComponentList.stream().forEach(c -> components.add(c.node()));
 			webActivityList.stream().forEach(c -> components.add(c.node()));
@@ -1238,12 +1238,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return map;
 		}
 
-		public tara.magritte.Concept concept() {
+		public io.intino.tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.Project.WebDependencies.class);
 		}
 
 		@Override
-		protected void addNode(tara.magritte.Node node) {
+		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$WebDependencies$Resolution")) this.resolutionList.add(node.as(io.intino.legio.Project.WebDependencies.Resolution.class));
 			if (node.is("Project$WebDependencies$WebComponent")) this.webComponentList.add(node.as(io.intino.legio.Project.WebDependencies.WebComponent.class));
@@ -1251,7 +1251,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 
 		@Override
-	    protected void removeNode(tara.magritte.Node node) {
+	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$WebDependencies$Resolution")) this.resolutionList.remove(node.as(io.intino.legio.Project.WebDependencies.Resolution.class));
 	        if (node.is("Project$WebDependencies$WebComponent")) this.webComponentList.remove(node.as(io.intino.legio.Project.WebDependencies.WebComponent.class));
@@ -1308,11 +1308,11 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			
 		}
 		
-		public static class Resolution extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		public static class Resolution extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String name;
 			protected java.lang.String version;
 
-			public Resolution(tara.magritte.Node node) {
+			public Resolution(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1340,7 +1340,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.WebDependencies.Resolution.class);
 			}
 
@@ -1380,11 +1380,11 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class WebComponent extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		public static class WebComponent extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String url;
 			protected java.lang.String version;
 
-			public WebComponent(tara.magritte.Node node) {
+			public WebComponent(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1412,7 +1412,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.WebDependencies.WebComponent.class);
 			}
 
@@ -1452,13 +1452,13 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class WebActivity extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
-			protected tara.magritte.Expression<java.lang.String> identifier;
+		public static class WebActivity extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+			protected Expression<java.lang.String> identifier;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
 
-			public WebActivity(tara.magritte.Node node) {
+			public WebActivity(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1478,8 +1478,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return version;
 			}
 
-			public void identifier(tara.magritte.Expression<java.lang.String> value) {
-				this.identifier = tara.magritte.loaders.FunctionLoader.load(value, this, tara.magritte.Expression.class);
+			public void identifier(Expression<java.lang.String> value) {
+				this.identifier = FunctionLoader.load(value, this, Expression.class);
 			}
 
 			public void groupId(java.lang.String value) {
@@ -1504,14 +1504,14 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.WebDependencies.WebActivity.class);
 			}
 
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = tara.magritte.loaders.FunctionLoader.load(values, this, tara.magritte.Expression.class).get(0);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values, this, Expression.class).get(0);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
@@ -1520,7 +1520,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = tara.magritte.loaders.FunctionLoader.load(values.get(0), this, tara.magritte.Expression.class);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values.get(0), this, Expression.class);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
@@ -1554,12 +1554,12 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 		}
 	}
 	
-	public static class Factory extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+	public static class Factory extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String inPackage;
 		protected io.intino.legio.Project.Factory.Interface interface$;
 		protected io.intino.legio.Project.Factory.Behavior behavior;
 
-		public Factory(tara.magritte.Node node) {
+		public Factory(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -1663,8 +1663,8 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			this.removeFacet(io.intino.legio.system.project.SystemFactory.class);
 		}
 
-		public java.util.List<tara.magritte.Node> componentList() {
-			java.util.Set<tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		public java.util.List<io.intino.tara.magritte.Node> componentList() {
+			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			if (interface$ != null) components.add(this.interface$.node());
 			if (behavior != null) components.add(this.behavior.node());
 			return new java.util.ArrayList<>(components);
@@ -1677,19 +1677,19 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			return map;
 		}
 
-		public tara.magritte.Concept concept() {
+		public io.intino.tara.magritte.Concept concept() {
 			return this.graph().concept(io.intino.legio.Project.Factory.class);
 		}
 
 		@Override
-		protected void addNode(tara.magritte.Node node) {
+		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$Factory$Interface")) this.interface$ = node.as(io.intino.legio.Project.Factory.Interface.class);
 			if (node.is("Project$Factory$Behavior")) this.behavior = node.as(io.intino.legio.Project.Factory.Behavior.class);
 		}
 
 		@Override
-	    protected void removeNode(tara.magritte.Node node) {
+	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$Factory$Interface")) this.interface$ = null;
 	        if (node.is("Project$Factory$Behavior")) this.behavior = null;
@@ -1736,10 +1736,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			
 		}
 		
-		public static class Interface extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		public static class Interface extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String version;
 
-			public Interface(tara.magritte.Node node) {
+			public Interface(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1758,7 +1758,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Factory.Interface.class);
 			}
 
@@ -1796,10 +1796,10 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 			}
 		}
 		
-		public static class Behavior extends tara.magritte.Layer implements tara.magritte.tags.Terminal {
+		public static class Behavior extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String version;
 
-			public Behavior(tara.magritte.Node node) {
+			public Behavior(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1818,7 +1818,7 @@ public class Project extends tara.magritte.Layer implements tara.magritte.tags.T
 				return map;
 			}
 
-			public tara.magritte.Concept concept() {
+			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Factory.Behavior.class);
 			}
 

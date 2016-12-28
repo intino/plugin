@@ -1,12 +1,12 @@
-package io.intino.legio.integer;
+package io.intino.legio.int;
 
 import io.intino.legio.*;
 
 
-public class IntegerParameter extends io.intino.legio.type.TypeParameter implements tara.magritte.tags.Terminal {
+public class IntParameter extends io.intino.legio.type.TypeParameter implements io.intino.tara.magritte.tags.Terminal {
 	protected int value;
 
-	public IntegerParameter(tara.magritte.Node node) {
+	public IntParameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -33,7 +33,7 @@ public class IntegerParameter extends io.intino.legio.type.TypeParameter impleme
 		return map;
 	}
 
-	public tara.magritte.Concept concept() {
+	public io.intino.tara.magritte.Concept concept() {
 		return this.graph().concept(io.intino.legio.Parameter.class);
 	}
 

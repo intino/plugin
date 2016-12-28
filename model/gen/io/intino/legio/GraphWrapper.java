@@ -1,10 +1,10 @@
 package io.intino.legio;
 
-import tara.magritte.Graph;
+import Graph;
 
-public class GraphWrapper extends tara.magritte.GraphWrapper {
+public class GraphWrapper extends GraphWrapper {
 
-	protected tara.magritte.Graph graph;
+	protected Graph graph;
 	private io.intino.legio.Project project;
 	private io.intino.legio.LifeCycle lifeCycle;
 	private java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList;
@@ -14,11 +14,11 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	private java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList;
 	private java.util.List<io.intino.legio.type.TypeParameter> typeParameterList;
 	private java.util.List<io.intino.legio.real.RealParameter> realParameterList;
-	private java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList;
+	private java.util.List<io.intino.legio.int.IntParameter> intParameterList;
 	private java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList;
 	private java.util.List<io.intino.legio.text.TextParameter> textParameterList;
 
-	public GraphWrapper(tara.magritte.Graph graph) {
+	public GraphWrapper(Graph graph) {
 		this.graph = graph;
 		this.graph.i18n().register("Legio");
 	    update();
@@ -34,13 +34,13 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		systemFactoryList = this.graph.rootList(io.intino.legio.system.project.SystemFactory.class);
 		typeParameterList = this.graph.rootList(io.intino.legio.type.TypeParameter.class);
 		realParameterList = this.graph.rootList(io.intino.legio.real.RealParameter.class);
-		integerParameterList = this.graph.rootList(io.intino.legio.integer.IntegerParameter.class);
+		intParameterList = this.graph.rootList(io.intino.legio.int.IntParameter.class);
 		boolParameterList = this.graph.rootList(io.intino.legio.bool.BoolParameter.class);
 		textParameterList = this.graph.rootList(io.intino.legio.text.TextParameter.class);
 	}
 
 	@Override
-	protected void addNode(tara.magritte.Node node) {
+	protected void addNode(Node node) {
 		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
 		if (node.is("RunnablePackage")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
@@ -50,13 +50,13 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		if (node.is("SystemFactory")) this.systemFactoryList.add(node.as(io.intino.legio.system.project.SystemFactory.class));
 		if (node.is("TypeParameter")) this.typeParameterList.add(node.as(io.intino.legio.type.TypeParameter.class));
 		if (node.is("RealParameter")) this.realParameterList.add(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("IntegerParameter")) this.integerParameterList.add(node.as(io.intino.legio.integer.IntegerParameter.class));
+		if (node.is("IntParameter")) this.intParameterList.add(node.as(io.intino.legio.int.IntParameter.class));
 		if (node.is("BoolParameter")) this.boolParameterList.add(node.as(io.intino.legio.bool.BoolParameter.class));
 		if (node.is("TextParameter")) this.textParameterList.add(node.as(io.intino.legio.text.TextParameter.class));
 	}
 
 	@Override
-	protected void removeNode(tara.magritte.Node node) {
+	protected void removeNode(Node node) {
 		if (node.is("Project")) this.project = null;
 		if (node.is("LifeCycle")) this.lifeCycle = null;
 		if (node.is("RunnablePackage")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
@@ -66,7 +66,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		if (node.is("SystemFactory")) this.systemFactoryList.remove(node.as(io.intino.legio.system.project.SystemFactory.class));
 		if (node.is("TypeParameter")) this.typeParameterList.remove(node.as(io.intino.legio.type.TypeParameter.class));
 		if (node.is("RealParameter")) this.realParameterList.remove(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("IntegerParameter")) this.integerParameterList.remove(node.as(io.intino.legio.integer.IntegerParameter.class));
+		if (node.is("IntParameter")) this.intParameterList.remove(node.as(io.intino.legio.int.IntParameter.class));
 		if (node.is("BoolParameter")) this.boolParameterList.remove(node.as(io.intino.legio.bool.BoolParameter.class));
 		if (node.is("TextParameter")) this.textParameterList.remove(node.as(io.intino.legio.text.TextParameter.class));
 	}
@@ -83,43 +83,43 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return graph.i18n().wordsIn(language);
 	}
 
-	public tara.magritte.Concept concept(String concept) {
+	public Concept concept(String concept) {
 		return graph.concept(concept);
 	}
 
-	public tara.magritte.Concept concept(java.lang.Class<? extends tara.magritte.Layer> layerClass) {
+	public Concept concept(java.lang.Class<? extends Layer> layerClass) {
 		return graph.concept(layerClass);
 	}
 
-	public java.util.List<tara.magritte.Concept> conceptList() {
+	public java.util.List<Concept> conceptList() {
 		return graph.conceptList();
 	}
 
-	public java.util.List<tara.magritte.Concept> conceptList(java.util.function.Predicate<tara.magritte.Concept> predicate) {
+	public java.util.List<Concept> conceptList(java.util.function.Predicate<Concept> predicate) {
 		return graph.conceptList(predicate);
 	}
 
-	public tara.magritte.Node createRoot(tara.magritte.Concept concept, String namespace) {
+	public Node createRoot(Concept concept, String namespace) {
 		return graph.createRoot(concept, namespace);
 	}
 
-	public <T extends tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace) {
+	public <T extends Layer> T createRoot(java.lang.Class<T> layerClass, String namespace) {
 		return graph.createRoot(layerClass, namespace);
 	}
 
-	public tara.magritte.Node createRoot(String concept, String namespace) {
+	public Node createRoot(String concept, String namespace) {
 		return graph.createRoot(concept, namespace);
 	}
 
-	public <T extends tara.magritte.Layer> T createRoot(java.lang.Class<T> layerClass, String namespace, String id) {
+	public <T extends Layer> T createRoot(java.lang.Class<T> layerClass, String namespace, String id) {
 		return graph.createRoot(layerClass, namespace, id);
 	}
 
-	public tara.magritte.Node createRoot(String concept, String namespace, String id) {
+	public Node createRoot(String concept, String namespace, String id) {
 		return graph.createRoot(concept, namespace, id);
 	}
 
-	public tara.magritte.Node createRoot(tara.magritte.Concept concept, String namespace, String id) {
+	public Node createRoot(Concept concept, String namespace, String id) {
 		return graph.createRoot(concept, namespace, id);
 	}
 
@@ -159,8 +159,8 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 	    return realParameterList;
 	}
 
-	public java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList() {
-	    return integerParameterList;
+	public java.util.List<io.intino.legio.int.IntParameter> intParameterList() {
+	    return intParameterList;
 	}
 
 	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList() {
@@ -227,12 +227,12 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return realParameterList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.integer.IntegerParameter> integerParameterList(java.util.function.Predicate<io.intino.legio.integer.IntegerParameter> predicate) {
-	    return integerParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.int.IntParameter> intParameterList(java.util.function.Predicate<io.intino.legio.int.IntParameter> predicate) {
+	    return intParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.integer.IntegerParameter integerParameter(int index) {
-		return integerParameterList.get(index);
+	public io.intino.legio.int.IntParameter intParameter(int index) {
+		return intParameterList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList(java.util.function.Predicate<io.intino.legio.bool.BoolParameter> predicate) {
@@ -251,7 +251,7 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 		return textParameterList.get(index);
 	}
 
-	public tara.magritte.Graph graph() {
+	public Graph graph() {
 		return graph;
 	}
 
@@ -322,8 +322,8 @@ public class GraphWrapper extends tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.integer.IntegerParameter integerParameter(int value) {
-			io.intino.legio.integer.IntegerParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.integer.IntegerParameter.class, namespace, name).as(io.intino.legio.integer.IntegerParameter.class);
+		public io.intino.legio.int.IntParameter intParameter(int value) {
+			io.intino.legio.int.IntParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.int.IntParameter.class, namespace, name).as(io.intino.legio.int.IntParameter.class);
 			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}

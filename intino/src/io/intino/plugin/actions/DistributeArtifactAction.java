@@ -13,7 +13,7 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.ArtifactManager;
 import io.intino.plugin.build.LifeCyclePhase;
 import org.jetbrains.annotations.NotNull;
-import tara.intellij.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

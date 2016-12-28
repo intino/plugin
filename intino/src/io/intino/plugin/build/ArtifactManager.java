@@ -23,11 +23,11 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import org.jetbrains.annotations.NotNull;
-import tara.compiler.shared.Configuration;
-import tara.intellij.lang.LanguageManager;
-import tara.intellij.lang.TaraIcons;
-import tara.intellij.lang.psi.impl.TaraUtil;
-import tara.intellij.settings.TaraSettings;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.TaraIcons;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.settings.TaraSettings;
 
 import java.io.File;
 import java.io.IOException;
