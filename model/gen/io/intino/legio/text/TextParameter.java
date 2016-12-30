@@ -41,7 +41,7 @@ public class TextParameter extends io.intino.legio.type.TypeParameter implements
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
 		_parameter.node().load(_parameter, name, values);
-		if (name.equalsIgnoreCase("value")) this.value = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("value")) this.value = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override

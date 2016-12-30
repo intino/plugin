@@ -1,12 +1,12 @@
-package io.intino.legio.int;
+package io.intino.legio.number;
 
 import io.intino.legio.*;
 
 
-public class IntParameter extends io.intino.legio.type.TypeParameter implements io.intino.tara.magritte.tags.Terminal {
+public class NumberParameter extends io.intino.legio.type.TypeParameter implements io.intino.tara.magritte.tags.Terminal {
 	protected int value;
 
-	public IntParameter(io.intino.tara.magritte.Node node) {
+	public NumberParameter(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -41,7 +41,7 @@ public class IntParameter extends io.intino.legio.type.TypeParameter implements 
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
 		_parameter.node().load(_parameter, name, values);
-		if (name.equalsIgnoreCase("value")) this.value = tara.magritte.loaders.IntegerLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("value")) this.value = io.intino.tara.magritte.loaders.IntegerLoader.load(values, this).get(0);
 	}
 
 	@Override

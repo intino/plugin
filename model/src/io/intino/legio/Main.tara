@@ -1,82 +1,82 @@
 dsl Proteo
 
 Concept:{1..1}:Named Project
-	var String groupId
-	var String version
+	var string groupId
+	var string version
 	Concept:{0..1} License
-		var Word:{GPL BSD} type
+		var word:{GPL BSD} type
 	Concept:{0..1} Repositories
 		Concept Repository
-			var String url
-			var String mavenId
+			var string url
+			var string mavenId
 			sub Release
 			sub:{0..1} Snapshot
 			sub:{0..1} Language
 
 	Concept:{0..1} Dependencies
 		Concept Dependency
-			var String identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-			var String name = '"Legio: " + self.identifier()' is private reactive
-			var String groupId
-			var String artifactId
-			var String version
-			var String effectiveVersion = "" is private
-			var Boolean transitive = true
-			var String[] artifacts is private
-			var Boolean resolved = false is private
-			var Boolean toModule = false is private
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string name = '"Legio: " + self.identifier()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
+			var string effectiveVersion = "" is private
+			var boolean transitive = true
+			var string[] artifacts is private
+			var boolean resolved = false is private
+			var boolean toModule = false is private
 			sub Compile
 			sub Runtime
 			sub Provided
 			sub Test
 	Concept:{0..1} WebDependencies
-		var String webDirectory = "lib"
+		var string webDirectory = "lib"
 		Concept Resolution
-			var String name
-			var String version
+			var string name
+			var string version
 		Concept:Named WebComponent
-			var String url = ""
-			var String version
+			var string url = ""
+			var string version
 		Concept WebActivity
-			var String identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-			var String groupId
-			var String artifactId
-			var String version
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
 	Concept:{0..1} Factory
-		var String inPackage = ""
+		var string inPackage = ""
 		Concept:{0..1} Interface
-			var String version
+			var string version
 		Concept:{0..1} Behavior
-			var String version
+			var string version
 
 Concept:{0..1} LifeCycle
 	Concept:{0..1} Package
-		var Word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} type
-		var Boolean attachSources = false
-		var Boolean attachDoc = false
-		var Boolean includeTests = false
-		var String classpathPrefix = empty
-		var String finalName = empty
+		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} type
+		var boolean attachSources = false
+		var boolean attachDoc = false
+		var boolean includeTests = false
+		var string classpathPrefix = empty
+		var string finalName = empty
 		Concept MavenPlugin
-			var String code
+			var string code
 
 	Concept:{0..1} Distribution
 		has:{0..1} Project.Repositories.Release
 		has:{0..1} Project.Repositories.Snapshot
 		has:{0..1} Project.Repositories.Language
 		Concept:{0..1} Bitbucket
-			var String user
-			var String token
+			var string user
+			var string token
 
 	Concept:{0..1} QualityAnalytics
-		var String serverUrl
+		var string serverUrl
 		Concept:{0..1} Authentication
-			var String token
+			var string token
 
 	Concept:{0..1} Publishing
-		var String cesarURL
+		var string cesarURL
 		Concept:{1..*} Destination
-			var String publicURL
+			var string publicURL
 			Concept Requirements
 				Concept Memory
 				Concept CPU
@@ -85,30 +85,30 @@ Concept:{0..1} LifeCycle
 			sub Deploy
 
 Facet Runnable on LifeCycle.Package
-	var String mainClass
+	var string mainClass
 
 Facet Level on Project.Factory
-	var String language
-	var String version
-	var String effectiveVersion = "" is private
+	var string language
+	var string version
+	var string effectiveVersion = "" is private
 	sub Platform
 	sub Application
 	sub System
 
 Concept Parameter is component
-	var Boolean required = false
+	var boolean required = false
 
 Facet Type on Parameter
-	var String type is reactive private
+	var string type is reactive private
 	sub Real
-    	var Double value
-		var String type = "Double" is reactive private
-	sub Int
-		var Integer value
-		var String type = "Integer" is reactive private
+    	var double value
+		var string type = "Double" is reactive private
+	sub Number
+		var integer value
+		var string type = "Integer" is reactive private
 	sub Bool
-    	var Boolean value
-		var String type = "Boolean" is reactive private
+    	var boolean value
+		var string type = "Boolean" is reactive private
 	sub Text
-    	var String value
-		var String type = "String" is reactive private
+    	var string value
+		var string type = "string" is reactive private

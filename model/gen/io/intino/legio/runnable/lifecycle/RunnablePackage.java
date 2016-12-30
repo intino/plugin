@@ -6,7 +6,7 @@ import io.intino.legio.*;
 public class RunnablePackage extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	
-	protected io.intino.legio.LifeCycle.Package _package$;
+	protected io.intino.legio.LifeCycle.Package _package;
 
 	public RunnablePackage(io.intino.tara.magritte.Node node) {
 		super(node);
@@ -97,7 +97,7 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("mainClass")) this.mainClass = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("mainClass")) this.mainClass = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override

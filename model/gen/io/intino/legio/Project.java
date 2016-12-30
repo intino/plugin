@@ -117,8 +117,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("groupId")) this.groupId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-		else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("groupId")) this.groupId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
@@ -204,7 +204,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = WordLoader.load(values, Type.class, this).get(0);
+			if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
 		}
 
 		@Override
@@ -416,8 +416,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("url")) this.url = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("mavenId")) this.mavenId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("url")) this.url = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("mavenId")) this.mavenId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -790,8 +790,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		}
 		
 		public static abstract class Dependency extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected Expression<java.lang.String> identifier;
-			protected Expression<java.lang.String> name;
+			protected io.intino.tara.magritte.Expression<java.lang.String> identifier;
+			protected io.intino.tara.magritte.Expression<java.lang.String> name;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
@@ -853,12 +853,12 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				return toModule;
 			}
 
-			public void identifier(Expression<java.lang.String> value) {
-				this.identifier = FunctionLoader.load(value, this, Expression.class);
+			public void identifier(io.intino.tara.magritte.Expression<java.lang.String> value) {
+				this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 			}
 
-			public void name(Expression<java.lang.String> value) {
-				this.name = FunctionLoader.load(value, this, Expression.class);
+			public void name(io.intino.tara.magritte.Expression<java.lang.String> value) {
+				this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 			}
 
 			public void groupId(java.lang.String value) {
@@ -912,23 +912,23 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values, this, Expression.class).get(0);
-				else if (name.equalsIgnoreCase("name")) this.name = FunctionLoader.load(values, this, Expression.class).get(0);
-				else if (name.equalsIgnoreCase("groupId")) this.groupId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("transitive")) this.transitive = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = tara.magritte.loaders.StringLoader.load(values, this);
-				else if (name.equalsIgnoreCase("resolved")) this.resolved = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("toModule")) this.toModule = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
+				else if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
+				else if (name.equalsIgnoreCase("groupId")) this.groupId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("transitive")) this.transitive = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
+				else if (name.equalsIgnoreCase("resolved")) this.resolved = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("toModule")) this.toModule = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values.get(0), this, Expression.class);
-				else if (name.equalsIgnoreCase("name")) this.name = FunctionLoader.load(values.get(0), this, Expression.class);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
+				else if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
@@ -1261,7 +1261,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("webDirectory")) this.webDirectory = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("webDirectory")) this.webDirectory = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -1347,8 +1347,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("name")) this.name = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -1419,8 +1419,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("url")) this.url = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("url")) this.url = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -1453,7 +1453,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		}
 		
 		public static class WebActivity extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected Expression<java.lang.String> identifier;
+			protected io.intino.tara.magritte.Expression<java.lang.String> identifier;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
@@ -1478,8 +1478,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				return version;
 			}
 
-			public void identifier(Expression<java.lang.String> value) {
-				this.identifier = FunctionLoader.load(value, this, Expression.class);
+			public void identifier(io.intino.tara.magritte.Expression<java.lang.String> value) {
+				this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 			}
 
 			public void groupId(java.lang.String value) {
@@ -1511,16 +1511,16 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values, this, Expression.class).get(0);
-				else if (name.equalsIgnoreCase("groupId")) this.groupId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
+				else if (name.equalsIgnoreCase("groupId")) this.groupId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("identifier")) this.identifier = FunctionLoader.load(values.get(0), this, Expression.class);
+				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
@@ -1698,7 +1698,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("inPackage")) this.inPackage = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("inPackage")) this.inPackage = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -1765,7 +1765,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -1825,7 +1825,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("version")) this.version = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override

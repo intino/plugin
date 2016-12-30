@@ -10,16 +10,17 @@ import com.jcabi.aether.Aether;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.dsl.Proteo;
+import io.intino.tara.dsl.Verso;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import io.intino.tara.compiler.shared.Configuration;
-import tara.dsl.Proteo;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,6 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.application.ModalityState.defaultModalityState;
-import static tara.dsl.ProteoConstants.PROTEO;
-import static tara.dsl.ProteoConstants.VERSO;
 
 public class LanguageResolver {
 	private final Module module;
@@ -52,13 +51,7 @@ public class LanguageResolver {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
-<<<<<<< HEAD
-		if (language.equals(PROTEO) || language.equals(VERSO))
-			libraries.addAll(proteoFramework(version));
-		else libraries.addAll(frameworkOfLanguage());
-=======
 		libraries.addAll(hasMagritteLibrary(this.language) ? proteoFramework(version) : languageFramework());
->>>>>>> e88f057... configuration
 		return libraries;
 	}
 
@@ -74,7 +67,7 @@ public class LanguageResolver {
 
 	private List<Library> loadProteoLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
-		final List<Artifact> languageFramework = findLanguageFramework(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version);
+		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
 		if (!languageFramework.isEmpty())
 			factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 		else factory.asLevel().effectiveVersion("");
@@ -136,10 +129,9 @@ public class LanguageResolver {
 		}
 	}
 
-
 	public static String languageID(String language, String version) {
-		if (language.equals(PROTEO) || language.equals(VERSO))
-			return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
+		if (hasMagritteLibrary(language))
+			return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
 		else try {
@@ -163,5 +155,14 @@ public class LanguageResolver {
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
+	}
+
+	@NotNull
+	private static String magritteID(String version) {
+		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
+	}
+
+	private static boolean hasMagritteLibrary(String language) {
+		return language.equals(Proteo.class.getSimpleName()) || language.equals(Verso.class.getSimpleName());
 	}
 }

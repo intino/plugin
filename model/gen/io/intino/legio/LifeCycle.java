@@ -267,12 +267,12 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = WordLoader.load(values, Type.class, this).get(0);
-			else if (name.equalsIgnoreCase("attachSources")) this.attachSources = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("finalName")) this.finalName = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			else if (name.equalsIgnoreCase("attachSources")) this.attachSources = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("attachDoc")) this.attachDoc = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("includeTests")) this.includeTests = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("classpathPrefix")) this.classpathPrefix = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("finalName")) this.finalName = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -338,7 +338,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("code")) this.code = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("code")) this.code = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -549,8 +549,8 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("user")) this.user = tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("token")) this.token = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("user")) this.user = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("token")) this.token = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -644,7 +644,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("serverUrl")) this.serverUrl = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("serverUrl")) this.serverUrl = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -705,7 +705,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("token")) this.token = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("token")) this.token = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -840,7 +840,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -960,7 +960,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("publicURL")) this.publicURL = tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("publicURL")) this.publicURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override

@@ -2,11 +2,11 @@ package io.intino.plugin.project;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.intino.legio.LegioApplication;
-import tara.io.Stash;
-import tara.io.StashSerializer;
-import tara.magritte.Graph;
-import tara.magritte.Store;
-import tara.magritte.stores.FileSystemStore;
+import io.intino.tara.io.Stash;
+import io.intino.tara.io.StashSerializer;
+import io.intino.tara.magritte.Graph;
+import io.intino.tara.magritte.Store;
+import io.intino.tara.magritte.stores.FileSystemStore;
 
 import java.io.File;
 import java.io.IOException;

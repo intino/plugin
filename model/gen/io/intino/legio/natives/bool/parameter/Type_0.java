@@ -12,12 +12,12 @@ public class Type_0 implements io.intino.tara.magritte.Expression<String> {
 	}
 
 	@Override
-	public void self(Layer context) {
+	public void self(io.intino.tara.magritte.Layer context) {
 		self = (io.intino.legio.bool.BoolParameter) context;
 	}
 
 	@Override
-	public Class<? extends Layer> selfClass() {
+	public Class<? extends io.intino.tara.magritte.Layer> selfClass() {
 		return io.intino.legio.bool.BoolParameter.class;
 	}
 }
