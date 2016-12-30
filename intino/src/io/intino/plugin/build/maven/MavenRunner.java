@@ -6,6 +6,10 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.plugin.build.LifeCyclePhase;
+import io.intino.tara.compiler.codegeneration.FileSystemUtils;
+import io.intino.tara.compiler.core.errorcollection.TaraException;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.LanguageManager;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -15,12 +19,11 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import io.intino.tara.compiler.core.errorcollection.TaraException;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
@@ -130,7 +133,16 @@ public class MavenRunner {
 
 	@NotNull
 	private String fileOfLanguage(Configuration conf) {
-		return LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.modelVersion() + "/" + conf.artifactId() + "-" + conf.modelVersion() + ".jar ";
+		try {
+			final String originalFile = LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.modelVersion() + "/" + conf.artifactId() + "-" + conf.modelVersion() + ".jar";
+			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
+			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
+			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());
+			return destination.getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	private void throwException(InvocationResult result, String message, LifeCyclePhase phase) throws IOException {
