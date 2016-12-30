@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.moandjiezana.toml.Toml;
 import io.intino.plugin.IntinoIcons;
-import tara.Language;
+import io.intino.tara.Language;
 import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
@@ -94,16 +94,16 @@ public class BuilderLoader {
 
 	}
 
-	private synchronized static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
+	private static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			LOG.error(e.toString() + ": " + e.getMessage());
+			LOG.error(e.getMessage());
 			return null;
 		}
 	}
 
-	private synchronized static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
+	private static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
 		try {
 			return (ActionGroup) classLoader.loadClass(group.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -121,7 +121,7 @@ public class BuilderLoader {
 		try {
 			return l.toURI().toURL();
 		} catch (MalformedURLException e) {
-			LOG.error("Malformed URL");
+			e.printStackTrace();
 			return null;
 		}
 	}

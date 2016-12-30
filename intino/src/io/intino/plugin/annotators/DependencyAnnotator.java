@@ -7,7 +7,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import tara.lang.model.Node;
+import io.intino.tara.lang.model.Node;
 
 public class DependencyAnnotator extends TaraAnnotator {
 

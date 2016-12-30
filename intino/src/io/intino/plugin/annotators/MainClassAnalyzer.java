@@ -6,9 +6,9 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import tara.lang.model.Node;
-import tara.lang.model.Parameter;
-import tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.plugin.MessageProvider.message;

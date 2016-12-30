@@ -7,7 +7,7 @@ import io.intino.plugin.file.legio.LegioFileType;
 import org.jetbrains.annotations.NotNull;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.project.module.ModuleProvider;
-import tara.lang.model.Node;
+import io.intino.tara.lang.model.Node;
 
 public class LanguageDeclarationAnnotator extends TaraAnnotator {
 

@@ -9,13 +9,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.jcabi.aether.Aether;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.dsl.Proteo;
+import io.intino.tara.dsl.Verso;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 import io.intino.tara.compiler.shared.Configuration;
-import tara.dsl.ProteoConstants;
 import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
@@ -46,7 +47,7 @@ public class LanguageImporter {
 
     private boolean downloadLanguage(String name, String version) {
         try {
-            if (name.equals(ProteoConstants.PROTEO) || name.equals(ProteoConstants.VERSO)) return true;
+            if (name.equalsIgnoreCase(Proteo.class.getSimpleName()) || name.equals(Verso.class.getSimpleName())) return true;
             final File languagesDirectory = new File(LanguageManager.getLanguagesDirectory().getPath());
             new Aether(repository(), languagesDirectory).resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
             return true;
