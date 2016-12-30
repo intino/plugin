@@ -1,5 +1,7 @@
 package io.intino.legio;
 
+import io.intino.tara.magritte.Graph;
+
 public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	protected io.intino.tara.magritte.Graph graph;

@@ -51,9 +51,7 @@ public class LanguageResolver {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
-		if (hasMagritteLibrary(this.language))
-			libraries.addAll(proteoFramework(version));
-		else libraries.addAll(frameworkOfLanguage());
+		libraries.addAll(hasMagritteLibrary(this.language) ? proteoFramework(version) : languageFramework());
 		return libraries;
 	}
 
@@ -78,7 +76,7 @@ public class LanguageResolver {
 		return libraries;
 	}
 
-	private List<Library> frameworkOfLanguage() {
+	private List<Library> languageFramework() {
 		final List<Library> libraries = new ArrayList<>();
 		final Module module = moduleOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
