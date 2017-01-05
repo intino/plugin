@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.configuration.ChooseModulesDialog;
 import com.intellij.openapi.ui.Messages;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.build.ArtifactManager;
+import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.LifeCyclePhase;
 import org.jetbrains.annotations.NotNull;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -51,8 +51,8 @@ public class DistributeArtifactAction extends AnAction implements DumbAware {
 			ChooseModulesDialog dialog = createDialog(project, validModules);
 			dialog.show();
 			if (dialog.isOK())
-				new ArtifactManager(project, dialog.getChosenElements(), LifeCyclePhase.DISTRIBUTE).process();
-		} else new ArtifactManager(project, validModules, LifeCyclePhase.DISTRIBUTE).process();
+				new ArtifactBuilder(project, dialog.getChosenElements(), LifeCyclePhase.DISTRIBUTE).build();
+		} else new ArtifactBuilder(project, validModules, LifeCyclePhase.DISTRIBUTE).build();
 	}
 
 	private ChooseModulesDialog createDialog(Project project, List<Module> taraModules) {

@@ -26,10 +26,10 @@ def type(pom)
 			<testOutputDirectory>$testOutDirectory</testOutputDirectory>
 			<directory>$buildDirectory~$artifactId+lowercase</directory>
 			[<resources>
-				$resourceDirectory
+				$resourceDirectory...[$NL]
 			</resources>]
 			[<testResources>
-				$resourceTestDirectory
+				$resourceTestDirectory...[$NL]
 			</testResources>]
 			<plugins>[
 				$extractedLibraries
@@ -99,7 +99,7 @@ def type(pom)
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.7</version>
+					<version>1.9.1</version>
 					<executions>
 						<execution>
 							<id>add-source</id>
@@ -114,27 +114,20 @@ def type(pom)
 								</sources>
 							</configuration>
 						</execution>
+						<execution>
+							<id>add-test-source</id>
+							<phase>generate-test-sources</phase>
+							<goals>
+								<goal>add-test-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>test-gen</source>
+								</sources>
+							</configuration>
+							</execution>
 					</executions>
 				</plugin>]
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.9.1</version>
-					<executions>
-					<execution>
-					<id>add-test-source</id>
-					<phase>generate-test-sources</phase>
-					<goals>
-						<goal>add-test-source</goal>
-					</goals>
-					<configuration>
-						<sources>
-							<source>test-gen</source>
-						</sources>
-					</configuration>
-					</execution>
-					</executions>
-				</plugin>
 				[$attachSources
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -214,7 +207,7 @@ end
 
 def type(repository) !type(Distribution) trigger(release)
 	<repository>
-		<id>$name</id>
+		<id>$name~-$type</id>
 		<name>$name~-$type</name>
 		<url>$url</url>
 	</repository>

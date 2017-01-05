@@ -35,18 +35,18 @@ import java.util.List;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 
-public class ArtifactManager extends AbstractArtifactManager {
+public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private final Project project;
 	private List<Module> modules;
 	private LifeCyclePhase lifeCyclePhase;
 
-	public ArtifactManager(Project project, final List<Module> modules, LifeCyclePhase phase) {
+	public ArtifactBuilder(Project project, final List<Module> modules, LifeCyclePhase phase) {
 		this.project = project;
 		this.modules = modules;
 		this.lifeCyclePhase = phase;
 	}
 
-	public void process() {
+	public void build() {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
 		CompileScope scope = compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true);
 		if (languageExists()) compilerManager.make(scope, processArtifact());
@@ -57,7 +57,7 @@ public class ArtifactManager extends AbstractArtifactManager {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
 			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.modelVersion());
-			if (shouldDeployLanguage(module, lifeCyclePhase) && !languageFile.exists()) return false;
+			if (shouldDistributeLanguage(module, lifeCyclePhase) && !languageFile.exists()) return false;
 		}
 		return true;
 	}

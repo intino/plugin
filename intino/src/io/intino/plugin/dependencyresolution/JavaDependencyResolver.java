@@ -93,7 +93,6 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Artifact> collectArtifacts(Dependency dependency) {
-		System.out.println(dependency.identifier());
 		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);

@@ -7,16 +7,16 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
-import io.intino.plugin.build.cesar.PublishManager;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
-import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import io.intino.plugin.publishing.ArtifactPublisher;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,42 +27,32 @@ import java.util.List;
 import static io.intino.tara.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
 
 
-abstract class AbstractArtifactManager {
+abstract class AbstractArtifactBuilder {
 	private static final String JAR_EXTENSION = ".jar";
 
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
-	boolean process(final Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+	void process(final Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
 		processLanguage(module, phase, indicator);
+		if (!errorMessages.isEmpty()) return;
 		processFramework(module, phase, indicator);
+		if (!errorMessages.isEmpty()) return;
 		publish(module, phase, indicator);
-		return true;
-	}
-
-	private void publish(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
-		if (phase.equals(LifeCyclePhase.PREDEPLOY) || phase.equals(LifeCyclePhase.DEPLOY)) {
-			updateProgressIndicator(indicator, MessageProvider.message("publishing.artifact"));
-			new PublishManager(phase, module).execute();
-		}
 	}
 
 	private void processLanguage(Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (shouldDeployLanguage(module, lifeCyclePhase)) {
+		if (shouldDistributeLanguage(module, lifeCyclePhase)) {
 			updateProgressIndicator(indicator, MessageProvider.message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
 			distributeLanguage(module);
 		}
 	}
 
 	private void distributeLanguage(Module module) {
-		Configuration configuration = TaraUtil.configurationOf(module);
-		File dslFile = dslFilePath(configuration);
-		LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
-		distributeLanguage(module, configuration);
-	}
-
-	private void distributeLanguage(Module module, Configuration configuration) {
 		try {
+			Configuration configuration = TaraUtil.configurationOf(module);
+			File dslFile = dslFilePath(configuration);
+			LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
 			MavenRunner runner = new MavenRunner(module);
 			runner.executeLanguage(configuration);
 		} catch (Exception e) {
@@ -73,16 +63,33 @@ abstract class AbstractArtifactManager {
 	private void processFramework(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
 		updateProgressIndicator(indicator, MessageProvider.message("framework.action", firstUpperCase(phase.gerund().toLowerCase())));
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration instanceof LegioConfiguration) {
+		try {
+			check(phase, configuration);
+			executeGulpDependencies(module);
+			new MavenRunner(module).executeFramework(phase);
+		} catch (MavenInvocationException | IOException | IntinoException e) {
+			errorMessages.add(e.getMessage());
+		}
+	}
+
+	private void check(LifeCyclePhase phase, Configuration configuration) throws IntinoException {
+		if (!(configuration instanceof LegioConfiguration))
+			throw new IntinoException(MessageProvider.message("legio.configuration.not.found"));
+		if (noDistributionRepository(phase, configuration))
+			throw new IntinoException(MessageProvider.message("distribution.repository.not.found"));
+	}
+
+	private boolean publish(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+		if (phase.equals(LifeCyclePhase.PREDEPLOY) || phase.equals(LifeCyclePhase.DEPLOY)) {
+			updateProgressIndicator(indicator, MessageProvider.message("publishing.artifact"));
 			try {
-				if (noDistributionRepository(phase, configuration))
-					throw new IntinoException(MessageProvider.message("distribution.repository.not.found"));
-				executeGulpDependencies(module);
-				new MavenRunner(module).executeFramework(phase);
-			} catch (MavenInvocationException | IOException | IntinoException e) {
+				new ArtifactPublisher(phase, module).execute();
+			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
+				return false;
 			}
-		} else new MavenRunner(module).invokeMaven("install", "deploy");
+		}
+		return true;
 	}
 
 	private void executeGulpDependencies(Module module) {
@@ -97,7 +104,7 @@ abstract class AbstractArtifactManager {
 		return configuration.distributionReleaseRepository() == null && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
-	protected boolean shouldDeployLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
+	protected boolean shouldDistributeLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
 		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 

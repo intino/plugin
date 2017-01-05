@@ -2,7 +2,7 @@ package io.intino.legio.natives.number.parameter;
 
 
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#108#2**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#109#2**/
 public class Type_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.number.NumberParameter self;
 

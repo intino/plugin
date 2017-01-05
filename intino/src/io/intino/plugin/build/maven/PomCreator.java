@@ -14,13 +14,13 @@ import io.intino.legio.Project.Repositories.Repository;
 import io.intino.legio.Project.Repositories.Snapshot;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.AbstractMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
@@ -91,11 +93,17 @@ class PomCreator {
 			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
 		if (build != null) configureBuild(frame, configuration.licence(), build);
-		for (Dependency dependency : configuration.dependencies())
-			frame.addSlot("dependency", createDependencyFrame(dependency));
-		addModuleTypeDependencies(frame);
-		addLevelDependency(frame);
+		addDependencies(frame);
 		addRepositories(frame);
+	}
+
+	private void addDependencies(Frame frame) {
+		Set<String> dependencies = new HashSet<>();
+		addDependantModuleSources(frame, module);
+		for (Dependency dependency : configuration.dependencies())
+			if (dependencies.add(dependency.identifier())) frame.addSlot("dependency", createDependencyFrame(dependency));
+		addModuleTypeDependencies(frame, dependencies);
+		addLevelDependency(frame);
 	}
 
 	private void addRepositories(Frame frame) {
@@ -112,11 +120,11 @@ class PomCreator {
 		}
 	}
 
-	private void addModuleTypeDependencies(Frame frame) {
+	private void addModuleTypeDependencies(Frame frame, Set<String> dependencies) {
 		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
-				frame.addSlot("dependency", createDependencyFrame(d));
+				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
 			if (configuration.level() != null) {
 				final String language = LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
 				if (language == null || language.isEmpty()) return;
@@ -160,7 +168,6 @@ class PomCreator {
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
-		addDependantModuleSources(frame, module);
 		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
@@ -194,7 +201,9 @@ class PomCreator {
 	}
 
 	private Frame createDependencyFrame(Dependency id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).addSlot("version", id.version());
+		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).
+				addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).
+				addSlot("version", id.effectiveVersion().isEmpty() ? id.version() : id.effectiveVersion());
 	}
 
 	private Frame createDependencyFrame(String[] id) {

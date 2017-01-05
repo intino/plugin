@@ -744,6 +744,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 	
 	public static class Publishing extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String cesarURL;
+		protected int managementPort;
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.Destination> destinationList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.PreDeploy> preDeployList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.Deploy> deployList = new java.util.ArrayList<>();
@@ -756,8 +757,16 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			return cesarURL;
 		}
 
+		public int managementPort() {
+			return managementPort;
+		}
+
 		public void cesarURL(java.lang.String value) {
 			this.cesarURL = value;
+		}
+
+		public void managementPort(int value) {
+			this.managementPort = value;
 		}
 
 		public java.util.List<io.intino.legio.LifeCycle.Publishing.Destination> destinationList() {
@@ -814,6 +823,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 			map.put("cesarURL", new java.util.ArrayList(java.util.Collections.singletonList(this.cesarURL)));
+			map.put("managementPort", new java.util.ArrayList(java.util.Collections.singletonList(this.managementPort)));
 			return map;
 		}
 
@@ -841,12 +851,14 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
 			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("managementPort")) this.managementPort = io.intino.tara.magritte.loaders.IntegerLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
 			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("managementPort")) this.managementPort = (java.lang.Integer) values.get(0);
 		}
 
 		public Create create() {

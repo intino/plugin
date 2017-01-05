@@ -1,59 +1,77 @@
-/*
- *  Copyright 2013-2016 SIANI - ULPGC
- *
- *  This File is part of JavaFMI Project
- *
- *  JavaFMI Project is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License.
- *
- *  JavaFMI Project is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with JavaFMI. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package io.intino.plugin.lifecycle;
 
+import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.util.Function;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.build.ArtifactManager;
+import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.LifeCyclePhase;
+import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.publishing.ArtifactManager;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.project.configuration.ConfigurationManager;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LifeCycleManagerView extends JPanel {
 	private JPanel contentPane;
 	private JPanel modulesPanel;
-	private static final Map<String, Icon> actions = new LinkedHashMap<>();
+	private static final Map<LifeCyclePhase, Icon> actions = new LinkedHashMap<>();
 
 	static {
-		actions.put("package", IntinoIcons.BLUE);
-		actions.put("install", IntinoIcons.GREEN);
-		actions.put("distribute", IntinoIcons.YELLOW);
-		actions.put("predeploy", IntinoIcons.ORANGE);
-		actions.put("deploy", IntinoIcons.RED);
+		actions.put(LifeCyclePhase.PACKAGE, IntinoIcons.BLUE);
+		actions.put(LifeCyclePhase.INSTALL, IntinoIcons.GREEN);
+		actions.put(LifeCyclePhase.DISTRIBUTE, IntinoIcons.YELLOW);
+		actions.put(LifeCyclePhase.PREDEPLOY, IntinoIcons.ORANGE);
+		actions.put(LifeCyclePhase.DEPLOY, IntinoIcons.RED);
+		actions.put(LifeCyclePhase.MANAGE, IntinoIcons.MANAGE);
 	}
 
 	private Project project;
 
 	LifeCycleManagerView(Project project) {
 		this.project = project;
+		project.getMessageBus().connect().subscribe(ProjectTopics.MODULES, new ModuleListener() {
+			@Override
+			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
+				initModuleActions(module);
+			}
+
+			@Override
+			public void beforeModuleRemoved(@NotNull Project project, @NotNull Module module) {
+
+			}
+
+			@Override
+			public void moduleRemoved(@NotNull Project project, @NotNull Module module) {
+				removeModuleActions(module);
+			}
+
+			@Override
+			public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
+				for (Module module : modules) {
+					if (!module.getName().equals(oldNameProvider.fun(module))) {
+						renameModuleActions(oldNameProvider.fun(module), module.getName());
+					}
+
+				}
+			}
+		});
 		modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));
-		initModuleActions(Arrays.asList(ModuleManager.getInstance(project).getModules()));
+		for (Module module : ModuleManager.getInstance(project).getModules()) initModuleActions(module);
 	}
 
 	private void createUIComponents() {
@@ -61,35 +79,64 @@ public class LifeCycleManagerView extends JPanel {
 		modulesPanel.setLayout(new BoxLayout(modulesPanel, BoxLayout.Y_AXIS));
 	}
 
-	private void initModuleActions(List<Module> modules) {
-		for (Module module : modules) {
-			JPanel panel = new JPanel();
-			BoxLayout layout = new BoxLayout(panel, BoxLayout.X_AXIS);
-			panel.setLayout(layout);
-			JBLabel label = new JBLabel(module.getName());
-			label.setMinimumSize(new Dimension(100, 30));
-			label.setPreferredSize(new Dimension(100, 30));
-			label.setMaximumSize(new Dimension(100, 30));
-			label.setAlignmentX(LEFT_ALIGNMENT);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			panel.add(label);
-			for (String action : actions.keySet()) {
-				panel.add(Box.createRigidArea(new Dimension(LifeCyclePhase.PREDEPLOY.name().equals(action.toUpperCase()) ? 20 : 10, 0)));
-				JButton button = new JButton(actions.get(action));
-				customizeButton(button, module, module.getName() + "_" + action, action);
-				panel.add(button);
-				if (!isAvailable(module, action)) button.setEnabled(false);
-			}
-			panel.setAlignmentX(LEFT_ALIGNMENT);
-			modulesPanel.add(panel);
+	private void initModuleActions(Module module) {
+		Configuration configuration = loadConfiguration(module);
+		if (configuration == null) return;
+		JPanel panel = new JPanel();
+		panel.setName(module.getName());
+		BoxLayout layout = new BoxLayout(panel, BoxLayout.X_AXIS);
+		panel.setLayout(layout);
+		JBLabel label = new JBLabel(module.getName());
+		label.setMinimumSize(new Dimension(100, 30));
+		label.setPreferredSize(new Dimension(100, 30));
+		label.setMaximumSize(new Dimension(100, 30));
+		label.setAlignmentX(LEFT_ALIGNMENT);
+		label.setHorizontalAlignment(SwingConstants.LEFT);
+		panel.add(label);
+		for (LifeCyclePhase action : actions.keySet()) {
+			JButton button = new JButton(actions.get(action));
+			customizeButton(button, module, module.getName() + "_" + action.name().toLowerCase(), action.name().toLowerCase());
+			if (!suitable(action, configuration)) continue;
+			panel.add(Box.createRigidArea(new Dimension(LifeCyclePhase.PREDEPLOY.equals(action) ? 20 : 10, 0)));
+			panel.add(button);
+			if (!isAvailable(configuration, action)) button.setEnabled(false);
 		}
-
+		panel.setAlignmentX(LEFT_ALIGNMENT);
+		modulesPanel.add(panel);
 	}
 
-	private boolean isAvailable(Module module, String action) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (!LifeCyclePhase.PREDEPLOY.name().equalsIgnoreCase(action) && LifeCyclePhase.DEPLOY.name().equalsIgnoreCase(action)) return true;
-		return configuration != null && (configuration.level() != null || configuration.level().equals(Configuration.Level.System));
+	private Configuration loadConfiguration(Module module) {
+		Configuration configuration = TaraUtil.configurationOf(module);
+		if (configuration == null) {
+			configuration = ConfigurationManager.newSuitableProvider(module);
+			if (configuration != null) ConfigurationManager.register(module, configuration);
+		}
+		return configuration;
+	}
+
+	private boolean suitable(LifeCyclePhase action, Configuration configuration) {
+		if (!(configuration instanceof LegioConfiguration)) return false;
+		if (((LegioConfiguration) configuration).factory() != null)
+			if (action.equals(LifeCyclePhase.MANAGE) && !((LegioConfiguration) configuration).factory().isSystem())
+				return false;
+		return true;
+	}
+
+	private void removeModuleActions(Module module) {
+		Component toRemove = null;
+		for (Component component : modulesPanel.getComponents())
+			if (component instanceof JPanel && component.getName().equals(module.getName())) toRemove = component;
+		if (toRemove != null) modulesPanel.remove(toRemove);
+	}
+
+	private void renameModuleActions(String oldName, String newName) {
+		for (Component component : modulesPanel.getComponents())
+			if (component instanceof JPanel && component.getName().equals(oldName)) component.setName(newName);
+	}
+
+	private boolean isAvailable(Configuration configuration, LifeCyclePhase action) {
+		if (!LifeCyclePhase.PREDEPLOY.equals(action) && LifeCyclePhase.DEPLOY.equals(action)) return true;
+		return configuration != null && (configuration.level() != null || Configuration.Level.System.equals(configuration.level()));
 	}
 
 	private void customizeButton(JButton button, Module module, String name, String action) {
@@ -106,7 +153,6 @@ public class LifeCycleManagerView extends JPanel {
 		button.setFocusPainted(false);
 		button.setOpaque(false);
 		button.addMouseListener(new MouseAdapter() {
-			@Override
 			public void mouseEntered(MouseEvent e) {
 				button.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1)));
 				button.setBorderPainted(true);
@@ -114,7 +160,6 @@ public class LifeCycleManagerView extends JPanel {
 				button.repaint();
 			}
 
-			@Override
 			public void mouseExited(MouseEvent e) {
 				button.setOpaque(false);
 				button.setBorder(null);
@@ -122,9 +167,10 @@ public class LifeCycleManagerView extends JPanel {
 				button.setBackground(UIManager.getColor("control"));
 			}
 
-			@Override
 			public void mouseClicked(MouseEvent e) {
-				new ArtifactManager(project, Collections.singletonList(module), LifeCyclePhase.valueOf(action.toUpperCase())).process();
+				final LifeCyclePhase phase = LifeCyclePhase.valueOf(action.toUpperCase());
+				if (phase.equals(LifeCyclePhase.MANAGE)) new ArtifactManager(module).start();
+				else new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
 			}
 		});
 	}

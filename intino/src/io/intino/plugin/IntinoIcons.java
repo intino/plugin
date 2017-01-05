@@ -27,6 +27,7 @@ public class IntinoIcons {
     public static final Icon YELLOW = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/yellow_32.png")) : IconLoader.getIcon("/icons/actionButtons/yellow.png");
     public static final Icon ORANGE = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/orange_32.png")) : IconLoader.getIcon("/icons/actionButtons/orange.png");
     public static final Icon RED = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/red_32.png")) : IconLoader.getIcon("/icons/actionButtons/red.png");
+    public static final Icon MANAGE = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/manage_32.png")) : IconLoader.getIcon("/icons/actionButtons/manage.png");
 
 
 }
