@@ -112,4 +112,4 @@ Facet Type on Parameter
 		var string type = "Boolean" is reactive private
 	sub Text
     	var string value
-		var string type = "string" is reactive private
+		var string type = "String" is reactive private

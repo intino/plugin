@@ -8,7 +8,7 @@ public class Type_0 implements io.intino.tara.magritte.Expression<String> {
 
 	@Override
 	public String value() {
-		return "string";
+		return "String";
 	}
 
 	@Override

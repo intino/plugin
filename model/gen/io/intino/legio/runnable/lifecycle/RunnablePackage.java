@@ -16,7 +16,7 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 		return mainClass;
 	}
 
-	public io.intino.legio.LifeCycle.Package.Type Type() {
+	public io.intino.legio.LifeCycle.Package.Type type() {
 		return _package.type();
 	}
 
