@@ -24,7 +24,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	    update();
 	}
 
-	protected void update() {
+	public void update() {
 		project = this.graph.rootList(io.intino.legio.Project.class).stream().findFirst().orElse(null);
 		lifeCycle = this.graph.rootList(io.intino.legio.LifeCycle.class).stream().findFirst().orElse(null);
 		runnablePackageList = this.graph.rootList(io.intino.legio.runnable.lifecycle.RunnablePackage.class);
@@ -43,32 +43,32 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	protected void addNode(io.intino.tara.magritte.Node node) {
 		if (node.is("Project")) this.project = node.as(io.intino.legio.Project.class);
 		if (node.is("LifeCycle")) this.lifeCycle = node.as(io.intino.legio.LifeCycle.class);
-		if (node.is("RunnablePackage")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
-		if (node.is("LevelFactory")) this.levelFactoryList.add(node.as(io.intino.legio.level.project.LevelFactory.class));
-		if (node.is("PlatformFactory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
-		if (node.is("ApplicationFactory")) this.applicationFactoryList.add(node.as(io.intino.legio.application.project.ApplicationFactory.class));
-		if (node.is("SystemFactory")) this.systemFactoryList.add(node.as(io.intino.legio.system.project.SystemFactory.class));
-		if (node.is("TypeParameter")) this.typeParameterList.add(node.as(io.intino.legio.type.TypeParameter.class));
-		if (node.is("RealParameter")) this.realParameterList.add(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("NumberParameter")) this.numberParameterList.add(node.as(io.intino.legio.number.NumberParameter.class));
-		if (node.is("BoolParameter")) this.boolParameterList.add(node.as(io.intino.legio.bool.BoolParameter.class));
-		if (node.is("TextParameter")) this.textParameterList.add(node.as(io.intino.legio.text.TextParameter.class));
+		if (node.is("Runnable#LifeCycle$Package")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
+		if (node.is("Level#Project$Factory")) this.levelFactoryList.add(node.as(io.intino.legio.level.project.LevelFactory.class));
+		if (node.is("Platform#Project$Factory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
+		if (node.is("Application#Project$Factory")) this.applicationFactoryList.add(node.as(io.intino.legio.application.project.ApplicationFactory.class));
+		if (node.is("System#Project$Factory")) this.systemFactoryList.add(node.as(io.intino.legio.system.project.SystemFactory.class));
+		if (node.is("Type#Parameter")) this.typeParameterList.add(node.as(io.intino.legio.type.TypeParameter.class));
+		if (node.is("Real#Parameter")) this.realParameterList.add(node.as(io.intino.legio.real.RealParameter.class));
+		if (node.is("Number#Parameter")) this.numberParameterList.add(node.as(io.intino.legio.number.NumberParameter.class));
+		if (node.is("Bool#Parameter")) this.boolParameterList.add(node.as(io.intino.legio.bool.BoolParameter.class));
+		if (node.is("Text#Parameter")) this.textParameterList.add(node.as(io.intino.legio.text.TextParameter.class));
 	}
 
 	@Override
 	protected void removeNode(io.intino.tara.magritte.Node node) {
-		if (node.is("Project")) this.project = null;
-		if (node.is("LifeCycle")) this.lifeCycle = null;
-		if (node.is("RunnablePackage")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
-		if (node.is("LevelFactory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
-		if (node.is("PlatformFactory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
-		if (node.is("ApplicationFactory")) this.applicationFactoryList.remove(node.as(io.intino.legio.application.project.ApplicationFactory.class));
-		if (node.is("SystemFactory")) this.systemFactoryList.remove(node.as(io.intino.legio.system.project.SystemFactory.class));
-		if (node.is("TypeParameter")) this.typeParameterList.remove(node.as(io.intino.legio.type.TypeParameter.class));
-		if (node.is("RealParameter")) this.realParameterList.remove(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("NumberParameter")) this.numberParameterList.remove(node.as(io.intino.legio.number.NumberParameter.class));
-		if (node.is("BoolParameter")) this.boolParameterList.remove(node.as(io.intino.legio.bool.BoolParameter.class));
-		if (node.is("TextParameter")) this.textParameterList.remove(node.as(io.intino.legio.text.TextParameter.class));
+		if (node.is("$stashQn+noPackage+withDollar")) this.project = null;
+		if (node.is("$stashQn+noPackage+withDollar")) this.lifeCycle = null;
+		if (node.is("Runnable#LifeCycle$Package")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
+		if (node.is("Level#Project$Factory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
+		if (node.is("Platform#Project$Factory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
+		if (node.is("Application#Project$Factory")) this.applicationFactoryList.remove(node.as(io.intino.legio.application.project.ApplicationFactory.class));
+		if (node.is("System#Project$Factory")) this.systemFactoryList.remove(node.as(io.intino.legio.system.project.SystemFactory.class));
+		if (node.is("Type#Parameter")) this.typeParameterList.remove(node.as(io.intino.legio.type.TypeParameter.class));
+		if (node.is("Real#Parameter")) this.realParameterList.remove(node.as(io.intino.legio.real.RealParameter.class));
+		if (node.is("Number#Parameter")) this.numberParameterList.remove(node.as(io.intino.legio.number.NumberParameter.class));
+		if (node.is("Bool#Parameter")) this.boolParameterList.remove(node.as(io.intino.legio.bool.BoolParameter.class));
+		if (node.is("Text#Parameter")) this.textParameterList.remove(node.as(io.intino.legio.text.TextParameter.class));
 	}
 
 	public String message(String language, String key, Object... parameters) {
