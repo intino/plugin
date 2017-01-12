@@ -8,7 +8,8 @@ public enum LifeCyclePhase {
 	INSTALL("installing", "installed", "clean", "package", "install"),
 	DISTRIBUTE("distributing", "distributed", "clean", "package", "install", "deploy"),
 	PREDEPLOY("deploying on pre", "pre deployed", "clean", "package", "install", "deploy"),
-	DEPLOY("deploying", "deployed", "clean", "package", "install", "deploy");
+	DEPLOY("deploying", "deployed", "clean", "package", "install", "deploy"),
+	MANAGE("managing", "managed");
 
 	private final String gerund;
 	private final String participle;

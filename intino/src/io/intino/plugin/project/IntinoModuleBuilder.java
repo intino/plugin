@@ -32,7 +32,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	@Override
 	public String getDescription() {
-		return "Tara project";
+		return "Intino project";
 	}
 
 	@Override

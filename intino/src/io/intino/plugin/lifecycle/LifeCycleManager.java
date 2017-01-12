@@ -35,59 +35,59 @@ import org.jetbrains.annotations.NotNull;
 import static io.intino.plugin.lifecycle.LegioConstants.*;
 
 public class LifeCycleManager implements ProjectComponent {
-    private final Project project;
-    private LifeCycleToolWindow toolWindow;
-    private ToolWindowEx myToolWindow;
+	private final Project project;
+	private LifeCycleToolWindow toolWindow;
+	private ToolWindowEx myToolWindow;
 
-    public LifeCycleManager(Project project) {
-        this.project = project;
-    }
+	public LifeCycleManager(Project project) {
+		this.project = project;
+	}
 
-    @Override
-    public void projectOpened() {
-    }
+	@Override
+	public void projectOpened() {
+	}
 
-    @Override
-    public void projectClosed() {
-        unregisterToolWindow();
-    }
+	@Override
+	public void projectClosed() {
+		unregisterToolWindow();
+	}
 
-    private void unregisterToolWindow() {
-        toolWindow = null;
-        if (isToolWindowRegistered()) ToolWindowManager.getInstance(project).unregisterToolWindow(ID_TOOL_WINDOW);
-    }
+	private void unregisterToolWindow() {
+		toolWindow = null;
+		if (isToolWindowRegistered()) ToolWindowManager.getInstance(project).unregisterToolWindow(ID_TOOL_WINDOW);
+	}
 
-    private boolean isToolWindowRegistered() {
-        return ToolWindowManager.getInstance(project).getToolWindow(ID_TOOL_WINDOW) != null;
-    }
+	private boolean isToolWindowRegistered() {
+		return ToolWindowManager.getInstance(project).getToolWindow(ID_TOOL_WINDOW) != null;
+	}
 
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return PLUGIN_NAME + '.' + PROJECT_COMPONENT_NAME;
-    }
+	@NotNull
+	@Override
+	public String getComponentName() {
+		return PLUGIN_NAME + '.' + PROJECT_COMPONENT_NAME;
+	}
 
-    @Override
-    public void initComponent() {
-        StartupManager.getInstance(project).registerPostStartupActivity(this::doInit);
-    }
+	@Override
+	public void initComponent() {
+		StartupManager.getInstance(project).registerPostStartupActivity(this::doInit);
+	}
 
-    private void doInit() {
-        toolWindow = new LifeCycleToolWindow(project);
-        myToolWindow = (ToolWindowEx) ToolWindowManagerEx.getInstanceEx(project).
-                registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
+	private void doInit() {
+		toolWindow = new LifeCycleToolWindow(project);
+		myToolWindow = (ToolWindowEx) ToolWindowManagerEx.getInstanceEx(project).
+				registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
 		myToolWindow.setIcon(IntinoIcons.LEGIO_13);
 		final ContentFactory contentFactory = ServiceManager.getService(ContentFactory.class);
-        final Content content = contentFactory.createContent(toolWindow, "", false);
-        ContentManager contentManager = myToolWindow.getContentManager();
-        contentManager.addContent(content);
-        contentManager.setSelectedContent(content, false);
-    }
+		final Content content = contentFactory.createContent(toolWindow, "", false);
+		ContentManager contentManager = myToolWindow.getContentManager();
+		contentManager.addContent(content);
+		contentManager.setSelectedContent(content, false);
+	}
 
-    @Override
-    public void disposeComponent() {
-        unregisterToolWindow();
-        myToolWindow = null;
-    }
+	@Override
+	public void disposeComponent() {
+		unregisterToolWindow();
+		myToolWindow = null;
+	}
 
 }

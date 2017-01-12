@@ -36,6 +36,7 @@
                     </execution>
                 </executions>
             </plugin>
+<<<<<<< HEAD
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -60,6 +61,8 @@
                     <workingDirectory>src/main/frontend</workingDirectory>
                 </configuration>
             </plugin>
+=======
+>>>>>>> release/1.2.0
         </plugins>
     </build>
 
@@ -85,6 +88,17 @@
     </distributionManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>magritte-lite</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>language</artifactId>
+            <scope>provided</scope>
+            <version>LATEST</version>
+        </dependency>
         <dependency>
             <groupId>tara.dsl</groupId>
             <artifactId>legio</artifactId>

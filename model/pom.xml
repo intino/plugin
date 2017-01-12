@@ -59,9 +59,9 @@
 
     <distributionManagement>
         <repository>
-            <id>siani-maven</id>
-            <name>siani-maven-releases</name>
-            <url>https://artifactory.siani.es/artifactory/libs-release-local</url>
+            <id>intino-maven</id>
+            <name>intino-maven-releases</name>
+            <url>https://artifactory.intino.io/artifactory/release-libraries</url>
         </repository>
     </distributionManagement>
 
@@ -70,7 +70,6 @@
             <groupId>io.intino.tara</groupId>
             <artifactId>magritte-lite</artifactId>
             <version>LATEST</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>

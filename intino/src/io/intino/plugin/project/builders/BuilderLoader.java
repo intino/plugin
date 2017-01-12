@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BuilderLoader {
+class BuilderLoader {
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
 	private static List<String> loadedVersions = new ArrayList<>();
 
@@ -88,10 +88,11 @@ public class BuilderLoader {
 			if (anAction != null) {
 				if (action.shortcut != null) anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
 				manager.registerAction(action.id + version, anAction);
-				((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
+				if (action.relativeToAction != null)
+					((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction, new Constraints(null, action.relativeToAction));
+				else ((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
 			} else LOG.error("action is null: " + action.id);
 		}
-
 	}
 
 	private static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
@@ -155,6 +156,7 @@ public class BuilderLoader {
 			String groupId;
 			String shortcut;
 			String anchor;
+			String relativeToAction;
 		}
 
 		private class Group {

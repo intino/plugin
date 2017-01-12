@@ -63,7 +63,7 @@ public class InterfaceBuilderManager {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		remotes.add(new RemoteRepository("intino-maven", "default", "http://artifactory.intino.io/artifactory/release-builders"));
-		remotes.addAll(configuration.legioRepositories().stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(configuration.legioRepositories().stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 

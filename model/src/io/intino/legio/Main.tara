@@ -12,6 +12,7 @@ Concept:{1..1}:Named Project
 			sub Release
 			sub:{0..1} Snapshot
 			sub:{0..1} Language
+
 	Concept:{0..1} Dependencies
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
@@ -74,6 +75,7 @@ Concept:{0..1} LifeCycle
 
 	Concept:{0..1} Publishing
 		var string cesarURL
+		var integer managementPort = 0
 		Concept:{1..*} Destination
 			var string publicURL
 			Concept Requirements
@@ -102,7 +104,7 @@ Facet Type on Parameter
 	sub Real
     	var double value
 		var string type = "Double" is reactive private
-	sub Integer
+	sub Number
 		var integer value
 		var string type = "Integer" is reactive private
 	sub Bool

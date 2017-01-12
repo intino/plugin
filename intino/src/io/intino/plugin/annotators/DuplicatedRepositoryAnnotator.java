@@ -4,9 +4,14 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
 import io.intino.legio.Project;
 import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
 import org.jetbrains.annotations.NotNull;
+<<<<<<< HEAD
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.lang.model.Node;
+=======
+>>>>>>> release/1.2.0
 
 public class DuplicatedRepositoryAnnotator extends TaraAnnotator {
 

@@ -3,6 +3,7 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
@@ -25,6 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavaDependencyResolver {
+	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
+
 
 	private final Module module;
 	private final Repositories repositories;
@@ -97,6 +100,7 @@ public class JavaDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
 		} catch (DependencyResolutionException e) {
+			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
 	}
@@ -106,6 +110,7 @@ public class JavaDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope);
 		} catch (DependencyResolutionException e) {
+			LOG.error(e.getMessage(), e);
 			return Collections.emptyList();
 		}
 	}
@@ -114,7 +119,7 @@ public class JavaDependencyResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.repositoryList().stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 }

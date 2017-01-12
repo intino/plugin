@@ -24,7 +24,17 @@ import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.tara.StashBuilder;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.TaraBuildConstants;
+import io.intino.tara.io.Stash;
+import io.intino.tara.io.StashDeserializer;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NotNull;
+<<<<<<< HEAD
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
@@ -35,6 +45,9 @@ import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
+=======
+import tara.dsl.Legio;
+>>>>>>> release/1.2.0
 
 import java.io.File;
 import java.io.IOException;
