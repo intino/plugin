@@ -4,6 +4,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.WebModuleType;
@@ -48,6 +49,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 public class LegioConfiguration implements Configuration {
+	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
 
 	private static final String CONFIGURATION_LEGIO = "configuration.legio";
 	private final Module module;
@@ -110,7 +112,7 @@ public class LegioConfiguration implements Configuration {
 		try {
 			return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -174,7 +176,7 @@ public class LegioConfiguration implements Configuration {
 			if (tara == null) return null;
 			return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}

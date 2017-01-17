@@ -27,12 +27,13 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.siani.cottons:cotton-utils:1.0.7" level="project" />
     <orderEntry type="library" name="Maven: io.intino.tara:magritte-lite:1.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0" level="project" />
     <orderEntry type="module-library">
-      <library name="Maven: tara.dsl:legio:1.0.2">
+      <library name="Maven: tara.dsl:legio:2.0.0">
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/tara/dsl/legio/1.0.2/Legio-1.0.2.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/tara/dsl/legio/2.0.0/Legio-2.0.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -104,10 +105,10 @@
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
     <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.0" level="project" />
     <orderEntry type="module" module-name="model" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:pandora-plugin:1.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:pandora-plugin:2.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.pandora:model:1.0.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-codegen-cli:2.1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.siani.cottons:cotton-utils:1.0.7" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.cottons:cotton-utils:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: tara.dsl:pandora:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.cesar:restcesar-accessor:1.0.0" level="project" />

@@ -5,7 +5,7 @@
 
     <groupId>io.intino</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.0.2</version>
+    <version>2.0.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>tara.dsl</groupId>
             <artifactId>legio</artifactId>
-            <version>1.0.2</version>
+            <version>${version}</version>
             <scope>system</scope>
             <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${version}/Legio-${version}.jar</systemPath>
         </dependency>
@@ -158,13 +158,13 @@
         <dependency>
             <groupId>io.intino.legio</groupId>
             <artifactId>model</artifactId>
-            <version>1.0.2</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.pandora</groupId>
             <artifactId>pandora-plugin</artifactId>
             <scope>provided</scope>
-            <version>LATEST</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.cesar</groupId>
