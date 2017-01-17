@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class JavaDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
 
-
 	private final Module module;
 	private final Repositories repositories;
 	private final LibraryManager manager;

@@ -51,21 +51,21 @@ public class LanguageResolver {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
-		libraries.addAll(hasMagritteLibrary(this.language) ? proteoFramework(version) : languageFramework());
+		libraries.addAll(hasMagritteLibrary(this.language) ? magritte(version) : languageFramework());
 		return libraries;
 	}
 
-	private List<Library> proteoFramework(String version) {
+	private List<Library> magritte(String version) {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
-			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries)));
+			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries)));
 		else
-			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries))), defaultModalityState());
+			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries))), defaultModalityState());
 		return libraries;
 	}
 
-	private List<Library> loadProteoLibrary(String version, List<Library> libraries) {
+	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
 		if (!languageFramework.isEmpty())
