@@ -1,42 +1,68 @@
 package io.intino.plugin.annotators;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.LibraryOrderEntry;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.Language;
+import io.intino.tara.dsl.Proteo;
+import io.intino.tara.dsl.Verso;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.TaraNode;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
-	private final Node languageNode;
+	private final Node factory;
 	private final LegioConfiguration configuration;
 	private Module module;
 
 	LanguageDeclarationAnalyzer(Node node, Module module) {
-		this.languageNode = node;
+		this.factory = node;
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
 	@Override
 	public void analyze() {
-		if (configuration == null) return;
-		final String language = languageNode.name();
+		if (configuration == null || factory == null) return;
+		final Parameter parameterLanguage = factory.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
 		String version = version();
 		if ("LATEST".equals(version)) version = configuration.dslEffectiveVersion();
-		if (version == null || language == null) return;
-		if (LanguageManager.getLanguage(module.getProject(), language, version) == null && !LanguageManager.silentReload(module.getProject(), language, version))
-			results.put((PsiElement) languageNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
+		if (version == null || parameterLanguage == null) return;
+		final String languageName = parameterLanguage.values().get(0).toString();
+		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
+		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
+			results.put((PsiElement) factory, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
+		else if (language instanceof Verso || language instanceof Proteo && !existMagritte(version))
+			results.put(((TaraNode) factory).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
+	}
+
+	private boolean existMagritte(String version) {
+		final List<OrderEntry> entries = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).filter(e -> e instanceof LibraryOrderEntry).collect(Collectors.toList());
+		for (OrderEntry entry : entries) {
+			final Library library = ((LibraryOrderEntry) entry).getLibrary();
+			if (library != null && library.getName() != null && library.getName().endsWith(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version))
+				return true;
+		}
+		return false;
 	}
 
 	private String version() {
-		for (Parameter parameter : languageNode.parameters())
+		for (Parameter parameter : factory.parameters())
 			if (parameter.name().equals("version")) return parameter.values().get(0).toString();
 		return null;
 	}

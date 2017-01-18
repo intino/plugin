@@ -15,11 +15,11 @@ public class LanguageDeclarationAnnotator extends TaraAnnotator {
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 		this.holder = holder;
 		if (element instanceof Node && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
-				isPackage((Node) element))
+				isFactory((Node) element))
 			analyzeAndAnnotate(new LanguageDeclarationAnalyzer((Node) element, ModuleProvider.moduleOf(element)));
 	}
 
-	private boolean isPackage(Node element) {
+	private boolean isFactory(Node element) {
 		return element.simpleType().equals("Factory") || element.simpleType().equals(factoryCanonicalName());
 	}
 

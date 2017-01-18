@@ -51,7 +51,7 @@ public class LanguageResolver {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
 		final List<Library> libraries = new ArrayList<>();
-		libraries.addAll(hasMagritteLibrary(this.language) ? magritte(version) : languageFramework());
+		libraries.addAll(isMagritteLibrary(this.language) ? magritte(version) : languageFramework());
 		return libraries;
 	}
 
@@ -130,7 +130,7 @@ public class LanguageResolver {
 	}
 
 	public static String languageID(String language, String version) {
-		if (hasMagritteLibrary(language))
+		if (isMagritteLibrary(language))
 			return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
@@ -162,7 +162,7 @@ public class LanguageResolver {
 		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
 	}
 
-	private static boolean hasMagritteLibrary(String language) {
+	private static boolean isMagritteLibrary(String language) {
 		return language.equals(Proteo.class.getSimpleName()) || language.equals(Verso.class.getSimpleName());
 	}
 }
