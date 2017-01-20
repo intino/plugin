@@ -42,12 +42,12 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		final Parameter parameterLanguage = factory.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
 		String version = version();
 		if ("LATEST".equals(version)) version = configuration.dslEffectiveVersion();
-		if (version == null || parameterLanguage == null) return;
+		if (version == null || version.isEmpty() || parameterLanguage == null) return;
 		final String languageName = parameterLanguage.values().get(0).toString();
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) factory, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
-		else if (language instanceof Verso || language instanceof Proteo && !existMagritte(version))
+		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))
 			results.put(((TaraNode) factory).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
 	}
 

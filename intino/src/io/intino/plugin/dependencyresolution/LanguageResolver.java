@@ -50,9 +50,7 @@ public class LanguageResolver {
 	public List<Library> resolve() {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
-		final List<Library> libraries = new ArrayList<>();
-		libraries.addAll(isMagritteLibrary(this.language) ? magritte(version) : languageFramework());
-		return libraries;
+		return isMagritteLibrary(this.language) ? magritte(version) : languageFramework();
 	}
 
 	private List<Library> magritte(String version) {

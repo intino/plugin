@@ -23,7 +23,10 @@ import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories.Repository;
-import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
+import io.intino.plugin.dependencyresolution.LanguageResolver;
+import io.intino.plugin.dependencyresolution.LibraryManager;
+import io.intino.plugin.dependencyresolution.WebDependencyResolver;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -132,8 +135,10 @@ public class LegioConfiguration implements Configuration {
 		if (dependencies() == null) return;
 		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
-		if (factory() != null)
-			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), dslEffectiveVersion()).resolve());
+		if (factory() != null) {
+			final String effectiveVersion = dslEffectiveVersion();
+			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), effectiveVersion == null || effectiveVersion.isEmpty() ? dslVersion() : effectiveVersion).resolve());
+		}
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}
 
@@ -240,9 +245,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String dslEffectiveVersion() {
-		return LegioUtil.effectiveVersionOf(dsl(), dslVersion(), this);
+		return safe(() -> legio.project().factory().asLevel().effectiveVersion());
 	}
-
 
 	@Override
 	public void dslVersion(String version) {
