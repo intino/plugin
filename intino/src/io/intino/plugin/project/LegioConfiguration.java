@@ -301,11 +301,6 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.project().factory().interface$().version());
 	}
 
-	@Override
-	public String behaviorVersion() {
-		return safe(() -> legio.project().factory().behavior().version());
-	}
-
 	private String safe(StringWrapper wrapper) {
 		return safe(wrapper, "");
 	}

@@ -161,10 +161,10 @@
             <version>2.0.0</version>
         </dependency>
         <dependency>
-            <groupId>io.intino.pandora</groupId>
-            <artifactId>pandora-plugin</artifactId>
+            <groupId>io.intino.konos</groupId>
+            <artifactId>konos-builder</artifactId>
             <scope>provided</scope>
-            <version>2.0.0</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.cesar</groupId>

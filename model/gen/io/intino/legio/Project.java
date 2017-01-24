@@ -1557,7 +1557,6 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 	public static class Factory extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String inPackage;
 		protected io.intino.legio.Project.Factory.Interface interface$;
-		protected io.intino.legio.Project.Factory.Behavior behavior;
 
 		public Factory(io.intino.tara.magritte.Node node) {
 			super(node);
@@ -1575,16 +1574,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			return interface$;
 		}
 
-		public io.intino.legio.Project.Factory.Behavior behavior() {
-			return behavior;
-		}
-
 		public void interface$(io.intino.legio.Project.Factory.Interface value) {
 			this.interface$ = value;
-		}
-
-		public void behavior(io.intino.legio.Project.Factory.Behavior value) {
-			this.behavior = value;
 		}
 
 		public io.intino.legio.platform.project.PlatformFactory asPlatform() {
@@ -1666,7 +1657,6 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		public java.util.List<io.intino.tara.magritte.Node> componentList() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			if (interface$ != null) components.add(this.interface$.node());
-			if (behavior != null) components.add(this.behavior.node());
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -1685,14 +1675,12 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
 			if (node.is("Project$Factory$Interface")) this.interface$ = node.as(io.intino.legio.Project.Factory.Interface.class);
-			if (node.is("Project$Factory$Behavior")) this.behavior = node.as(io.intino.legio.Project.Factory.Behavior.class);
 		}
 
 		@Override
 	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
 	        if (node.is("Project$Factory$Interface")) this.interface$ = null;
-	        if (node.is("Project$Factory$Behavior")) this.behavior = null;
 	    }
 
 		@Override
@@ -1727,12 +1715,6 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 			    return newElement;
 			}
-
-			public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
-			    io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
-				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-			    return newElement;
-			}
 			
 		}
 		
@@ -1760,66 +1742,6 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 
 			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Factory.Interface.class);
-			}
-
-			@Override
-			protected void _load(java.lang.String name, java.util.List<?> values) {
-				super._load(name, values);
-				if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-			}
-
-			@Override
-			protected void _set(java.lang.String name, java.util.List<?> values) {
-				super._set(name, values);
-				if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
-			}
-
-			public Create create() {
-				return new Create(null);
-			}
-
-			public Create create(java.lang.String name) {
-				return new Create(name);
-			}
-
-			public class Create {
-				protected final java.lang.String name;
-
-				public Create(java.lang.String name) {
-					this.name = name;
-				}
-				
-			}
-			
-			public io.intino.legio.LegioApplication application() {
-				return ((io.intino.legio.LegioApplication) graph().application());
-			}
-		}
-		
-		public static class Behavior extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected java.lang.String version;
-
-			public Behavior(io.intino.tara.magritte.Node node) {
-				super(node);
-			}
-
-			public java.lang.String version() {
-				return version;
-			}
-
-			public void version(java.lang.String value) {
-				this.version = value;
-			}
-
-			@Override
-			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
-				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
-				return map;
-			}
-
-			public io.intino.tara.magritte.Concept concept() {
-				return this.graph().concept(io.intino.legio.Project.Factory.Behavior.class);
 			}
 
 			@Override

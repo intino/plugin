@@ -19,8 +19,7 @@ public class IntinoIcons {
 
     public static final Icon INTINO_16 = RETINA ? scale(IconLoader.getIcon("/icons/intino/intino-16-retina.png")) : IconLoader.getIcon("/icons/intino/intino-16.png");
 
-
-    public static final Icon PANDORA_16 = RETINA ? scale(IconLoader.getIcon("/icons/pandora/pandora-16-retina.png")) : IconLoader.getIcon("/icons/pandora/pandora-16.png");
+    public static final Icon KONOS_16 = RETINA ? scale(IconLoader.getIcon("/icons/konos/konos-16-retina.png")) : IconLoader.getIcon("/icons/konos/konos-16.png");
 
     public static final Icon BLUE = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/blue_32.png")) : IconLoader.getIcon("/icons/actionButtons/blue.png");
     public static final Icon GREEN = RETINA ? scale(IconLoader.getIcon("/icons/actionButtons/green_32.png")) : IconLoader.getIcon("/icons/actionButtons/green.png");

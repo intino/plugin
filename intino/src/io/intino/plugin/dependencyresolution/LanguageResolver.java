@@ -66,8 +66,7 @@ public class LanguageResolver {
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
-		if (!languageFramework.isEmpty())
-			factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
+		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 		else factory.asLevel().effectiveVersion("");
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 		manager.addToModule(libraries, false);
@@ -95,10 +94,9 @@ public class LanguageResolver {
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(language, version).exists()) importLanguage();
-		final List<Artifact> languageFramework = findLanguageFramework();
+		final List<Artifact> languageFramework = findLanguageFramework(languageID(this.language, this.version));
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
-		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
-		else factory.asLevel().effectiveVersion("");
+		factory.asLevel().effectiveVersion(!languageFramework.isEmpty() ? languageFramework.get(0).getVersion() : "");
 		manager.addToModule(libraries, false);
 	}
 
@@ -110,11 +108,6 @@ public class LanguageResolver {
 			if (language.equalsIgnoreCase(configuration.artifactId())) return m;
 		}
 		return null;
-	}
-
-	private List<Artifact> findLanguageFramework() {
-		final String languageId = languageID(this.language, this.version);
-		return findLanguageFramework(languageId);
 	}
 
 	private List<Artifact> findLanguageFramework(String languageId) {
@@ -151,7 +144,7 @@ public class LanguageResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 

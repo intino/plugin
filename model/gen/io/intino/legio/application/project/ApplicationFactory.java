@@ -6,7 +6,6 @@ import io.intino.legio.*;
 public class ApplicationFactory extends io.intino.legio.level.project.LevelFactory implements io.intino.tara.magritte.tags.Terminal {
 	
 	
-	
 
 	public ApplicationFactory(io.intino.tara.magritte.Node node) {
 		super(node);
@@ -24,17 +23,10 @@ public class ApplicationFactory extends io.intino.legio.level.project.LevelFacto
 		return _factory.interface$();
 	}
 
-	public io.intino.legio.Project.Factory.Behavior behavior() {
-		return _factory.behavior();
-	}
-
-	
-
 	
 
 	public java.util.List<io.intino.tara.magritte.Node> componentList() {
 		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
-		
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -77,12 +69,6 @@ public class ApplicationFactory extends io.intino.legio.level.project.LevelFacto
 
 		public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {
 		    io.intino.legio.Project.Factory.Interface newElement = graph().concept(io.intino.legio.Project.Factory.Interface.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Interface.class);
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-		    return newElement;
-		}
-
-		public io.intino.legio.Project.Factory.Behavior behavior(java.lang.String version) {
-		    io.intino.legio.Project.Factory.Behavior newElement = graph().concept(io.intino.legio.Project.Factory.Behavior.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Behavior.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}

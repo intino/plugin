@@ -46,8 +46,6 @@ Concept:{1..1}:Named Project
 		var string inPackage = ""
 		Concept:{0..1} Interface
 			var string version
-		Concept:{0..1} Behavior
-			var string version
 
 Concept:{0..1} LifeCycle
 	Concept:{0..1} Package
