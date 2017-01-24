@@ -14,28 +14,33 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class BuilderLoader {
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
-	private static List<String> loadedVersions = new ArrayList<>();
+	private static Map<String, File[]> loadedVersions = new HashMap<>();
 
 	private BuilderLoader() {
 	}
 
-	static Builder load(String name, File[] library, String version) {
+	static boolean isLoaded(String version) {
+		return loadedVersions.containsKey(version);
+	}
+
+	static Builder load(String name, File[] libraries, String version) {
 		try {
-			if (loadedVersions.contains(library[0].getAbsolutePath())) return null;
-			final ClassLoader classLoader = createClassLoader(library);
+			if (isLoaded(version)) return null;
+			final ClassLoader classLoader = createClassLoader(libraries);
 			if (classLoader == null) return null;
 			Builder builder = Builder.from(classLoader.getResourceAsStream(name.toLowerCase() + ".toml"));
 			if (builder == null) return null;
 			registerGroups(classLoader, builder.groups);
 			registerActions(classLoader, builder.actions, version);
 			addLanguage(classLoader);
-			loadedVersions.add(library[0].getAbsolutePath());
+			loadedVersions.put(version, libraries);
 			return builder;
 		} catch (RuntimeException | Error e) {
 			LOG.error(e.getMessage(), e);

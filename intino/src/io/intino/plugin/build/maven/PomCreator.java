@@ -202,7 +202,7 @@ class PomCreator {
 
 	private String findLanguageId(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.moduleOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
+		return LanguageResolver.moduleDedencyOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
 	}
 
 	private Frame createDependencyFrame(Dependency id) {

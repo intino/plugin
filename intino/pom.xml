@@ -42,13 +42,18 @@
     <repositories>
         <repository>
             <id>siani-maven</id>
-            <name>siani-maven-releases</name>
+            <name>siani-maven</name>
             <url>http://artifactory.siani.es/artifactory/libs-release</url>
         </repository>
         <repository>
-            <id>siani-maven-snapshot</id>
-            <name>siani-maven-snapshot</name>
-            <url>http://artifactory.siani.es/artifactory/libs-snapshot</url>
+            <id>intino-maven</id>
+            <name>intino-maven</name>
+            <url>http://artifactory.intino.io/artifactory/release-builders</url>
+        </repository>
+        <repository>
+            <id>intino-maven</id>
+            <name>intino-maven-libraries</name>
+            <url>http://artifactory.intino.io/artifactory/release-libraries</url>
         </repository>
     </repositories>
 
@@ -59,8 +64,12 @@
             <url>https://artifactory.siani.es/artifactory/libs-release-local</url>
         </repository>
     </distributionManagement>
-
     <dependencies>
+        <dependency>
+            <groupId>io.intino.legio</groupId>
+            <artifactId>model</artifactId>
+            <version>2.0.0</version>
+        </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>magritte-lite</artifactId>
@@ -75,9 +84,9 @@
         <dependency>
             <groupId>tara.dsl</groupId>
             <artifactId>legio</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>system</scope>
-            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${version}/Legio-${version}.jar</systemPath>
+            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.jcabi</groupId>
@@ -130,19 +139,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
             <version>LATEST</version>
         </dependency>
         <dependency>
@@ -153,22 +151,23 @@
         <dependency>
             <groupId>org.siani.itrules</groupId>
             <artifactId>itrules</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>io.intino.legio</groupId>
-            <artifactId>model</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.intino.konos</groupId>
-            <artifactId>konos-builder</artifactId>
-            <scope>provided</scope>
-            <version>1.0.0</version>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.cesar</groupId>
             <artifactId>restcesar-accessor</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.konos</groupId>
+            <artifactId>builder</artifactId>
+            <scope>provided</scope>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

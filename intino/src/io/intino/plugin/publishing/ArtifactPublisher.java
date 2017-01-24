@@ -11,7 +11,7 @@ import io.intino.cesar.schemas.SystemSchema;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.LifeCycle.Publishing.Destination;
 import io.intino.legio.Parameter;
-import io.intino.pandora.exceptions.Unknown;
+import io.intino.konos.exceptions.Unknown;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;

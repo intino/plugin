@@ -10,6 +10,7 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("Duplicates")
@@ -25,6 +26,7 @@ public class IntinoActionGroup extends DefaultActionGroup {
 
 	private List<Module> collectTaraModules(Project project) {
 		List<Module> modules = new ArrayList<>();
+		if (project == null) return Collections.emptyList();
 		for (Module module : ModuleManager.getInstance(project).getModules())
 			if (TaraUtil.configurationOf(module) != null)
 				modules.add(module);
