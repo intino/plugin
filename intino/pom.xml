@@ -84,9 +84,9 @@
         <dependency>
             <groupId>tara.dsl</groupId>
             <artifactId>legio</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>system</scope>
-            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${version}/Legio-${version}.jar</systemPath>
+            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.jcabi</groupId>

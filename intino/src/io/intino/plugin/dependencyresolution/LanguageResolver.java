@@ -75,7 +75,7 @@ public class LanguageResolver {
 
 	private List<Library> languageFramework() {
 		final List<Library> libraries = new ArrayList<>();
-		final Module module = moduleOf(this.module, language, version);
+		final Module module = moduleDedencyOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
 		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
@@ -89,6 +89,8 @@ public class LanguageResolver {
 
 	private void addModuleDependency(Module dependency, List<Library> libraries) {
 		libraries.addAll(new LibraryManager(this.module).resolveAsModuleDependency(dependency));
+		final Configuration configuration = TaraUtil.configurationOf(dependency);
+		if (configuration != null) factory.asLevel().effectiveVersion(configuration.modelVersion());
 	}
 
 	private void addExternalLibraries(List<Library> libraries) {
@@ -100,7 +102,7 @@ public class LanguageResolver {
 		manager.addToModule(libraries, false);
 	}
 
-	public static Module moduleOf(Module languageModule, String language, String version) {
+	public static Module moduleDedencyOf(Module languageModule, String language, String version) {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
