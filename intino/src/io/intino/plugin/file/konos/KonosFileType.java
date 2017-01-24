@@ -1,41 +1,41 @@
-package io.intino.plugin.file.pandora;
+package io.intino.plugin.file.konos;
 
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import io.intino.tara.plugin.lang.file.TaraFileType;
 
-public class PandoraFileType extends TaraFileType {
+public class KonosFileType extends TaraFileType {
 	private static TaraFileType INSTANCE;
 
 
-	private PandoraFileType() {
+	private KonosFileType() {
 		super();
 	}
 
-	public static PandoraFileType instance() {
-		return INSTANCE != null ? (PandoraFileType) INSTANCE : (PandoraFileType) (INSTANCE = new PandoraFileType());
+	public static KonosFileType instance() {
+		return INSTANCE != null ? (KonosFileType) INSTANCE : (KonosFileType) (INSTANCE = new KonosFileType());
 	}
 
 	@NotNull
 	public String getName() {
-		return "Pandora";
+		return "Konos";
 	}
 
 	@NotNull
 	public String getDescription() {
-		return "Pandora file";
+		return "Konos file";
 	}
 
 	@NotNull
 	public String getDefaultExtension() {
-		return "pandora";
+		return "konos";
 	}
 
 	@Nullable
 	@Override
 	public javax.swing.Icon getIcon() {
-		return IntinoIcons.PANDORA_16;
+		return IntinoIcons.KONOS_16;
 	}
 
 

@@ -50,7 +50,7 @@ class BuilderLoader {
 
 	private static Language loadLanguage(ClassLoader classLoader) {
 		try {
-			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Pandora").newInstance();
+			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
@@ -66,9 +66,9 @@ class BuilderLoader {
 			}
 			final ActionGroup actionGroup = loadGroup(classLoader, group);
 			if (actionGroup != null) {
-				actionGroup.getTemplatePresentation().setIcon(IntinoIcons.PANDORA_16);
-				actionGroup.getTemplatePresentation().setText("Pandora");
-				actionGroup.getTemplatePresentation().setDescription("Pandora Actions");
+				actionGroup.getTemplatePresentation().setIcon(IntinoIcons.KONOS_16);
+				actionGroup.getTemplatePresentation().setText("Konos");
+				actionGroup.getTemplatePresentation().setDescription("Konos Actions");
 				actionGroup.getTemplatePresentation().setEnabled(true);
 				actionGroup.setPopup(true);
 				manager.registerAction(group.id, actionGroup);

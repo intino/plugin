@@ -21,7 +21,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	public GraphWrapper(io.intino.tara.magritte.Graph graph) {
 		this.graph = graph;
 		this.graph.i18n().register("Legio");
-	    update();
 	}
 
 	public void update() {
@@ -57,8 +56,8 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	@Override
 	protected void removeNode(io.intino.tara.magritte.Node node) {
-		if (node.is("$stashQn+noPackage+withDollar")) this.project = null;
-		if (node.is("$stashQn+noPackage+withDollar")) this.lifeCycle = null;
+		if (node.is("Project")) this.project = null;
+		if (node.is("LifeCycle")) this.lifeCycle = null;
 		if (node.is("Runnable#LifeCycle$Package")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.lifecycle.RunnablePackage.class));
 		if (node.is("Level#Project$Factory")) this.levelFactoryList.remove(node.as(io.intino.legio.level.project.LevelFactory.class));
 		if (node.is("Platform#Project$Factory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
@@ -124,55 +123,55 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public io.intino.legio.Project project() {
-	    return project;
+		return project;
 	}
 
 	public io.intino.legio.LifeCycle lifeCycle() {
-	    return lifeCycle;
+		return lifeCycle;
 	}
 
 	public java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList() {
-	    return runnablePackageList;
+		return runnablePackageList;
 	}
 
 	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList() {
-	    return levelFactoryList;
+		return levelFactoryList;
 	}
 
 	public java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList() {
-	    return platformFactoryList;
+		return platformFactoryList;
 	}
 
 	public java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList() {
-	    return applicationFactoryList;
+		return applicationFactoryList;
 	}
 
 	public java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList() {
-	    return systemFactoryList;
+		return systemFactoryList;
 	}
 
 	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList() {
-	    return typeParameterList;
+		return typeParameterList;
 	}
 
 	public java.util.List<io.intino.legio.real.RealParameter> realParameterList() {
-	    return realParameterList;
+		return realParameterList;
 	}
 
 	public java.util.List<io.intino.legio.number.NumberParameter> numberParameterList() {
-	    return numberParameterList;
+		return numberParameterList;
 	}
 
 	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList() {
-	    return boolParameterList;
+		return boolParameterList;
 	}
 
 	public java.util.List<io.intino.legio.text.TextParameter> textParameterList() {
-	    return textParameterList;
+		return textParameterList;
 	}
 
 	public java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList(java.util.function.Predicate<io.intino.legio.runnable.lifecycle.RunnablePackage> predicate) {
-	    return runnablePackageList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return runnablePackageList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.runnable.lifecycle.RunnablePackage runnablePackage(int index) {
@@ -180,7 +179,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.level.project.LevelFactory> levelFactoryList(java.util.function.Predicate<io.intino.legio.level.project.LevelFactory> predicate) {
-	    return levelFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return levelFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.level.project.LevelFactory levelFactory(int index) {
@@ -188,7 +187,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList(java.util.function.Predicate<io.intino.legio.platform.project.PlatformFactory> predicate) {
-	    return platformFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return platformFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.platform.project.PlatformFactory platformFactory(int index) {
@@ -196,7 +195,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList(java.util.function.Predicate<io.intino.legio.application.project.ApplicationFactory> predicate) {
-	    return applicationFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return applicationFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.application.project.ApplicationFactory applicationFactory(int index) {
@@ -204,7 +203,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList(java.util.function.Predicate<io.intino.legio.system.project.SystemFactory> predicate) {
-	    return systemFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return systemFactoryList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.system.project.SystemFactory systemFactory(int index) {
@@ -212,7 +211,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList(java.util.function.Predicate<io.intino.legio.type.TypeParameter> predicate) {
-	    return typeParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return typeParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.type.TypeParameter typeParameter(int index) {
@@ -220,7 +219,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.real.RealParameter> realParameterList(java.util.function.Predicate<io.intino.legio.real.RealParameter> predicate) {
-	    return realParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return realParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.real.RealParameter realParameter(int index) {
@@ -228,7 +227,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.number.NumberParameter> numberParameterList(java.util.function.Predicate<io.intino.legio.number.NumberParameter> predicate) {
-	    return numberParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return numberParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.number.NumberParameter numberParameter(int index) {
@@ -236,7 +235,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList(java.util.function.Predicate<io.intino.legio.bool.BoolParameter> predicate) {
-	    return boolParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return boolParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.bool.BoolParameter boolParameter(int index) {
@@ -244,7 +243,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	}
 
 	public java.util.List<io.intino.legio.text.TextParameter> textParameterList(java.util.function.Predicate<io.intino.legio.text.TextParameter> predicate) {
-	    return textParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		return textParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
 	public io.intino.legio.text.TextParameter textParameter(int index) {

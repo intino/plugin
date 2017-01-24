@@ -50,26 +50,23 @@ public class LanguageResolver {
 	public List<Library> resolve() {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
-		final List<Library> libraries = new ArrayList<>();
-		libraries.addAll(hasMagritteLibrary(this.language) ? proteoFramework(version) : languageFramework());
-		return libraries;
+		return isMagritteLibrary(this.language) ? magritte(version) : languageFramework();
 	}
 
-	private List<Library> proteoFramework(String version) {
+	private List<Library> magritte(String version) {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
-			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries)));
+			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries)));
 		else
-			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadProteoLibrary(version, libraries))), defaultModalityState());
+			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries))), defaultModalityState());
 		return libraries;
 	}
 
-	private List<Library> loadProteoLibrary(String version, List<Library> libraries) {
+	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
-		if (!languageFramework.isEmpty())
-			factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
+		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
 		else factory.asLevel().effectiveVersion("");
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 		manager.addToModule(libraries, false);
@@ -97,10 +94,9 @@ public class LanguageResolver {
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(language, version).exists()) importLanguage();
-		final List<Artifact> languageFramework = findLanguageFramework();
+		final List<Artifact> languageFramework = findLanguageFramework(languageID(this.language, this.version));
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
-		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
-		else factory.asLevel().effectiveVersion("");
+		factory.asLevel().effectiveVersion(!languageFramework.isEmpty() ? languageFramework.get(0).getVersion() : "");
 		manager.addToModule(libraries, false);
 	}
 
@@ -114,11 +110,6 @@ public class LanguageResolver {
 		return null;
 	}
 
-	private List<Artifact> findLanguageFramework() {
-		final String languageId = languageID(this.language, this.version);
-		return findLanguageFramework(languageId);
-	}
-
 	private List<Artifact> findLanguageFramework(String languageId) {
 		try {
 			if (languageId == null) return Collections.emptyList();
@@ -130,7 +121,7 @@ public class LanguageResolver {
 	}
 
 	public static String languageID(String language, String version) {
-		if (hasMagritteLibrary(language))
+		if (isMagritteLibrary(language))
 			return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
@@ -153,7 +144,7 @@ public class LanguageResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 
@@ -162,7 +153,7 @@ public class LanguageResolver {
 		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
 	}
 
-	private static boolean hasMagritteLibrary(String language) {
+	private static boolean isMagritteLibrary(String language) {
 		return language.equals(Proteo.class.getSimpleName()) || language.equals(Verso.class.getSimpleName());
 	}
 }

@@ -110,7 +110,7 @@ public class GulpExecutor {
 
 	private File createGulp() {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-		if (compilerModuleExtension == null) return null;
+		if (compilerModuleExtension == null || project == null) return null;
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
 				addSlot("rootDirectory", rootDirectory.getPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).

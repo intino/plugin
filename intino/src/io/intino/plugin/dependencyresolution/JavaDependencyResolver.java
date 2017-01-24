@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class JavaDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
 
-
 	private final Module module;
 	private final Repositories repositories;
 	private final LibraryManager manager;
@@ -100,6 +99,7 @@ public class JavaDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
 		} catch (DependencyResolutionException e) {
+			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories");
 			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
@@ -110,7 +110,6 @@ public class JavaDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope);
 		} catch (DependencyResolutionException e) {
-			LOG.error(e.getMessage(), e);
 			return Collections.emptyList();
 		}
 	}
