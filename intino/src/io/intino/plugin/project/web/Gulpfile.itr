@@ -153,17 +153,12 @@ def type(gulp)
 			.pipe($$.changed(src, {extension: '.html'}))
 			.pipe($$.changed(src, {extension: '.css'}))
 			.pipe(gulp.dest(dest))
-			.pipe($$.minifyCss())
 			.pipe(gulp.dest(dest))
 			.pipe($$.size({title: src}));
 	};
 
 	const unionImages = (src, dest) => {
 		return gulp.src(src)
-			.pipe($$.imagemin({
-				progressive: true,
-				interlaced: true
-			}))
 			.pipe(gulp.dest(dest))
 			.pipe($$.size({title: 'images'}));
 	};

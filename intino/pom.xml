@@ -76,6 +76,12 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
+            <groupId>io.intino.konos</groupId>
+            <artifactId>builder</artifactId>
+            <scope>provided</scope>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
@@ -163,12 +169,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
             <version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>io.intino.konos</groupId>
-            <artifactId>builder</artifactId>
-            <scope>provided</scope>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

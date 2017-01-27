@@ -132,6 +132,7 @@ def type(pom)
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -207,8 +208,7 @@ end
 
 def type(repository) !type(Distribution) trigger(release)
 	<repository>
-		<id>$name~-$type</id>
-		<name>$name~-$type</name>
+		<id>$name~-$random</id>
 		<url>$url</url>
 	</repository>
 end

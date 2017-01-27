@@ -27,13 +27,19 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="io.intino.konos:builder:1.0.0" level="project" />
     <orderEntry type="module" module-name="model" />
+    <orderEntry type="library" name="Maven: io.intino.tara:magritte:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.tara:magritte-lite:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware:kryo:4.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware:reflectasm:1.11.3" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm:5.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.esotericsoftware:minlog:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.objenesis:objenesis:2.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.konos:builder:1.0.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-codegen-cli:2.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.cottons:cotton-utils:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: tara.dsl:legio:2.0.0">
@@ -116,13 +122,10 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.1" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:konos-core:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.cottons:cotton-utils:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:konos-jmx:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:konos-jms:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.activemq:activemq-all:5.14.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="io.intino.konos:builder:1.0.0" level="project" />
   </component>
 </module>

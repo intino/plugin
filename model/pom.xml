@@ -68,8 +68,18 @@
     <dependencies>
         <dependency>
             <groupId>io.intino.tara</groupId>
-            <artifactId>magritte-lite</artifactId>
+            <artifactId>magritte</artifactId>
             <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>language</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>
