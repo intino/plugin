@@ -59,14 +59,21 @@ public class GulpExecutor {
 		final File gulp = createGulp();
 		final File gulpPom = createGulpPom("dev");
 		final File packageJson = createPackageFile();
-		new Thread(() -> run(gulpPom, line -> {
-			if (line.contains("[INFO]") && (line.contains("Finished 'dev'") || line.contains("BUILD SUCCESS"))) {
-				lock = false;
-				gulp.delete();
-				packageJson.delete();
-				gulpPom.delete();
-			}
-		}), "GULP").start();
+//		new Thread(() -> run(gulpPom, line -> {
+//			LOG.info(line);
+//			if (line.contains("[INFO]") && (line.contains("Finished 'dev'") || line.contains("BUILD SUCCESS"))) {
+//				lock = false;
+//				gulp.delete();
+//				packageJson.delete();
+//				gulpPom.delete();
+//			}
+//		}), "GULP").start();
+		try {
+			if (gulp != null) Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath());
+			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath());
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	public void startGulpDeploy() {
@@ -86,8 +93,10 @@ public class GulpExecutor {
 			final InvocationResult result = mavenRunner.invokeMaven(pom, "generate-resources");
 			processResult(mavenRunner, pom, result);
 		} catch (MavenInvocationException | IOException e) {
+			LOG.error(e.getMessage(), e);
 			notifyError(message("error.executing.gulp", e.getMessage()));
 		} catch (IntinoException e) {
+			LOG.error(e.getMessage(), e);
 			notifyError(e.getMessage());
 		}
 	}
@@ -96,16 +105,16 @@ public class GulpExecutor {
 		if (result != null && result.getExecutionException() != null && result.getExitCode() != 0)
 			throw new IntinoException(message("error.executing.gulp", result.getExecutionException().getMessage()));
 		else {
+			if (result != null) throw new IntinoException(message("error.executing.gulp", mavenRunner.output()));
 			FileUtil.delete(pom);
-			if (result != null)
-				throw new IntinoException(message("error.executing.gulp", mavenRunner.output()));
 		}
 	}
 
 	private void notifyError(String message) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification(message, MessageType.ERROR).setImportant(true).notify(null);
+		final String displayId = "Tara Language";
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup(displayId);
+		balloon = balloon == null ? NotificationGroup.balloonGroup(displayId) : balloon;
+		balloon.createNotification(message, MessageType.ERROR).setImportant(true).notify(null);
 	}
 
 	private File createGulp() {
@@ -138,6 +147,7 @@ public class GulpExecutor {
 		try {
 			return new URL(compilerModuleExtension.getCompilerOutputUrl()).getFile();
 		} catch (MalformedURLException e) {
+			LOG.error(e.getMessage(), e);
 			return "";
 		}
 	}
@@ -147,7 +157,6 @@ public class GulpExecutor {
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
-
 
 	private File write(File destination, String content) {
 		try {

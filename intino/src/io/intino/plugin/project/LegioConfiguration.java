@@ -87,8 +87,8 @@ public class LegioConfiguration implements Configuration {
 		File stashFile = stashFile();
 		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		reloadInterfaceBuilder();
-		if (WebModuleType.isWebModule(module) && this.legio != null)
-			new GulpExecutor(this.module, legio.project()).startGulpDev();
+		resolveLanguage();
+		if (WebModuleType.isWebModule(module) && this.legio != null) new GulpExecutor(this.module, legio.project()).startGulpDev();
 	}
 
 	@Override
@@ -148,11 +148,16 @@ public class LegioConfiguration implements Configuration {
 		if (dependencies() == null) return;
 		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
+		newLibraries.addAll(resolveLanguage());
+		LibraryManager.removeOldLibraries(module, newLibraries);
+	}
+
+	private List<Library> resolveLanguage() {
 		if (factory() != null) {
 			final String effectiveVersion = dslEffectiveVersion();
-			newLibraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), effectiveVersion == null || effectiveVersion.isEmpty() ? dslVersion() : effectiveVersion).resolve());
+			return new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), effectiveVersion == null || effectiveVersion.isEmpty() ? dslVersion() : effectiveVersion).resolve();
 		}
-		LibraryManager.removeOldLibraries(module, newLibraries);
+		return Collections.emptyList();
 	}
 
 	private void resolveWebDependencies() {

@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.AbstractMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
@@ -202,7 +199,7 @@ class PomCreator {
 
 	private String findLanguageId(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.moduleDedencyOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
+		return LanguageResolver.moduleDependencyOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
 	}
 
 	private Frame createDependencyFrame(Dependency id) {
@@ -219,6 +216,7 @@ class PomCreator {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
 				addSlot("name", repo.mavenId()).
 				addSlot("url", repo.url()).
+				addSlot("random", new Random().nextInt(10)).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
 	}
 

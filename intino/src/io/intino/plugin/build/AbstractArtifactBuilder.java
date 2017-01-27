@@ -3,7 +3,6 @@ package io.intino.plugin.build;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
@@ -101,9 +100,6 @@ abstract class AbstractArtifactBuilder {
 	private void executeGulpDependencies(Module module) {
 		if (WebModuleType.isWebModule(module))
 			new GulpExecutor(module, ((LegioConfiguration) TaraUtil.configurationOf(module)).project()).startGulpDeploy();
-		for (Module dependency : ModuleRootManager.getInstance(module).getDependencies())
-			if (WebModuleType.isWebModule(dependency))
-				new GulpExecutor(dependency, ((LegioConfiguration) TaraUtil.configurationOf(dependency)).project()).startGulpDeploy();
 	}
 
 	private boolean noDistributionRepository(LifeCyclePhase lifeCyclePhase, Configuration configuration) {

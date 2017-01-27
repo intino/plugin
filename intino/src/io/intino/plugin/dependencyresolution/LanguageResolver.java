@@ -2,6 +2,7 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.libraries.Library;
@@ -24,7 +25,11 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -33,11 +38,14 @@ import java.util.stream.Collectors;
 import static com.intellij.openapi.application.ModalityState.defaultModalityState;
 
 public class LanguageResolver {
+	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
+
 	private final Module module;
 	private final List<Repository> repositories;
 	private final Project.Factory factory;
 	private final String version;
 	private final String language;
+	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public LanguageResolver(Module module, List<Repository> repositories, Project.Factory factory, String version) {
 		this.module = module;
@@ -50,24 +58,25 @@ public class LanguageResolver {
 	public List<Library> resolve() {
 		if (language == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), language, version);
-		return isMagritteLibrary(this.language) ? magritte(version) : languageFramework();
+		final List<Library> libraries = isMagritteLibrary(this.language) ? magritte(version) : languageFramework();
+		if (!libraries.isEmpty()) resolveBuilder(libraries);
+		return libraries;
 	}
 
 	private List<Library> magritte(String version) {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries)));
-		else
-			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries))), defaultModalityState());
+		if (application.isWriteAccessAllowed()) libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
+				loadMagritteLibrary(version, libraries)));
+		else application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
+				loadMagritteLibrary(version, libraries))), defaultModalityState());
 		return libraries;
 	}
 
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
-		if (!languageFramework.isEmpty()) factory.asLevel().effectiveVersion(languageFramework.get(0).getVersion());
-		else factory.asLevel().effectiveVersion("");
+		factory.asLevel().effectiveVersion(!languageFramework.isEmpty() ? languageFramework.get(0).getVersion() : "");
 		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
 		manager.addToModule(libraries, false);
 		return libraries;
@@ -75,7 +84,7 @@ public class LanguageResolver {
 
 	private List<Library> languageFramework() {
 		final List<Library> libraries = new ArrayList<>();
-		final Module module = moduleDedencyOf(this.module, language, version);
+		final Module module = moduleDependencyOf(this.module, language, version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
 		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
@@ -102,7 +111,7 @@ public class LanguageResolver {
 		manager.addToModule(libraries, false);
 	}
 
-	public static Module moduleDedencyOf(Module languageModule, String language, String version) {
+	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
@@ -115,10 +124,48 @@ public class LanguageResolver {
 	private List<Artifact> findLanguageFramework(String languageId) {
 		try {
 			if (languageId == null) return Collections.emptyList();
-			File local = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-			return new Aether(collectRemotes(), local).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
-		} catch (DependencyResolutionException ignored) {
+			return new Aether(collectRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
+		} catch (DependencyResolutionException e) {
 			return Collections.emptyList();
+		}
+	}
+
+	private void resolveBuilder(List<Library> libraries) {
+		final Library library = libraries.stream().filter(l -> l.getName() != null && l.getName().contains(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":")).findFirst().orElseGet(null);
+		if (library == null || library.getName() == null) return;
+		try {
+			final List<RemoteRepository> repos = collectRemotes();
+			repos.add(0, new RemoteRepository("intino-maven", "default", "https://artifactory.intino.io/artifactory/release-frameworks"));
+			repos.add(0, new RemoteRepository("intino-maven", "default", "https://artifactory.intino.io/artifactory/release-builders"));
+			final String version = mayorVersionOf(library);
+			if (version == null) LOG.error("No version available");
+			saveClassPath(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + version), JavaScopes.COMPILE));
+		} catch (DependencyResolutionException e) {
+			LOG.error(e.getMessage());
+		}
+	}
+
+	private void saveClassPath(List<Artifact> classpath) {
+		if (classpath.isEmpty()) return;
+		List<String> libraries = classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
+		final File miscDirectory = LanguageManager.getMiscDirectory(this.module.getProject());
+		final File file = new File(miscDirectory, module.getName());
+		try {
+			Files.write(file.toPath(), String.join(":", libraries).getBytes());
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
+	}
+
+	private String mayorVersionOf(Library library) {
+		final String[] split = library.getName().split(":");
+		final String version = split[split.length - 1].trim();
+		final String mayor = version.split("\\.")[0];
+		try {
+			int next = Integer.parseInt(mayor) + 1;
+			return "[" + mayor + ".0.0" + "," + next + ".0.0]";
+		} catch (NumberFormatException e) {
+			return null;
 		}
 	}
 
@@ -133,7 +180,7 @@ public class LanguageResolver {
 			if (tara == null) return null;
 			return tara.getValue("framework");
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -143,8 +190,8 @@ public class LanguageResolver {
 	}
 
 	@NotNull
-	private Collection<RemoteRepository> collectRemotes() {
-		Collection<RemoteRepository> remotes = new ArrayList<>();
+	private List<RemoteRepository> collectRemotes() {
+		List<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
 		return remotes;
