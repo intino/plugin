@@ -22,6 +22,7 @@ import io.intino.legio.LegioApplication;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
+import io.intino.legio.Project.Factory;
 import io.intino.legio.Project.Repositories.Repository;
 import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
@@ -42,10 +43,7 @@ import tara.dsl.Legio;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -70,11 +68,15 @@ public class LegioConfiguration implements Configuration {
 		return this;
 	}
 
+	public boolean inited() {
+		return legio != null;
+	}
+
 	private void initConfiguration() {
 		File stashFile = stashFile();
 		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		reloadInterfaceBuilder();
-		resolveLanguage();
+		resolveLanguages();
 		if (WebModuleType.isWebModule(module) && this.legio != null) new GulpExecutor(this.module, legio.project()).startGulpDev();
 	}
 
@@ -102,8 +104,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadInterfaceBuilder() {
-		final Project.Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
-		if (interfaceNode != null) new InterfaceBuilderManager(this).reload(interfaceNode.version());
+		final Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
+		if (interfaceNode != null) new InterfaceBuilderManager().reload(interfaceNode.version());
 	}
 
 	private LegioApplication newGraphFromLegio() {
@@ -135,16 +137,17 @@ public class LegioConfiguration implements Configuration {
 		if (dependencies() == null) return;
 		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
-		newLibraries.addAll(resolveLanguage());
+		newLibraries.addAll(resolveLanguages());
 		LibraryManager.removeOldLibraries(module, newLibraries);
 	}
 
-	private List<Library> resolveLanguage() {
-		if (factory() != null) {
-			final String effectiveVersion = dslEffectiveVersion();
-			return new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory(), effectiveVersion == null || effectiveVersion.isEmpty() ? dslVersion() : effectiveVersion).resolve();
+	private List<Library> resolveLanguages() {
+		List<Library> libraries = new ArrayList<>();
+		for (LanguageLibrary language : languages()) {
+			final String effectiveVersion = language.effectiveVersion();
+			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory().languageList(d -> d.name().equals(language.name())).get(0), effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion).resolve());
 		}
-		return Collections.emptyList();
+		return libraries;
 	}
 
 	private void resolveWebDependencies() {
@@ -154,7 +157,7 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Level level() {
 		if (legio == null || legio.project() == null) return null;
-		final Project.Factory factory = legio.project().factory();
+		final Factory factory = legio.project().factory();
 		if (factory == null) return null;
 		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
@@ -170,25 +173,80 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.project().groupId());
 	}
 
-	@Override
-	public String workingPackage() {
-		final String workingPackage = safe(() -> legio.project().factory().inPackage(), dsl());
-		return workingPackage.isEmpty() ? outDSL() : workingPackage;
+	public String version() {
+		return safe(() -> legio.project().version());
+	}
+
+	public void version(String version) {
+		reload();//TODO
 	}
 
 	@Override
-	public String dslWorkingPackage() {
-		try {
-			final File languageFile = LanguageManager.getLanguageFile(dsl(), dslEffectiveVersion());
-			if (!languageFile.exists()) return null;
-			Manifest manifest = new JarFile(languageFile).getManifest();
-			final Attributes tara = manifest.getAttributes("tara");
-			if (tara == null) return null;
-			return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
-			return null;
+	public String workingPackage() {
+		return safe(() -> legio.project().factory().inPackage(), outDSL());
+	}
+
+	@Override
+	public List<? extends LanguageLibrary> languages() {
+		final List<Factory.Language> list = safe(() -> legio.project().factory().asLevel().languageList());
+		if (list == null) return Collections.emptyList();
+		List<LanguageLibrary> languages = new ArrayList<>();
+		for (Factory.Language language : list) {
+			languages.add(new LanguageLibrary() {
+				@Override
+				public String name() {
+					return language.name();
+				}
+
+				@Override
+				public String version() {
+					return language.version();
+				}
+
+				@Override
+				public String effectiveVersion() {
+					return language.effectiveVersion();
+				}
+
+				@Override
+				public void version(String version) {
+					final Application application = ApplicationManager.getApplication();
+					TaraModel psiFile = !application.isReadAccessAllowed() ?
+							(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
+							(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
+					new WriteCommandAction(module.getProject(), psiFile) {
+						@Override
+						protected void run(@NotNull Result result) throws Throwable {
+							language.version(version);
+							final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
+							if (factory == null) return;
+							final Node language = factory.components().stream().filter(f -> f.type().equals("Project.Factory.Language")).findFirst().orElse(null);
+							if (language == null) return;
+							final Parameter versionParameter = language.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+							versionParameter.substituteValues(Collections.singletonList(version));
+						}
+					}.execute();
+					reload();
+				}
+
+				@Override
+				public String generationPackage() {
+					try {
+						final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion());
+						if (!languageFile.exists()) return null;
+						Manifest manifest = new JarFile(languageFile).getManifest();
+						final Attributes tara = manifest.getAttributes("tara");
+						if (tara == null) return null;
+						return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
+					} catch (IOException e) {
+						LOG.error(e.getMessage(), e);
+						return null;
+					}
+				}
+			});
 		}
+		return languages;
+
 	}
 
 	@Override
@@ -235,46 +293,11 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public String dsl() {
-		return safe(() -> legio.project().factory().asLevel().language());
-	}
-
-	@Override
 	public String outDSL() {
 		return safe(() -> legio.project().name());
 	}
 
-	@Override
-	public String dslVersion() {
-		return safe(() -> legio.project().factory().asLevel().version());
-	}
-
-	public String dslEffectiveVersion() {
-		return safe(() -> legio.project().factory().asLevel().effectiveVersion());
-	}
-
-	@Override
-	public void dslVersion(String version) {
-		final Application application = ApplicationManager.getApplication();
-		TaraModel psiFile = !application.isReadAccessAllowed() ?
-				(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
-				(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
-		new WriteCommandAction(module.getProject(), psiFile) {
-			@Override
-			protected void run(@NotNull Result result) throws Throwable {
-				legio.project().factory().asLevel().version(version);
-				final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
-				if (factory == null) return;
-				final Node language = factory.components().stream().filter(f -> f.type().equals("Project.Factory.Language")).findFirst().orElse(null);
-				if (language == null) return;
-				final Parameter versionParameter = language.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
-				versionParameter.substituteValues(Collections.singletonList(version));
-			}
-		}.execute();
-		reload();
-	}
-
-	public Project.Factory factory() {
+	public Factory factory() {
 		return safe(() -> legio.project().factory());
 	}
 
@@ -288,17 +311,6 @@ public class LegioConfiguration implements Configuration {
 
 	public LifeCycle.QualityAnalytics qualityAnalytics() {
 		return legio.lifeCycle().qualityAnalytics();
-	}
-
-	@Override
-	public String modelVersion() {
-		return safe(() -> legio.project().version());
-	}
-
-	@Override
-	public void modelVersion(String version) {
-		//TODO
-		reload();
 	}
 
 	@Override
@@ -347,7 +359,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public Project project() {
-		return legio.project();
+		return safe(() -> legio.project());
 	}
 
 	private interface StringWrapper {

@@ -56,7 +56,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private boolean languageExists() {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
-			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.modelVersion());
+			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.version());
 			if (shouldDistributeLanguage(module, lifeCyclePhase) && !languageFile.exists()) return false;
 		}
 		return true;
@@ -98,7 +98,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), MessageProvider.message("artifactory.overrides"), "Artifactory", TaraIcons.LOGO_80, STATIC_SHOW_CONFIRMATION);
 		dialog.setDoNotAskOption(null);
 		if (configuration == null) return false;
-		final String version = configuration.modelVersion();
+		final String version = configuration.version();
 		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !TaraSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
 	}
 

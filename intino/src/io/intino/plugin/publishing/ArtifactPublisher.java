@@ -54,7 +54,7 @@ public class ArtifactPublisher {
 	}
 
 	private SystemSchema createSystem(Destination destination) {
-		final String id = configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.modelVersion();
+		final String id = configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.parameterList())).

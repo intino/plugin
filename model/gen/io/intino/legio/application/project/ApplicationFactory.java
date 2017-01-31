@@ -6,6 +6,7 @@ import io.intino.legio.*;
 public class ApplicationFactory extends io.intino.legio.level.project.LevelFactory implements io.intino.tara.magritte.tags.Terminal {
 	
 	
+	
 
 	public ApplicationFactory(io.intino.tara.magritte.Node node) {
 		super(node);
@@ -19,14 +20,25 @@ public class ApplicationFactory extends io.intino.legio.level.project.LevelFacto
 		this._factory.inPackage(value);
 	}
 
+	public java.util.List<io.intino.legio.Project.Factory.Language> languageList() {
+		return (java.util.List<io.intino.legio.Project.Factory.Language>) _factory.languageList();
+	}
+
+	public io.intino.legio.Project.Factory.Language languageList(int index) {
+		return _factory.languageList().get(index);
+	}
+
 	public io.intino.legio.Project.Factory.Interface interface$() {
 		return _factory.interface$();
 	}
 
 	
 
+	
+
 	public java.util.List<io.intino.tara.magritte.Node> componentList() {
 		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -65,6 +77,13 @@ public class ApplicationFactory extends io.intino.legio.level.project.LevelFacto
 
 		public Create(java.lang.String name) {
 			super(name);
+		}
+
+		public io.intino.legio.Project.Factory.Language language(java.lang.String name, java.lang.String version) {
+		    io.intino.legio.Project.Factory.Language newElement = graph().concept(io.intino.legio.Project.Factory.Language.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Language.class);
+			newElement.node().set(newElement, "name", java.util.Collections.singletonList(name));
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		    return newElement;
 		}
 
 		public io.intino.legio.Project.Factory.Interface interface$(java.lang.String version) {

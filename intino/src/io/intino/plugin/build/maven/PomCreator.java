@@ -77,7 +77,7 @@ class PomCreator {
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
-		frame.addSlot("version", configuration.modelVersion());
+		frame.addSlot("version", configuration.version());
 	}
 
 	private void fillFramework(LifeCycle.Package build, Frame frame) {
@@ -112,8 +112,10 @@ class PomCreator {
 
 	private void addLevelDependency(Frame frame) {
 		if (configuration.level() != null) {
-			final String languageId = findLanguageId(module);
-			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
+			for (Configuration.LanguageLibrary language : configuration.languages()) {
+				final String languageId = findLanguageId(language);
+				if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
+			}
 		}
 	}
 
@@ -123,9 +125,11 @@ class PomCreator {
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
 			if (configuration.level() != null) {
-				final String language = LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
-				if (language == null || language.isEmpty()) return;
-				frame.addSlot("dependency", createDependencyFrame(language.split(":")));
+				for (Configuration.LanguageLibrary language : configuration.languages()) {
+					final String languageID = LanguageResolver.languageID(language.name(), language.version());
+					if (languageID == null || languageID.isEmpty()) return;
+					frame.addSlot("dependency", createDependencyFrame(languageID.split(":")));
+				}
 			}
 		}
 	}
@@ -192,9 +196,8 @@ class PomCreator {
 		}
 	}
 
-	private String findLanguageId(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.moduleDependencyOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
+	private String findLanguageId(Configuration.LanguageLibrary language) {
+		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : LanguageResolver.languageID(language.name(), language.version());
 	}
 
 	private Frame createDependencyFrame(Dependency id) {

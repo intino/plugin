@@ -58,6 +58,7 @@ public class GulpExecutor {
 		lock = true;
 		final File gulp = createGulp();
 		final File gulpPom = createGulpPom("dev");
+		if (gulpPom == null) return;
 		final File packageJson = createPackageFile();
 //		new Thread(() -> run(gulpPom, line -> {
 //			LOG.info(line);
@@ -130,6 +131,7 @@ public class GulpExecutor {
 	}
 
 	private File createGulpPom(String task) {
+		if (project == null) return null;
 		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
 				addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).
 				addSlot("version", project.version()).addSlot("module", module.getName()).addSlot("task", task)));
