@@ -100,7 +100,7 @@ public abstract class LevelFactory extends io.intino.tara.magritte.Layer impleme
 		
 	}
 	
-	public io.intino.legio.LegioApplication application() {
-		return ((io.intino.legio.LegioApplication) graph().application());
+	public io.intino.legio.Legio legioWrapper() {
+		return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
 	}
 }

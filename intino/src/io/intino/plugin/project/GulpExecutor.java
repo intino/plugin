@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -48,17 +49,17 @@ public class GulpExecutor {
 	}
 
 	synchronized void startGulpDev() {
-		while (lock) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				LOG.error(e.getMessage());
-			}
-		}
-		lock = true;
+//		while (lock) {
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				LOG.error(e.getMessage());
+//			}
+//		}
+//		lock = true;
 		final File gulp = createGulp();
 		final File gulpPom = createGulpPom("dev");
-		if (gulpPom == null) return;
+		if (gulpPom == null || gulp == null) return;
 		final File packageJson = createPackageFile();
 //		new Thread(() -> run(gulpPom, line -> {
 //			LOG.info(line);
@@ -70,8 +71,8 @@ public class GulpExecutor {
 //			}
 //		}), "GULP").start();
 		try {
-			if (gulp != null) Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath());
-			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath());
+			Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
