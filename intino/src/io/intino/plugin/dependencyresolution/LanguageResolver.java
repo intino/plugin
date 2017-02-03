@@ -15,8 +15,11 @@ import io.intino.tara.dsl.Proteo;
 import io.intino.tara.dsl.Verso;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.settings.ArtifactoryCredential;
+import io.intino.tara.plugin.settings.TaraSettings;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -189,9 +192,20 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
 		List<RemoteRepository> remotes = new ArrayList<>();
-		remotes.addAll(repositories.stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(this::remoteFrom).collect(Collectors.toList()));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		return remotes;
+	}
+
+	private RemoteRepository remoteFrom(Repository remote) {
+		return new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()));
+	}
+
+	private Authentication provideAuthentication(String mavenId) {
+		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
+		for (ArtifactoryCredential credential : settings.artifactories())
+			if (credential.serverId.equals(mavenId)) return new Authentication(credential.username, credential.password);
+		return null;
 	}
 
 	@NotNull
