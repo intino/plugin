@@ -69,8 +69,8 @@ def type(pom)
 						<archive>
 							<manifest>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
-								<mainClass>$mainClass</mainClass>][
-								<classpathPrefix>$classpathPrefix/</classpathPrefix>]
+								<mainClass>$mainClass</mainClass>]
+								<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
 							</manifest>
 						</archive>
 					</configuration>

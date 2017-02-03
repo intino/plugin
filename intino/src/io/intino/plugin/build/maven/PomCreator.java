@@ -39,6 +39,7 @@ class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
+	private Set<Integer> randomGeneration = new HashSet<>();
 
 	PomCreator(Module module) {
 		this.module = module;
@@ -214,8 +215,14 @@ class PomCreator {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
 				addSlot("name", repo.mavenId()).
 				addSlot("url", repo.url()).
-				addSlot("random", new Random().nextInt(10)).
+				addSlot("random", generateRandom()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
+	}
+
+	private int generateRandom() {
+		Integer random = new Random().nextInt(10);
+		while (!randomGeneration.add(random)) random = new Random().nextInt(10);
+		return random;
 	}
 
 	private Frame createDistributionRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
