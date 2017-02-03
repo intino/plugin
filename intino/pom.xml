@@ -101,7 +101,7 @@
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
             <scope>provided</scope>
-            <version>1.0.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>

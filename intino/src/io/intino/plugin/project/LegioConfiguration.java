@@ -18,7 +18,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import io.intino.legio.LegioApplication;
+import io.intino.legio.Legio;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
@@ -39,7 +39,6 @@ import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NotNull;
-import tara.dsl.Legio;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +54,7 @@ public class LegioConfiguration implements Configuration {
 	private static final String CONFIGURATION_LEGIO = "configuration.legio";
 	private final Module module;
 	private VirtualFile legioFile;
-	private LegioApplication legio;
+	private Legio legio;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -108,14 +107,14 @@ public class LegioConfiguration implements Configuration {
 		if (interfaceNode != null) new InterfaceBuilderManager().reload(interfaceNode.version());
 	}
 
-	private LegioApplication newGraphFromLegio() {
+	private Legio newGraphFromLegio() {
 		Stash legioStash = loadNewConfiguration();
 		return legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
 	}
 
 	private Stash loadNewConfiguration() {
 		try {
-			return new StashBuilder(new File(legioFile.getPath()), new Legio(), module.getName()).build();
+			return new StashBuilder(new File(legioFile.getPath()), new tara.dsl.Legio(), module.getName()).build();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			return null;

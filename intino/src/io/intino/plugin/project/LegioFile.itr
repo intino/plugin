@@ -3,16 +3,18 @@ def type(legio & empty)
 
 	Project(groupId = "org.sample", version = "1.0.0") $name
 		Repositories
-			Release("http://artifactory.siani.es/artifactory/libs-release", "siani-maven")
-			Language("https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
+			Release("https://artifactory.intino.io/artifactory/releases", "intino-maven")
+			Language("https://artifactory.intino.io/artifactory/releases", "intino-maven")
 		Dependencies
 			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
-		Factory("$name+firstLowerCase") as Platform("Verso", "LATEST")
+		Factory("$name+firstLowerCase") as Platform
+			Language("Verso", "LATEST")
 
 	LifeCycle
 		Package(type = ModulesAndLibrariesLinkedByManifest)
 		Distribution
-			Release("http://artifactory.siani.es/artifactory/libs-release-local", "siani-maven")
+			Release("http://artifactory.intino.io/artifactory/release-frameworks", "intino-maven")
+			Language("https://artifactory.intino.io/artifactory/release-languages", "intino-maven")
 end
 
 def type(legio) !type(empty)
@@ -20,8 +22,8 @@ def type(legio) !type(empty)
 
 	Project(groupId = "$groupId", version = "$version") $artifactId
     	Repositories[
-			Language(url = "https://artifactory.siani.es/artifactory/languages-release", "siani-maven")
-			Release(url = "http://artifactory.siani.es/artifactory/libs-release", "siani-maven")$isIntino	][
+		Release("https://artifactory.intino.io/artifactory/releases", "intino-maven")
+		Language("https://artifactory.intino.io/artifactory/releases", "intino-maven")$isIntino	][
     		$repository...[$NL]]
     	Dependencies[
     		$dependency...[$NL]][
@@ -33,11 +35,11 @@ def type(legio) !type(empty)
 end
 
 def type(release) trigger(repository)
-	Release(url = "$url", "$id")
+	Release("$url", "$id")
 end
 
 def type(snapshot) trigger(repository)
-	Snapshot(url = "$url", "$id")
+	Snapshot("$url", "$id")
 end
 
 def type(dependency)

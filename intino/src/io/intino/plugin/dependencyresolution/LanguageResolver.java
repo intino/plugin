@@ -128,7 +128,7 @@ public class LanguageResolver {
 	}
 
 	private void resolveBuilder(List<Library> libraries) {
-		final Library library = libraries.stream().filter(l -> l.getName() != null && l.getName().contains(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":")).findFirst().orElseGet(null);
+		final Library library = libraries.stream().filter(l -> l.getName() != null && l.getName().contains(Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":")).findFirst().orElse(null);
 		if (library == null || library.getName() == null) return;
 		try {
 			final List<RemoteRepository> repos = new ArrayList<>();
