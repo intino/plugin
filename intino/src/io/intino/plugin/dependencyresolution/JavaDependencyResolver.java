@@ -14,8 +14,11 @@ import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.settings.ArtifactoryCredential;
+import io.intino.tara.plugin.settings.TaraSettings;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -99,7 +102,7 @@ public class JavaDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
 		} catch (DependencyResolutionException e) {
-			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories");
+			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories", e);
 			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
@@ -118,7 +121,14 @@ public class JavaDependencyResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.repositoryList().stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
 		return remotes;
+	}
+
+	private Authentication provideAuthentication(String mavenId) {
+		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
+		for (ArtifactoryCredential credential : settings.artifactories())
+			if (credential.serverId.equals(mavenId)) return new Authentication(credential.username, credential.password);
+		return null;
 	}
 }

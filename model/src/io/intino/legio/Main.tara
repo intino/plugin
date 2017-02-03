@@ -44,6 +44,10 @@ Concept:{1..1}:Named Project
 			var string version
 	Concept:{0..1} Factory
 		var string inPackage = ""
+		Concept Language
+			var string name
+			var string version
+			var string effectiveVersion = "" is private
 		Concept:{0..1} Interface
 			var string version
 
@@ -87,9 +91,6 @@ Facet Runnable on LifeCycle.Package
 	var string mainClass
 
 Facet Level on Project.Factory
-	var string language
-	var string version
-	var string effectiveVersion = "" is private
 	sub Platform
 	sub Application
 	sub System

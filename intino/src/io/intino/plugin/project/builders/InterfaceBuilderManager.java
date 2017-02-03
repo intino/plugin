@@ -1,10 +1,6 @@
 package io.intino.plugin.project.builders;
 
-import com.intellij.notification.NotificationGroup;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.ui.MessageType;
 import com.jcabi.aether.Aether;
-import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -17,31 +13,17 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class InterfaceBuilderManager {
 
-	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class.getName());
-
 	private static final String KONOS = "konos";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-	private LegioConfiguration configuration;
-
-	public InterfaceBuilderManager(LegioConfiguration configuration) {
-		this.configuration = configuration;
-	}
 
 	public void reload(String version) {
 		if (BuilderLoader.isLoaded(version)) return;
 		List<Artifact> library = konosLibrary(version);
-		if (library == null || library.isEmpty()) notifyError(version);
-		else BuilderLoader.load(KONOS, library.stream().map(this::pathOf).toArray(File[]::new), version);
-	}
-
-	private void notifyError(String version) {
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		balloon = balloon == null ? NotificationGroup.balloonGroup("Tara Language") : balloon;
-		balloon.createNotification("Interface Builder v" + version + " cannot be loaded. None libraries found", MessageType.ERROR).setImportant(false).notify(null);
+		if (library != null && !library.isEmpty())
+			BuilderLoader.load(KONOS, library.stream().map(this::pathOf).toArray(File[]::new), version);
 	}
 
 	private File pathOf(Artifact artifact) {
@@ -64,8 +46,7 @@ public class InterfaceBuilderManager {
 			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", "http://artifactory.intino.io/artifactory/release-builders"));
-		remotes.addAll(configuration.legioRepositories().stream().map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.add(new RemoteRepository("intino-maven", "default", "http://artifactory.intino.io/artifactory/releases"));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		return remotes;
 	}

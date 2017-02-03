@@ -28,6 +28,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
+		if (!configuration.inited()) return;
 		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
 		final Project.Dependencies.Dependency dependencyForNode = findDependencyForNode();
 		if (dependencyForNode == null || dependencyForNode.resolved() && dependencyForNode.artifacts().isEmpty())

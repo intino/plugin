@@ -6,9 +6,8 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.plugin.build.LifeCyclePhase;
-import io.intino.tara.compiler.codegeneration.FileSystemUtils;
-import io.intino.tara.compiler.core.errorcollection.TaraException;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.actions.utils.FileSystemUtils;
 import io.intino.tara.plugin.lang.LanguageManager;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +70,7 @@ public class MavenRunner {
 				"-DrepositoryId=" + conf.distributionLanguageRepository().getValue() + " " +
 				"-DgroupId=tara.dsl " +
 				"-DartifactId=" + conf.artifactId() + " " +
-				"-Dversion=" + conf.modelVersion() + " " +
+				"-Dversion=" + conf.version() + " " +
 				"-Dfile=" + fileOfLanguage(conf));
 		final Properties properties = new Properties();
 		request.setProperties(properties);
@@ -140,7 +139,7 @@ public class MavenRunner {
 	@NotNull
 	private String fileOfLanguage(Configuration conf) {
 		try {
-			final String originalFile = LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.modelVersion() + "/" + conf.artifactId() + "-" + conf.modelVersion() + ".jar";
+			final String originalFile = LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.version() + "/" + conf.artifactId() + "-" + conf.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());
@@ -154,7 +153,7 @@ public class MavenRunner {
 	private void throwException(InvocationResult result, String message, LifeCyclePhase phase) throws IOException {
 		if (result.getExecutionException() != null)
 			throw new IOException(message(message, phase.gerund().toLowerCase(), result.getExecutionException().getMessage()), result.getExecutionException());
-		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new TaraException(output));
+		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new IOException(output));
 	}
 
 	private void log(Invoker invoker) throws IOException {

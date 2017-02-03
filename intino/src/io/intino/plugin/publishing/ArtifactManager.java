@@ -47,7 +47,7 @@ public class ArtifactManager {
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		final RestCesarAccessor cesar = new RestCesarAccessor(url);
 		try {
-			final SystemSchema system = cesar.getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.modelVersion());
+			final SystemSchema system = cesar.getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
 			final Runtime runtime = system.runtime();
 			return runtime.server() + ":" + runtime.jmxPort();
 		} catch (BadRequest | Unknown e) {

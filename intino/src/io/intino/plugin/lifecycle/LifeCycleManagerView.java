@@ -67,12 +67,9 @@ public class LifeCycleManagerView extends JPanel {
 
 			@Override
 			public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
-				for (Module module : modules) {
-					if (!module.getName().equals(oldNameProvider.fun(module))) {
+				for (Module module : modules)
+					if (!module.getName().equals(oldNameProvider.fun(module)))
 						renameModuleActions(oldNameProvider.fun(module), module.getName());
-					}
-
-				}
 			}
 		});
 		modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));

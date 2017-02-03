@@ -20,7 +20,7 @@ public class LanguageDeclarationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isFactory(Node element) {
-		return element.simpleType().equals("Factory") || element.simpleType().equals(factoryCanonicalName());
+		return element.type().equals("FactoryLevel.Language") || element.simpleType().equals(factoryCanonicalName());
 	}
 
 	private String factoryCanonicalName() {

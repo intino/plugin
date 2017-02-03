@@ -26,29 +26,30 @@ import java.util.stream.Collectors;
 import static io.intino.plugin.MessageProvider.message;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
-	private final Node factory;
+	private final Node languageNode;
 	private final LegioConfiguration configuration;
 	private Module module;
 
 	LanguageDeclarationAnalyzer(Node node, Module module) {
-		this.factory = node;
+		this.languageNode = node;
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
 	@Override
 	public void analyze() {
-		if (configuration == null || factory == null) return;
-		final Parameter parameterLanguage = factory.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
+		if (configuration == null || languageNode == null) return;
+		final Parameter languageNameParameter = languageNode.parameters().stream().filter(p -> p.name().equals("name")).findFirst().orElse(null);
+		if (languageNameParameter == null) return;
+		final String languageName = languageNameParameter.values().get(0).toString();
 		String version = version();
-		if ("LATEST".equals(version)) version = configuration.dslEffectiveVersion();
-		if (version == null || version.isEmpty() || parameterLanguage == null) return;
-		final String languageName = parameterLanguage.values().get(0).toString();
+		if ("LATEST".equals(version)) version = configuration.language(l -> l.name().equals(languageName)).effectiveVersion();
+		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
-			results.put((PsiElement) factory, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
+			results.put((PsiElement) this.languageNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
 		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))
-			results.put(((TaraNode) factory).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
+			results.put(((TaraNode) this.languageNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
 	}
 
 	private boolean existMagritte(String version) {
@@ -62,7 +63,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	}
 
 	private String version() {
-		for (Parameter parameter : factory.parameters())
+		for (Parameter parameter : languageNode.parameters())
 			if (parameter.name().equals("version")) return parameter.values().get(0).toString();
 		return null;
 	}

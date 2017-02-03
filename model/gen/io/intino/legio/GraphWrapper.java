@@ -294,24 +294,21 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.platform.project.PlatformFactory platformFactory(java.lang.String language, java.lang.String version) {
+		public io.intino.legio.platform.project.PlatformFactory platformFactory() {
 			io.intino.legio.platform.project.PlatformFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.platform.project.PlatformFactory.class, namespace, name).as(io.intino.legio.platform.project.PlatformFactory.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			
 			return newElement;
 		}
 
-		public io.intino.legio.application.project.ApplicationFactory applicationFactory(java.lang.String language, java.lang.String version) {
+		public io.intino.legio.application.project.ApplicationFactory applicationFactory() {
 			io.intino.legio.application.project.ApplicationFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.application.project.ApplicationFactory.class, namespace, name).as(io.intino.legio.application.project.ApplicationFactory.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			
 			return newElement;
 		}
 
-		public io.intino.legio.system.project.SystemFactory systemFactory(java.lang.String language, java.lang.String version) {
+		public io.intino.legio.system.project.SystemFactory systemFactory() {
 			io.intino.legio.system.project.SystemFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.system.project.SystemFactory.class, namespace, name).as(io.intino.legio.system.project.SystemFactory.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			
 			return newElement;
 		}
 

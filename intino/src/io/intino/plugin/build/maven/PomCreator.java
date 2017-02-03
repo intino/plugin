@@ -44,6 +44,7 @@ class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
+	private Set<Integer> randomGeneration = new HashSet<>();
 
 	PomCreator(Module module) {
 		this.module = module;
@@ -82,7 +83,7 @@ class PomCreator {
 		frame.addTypes("pom");
 		frame.addSlot("groupId", configuration.groupId());
 		frame.addSlot("artifactId", configuration.artifactId());
-		frame.addSlot("version", configuration.modelVersion());
+		frame.addSlot("version", configuration.version());
 	}
 
 	private void fillFramework(LifeCycle.Package build, Frame frame) {
@@ -117,8 +118,10 @@ class PomCreator {
 
 	private void addLevelDependency(Frame frame) {
 		if (configuration.level() != null) {
-			final String languageId = findLanguageId(module);
-			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
+			for (Configuration.LanguageLibrary language : configuration.languages()) {
+				final String languageId = findLanguageId(language);
+				if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
+			}
 		}
 	}
 
@@ -128,9 +131,11 @@ class PomCreator {
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
 			if (configuration.level() != null) {
-				final String language = LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
-				if (language == null || language.isEmpty()) return;
-				frame.addSlot("dependency", createDependencyFrame(language.split(":")));
+				for (Configuration.LanguageLibrary language : configuration.languages()) {
+					final String languageID = LanguageResolver.languageID(language.name(), language.version());
+					if (languageID == null || languageID.isEmpty()) return;
+					frame.addSlot("dependency", createDependencyFrame(languageID.split(":")));
+				}
 			}
 		}
 	}
@@ -197,9 +202,8 @@ class PomCreator {
 		}
 	}
 
-	private String findLanguageId(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
-		return LanguageResolver.moduleDependencyOf(module, configuration.dsl(), configuration.dslVersion()) != null ? "" : LanguageResolver.languageID(configuration.dsl(), configuration.dslVersion());
+	private String findLanguageId(Configuration.LanguageLibrary language) {
+		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : LanguageResolver.languageID(language.name(), language.version());
 	}
 
 	private Frame createDependencyFrame(Dependency id) {
@@ -216,8 +220,14 @@ class PomCreator {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
 				addSlot("name", repo.mavenId()).
 				addSlot("url", repo.url()).
-				addSlot("random", new Random().nextInt(10)).
+				addSlot("random", generateRandom()).
 				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
+	}
+
+	private int generateRandom() {
+		Integer random = new Random().nextInt(10);
+		while (!randomGeneration.add(random)) random = new Random().nextInt(10);
+		return random;
 	}
 
 	private Frame createDistributionRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {

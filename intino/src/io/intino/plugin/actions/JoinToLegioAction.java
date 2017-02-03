@@ -11,6 +11,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactNode;
@@ -19,10 +23,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.siani.itrules.model.Frame;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.TaraModuleType;
-import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,11 +88,13 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		if (TaraModuleType.isTara(module)) {
 			frame.addSlot("isIntino", "");
 			Configuration conf = TaraUtil.configurationOf(module);
-			frame.addSlot("factory", new Frame().addTypes("factory").
-					addSlot("level", notNull(conf.level().name())).
-					addSlot("workingPackage", notNull(conf.workingPackage())).
-					addSlot("dsl", notNull(conf.dsl())).
-					addSlot("dslVersion", conf.dslVersion() == null ? "LATEST" : conf.dslVersion()));
+			if (!conf.languages().isEmpty()) {
+				frame.addSlot("factory", new Frame().addTypes("factory").
+						addSlot("level", notNull(conf.level().name())).
+						addSlot("workingPackage", notNull(conf.workingPackage())).
+						addSlot("dsl", notNull(conf.languages().get(0).name())).
+						addSlot("dslVersion", conf.languages().get(0).version() == null ? "LATEST" : conf.languages().get(0).version()));
+			}
 		}
 		return frame;
 	}

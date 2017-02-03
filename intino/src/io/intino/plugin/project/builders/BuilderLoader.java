@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class BuilderLoader {
+public class BuilderLoader {
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
 	private static Map<String, File[]> loadedVersions = new HashMap<>();
 
@@ -28,6 +28,10 @@ class BuilderLoader {
 
 	static boolean isLoaded(String version) {
 		return loadedVersions.containsKey(version);
+	}
+
+	public static boolean exists(String version) {
+		return loadedVersions.get(version) != null;
 	}
 
 	static Builder load(String name, File[] libraries, String version) {
