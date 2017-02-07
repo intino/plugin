@@ -58,7 +58,7 @@ public class ArtifactManager {
 	static URL urlOf(LifeCycle.Publishing publishing) {
 		try {
 			final String direction = publishing.cesarURL();
-			return new URL(direction.startsWith("http") ? direction : "http://" + direction);
+			return new URL(direction.startsWith("https") ? direction : "https://" + direction);
 		} catch (MalformedURLException e) {
 			LOG.error(e.getMessage());
 			return null;
