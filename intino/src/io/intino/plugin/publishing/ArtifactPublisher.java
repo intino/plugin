@@ -8,16 +8,18 @@ import io.intino.cesar.schemas.Artifactory;
 import io.intino.cesar.schemas.Packaging;
 import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.SystemSchema;
+import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.LifeCycle.Publishing.Destination;
 import io.intino.legio.Parameter;
-import io.intino.konos.exceptions.Unknown;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.magritte.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.plugin.settings.ArtifactoryCredential;
+import io.intino.tara.plugin.settings.TaraSettings;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -55,10 +57,11 @@ public class ArtifactPublisher {
 
 	private SystemSchema createSystem(Destination destination) {
 		final String id = configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version();
+		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.parameterList())).
-				classpathPrefix(configuration.lifeCycle().package$().asRunnable().classpathPrefix())).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Publishing.class).managementPort()));
+				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Publishing.class).managementPort()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(List<Parameter> parameters) {
@@ -78,7 +81,7 @@ public class ArtifactPublisher {
 	private List<Artifactory> artifactories() {
 		List<Artifactory> artifactories = new ArrayList<>();
 		Map<String, String> repositories = collectRepositories();
-		artifactories.addAll(repositories.entrySet().stream().map(entry -> new Artifactory().url(entry.getKey()).id(entry.getValue())).collect(Collectors.toList()));
+		artifactories.addAll(repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(Collectors.toList()));
 		return artifactories;
 	}
 
@@ -88,9 +91,15 @@ public class ArtifactPublisher {
 		map.putAll(configuration.releaseRepositories());
 		for (Module dependant : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration dependantConf = TaraUtil.configurationOf(dependant);
-			if (dependantConf == null) continue;
-			map.putAll(dependantConf.releaseRepositories());
+			if (dependantConf != null) map.putAll(dependantConf.releaseRepositories());
 		}
 		return map;
+	}
+
+	private Artifactory addCredentials(Artifactory artifactory) {
+		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
+		for (ArtifactoryCredential credential : settings.artifactories())
+			if (credential.serverId.equals(artifactory.id())) artifactory.user(credential.username).password(credential.password);
+		return artifactory;
 	}
 }
