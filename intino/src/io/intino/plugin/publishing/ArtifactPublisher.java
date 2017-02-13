@@ -16,7 +16,6 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.magritte.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.settings.ArtifactoryCredential;
 import io.intino.tara.plugin.settings.TaraSettings;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.publishing.ArtifactManager.urlOf;
-import static java.util.Collections.singletonList;
 
 public class ArtifactPublisher {
 	private static final Logger LOG = Logger.getInstance(ArtifactPublisher.class.getName());
@@ -60,22 +58,19 @@ public class ArtifactPublisher {
 		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
-				artifact(id).parameterList(extractParameters(destination.parameterList())).
+				artifact(id).parameterList(extractParameters(destination.configurationList())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Publishing.class).managementPort()));
 	}
 
-	private List<io.intino.cesar.schemas.Parameter> extractParameters(List<Parameter> parameters) {
-		return parameters.stream().map(p -> parametersFromNode(p.node())).collect(Collectors.toList());
+	private List<io.intino.cesar.schemas.Parameter> extractParameters(List<Destination.Configuration> configurations) {
+		List<io.intino.cesar.schemas.Parameter> parameters = new ArrayList<>();
+		for (Destination.Configuration c : configurations)
+			for (Parameter p : c.parameterList()) parameters.add(parametersFromNode(p, c));
+		return parameters;
 	}
 
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(Node node) {
-		io.intino.cesar.schemas.Parameter schema = new io.intino.cesar.schemas.Parameter();
-		final java.util.Map<String, java.util.List<?>> variables = node.variables();
-		variables.put("name", singletonList(node.name()));
-		for (String variable : variables.keySet())
-			if (variable.equals("type")) schema.type(variables.get(variable).get(0).toString());
-			else if (variable.equals("value")) schema.value(variables.get(variable).get(0).toString());
-		return schema;
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node, Destination.Configuration c) {
+		return new io.intino.cesar.schemas.Parameter().name(c.name() + "." + node.name()).value(node.value());
 	}
 
 	private List<Artifactory> artifactories() {

@@ -4,10 +4,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
@@ -70,6 +67,7 @@ public class LibraryManager {
 		return libraries;
 	}
 
+	//TODO resolve when 2 a library with 2 versions over module only add latest.
 	void addToModule(List<Library> libraries, boolean test) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
@@ -79,7 +77,9 @@ public class LibraryManager {
 
 	private List<Library> compileDependenciesOf(Module module) {
 		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-		return Arrays.stream(model.getOrderEntries()).filter(o -> o.isValid() && o instanceof LibraryOrderEntry).map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(Collectors.toList());
+		return Arrays.stream(model.getOrderEntries()).
+				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(DependencyScope.COMPILE)).
+				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(Collectors.toList());
 	}
 
 	public static void removeOldLibraries(Module module, List<Library> libraries) {
