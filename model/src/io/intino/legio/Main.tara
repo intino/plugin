@@ -83,7 +83,8 @@ Concept:{0..1} LifeCycle
 			Concept Requirements
 				Concept Memory
 				Concept CPU
-			has:Named Parameter
+			Concept:Named Configuration
+				has:Named Parameter
 			sub PreDeploy
 			sub Deploy
 
@@ -96,19 +97,4 @@ Facet Level on Project.Factory
 	sub System
 
 Concept Parameter is component
-	var boolean required = false
-
-Facet Type on Parameter
-	var string type is reactive private
-	sub Real
-    	var double value
-		var string type = "Double" is reactive private
-	sub Number
-		var integer value
-		var string type = "Integer" is reactive private
-	sub Bool
-    	var boolean value
-		var string type = "Boolean" is reactive private
-	sub Text
-    	var string value
-		var string type = "String" is reactive private
+	var string  value = ""

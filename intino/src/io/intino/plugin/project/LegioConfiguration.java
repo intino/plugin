@@ -321,12 +321,58 @@ public class LegioConfiguration implements Configuration {
 		return legio.lifeCycle();
 	}
 
+	public LifeCycle.Publishing publishing() {
+		return safe(() -> legio.lifeCycle().publishing());
+	}
+
 	public LifeCycle.Package build() {
 		return safe(() -> legio.lifeCycle().package$());
 	}
 
 	public LifeCycle.QualityAnalytics qualityAnalytics() {
 		return legio.lifeCycle().qualityAnalytics();
+	}
+
+	public List<RunConfiguration> preRunConfigurations() {
+		final List<LifeCycle.Publishing.PreDeploy> preDeploys = safeList(() -> publishing().preDeployList());
+		if (preDeploys == null || preDeploys.isEmpty()) return Collections.emptyList();
+		return preDeploys.get(0).configurationList().stream().map(this::createRunConfiguration).collect(Collectors.toList());
+	}
+
+	public List<RunConfiguration> deployRunConfigurations() {
+		final List<LifeCycle.Publishing.Deploy> deploys = safeList(() -> publishing().deployList());
+		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
+		return deploys.get(0).configurationList().stream().map(this::createRunConfiguration).collect(Collectors.toList());
+	}
+
+	@NotNull
+	private RunConfiguration createRunConfiguration(final LifeCycle.Publishing.Destination.Configuration configuration) {
+		return new RunConfiguration() {
+			@Override
+			public String name() {
+				return configuration.name();
+			}
+
+			@Override
+			public List<Parameter> parameters() {
+				return configuration.parameterList().stream().map(p -> new Parameter() {
+					@Override
+					public String name() {
+						return p.name();
+					}
+
+					@Override
+					public String type() {
+						return "String";
+					}
+
+					@Override
+					public String value() {
+						return p.value();
+					}
+				}).collect(Collectors.toList());
+			}
+		};
 	}
 
 	@Override

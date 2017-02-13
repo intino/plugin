@@ -12,11 +12,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	private java.util.List<io.intino.legio.platform.project.PlatformFactory> platformFactoryList;
 	private java.util.List<io.intino.legio.application.project.ApplicationFactory> applicationFactoryList;
 	private java.util.List<io.intino.legio.system.project.SystemFactory> systemFactoryList;
-	private java.util.List<io.intino.legio.type.TypeParameter> typeParameterList;
-	private java.util.List<io.intino.legio.real.RealParameter> realParameterList;
-	private java.util.List<io.intino.legio.number.NumberParameter> numberParameterList;
-	private java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList;
-	private java.util.List<io.intino.legio.text.TextParameter> textParameterList;
 
 	public GraphWrapper(io.intino.tara.magritte.Graph graph) {
 		this.graph = graph;
@@ -31,11 +26,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		platformFactoryList = this.graph.rootList(io.intino.legio.platform.project.PlatformFactory.class);
 		applicationFactoryList = this.graph.rootList(io.intino.legio.application.project.ApplicationFactory.class);
 		systemFactoryList = this.graph.rootList(io.intino.legio.system.project.SystemFactory.class);
-		typeParameterList = this.graph.rootList(io.intino.legio.type.TypeParameter.class);
-		realParameterList = this.graph.rootList(io.intino.legio.real.RealParameter.class);
-		numberParameterList = this.graph.rootList(io.intino.legio.number.NumberParameter.class);
-		boolParameterList = this.graph.rootList(io.intino.legio.bool.BoolParameter.class);
-		textParameterList = this.graph.rootList(io.intino.legio.text.TextParameter.class);
 	}
 
 	@Override
@@ -47,11 +37,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Platform#Project$Factory")) this.platformFactoryList.add(node.as(io.intino.legio.platform.project.PlatformFactory.class));
 		if (node.is("Application#Project$Factory")) this.applicationFactoryList.add(node.as(io.intino.legio.application.project.ApplicationFactory.class));
 		if (node.is("System#Project$Factory")) this.systemFactoryList.add(node.as(io.intino.legio.system.project.SystemFactory.class));
-		if (node.is("Type#Parameter")) this.typeParameterList.add(node.as(io.intino.legio.type.TypeParameter.class));
-		if (node.is("Real#Parameter")) this.realParameterList.add(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("Number#Parameter")) this.numberParameterList.add(node.as(io.intino.legio.number.NumberParameter.class));
-		if (node.is("Bool#Parameter")) this.boolParameterList.add(node.as(io.intino.legio.bool.BoolParameter.class));
-		if (node.is("Text#Parameter")) this.textParameterList.add(node.as(io.intino.legio.text.TextParameter.class));
 	}
 
 	@Override
@@ -63,11 +48,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Platform#Project$Factory")) this.platformFactoryList.remove(node.as(io.intino.legio.platform.project.PlatformFactory.class));
 		if (node.is("Application#Project$Factory")) this.applicationFactoryList.remove(node.as(io.intino.legio.application.project.ApplicationFactory.class));
 		if (node.is("System#Project$Factory")) this.systemFactoryList.remove(node.as(io.intino.legio.system.project.SystemFactory.class));
-		if (node.is("Type#Parameter")) this.typeParameterList.remove(node.as(io.intino.legio.type.TypeParameter.class));
-		if (node.is("Real#Parameter")) this.realParameterList.remove(node.as(io.intino.legio.real.RealParameter.class));
-		if (node.is("Number#Parameter")) this.numberParameterList.remove(node.as(io.intino.legio.number.NumberParameter.class));
-		if (node.is("Bool#Parameter")) this.boolParameterList.remove(node.as(io.intino.legio.bool.BoolParameter.class));
-		if (node.is("Text#Parameter")) this.textParameterList.remove(node.as(io.intino.legio.text.TextParameter.class));
 	}
 
 	public String message(String language, String key, Object... parameters) {
@@ -150,26 +130,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return systemFactoryList;
 	}
 
-	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList() {
-		return typeParameterList;
-	}
-
-	public java.util.List<io.intino.legio.real.RealParameter> realParameterList() {
-		return realParameterList;
-	}
-
-	public java.util.List<io.intino.legio.number.NumberParameter> numberParameterList() {
-		return numberParameterList;
-	}
-
-	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList() {
-		return boolParameterList;
-	}
-
-	public java.util.List<io.intino.legio.text.TextParameter> textParameterList() {
-		return textParameterList;
-	}
-
 	public java.util.List<io.intino.legio.runnable.lifecycle.RunnablePackage> runnablePackageList(java.util.function.Predicate<io.intino.legio.runnable.lifecycle.RunnablePackage> predicate) {
 		return runnablePackageList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
@@ -208,46 +168,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	public io.intino.legio.system.project.SystemFactory systemFactory(int index) {
 		return systemFactoryList.get(index);
-	}
-
-	public java.util.List<io.intino.legio.type.TypeParameter> typeParameterList(java.util.function.Predicate<io.intino.legio.type.TypeParameter> predicate) {
-		return typeParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.type.TypeParameter typeParameter(int index) {
-		return typeParameterList.get(index);
-	}
-
-	public java.util.List<io.intino.legio.real.RealParameter> realParameterList(java.util.function.Predicate<io.intino.legio.real.RealParameter> predicate) {
-		return realParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.real.RealParameter realParameter(int index) {
-		return realParameterList.get(index);
-	}
-
-	public java.util.List<io.intino.legio.number.NumberParameter> numberParameterList(java.util.function.Predicate<io.intino.legio.number.NumberParameter> predicate) {
-		return numberParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.number.NumberParameter numberParameter(int index) {
-		return numberParameterList.get(index);
-	}
-
-	public java.util.List<io.intino.legio.bool.BoolParameter> boolParameterList(java.util.function.Predicate<io.intino.legio.bool.BoolParameter> predicate) {
-		return boolParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.bool.BoolParameter boolParameter(int index) {
-		return boolParameterList.get(index);
-	}
-
-	public java.util.List<io.intino.legio.text.TextParameter> textParameterList(java.util.function.Predicate<io.intino.legio.text.TextParameter> predicate) {
-		return textParameterList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-	}
-
-	public io.intino.legio.text.TextParameter textParameter(int index) {
-		return textParameterList.get(index);
 	}
 
 	public io.intino.tara.magritte.Graph graph() {
@@ -309,30 +229,6 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		public io.intino.legio.system.project.SystemFactory systemFactory() {
 			io.intino.legio.system.project.SystemFactory newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.system.project.SystemFactory.class, namespace, name).as(io.intino.legio.system.project.SystemFactory.class);
 			
-			return newElement;
-		}
-
-		public io.intino.legio.real.RealParameter realParameter(double value) {
-			io.intino.legio.real.RealParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.real.RealParameter.class, namespace, name).as(io.intino.legio.real.RealParameter.class);
-			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
-			return newElement;
-		}
-
-		public io.intino.legio.number.NumberParameter numberParameter(int value) {
-			io.intino.legio.number.NumberParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.number.NumberParameter.class, namespace, name).as(io.intino.legio.number.NumberParameter.class);
-			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
-			return newElement;
-		}
-
-		public io.intino.legio.bool.BoolParameter boolParameter(boolean value) {
-			io.intino.legio.bool.BoolParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.bool.BoolParameter.class, namespace, name).as(io.intino.legio.bool.BoolParameter.class);
-			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
-			return newElement;
-		}
-
-		public io.intino.legio.text.TextParameter textParameter(java.lang.String value) {
-			io.intino.legio.text.TextParameter newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.text.TextParameter.class, namespace, name).as(io.intino.legio.text.TextParameter.class);
-			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value));
 			return newElement;
 		}
 

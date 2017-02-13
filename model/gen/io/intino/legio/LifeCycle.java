@@ -744,6 +744,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 	
 	public static class Publishing extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String cesarURL;
+		protected int managementPort;
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.Destination> destinationList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.PreDeploy> preDeployList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Publishing.Deploy> deployList = new java.util.ArrayList<>();
@@ -756,8 +757,16 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			return cesarURL;
 		}
 
+		public int managementPort() {
+			return managementPort;
+		}
+
 		public void cesarURL(java.lang.String value) {
 			this.cesarURL = value;
+		}
+
+		public void managementPort(int value) {
+			this.managementPort = value;
 		}
 
 		public java.util.List<io.intino.legio.LifeCycle.Publishing.Destination> destinationList() {
@@ -814,6 +823,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 			map.put("cesarURL", new java.util.ArrayList(java.util.Collections.singletonList(this.cesarURL)));
+			map.put("managementPort", new java.util.ArrayList(java.util.Collections.singletonList(this.managementPort)));
 			return map;
 		}
 
@@ -841,12 +851,14 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
 			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("managementPort")) this.managementPort = io.intino.tara.magritte.loaders.IntegerLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
 			if (name.equalsIgnoreCase("cesarURL")) this.cesarURL = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("managementPort")) this.managementPort = (java.lang.Integer) values.get(0);
 		}
 
 		public Create create() {
@@ -883,7 +895,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		public static abstract class Destination extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected java.lang.String publicURL;
 			protected java.util.List<io.intino.legio.LifeCycle.Publishing.Destination.Requirements> requirementsList = new java.util.ArrayList<>();
-			protected java.util.List<io.intino.legio.Parameter> parameterList = new java.util.ArrayList<>();
+			protected java.util.List<io.intino.legio.LifeCycle.Publishing.Destination.Configuration> configurationList = new java.util.ArrayList<>();
 
 			public Destination(io.intino.tara.magritte.Node node) {
 				super(node);
@@ -909,16 +921,16 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 				return requirementsList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 			}
 
-			public java.util.List<io.intino.legio.Parameter> parameterList() {
-				return java.util.Collections.unmodifiableList(parameterList);
+			public java.util.List<io.intino.legio.LifeCycle.Publishing.Destination.Configuration> configurationList() {
+				return java.util.Collections.unmodifiableList(configurationList);
 			}
 
-			public io.intino.legio.Parameter parameter(int index) {
-				return parameterList.get(index);
+			public io.intino.legio.LifeCycle.Publishing.Destination.Configuration configuration(int index) {
+				return configurationList.get(index);
 			}
 
-			public java.util.List<io.intino.legio.Parameter> parameterList(java.util.function.Predicate<io.intino.legio.Parameter> predicate) {
-				return parameterList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			public java.util.List<io.intino.legio.LifeCycle.Publishing.Destination.Configuration> configurationList(java.util.function.Predicate<io.intino.legio.LifeCycle.Publishing.Destination.Configuration> predicate) {
+				return configurationList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 			}
 
 			
@@ -928,7 +940,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			public java.util.List<io.intino.tara.magritte.Node> componentList() {
 				java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 				requirementsList.stream().forEach(c -> components.add(c.node()));
-				parameterList.stream().forEach(c -> components.add(c.node()));
+				configurationList.stream().forEach(c -> components.add(c.node()));
 				return new java.util.ArrayList<>(components);
 			}
 
@@ -947,14 +959,14 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			protected void addNode(io.intino.tara.magritte.Node node) {
 				super.addNode(node);
 				if (node.is("LifeCycle$Publishing$Destination$Requirements")) this.requirementsList.add(node.as(io.intino.legio.LifeCycle.Publishing.Destination.Requirements.class));
-				if (node.is("Parameter")) this.parameterList.add(node.as(io.intino.legio.Parameter.class));
+				if (node.is("LifeCycle$Publishing$Destination$Configuration")) this.configurationList.add(node.as(io.intino.legio.LifeCycle.Publishing.Destination.Configuration.class));
 			}
 
 			@Override
 		    protected void removeNode(io.intino.tara.magritte.Node node) {
 		        super.removeNode(node);
 		        if (node.is("LifeCycle$Publishing$Destination$Requirements")) this.requirementsList.remove(node.as(io.intino.legio.LifeCycle.Publishing.Destination.Requirements.class));
-		        if (node.is("Parameter")) this.parameterList.remove(node.as(io.intino.legio.Parameter.class));
+		        if (node.is("LifeCycle$Publishing$Destination$Configuration")) this.configurationList.remove(node.as(io.intino.legio.LifeCycle.Publishing.Destination.Configuration.class));
 		    }
 
 			@Override
@@ -989,8 +1001,8 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 				    return newElement;
 				}
 
-				public io.intino.legio.Parameter parameter() {
-				    io.intino.legio.Parameter newElement = graph().concept(io.intino.legio.Parameter.class).createNode(name, node()).as(io.intino.legio.Parameter.class);
+				public io.intino.legio.LifeCycle.Publishing.Destination.Configuration configuration() {
+				    io.intino.legio.LifeCycle.Publishing.Destination.Configuration newElement = graph().concept(io.intino.legio.LifeCycle.Publishing.Destination.Configuration.class).createNode(name, node()).as(io.intino.legio.LifeCycle.Publishing.Destination.Configuration.class);
 				    return newElement;
 				}
 				
@@ -1199,6 +1211,93 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 					}
 				}
 				
+				
+				public io.intino.legio.Legio legioWrapper() {
+					return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
+				}
+			}
+			
+			public static class Configuration extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+				
+				protected java.util.List<io.intino.legio.Parameter> parameterList = new java.util.ArrayList<>();
+
+				public Configuration(io.intino.tara.magritte.Node node) {
+					super(node);
+				}
+
+				public java.util.List<io.intino.legio.Parameter> parameterList() {
+					return java.util.Collections.unmodifiableList(parameterList);
+				}
+
+				public io.intino.legio.Parameter parameter(int index) {
+					return parameterList.get(index);
+				}
+
+				public java.util.List<io.intino.legio.Parameter> parameterList(java.util.function.Predicate<io.intino.legio.Parameter> predicate) {
+					return parameterList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+				}
+
+				
+
+				public java.util.List<io.intino.tara.magritte.Node> componentList() {
+					java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+					parameterList.stream().forEach(c -> components.add(c.node()));
+					return new java.util.ArrayList<>(components);
+				}
+
+				@Override
+				public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+					return map;
+				}
+
+				public io.intino.tara.magritte.Concept concept() {
+					return this.graph().concept(io.intino.legio.LifeCycle.Publishing.Destination.Configuration.class);
+				}
+
+				@Override
+				protected void addNode(io.intino.tara.magritte.Node node) {
+					super.addNode(node);
+					if (node.is("Parameter")) this.parameterList.add(node.as(io.intino.legio.Parameter.class));
+				}
+
+				@Override
+			    protected void removeNode(io.intino.tara.magritte.Node node) {
+			        super.removeNode(node);
+			        if (node.is("Parameter")) this.parameterList.remove(node.as(io.intino.legio.Parameter.class));
+			    }
+
+				@Override
+				protected void _load(java.lang.String name, java.util.List<?> values) {
+					super._load(name, values);
+				}
+
+				@Override
+				protected void _set(java.lang.String name, java.util.List<?> values) {
+					super._set(name, values);
+				}
+
+				public Create create() {
+					return new Create(null);
+				}
+
+				public Create create(java.lang.String name) {
+					return new Create(name);
+				}
+
+				public class Create {
+					protected final java.lang.String name;
+
+					public Create(java.lang.String name) {
+						this.name = name;
+					}
+
+					public io.intino.legio.Parameter parameter() {
+					    io.intino.legio.Parameter newElement = graph().concept(io.intino.legio.Parameter.class).createNode(name, node()).as(io.intino.legio.Parameter.class);
+					    return newElement;
+					}
+					
+				}
 				
 				public io.intino.legio.Legio legioWrapper() {
 					return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);

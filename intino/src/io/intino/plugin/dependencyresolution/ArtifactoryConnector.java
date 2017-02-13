@@ -8,10 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArtifactoryConnector {
@@ -50,6 +47,7 @@ public class ArtifactoryConnector {
 	}
 
 	private List<String> extractVersions(String metadata) {
+		if (!metadata.contains("<versions>")) return Collections.emptyList();
 		metadata = metadata.substring(metadata.indexOf("<versions>")).substring("<versions>".length() + 1);
 		metadata = metadata.substring(0, metadata.indexOf("</versions>"));
 		metadata = metadata.replace("<version>", "").replace("</version>", "");
