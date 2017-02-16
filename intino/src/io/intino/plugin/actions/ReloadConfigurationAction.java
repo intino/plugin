@@ -3,6 +3,7 @@ package io.intino.plugin.actions;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -19,14 +20,12 @@ public class ReloadConfigurationAction extends AnAction implements DumbAware {
 	public void actionPerformed(AnActionEvent e) {
 		final Project project = e.getProject();
 		if (project == null) return;
-		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		for (Module module : modules) {
-			final Configuration configuration = TaraUtil.configurationOf(module);
-			if (configuration != null && configuration instanceof LegioConfiguration) {
-				FileDocumentManager.getInstance().saveAllDocuments();
-				configuration.reload();
-				notifyReload(module);
-			}
+		Module module = e.getData(LangDataKeys.MODULE);
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (configuration != null && configuration instanceof LegioConfiguration) {
+			FileDocumentManager.getInstance().saveAllDocuments();
+			configuration.reload();
+			notifyReload(module);
 		}
 	}
 

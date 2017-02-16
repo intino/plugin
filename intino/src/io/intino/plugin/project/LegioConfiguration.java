@@ -76,7 +76,9 @@ public class LegioConfiguration implements Configuration {
 		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		reloadInterfaceBuilder();
 		resolveLanguages();
-		if (WebModuleType.isWebModule(module) && this.legio != null) new GulpExecutor(this.module, legio.project()).startGulpDev();
+		if (WebModuleType.isWebModule(module) && this.legio != null)
+			new GulpExecutor(this.module, legio.project()).startGulpDev();
+		if (legio != null) legio.project().save();
 	}
 
 	@Override
@@ -187,7 +189,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<? extends LanguageLibrary> languages() {
-		final List<Factory.Language> list = safe(() -> legio.project().factory().asLevel().languageList());
+		final List<Factory.Language> list = safe(() -> legio.project().factory().languageList());
 		if (list == null) return Collections.emptyList();
 		List<LanguageLibrary> languages = new ArrayList<>();
 		for (Factory.Language language : list) {

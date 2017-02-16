@@ -66,10 +66,12 @@ public class LanguageResolver {
 	private List<Library> magritte(String version) {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
-				loadMagritteLibrary(version, libraries)));
-		else application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
-				loadMagritteLibrary(version, libraries))), defaultModalityState());
+		if (application.isWriteAccessAllowed())
+			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
+					loadMagritteLibrary(version, libraries)));
+		else
+			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
+					loadMagritteLibrary(version, libraries))), defaultModalityState());
 		return libraries;
 	}
 
@@ -87,7 +89,8 @@ public class LanguageResolver {
 		final Module module = moduleDependencyOf(this.module, factoryLanguage.name(), version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
-		else app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
+		else
+			app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
 		return libraries;
 	}
 
@@ -147,7 +150,9 @@ public class LanguageResolver {
 
 	private void saveClassPath(List<Artifact> classpath) {
 		if (classpath.isEmpty()) return;
+		final String home = System.getProperty("user.home");
 		List<String> libraries = classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
+		libraries = libraries.stream().map(l -> l.replaceFirst(home, "\\$HOME")).collect(Collectors.toList());
 		final File miscDirectory = LanguageManager.getMiscDirectory(this.module.getProject());
 		final File file = new File(miscDirectory, module.getName());
 		try {
@@ -204,7 +209,8 @@ public class LanguageResolver {
 	private Authentication provideAuthentication(String mavenId) {
 		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(mavenId)) return new Authentication(credential.username, credential.password);
+			if (credential.serverId.equals(mavenId))
+				return new Authentication(credential.username, credential.password);
 		return null;
 	}
 
