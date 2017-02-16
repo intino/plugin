@@ -4,12 +4,19 @@ import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.tara.plugin.lang.TaraIcons;
 import io.intino.tara.plugin.project.TaraModuleType;
 import io.intino.tara.plugin.project.configuration.MavenConfiguration;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
+import org.jetbrains.jps.model.java.JavaSourceRootType;
+import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 
 import javax.swing.*;
+import java.io.File;
 
 import static io.intino.tara.plugin.project.configuration.ConfigurationManager.*;
 
@@ -47,6 +54,15 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	public void setupRootModel(ModifiableRootModel rootModel) throws ConfigurationException {
 		super.setupRootModel(rootModel);
+		final ContentEntry contentEntry = rootModel.getContentEntries()[0];
+		final File gen = new File(contentEntry.getFile().getPath(), "gen");
+		final File res = new File(contentEntry.getFile().getPath(), "res");
+		gen.mkdir();
+		res.mkdir();
+		final VirtualFile genVfile = VfsUtil.findFileByIoFile(gen, true);
+		final VirtualFile resVfile = VfsUtil.findFileByIoFile(res, true);
+		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
+		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
 		module.setOption(TaraModuleType.TARA_MODULE_OPTION_NAME, "true");
 		register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());

@@ -6,10 +6,10 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Project.Dependencies;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
 import io.intino.tara.compiler.shared.Configuration;
@@ -36,7 +36,7 @@ public class JavaDependencyResolver {
 	private final LibraryManager manager;
 	private final Aether aether;
 	private List<Dependency> dependencies;
-	private Map<Dependency, List<Artifact>> collectedArtifacts = new HashMap<>();
+	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
 	public JavaDependencyResolver(Module module, Repositories repositories, List<Dependency> dependencies) {
@@ -75,15 +75,15 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Library> asLibrary(Dependency d) {
-		final List<Artifact> artifacts = collectedArtifacts.get(d);
-		final List<Library> resolved = manager.registerOrGetLibrary(artifacts);
-		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.get(0).getVersion());
+		final Map<Artifact, DependencyScope> artifacts = collectedArtifacts.get(d);
+		final Map<DependencyScope, List<Library>> resolved = manager.registerOrGetLibrary(artifacts);
+		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
 		else d.effectiveVersion("");
-		manager.addToModule(resolved, d.is(Dependencies.Test.class));
+		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
 		d.artifacts().clear();
-		d.artifacts().addAll(artifacts.stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
+		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
 		d.resolved(true);
-		return resolved;
+		return resolved.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
 	private Module moduleOf(Dependency d) {
@@ -97,10 +97,14 @@ public class JavaDependencyResolver {
 		return null;
 	}
 
-	private List<Artifact> collectArtifacts(Dependency dependency) {
-		final String scope = dependency.is(Dependencies.Test.class) ? JavaScopes.TEST : JavaScopes.COMPILE;
+	private Map<Artifact, DependencyScope> collectArtifacts(Dependency dependency) {
+		final String scope = dependency.getClass().getSimpleName().toLowerCase();
 		try {
-			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
+
+			final Map<Artifact, DependencyScope> artifacts = toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), scope), scope(scope));
+			if (scope.equalsIgnoreCase(JavaScopes.COMPILE))
+				artifacts.putAll(toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), JavaScopes.RUNTIME), DependencyScope.RUNTIME));
+			return artifacts;
 		} catch (DependencyResolutionException e) {
 			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories", e);
 			e.printStackTrace();
@@ -108,13 +112,24 @@ public class JavaDependencyResolver {
 		}
 	}
 
-	private List<Artifact> tryAsPom(Aether aether, String[] dependency, String scope) {
-		if (dependency.length != 3) return Collections.emptyList();
+	@NotNull
+	private DependencyScope scope(String scope) {
+		return DependencyScope.valueOf(scope.toUpperCase());
+	}
+
+	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, String scope) {
+		if (dependency.length != 3) return Collections.emptyMap();
 		try {
-			return aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope);
+			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope), scope(scope));
 		} catch (DependencyResolutionException e) {
-			return Collections.emptyList();
+			return Collections.emptyMap();
 		}
+	}
+
+	private Map<Artifact, DependencyScope> toMap(List<Artifact> artifacts, DependencyScope scope) {
+		Map<Artifact, DependencyScope> map = new LinkedHashMap<>();
+		artifacts.forEach(a -> map.put(a, scope));
+		return map;
 	}
 
 	@NotNull
@@ -129,7 +144,8 @@ public class JavaDependencyResolver {
 	private Authentication provideAuthentication(String mavenId) {
 		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(mavenId)) return new Authentication(credential.username, credential.password);
+			if (credential.serverId.equals(mavenId))
+				return new Authentication(credential.username, credential.password);
 		return null;
 	}
 }

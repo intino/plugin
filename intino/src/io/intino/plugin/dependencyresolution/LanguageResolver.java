@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
@@ -28,10 +29,7 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -77,11 +75,16 @@ public class LanguageResolver {
 
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
-		final List<Artifact> languageFramework = findLanguageFramework(magritteID(version));
-		factoryLanguage.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.get(0).getVersion() : "");
-		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
-		manager.addToModule(libraries, false);
+		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(magritteID(version));
+		factoryLanguage.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
+		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(languageFramework);
+		libraries.addAll(flat(registeredLibraries));
+		manager.addToModule(libraries, DependencyScope.COMPILE);
 		return libraries;
+	}
+
+	private List<Library> flat(Map<DependencyScope, List<Library>> registeredLibraries) {
+		return registeredLibraries.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
 	private List<Library> languageFramework() {
@@ -108,10 +111,10 @@ public class LanguageResolver {
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(factoryLanguage.name(), version).exists()) importLanguage();
-		final List<Artifact> languageFramework = findLanguageFramework(languageID(factoryLanguage.name(), version));
-		libraries.addAll(manager.registerOrGetLibrary(languageFramework));
-		factoryLanguage.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.get(0).getVersion() : "");
-		manager.addToModule(libraries, false);
+		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(factoryLanguage.name(), version));
+		libraries.addAll(flat(manager.registerOrGetLibrary(languageFramework)));
+		factoryLanguage.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
+		manager.addToModule(libraries, DependencyScope.COMPILE);
 	}
 
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
@@ -124,13 +127,19 @@ public class LanguageResolver {
 		return null;
 	}
 
-	private List<Artifact> findLanguageFramework(String languageId) {
+	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {
 		try {
-			if (languageId == null) return Collections.emptyList();
-			return new Aether(collectRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
+			if (languageId == null) return Collections.emptyMap();
+			return toMap(new Aether(collectRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE), DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
-			return Collections.emptyList();
+			return Collections.emptyMap();
 		}
+	}
+
+	private Map<Artifact, DependencyScope> toMap(List<Artifact> artifacts, DependencyScope scope) {
+		Map<Artifact, DependencyScope> map = new LinkedHashMap<>();
+		artifacts.forEach(a -> map.put(a, scope));
+		return map;
 	}
 
 	private void resolveBuilder(List<Library> libraries) {

@@ -144,6 +144,7 @@ public class WebDependencyResolver {
 			String choppedMessage = "";
 			for (int j = 0; j < 5; j++)
 				if (lines.size() > j + 5 * i) choppedMessage += lines.get(j + 5 * i) + "\n";
+			if (choppedMessage.trim().isEmpty()) choppedMessage = "No content";
 			balloon.createNotification(choppedMessage, MessageType.ERROR).setImportant(true).notify(this.module.getProject());
 		}
 	}
@@ -181,7 +182,8 @@ public class WebDependencyResolver {
 		final Frame frame = fill(new Frame().addTypes("bower"));
 		for (WebComponent webComponent : webComponents) {
 			final Frame dependency = new Frame().addSlot("name", webComponent.name()).addSlot("version", webComponent.version());
-			if (webComponent.url() != null && !webComponent.url().isEmpty()) dependency.addSlot("url", webComponent.url());
+			if (webComponent.url() != null && !webComponent.url().isEmpty())
+				dependency.addSlot("url", webComponent.url());
 			frame.addSlot("dependency", dependency);
 		}
 		for (Resolution resolution : resolutions)
