@@ -5,13 +5,13 @@ import com.intellij.psi.PsiElement;
 import io.intino.legio.Project;
 import io.intino.plugin.dependencyresolution.LibraryManager;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (!configuration.inited()) return;
+		if (configuration == null || !configuration.inited()) return;
 		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
 		final Project.Dependencies.Dependency dependencyForNode = findDependencyForNode();
 		if (dependencyForNode == null || dependencyForNode.resolved() && dependencyForNode.artifacts().isEmpty())

@@ -13,14 +13,9 @@ import com.intellij.openapi.vfs.VfsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.intellij.openapi.roots.DependencyScope.COMPILE;
-import static com.intellij.openapi.roots.DependencyScope.TEST;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 
@@ -43,15 +38,16 @@ public class LibraryManager {
 		return null;
 	}
 
-	List<Library> registerOrGetLibrary(List<Artifact> artifacts) {
-		if (table == null) return Collections.emptyList();
-		List<Library> result = new ArrayList<>();
-		for (Artifact artifact : artifacts) {
+	Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts) {
+		if (table == null) return Collections.emptyMap();
+		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
+		for (Artifact artifact : artifacts.keySet()) {
 			Library library = findLibrary(artifact);
 			if (library == null) library = registerLibrary(artifact);
-			result.add(library);
+			if (!registered.containsKey(artifacts.get(artifact))) registered.put(artifacts.get(artifact), new ArrayList<>());
+			registered.get(artifacts.get(artifact)).add(library);
 		}
-		return result;
+		return registered;
 	}
 
 	List<Library> resolveAsModuleDependency(Module moduleDependency) {
@@ -63,16 +59,16 @@ public class LibraryManager {
 			modifiableModel.commit();
 		}
 		final List<Library> libraries = compileDependenciesOf(moduleDependency);
-		addToModule(libraries, false);
+		addToModule(libraries, DependencyScope.COMPILE);
 		return libraries;
 	}
 
 	//TODO resolve when 2 a library with 2 versions over module only add latest.
-	void addToModule(List<Library> libraries, boolean test) {
+	void addToModule(List<Library> libraries, DependencyScope scope) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
 		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library)).collect(Collectors.toList());
-		toRegister.forEach(library -> addDependency(module, library, test ? TEST : COMPILE, false));
+		toRegister.forEach(library -> addDependency(module, library, scope, false));
 	}
 
 	private List<Library> compileDependenciesOf(Module module) {
@@ -93,7 +89,8 @@ public class LibraryManager {
 				removeInvalidEntries(module, toRemove) :
 				application.runReadAction((Computable<ModifiableRootModel>) () -> removeInvalidEntries(module, toRemove));
 		if (application.isWriteAccessAllowed()) commit(module, table, toRemove, modifiableModel);
-		else application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
+		else
+			application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
 	}
 
 	@NotNull

@@ -13,7 +13,7 @@ def type(legio & empty)
 	LifeCycle
 		Package(type = ModulesAndLibrariesLinkedByManifest)
 		Distribution
-			Release("http://artifactory.intino.io/artifactory/release-frameworks", "intino-maven")
+			Release("https://artifactory.intino.io/artifactory/release-frameworks", "intino-maven")
 			Language("https://artifactory.intino.io/artifactory/release-languages", "intino-maven")
 end
 
