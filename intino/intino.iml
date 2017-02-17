@@ -31,7 +31,7 @@
     <orderEntry type="library" name="Maven: io.intino.konos:konos-rest-accessor-java:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:konos-core:1.0.0" level="project" />
     <orderEntry type="module" module-name="model" />
-    <orderEntry type="library" name="Maven: io.intino.tara:builder:1.1.4" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.tara:builder:1.1.5" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.7" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.6" level="project" />
     <orderEntry type="library" name="Maven: io.intino.tara:magritte:1.0.5" level="project" />
