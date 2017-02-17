@@ -79,7 +79,9 @@ public class JavaDependencyResolver {
 		final Map<DependencyScope, List<Library>> resolved = manager.registerOrGetLibrary(artifacts);
 		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
 		else d.effectiveVersion("");
-		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
+		for (DependencyScope scope : resolved.keySet()) {
+			manager.addToModule(resolved.get(scope), scope);
+		}
 		d.artifacts().clear();
 		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
 		d.resolved(true);
@@ -102,8 +104,11 @@ public class JavaDependencyResolver {
 		try {
 
 			final Map<Artifact, DependencyScope> artifacts = toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), scope), scope(scope));
-			if (scope.equalsIgnoreCase(JavaScopes.COMPILE))
-				artifacts.putAll(toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), JavaScopes.RUNTIME), DependencyScope.RUNTIME));
+			if (scope.equalsIgnoreCase(JavaScopes.COMPILE)) {
+				final Map<Artifact, DependencyScope> m = toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), JavaScopes.RUNTIME), DependencyScope.RUNTIME);
+				for (Artifact artifact : m.keySet())
+					if (!artifacts.containsKey(artifact)) artifacts.put(artifact, m.get(artifact));
+			}
 			return artifacts;
 		} catch (DependencyResolutionException e) {
 			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories", e);

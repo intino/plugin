@@ -78,7 +78,7 @@ public class LegioConfiguration implements Configuration {
 		resolveLanguages();
 		if (WebModuleType.isWebModule(module) && this.legio != null)
 			new GulpExecutor(this.module, legio.project()).startGulpDev();
-		if (legio != null) legio.project().save();
+		if (legio != null && legio.project() != null) legio.project().save();
 	}
 
 	@Override
