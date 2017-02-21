@@ -161,7 +161,7 @@ public class LanguageResolver {
 		if (classpath.isEmpty()) return;
 		final String home = System.getProperty("user.home");
 		List<String> libraries = classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
-		libraries = libraries.stream().map(l -> l.replaceFirst(home, "\\$HOME")).collect(Collectors.toList());
+		libraries = libraries.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
 		final File miscDirectory = LanguageManager.getMiscDirectory(this.module.getProject());
 		final File file = new File(miscDirectory, module.getName());
 		try {

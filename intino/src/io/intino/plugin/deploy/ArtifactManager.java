@@ -1,4 +1,4 @@
-package io.intino.plugin.publishing;
+package io.intino.plugin.deploy;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
@@ -42,7 +42,7 @@ public class ArtifactManager {
 			final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 			final SystemSchema system = getSystem(configuration);
 			final int proxyPort = nextProxyPort();
-			Channel channel = null;
+			Channel channel;
 			if ((channel = initTunnel(serverOf(system, configuration), proxyPort)) == null) return;
 			final ProcessBuilder jconsole = new ProcessBuilder("jconsole", getConnectionParameters(proxyPort), connectionChain(system)).redirectErrorStream(true).redirectOutput(new File("./error.txt"));
 			final Process process = jconsole.start();
@@ -100,7 +100,7 @@ public class ArtifactManager {
 	}
 
 	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.lifeCycle().publishing());
+		final URL url = urlOf(configuration.lifeCycle().deploy());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getServer(system.runtime().serverName());
@@ -110,7 +110,7 @@ public class ArtifactManager {
 	}
 
 	private SystemSchema getSystem(LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.lifeCycle().publishing());
+		final URL url = urlOf(configuration.lifeCycle().deploy());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
@@ -119,7 +119,7 @@ public class ArtifactManager {
 		}
 	}
 
-	static URL urlOf(LifeCycle.Publishing publishing) {
+	static URL urlOf(LifeCycle.Deploy publishing) {
 		try {
 			final String direction = publishing.cesarURL();
 			return new URL(direction.startsWith("https") ? direction : "https://" + direction);

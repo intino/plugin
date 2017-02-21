@@ -9,7 +9,7 @@ import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.publishing.ArtifactPublisher;
+import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -82,7 +82,7 @@ abstract class AbstractArtifactBuilder {
 		if (phase.equals(LifeCyclePhase.PREDEPLOY) || phase.equals(LifeCyclePhase.DEPLOY)) {
 			updateProgressIndicator(indicator, MessageProvider.message("publishing.artifact"));
 			try {
-				new ArtifactPublisher(phase, module).execute();
+				new ArtifactDeployer(phase, module).execute();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 				return false;

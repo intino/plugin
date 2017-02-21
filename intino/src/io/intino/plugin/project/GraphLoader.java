@@ -19,10 +19,11 @@ class GraphLoader {
 		final ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(GraphLoader.class.getClassLoader());
 		try {
-			final Graph graph = Graph.use(store(stash, stashDestiny), Legio.class, null).load();
+			final Graph graph = Graph.use(store(stash, stashDestiny), Legio.class).load();
 			Thread.currentThread().setContextClassLoader(currentLoader);
 			return graph.wrapper(Legio.class);
 		} catch (Throwable e) {
+			LOG.error(e.getMessage());
 			return null;
 		}
 	}
@@ -32,8 +33,7 @@ class GraphLoader {
 			@Override
 			public Stash stashFrom(String path) {
 				Stash result = super.stashFrom(path);
-				if (result != null) return result;
-				return path.equalsIgnoreCase("model.stash") ? stash : null;
+				return result != null ? result : path.equalsIgnoreCase("model.stash") ? stash : null;
 			}
 
 			@Override

@@ -75,18 +75,22 @@ Concept:{0..1} LifeCycle
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:{0..1} Publishing
+	Concept:{0..1} Deploy
 		var string cesarURL
 		var integer managementPort = 0
 		Concept:{1..*} Destination
-			var string publicURL
+			var string publicURL = empty
 			Concept Requirements
 				Concept Memory
 				Concept CPU
-			Concept:Named Configuration
+			Concept:{0..1} Configuration
 				has:Named Parameter
-			sub PreDeploy
-			sub Deploy
+				Concept Service
+					has:Named Parameter
+				Concept:{0..1} Store
+					var string path
+			sub Pre
+			sub Pro
 
 Facet Runnable on LifeCycle.Package
 	var string mainClass

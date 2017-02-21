@@ -11,7 +11,7 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.publishing.ArtifactManager;
+import io.intino.plugin.deploy.ArtifactManager;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
