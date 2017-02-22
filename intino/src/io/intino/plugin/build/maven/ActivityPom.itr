@@ -18,7 +18,7 @@ def type(pom)
     	</properties>
 
     	<build>
-    		<outputDirectory>$buildDirectory~$artifactId+lowercase</outputDirectory>
+    		<outputDirectory>$outDirectory~$artifactId+lowercase</outputDirectory>
 			<directory>$buildDirectory~$artifactId+lowercase</directory>
     		<plugins>
     			<plugin>
