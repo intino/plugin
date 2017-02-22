@@ -1,5 +1,6 @@
 package io.intino.plugin.project;
 
+import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
@@ -24,10 +25,7 @@ import io.intino.legio.Project;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Factory;
 import io.intino.legio.Project.Repositories.Repository;
-import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
-import io.intino.plugin.dependencyresolution.LanguageResolver;
-import io.intino.plugin.dependencyresolution.LibraryManager;
-import io.intino.plugin.dependencyresolution.WebDependencyResolver;
+import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -86,6 +84,24 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public boolean isSuitable() {
 		return new File(new File(module.getModuleFilePath()).getParentFile(), CONFIGURATION_LEGIO).exists();
+	}
+
+	public void purgeAndReload() {
+		final Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed())
+			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+		withTask(new Task.Backgroundable(module.getProject(), "Purge Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+					 @Override
+					 public void run(@NotNull ProgressIndicator indicator) {
+						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
+						 legio = newGraphFromLegio();
+						 new DependencyPurger(module, dependencies(), languages()).execute();
+						 reloadInterfaceBuilder();
+						 reloadDependencies();
+						 if (legio != null && legio.project() != null) legio.project().save();
+					 }
+				 }
+		);
 	}
 
 	@Override
