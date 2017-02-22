@@ -60,6 +60,7 @@ class PomCreator {
 		Frame frame = new Frame();
 		fillMavenId(frame);
 		frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
+		frame.addSlot("outDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "production" + File.separator);
 		addRepositories(frame);
 		writePom(pom, frame, ActivityPomTemplate.create());
 		return pom;

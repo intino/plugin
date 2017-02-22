@@ -1,4 +1,4 @@
-package io.intino.plugin.publishing;
+package io.intino.plugin.deploy;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -10,7 +10,7 @@ import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.SystemSchema;
 import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.LifeCycle;
-import io.intino.legio.LifeCycle.Publishing.Destination;
+import io.intino.legio.LifeCycle.Deploy.Destination;
 import io.intino.legio.Parameter;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.LifeCyclePhase;
@@ -26,25 +26,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.publishing.ArtifactManager.urlOf;
+import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 
-public class ArtifactPublisher {
-	private static final Logger LOG = Logger.getInstance(ArtifactPublisher.class.getName());
+public class ArtifactDeployer {
+	private static final Logger LOG = Logger.getInstance(ArtifactDeployer.class.getName());
 
 	private final LifeCyclePhase phase;
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private LifeCycle.Publishing publishing;
+	private LifeCycle.Deploy publishing;
 
-	public ArtifactPublisher(LifeCyclePhase phase, Module module) {
+	public ArtifactDeployer(LifeCyclePhase phase, Module module) {
 		this.phase = phase;
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.publishing = configuration.lifeCycle().publishing();
+		this.publishing = configuration.lifeCycle().deploy();
 	}
 
 	public void execute() throws IntinoException {
-		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? publishing.preDeployList() : publishing.deployList();
+		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? publishing.preList() : publishing.proList();
 		for (Destination destination : destinies)
 			try {
 				new RestCesarAccessor(urlOf(publishing)).postDeploySystem(createSystem(destination));
@@ -58,14 +58,17 @@ public class ArtifactPublisher {
 		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
-				artifact(id).parameterList(extractParameters(destination.configurationList())).
-				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Publishing.class).managementPort()));
+				artifact(id).parameterList(extractParameters(destination.configuration())).
+				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
 	}
 
-	private List<io.intino.cesar.schemas.Parameter> extractParameters(List<Destination.Configuration> configurations) {
+	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {
 		List<io.intino.cesar.schemas.Parameter> parameters = new ArrayList<>();
-		for (Destination.Configuration c : configurations)
-			for (Parameter p : c.parameterList()) parameters.add(parametersFromNode(p, c));
+		for (Parameter p : configuration.parameterList()) parameters.add(parametersFromNode(p, configuration));
+		for (Destination.Configuration.Service service : configuration.serviceList())
+			parameters.addAll(service.parameterList().stream().map(p -> parametersFromNode(p, configuration)).collect(Collectors.toList()));
+		if (configuration.store() != null)
+			parameters.add(new io.intino.cesar.schemas.Parameter().name("graph.store").value(configuration.store().path()));
 		return parameters;
 	}
 
@@ -94,7 +97,8 @@ public class ArtifactPublisher {
 	private Artifactory addCredentials(Artifactory artifactory) {
 		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(artifactory.id())) artifactory.user(credential.username).password(credential.password);
+			if (credential.serverId.equals(artifactory.id()))
+				artifactory.user(credential.username).password(credential.password);
 		return artifactory;
 	}
 }

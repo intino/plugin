@@ -98,7 +98,7 @@ public class WebDependencyResolver {
 
 	private void extractInLibDirectory(WebActivity activity, File jarFile) {
 		try {
-			final File outputDir = new File(libComponentsDirectory, activity.artifactId());
+			final File outputDir = new File(libComponentsDirectory, activity.name().toLowerCase());
 			ZipUtil.extract(jarFile, outputDir, null);
 			FileUtil.delete(new File(outputDir, "META-INF"));
 			writeManifest(activity, outputDir);
@@ -117,7 +117,7 @@ public class WebDependencyResolver {
 
 	private List<Artifact> resolve(Aether aether, WebActivity webActivity) {
 		try {
-			return aether.resolve(new DefaultArtifact(webActivity.groupId(), webActivity.artifactId(), "sources", "jar", webActivity.version()), JavaScopes.COMPILE);
+			return aether.resolve(new DefaultArtifact(webActivity.groupId().toLowerCase(), webActivity.artifactId().toLowerCase(), "sources", "jar", webActivity.version()), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
 			e.printStackTrace();
 		}

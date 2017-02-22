@@ -44,7 +44,8 @@ public class LibraryManager {
 		for (Artifact artifact : artifacts.keySet()) {
 			Library library = findLibrary(artifact);
 			if (library == null) library = registerLibrary(artifact);
-			if (!registered.containsKey(artifacts.get(artifact))) registered.put(artifacts.get(artifact), new ArrayList<>());
+			if (!registered.containsKey(artifacts.get(artifact)))
+				registered.put(artifacts.get(artifact), new ArrayList<>());
 			registered.get(artifacts.get(artifact)).add(library);
 		}
 		return registered;
@@ -63,7 +64,6 @@ public class LibraryManager {
 		return libraries;
 	}
 
-	//TODO resolve when 2 a library with 2 versions over module only add latest.
 	void addToModule(List<Library> libraries, DependencyScope scope) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
@@ -78,29 +78,61 @@ public class LibraryManager {
 				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(Collectors.toList());
 	}
 
-	public static void removeOldLibraries(Module module, List<Library> libraries) {
+	public static void clean(Module module, List<Library> newLibraries) {
 		final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
-		List<Library> toRemove = new ArrayList<>();
-		for (Library library : table.getLibraries())
-			if (!libraries.contains(library)) toRemove.add(library);
-		if (toRemove.isEmpty()) return;
+		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> ModuleRootManager.getInstance(module).getModifiableModel());
+		final List<LibraryOrderEntry> toRemove = collectInvalidLibraries(rootModel, newLibraries);
+		toRemove.addAll(collectInvalidLibraries(rootModel));
+		removeLibraries(module, rootModel, table, toRemove);
+	}
+
+	private static void removeLibraries(Module module, ModifiableRootModel modifiableModel, LibraryTable table, List<LibraryOrderEntry> toRemove) {
 		final Application application = ApplicationManager.getApplication();
-		final ModifiableRootModel modifiableModel = application.isReadAccessAllowed() ?
-				removeInvalidEntries(module, toRemove) :
-				application.runReadAction((Computable<ModifiableRootModel>) () -> removeInvalidEntries(module, toRemove));
-		if (application.isWriteAccessAllowed()) commit(module, table, toRemove, modifiableModel);
-		else
-			application.invokeLater(() -> application.runWriteAction(() -> commit(module, table, toRemove, modifiableModel)));
+		if (application.isWriteAccessAllowed()) {
+			removeInvalidEntries(modifiableModel, toRemove);
+			commit(module, table, toRemove, modifiableModel);
+		} else
+			application.invokeLater(() -> application.runWriteAction(() -> {
+				removeInvalidEntries(modifiableModel, toRemove);
+				commit(module, table, toRemove, modifiableModel);
+			}));
+	}
+
+	private static List<LibraryOrderEntry> collectInvalidLibraries(ModifiableRootModel modifiableModel, List<Library> newLibraries) {
+		return Arrays.stream(modifiableModel.getOrderEntries()).
+				filter(e -> e instanceof LibraryOrderEntry && (((LibraryOrderEntry) e).getLibrary() == null || !newLibraries.contains(((LibraryOrderEntry) e).getLibrary()))).
+				map(l -> (LibraryOrderEntry) l).
+				collect(Collectors.toList());
+	}
+
+	private static List<LibraryOrderEntry> collectInvalidLibraries(ModifiableRootModel modifiableModel) {
+		Map<String, String> entries = new HashMap<>();
+		List<LibraryOrderEntry> toRemove = new ArrayList<>();
+		final List<LibraryOrderEntry> libraryOrderEntries = Arrays.stream(modifiableModel.getOrderEntries()).
+				filter(e -> e instanceof LibraryOrderEntry).map(e -> ((LibraryOrderEntry) e)).collect(Collectors.toList());
+		libraryOrderEntries.forEach(e -> {
+			final Library l = e.getLibrary();
+			if (l == null || l.getName() == null) return;
+			final String libraryName = l.getName().substring(0, l.getName().lastIndexOf(":"));
+			final String version = l.getName().substring(l.getName().lastIndexOf(":") + 1);
+			if (!entries.containsKey(libraryName)) entries.put(libraryName, version);
+			else
+				toRemove.add(entries.get(libraryName).compareTo(version) > 1 ? e : searchLibrary(libraryOrderEntries, libraryName));
+		});
+		return toRemove;
+	}
+
+	private static LibraryOrderEntry searchLibrary(List<LibraryOrderEntry> libraryOrderEntries, String name) {
+		for (LibraryOrderEntry entry : libraryOrderEntries) {
+			if (entry.getLibrary() != null && entry.getLibrary().getName().startsWith(name + ":"))
+				return entry;
+		}
+		return null;
 	}
 
 	@NotNull
-	private static ModifiableRootModel removeInvalidEntries(Module module, List<Library> toRemove) {
-		final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
-		final List<LibraryOrderEntry> invalidEntries = Arrays.stream(modifiableModel.getOrderEntries()).
-				filter(e -> e instanceof LibraryOrderEntry && toRemove.contains(((LibraryOrderEntry) e).getLibrary())).
-				map(l -> (LibraryOrderEntry) l).
-				collect(Collectors.toList());
-		invalidEntries.forEach(modifiableModel::removeOrderEntry);
+	private static ModifiableRootModel removeInvalidEntries(ModifiableRootModel modifiableModel, List<LibraryOrderEntry> toRemove) {
+		toRemove.forEach(modifiableModel::removeOrderEntry);
 		return modifiableModel;
 	}
 
@@ -114,11 +146,12 @@ public class LibraryManager {
 		return false;
 	}
 
-	private static void commit(Module module, LibraryTable table, List<Library> toRemove, ModifiableRootModel modifiableModel) {
+	private static void commit(Module module, LibraryTable table, List<LibraryOrderEntry> toRemove, ModifiableRootModel modifiableModel) {
 		modifiableModel.commit();
-		toRemove.stream().
-				filter(library -> !isUsedByOthers(module, library)).
-				forEach(table::removeLibrary);
+		toRemove.stream().filter(library -> !isUsedByOthers(module, library.getLibrary())).
+				forEach(e -> {
+					if (e.getLibrary() != null) table.removeLibrary(e.getLibrary());
+				});
 	}
 
 	private Library findLibrary(Artifact artifact) {

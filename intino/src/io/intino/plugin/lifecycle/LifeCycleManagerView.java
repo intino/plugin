@@ -15,7 +15,7 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 =======
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.publishing.ArtifactManager;
+import io.intino.plugin.deploy.ArtifactManager;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
@@ -133,7 +133,10 @@ public class LifeCycleManagerView extends JPanel {
 
 	private void renameModuleActions(String oldName, String newName) {
 		for (Component component : modulesPanel.getComponents())
-			if (component instanceof JPanel && component.getName().equals(oldName)) component.setName(newName);
+			if (component instanceof JPanel && component.getName().equals(oldName)) {
+				component.setName(newName);
+				((JBLabel)((JPanel)component).getComponent(0)).setText(newName);
+			}
 	}
 
 	private boolean isAvailable(Configuration configuration, LifeCyclePhase action) {

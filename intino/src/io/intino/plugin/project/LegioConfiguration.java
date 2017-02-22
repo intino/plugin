@@ -91,12 +91,14 @@ public class LegioConfiguration implements Configuration {
 	private void initConfiguration() {
 		File stashFile = stashFile();
 		this.legio = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
+		if (legio == null && stashFile.exists()) stashFile.delete();
 		reloadInterfaceBuilder();
 		resolveLanguages();
 		if (WebModuleType.isWebModule(module) && this.legio != null)
 			new GulpExecutor(this.module, legio.project()).startGulpDev();
 		if (legio != null && legio.project() != null) legio.project().save();
 	}
+
 
 	@Override
 	public boolean isSuitable() {
@@ -156,7 +158,7 @@ public class LegioConfiguration implements Configuration {
 		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
 		newLibraries.addAll(resolveLanguages());
-		LibraryManager.removeOldLibraries(module, newLibraries);
+		LibraryManager.clean(module, newLibraries);
 	}
 
 	private List<Library> resolveLanguages() {
@@ -323,8 +325,8 @@ public class LegioConfiguration implements Configuration {
 		return legio.lifeCycle();
 	}
 
-	public LifeCycle.Publishing publishing() {
-		return safe(() -> legio.lifeCycle().publishing());
+	public LifeCycle.Deploy deploy() {
+		return safe(() -> legio.lifeCycle().deploy());
 	}
 
 	public LifeCycle.Package build() {
@@ -336,31 +338,54 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public List<RunConfiguration> preRunConfigurations() {
-		final List<LifeCycle.Publishing.PreDeploy> preDeploys = safeList(() -> publishing().preDeployList());
+		final List<LifeCycle.Deploy.Pre> preDeploys = safeList(() -> deploy().preList());
 		if (preDeploys == null || preDeploys.isEmpty()) return Collections.emptyList();
-		return preDeploys.get(0).configurationList().stream().map(this::createRunConfiguration).collect(Collectors.toList());
+		return preDeploys.stream().map(this::createRunConfiguration).collect(Collectors.toList());
 	}
 
 	public List<RunConfiguration> deployRunConfigurations() {
-		final List<LifeCycle.Publishing.Deploy> deploys = safeList(() -> publishing().deployList());
+		final List<LifeCycle.Deploy.Pro> deploys = safeList(() -> deploy().proList());
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
-		return deploys.get(0).configurationList().stream().map(this::createRunConfiguration).collect(Collectors.toList());
+		return deploys.stream().map(this::createRunConfiguration).collect(Collectors.toList());
 	}
 
 	@NotNull
-	private RunConfiguration createRunConfiguration(final LifeCycle.Publishing.Destination.Configuration configuration) {
+	private RunConfiguration createRunConfiguration(final LifeCycle.Deploy.Destination destination) {
 		return new RunConfiguration() {
 			@Override
 			public String name() {
-				return configuration.name();
+				return destination.name();
 			}
 
 			@Override
 			public List<Parameter> parameters() {
-				return configuration.parameterList().stream().map(p -> new Parameter() {
+				return destination.configuration().parameterList().stream().map(p -> wrapParameter("", p)).collect(Collectors.toList());
+			}
+
+			@Override
+			public List<Service> services() {
+				return destination.configuration().serviceList().stream().map(service -> new Service() {
+					public String name() {
+						return service.name();
+					}
+
+					public List<Parameter> parameters() {
+						return service.parameterList().stream().map(p -> wrapParameter(service.name(), p)).collect(Collectors.toList());
+					}
+				}).collect(Collectors.toList());
+			}
+
+			@Override
+			public String store() {
+				return destination.configuration().store().path();
+			}
+
+			@NotNull
+			private Parameter wrapParameter(String prefix, final io.intino.legio.Parameter p) {
+				return new Parameter() {
 					@Override
 					public String name() {
-						return p.name();
+						return (prefix.isEmpty() ? "" : prefix + ".") + p.name();
 					}
 
 					@Override
@@ -372,7 +397,7 @@ public class LegioConfiguration implements Configuration {
 					public String value() {
 						return p.value();
 					}
-				}).collect(Collectors.toList());
+				};
 			}
 		};
 	}

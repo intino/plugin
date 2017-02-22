@@ -1,9 +1,6 @@
 package io.intino.plugin.annotators;
 
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.psi.PsiElement;
 import io.intino.legio.Project;
-import io.intino.plugin.dependencyresolution.LibraryManager;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
@@ -11,7 +8,6 @@ import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.project.module.ModuleProvider;
 
 import java.util.List;
 
@@ -29,15 +25,16 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
-		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
 		final Project.Dependencies.Dependency dependencyForNode = findDependencyForNode();
-		if (dependencyForNode == null || dependencyForNode.resolved() && dependencyForNode.artifacts().isEmpty())
+		if (dependencyForNode == null || dependencyForNode.resolved() && dependencyForNode.artifacts().isEmpty()) {
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("reject.dependency.not.found")));
-		else for (String artifact : dependencyForNode.artifacts()) {
-			final Library library = manager.findLibrary(artifact);
-			if (library == null)
-				results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("reject.dependency.not.found")));
 		}
+//		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
+//		else for (String artifact : dependencyForNode.artifacts()) {
+//			final Library library = manager.findLibrary(artifact);
+//			if (library == null)
+//				results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("reject.dependency.not.found")));
+//		}
 	}
 
 	private Project.Dependencies.Dependency findDependencyForNode() {

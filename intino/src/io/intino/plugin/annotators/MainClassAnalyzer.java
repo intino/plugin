@@ -4,11 +4,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.plugin.MessageProvider.message;
@@ -25,7 +25,7 @@ class MainClassAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		final Parameter parameter = mainClassParameter();
-		if (parameter == null) return;
+		if (module == null || parameter == null) return;
 		final PsiClass aClass = JavaPsiFacade.getInstance(module.getProject()).findClass(parameter.values().get(0).toString(), allScope(module.getProject()));
 		if (aClass == null)
 			results.put((PsiElement) parameter, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("class.not.found")));

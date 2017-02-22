@@ -1,4 +1,4 @@
-package io.intino.plugin.publishing;
+package io.intino.plugin.deploy;
 
 import com.jcraft.jsch.*;
 
