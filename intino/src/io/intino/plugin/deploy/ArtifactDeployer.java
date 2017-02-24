@@ -34,20 +34,20 @@ public class ArtifactDeployer {
 	private final LifeCyclePhase phase;
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private LifeCycle.Deploy publishing;
+	private LifeCycle.Deploy deploy;
 
 	public ArtifactDeployer(LifeCyclePhase phase, Module module) {
 		this.phase = phase;
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.publishing = configuration.lifeCycle().deploy();
+		this.deploy = configuration.lifeCycle().deploy();
 	}
 
 	public void execute() throws IntinoException {
-		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? publishing.preList() : publishing.proList();
+		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? deploy.preList() : deploy.proList();
 		for (Destination destination : destinies)
 			try {
-				new RestCesarAccessor(urlOf(publishing)).postDeploySystem(createSystem(destination));
+				new RestCesarAccessor(urlOf(deploy)).postDeploySystem(createSystem(destination));
 			} catch (Unknown unknown) {
 				throw new IntinoException(unknown.getMessage());
 			}

@@ -17,6 +17,8 @@ public class IntinoIcons {
     public static final Icon LEGIO_16 = RETINA ? scale(IconLoader.getIcon("/icons/legio/legio-16-retina.png")) : IconLoader.getIcon("/icons/legio/legio-16.png");
     public static final Icon LEGIO_13 = RETINA ? scale(IconLoader.getIcon("/icons/legio/legio-13-retina.png")) : IconLoader.getIcon("/icons/legio/legio-13.png");
 
+    public static final Icon LEGIO_PURGE_16 = RETINA ? scale(IconLoader.getIcon("/icons/legio/legio-purge-16-retina.png")) : IconLoader.getIcon("/icons/legio/legio-purge-16.png");
+
     public static final Icon INTINO_16 = RETINA ? scale(IconLoader.getIcon("/icons/intino/intino-16-retina.png")) : IconLoader.getIcon("/icons/intino/intino-16.png");
 
     public static final Icon KONOS_16 = RETINA ? scale(IconLoader.getIcon("/icons/konos/konos-16-retina.png")) : IconLoader.getIcon("/icons/konos/konos-16.png");

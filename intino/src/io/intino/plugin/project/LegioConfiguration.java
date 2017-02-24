@@ -1,6 +1,5 @@
 package io.intino.plugin.project;
 
-import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
@@ -95,7 +94,7 @@ public class LegioConfiguration implements Configuration {
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 legio = newGraphFromLegio();
-						 new DependencyPurger(module, dependencies(), languages()).execute();
+						 new DependencyPurger(module).execute();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
 						 if (legio != null && legio.project() != null) legio.project().save();

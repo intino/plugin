@@ -85,9 +85,9 @@ public abstract class LevelFactory extends io.intino.tara.magritte.Layer impleme
 			this.name = name;
 		}
 
-		public io.intino.legio.Project.Factory.Language language(java.lang.String name, java.lang.String version) {
+		public io.intino.legio.Project.Factory.Language language(java.lang.String name$, java.lang.String version) {
 		    io.intino.legio.Project.Factory.Language newElement = graph().concept(io.intino.legio.Project.Factory.Language.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Language.class);
-			newElement.node().set(newElement, "name", java.util.Collections.singletonList(name));
+			newElement.node().set(newElement, "name", java.util.Collections.singletonList(name$));
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}

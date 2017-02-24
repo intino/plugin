@@ -27,13 +27,25 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 	@NotNull
 	@Override
 	public String preprocessOnPaste(Project project, PsiFile psiFile, Editor editor, String text, RawText rawText) {
-		if (!psiFile.getFileType().equals(LegioFileType.instance()) || !isMavenDependency(text.trim())) return text;
+		if (!psiFile.getFileType().equals(LegioFileType.instance())) return text;
+		if (isMavenDependency(text.trim())) return processAsMaven(text);
+		if (isBowerDependency(text.trim())) return processAsBower(text);
+		return text;
+	}
+
+	private String processAsMaven(String text) {
 		List<String[]> parameters = extractInfoFrom(text);
 		if (parameters.isEmpty()) return text;
 		String result = "";
 		for (String[] parameter : parameters)
 			result += parameter[0] + "(\"" + parameter[1] + "\", \"" + parameter[2] + "\", \"" + parameter[3] + "\")\n";
 		return result;
+	}
+
+	private String processAsBower(String text) {
+		final String[] split = text.split(" ");
+		String name = split[split.length - 1];
+		return "WebComponent(\"" + name + "\", \"latest\")";
 	}
 
 	private boolean isMavenDependency(String text) {
@@ -56,5 +68,9 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 			}
 		}
 		return dependencyList;
+	}
+
+	private boolean isBowerDependency(String text) {
+		return text.startsWith("bower install ");
 	}
 }
