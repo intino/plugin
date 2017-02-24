@@ -62,7 +62,6 @@ public class ArtifactManager {
 			String user = ((JTextField) panel.getComponent(componentCount - 2)).getText();
 			String password = new String(((JPasswordField) panel.getComponent(componentCount - 1)).getPassword());
 			return new SOCKSTunnel(user, password, serverSchema.remoteConnection().url(), serverSchema.remoteConnection().port(), proxyPort).connect();
-
 		}
 		return null;
 	}
@@ -122,7 +121,7 @@ public class ArtifactManager {
 	static URL urlOf(LifeCycle.Deploy publishing) {
 		try {
 			final String direction = publishing.cesarURL();
-			return new URL(direction.startsWith("https") ? direction : "https://" + direction);
+			return new URL(direction.startsWith("http") ? direction : "https://" + direction);
 		} catch (MalformedURLException e) {
 			LOG.error(e.getMessage());
 			return null;

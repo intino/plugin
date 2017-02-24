@@ -23,7 +23,7 @@ class GraphLoader {
 			Thread.currentThread().setContextClassLoader(currentLoader);
 			return graph.wrapper(Legio.class);
 		} catch (Throwable e) {
-			LOG.error(e.getMessage());
+			LOG.debug(e.getMessage());
 			return null;
 		}
 	}

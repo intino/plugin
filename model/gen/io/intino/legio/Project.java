@@ -1,8 +1,5 @@
 package io.intino.legio;
 
-import io.intino.legio.*;
-
-
 public class Project extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
@@ -791,7 +788,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		
 		public static abstract class Dependency extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected io.intino.tara.magritte.Expression<java.lang.String> identifier;
-			protected io.intino.tara.magritte.Expression<java.lang.String> name;
+			protected io.intino.tara.magritte.Expression<java.lang.String> name$;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
@@ -809,8 +806,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				return identifier.value();
 			}
 
-			public java.lang.String name() {
-				return name.value();
+			public java.lang.String name$() {
+				return name$.value();
 			}
 
 			public java.lang.String groupId() {
@@ -857,8 +854,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 			}
 
-			public void name(io.intino.tara.magritte.Expression<java.lang.String> value) {
-				this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
+			public void name$(io.intino.tara.magritte.Expression<java.lang.String> value) {
+				this.name$ = io.intino.tara.magritte.loaders.FunctionLoader.load(value, this, io.intino.tara.magritte.Expression.class);
 			}
 
 			public void groupId(java.lang.String value) {
@@ -893,7 +890,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 				map.put("identifier", new java.util.ArrayList(java.util.Collections.singletonList(this.identifier)));
-				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name)));
+				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name$)));
 				map.put("groupId", new java.util.ArrayList(java.util.Collections.singletonList(this.groupId)));
 				map.put("artifactId", new java.util.ArrayList(java.util.Collections.singletonList(this.artifactId)));
 				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
@@ -913,7 +910,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
 				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
-				else if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
+				else if (name.equalsIgnoreCase("name")) this.name$ = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.tara.magritte.Expression.class).get(0);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
@@ -928,7 +925,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
 				if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
-				else if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
+				else if (name.equalsIgnoreCase("name")) this.name$ = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.tara.magritte.Expression.class);
 				else if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
@@ -1285,9 +1282,9 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				this.name = name;
 			}
 
-			public io.intino.legio.Project.WebDependencies.Resolution resolution(java.lang.String name, java.lang.String version) {
+			public io.intino.legio.Project.WebDependencies.Resolution resolution(java.lang.String name$, java.lang.String version) {
 			    io.intino.legio.Project.WebDependencies.Resolution newElement = graph().concept(io.intino.legio.Project.WebDependencies.Resolution.class).createNode(name, node()).as(io.intino.legio.Project.WebDependencies.Resolution.class);
-				newElement.node().set(newElement, "name", java.util.Collections.singletonList(name));
+				newElement.node().set(newElement, "name", java.util.Collections.singletonList(name$));
 				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 			    return newElement;
 			}
@@ -1309,23 +1306,23 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		}
 		
 		public static class Resolution extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected java.lang.String name;
+			protected java.lang.String name$;
 			protected java.lang.String version;
 
 			public Resolution(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
-			public java.lang.String name() {
-				return name;
+			public java.lang.String name$() {
+				return name$;
 			}
 
 			public java.lang.String version() {
 				return version;
 			}
 
-			public void name(java.lang.String value) {
-				this.name = value;
+			public void name$(java.lang.String value) {
+				this.name$ = value;
 			}
 
 			public void version(java.lang.String value) {
@@ -1335,7 +1332,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name)));
+				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name$)));
 				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 				return map;
 			}
@@ -1347,14 +1344,14 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("name")) this.name$ = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("name")) this.name = (java.lang.String) values.get(0);
+				if (name.equalsIgnoreCase("name")) this.name$ = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
 			}
 
@@ -1688,9 +1685,9 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				this.name = name;
 			}
 
-			public io.intino.legio.Project.Factory.Language language(java.lang.String name, java.lang.String version) {
+			public io.intino.legio.Project.Factory.Language language(java.lang.String name$, java.lang.String version) {
 			    io.intino.legio.Project.Factory.Language newElement = graph().concept(io.intino.legio.Project.Factory.Language.class).createNode(name, node()).as(io.intino.legio.Project.Factory.Language.class);
-				newElement.node().set(newElement, "name", java.util.Collections.singletonList(name));
+				newElement.node().set(newElement, "name", java.util.Collections.singletonList(name$));
 				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 			    return newElement;
 			}
@@ -1704,7 +1701,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		}
 		
 		public static class Language extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected java.lang.String name;
+			protected java.lang.String name$;
 			protected java.lang.String version;
 			protected java.lang.String effectiveVersion;
 
@@ -1712,8 +1709,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				super(node);
 			}
 
-			public java.lang.String name() {
-				return name;
+			public java.lang.String name$() {
+				return name$;
 			}
 
 			public java.lang.String version() {
@@ -1724,8 +1721,8 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				return effectiveVersion;
 			}
 
-			public void name(java.lang.String value) {
-				this.name = value;
+			public void name$(java.lang.String value) {
+				this.name$ = value;
 			}
 
 			public void version(java.lang.String value) {
@@ -1739,7 +1736,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name)));
+				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name$)));
 				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 				map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 				return map;
@@ -1752,7 +1749,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("name")) this.name = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("name")) this.name$ = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
@@ -1760,7 +1757,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("name")) this.name = (java.lang.String) values.get(0);
+				if (name.equalsIgnoreCase("name")) this.name$ = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 			}

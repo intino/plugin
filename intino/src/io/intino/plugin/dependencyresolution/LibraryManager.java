@@ -132,15 +132,20 @@ public class LibraryManager {
 
 	@NotNull
 	private static ModifiableRootModel removeInvalidEntries(ModifiableRootModel modifiableModel, List<LibraryOrderEntry> toRemove) {
-		toRemove.forEach(modifiableModel::removeOrderEntry);
+		try {
+			toRemove.forEach(modifiableModel::removeOrderEntry);
+		} catch (Throwable ignored) {
+		}
 		return modifiableModel;
 	}
 
 	private static boolean isUsedByOthers(Module module, Library library) {
+		if (library == null) return false;
 		final List<Module> others = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(module)).collect(Collectors.toList());
 		for (Module other : others) {
 			final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(other).getModifiableModel();
-			final OrderEntry orderEntry = Arrays.stream(modifiableModel.getOrderEntries()).filter(e -> e instanceof LibraryOrderEntry && library.equals(((LibraryOrderEntry) e).getLibrary())).findFirst().orElse(null);
+			final OrderEntry orderEntry = Arrays.stream(modifiableModel.getOrderEntries()).
+					filter(e -> e instanceof LibraryOrderEntry && library.equals(((LibraryOrderEntry) e).getLibrary())).findFirst().orElse(null);
 			if (orderEntry != null) return true;
 		}
 		return false;

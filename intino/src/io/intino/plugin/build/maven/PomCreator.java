@@ -40,18 +40,18 @@ import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
 import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
 
 
-class PomCreator {
+public class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
 
-	PomCreator(Module module) {
+	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
-	File frameworkPom() throws IOException {
+	public File frameworkPom() throws IOException {
 		final File pom = pomFile();
 		return isWebModule(module) ? webPom(pom) : frameworkPom(pom);
 	}
