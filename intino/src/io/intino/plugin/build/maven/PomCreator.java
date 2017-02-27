@@ -105,7 +105,8 @@ public class PomCreator {
 		Set<String> dependencies = new HashSet<>();
 		addDependantModuleSources(frame, module);
 		for (Dependency dependency : configuration.dependencies())
-			if (dependencies.add(dependency.identifier())) frame.addSlot("dependency", createDependencyFrame(dependency));
+			if (dependencies.add(dependency.identifier()))
+				frame.addSlot("dependency", createDependencyFrame(dependency));
 		addModuleTypeDependencies(frame, dependencies);
 		addLevelDependency(frame);
 	}
@@ -127,7 +128,7 @@ public class PomCreator {
 	}
 
 	private void addModuleTypeDependencies(Frame frame, Set<String> dependencies) {
-		for (Module dependantModule : ModuleRootManager.getInstance(module).getModuleDependencies()) {
+		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
@@ -144,11 +145,27 @@ public class PomCreator {
 	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
 		final List<String> res = resourceDirectories(module);
-		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) res.addAll(resourceDirectories(dep));
+		for (Module dep : getModuleDependencies())
+			res.addAll(resourceDirectories(dep));
 		frame.addSlot("resourceDirectory", res.toArray(new String[res.size()]));
 		final List<String> resTest = resourceTestDirectories(module);
-		for (Module dep : ModuleRootManager.getInstance(module).getModuleDependencies()) resTest.addAll(resourceTestDirectories(dep));
+		for (Module dep : getModuleDependencies())
+			resTest.addAll(resourceTestDirectories(dep));
 		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
+	}
+
+	@NotNull
+	private List<Module> getModuleDependencies() {
+		return collectModuleDependecies(this.module);
+	}
+
+	private List<Module> collectModuleDependecies(Module module) {
+		List<Module> list = new ArrayList<>();
+		for (Module dependant : ModuleRootManager.getInstance(module).getModuleDependencies()) {
+			list.add(dependant);
+			list.addAll(collectModuleDependecies(dependant));
+		}
+		return list;
 	}
 
 	private String[] srcDirectories(Module module) {
@@ -185,8 +202,7 @@ public class PomCreator {
 	}
 
 	private void addDependantModuleSources(Frame frame, Module module) {
-		final Module[] moduleDependencies = ModuleRootManager.getInstance(module).getModuleDependencies();
-		for (Module dependency : moduleDependencies) {
+		for (Module dependency : collectModuleDependecies(module)) {
 			ApplicationManager.getApplication().runReadAction(() -> {
 				final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
 				for (VirtualFile sourceRoot : sourceRoots)
