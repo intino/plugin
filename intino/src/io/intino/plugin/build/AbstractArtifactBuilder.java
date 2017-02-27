@@ -100,7 +100,7 @@ abstract class AbstractArtifactBuilder {
 		return configuration.distributionReleaseRepository() == null && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
-	protected boolean shouldDistributeLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
+	boolean shouldDistributeLanguage(Module module, LifeCyclePhase lifeCyclePhase) {
 		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 

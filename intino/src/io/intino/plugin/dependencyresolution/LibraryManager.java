@@ -67,7 +67,7 @@ public class LibraryManager {
 	void addToModule(List<Library> libraries, DependencyScope scope) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
-		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library)).collect(Collectors.toList());
+		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope)).collect(Collectors.toList());
 		toRegister.forEach(library -> addDependency(module, library, scope, false));
 	}
 
@@ -175,9 +175,9 @@ public class LibraryManager {
 		return library;
 	}
 
-	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library) {
+	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
 		for (LibraryOrderEntry entry : registered)
-			if (library.equals(entry.getLibrary())) return true;
+			if (library.equals(entry.getLibrary()) && entry.getScope().equals(scope)) return true;
 		return false;
 	}
 

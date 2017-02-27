@@ -73,7 +73,7 @@ public class ArtifactDeployer {
 	}
 
 	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node, Destination.Configuration c) {
-		return new io.intino.cesar.schemas.Parameter().name(c.name() + "." + node.name()).value(node.value());
+		return new io.intino.cesar.schemas.Parameter().name(c.name() + "." + node.name().replace("-", ".")).value(node.value());
 	}
 
 	private List<Artifactory> artifactories() {
