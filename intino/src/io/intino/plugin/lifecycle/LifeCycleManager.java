@@ -44,6 +44,11 @@ public class LifeCycleManager implements ProjectComponent {
 	}
 
 	@Override
+	public void initComponent() {
+		StartupManager.getInstance(project).registerPostStartupActivity(this::registerToolWindow);
+	}
+
+	@Override
 	public void projectOpened() {
 	}
 
@@ -52,27 +57,13 @@ public class LifeCycleManager implements ProjectComponent {
 		unregisterToolWindow();
 	}
 
-	private void unregisterToolWindow() {
-		toolWindow = null;
-		if (isToolWindowRegistered()) ToolWindowManager.getInstance(project).unregisterToolWindow(ID_TOOL_WINDOW);
-	}
-
-	private boolean isToolWindowRegistered() {
-		return ToolWindowManager.getInstance(project).getToolWindow(ID_TOOL_WINDOW) != null;
-	}
-
 	@NotNull
 	@Override
 	public String getComponentName() {
 		return PLUGIN_NAME + '.' + PROJECT_COMPONENT_NAME;
 	}
 
-	@Override
-	public void initComponent() {
-		StartupManager.getInstance(project).registerPostStartupActivity(this::doInit);
-	}
-
-	private void doInit() {
+	private void registerToolWindow() {
 		toolWindow = new LifeCycleToolWindow(project);
 		myToolWindow = (ToolWindowEx) ToolWindowManagerEx.getInstanceEx(project).
 				registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
@@ -82,6 +73,16 @@ public class LifeCycleManager implements ProjectComponent {
 		ContentManager contentManager = myToolWindow.getContentManager();
 		contentManager.addContent(content);
 		contentManager.setSelectedContent(content, false);
+	}
+
+
+	private void unregisterToolWindow() {
+		toolWindow = null;
+		if (isToolWindowRegistered()) ToolWindowManager.getInstance(project).unregisterToolWindow(ID_TOOL_WINDOW);
+	}
+
+	private boolean isToolWindowRegistered() {
+		return ToolWindowManager.getInstance(project).getToolWindow(ID_TOOL_WINDOW) != null;
 	}
 
 	@Override

@@ -1,11 +1,9 @@
 package io.intino.plugin.project;
 
-import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.Project;
@@ -98,31 +96,18 @@ public class GulpExecutor {
 		try {
 			final MavenRunner mavenRunner = new MavenRunner(module, handler);
 			final InvocationResult result = mavenRunner.invokeMaven(pom, "generate-resources");
-			processResult(mavenRunner, pom, result);
-		} catch (MavenInvocationException | IOException e) {
+			processResult(pom, result);
+		} catch (MavenInvocationException | IOException | IntinoException e) {
 			LOG.error(e.getMessage(), e);
-			notifyError(message("error.executing.gulp", e.getMessage()));
-		} catch (IntinoException e) {
-			LOG.error(e.getMessage(), e);
-			notifyError(e.getMessage());
 		}
 	}
 
-	private void processResult(MavenRunner mavenRunner, File pom, InvocationResult result) throws IntinoException {
+	private void processResult(File pom, InvocationResult result) throws IntinoException {
 		if (result != null && result.getExecutionException() != null && result.getExitCode() != 0)
 			throw new IntinoException(message("error.executing.gulp", result.getExecutionException().getMessage()));
-		else {
-			if (result != null) throw new IntinoException(message("error.executing.gulp", mavenRunner.output()));
-			FileUtil.delete(pom);
-		}
+		else FileUtil.delete(pom);
 	}
 
-	private void notifyError(String message) {
-		final String displayId = "Tara Language";
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup(displayId);
-		balloon = balloon == null ? NotificationGroup.balloonGroup(displayId) : balloon;
-		balloon.createNotification(message, MessageType.ERROR).setImportant(true).notify(null);
-	}
 
 	private File createGulp() throws IOException {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);

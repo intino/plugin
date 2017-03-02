@@ -5,7 +5,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.build.LifeCyclePhase;
+import io.intino.plugin.console.IntinoTopics;
+import io.intino.plugin.console.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.actions.utils.FileSystemUtils;
 import io.intino.tara.plugin.lang.LanguageManager;
@@ -51,15 +55,21 @@ public class MavenRunner {
 
 	@NotNull
 	private InvocationOutputHandler defaultHandler() {
-		return s -> {
-			output += (s.startsWith("[ERROR]")) ? s + "\n" : "";
-			LOG.info(s);
-//			System.out.println(s);
-		};
+		return this::publish;
+	}
+
+	private void publish(String line) {
+		final MessageBus messageBus = module.getProject().getMessageBus();
+		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.MAVEN);
+		mavenListener.println(line);
+		final MessageBusConnection connect = messageBus.connect();
+		connect.deliverImmediately();
+		connect.disconnect();
 	}
 
 	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
-		if (conf.distributionLanguageRepository() == null) throw new IOException(message("none.distribution.language.repository"));
+		if (conf.distributionLanguageRepository() == null)
+			throw new IOException(message("none.distribution.language.repository"));
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
 		request.setMavenOpts("-Durl=" + conf.distributionLanguageRepository().getKey() + " " +
 				"-DrepositoryId=" + conf.distributionLanguageRepository().getValue() + " " +
