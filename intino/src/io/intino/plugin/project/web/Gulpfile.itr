@@ -12,9 +12,9 @@ def type(gulp)
 	const eventStream = require('event-stream');
 	const console = require('gulp-util');
 
-	const InstallPath = '$resDirectory/www/$artifactID+lowercase';
-	const OutputPath = '$outDirectory~/www/$artifactID+lowercase';
-	const WorkingDirectory = '$rootDirectory';
+	const InstallPath = '$resDirectory+path/www/$artifactID+lowercase';
+	const OutputPath = '$outDirectory+path~/www/$artifactID+lowercase';
+	const WorkingDirectory = '$rootDirectory+path';
 	const WatchPort = 35$port;
 
 	// root tasks
@@ -31,7 +31,7 @@ def type(gulp)
 	});
 
 	// sub tasks
-	gulp.task('clean', () => { return del($[packagePath()], {force:true}); });
+	gulp.task('clean', () => {return del($[packagePath()], {force:true}); });
 
 	gulp.task('package', cb => {
 		runSequence('compile', 'clean-compile', 'union', cb);
@@ -69,7 +69,7 @@ def type(gulp)
 		);
 	});
 
-	gulp.task('install', $['resolve-url-dependencies'], () => {
+	gulp.task('install', $['resolve-url-dependencies'],() => {
 		del($[installPath(), outputPath()], {force:true});
 
 		return eventStream.concat(
@@ -109,7 +109,7 @@ def type(gulp)
 	});
 
 	// constants
-	const PackageDirectory = '$rootDirectory/dist';
+	const PackageDirectory = '$rootDirectory+path/dist';
 
 	const packagePath = subpath => !subpath ? PackageDirectory : path.join(PackageDirectory, subpath);
 	const installPath = subpath => !subpath ? InstallPath : path.join(InstallPath, subpath);
