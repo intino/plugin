@@ -34,7 +34,7 @@ import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory
 
 public class MavenRunner {
 
-	private static final Logger LOG = Logger.getInstance(MavenRunner.class.getName());
+	private static final Logger LOG = Logger.getInstance(MavenRunner.class);
 	private Module module;
 	private InvocationOutputHandler handler;
 	private String output = "";
@@ -53,7 +53,8 @@ public class MavenRunner {
 	private InvocationOutputHandler defaultHandler() {
 		return s -> {
 			output += (s.startsWith("[ERROR]")) ? s + "\n" : "";
-			System.out.println(s);
+			LOG.info(s);
+//			System.out.println(s);
 		};
 	}
 

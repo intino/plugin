@@ -18,11 +18,11 @@ import org.apache.maven.shared.invoker.InvocationOutputHandler;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
+import org.siani.itrules.Formatter;
 import org.siani.itrules.model.Frame;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -57,10 +57,7 @@ public class GulpExecutor {
 //			}
 //		}
 //		lock = true;
-		final File gulp = createGulp();
-		final File gulpPom = createGulpPom("dev");
-		if (gulpPom == null || gulp == null) return;
-		final File packageJson = createPackageFile();
+
 //		new Thread(() -> run(gulpPom, line -> {
 //			LOG.info(line);
 //			if (line.contains("[INFO]") && (line.contains("Finished 'dev'") || line.contains("BUILD SUCCESS"))) {
@@ -71,21 +68,29 @@ public class GulpExecutor {
 //			}
 //		}), "GULP").start();
 		try {
+			final File gulp = createGulp();
+			final File gulpPom = createGulpPom("dev");
+			if (gulpPom == null || gulp == null) return;
+			final File packageJson = createPackageFile();
 			Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
 			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
 	public void startGulpDeploy() {
-		final File gulp = createGulp();
-		final File packageJson = createPackageFile();
-		final File gulpPom = createGulpPom("deploy");
-		run(gulpPom, null);
-		gulp.delete();
-		packageJson.delete();
-		gulpPom.delete();
+		try {
+			final File gulp = createGulp();
+			final File packageJson = createPackageFile();
+			final File gulpPom = createGulpPom("deploy");
+			run(gulpPom, null);
+			gulp.delete();
+			packageJson.delete();
+			gulpPom.delete();
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 
 
@@ -119,16 +124,20 @@ public class GulpExecutor {
 		balloon.createNotification(message, MessageType.ERROR).setImportant(true).notify(null);
 	}
 
-	private File createGulp() {
+	private File createGulp() throws IOException {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
 		if (compilerModuleExtension == null || project == null) return null;
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
-				addSlot("rootDirectory", rootDirectory.getPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
+				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
 				addSlot("artifactID", project.name()).addSlot("port", new Random().nextInt(1000));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
-		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getPath());
-		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().format(frame));
+		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getCanonicalPath());
+		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().add("path", pathFormatter()).format(frame));
+	}
+
+	private Formatter pathFormatter() {
+		return value -> value.toString().replace("\\", "/");
 	}
 
 	private File createGulpPom(String task) {
@@ -148,8 +157,8 @@ public class GulpExecutor {
 
 	private String outDirectory(CompilerModuleExtension compilerModuleExtension) {
 		try {
-			return new URL(compilerModuleExtension.getCompilerOutputUrl()).getFile();
-		} catch (MalformedURLException e) {
+			return new File(new URL(compilerModuleExtension.getCompilerOutputUrl()).getFile()).getCanonicalPath();
+		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return "";
 		}

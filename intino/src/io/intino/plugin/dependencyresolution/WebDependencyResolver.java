@@ -192,7 +192,7 @@ public class WebDependencyResolver {
 	}
 
 	private File createBowerrcFile() {
-		return write("{\"directory\": \"" + libComponentsDirectory.getAbsolutePath() + "\"}", new File(nodeDirectory, ".bowerrc"));
+		return write("{\"directory\": \"" + libComponentsDirectory.getAbsolutePath().replace("\\", "/") + "\"}", new File(nodeDirectory, ".bowerrc"));
 	}
 
 	private Frame fill(Frame frame) {
