@@ -142,7 +142,7 @@ public class JavaDependencyResolver {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		if (repositories.repositoryList() == null) return remotes;
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().filter(Objects::nonNull).map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
+		remotes.addAll(repositories.repositoryList().stream().filter(r-> r != null && !r.is(Repositories.Language.class)).map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
 		return remotes;
 	}
 

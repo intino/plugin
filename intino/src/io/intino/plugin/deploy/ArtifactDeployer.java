@@ -59,7 +59,8 @@ public class ArtifactDeployer {
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.configuration())).
-				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
+				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+				runtime(new Runtime().serverName(destination.specificServer()).jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {

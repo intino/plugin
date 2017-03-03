@@ -891,6 +891,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		}
 		
 		public static abstract class Destination extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+			protected java.lang.String specificServer;
 			protected java.lang.String publicURL;
 			protected java.util.List<io.intino.legio.LifeCycle.Deploy.Destination.Requirements> requirementsList = new java.util.ArrayList<>();
 			protected io.intino.legio.LifeCycle.Deploy.Destination.Configuration configuration;
@@ -899,8 +900,16 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 				super(node);
 			}
 
+			public java.lang.String specificServer() {
+				return specificServer;
+			}
+
 			public java.lang.String publicURL() {
 				return publicURL;
+			}
+
+			public void specificServer(java.lang.String value) {
+				this.specificServer = value;
 			}
 
 			public void publicURL(java.lang.String value) {
@@ -939,6 +948,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("specificServer", new java.util.ArrayList(java.util.Collections.singletonList(this.specificServer)));
 				map.put("publicURL", new java.util.ArrayList(java.util.Collections.singletonList(this.publicURL)));
 				return map;
 			}
@@ -964,13 +974,15 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
 				super._load(name, values);
-				if (name.equalsIgnoreCase("publicURL")) this.publicURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("specificServer")) this.specificServer = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("publicURL")) this.publicURL = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void _set(java.lang.String name, java.util.List<?> values) {
 				super._set(name, values);
-				if (name.equalsIgnoreCase("publicURL")) this.publicURL = (java.lang.String) values.get(0);
+				if (name.equalsIgnoreCase("specificServer")) this.specificServer = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("publicURL")) this.publicURL = (java.lang.String) values.get(0);
 			}
 
 			public Create create() {

@@ -31,7 +31,7 @@ public abstract class IntinoAction extends AnAction {
 	}
 
 
-	boolean hasLegioModules(Project project) {
+	private boolean hasLegioModules(Project project) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
 		for (Module module : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(module);
