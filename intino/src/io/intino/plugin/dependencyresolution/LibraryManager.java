@@ -88,7 +88,7 @@ public class LibraryManager {
 
 	private static void removeLibraries(Module module, ModifiableRootModel modifiableModel, LibraryTable table, List<LibraryOrderEntry> toRemove) {
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) {
+		if (application.isWriteAccessAllowed() || !modifiableModel.isWritable()) {
 			removeInvalidEntries(modifiableModel, toRemove);
 			commit(module, table, toRemove, modifiableModel);
 		} else
