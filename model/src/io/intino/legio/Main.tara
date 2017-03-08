@@ -79,6 +79,7 @@ Concept:{0..1} LifeCycle
 		var string cesarURL
 		var integer managementPort = 0
 		Concept:{1..*} Destination
+			var string specificServer = empty
 			var string publicURL = empty
 			Concept Requirements
 				Concept Memory

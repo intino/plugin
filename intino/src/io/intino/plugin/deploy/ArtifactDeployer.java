@@ -59,21 +59,26 @@ public class ArtifactDeployer {
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.configuration())).
-				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).runtime(new Runtime().jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
+				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+				runtime(new Runtime().serverName(destination.specificServer()).jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {
 		List<io.intino.cesar.schemas.Parameter> parameters = new ArrayList<>();
-		for (Parameter p : configuration.parameterList()) parameters.add(parametersFromNode(p, configuration));
+		for (Parameter p : configuration.parameterList()) parameters.add(parametersFromNode(p));
 		for (Destination.Configuration.Service service : configuration.serviceList())
-			parameters.addAll(service.parameterList().stream().map(p -> parametersFromNode(p, configuration)).collect(Collectors.toList()));
+			parameters.addAll(service.parameterList().stream().map(p -> parametersFromNode(p, service.name())).collect(Collectors.toList()));
 		if (configuration.store() != null)
 			parameters.add(new io.intino.cesar.schemas.Parameter().name("graph.store").value(configuration.store().path()));
 		return parameters;
 	}
 
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node, Destination.Configuration c) {
-		return new io.intino.cesar.schemas.Parameter().name(c.name() + "." + node.name().replace("-", ".")).value(node.value());
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node, String prefix) {
+		return new io.intino.cesar.schemas.Parameter().name(prefix + "." + node.name().replace("-", ".")).value(node.value());
+	}
+
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node) {
+		return new io.intino.cesar.schemas.Parameter().name(node.name().replace("-", ".")).value(node.value());
 	}
 
 	private List<Artifactory> artifactories() {

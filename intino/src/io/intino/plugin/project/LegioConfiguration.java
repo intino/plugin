@@ -180,7 +180,7 @@ public class LegioConfiguration implements Configuration {
 		List<Library> libraries = new ArrayList<>();
 		for (LanguageLibrary language : languages()) {
 			final String effectiveVersion = language.effectiveVersion();
-			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory().languageList(d -> d.name().equals(language.name())).get(0), effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion).resolve());
+			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory().languageList(d -> d.name$().equals(language.name())).get(0), effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion).resolve());
 		}
 		return libraries;
 	}
@@ -230,7 +230,7 @@ public class LegioConfiguration implements Configuration {
 			languages.add(new LanguageLibrary() {
 				@Override
 				public String name() {
-					return language.name();
+					return language.name$();
 				}
 
 				@Override

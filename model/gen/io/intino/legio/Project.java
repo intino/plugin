@@ -1,5 +1,8 @@
 package io.intino.legio;
 
+import io.intino.legio.*;
+
+
 public class Project extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;

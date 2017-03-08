@@ -55,8 +55,8 @@ public class LanguageResolver {
 
 	public List<Library> resolve() {
 		if (factoryLanguage == null) return Collections.emptyList();
-		LanguageManager.silentReload(this.module.getProject(), factoryLanguage.name(), version);
-		final List<Library> libraries = isMagritteLibrary(this.factoryLanguage.name()) ? magritte(version) : languageFramework();
+		LanguageManager.silentReload(this.module.getProject(), factoryLanguage.name$(), version);
+		final List<Library> libraries = isMagritteLibrary(this.factoryLanguage.name$()) ? magritte(version) : languageFramework();
 		if (!libraries.isEmpty()) resolveBuilder(libraries);
 		return libraries;
 	}
@@ -89,7 +89,7 @@ public class LanguageResolver {
 
 	private List<Library> languageFramework() {
 		final List<Library> libraries = new ArrayList<>();
-		final Module module = moduleDependencyOf(this.module, factoryLanguage.name(), version);
+		final Module module = moduleDependencyOf(this.module, factoryLanguage.name$(), version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
 		else
@@ -110,8 +110,8 @@ public class LanguageResolver {
 
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
-		if (!LanguageManager.getLanguageFile(factoryLanguage.name(), version).exists()) importLanguage();
-		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(factoryLanguage.name(), version));
+		if (!LanguageManager.getLanguageFile(factoryLanguage.name$(), version).exists()) importLanguage();
+		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(factoryLanguage.name$(), version));
 		libraries.addAll(flat(manager.registerOrGetLibrary(languageFramework)));
 		factoryLanguage.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
 		manager.addToModule(libraries, DependencyScope.COMPILE);
@@ -200,7 +200,7 @@ public class LanguageResolver {
 	}
 
 	private void importLanguage() {
-		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(factoryLanguage.name(), version);
+		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(factoryLanguage.name$(), version);
 	}
 
 	@NotNull
