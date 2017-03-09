@@ -60,7 +60,7 @@ public class ArtifactDeployer {
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.configuration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new Runtime().serverName(destination.specificServer()).jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
+				runtime(new Runtime().serverName(destination.specificServer()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {
