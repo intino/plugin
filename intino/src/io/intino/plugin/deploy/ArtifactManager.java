@@ -95,7 +95,7 @@ public class ArtifactManager {
 
 	private String connectionChain(SystemSchema system) throws IntinoException {
 		final Runtime runtime = system.runtime();
-		return runtime.ip() + ":" + runtime.jmxPort();
+		return runtime.ip();
 	}
 
 	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {

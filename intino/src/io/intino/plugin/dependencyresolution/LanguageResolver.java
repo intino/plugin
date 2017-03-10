@@ -149,7 +149,8 @@ public class LanguageResolver {
 			final List<RemoteRepository> repos = new ArrayList<>();
 			repos.add(new RemoteRepository("intino-maven", "default", "https://artifactory.intino.io/artifactory/releases"));
 			repos.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-			final String version = mayorVersionOf(library);
+			String specificVersion = factoryLanguage.ownerAs(Factory.class).version();
+			final String version = specificVersion != null && specificVersion.isEmpty() ? specificVersion : mayorVersionOf(library);
 			if (version == null) LOG.error("No version available");
 			saveClassPath(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + version), JavaScopes.COMPILE));
 		} catch (DependencyResolutionException e) {
@@ -163,7 +164,7 @@ public class LanguageResolver {
 		List<String> libraries = classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
 		libraries = libraries.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
 		final File miscDirectory = LanguageManager.getMiscDirectory(this.module.getProject());
-		final File file = new File(miscDirectory, module.getName());
+		final File file = new File(miscDirectory, "compiler.classpath");
 		try {
 			Files.write(file.toPath(), String.join(":", libraries).getBytes());
 		} catch (IOException e) {

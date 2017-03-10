@@ -13,8 +13,16 @@ public abstract class LevelFactory extends io.intino.tara.magritte.Layer impleme
 		super(node);
 	}
 
+	public java.lang.String version() {
+		return _factory.version();
+	}
+
 	public java.lang.String inPackage() {
 		return _factory.inPackage();
+	}
+
+	public void version(java.lang.String value) {
+		this._factory.version(value);
 	}
 
 	public void inPackage(java.lang.String value) {

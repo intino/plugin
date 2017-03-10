@@ -123,25 +123,41 @@ public class LibraryManager {
 	}
 
 	private static LibraryOrderEntry searchLibrary(List<LibraryOrderEntry> libraryOrderEntries, String name) {
-		for (LibraryOrderEntry entry : libraryOrderEntries) {
+		for (LibraryOrderEntry entry : libraryOrderEntries)
 			if (entry.getLibrary() != null && entry.getLibrary().getName().startsWith(name + ":"))
 				return entry;
-		}
 		return null;
 	}
 
 	@NotNull
 	private static ModifiableRootModel removeInvalidEntries(ModifiableRootModel modifiableModel, List<LibraryOrderEntry> toRemove) {
 		try {
-			toRemove.forEach(modifiableModel::removeOrderEntry);
+			for (LibraryOrderEntry entry : toRemove)
+				if (entry != null) {
+					if (entry.isValid()) modifiableModel.removeOrderEntry(entry);
+					else {
+						final LibraryOrderEntry libraryOrderEntry = modifiableModel.findLibraryOrderEntry(entry.getLibrary());
+						if (libraryOrderEntry != null && libraryOrderEntry.isValid())
+							modifiableModel.removeOrderEntry(libraryOrderEntry);
+					}
+
+				}
 		} catch (Throwable ignored) {
 		}
 		return modifiableModel;
 	}
 
-	private static boolean isUsedByOthers(Module module, Library library) {
+	private static void commit(Module module, LibraryTable table, List<LibraryOrderEntry> toRemove, ModifiableRootModel modifiableModel) {
+		modifiableModel.commit();
+		toRemove.stream().filter(library -> !isUsed(module, library.getLibrary())).
+				forEach(e -> {
+					if (e.getLibrary() != null) table.removeLibrary(e.getLibrary());
+				});
+	}
+
+	private static boolean isUsed(Module module, Library library) {
 		if (library == null) return false;
-		final List<Module> others = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(module)).collect(Collectors.toList());
+		final List<Module> others = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).collect(Collectors.toList());
 		for (Module other : others) {
 			final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(other).getModifiableModel();
 			final OrderEntry orderEntry = Arrays.stream(modifiableModel.getOrderEntries()).
@@ -149,14 +165,6 @@ public class LibraryManager {
 			if (orderEntry != null) return true;
 		}
 		return false;
-	}
-
-	private static void commit(Module module, LibraryTable table, List<LibraryOrderEntry> toRemove, ModifiableRootModel modifiableModel) {
-		modifiableModel.commit();
-		toRemove.stream().filter(library -> !isUsedByOthers(module, library.getLibrary())).
-				forEach(e -> {
-					if (e.getLibrary() != null) table.removeLibrary(e.getLibrary());
-				});
 	}
 
 	private Library findLibrary(Artifact artifact) {

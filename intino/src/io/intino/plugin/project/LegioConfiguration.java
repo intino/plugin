@@ -178,9 +178,11 @@ public class LegioConfiguration implements Configuration {
 
 	private List<Library> resolveLanguages() {
 		List<Library> libraries = new ArrayList<>();
+		Factory factory = legio.project().factory();
 		for (LanguageLibrary language : languages()) {
 			final String effectiveVersion = language.effectiveVersion();
-			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), legio.project().factory().languageList(d -> d.name$().equals(language.name())).get(0), effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion).resolve());
+			String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
+			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), factory.languageList(d -> d.name$().equals(language.name())).get(0), version).resolve());
 		}
 		return libraries;
 	}

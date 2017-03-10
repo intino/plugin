@@ -54,13 +54,13 @@ public class ArtifactDeployer {
 	}
 
 	private SystemSchema createSystem(Destination destination) {
-		final String id = configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version();
+		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
 		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.configuration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new Runtime().serverName(destination.specificServer()).jmxPort(destination.owner().as(LifeCycle.Deploy.class).managementPort()));
+				runtime(new Runtime().serverName(destination.specificServer()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {

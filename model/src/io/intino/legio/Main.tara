@@ -43,6 +43,7 @@ Concept:{1..1}:Named Project
 			var string artifactId
 			var string version
 	Concept:{0..1} Factory
+		var string version
 		var string inPackage = ""
 		Concept Language
 			var string name
@@ -77,7 +78,8 @@ Concept:{0..1} LifeCycle
 
 	Concept:{0..1} Deploy
 		var string cesarURL
-		var integer managementPort = 0
+		Concept:{0..1} BugTracking
+			var string[] slackUsers = empty
 		Concept:{1..*} Destination
 			var string specificServer = empty
 			var string publicURL = empty
