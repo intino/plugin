@@ -54,7 +54,7 @@ public class ArtifactDeployer {
 	}
 
 	private SystemSchema createSystem(Destination destination) {
-		final String id = configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version();
+		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
 		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().id(id).publicURL(destination.publicURL()).
 				artifactoryList(artifactories()).packaging(new Packaging().
