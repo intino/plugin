@@ -12,8 +12,16 @@ public class PlatformFactory extends io.intino.legio.level.project.LevelFactory 
 		super(node);
 	}
 
+	public java.lang.String version() {
+		return _factory.version();
+	}
+
 	public java.lang.String inPackage() {
 		return _factory.inPackage();
+	}
+
+	public void version(java.lang.String value) {
+		this._factory.version(value);
 	}
 
 	public void inPackage(java.lang.String value) {

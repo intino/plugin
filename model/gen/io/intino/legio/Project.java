@@ -164,8 +164,9 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		    return newElement;
 		}
 
-		public io.intino.legio.Project.Factory factory() {
+		public io.intino.legio.Project.Factory factory(java.lang.String version) {
 		    io.intino.legio.Project.Factory newElement = graph().concept(io.intino.legio.Project.Factory.class).createNode(name, node()).as(io.intino.legio.Project.Factory.class);
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}
 		
@@ -1555,6 +1556,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 	}
 	
 	public static class Factory extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.lang.String version;
 		protected java.lang.String inPackage;
 		protected java.util.List<io.intino.legio.Project.Factory.Language> languageList = new java.util.ArrayList<>();
 		protected io.intino.legio.Project.Factory.Interface interface$;
@@ -1563,8 +1565,16 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			super(node);
 		}
 
+		public java.lang.String version() {
+			return version;
+		}
+
 		public java.lang.String inPackage() {
 			return inPackage;
+		}
+
+		public void version(java.lang.String value) {
+			this.version = value;
 		}
 
 		public void inPackage(java.lang.String value) {
@@ -1639,6 +1649,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 			map.put("inPackage", new java.util.ArrayList(java.util.Collections.singletonList(this.inPackage)));
 			return map;
 		}
@@ -1664,13 +1675,15 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("inPackage")) this.inPackage = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("inPackage")) this.inPackage = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
-			if (name.equalsIgnoreCase("inPackage")) this.inPackage = (java.lang.String) values.get(0);
+			if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("inPackage")) this.inPackage = (java.lang.String) values.get(0);
 		}
 
 		public Create create() {

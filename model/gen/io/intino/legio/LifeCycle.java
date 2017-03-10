@@ -744,6 +744,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 	
 	public static class Deploy extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String cesarURL;
+		protected io.intino.legio.LifeCycle.Deploy.BugTracking bugTracking;
 		protected java.util.List<io.intino.legio.LifeCycle.Deploy.Destination> destinationList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Deploy.Pre> preList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.LifeCycle.Deploy.Pro> proList = new java.util.ArrayList<>();
@@ -758,6 +759,10 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 
 		public void cesarURL(java.lang.String value) {
 			this.cesarURL = value;
+		}
+
+		public io.intino.legio.LifeCycle.Deploy.BugTracking bugTracking() {
+			return bugTracking;
 		}
 
 		public java.util.List<io.intino.legio.LifeCycle.Deploy.Destination> destinationList() {
@@ -796,6 +801,10 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			return proList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
+		public void bugTracking(io.intino.legio.LifeCycle.Deploy.BugTracking value) {
+			this.bugTracking = value;
+		}
+
 		
 
 		
@@ -804,6 +813,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 
 		public java.util.List<io.intino.tara.magritte.Node> componentList() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+			if (bugTracking != null) components.add(this.bugTracking.node());
 			destinationList.stream().forEach(c -> components.add(c.node()));
 			preList.stream().forEach(c -> components.add(c.node()));
 			proList.stream().forEach(c -> components.add(c.node()));
@@ -824,6 +834,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		@Override
 		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
+			if (node.is("LifeCycle$Deploy$BugTracking")) this.bugTracking = node.as(io.intino.legio.LifeCycle.Deploy.BugTracking.class);
 			if (node.is("LifeCycle$Deploy$Destination")) this.destinationList.add(node.as(io.intino.legio.LifeCycle.Deploy.Destination.class));
 			if (node.is("LifeCycle$Deploy$Pre")) this.preList.add(node.as(io.intino.legio.LifeCycle.Deploy.Pre.class));
 			if (node.is("LifeCycle$Deploy$Pro")) this.proList.add(node.as(io.intino.legio.LifeCycle.Deploy.Pro.class));
@@ -832,6 +843,7 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 		@Override
 	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
+	        if (node.is("LifeCycle$Deploy$BugTracking")) this.bugTracking = null;
 	        if (node.is("LifeCycle$Deploy$Destination")) this.destinationList.remove(node.as(io.intino.legio.LifeCycle.Deploy.Destination.class));
 	        if (node.is("LifeCycle$Deploy$Pre")) this.preList.remove(node.as(io.intino.legio.LifeCycle.Deploy.Pre.class));
 	        if (node.is("LifeCycle$Deploy$Pro")) this.proList.remove(node.as(io.intino.legio.LifeCycle.Deploy.Pro.class));
@@ -864,6 +876,11 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 				this.name = name;
 			}
 
+			public io.intino.legio.LifeCycle.Deploy.BugTracking bugTracking() {
+			    io.intino.legio.LifeCycle.Deploy.BugTracking newElement = graph().concept(io.intino.legio.LifeCycle.Deploy.BugTracking.class).createNode(name, node()).as(io.intino.legio.LifeCycle.Deploy.BugTracking.class);
+			    return newElement;
+			}
+
 			
 
 			public io.intino.legio.LifeCycle.Deploy.Pre pre() {
@@ -876,6 +893,70 @@ public class LifeCycle extends io.intino.tara.magritte.Layer implements io.intin
 			    return newElement;
 			}
 			
+		}
+		
+		public static class BugTracking extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+			protected java.util.List<java.lang.String> slackUsers = new java.util.ArrayList<>();
+
+			public BugTracking(io.intino.tara.magritte.Node node) {
+				super(node);
+			}
+
+			public java.util.List<java.lang.String> slackUsers() {
+				return slackUsers;
+			}
+
+			public java.lang.String slackUsers(int index) {
+				return slackUsers.get(index);
+			}
+
+			public java.util.List<java.lang.String> slackUsers(java.util.function.Predicate<java.lang.String> predicate) {
+				return slackUsers().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			@Override
+			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+				map.put("slackUsers", this.slackUsers);
+				return map;
+			}
+
+			public io.intino.tara.magritte.Concept concept() {
+				return this.graph().concept(io.intino.legio.LifeCycle.Deploy.BugTracking.class);
+			}
+
+			@Override
+			protected void _load(java.lang.String name, java.util.List<?> values) {
+				super._load(name, values);
+				if (name.equalsIgnoreCase("slackUsers")) this.slackUsers = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
+			}
+
+			@Override
+			protected void _set(java.lang.String name, java.util.List<?> values) {
+				super._set(name, values);
+				if (name.equalsIgnoreCase("slackUsers")) this.slackUsers = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
+			}
+
+			public Create create() {
+				return new Create(null);
+			}
+
+			public Create create(java.lang.String name) {
+				return new Create(name);
+			}
+
+			public class Create {
+				protected final java.lang.String name;
+
+				public Create(java.lang.String name) {
+					this.name = name;
+				}
+				
+			}
+			
+			public io.intino.legio.Legio legioWrapper() {
+				return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
+			}
 		}
 		
 		public static abstract class Destination extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
