@@ -16,6 +16,7 @@ import org.sonatype.aether.artifact.Artifact;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.roots.DependencyScope.COMPILE;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 
@@ -60,7 +61,7 @@ public class LibraryManager {
 			modifiableModel.commit();
 		}
 		final List<Library> libraries = compileDependenciesOf(moduleDependency);
-		addToModule(libraries, DependencyScope.COMPILE);
+		addToModule(libraries, COMPILE);
 		return libraries;
 	}
 
@@ -74,7 +75,7 @@ public class LibraryManager {
 	private List<Library> compileDependenciesOf(Module module) {
 		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
 		return Arrays.stream(model.getOrderEntries()).
-				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(DependencyScope.COMPILE)).
+				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(COMPILE)).
 				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(Collectors.toList());
 	}
 
@@ -113,6 +114,10 @@ public class LibraryManager {
 		libraryOrderEntries.forEach(e -> {
 			final Library l = e.getLibrary();
 			if (l == null || l.getName() == null) return;
+			if (!l.getName().startsWith(LEGIO)) {
+				entries.put(l.getName(), "");
+				return;
+			}
 			final String libraryName = l.getName().substring(0, l.getName().lastIndexOf(":"));
 			final String version = l.getName().substring(l.getName().lastIndexOf(":") + 1);
 			if (!entries.containsKey(libraryName)) entries.put(libraryName, version);
@@ -185,7 +190,8 @@ public class LibraryManager {
 
 	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
 		for (LibraryOrderEntry entry : registered)
-			if (library.equals(entry.getLibrary()) && entry.getScope().equals(scope)) return true;
+			if (library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE))
+				return true;
 		return false;
 	}
 

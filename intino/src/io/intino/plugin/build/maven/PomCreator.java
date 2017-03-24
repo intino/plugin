@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
+import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesExtracted;
 import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
 
 
@@ -40,10 +41,12 @@ public class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
+	private final LifeCycle.Package.Type packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		packageType = configuration.lifeCycle().package$().type();
 	}
 
 	public File frameworkPom() throws IOException {
@@ -65,6 +68,7 @@ public class PomCreator {
 		LifeCycle.Package build = configuration.build();
 		Frame frame = new Frame();
 		fillMavenId(frame);
+		frame.addSlot("sdk", ModuleRootManager.getInstance(module).getSdk().getSdkModificator().getName());
 		fillFramework(build, frame);
 		writePom(pom, frame, PomTemplate.create());
 		return pom;
@@ -97,11 +101,14 @@ public class PomCreator {
 	}
 
 	private void addDependencies(Frame frame) {
+		if (packageType.equals(LibrariesLinkedByManifest) || packageType.equals(ModulesAndLibrariesExtracted))
+			addDependantModuleSources(frame, module);
 		Set<String> dependencies = new HashSet<>();
-		addDependantModuleSources(frame, module);
-		for (Dependency dependency : configuration.dependencies())
+		for (Dependency dependency : configuration.dependencies()) {
+			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
 				frame.addSlot("dependency", createDependencyFrame(dependency));
+		}
 		addModuleTypeDependencies(frame, dependencies);
 		addLevelDependency(frame);
 	}
@@ -151,14 +158,14 @@ public class PomCreator {
 
 	@NotNull
 	private List<Module> getModuleDependencies() {
-		return collectModuleDependecies(this.module);
+		return collectModuleDependencies(this.module);
 	}
 
-	private List<Module> collectModuleDependecies(Module module) {
+	private List<Module> collectModuleDependencies(Module module) {
 		List<Module> list = new ArrayList<>();
 		for (Module dependant : ModuleRootManager.getInstance(module).getModuleDependencies()) {
 			list.add(dependant);
-			list.addAll(collectModuleDependecies(dependant));
+			list.addAll(collectModuleDependencies(dependant));
 		}
 		return list;
 	}
@@ -197,7 +204,7 @@ public class PomCreator {
 	}
 
 	private void addDependantModuleSources(Frame frame, Module module) {
-		for (Module dependency : collectModuleDependecies(module)) {
+		for (Module dependency : collectModuleDependencies(module)) {
 			ApplicationManager.getApplication().runReadAction(() -> {
 				final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
 				for (VirtualFile sourceRoot : sourceRoots)
