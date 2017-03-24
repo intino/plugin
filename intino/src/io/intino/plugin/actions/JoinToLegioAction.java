@@ -8,7 +8,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.console.IntinoTopics;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
 import io.intino.tara.compiler.shared.Configuration;
@@ -55,7 +58,17 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
 			final VirtualFile moduleFile = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()), true);
 			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
+			publish(module);
 		};
+	}
+
+	private void publish(Module module) {
+		final MessageBus messageBus = module.getProject().getMessageBus();
+		final LegioListener legioListener = messageBus.syncPublisher(IntinoTopics.LEGIO);
+		legioListener.moduleJoinedToLegio(module.getName());
+		final MessageBusConnection connect = messageBus.connect();
+		connect.deliverImmediately();
+		connect.disconnect();
 	}
 
 	private void transformToLegio(Module module, MavenProject project) {

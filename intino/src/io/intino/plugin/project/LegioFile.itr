@@ -7,7 +7,7 @@ def type(legio & empty)
 			Language("https://artifactory.intino.io/artifactory/releases", "intino-maven")
 		Dependencies
 			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
-		Factory("$name+firstLowerCase") as Platform
+		Factory("1.2.0", "$name+firstLowerCase") as Platform
 			Language("Verso", "LATEST")
 
 	LifeCycle
@@ -47,7 +47,7 @@ def type(dependency)
 end
 
 def type(factory)
-	Factory("$workingPackage") as $level+firstUpperCase("$dsl", "$dslVersion")
+	Factory("1.2.0", "$workingPackage") as $level+firstUpperCase("$dsl", "$dslVersion")
 end
 
 

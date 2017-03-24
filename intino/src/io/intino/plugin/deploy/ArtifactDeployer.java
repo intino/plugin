@@ -8,6 +8,7 @@ import io.intino.cesar.schemas.Artifactory;
 import io.intino.cesar.schemas.Packaging;
 import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.SystemSchema;
+import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.LifeCycle;
 import io.intino.legio.LifeCycle.Deploy.Destination;
@@ -48,7 +49,7 @@ public class ArtifactDeployer {
 		for (Destination destination : destinies)
 			try {
 				new RestCesarAccessor(urlOf(deploy)).postDeploySystem(createSystem(destination));
-			} catch (Unknown unknown) {
+			} catch (Unknown | BadRequest unknown) {
 				throw new IntinoException(unknown.getMessage());
 			}
 	}

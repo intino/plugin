@@ -7,29 +7,25 @@ import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.Function;
+import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.LifeCyclePhase;
-<<<<<<< HEAD
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-=======
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.console.IntinoTopics;
 import io.intino.plugin.deploy.ArtifactManager;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
->>>>>>> release/1.2.0
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LifeCycleManagerView extends JPanel {
 	private JPanel contentPane;
@@ -49,7 +45,8 @@ public class LifeCycleManagerView extends JPanel {
 
 	LifeCycleManagerView(Project project) {
 		this.project = project;
-		project.getMessageBus().connect().subscribe(ProjectTopics.MODULES, new ModuleListener() {
+		final MessageBusConnection connect = project.getMessageBus().connect();
+		connect.subscribe(ProjectTopics.MODULES, new ModuleListener() {
 			@Override
 			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
 				initModuleActions(module);
@@ -71,6 +68,12 @@ public class LifeCycleManagerView extends JPanel {
 					if (!module.getName().equals(oldNameProvider.fun(module)))
 						renameModuleActions(oldNameProvider.fun(module), module.getName());
 			}
+		});
+
+		connect.subscribe(IntinoTopics.LEGIO, moduleName -> {
+			final List<Module> collect = Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> m.getName().equals(moduleName)).collect(Collectors.toList());
+			if (collect.isEmpty()) return;
+			initModuleActions(collect.get(0));
 		});
 		modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));
 		for (Module module : ModuleManager.getInstance(project).getModules()) initModuleActions(module);
@@ -135,7 +138,7 @@ public class LifeCycleManagerView extends JPanel {
 		for (Component component : modulesPanel.getComponents())
 			if (component instanceof JPanel && component.getName().equals(oldName)) {
 				component.setName(newName);
-				((JBLabel)((JPanel)component).getComponent(0)).setText(newName);
+				((JBLabel) ((JPanel) component).getComponent(0)).setText(newName);
 			}
 	}
 
