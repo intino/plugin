@@ -207,6 +207,10 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.project().factory().inPackage(), outDSL());
 	}
 
+	public String nativeLanguage() {
+		return "java";
+	}
+
 	@Override
 	public List<? extends LanguageLibrary> languages() {
 		final List<Factory.Language> list = safe(() -> legio.project().factory().languageList());

@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>2.6.2</version>
+    <version>2.6.3</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -10,8 +10,7 @@
 
     <depends>io.intino.tara</depends>
     <change-notes><![CDATA[
-      Added paste dependency conversion for maven dependency declaration.
-      Added dependency analyzers.
+
     ]]>
     </change-notes>
     <idea-version since-build="145"/>
@@ -22,6 +21,9 @@
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.MainClassAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.LanguageDeclarationAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DuplicatedRepositoryAnnotator"/>
+        <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
+                        serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
+        <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
@@ -34,22 +36,14 @@
     </extensions>
 
     <actions>
-        <group id="IntinoToolsGroup" popup="true" text="Intino" class="io.intino.plugin.actions.IntinoActionGroup">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </group>
-        <action id="PublishArtifact" class="io.intino.plugin.actions.DistributeArtifactAction"
-                text="Publish Artifact..."
-                description="Publish Artifact">
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt E"/>
-            <add-to-group group-id="IntinoToolsGroup"/>
-        </action>
         <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
                 text="Join To Legio"
                 description="Join module to legio or convert from maven">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
         <action id="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
-                class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction" text="Purge and reload Legio Configuration"
+                class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
+                text="Purge and reload Legio Configuration"
                 description="Purge and reload configuration of project modules">
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
@@ -57,6 +51,11 @@
                 class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
                 description="Reload configuration of project modules">
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
+        </action>
+        <action id="io.intino.plugin.actions.SubmitFeedbackAction"
+                class="io.intino.plugin.actions.SubmitFeedbackAction"
+                text="Submit Tara Feedback" description="You can report a bug or suggestion of plugin">
+            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="TechnicalSupport"/>
         </action>
     </actions>
 
@@ -66,6 +65,9 @@
         </component>
     </application-components>
     <project-components>
+        <component>
+            <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
+        </component>
         <component>
             <implementation-class>io.intino.plugin.lifecycle.LifeCycleManager</implementation-class>
         </component>
