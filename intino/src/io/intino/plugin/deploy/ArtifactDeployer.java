@@ -16,10 +16,10 @@ import io.intino.legio.Parameter;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.settings.ArtifactoryCredential;
+import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.settings.ArtifactoryCredential;
-import io.intino.tara.plugin.settings.TaraSettings;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -101,7 +101,7 @@ public class ArtifactDeployer {
 	}
 
 	private Artifactory addCredentials(Artifactory artifactory) {
-		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
+		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(artifactory.id()))
 				artifactory.user(credential.username).password(credential.password);

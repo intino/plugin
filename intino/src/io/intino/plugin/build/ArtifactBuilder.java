@@ -22,12 +22,12 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import org.jetbrains.annotations.NotNull;
+import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.TaraIcons;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.settings.TaraSettings;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +99,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		dialog.setDoNotAskOption(null);
 		if (configuration == null) return false;
 		final String version = configuration.version();
-		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !TaraSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
+		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !IntinoSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
 	}
 
 	private boolean exists(Module module, String dsl, String version) {

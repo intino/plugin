@@ -19,6 +19,7 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 	private JPanel myToolWindowContent;
 	private JTextArea console;
 	private JButton clean;
+	private JScrollPane scrollPane;
 	private ToolWindow myToolWindow;
 
 
@@ -30,6 +31,7 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 		project.getMessageBus().connect().subscribe(IntinoTopics.MAVEN, line -> ApplicationManager.getApplication().invokeLater(() -> {
 			if (!myToolWindow.isVisible()) myToolWindow.show(null);
 			console.setText(console.getText() + "\n" + line);
+			scrollPane.getHorizontalScrollBar().setValue(0);
 		}));
 		myToolWindow = toolWindow;
 		myToolWindow.setAutoHide(true);

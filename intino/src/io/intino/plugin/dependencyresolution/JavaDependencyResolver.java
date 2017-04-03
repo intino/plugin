@@ -12,10 +12,10 @@ import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Project.Dependencies.Dependency;
 import io.intino.legio.Project.Repositories;
+import io.intino.plugin.settings.ArtifactoryCredential;
+import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.settings.ArtifactoryCredential;
-import io.intino.tara.plugin.settings.TaraSettings;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
@@ -145,7 +145,7 @@ public class JavaDependencyResolver {
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
-		final TaraSettings settings = TaraSettings.getSafeInstance(module.getProject());
+		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(mavenId))
 				return new Authentication(credential.username, credential.password);

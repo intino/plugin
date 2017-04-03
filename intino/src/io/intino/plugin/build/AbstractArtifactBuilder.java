@@ -5,11 +5,10 @@ import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -29,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.MessageProvider.message;
 import static io.intino.tara.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
 
 
@@ -48,7 +48,7 @@ abstract class AbstractArtifactBuilder {
 
 	private void processLanguage(Module module, LifeCyclePhase lifeCyclePhase, ProgressIndicator indicator) {
 		if (shouldDistributeLanguage(module, lifeCyclePhase)) {
-			updateProgressIndicator(indicator, MessageProvider.message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
+			updateProgressIndicator(indicator, message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
 			distributeLanguage(module);
 		}
 	}
@@ -66,7 +66,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void processFramework(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
-		updateProgressIndicator(indicator, MessageProvider.message("framework.action", firstUpperCase(phase.gerund().toLowerCase())));
+		updateProgressIndicator(indicator, message("framework.action", firstUpperCase(phase.gerund().toLowerCase())));
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
@@ -79,22 +79,22 @@ abstract class AbstractArtifactBuilder {
 
 	private void check(LifeCyclePhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
-			throw new IntinoException(MessageProvider.message("legio.configuration.not.found"));
+			throw new IntinoException(message("legio.configuration.not.found"));
+		if (((LegioConfiguration) configuration).lifeCycle() == null || ((LegioConfiguration) configuration).lifeCycle().package$() == null)
+			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))
-			throw new IntinoException(MessageProvider.message("distribution.repository.not.found"));
+			throw new IntinoException(message("distribution.repository.not.found"));
 	}
 
-	private boolean publish(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
+	private void publish(Module module, LifeCyclePhase phase, ProgressIndicator indicator) {
 		if (phase.equals(LifeCyclePhase.PREDEPLOY) || phase.equals(LifeCyclePhase.DEPLOY)) {
-			updateProgressIndicator(indicator, MessageProvider.message("publishing.artifact"));
+			updateProgressIndicator(indicator, message("publishing.artifact"));
 			try {
 				new ArtifactDeployer(phase, module).execute();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
-				return false;
 			}
 		}
-		return true;
 	}
 
 	private void executeGulpDependencies(Module module) {
