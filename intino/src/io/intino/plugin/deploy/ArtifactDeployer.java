@@ -46,12 +46,18 @@ public class ArtifactDeployer {
 
 	public void execute() throws IntinoException {
 		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? deploy.preList() : deploy.proList();
+		final String user = cesarUser();
+		if (user.isEmpty()) throw new IntinoException("Cesar user not found, please specify it in Intino settings");
 		for (Destination destination : destinies)
 			try {
-				new RestCesarAccessor(urlOf(deploy)).postDeploySystem(createSystem(destination));
+				new RestCesarAccessor(urlOf(deploy)).postDeploySystem(user, createSystem(destination));
 			} catch (Unknown | BadRequest unknown) {
 				throw new IntinoException(unknown.getMessage());
 			}
+	}
+
+	private String cesarUser() {
+		return IntinoSettings.getSafeInstance(module.getProject()).cesarUser();
 	}
 
 	private SystemSchema createSystem(Destination destination) {
