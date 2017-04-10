@@ -1,5 +1,6 @@
 package io.intino.plugin.project.builders;
 
+import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
@@ -16,14 +17,13 @@ import java.util.List;
 
 public class InterfaceBuilderManager {
 
-	private static final String KONOS = "konos";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public void reload(String version) {
-		if (BuilderLoader.isLoaded(version)) return;
+	public void reload(Project project, String version) {
+		if (BuilderLoader.isLoaded(project, version)) return;
 		List<Artifact> library = konosLibrary(version);
 		if (library != null && !library.isEmpty())
-			BuilderLoader.load(KONOS, library.stream().map(this::pathOf).toArray(File[]::new), version);
+			BuilderLoader.load(project, library.stream().map(this::pathOf).toArray(File[]::new), version);
 	}
 
 	private File pathOf(Artifact artifact) {

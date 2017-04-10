@@ -123,7 +123,7 @@ public class LegioConfiguration implements Configuration {
 
 	private void reloadInterfaceBuilder() {
 		final Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
-		if (interfaceNode != null) new InterfaceBuilderManager().reload(interfaceNode.version());
+		if (interfaceNode != null) new InterfaceBuilderManager().reload(module.getProject(), interfaceNode.version());
 	}
 
 	private Legio newGraphFromLegio() {
@@ -327,7 +327,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public LifeCycle lifeCycle() {
-		return legio.lifeCycle();
+		return safe(() -> legio.lifeCycle());
 	}
 
 	public LifeCycle.Deploy deploy() {
