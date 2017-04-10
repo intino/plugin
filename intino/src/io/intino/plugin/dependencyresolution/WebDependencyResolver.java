@@ -187,7 +187,7 @@ public class WebDependencyResolver {
 			frame.addSlot("dependency", dependency);
 		}
 		for (Resolution resolution : resolutions)
-			frame.addSlot("resolution", new Frame().addSlot("name", resolution.name()).addSlot("version", resolution.version()));
+			frame.addSlot("resolution", new Frame().addSlot("name", resolution.name$()).addSlot("version", resolution.version()));
 		return write(BowerTemplate.create().format(frame), new File(nodeDirectory, "bower.json"));
 	}
 

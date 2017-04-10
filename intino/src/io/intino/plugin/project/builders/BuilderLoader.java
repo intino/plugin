@@ -2,6 +2,7 @@ package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.moandjiezana.toml.Toml;
 import io.intino.plugin.IntinoIcons;
 import io.intino.tara.Language;
@@ -20,13 +21,19 @@ import java.util.List;
 import java.util.Map;
 
 public class BuilderLoader {
+	private static final String KONOS = "konos";
 	private static final Logger LOG = Logger.getInstance(BuilderLoader.class.getName());
-	private static Map<String, File[]> loadedVersions = new HashMap<>();
+	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
+	private static Map<Project, String> versionsByProject = new HashMap<>();
 
 	private BuilderLoader() {
 	}
 
-	static boolean isLoaded(String version) {
+	static boolean isLoaded(Project module, String version) {
+		return version.equalsIgnoreCase(versionsByProject.get(module)) && areClassesLoaded(version);
+	}
+
+	private static boolean areClassesLoaded(String version) {
 		return loadedVersions.containsKey(version);
 	}
 
@@ -34,27 +41,32 @@ public class BuilderLoader {
 		return loadedVersions.get(version) != null;
 	}
 
-	static Builder load(String name, File[] libraries, String version) {
+	static void load(Project module, File[] libraries, String version) {
 		try {
-			if (isLoaded(version)) return null;
-			final ClassLoader classLoader = createClassLoader(libraries);
-			if (classLoader == null) return null;
-			Builder builder = Builder.from(classLoader.getResourceAsStream(name.toLowerCase() + ".toml"));
-			if (builder == null) return null;
-			registerGroups(classLoader, builder.groups);
-			registerActions(classLoader, builder.actions, version);
-			addLanguage(classLoader);
-			loadedVersions.put(version, libraries);
-			return builder;
+			if (isLoaded(module, version)) return;
+			final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(libraries);
+			if (classLoader == null) return;
+			Builder builder = Builder.from(classLoader.getResourceAsStream(KONOS + ".toml"));
+			if (builder == null) return;
+			registerBuilder(version, classLoader, builder);
+			addLanguage(module, classLoader);
+			loadedVersions.put(version, classLoader);
+			versionsByProject.put(module, version);
 		} catch (RuntimeException | Error e) {
 			LOG.error(e.getMessage(), e);
-			return null;
 		}
 	}
 
-	private static void addLanguage(ClassLoader classLoader) {
+	private static void registerBuilder(String version, ClassLoader classLoader, Builder builder) {
+		if (!areClassesLoaded(version)) {
+			registerGroups(classLoader, builder.groups);
+			registerActions(classLoader, builder.actions, version);
+		}
+	}
+
+	private static void addLanguage(Project project, ClassLoader classLoader) {
 		final Language language = loadLanguage(classLoader);
-		if (language != null) LanguageManager.register(language);
+		if (language != null) LanguageManager.registerAuxiliar(project, language);
 	}
 
 	private static Language loadLanguage(ClassLoader classLoader) {
@@ -95,7 +107,8 @@ public class BuilderLoader {
 			}
 			final AnAction anAction = loadAction(classLoader, action);
 			if (anAction != null) {
-				if (action.shortcut != null) anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
+				if (action.shortcut != null)
+					anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
 				manager.registerAction(action.id + version, anAction);
 				if (action.relativeToAction != null)
 					((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction, new Constraints(null, action.relativeToAction));
