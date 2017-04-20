@@ -150,7 +150,7 @@ public class LanguageResolver {
 			repos.add(new RemoteRepository("intino-maven", "default", "https://artifactory.intino.io/artifactory/releases"));
 			repos.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 			String specificVersion = factoryLanguage.ownerAs(Factory.class).version();
-			final String version = specificVersion != null && specificVersion.isEmpty() ? specificVersion : mayorVersionOf(library);
+			final String version = specificVersion != null && !specificVersion.isEmpty() ? specificVersion : mayorVersionOf(library);
 			if (version == null) LOG.error("No version available");
 			saveClassPath(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + version), JavaScopes.COMPILE));
 		} catch (DependencyResolutionException e) {
