@@ -130,7 +130,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 			messageBuf.append(message);
 		}
 		final Module first = modules.get(0);
-		notify(first.getProject(), messageBuf.toString(), modules.size() == 1 ?
+		notify(first.getProject(), messageBuf.toString().isEmpty() ? first.getName() : messageBuf.toString(), modules.size() == 1 ?
 				MessageProvider.message("success.publish.message", lifeCyclePhase.participle()) : MessageProvider.message("success.language.publishing.message", lifeCyclePhase.participle()));
 	}
 
