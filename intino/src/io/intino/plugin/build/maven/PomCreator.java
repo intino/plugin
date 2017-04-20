@@ -46,7 +46,7 @@ public class PomCreator {
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.lifeCycle() == null || configuration.lifeCycle().package$() == null ? configuration.lifeCycle().package$().type() : null;
+		packageType = configuration.lifeCycle() == null || configuration.lifeCycle().package$() == null ? null: configuration.lifeCycle().package$().type();
 	}
 
 	public File frameworkPom() throws IOException {
