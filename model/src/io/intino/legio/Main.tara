@@ -25,6 +25,9 @@ Concept:{1..1}:Named Project
 			var string[] artifacts is private
 			var boolean resolved = false is private
 			var boolean toModule = false is private
+			Concept Exclude
+				var string groupId
+				var string artifactId
 			sub Compile
 			sub Runtime
 			sub Provided

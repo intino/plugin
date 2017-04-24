@@ -23,6 +23,7 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
+import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
 
 import java.io.File;
 import java.util.*;
@@ -101,9 +102,9 @@ public class JavaDependencyResolver {
 		final String scope = dependency.getClass().getSimpleName().toLowerCase();
 		try {
 
-			final Map<Artifact, DependencyScope> artifacts = toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), scope), scope(scope));
+			final Map<Artifact, DependencyScope> artifacts = toMap(resolve(dependency, scope), scope(scope));
 			if (scope.equalsIgnoreCase(JavaScopes.COMPILE)) {
-				final Map<Artifact, DependencyScope> m = toMap(aether.resolve(new DefaultArtifact(dependency.identifier()), JavaScopes.RUNTIME), DependencyScope.RUNTIME);
+				final Map<Artifact, DependencyScope> m = toMap(resolve(dependency, JavaScopes.RUNTIME), DependencyScope.RUNTIME);
 				for (Artifact artifact : m.keySet())
 					if (!artifacts.containsKey(artifact)) artifacts.put(artifact, m.get(artifact));
 			}
@@ -113,6 +114,17 @@ public class JavaDependencyResolver {
 			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
+	}
+
+	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
+		if (dependency.excludeList().isEmpty())
+			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
+		return aether.resolve(new DefaultArtifact(dependency.identifier()), scope, exclusionsOf(dependency));
+	}
+
+	@NotNull
+	private ExclusionsDependencyFilter exclusionsOf(Dependency dependency) {
+		return new ExclusionsDependencyFilter(dependency.excludeList().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(Collectors.toList()));
 	}
 
 	@NotNull
@@ -140,7 +152,7 @@ public class JavaDependencyResolver {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		if (repositories.repositoryList() == null) return remotes;
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().filter(r-> r != null && !r.is(Repositories.Language.class)).map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
+		remotes.addAll(repositories.repositoryList().stream().filter(r -> r != null && !r.is(Repositories.Language.class)).map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
 		return remotes;
 	}
 
