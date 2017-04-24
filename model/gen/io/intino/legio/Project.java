@@ -801,6 +801,7 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			protected java.util.List<java.lang.String> artifacts = new java.util.ArrayList<>();
 			protected boolean resolved;
 			protected boolean toModule;
+			protected java.util.List<io.intino.legio.Project.Dependencies.Dependency.Exclude> excludeList = new java.util.ArrayList<>();
 
 			public Dependency(io.intino.tara.magritte.Node node) {
 				super(node);
@@ -890,6 +891,26 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				this.toModule = value;
 			}
 
+			public java.util.List<io.intino.legio.Project.Dependencies.Dependency.Exclude> excludeList() {
+				return java.util.Collections.unmodifiableList(excludeList);
+			}
+
+			public io.intino.legio.Project.Dependencies.Dependency.Exclude exclude(int index) {
+				return excludeList.get(index);
+			}
+
+			public java.util.List<io.intino.legio.Project.Dependencies.Dependency.Exclude> excludeList(java.util.function.Predicate<io.intino.legio.Project.Dependencies.Dependency.Exclude> predicate) {
+				return excludeList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+			}
+
+			
+
+			public java.util.List<io.intino.tara.magritte.Node> componentList() {
+				java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+				excludeList.stream().forEach(c -> components.add(c.node()));
+				return new java.util.ArrayList<>(components);
+			}
+
 			@Override
 			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
@@ -909,6 +930,18 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 			public io.intino.tara.magritte.Concept concept() {
 				return this.graph().concept(io.intino.legio.Project.Dependencies.Dependency.class);
 			}
+
+			@Override
+			protected void addNode(io.intino.tara.magritte.Node node) {
+				super.addNode(node);
+				if (node.is("Project$Dependencies$Dependency$Exclude")) this.excludeList.add(node.as(io.intino.legio.Project.Dependencies.Dependency.Exclude.class));
+			}
+
+			@Override
+		    protected void removeNode(io.intino.tara.magritte.Node node) {
+		        super.removeNode(node);
+		        if (node.is("Project$Dependencies$Dependency$Exclude")) this.excludeList.remove(node.as(io.intino.legio.Project.Dependencies.Dependency.Exclude.class));
+		    }
 
 			@Override
 			protected void _load(java.lang.String name, java.util.List<?> values) {
@@ -954,8 +987,88 @@ public class Project extends io.intino.tara.magritte.Layer implements io.intino.
 				public Create(java.lang.String name) {
 					this.name = name;
 				}
+
+				public io.intino.legio.Project.Dependencies.Dependency.Exclude exclude(java.lang.String groupId, java.lang.String artifactId) {
+				    io.intino.legio.Project.Dependencies.Dependency.Exclude newElement = graph().concept(io.intino.legio.Project.Dependencies.Dependency.Exclude.class).createNode(name, node()).as(io.intino.legio.Project.Dependencies.Dependency.Exclude.class);
+					newElement.node().set(newElement, "groupId", java.util.Collections.singletonList(groupId));
+					newElement.node().set(newElement, "artifactId", java.util.Collections.singletonList(artifactId)); 
+				    return newElement;
+				}
 				
 			}
+			
+			public static class Exclude extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+				protected java.lang.String groupId;
+				protected java.lang.String artifactId;
+
+				public Exclude(io.intino.tara.magritte.Node node) {
+					super(node);
+				}
+
+				public java.lang.String groupId() {
+					return groupId;
+				}
+
+				public java.lang.String artifactId() {
+					return artifactId;
+				}
+
+				public void groupId(java.lang.String value) {
+					this.groupId = value;
+				}
+
+				public void artifactId(java.lang.String value) {
+					this.artifactId = value;
+				}
+
+				@Override
+				public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+					map.put("groupId", new java.util.ArrayList(java.util.Collections.singletonList(this.groupId)));
+					map.put("artifactId", new java.util.ArrayList(java.util.Collections.singletonList(this.artifactId)));
+					return map;
+				}
+
+				public io.intino.tara.magritte.Concept concept() {
+					return this.graph().concept(io.intino.legio.Project.Dependencies.Dependency.Exclude.class);
+				}
+
+				@Override
+				protected void _load(java.lang.String name, java.util.List<?> values) {
+					super._load(name, values);
+					if (name.equalsIgnoreCase("groupId")) this.groupId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+					else if (name.equalsIgnoreCase("artifactId")) this.artifactId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				}
+
+				@Override
+				protected void _set(java.lang.String name, java.util.List<?> values) {
+					super._set(name, values);
+					if (name.equalsIgnoreCase("groupId")) this.groupId = (java.lang.String) values.get(0);
+					else if (name.equalsIgnoreCase("artifactId")) this.artifactId = (java.lang.String) values.get(0);
+				}
+
+				public Create create() {
+					return new Create(null);
+				}
+
+				public Create create(java.lang.String name) {
+					return new Create(name);
+				}
+
+				public class Create {
+					protected final java.lang.String name;
+
+					public Create(java.lang.String name) {
+						this.name = name;
+					}
+					
+				}
+				
+				public io.intino.legio.Legio legioWrapper() {
+					return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
+				}
+			}
+			
 			
 			public io.intino.legio.Legio legioWrapper() {
 				return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);

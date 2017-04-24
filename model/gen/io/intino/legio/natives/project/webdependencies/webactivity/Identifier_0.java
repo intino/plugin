@@ -2,7 +2,7 @@ package io.intino.legio.natives.project.webdependencies.webactivity;
 
 
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#41#3**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#44#3**/
 public class Identifier_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.Project.WebDependencies.WebActivity self;
 

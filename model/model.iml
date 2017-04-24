@@ -11,7 +11,7 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: io.intino.tara:magritte:1.0.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.tara:magritte:1.0.6" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.3" level="project" />
   </component>
 </module>
