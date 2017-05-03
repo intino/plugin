@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.moandjiezana.toml.Toml;
-import io.intino.plugin.IntinoIcons;
 import io.intino.tara.Language;
 import io.intino.tara.plugin.lang.LanguageManager;
 
@@ -59,7 +58,6 @@ public class BuilderLoader {
 
 	private static void registerBuilder(String version, ClassLoader classLoader, Builder builder) {
 		if (!areClassesLoaded(version)) {
-			registerGroups(classLoader, builder.groups);
 			registerActions(classLoader, builder.actions, version);
 		}
 	}
@@ -78,26 +76,6 @@ public class BuilderLoader {
 		}
 	}
 
-	private static void registerGroups(ClassLoader classLoader, List<Builder.Group> groups) {
-		final ActionManager manager = ActionManager.getInstance();
-		for (Builder.Group group : groups) {
-			if (manager.getAction(group.id) != null) {
-				LOG.debug("group already registered: " + group.id);
-				continue;
-			}
-			final ActionGroup actionGroup = loadGroup(classLoader, group);
-			if (actionGroup != null) {
-				actionGroup.getTemplatePresentation().setIcon(IntinoIcons.KONOS_16);
-				actionGroup.getTemplatePresentation().setText("Konos");
-				actionGroup.getTemplatePresentation().setDescription("Konos Actions");
-				actionGroup.getTemplatePresentation().setEnabled(true);
-				actionGroup.setPopup(true);
-				manager.registerAction(group.id, actionGroup);
-				((DefaultActionGroup) manager.getAction(group.groupId)).add(actionGroup, Constraints.LAST);
-			} else LOG.error("group is null: " + group.id);
-		}
-	}
-
 	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions, String version) {
 		final ActionManager manager = ActionManager.getInstance();
 		for (Builder.Action action : actions) {
@@ -110,25 +88,24 @@ public class BuilderLoader {
 				if (action.shortcut != null)
 					anAction.registerCustomShortcutSet(CustomShortcutSet.fromString(action.shortcut), null);
 				manager.registerAction(action.id + version, anAction);
+				if (!manager.isGroup(action.groupId)) continue;
 				if (action.relativeToAction != null)
-					((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction, new Constraints(null, action.relativeToAction));
-				else ((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction);
+					((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction, new Constraints(anchorOf(action.anchor), action.relativeToAction));
+				else
+					((DefaultActionGroup) manager.getAction(action.groupId)).add(anAction, new Constraints(anchorOf(action.anchor), null));
 			} else LOG.error("action is null: " + action.id);
 		}
+	}
+
+	private static Anchor anchorOf(String anchor) {
+		if (anchor.equals("first")) return Anchor.FIRST;
+		if (anchor.equals("last")) return Anchor.LAST;
+		return null;
 	}
 
 	private static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
-		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			LOG.error(e.getMessage());
-			return null;
-		}
-	}
-
-	private static ActionGroup loadGroup(ClassLoader classLoader, Builder.Group group) {
-		try {
-			return (ActionGroup) classLoader.loadClass(group.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
 			LOG.error(e.getMessage());
 			return null;
@@ -158,7 +135,6 @@ public class BuilderLoader {
 		String packageJsonFileTemplate;
 
 		List<Action> actions;
-		List<Group> groups;
 
 		public String gulpFileTemplate() {
 			return gulpFileTemplate;
@@ -181,13 +157,5 @@ public class BuilderLoader {
 			String relativeToAction;
 		}
 
-		private class Group {
-			String id;
-			String popup;
-			String text;
-			String aClass;
-			String groupId;
-
-		}
 	}
 }

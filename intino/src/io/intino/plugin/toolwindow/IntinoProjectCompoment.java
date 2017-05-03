@@ -16,7 +16,7 @@
  *  along with JavaFMI. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.intino.plugin.lifecycle;
+package io.intino.plugin.toolwindow;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -32,14 +32,14 @@ import com.intellij.ui.content.ContentManager;
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.plugin.lifecycle.LegioConstants.*;
+import static io.intino.plugin.toolwindow.ViewConstants.*;
 
-public class LifeCycleManager implements ProjectComponent {
+public class IntinoProjectCompoment implements ProjectComponent {
 	private final Project project;
-	private LifeCycleToolWindow toolWindow;
+	private IntinoToolWindow toolWindow;
 	private ToolWindowEx myToolWindow;
 
-	public LifeCycleManager(Project project) {
+	public IntinoProjectCompoment(Project project) {
 		this.project = project;
 	}
 
@@ -64,17 +64,16 @@ public class LifeCycleManager implements ProjectComponent {
 	}
 
 	private void registerToolWindow() {
-		toolWindow = new LifeCycleToolWindow(project);
+		toolWindow = new IntinoToolWindow(project);
 		myToolWindow = (ToolWindowEx) ToolWindowManagerEx.getInstanceEx(project).
 				registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
-		myToolWindow.setIcon(IntinoIcons.LEGIO_13);
+		myToolWindow.setIcon(IntinoIcons.INTINO_13);
 		final ContentFactory contentFactory = ServiceManager.getService(ContentFactory.class);
 		final Content content = contentFactory.createContent(toolWindow, "", false);
 		ContentManager contentManager = myToolWindow.getContentManager();
 		contentManager.addContent(content);
 		contentManager.setSelectedContent(content, false);
 	}
-
 
 	private void unregisterToolWindow() {
 		toolWindow = null;

@@ -1,11 +1,16 @@
-package io.intino.plugin.lifecycle;
+package io.intino.plugin.toolwindow;
 
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.Function;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
@@ -15,35 +20,54 @@ import io.intino.plugin.console.IntinoTopics;
 import io.intino.plugin.deploy.ArtifactManager;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.TaraIcons;
+import io.intino.tara.plugin.lang.file.StashFileType;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.text.JTextComponent;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LifeCycleManagerView extends JPanel {
+import static io.intino.plugin.build.LifeCyclePhase.DEPLOY;
+import static io.intino.plugin.build.LifeCyclePhase.PREDEPLOY;
+
+public class IntinoProjectManagerView extends JPanel {
 	private JPanel contentPane;
 	private JPanel modulesPanel;
+	private JTabbedPane tabbedPane;
+	private JTree storeTree;
+	private JComboBox stores;
+	private DefaultMutableTreeNode root;
+
 	private static final Map<LifeCyclePhase, Icon> actions = new LinkedHashMap<>();
 
 	static {
 		actions.put(LifeCyclePhase.PACKAGE, IntinoIcons.BLUE);
 		actions.put(LifeCyclePhase.INSTALL, IntinoIcons.GREEN);
 		actions.put(LifeCyclePhase.DISTRIBUTE, IntinoIcons.YELLOW);
-		actions.put(LifeCyclePhase.PREDEPLOY, IntinoIcons.ORANGE);
-		actions.put(LifeCyclePhase.DEPLOY, IntinoIcons.RED);
+		actions.put(PREDEPLOY, IntinoIcons.ORANGE);
+		actions.put(DEPLOY, IntinoIcons.RED);
 		actions.put(LifeCyclePhase.MANAGE, IntinoIcons.MANAGE);
 	}
 
 	private Project project;
 
-	LifeCycleManagerView(Project project) {
+	IntinoProjectManagerView(Project project) {
 		this.project = project;
 		final MessageBusConnection connect = project.getMessageBus().connect();
 		connect.subscribe(ProjectTopics.MODULES, new ModuleListener() {
@@ -77,11 +101,18 @@ public class LifeCycleManagerView extends JPanel {
 		});
 		modulesPanel.setBorder(BorderFactory.createTitledBorder(project.getName()));
 		for (Module module : ModuleManager.getInstance(project).getModules()) initModuleActions(module);
+		addListeners();
 	}
 
 	private void createUIComponents() {
 		modulesPanel = new JPanel();
 		modulesPanel.setLayout(new BoxLayout(modulesPanel, BoxLayout.Y_AXIS));
+		root = new DefaultMutableTreeNode("Store", true);
+		storeTree = new Tree(root);
+		storeTree.setRootVisible(false);
+		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		renderer.setLeafIcon(TaraIcons.STASH_16);
+		storeTree.setCellRenderer(renderer);
 	}
 
 	private void initModuleActions(Module module) {
@@ -102,7 +133,7 @@ public class LifeCycleManagerView extends JPanel {
 			JButton button = new JButton(actions.get(action));
 			customizeButton(button, module, module.getName() + "_" + action.name().toLowerCase(), action.name().toLowerCase());
 			if (!suitable(action, configuration)) continue;
-			panel.add(Box.createRigidArea(new Dimension(LifeCyclePhase.PREDEPLOY.equals(action) ? 20 : 10, 0)));
+			panel.add(Box.createRigidArea(new Dimension(PREDEPLOY.equals(action) ? 20 : 10, 0)));
 			panel.add(button);
 			if (!isAvailable(configuration, action)) button.setEnabled(false);
 		}
@@ -143,7 +174,7 @@ public class LifeCycleManagerView extends JPanel {
 	}
 
 	private boolean isAvailable(Configuration configuration, LifeCyclePhase action) {
-		if (!LifeCyclePhase.PREDEPLOY.equals(action) && LifeCyclePhase.DEPLOY.equals(action)) return true;
+		if (!PREDEPLOY.equals(action) && DEPLOY.equals(action)) return true;
 		return configuration != null && (configuration.level() != null || Configuration.Level.System.equals(configuration.level()));
 	}
 
@@ -181,6 +212,97 @@ public class LifeCycleManagerView extends JPanel {
 				else new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
 			}
 		});
+	}
+
+	private void addListeners() {
+		stores.addItemListener(e -> reloadTree());
+		stores.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyReleased(KeyEvent event) {
+				if (event.getKeyChar() == KeyEvent.VK_ENTER) {
+					if (!((JTextComponent) ((JComboBox) ((Component) event
+							.getSource()).getParent()).getEditor()
+							.getEditorComponent()).getText().isEmpty()) return;
+//						addStore();
+				}
+			}
+		});
+		storeTree.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				int selRow = storeTree.getRowForLocation(e.getX(), e.getY());
+				TreePath selPath = storeTree.getPathForLocation(e.getX(), e.getY());
+				if (selRow != -1) {
+					if (e.getClickCount() == 2) {
+						openFile(selPath);
+					}
+				}
+			}
+		});
+		storeTree.addTreeExpansionListener(new TreeExpansionListener() {
+			@Override
+			public void treeExpanded(TreeExpansionEvent event) {
+				final DefaultMutableTreeNode component = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+				renderDirectory(component, component.getUserObject() instanceof String ?
+						getSelectedStore() :
+						((FileNode) component.getUserObject()).file);
+			}
+
+			@Override
+			public void treeCollapsed(TreeExpansionEvent event) {
+
+			}
+		});
+	}
+
+	private void openFile(TreePath path) {
+		final FileNode nodeFile = (FileNode) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
+		final File file = nodeFile.file;
+		final VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
+		if (virtualFile == null) return;
+		final PsiFile psiFile = PsiManager.getInstance(this.project).findFile(virtualFile);
+		if (psiFile != null) psiFile.navigate(true);
+	}
+
+	private void reloadTree() {
+		final File store = getSelectedStore();
+		root.removeAllChildren();
+		if (store == null) {
+			storeTree.setRootVisible(false);
+			storeTree.setVisible(false);
+		} else {
+			renderDirectory(root, store);
+			storeTree.setRootVisible(true);
+			storeTree.setVisible(true);
+			storeTree.expandRow(0);
+		}
+	}
+
+	private File getSelectedStore() {
+		return this.stores.getSelectedItem() != null ? new File(this.stores.getSelectedItem().toString()) : null;
+	}
+
+	private void renderDirectory(DefaultMutableTreeNode parent, File directory) {
+		parent.removeAllChildren();
+		for (File file : directory.listFiles(candidate -> candidate.isDirectory() || candidate.getName().endsWith("." + StashFileType.INSTANCE.getDefaultExtension()))) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new FileNode(file));
+			parent.add(node);
+			if (file.isDirectory()) node.add(new DefaultMutableTreeNode(""));
+		}
+		storeTree.updateUI();
+	}
+
+	private class FileNode {
+		private File file;
+
+		FileNode(File file) {
+			this.file = file;
+		}
+
+		@Override
+		public String toString() {
+			return file.getName().replace(".stash", "");
+		}
 	}
 
 	Component contentPane() {

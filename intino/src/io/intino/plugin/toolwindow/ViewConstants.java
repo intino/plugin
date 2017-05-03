@@ -16,12 +16,12 @@
  *  along with JavaFMI. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.intino.plugin.lifecycle;
+package io.intino.plugin.toolwindow;
 
-public interface LegioConstants {
+public interface ViewConstants {
 
-	String PLUGIN_NAME = "Legio";
+	String PLUGIN_NAME = "Intino";
 	String PROJECT_COMPONENT_NAME = "ProjectComponent";
-	String ID_TOOL_WINDOW = "LifeCycle Manager";
+	String ID_TOOL_WINDOW = "Intino Project";
 
 }

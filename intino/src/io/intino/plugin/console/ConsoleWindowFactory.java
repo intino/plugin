@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.impl.ToolWindowImpl;
 import com.intellij.ui.Gray;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -21,6 +22,7 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 	private JButton clean;
 	private JScrollPane scrollPane;
 	private ToolWindow myToolWindow;
+	private boolean inited = false;
 
 
 	public ConsoleWindowFactory() {
@@ -28,16 +30,28 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 	}
 
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+		if (inited) return;
 		project.getMessageBus().connect().subscribe(IntinoTopics.MAVEN, line -> ApplicationManager.getApplication().invokeLater(() -> {
 			if (!myToolWindow.isVisible()) myToolWindow.show(null);
 			console.setText(console.getText() + "\n" + line);
 			scrollPane.getHorizontalScrollBar().setValue(0);
 		}));
 		myToolWindow = toolWindow;
-		myToolWindow.setAutoHide(true);
+		myToolWindow.setAutoHide(false);
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-		Content content = contentFactory.createContent(myToolWindowContent, "Console", false);
+		Content content = contentFactory.createContent(myToolWindowContent, "", true);
 		toolWindow.getContentManager().addContent(content);
+	}
+
+	@Override
+	public void init(ToolWindow window) {
+		inited = true;
+		((ToolWindowImpl) window).ensureContentInitialized();
+	}
+
+	@Override
+	public boolean isDoNotActivateOnStart() {
+		return false;
 	}
 
 	private void createUIComponents() {

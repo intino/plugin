@@ -31,7 +31,7 @@
         <copyPastePreProcessor implementation="io.intino.plugin.file.legio.LegioDependencyPasteProcessor"/>
         <problemFileHighlightFilter implementation="io.intino.plugin.annotators.LegioProblemFileHighlightFilter"/>
         <moduleBuilder builderClass="io.intino.plugin.project.IntinoModuleBuilder"/>
-        <toolWindow id="Console" secondary="true" icon="/icons/legio/legio-13.png" anchor="bottom"
+        <toolWindow id="Intino Console" secondary="true" icon="/icons/intino/intino-13.png" anchor="bottom"
                     factoryClass="io.intino.plugin.console.ConsoleWindowFactory"/>
     </extensions>
 
@@ -69,7 +69,7 @@
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.lifecycle.LifeCycleManager</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindow.IntinoProjectCompoment</implementation-class>
         </component>
     </project-components>
 </idea-plugin>
