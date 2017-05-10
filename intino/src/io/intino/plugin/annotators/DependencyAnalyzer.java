@@ -2,7 +2,7 @@ package io.intino.plugin.annotators;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.legio.Project;
+import io.intino.legio.Artifact;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
@@ -31,7 +31,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
-		final Project.Dependencies.Dependency dependency = findDependencyNode();
+		final Artifact.Imports.Dependency dependency = findDependencyNode();
 		if (dependency == null || dependency.resolved() && dependency.artifacts().isEmpty()) {
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("reject.dependency.not.found")));
 		} else if (dependency.toModule() && hasDifferentVersion(findModule(dependency), dependency.version()))
@@ -48,7 +48,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 		return !TaraUtil.configurationOf(module).version().equals(version);
 	}
 
-	private Module findModule(Project.Dependencies.Dependency dependency) {
+	private Module findModule(Artifact.Imports.Dependency dependency) {
 		for (Module m : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration != null && configuration.groupId().equals(dependency.groupId()) && configuration.artifactId().equals(dependency.artifactId()))
@@ -57,15 +57,15 @@ class DependencyAnalyzer extends TaraAnalyzer {
 		return null;
 	}
 
-	private Project.Dependencies.Dependency findDependencyNode() {
+	private Artifact.Imports.Dependency findDependencyNode() {
 		if (configuration == null) return null;
-		for (Project.Dependencies.Dependency dependency : configuration.dependencies())
+		for (Artifact.Imports.Dependency dependency : configuration.dependencies())
 			if (dependencyNode.simpleType().equals(dependency.concept().id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), dependency))
 				return dependency;
 		return null;
 	}
 
-	private boolean equalParameters(List<Parameter> parameters, Project.Dependencies.Dependency dependency) {
+	private boolean equalParameters(List<Parameter> parameters, Artifact.Imports.Dependency dependency) {
 		return groupId(parameters, dependency.groupId()) &&
 				artifactId(parameters, dependency.artifactId()) &&
 				version(parameters, dependency.version());

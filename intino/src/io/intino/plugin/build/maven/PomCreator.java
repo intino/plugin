@@ -7,11 +7,9 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.legio.LifeCycle;
-import io.intino.legio.Project;
-import io.intino.legio.Project.Dependencies.Dependency;
-import io.intino.legio.Project.Repositories.Repository;
-import io.intino.legio.Project.Repositories.Snapshot;
+import io.intino.legio.Artifact;
+import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.legio.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
@@ -31,9 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
-import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesExtracted;
-import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
+import static io.intino.legio.Artifact.Pack.Type.*;
 
 
 public class PomCreator {
@@ -41,12 +37,12 @@ public class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
-	private final LifeCycle.Package.Type packageType;
+	private final Artifact.Pack.Type packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.lifeCycle() == null || configuration.lifeCycle().package$() == null ? null: configuration.lifeCycle().package$().type();
+		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().pack().type();
 	}
 
 	public File frameworkPom() throws IOException {
@@ -65,7 +61,7 @@ public class PomCreator {
 	}
 
 	private File frameworkPom(File pom) {
-		LifeCycle.Package build = configuration.build();
+		Artifact.Pack build = configuration.pack();
 		Frame frame = new Frame();
 		fillMavenId(frame);
 		frame.addSlot("sdk", ModuleRootManager.getInstance(module).getSdk().getSdkModificator().getName());
@@ -86,7 +82,7 @@ public class PomCreator {
 		frame.addSlot("version", configuration.version());
 	}
 
-	private void fillFramework(LifeCycle.Package build, Frame frame) {
+	private void fillFramework(Artifact.Pack build, Frame frame) {
 		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(frame);
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
@@ -114,7 +110,7 @@ public class PomCreator {
 	}
 
 	private void addRepositories(Frame frame) {
-		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
+		configuration.repositoryTypes().stream().filter(r -> !r.is(Repository.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		if (configuration.distributionReleaseRepository() != null)
 			frame.addSlot("repository", createDistributionRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
@@ -188,10 +184,10 @@ public class PomCreator {
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
-	private void configureBuild(Frame frame, Project.License license, LifeCycle.Package build) {
+	private void configureBuild(Frame frame, Artifact.License license, Artifact.Pack build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
-		final LifeCycle.Package.Type type = build.type();
+		final Artifact.Pack.Type type = build.type();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
@@ -235,12 +231,12 @@ public class PomCreator {
 		return new Frame().addTypes("dependency").addSlot("groupId", id[0].toLowerCase()).addSlot("scope", "compile").addSlot("artifactId", id[1].toLowerCase()).addSlot("version", id[2]);
 	}
 
-	private Frame createRepositoryFrame(Repository repo) {
+	private Frame createRepositoryFrame(Repository.Type repo) {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
-				addSlot("name", repo.mavenId()).
+				addSlot("name", repo.mavenID()).
 				addSlot("url", repo.url()).
 				addSlot("random", generateRandom()).
-				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
+				addSlot("type", repo.is(Repository.Snapshot.class) ? "snapshot" : "release");
 	}
 
 	private int generateRandom() {

@@ -17,19 +17,23 @@ public class PurgeAndReloadConfigurationAction extends IntinoAction implements D
 		final Project project = e.getProject();
 		if (project == null) return;
 		Module module = e.getData(LangDataKeys.MODULE);
+		if (module != null) execute(module);
+	}
+
+	@Override
+	public void execute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration != null && configuration instanceof LegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
 			((LegioConfiguration) configuration).purgeAndReload();
 			notifyReload(module);
 		}
+
 	}
 
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		e.getPresentation().setIcon(IntinoIcons.LEGIO_PURGE_16);
+		e.getPresentation().setIcon(IntinoIcons.LEGIO_16);
 	}
-
-
 }

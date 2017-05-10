@@ -22,7 +22,6 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 	private JButton clean;
 	private JScrollPane scrollPane;
 	private ToolWindow myToolWindow;
-	private boolean inited = false;
 
 
 	public ConsoleWindowFactory() {
@@ -30,7 +29,6 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 	}
 
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		if (inited) return;
 		project.getMessageBus().connect().subscribe(IntinoTopics.MAVEN, line -> ApplicationManager.getApplication().invokeLater(() -> {
 			if (!myToolWindow.isVisible()) myToolWindow.show(null);
 			console.setText(console.getText() + "\n" + line);
@@ -45,7 +43,6 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 
 	@Override
 	public void init(ToolWindow window) {
-		inited = true;
 		((ToolWindowImpl) window).ensureContentInitialized();
 	}
 

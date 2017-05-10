@@ -12,10 +12,11 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Project;
-import io.intino.legio.Project.WebDependencies.Resolution;
-import io.intino.legio.Project.WebDependencies.WebActivity;
-import io.intino.legio.Project.WebDependencies.WebComponent;
+import io.intino.legio.Artifact;
+import io.intino.legio.Artifact.WebImports.Resolution;
+import io.intino.legio.Artifact.WebImports.WebActivity;
+import io.intino.legio.Artifact.WebImports.WebComponent;
+import io.intino.legio.Repository;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.BowerTemplate;
@@ -25,7 +26,6 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 import org.siani.itrules.model.Frame;
-import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.intino.legio.Artifact.WebImports;
 import static io.intino.plugin.MessageProvider.message;
 
 public class WebDependencyResolver {
@@ -46,16 +47,18 @@ public class WebDependencyResolver {
 	private static final File nodeDirectory = new File(System.getProperty("user.home"), ".node" + File.separator + "node");
 
 	private final Module module;
-	private final Project project;
+	private final Artifact artifact;
+	private final List<Repository.Type> repositories;
 	private final List<WebComponent> webComponents;
 	private final List<WebActivity> webActivities;
 	private final List<Resolution> resolutions;
 	private final File rootDirectory;
 	private final File libComponentsDirectory;
 
-	public WebDependencyResolver(Module module, Project project, Project.WebDependencies dependencies) {
+	public WebDependencyResolver(Module module, Artifact artifact, List<Repository.Type> repositories, WebImports dependencies) {
 		this.module = module;
-		this.project = project;
+		this.artifact = artifact;
+		this.repositories = repositories;
 		this.webComponents = dependencies.webComponentList();
 		this.webActivities = dependencies.webActivityList();
 		this.resolutions = dependencies.resolutionList();
@@ -80,7 +83,7 @@ public class WebDependencyResolver {
 		Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 		for (WebActivity webActivity : webActivities) {
 			if (isOverriding(webActivity)) continue;
-			final List<Artifact> artifacts = resolve(aether, webActivity);
+			final List<org.sonatype.aether.artifact.Artifact> artifacts = resolve(aether, webActivity);
 			if (!artifacts.isEmpty()) extractInLibDirectory(webActivity, artifacts.get(0).getFile());
 		}
 	}
@@ -115,7 +118,7 @@ public class WebDependencyResolver {
 		write(new Gson().toJson(jsonObject), file);
 	}
 
-	private List<Artifact> resolve(Aether aether, WebActivity webActivity) {
+	private List<org.sonatype.aether.artifact.Artifact> resolve(Aether aether, WebActivity webActivity) {
 		try {
 			return aether.resolve(new DefaultArtifact(webActivity.groupId().toLowerCase(), webActivity.artifactId().toLowerCase(), "sources", "jar", webActivity.version()), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
@@ -196,7 +199,7 @@ public class WebDependencyResolver {
 	}
 
 	private Frame fill(Frame frame) {
-		return frame.addSlot("groupId", project.groupId()).addSlot("artifactId", project.name()).addSlot("version", project.version());
+		return frame.addSlot("groupId", artifact.groupId()).addSlot("artifactId", artifact.name()).addSlot("version", artifact.version());
 	}
 
 	private File write(String content, File destiny) {
@@ -212,7 +215,7 @@ public class WebDependencyResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(project.repositories().repositoryList().stream().map(remote -> new RemoteRepository(remote.name(), "default", remote.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name(), "default", r.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 

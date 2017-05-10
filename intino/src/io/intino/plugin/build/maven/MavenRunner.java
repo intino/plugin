@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.plugin.build.LifeCyclePhase;
+import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.console.IntinoTopics;
 import io.intino.plugin.console.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
@@ -81,12 +81,12 @@ public class MavenRunner {
 		request.setProperties(properties);
 		final InvocationResult result = invokeMaven(request);
 		if (result != null && result.getExitCode() != 0)
-			throwException(result, "error.publishing.language", LifeCyclePhase.DISTRIBUTE);
+			throwException(result, "error.publishing.language", FactoryPhase.DISTRIBUTE);
 		else if (result == null)
-			throw new IOException(message("error.publishing.language", LifeCyclePhase.DISTRIBUTE, "Maven HOME not found"));
+			throw new IOException(message("error.publishing.language", FactoryPhase.DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	public void executeFramework(LifeCyclePhase phase) throws MavenInvocationException, IOException {
+	public void executeFramework(FactoryPhase phase) throws MavenInvocationException, IOException {
 		final File pom = new PomCreator(module).frameworkPom();
 		final InvocationResult result = invokeMaven(pom, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
@@ -123,7 +123,7 @@ public class MavenRunner {
 		return invoker.execute(request);
 	}
 
-	private InvocationResult invokeMaven(File pom, LifeCyclePhase lifeCyclePhase) throws MavenInvocationException, IOException {
+	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException, IOException {
 		return invokeMaven(pom, lifeCyclePhase.mavenActions().toArray(new String[lifeCyclePhase.mavenActions().size()]));
 	}
 
@@ -155,7 +155,7 @@ public class MavenRunner {
 		}
 	}
 
-	private void throwException(InvocationResult result, String message, LifeCyclePhase phase) throws IOException {
+	private void throwException(InvocationResult result, String message, FactoryPhase phase) throws IOException {
 		if (result.getExecutionException() != null)
 			throw new IOException(message(message, phase.gerund().toLowerCase(), result.getExecutionException().getMessage()), result.getExecutionException());
 		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new IOException(output));

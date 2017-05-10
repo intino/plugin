@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("Duplicates")
 public class IntinoActionGroup extends DefaultActionGroup {
+
 	@Override
 	public void update(AnActionEvent e) {
 		final Project project = e.getData(CommonDataKeys.PROJECT);

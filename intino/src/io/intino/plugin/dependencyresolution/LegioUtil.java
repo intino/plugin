@@ -14,7 +14,7 @@ public class LegioUtil {
 		if (version.equals(LATEST_VERSION))
 			try {
 				TreeMap<Long, String> versions = new TreeMap<>();
-				new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepository()).versions(dsl).forEach(v -> versions.put(indexOf(v), v));
+				new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepositories()).versions(dsl).forEach(v -> versions.put(indexOf(v), v));
 				return versions.get(versions.lastKey());
 			} catch (IOException e) {
 				return LATEST_VERSION;
@@ -23,14 +23,14 @@ public class LegioUtil {
 	}
 
 	private static Long indexOf(String version) {
-		String value = "";
+		StringBuilder value = new StringBuilder();
 		String[] split = (version.contains("-") ? version.substring(0, version.indexOf("-")) : version).split("\\.");
 		int times = split.length - 1;
 		if (times == 0) return Long.parseLong(version);
 		for (String s : split) {
-			if (s.length() < 2) value += new String(new char[2 - s.length()]).replace("\0", "0");
-			value += s;
+			if (s.length() < 2) value.append(new String(new char[2 - s.length()]).replace("\0", "0"));
+			value.append(s);
 		}
-		return Long.parseLong(value);
+		return Long.parseLong(value.toString());
 	}
 }

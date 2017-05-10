@@ -20,12 +20,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.TaraIcons;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,12 +38,12 @@ import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CON
 public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private final Project project;
 	private List<Module> modules;
-	private LifeCyclePhase lifeCyclePhase;
+	private FactoryPhase factoryPhase;
 
-	public ArtifactBuilder(Project project, final List<Module> modules, LifeCyclePhase phase) {
+	public ArtifactBuilder(Project project, final List<Module> modules, FactoryPhase phase) {
 		this.project = project;
 		this.modules = modules;
-		this.lifeCyclePhase = phase;
+		this.factoryPhase = phase;
 	}
 
 	public void build() {
@@ -57,7 +57,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
 			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.version());
-			if (shouldDistributeLanguage(module, lifeCyclePhase) && !languageFile.exists()) return false;
+			if (shouldDistributeLanguage(module, factoryPhase) && !languageFile.exists()) return false;
 		}
 		return true;
 	}
@@ -71,14 +71,14 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private void doProcess() {
 		saveAll();
 		for (Module module : modules) if (!checkOverrideVersion(module, extractDSL(module))) return;
-		withTask(new Task.Backgroundable(project, firstUpperCase(lifeCyclePhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(project, firstUpperCase(factoryPhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				for (Module module : modules) process(module, lifeCyclePhase, indicator);
+				for (Module module : modules) process(module, factoryPhase, indicator);
 				ApplicationManager.getApplication().invokeLater(() -> {
 					reloadProject();
 					if (!errorMessages.isEmpty())
-						Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", lifeCyclePhase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
+						Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", factoryPhase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
 					else processMessages(successMessages, modules);
 				});
 			}
@@ -95,7 +95,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private boolean checkOverrideVersion(Module module, String dsl) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), MessageProvider.message("artifactory.overrides"), "Artifactory", TaraIcons.LOGO_80, STATIC_SHOW_CONFIRMATION);
+		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), MessageProvider.message("artifactory.overrides"), "Artifactory", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
 		dialog.setDoNotAskOption(null);
 		if (configuration == null) return false;
 		final String version = configuration.version();
@@ -105,7 +105,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
-			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepository()).versions(dsl).contains(version);
+			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepositories()).versions(dsl).contains(version);
 		} catch (IOException e) {
 			return false;
 		}
@@ -131,7 +131,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		}
 		final Module first = modules.get(0);
 		notify(first.getProject(), messageBuf.toString().isEmpty() ? first.getName() : messageBuf.toString(), modules.size() == 1 ?
-				MessageProvider.message("success.publish.message", lifeCyclePhase.participle()) : MessageProvider.message("success.language.publishing.message", lifeCyclePhase.participle()));
+				MessageProvider.message("success.publish.message", factoryPhase.participle()) : MessageProvider.message("success.language.publishing.message", factoryPhase.participle()));
 	}
 
 	private void notify(Project project, String title, String body) {

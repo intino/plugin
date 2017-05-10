@@ -1,19 +1,12 @@
 dsl Proteo
 
-Concept:{1..1}:Named Project
+Concept:{1..1}:Named Artifact
 	var string groupId
 	var string version
 	Concept:{0..1} License
 		var word:{GPL BSD} type
-	Concept:{0..1} Repositories
-		Concept Repository
-			var string url
-			var string mavenId
-			sub Release
-			sub:{0..1} Snapshot
-			sub:{0..1} Language
 
-	Concept:{0..1} Dependencies
+	Concept:{0..1} Imports
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
 			var string name = '"Legio: " + self.identifier()' is private reactive
@@ -32,7 +25,7 @@ Concept:{1..1}:Named Project
 			sub Runtime
 			sub Provided
 			sub Test
-	Concept:{0..1} WebDependencies
+	Concept:{0..1} WebImports
 		var string webDirectory = "lib"
 		Concept Resolution
 			var string name
@@ -45,18 +38,19 @@ Concept:{1..1}:Named Project
 			var string groupId
 			var string artifactId
 			var string version
-	Concept:{0..1} Factory
-		var string version
-		var string inPackage = ""
+	Concept:{0..1} Modeling
 		Concept Language
 			var string name
 			var string version
 			var string effectiveVersion = "" is private
-		Concept:{0..1} Interface
-			var string version
+	Concept:{0..1} Generation
+		var string version
+		var string inPackage = ""
+	Concept:{0..1} Casing
+		var string version
+	Concept Exports
 
-Concept:{0..1} LifeCycle
-	Concept:{0..1} Package
+	Concept:{0..1} Pack
 		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} type
 		var boolean attachSources = false
 		var boolean attachDoc = false
@@ -67,44 +61,53 @@ Concept:{0..1} LifeCycle
 			var string code
 
 	Concept:{0..1} Distribution
-		has:{0..1} Project.Repositories.Release
-		has:{0..1} Project.Repositories.Snapshot
-		has:{0..1} Project.Repositories.Language
+		var string mavenId
+		has:{0..1} Repository.Release
+		has:{0..1} Repository.Snapshot
+		has:{0..1} Repository.Language
 		Concept:{0..1} Bitbucket
 			var string user
 			var string token
 
 	Concept:{0..1} QualityAnalytics
-		var string serverUrl
+		var string url
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:{0..1} Deploy
-		var string cesarURL
+	Concept Deployment
+		var Server server
+		var string url = empty
 		Concept:{0..1} BugTracking
 			var string[] slackUsers = empty
-		Concept:{1..*} Destination
-			var string specificServer = empty
-			var string publicURL = empty
-			Concept Requirements
-				Concept Memory
-				Concept CPU
-			Concept:{0..1} Configuration
-				has:Named Parameter
-				Concept Service
-					has:Named Parameter
-				Concept:{0..1} Store
-					var string path
-			sub Pre
-			sub Pro
+		Concept:{0..1} Requirements
+			Concept Memory
+			Concept CPU
+		Concept:{0..1} Configuration
+			has:Named Argument
+			Concept Service
+				has:Named Argument
+			Concept:{0..1} Store
+				var string path
 
-Facet Runnable on LifeCycle.Package
+Concept:Named Server
+	var string cesar
+
+Concept Repository
+	var string mavenId
+	Concept Type
+		var string url
+		var string mavenID = 'self.ownerAs(Repository.class).mavenId()' is reactive final
+		sub Release
+		sub:{0..1} Snapshot
+		sub:{0..1} Language
+
+Facet Runnable on Artifact.Pack
 	var string mainClass
 
-Facet Level on Project.Factory
+Facet Level on Artifact.Generation
 	sub Platform
 	sub Application
 	sub System
 
-Concept Parameter is component
+Concept Argument is component
 	var string  value = ""

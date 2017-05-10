@@ -11,11 +11,9 @@ import io.intino.cesar.schemas.SystemSchema;
 import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Forbidden;
 import io.intino.konos.exceptions.Unknown;
-import io.intino.legio.LifeCycle;
-import io.intino.legio.LifeCycle.Deploy.Destination;
-import io.intino.legio.Parameter;
+import io.intino.legio.Argument;
+import io.intino.legio.Artifact.Deployment;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.build.LifeCyclePhase;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -33,25 +31,22 @@ import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 public class ArtifactDeployer {
 	private static final Logger LOG = Logger.getInstance(ArtifactDeployer.class.getName());
 
-	private final LifeCyclePhase phase;
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private LifeCycle.Deploy deploy;
+	private List<Deployment> deployments;
 
-	public ArtifactDeployer(LifeCyclePhase phase, Module module) {
-		this.phase = phase;
+	public ArtifactDeployer(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.deploy = configuration.lifeCycle().deploy();
+		this.deployments = configuration.deployments();
 	}
 
 	public void execute() throws IntinoException {
-		final List<? extends Destination> destinies = phase.equals(LifeCyclePhase.PREDEPLOY) ? deploy.preList() : deploy.proList();
 		final String user = cesarUser();
 		if (user.isEmpty()) throw new IntinoException("Cesar user not found, please specify it in Intino settings");
-		for (Destination destination : destinies)
+		for (Deployment deployment : deployments)
 			try {
-				new RestCesarAccessor(urlOf(deploy)).postDeploySystem(user, createSystem(destination));
+				new RestCesarAccessor(urlOf(deployment.server().cesar())).postDeploySystem(user, createSystem(deployment));
 			} catch (Unknown | Forbidden | BadRequest unknown) {
 				throw new IntinoException(unknown.getMessage());
 			}
@@ -61,31 +56,31 @@ public class ArtifactDeployer {
 		return IntinoSettings.getSafeInstance(module.getProject()).cesarUser();
 	}
 
-	private SystemSchema createSystem(Destination destination) {
+	private SystemSchema createSystem(Deployment deployment) {
 		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
-		final String classpathPrefix = configuration.lifeCycle().package$().asRunnable().classpathPrefix();
-		return new SystemSchema().id(id).publicURL(destination.publicURL()).
+		final String classpathPrefix = configuration.pack().asRunnable().classpathPrefix();
+		return new SystemSchema().id(id).publicURL(deployment.url()).
 				artifactoryList(artifactories()).packaging(new Packaging().
-				artifact(id).parameterList(extractParameters(destination.configuration())).
+				artifact(id).parameterList(extractParameters(deployment.configuration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new Runtime().serverName(destination.specificServer()));
+				runtime(new Runtime().serverName(deployment.server().name()));
 	}
 
-	private List<io.intino.cesar.schemas.Parameter> extractParameters(Destination.Configuration configuration) {
+	private List<io.intino.cesar.schemas.Parameter> extractParameters(Deployment.Configuration configuration) {
 		List<io.intino.cesar.schemas.Parameter> parameters = new ArrayList<>();
-		for (Parameter p : configuration.parameterList()) parameters.add(parametersFromNode(p));
-		for (Destination.Configuration.Service service : configuration.serviceList())
-			parameters.addAll(service.parameterList().stream().map(p -> parametersFromNode(p, service.name())).collect(Collectors.toList()));
+		for (Argument arg : configuration.argumentList()) parameters.add(parametersFromNode(arg));
+		for (Deployment.Configuration.Service service : configuration.serviceList())
+			parameters.addAll(service.argumentList().stream().map(p -> parametersFromNode(p, service.name())).collect(Collectors.toList()));
 		if (configuration.store() != null)
 			parameters.add(new io.intino.cesar.schemas.Parameter().name("graph.store").value(configuration.store().path()));
 		return parameters;
 	}
 
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node, String prefix) {
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Argument node, String prefix) {
 		return new io.intino.cesar.schemas.Parameter().name(prefix + "." + node.name().replace("-", ".")).value(node.value());
 	}
 
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(Parameter node) {
+	private static io.intino.cesar.schemas.Parameter parametersFromNode(Argument node) {
 		return new io.intino.cesar.schemas.Parameter().name(node.name().replace("-", ".")).value(node.value());
 	}
 

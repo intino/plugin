@@ -14,21 +14,26 @@ import java.util.stream.Collectors;
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
-	private final String languageRepository;
+	private final Map<String, String> languageRepositories;
 	private final Map<String, String> releaseRepositories;
 	private final String snapshotRepository;
 
-	public ArtifactoryConnector(Map<String, String> releaseRepositories, String snapshotRepository, String languageRepository) {
+	public ArtifactoryConnector(Map<String, String> releaseRepositories, String snapshotRepository, Map<String, String> languageRepositories) {
 		this.releaseRepositories = releaseRepositories;
 		this.snapshotRepository = snapshotRepository;
-		this.languageRepository = languageRepository;
+		this.languageRepositories = languageRepositories;
 	}
 
 	public List<String> versions(String dsl) throws IOException {
-		if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName())) return proteoVersions();
-		URL url = new URL(languageRepository + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
-		final String mavenMetadata = new String(read(url.openStream()).toByteArray());
-		return extractVersions(mavenMetadata);
+		for (String repo : languageRepositories.keySet()) {
+			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
+				return proteoVersions();
+			URL url = new URL(languageRepositories + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+			final String mavenMetadata = new String(read(url.openStream()).toByteArray());
+			if (mavenMetadata.isEmpty()) continue;
+			return extractVersions(mavenMetadata);
+		}
+		return Collections.emptyList();
 	}
 
 	private List<String> proteoVersions() throws IOException {

@@ -11,7 +11,6 @@ import io.intino.cesar.schemas.ServerSchema;
 import io.intino.cesar.schemas.SystemSchema;
 import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Unknown;
-import io.intino.legio.LifeCycle;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
@@ -99,7 +98,7 @@ public class ArtifactManager {
 	}
 
 	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.lifeCycle().deploy());
+		final URL url = urlOf(configuration.deployments().get(0).server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getServer(system.runtime().serverName());
@@ -109,7 +108,7 @@ public class ArtifactManager {
 	}
 
 	private SystemSchema getSystem(LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.lifeCycle().deploy());
+		final URL url = urlOf(configuration.deployments().get(0).server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
@@ -118,10 +117,9 @@ public class ArtifactManager {
 		}
 	}
 
-	static URL urlOf(LifeCycle.Deploy publishing) {
+	static URL urlOf(String cesar) {
 		try {
-			final String direction = publishing.cesarURL();
-			return new URL(direction.startsWith("http") ? direction : "https://" + direction);
+			return new URL(cesar.startsWith("http") ? cesar : "https://" + cesar);
 		} catch (MalformedURLException e) {
 			LOG.error(e.getMessage());
 			return null;

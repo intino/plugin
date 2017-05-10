@@ -2,7 +2,7 @@ package io.intino.plugin.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
-import io.intino.legio.Project;
+import io.intino.legio.Repository;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
@@ -19,10 +19,10 @@ public class DuplicatedRepositoryAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isRepositoriesNode(Node element) {
-		return element.simpleType().equals("Repositories") || element.simpleType().equals(repositories());
+		return element.simpleType().equals("Repository") || element.simpleType().equals(repositories());
 	}
 
 	private String repositories() {
-		return Project.Repositories.class.getCanonicalName().replace(Project.Repositories.class.getPackage().getName() + ".", "");
+		return Repository.class.getCanonicalName().replace(Repository.class.getPackage().getName() + ".", "");
 	}
 }

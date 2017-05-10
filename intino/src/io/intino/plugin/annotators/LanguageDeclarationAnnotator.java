@@ -2,12 +2,12 @@ package io.intino.plugin.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
-import io.intino.legio.Project;
+import io.intino.legio.Artifact;
 import io.intino.plugin.file.legio.LegioFileType;
-import org.jetbrains.annotations.NotNull;
+import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
+import org.jetbrains.annotations.NotNull;
 
 public class LanguageDeclarationAnnotator extends TaraAnnotator {
 
@@ -20,11 +20,10 @@ public class LanguageDeclarationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isFactory(Node element) {
-		return element.type().equals("FactoryLevel.Language") || element.simpleType().equals(factoryCanonicalName());
+		return element.type().equals("Modeling.Language") || element.simpleType().equals(factoryCanonicalName());
 	}
 
 	private String factoryCanonicalName() {
-		final Class<Project.Factory> factoryClass = Project.Factory.class;
-		return factoryClass.getCanonicalName().replace(factoryClass.getPackage().getName() + ".", "");
+		return Artifact.Modeling.class.getCanonicalName().replace(Artifact.Modeling.class.getPackage().getName() + ".", "");
 	}
 }
