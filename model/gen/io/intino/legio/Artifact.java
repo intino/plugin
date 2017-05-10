@@ -11,7 +11,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	protected io.intino.legio.Artifact.WebImports webImports;
 	protected io.intino.legio.Artifact.Modeling modeling;
 	protected io.intino.legio.Artifact.Generation generation;
-	protected io.intino.legio.Artifact.Casing casing;
+	protected io.intino.legio.Artifact.Boxing boxing;
 	protected java.util.List<io.intino.legio.Artifact.Exports> exportsList = new java.util.ArrayList<>();
 	protected io.intino.legio.Artifact.Pack pack;
 	protected io.intino.legio.Artifact.Distribution distribution;
@@ -58,8 +58,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return generation;
 	}
 
-	public io.intino.legio.Artifact.Casing casing() {
-		return casing;
+	public io.intino.legio.Artifact.Boxing boxing() {
+		return boxing;
 	}
 
 	public java.util.List<io.intino.legio.Artifact.Exports> exportsList() {
@@ -118,8 +118,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		this.generation = value;
 	}
 
-	public void casing(io.intino.legio.Artifact.Casing value) {
-		this.casing = value;
+	public void boxing(io.intino.legio.Artifact.Boxing value) {
+		this.boxing = value;
 	}
 
 	
@@ -145,7 +145,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (webImports != null) components.add(this.webImports.node());
 		if (modeling != null) components.add(this.modeling.node());
 		if (generation != null) components.add(this.generation.node());
-		if (casing != null) components.add(this.casing.node());
+		if (boxing != null) components.add(this.boxing.node());
 		exportsList.stream().forEach(c -> components.add(c.node()));
 		if (pack != null) components.add(this.pack.node());
 		if (distribution != null) components.add(this.distribution.node());
@@ -174,7 +174,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (node.is("Artifact$WebImports")) this.webImports = node.as(io.intino.legio.Artifact.WebImports.class);
 		if (node.is("Artifact$Modeling")) this.modeling = node.as(io.intino.legio.Artifact.Modeling.class);
 		if (node.is("Artifact$Generation")) this.generation = node.as(io.intino.legio.Artifact.Generation.class);
-		if (node.is("Artifact$Casing")) this.casing = node.as(io.intino.legio.Artifact.Casing.class);
+		if (node.is("Artifact$Boxing")) this.boxing = node.as(io.intino.legio.Artifact.Boxing.class);
 		if (node.is("Artifact$Exports")) this.exportsList.add(node.as(io.intino.legio.Artifact.Exports.class));
 		if (node.is("Artifact$Pack")) this.pack = node.as(io.intino.legio.Artifact.Pack.class);
 		if (node.is("Artifact$Distribution")) this.distribution = node.as(io.intino.legio.Artifact.Distribution.class);
@@ -190,7 +190,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
         if (node.is("Artifact$WebImports")) this.webImports = null;
         if (node.is("Artifact$Modeling")) this.modeling = null;
         if (node.is("Artifact$Generation")) this.generation = null;
-        if (node.is("Artifact$Casing")) this.casing = null;
+        if (node.is("Artifact$Boxing")) this.boxing = null;
         if (node.is("Artifact$Exports")) this.exportsList.remove(node.as(io.intino.legio.Artifact.Exports.class));
         if (node.is("Artifact$Pack")) this.pack = null;
         if (node.is("Artifact$Distribution")) this.distribution = null;
@@ -254,8 +254,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Casing casing(java.lang.String version) {
-		    io.intino.legio.Artifact.Casing newElement = graph().concept(io.intino.legio.Artifact.Casing.class).createNode(name, node()).as(io.intino.legio.Artifact.Casing.class);
+		public io.intino.legio.Artifact.Boxing boxing(java.lang.String version) {
+		    io.intino.legio.Artifact.Boxing newElement = graph().concept(io.intino.legio.Artifact.Boxing.class).createNode(name, node()).as(io.intino.legio.Artifact.Boxing.class);
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
 		    return newElement;
 		}
@@ -1702,10 +1702,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 	}
 	
-	public static class Casing extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+	public static class Boxing extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String version;
 
-		public Casing(io.intino.tara.magritte.Node node) {
+		public Boxing(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -1725,7 +1725,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 
 		public io.intino.tara.magritte.Concept concept() {
-			return this.graph().concept(io.intino.legio.Artifact.Casing.class);
+			return this.graph().concept(io.intino.legio.Artifact.Boxing.class);
 		}
 
 		@Override

@@ -37,15 +37,16 @@
 
     <actions>
 
-        <!--<group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">-->
-            <!--<add-to-group group-id="ToolsMenu" anchor="last"/>-->
-        <!--</group>-->
+        <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
 
         <action id="IntinoGenerate" class="io.intino.plugin.actions.IntinoGenerationAction"
                 text="Generate intino code"
+                icon="/icons/generate.png"
                 description="generates all intino source code">
             <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
-
+            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
         <action id="PurgeAndReloadConfigurationAction"
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"

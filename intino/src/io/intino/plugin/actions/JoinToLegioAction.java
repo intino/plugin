@@ -34,8 +34,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.file.legio.LegioFileType.LEGIO_FILE;
 
 public class JoinToLegioAction extends AnAction implements DumbAware {
+
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
@@ -142,6 +144,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 	@NotNull
 	private File legioFile(Module module) {
 		File moduleRoot = new File(module.getModuleFilePath()).getParentFile();
-		return new File(moduleRoot, "configuration.legio");
+		return new File(moduleRoot, LEGIO_FILE);
 	}
 }

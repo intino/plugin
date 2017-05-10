@@ -46,7 +46,7 @@ Concept:{1..1}:Named Artifact
 	Concept:{0..1} Generation
 		var string version
 		var string inPackage = ""
-	Concept:{0..1} Casing
+	Concept:{0..1} Boxing
 		var string version
 	Concept Exports
 

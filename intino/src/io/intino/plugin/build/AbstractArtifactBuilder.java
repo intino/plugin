@@ -73,7 +73,7 @@ abstract class AbstractArtifactBuilder {
 
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
-			throw new IntinoException(message("legio.configuration.not.found"));
+			throw new IntinoException(message("legio.artifact.not.found"));
 		if (((LegioConfiguration) configuration).pack() == null)
 			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))

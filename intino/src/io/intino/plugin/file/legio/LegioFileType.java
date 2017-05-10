@@ -7,6 +7,7 @@ import io.intino.tara.plugin.lang.file.TaraFileType;
 
 public class LegioFileType extends TaraFileType {
 	public static LegioFileType INSTANCE;
+	public static final String LEGIO_FILE = "artifact.legio";
 
 
 	private LegioFileType() {

@@ -22,29 +22,30 @@ public class IntinoIcons {
 	public static final Icon LOGO_16 = RETINA ? scale(getIcon("/icons/intino/logo-32.png")) : getIcon("/icons/intino/logo-16.png");
 
 	public static final Icon LEGIO_16 = RETINA ? scale(getIcon("/icons/files/artifact-32.png")) : getIcon("/icons/files/artifact-16.png");
-	public static final Icon KONOS_16 = RETINA ? scale(getIcon("/icons/files/case-32.png")) : getIcon("/icons/files/case-16.png");
+	public static final Icon KONOS_16 = RETINA ? scale(getIcon("/icons/files/box-32.png")) : getIcon("/icons/files/box-16.png");
+	public static final Icon GENARATION_16 = RETINA ? scale(getIcon("/icons/generate-32.png")) : getIcon("/icons/generate-16.png");
 
 
 	public static class Operations {
 		public static class Dark {
 
-			public static final Icon BUILD = RETINA ? scale(getIcon("/icons/toolwindow/dark/build-64.png")) : getIcon("/icons/toolwindow/dark/build-32.png");
-			public static final Icon DEPLOY = RETINA ? scale(getIcon("/icons/toolwindow/dark/deploy-64.png")) : getIcon("/icons/toolwindow/dark/deploy-32.png");
-			public static final Icon DISTRIBUTE = RETINA ? scale(getIcon("/icons/toolwindow/dark/distribute-64.png")) : getIcon("/icons/toolwindow/dark/distribute-32.png");
-			public static final Icon EXPORT = RETINA ? scale(getIcon("/icons/toolwindow/dark/export-64.png")) : getIcon("/icons/toolwindow/dark/export-32.png");
-			public static final Icon GENERATE = RETINA ? scale(getIcon("/icons/toolwindow/dark/generate-64.png")) : getIcon("/icons/toolwindow/dark/generate-32.png");
-			public static final Icon IMPORT = RETINA ? scale(getIcon("/icons/toolwindow/dark/import-64.png")) : getIcon("/icons/toolwindow/dark/import-32.png");
-			public static final Icon PACK = RETINA ? scale(getIcon("/icons/toolwindow/dark/pack-64.png")) : getIcon("/icons/toolwindow/dark/pack-32.png");
+			public static final Icon BUILD = RETINA ? scale(getIcon("/toolwindow/dark/build-64.png")) : getIcon("/toolwindow/dark/build-32.png");
+			public static final Icon DEPLOY = RETINA ? scale(getIcon("/toolwindow/dark/deploy-64.png")) : getIcon("/toolwindow/dark/deploy-32.png");
+			public static final Icon DISTRIBUTE = RETINA ? scale(getIcon("/toolwindow/dark/distribute-64.png")) : getIcon("/toolwindow/dark/distribute-32.png");
+			public static final Icon EXPORT = RETINA ? scale(getIcon("/toolwindow/dark/export-64.png")) : getIcon("/toolwindow/dark/export-32.png");
+			public static final Icon GENERATE = RETINA ? scale(getIcon("/toolwindow/dark/generate-64.png")) : getIcon("/toolwindow/dark/generate-32.png");
+			public static final Icon IMPORT = RETINA ? scale(getIcon("/toolwindow/dark/import-64.png")) : getIcon("/toolwindow/dark/import-32.png");
+			public static final Icon PACK = RETINA ? scale(getIcon("/toolwindow/dark/pack-64.png")) : getIcon("/toolwindow/dark/pack-32.png");
 		}
 
 		public static class Light {
-			public static final Icon BUILD = RETINA ? scale(getIcon("/icons/toolwindow/light/build-64.png")) : getIcon("/icons/toolwindow/light/build-32.png");
-			public static final Icon DEPLOY = RETINA ? scale(getIcon("/icons/toolwindow/light/deploy-64.png")) : getIcon("/icons/toolwindow/light/deploy-32.png");
-			public static final Icon DISTRIBUTE = RETINA ? scale(getIcon("/icons/toolwindow/light/distribute-64.png")) : getIcon("/icons/toolwindow/light/distribute-32.png");
-			public static final Icon EXPORT = RETINA ? scale(getIcon("/icons/toolwindow/light/export-64.png")) : getIcon("/icons/toolwindow/light/export-32.png");
-			public static final Icon GENERATE = RETINA ? scale(getIcon("/icons/toolwindow/light/generate-64.png")) : getIcon("/icons/toolwindow/light/generate-32.png");
-			public static final Icon IMPORT = RETINA ? scale(getIcon("/icons/toolwindow/light/import-64.png")) : getIcon("/icons/toolwindow/light/import-32.png");
-			public static final Icon PACK = RETINA ? scale(getIcon("/icons/toolwindow/light/pack-64.png")) : getIcon("/icons/toolwindow/light/pack-32.png");
+			public static final Icon BUILD = RETINA ? scale(getIcon("/toolwindow/light/build-64.png")) : getIcon("/toolwindow/light/build-32.png");
+			public static final Icon DEPLOY = RETINA ? scale(getIcon("/toolwindow/light/deploy-64.png")) : getIcon("/toolwindow/light/deploy-32.png");
+			public static final Icon DISTRIBUTE = RETINA ? scale(getIcon("/toolwindow/light/distribute-64.png")) : getIcon("/toolwindow/light/distribute-32.png");
+			public static final Icon EXPORT = RETINA ? scale(getIcon("/toolwindow/light/export-64.png")) : getIcon("/toolwindow/light/export-32.png");
+			public static final Icon GENERATE = RETINA ? scale(getIcon("/toolwindow/light/generate-64.png")) : getIcon("/toolwindow/light/generate-32.png");
+			public static final Icon IMPORT = RETINA ? scale(getIcon("/toolwindow/light/import-64.png")) : getIcon("/toolwindow/light/import-32.png");
+			public static final Icon PACK = RETINA ? scale(getIcon("/toolwindow/light/pack-64.png")) : getIcon("/toolwindow/light/pack-32.png");
 		}
 
 	}

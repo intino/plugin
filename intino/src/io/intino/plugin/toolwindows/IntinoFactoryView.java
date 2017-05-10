@@ -58,7 +58,7 @@ public class IntinoFactoryView extends JPanel {
 		});
 		loadComboBox(Arrays.asList(ModuleManager.getInstance(project).getModules()));
 		LafManager.getInstance().addLafManagerListener(source -> {
-			setMode(source.getCurrentLookAndFeel().getName().equalsIgnoreCase("darcula"));
+			mode(source.getCurrentLookAndFeel().getName().equalsIgnoreCase("darcula"));
 			source.repaintUI();
 		});
 	}
@@ -95,9 +95,8 @@ public class IntinoFactoryView extends JPanel {
 		return null;
 	}
 
-	private void setMode(boolean underDarcula) {
+	private void mode(boolean underDarcula) {
 		((FactoryPanel) factoryContainerPanel).mode(underDarcula ? Darcula : Light);
-		factoryContainerPanel.repaint();
 	}
 
 	private void reload(int modifiers) {
@@ -105,6 +104,7 @@ public class IntinoFactoryView extends JPanel {
 		else new ReloadConfigurationAction().execute(selectedModule());
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadComboBox(List<Module> modules) {
 		this.modules.setModel(new CollectionComboBoxModel<>(modules));
 	}
@@ -118,7 +118,7 @@ public class IntinoFactoryView extends JPanel {
 		((FactoryPanel) factoryContainerPanel).addActionListener(ExportAccessors, e -> exportAccessors());
 		((FactoryPanel) factoryContainerPanel).addActionListener(DistributeArtifact, e -> build(DistributeArtifact, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(DeployArtifact, e -> build(DeployArtifact, e.getModifiers()));
-		setMode(UIUtil.isUnderDarcula());
+		mode(UIUtil.isUnderDarcula());
 	}
 
 	private Module selectedModule() {
@@ -130,9 +130,6 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	public static class FactoryPanel extends JPanel {
-		private static final Color LightColor = Color.decode("#ECECEC");
-		private static final Color DarculaColor = Color.decode("#3D4041");
-
 		private Image image;
 		private int imageSize;
 		private int offset;
@@ -148,8 +145,13 @@ public class IntinoFactoryView extends JPanel {
 			this.addMouseListener(listener());
 		}
 
+		public Mode mode() {
+			return mode;
+		}
+
 		public FactoryPanel mode(Mode mode) {
 			this.mode = mode;
+			this.refresh();
 			return this;
 		}
 
@@ -180,8 +182,6 @@ public class IntinoFactoryView extends JPanel {
 		public void paint(Graphics g) {
 			setScale();
 			g.setFont(font);
-			g.setColor(backgroundColor());
-			g.fillRect(0, 0, this.getWidth(), this.getHeight());
 			drawImage(g);
 			products().forEach(p -> paint(g, p));
 			buttons.values().forEach(this::setLocation);
@@ -199,7 +199,7 @@ public class IntinoFactoryView extends JPanel {
 		}
 
 		private Color backgroundColor() {
-			return mode == Light ? LightColor : DarculaColor;
+			return mode == Light ? Light.color : Darcula.color;
 		}
 
 		private Color foregroundColor() {
@@ -219,6 +219,13 @@ public class IntinoFactoryView extends JPanel {
 			return (int) (value * scale);
 		}
 
+		void refresh() {
+			this.image = image();
+			this.repaint();
+			this.repaint();
+			this.invalidate();
+		}
+
 		private void setScale() {
 			if (imageSize != imageSize()) image = image();
 			imageSize = imageSize();
@@ -231,18 +238,17 @@ public class IntinoFactoryView extends JPanel {
 			try {
 				InputStream is = getClass().getResourceAsStream(imageName());
 				return ImageIO.read(is);
-
 			} catch (IOException e) {
 				return image;
 			}
 		}
 
 		private String imageName() {
-			return "/icons/toolwindow/" + mode.name().toLowerCase() + "/intino-factory-" + imageSize() + ".png";
+			return "/toolwindow/" + mode.name().toLowerCase() + "/intino-factory-" + imageSize() + ".png";
 		}
 
 		private int imageSize() {
-			return min(700, max(300, (int) Math.floor(this.getWidth() / 100) * 100));
+			return min(500, max(300, (int) Math.floor(this.getWidth() / 100) * 100));
 		}
 
 
@@ -283,12 +289,17 @@ public class IntinoFactoryView extends JPanel {
 		}
 
 		enum Mode {
-			Light, Darcula;
+			Light("#ECECEC"), Darcula("#404243");
 
+			private final Color color;
+
+			Mode(String color) {
+				this.color = Color.decode(color);
+			}
 		}
 
 		enum Product {
-			Model(315, 120), Case(500, 120), Imports(40, 360), Src(230, 360), Gen(410, 360), Out(320, 600), Exports(580, 600),
+			Model(315, 120), Box(500, 120), Imports(41, 361), Src(230, 360), Gen(409, 361), Out(320, 597), Exports(581, 597),
 			Pack(320, 815), Repo(320, 1030), Server(320, 1245);
 
 			private Rectangle rect;
@@ -335,26 +346,18 @@ public class IntinoFactoryView extends JPanel {
 
 			@Override
 			public void paint(Graphics g) {
-				g.setFont(font);
-				g.setColor(foregroundColor());
-				int width = this.getWidth();
-				int height = this.getHeight();
-				g.fillRect(0, 0, width, height);
-				g.setColor(colors.get(operation));
-				g.fillRect(1, 1, width - 2, height - 2);
-				g.setColor(pressed && hover ? foregroundColor() : backgroundColor());
-				g.fillRect(width / 4, height / 4, width / 2, height / 2);
-				g.setColor(foregroundColor());
-				drawInnerBorder((Graphics2D) g);
-			}
+				if (!hover) return;
+				Color color = foregroundColor();
+				int size = pressed ? 3 : 2;
 
-			private void drawInnerBorder(Graphics2D g2) {
-				int stroke = hover ? scale(7) : 1;
-				int width = this.getWidth();
-				int height = this.getHeight();
-				g2.setStroke(new BasicStroke(stroke));
-				g2.drawRect(width / 4, height / 4, width / 2, height / 2);
-				g2.setStroke(new BasicStroke(1));
+				int width = (this.getWidth() * size) / 10;
+				int height = (this.getHeight() * size) / 10;
+
+				int x = (this.getWidth() - width) / 2;
+				int y = (this.getHeight() - height) / 2;
+				g.setColor(color);
+				g.fillOval(x, y, width, height);
+				g.setColor(foregroundColor());
 			}
 
 

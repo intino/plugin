@@ -24,6 +24,7 @@ import io.intino.legio.Legio;
 import io.intino.legio.Repository;
 import io.intino.legio.Repository.Release;
 import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -49,7 +50,6 @@ import static java.util.stream.Collectors.toMap;
 public class LegioConfiguration implements Configuration {
 	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
 
-	private static final String CONFIGURATION_LEGIO = "configuration.legio";
 	private final Module module;
 	private VirtualFile legioFile;
 	private Legio legio;
@@ -83,7 +83,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public boolean isSuitable() {
-		return new File(new File(module.getModuleFilePath()).getParentFile(), CONFIGURATION_LEGIO).exists();
+		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
 	}
 
 	public void purgeAndReload() {
@@ -123,8 +123,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadInterfaceBuilder() {
-		final Artifact.Casing casing = safe(() -> legio.artifact().casing());
-		if (casing != null) new InterfaceBuilderManager().reload(module.getProject(), casing.version());
+		final Artifact.Boxing boxing = safe(() -> legio.artifact().boxing());
+		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.version());
 	}
 
 	private Legio newGraphFromLegio() {
@@ -415,7 +415,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String interfaceVersion() {
-		return safe(() -> legio.artifact().casing().version());
+		return safe(() -> legio.artifact().boxing().version());
 	}
 
 	private String safe(StringWrapper wrapper) {

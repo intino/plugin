@@ -200,6 +200,6 @@ public class IntinoGenerationAction extends IntinoAction {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		e.getPresentation().setIcon(IntinoIcons.KONOS_16);
+		e.getPresentation().setIcon(IntinoIcons.GENARATION_16);
 	}
 }
