@@ -24,10 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -74,7 +71,7 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void build(FactoryPanel.Operation operation, int modifiers) {
-		FactoryPhase phase = phaseOf(operation, modifiers == ActionEvent.SHIFT_MASK);
+		FactoryPhase phase = phaseOf(operation, (modifiers & InputEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		new ArtifactBuilder(project, Collections.singletonList(selectedModule()), phase).build();
 	}
@@ -343,7 +340,6 @@ public class IntinoFactoryView extends JPanel {
 				this.addMouseListener(this);
 			}
 
-
 			@Override
 			public void paint(Graphics g) {
 				if (!hover) return;
@@ -368,7 +364,7 @@ public class IntinoFactoryView extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (listener == null) return;
-				listener.actionPerformed(new ActionEvent(operation, 0, "Clicked"));
+				listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiers()));
 			}
 
 			@Override

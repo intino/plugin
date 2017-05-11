@@ -192,9 +192,9 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Level level() {
 		if (legio == null || legio.artifact() == null) return null;
-		final Modeling modeling = legio.artifact().modeling();
-		if (modeling == null) return null;
-		final String level = modeling.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		final Artifact.Generation generation = legio.artifact().generation();
+		if (generation == null) return null;
+		final String level = generation.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
 	}
 
