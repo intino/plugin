@@ -1,6 +1,9 @@
 package io.intino.plugin.actions;
 
 import com.intellij.ide.DataManager;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
@@ -88,8 +91,8 @@ public class IntinoGenerationAction extends IntinoAction {
 			}
 			process.destroy();
 			new File(argsFile).delete();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
+			Bus.notify(new Notification("Tara Language", "Error occurred", e.getMessage(), NotificationType.ERROR), null);
 		}
 	}
 
@@ -135,10 +138,13 @@ public class IntinoGenerationAction extends IntinoAction {
 	}
 
 	private void writePaths(Writer writer, Module module) throws IOException {
+		if (module == null) throw new IOException("Module is null");
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 		writer.write(SEMANTIC_LIB + NL + getTaraJar(ClasspathBootstrap.getResourceFile(TaraUtil.class)).getAbsolutePath() + NL);
 		writer.write(OUTPUTPATH + NL + genDirectory(module) + NL);
-		writer.write(FINAL_OUTPUTPATH + NL + extension.getCompilerOutputPath().getPath() + NL);
+		VirtualFile compilerOutputPath = extension.getCompilerOutputPath();
+		if (compilerOutputPath == null) compilerOutputPath = extension.getCompilerOutputPointer().getFile();
+		writer.write(FINAL_OUTPUTPATH + NL + compilerOutputPath.getPath() + NL);
 		final List<String> resources = resourceDirectories(module);
 		if (!resources.isEmpty()) writer.write(RESOURCES + NL + resources.get(0) + NL);
 		writer.write(TARA_PATH + NL + new File(MavenProjectsManager.getInstance(module.getProject()).getLocalRepository().getPath()).getParent() + NL);
@@ -173,7 +179,10 @@ public class IntinoGenerationAction extends IntinoAction {
 		ApplicationManager.getApplication().runReadAction(() -> {
 			final ModuleRootManager manager = ModuleRootManager.getInstance(module);
 			final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(JavaSourceRootType.SOURCE);
-			sources.add(sourceRoots.stream().filter(s -> s.getName().equals("gen")).map(VirtualFile::getPath).toArray(String[]::new)[0]);
+			final String[] directories = sourceRoots.stream().filter(s -> s.getName().equals("gen")).map(VirtualFile::getPath).toArray(String[]::new);
+			sources.add(directories.length == 0 ?
+					new File(new File(srcDirectories(module).get(0)).getParent(), "gen").getAbsolutePath() :
+					directories[0]);
 		});
 		return sources.get(0);
 	}
@@ -183,7 +192,10 @@ public class IntinoGenerationAction extends IntinoAction {
 		if (configuration == null) return;
 		final String version = configuration.interfaceVersion();
 		if (version == null || version.isEmpty()) return;
-		ActionManager.getInstance().getAction("CreateKonosBox" + version).actionPerformed(createActionEvent());
+		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
+		if (action == null)
+			Bus.notify(new Notification("Tara Language", "Interface not found", "Interface version not found", NotificationType.ERROR), null);
+		else action.actionPerformed(createActionEvent());
 	}
 
 	private AnActionEvent createActionEvent() {

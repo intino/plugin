@@ -1,5 +1,8 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
@@ -42,7 +45,9 @@ public class TaraBuilderResolver {
 			saveClassPath(paths);
 			return paths;
 		} catch (DependencyResolutionException e) {
-			LOG.error(e.getMessage());
+			Notifications.Bus.notify(new Notification("Tara Language", "Dependecies not found",
+					e.getMessage(), NotificationType.ERROR), null);
+
 			return Collections.emptyList();
 		}
 	}
