@@ -55,6 +55,11 @@
             <name>siani-maven-snapshot</name>
             <url>http://artifactory.siani.es/artifactory/libs-snapshot</url>
         </repository>
+        <repository>
+            <id>intino-maven</id>
+            <name>intino-maven-releases</name>
+            <url>https://artifactory.intino.io/artifactory/releases</url>
+        </repository>
     </repositories>
 
     <distributionManagement>

@@ -96,7 +96,7 @@ Concept Repository
 	var string mavenId
 	Concept Type
 		var string url
-		var string mavenID = 'self.ownerAs(Repository.class).mavenId()' is reactive final
+		var string mavenID = 'return self.ownerAs(Repository.class).mavenId();' is reactive final
 		sub Release
 		sub:{0..1} Snapshot
 		sub:{0..1} Language

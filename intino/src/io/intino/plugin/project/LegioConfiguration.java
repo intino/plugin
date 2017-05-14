@@ -80,7 +80,6 @@ public class LegioConfiguration implements Configuration {
 		if (legio != null && legio.artifact() != null) legio.artifact().save();
 	}
 
-
 	@Override
 	public boolean isSuitable() {
 		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
@@ -425,7 +424,7 @@ public class LegioConfiguration implements Configuration {
 	private String safe(StringWrapper wrapper, String defaultValue) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return defaultValue;
 		}
 	}
@@ -433,7 +432,7 @@ public class LegioConfiguration implements Configuration {
 	public static <T> T safe(Wrapper<T> wrapper) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return null;
 		}
 	}
@@ -441,7 +440,7 @@ public class LegioConfiguration implements Configuration {
 	private <T> List<T> safeList(ListWrapper<T> wrapper) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
 	}
