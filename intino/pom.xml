@@ -60,6 +60,10 @@
                     <groupId>io.intino.tara</groupId>
                     <artifactId>builder-constants</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>language</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

@@ -16,8 +16,8 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 		return mainClass;
 	}
 
-	public io.intino.legio.Artifact.Pack.Type type() {
-		return _pack.type();
+	public io.intino.legio.Artifact.Pack.Mode mode() {
+		return _pack.mode();
 	}
 
 	public boolean attachSources() {
@@ -44,8 +44,8 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 		this.mainClass = value;
 	}
 
-	public void type(io.intino.legio.Artifact.Pack.Type value) {
-		this._pack.type(value);
+	public void mode(io.intino.legio.Artifact.Pack.Mode value) {
+		this._pack.mode(value);
 	}
 
 	public void attachSources(boolean value) {

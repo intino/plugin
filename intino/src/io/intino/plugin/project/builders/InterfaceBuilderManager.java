@@ -18,6 +18,7 @@ import java.util.List;
 public class InterfaceBuilderManager {
 
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 
 	public void reload(Project project, String version) {
 		if (InterfaceBuilderLoader.isLoaded(project, version)) return;
@@ -46,7 +47,7 @@ public class InterfaceBuilderManager {
 			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", "http://artifactory.intino.io/artifactory/releases"));
+		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		return remotes;
 	}

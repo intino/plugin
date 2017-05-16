@@ -1,4 +1,4 @@
-package io.intino.plugin.annotators;
+package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
@@ -19,6 +19,6 @@ public class MainClassAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isPackage(Node element) {
-		return element.simpleType().equals("Package") || element.simpleType().equals("LifeCycle.Package");
+		return element.simpleType().equals("Pack") || element.simpleType().equals("Artifact.Pack");
 	}
 }

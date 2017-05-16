@@ -6,7 +6,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Artifact.Generation;
+import io.intino.legio.level.LevelArtifact.Modeling;
 import io.intino.tara.plugin.lang.LanguageManager;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -24,23 +24,24 @@ import java.util.stream.Collectors;
 
 public class TaraBuilderResolver {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
+	public static final String TARA_BUILDER_REPOSITORY = "https://artifactory.intino.io/artifactory/releases";
 
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private final Project project;
-	private final Generation generation;
+	private final Modeling modeling;
 
-	public TaraBuilderResolver(Project project, Generation generation) {
+	public TaraBuilderResolver(Project project, Modeling modeling) {
 		this.project = project;
-		this.generation = generation;
+		this.modeling = modeling;
 	}
 
 
 	public List<String> resolveBuilder() {
 		try {
 			final List<RemoteRepository> repos = new ArrayList<>();
-			repos.add(new RemoteRepository("intino-maven", "default", "https://artifactory.intino.io/artifactory/releases"));
+			repos.add(new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY));
 			repos.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-			String version = generation.version();
+			String version = modeling.version();
 			final List<String> paths = librariesOf(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + version), JavaScopes.COMPILE));
 			saveClassPath(paths);
 			return paths;

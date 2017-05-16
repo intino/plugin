@@ -30,7 +30,7 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
@@ -104,11 +104,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		try {
-			return new ArtifactoryConnector(configuration.releaseRepositories(), configuration.snapshotRepository(), configuration.languageRepositories()).versions(dsl).contains(version);
-		} catch (IOException e) {
-			return false;
-		}
+		return new ArtifactoryConnector(configuration.releaseRepositories(), Collections.singletonMap(configuration.snapshotRepository(), ""), configuration.languageRepositories()).versions(dsl).contains(version);
 	}
 
 	private void saveAll() {

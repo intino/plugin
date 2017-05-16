@@ -1,48 +1,45 @@
 def type(legio & empty)
 	dsl Legio
 
-	Artifact(groupId = "org.sample", version = "1.0.0") $name
-		Dependencies
-			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
-		Modeling as Platform
-			Language("Verso", "LATEST")
-		Generation("2.0.0", "$name+firstLowerCase") as Platform
-		Pack(type = ModulesAndLibrariesLinkedByManifest)
-	Repository("intino-maven")
-		Release("https://artifactory.intino.io/artifactory/releases")
-		Language("https://artifactory.intino.io/artifactory/releases")
+	Artifact(groupId = "org.example", version = "1.0.0") $name as Platform
+		Modeling(version = "2.0.0") > Language(name = "Verso", version = "LATEST")
+    	Boxing(language = "Konos", version = "2.0.0")
+    	Imports
+    		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+
+    	Pack(mode = ModulesAndLibrariesLinkedByManifest)
+
+    Repository(identifier = "intino-maven")
+    	Language(url = "https://artifactory.intino.io/artifactory/releases")
+    	Release(url = "https://artifactory.intino.io/artifactory/releases")
 end
 
 def type(legio) !type(empty)
 	dsl Legio
 
-	Artifact(groupId = "$groupId", version = "$version") $artifactId
-    	Repositories[
-		Release("https://artifactory.intino.io/artifactory/releases", "intino-maven")
-		Language("https://artifactory.intino.io/artifactory/releases", "intino-maven")$isIntino	][
-    		$repository...[$NL]]
+	Artifact(groupId = "$groupId", version = "$version") $artifactId[ as $level+firstUpperCase]
+		[$factory
+		]
     	Imports[
-    		$dependency...[$NL]][
-    	$factory]
-    	Pack(ModulesAndLibrariesLinkedByManifest)
+    		$dependency...[$NL]]
+    	Pack(mode = ModulesAndLibrariesLinkedByManifest)
     	[$distribution...[$NL]]
 
 	[$isIntino
-	Repository("intino-maven")
-		Release("https://artifactory.intino.io/artifactory/releases")
-		Language("https://artifactory.intino.io/artifactory/releases")]
-	$repository...[$NL]
-
+	Repository(identifier = "intino-maven")
+		Release(url = "https://artifactory.intino.io/artifactory/releases")
+		Language(url = "https://artifactory.intino.io/artifactory/releases")]
+	[$repository...[$NL]]
 end
 
 def type(release) trigger(repository)
-	Repository("$id")
-		Release("$url")
+	Repository(identifier = "$id")
+		Release(url = "$url")
 end
 
 def type(snapshot) trigger(repository)
-	Repository("$id")
-		Snapshot("$url")
+	Repository(identifier = "$id")
+		Snapshot(url = "$url")
 end
 
 def type(dependency)
@@ -50,11 +47,9 @@ def type(dependency)
 end
 
 def type(factory)
-	Generation("2.0.0", "$workingPackage") as $level+firstUpperCase)
-	Modeling
-		Language("$dsl", "$dslVersion")
+	Modeling(version = "2.0.0")
+		Language(name = "$dsl", version = "$dslVersion")
 end
-
 
 def type(distribution)
 	Distribution("$id")

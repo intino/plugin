@@ -16,11 +16,14 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DependencyAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.InterfaceVersionAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.MainClassAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.LanguageDeclarationAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DuplicatedRepositoryAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.InterfaceVersionAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.DuplicatedRepositoryAnnotator"/>
         <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
                         serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
@@ -29,10 +32,13 @@
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
         <errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
         <copyPastePreProcessor implementation="io.intino.plugin.file.legio.LegioDependencyPasteProcessor"/>
-        <problemFileHighlightFilter implementation="io.intino.plugin.annotators.LegioProblemFileHighlightFilter"/>
+        <problemFileHighlightFilter
+                implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
         <moduleBuilder builderClass="io.intino.plugin.project.IntinoModuleBuilder"/>
         <toolWindow id="Intino Console" secondary="true" icon="/icons/intino/intino-13.png" anchor="bottom"
                     factoryClass="io.intino.plugin.console.ConsoleWindowFactory"/>
+        <completion.contributor language="Tara"
+                                implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
     </extensions>
 
     <actions>

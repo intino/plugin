@@ -1,4 +1,4 @@
-package io.intino.plugin.annotators;
+package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
@@ -25,9 +25,9 @@ public class DependencyAnnotator extends TaraAnnotator {
 				|| element.simpleType().equals("Test")
 				|| element.simpleType().equals("Provided")
 				|| element.simpleType().equals("Runtime")
-				|| element.simpleType().equals("Project.Dependencies.Compile")
-				|| element.simpleType().equals("Project.Dependencies.Test")
-				|| element.simpleType().equals("Project.Dependencies.Provided")
-				|| element.simpleType().equals("Project.Dependencies.Runtime");
+				|| element.simpleType().equals("Artifact.Imports.Compile")
+				|| element.simpleType().equals("Artifact.Imports.Test")
+				|| element.simpleType().equals("Artifact.Imports.Provided")
+				|| element.simpleType().equals("Artifact.Imports.Runtime");
 	}
 }

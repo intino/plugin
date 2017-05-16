@@ -38,20 +38,15 @@ Concept:{1..1}:Named Artifact
 			var string groupId
 			var string artifactId
 			var string version
-	Concept:{0..1} Modeling
-		Concept Language
-			var string name
-			var string version
-			var string effectiveVersion = "" is private
 	Concept:{0..1} Generation
-		var string version
-		var string inPackage = ""
+		var string targetPackage
 	Concept:{0..1} Boxing
+		var string language
 		var string version
 	Concept Exports
 
 	Concept:{0..1} Pack
-		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} type
+		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} mode
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false
@@ -93,10 +88,10 @@ Concept:Named Server
 	var string cesar
 
 Concept Repository
-	var string mavenId
+	var string identifier
 	Concept Type
 		var string url
-		var string mavenID = 'return self.ownerAs(Repository.class).mavenId();' is reactive final
+		var string mavenID = 'self.ownerAs(Repository.class).identifier()' is reactive final
 		sub Release
 		sub:{0..1} Snapshot
 		sub:{0..1} Language
@@ -104,7 +99,13 @@ Concept Repository
 Facet Runnable on Artifact.Pack
 	var string mainClass
 
-Facet Level on Artifact.Generation
+Facet Level on Artifact
+	Concept:{1..1} Modeling
+		var string version
+		Concept Language
+			var string name
+			var string version
+			var string effectiveVersion = "" is private
 	sub Platform
 	sub Application
 	sub System

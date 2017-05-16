@@ -1,4 +1,4 @@
-package io.intino.plugin.annotators;
+package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.LibraryOrderEntry;
@@ -42,8 +42,10 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		final Parameter languageNameParameter = languageNode.parameters().stream().filter(p -> p.name().equals("name")).findFirst().orElse(null);
 		if (languageNameParameter == null) return;
 		final String languageName = languageNameParameter.values().get(0).toString();
+		if (languageName == null) return;
 		String version = version();
-		if ("LATEST".equals(version)) version = configuration.language(l -> l.name().equals(languageName)).effectiveVersion();
+		if ("LATEST".equals(version))
+			version = configuration.language(l -> l.name().equals(languageName)).effectiveVersion();
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))

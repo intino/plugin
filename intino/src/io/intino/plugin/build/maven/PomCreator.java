@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.Artifact.Pack.Type.*;
+import static io.intino.legio.Artifact.Pack.Mode.*;
 
 
 public class PomCreator {
@@ -37,12 +37,12 @@ public class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
-	private final Artifact.Pack.Type packageType;
+	private final Artifact.Pack.Mode packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().pack().type();
+		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().pack().mode();
 	}
 
 	public File frameworkPom() throws IOException {
@@ -187,7 +187,7 @@ public class PomCreator {
 	private void configureBuild(Frame frame, Artifact.License license, Artifact.Pack build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
-		final Artifact.Pack.Type type = build.type();
+		final Artifact.Pack.Mode type = build.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");

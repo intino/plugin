@@ -9,10 +9,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	private java.util.List<io.intino.legio.Server> serverList;
 	private java.util.List<io.intino.legio.Repository> repositoryList;
 	private java.util.List<io.intino.legio.runnable.artifact.RunnablePack> runnablePackList;
-	private java.util.List<io.intino.legio.level.artifact.LevelGeneration> levelGenerationList;
-	private java.util.List<io.intino.legio.platform.artifact.PlatformGeneration> platformGenerationList;
-	private java.util.List<io.intino.legio.application.artifact.ApplicationGeneration> applicationGenerationList;
-	private java.util.List<io.intino.legio.system.artifact.SystemGeneration> systemGenerationList;
+	private java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList;
+	private java.util.List<io.intino.legio.platform.PlatformArtifact> platformArtifactList;
+	private java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList;
+	private java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList;
 
 	public GraphWrapper(io.intino.tara.magritte.Graph graph) {
 		this.graph = graph;
@@ -24,10 +24,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		serverList = this.graph.rootList(io.intino.legio.Server.class);
 		repositoryList = this.graph.rootList(io.intino.legio.Repository.class);
 		runnablePackList = this.graph.rootList(io.intino.legio.runnable.artifact.RunnablePack.class);
-		levelGenerationList = this.graph.rootList(io.intino.legio.level.artifact.LevelGeneration.class);
-		platformGenerationList = this.graph.rootList(io.intino.legio.platform.artifact.PlatformGeneration.class);
-		applicationGenerationList = this.graph.rootList(io.intino.legio.application.artifact.ApplicationGeneration.class);
-		systemGenerationList = this.graph.rootList(io.intino.legio.system.artifact.SystemGeneration.class);
+		levelArtifactList = this.graph.rootList(io.intino.legio.level.LevelArtifact.class);
+		platformArtifactList = this.graph.rootList(io.intino.legio.platform.PlatformArtifact.class);
+		applicationArtifactList = this.graph.rootList(io.intino.legio.application.ApplicationArtifact.class);
+		systemArtifactList = this.graph.rootList(io.intino.legio.system.SystemArtifact.class);
 	}
 
 	@Override
@@ -36,10 +36,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Server")) this.serverList.add(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.add(node.as(io.intino.legio.Repository.class));
 		if (node.is("Runnable#Artifact$Pack")) this.runnablePackList.add(node.as(io.intino.legio.runnable.artifact.RunnablePack.class));
-		if (node.is("Level#Artifact$Generation")) this.levelGenerationList.add(node.as(io.intino.legio.level.artifact.LevelGeneration.class));
-		if (node.is("Platform#Artifact$Generation")) this.platformGenerationList.add(node.as(io.intino.legio.platform.artifact.PlatformGeneration.class));
-		if (node.is("Application#Artifact$Generation")) this.applicationGenerationList.add(node.as(io.intino.legio.application.artifact.ApplicationGeneration.class));
-		if (node.is("System#Artifact$Generation")) this.systemGenerationList.add(node.as(io.intino.legio.system.artifact.SystemGeneration.class));
+		if (node.is("Level#Artifact")) this.levelArtifactList.add(node.as(io.intino.legio.level.LevelArtifact.class));
+		if (node.is("Platform#Artifact")) this.platformArtifactList.add(node.as(io.intino.legio.platform.PlatformArtifact.class));
+		if (node.is("Application#Artifact")) this.applicationArtifactList.add(node.as(io.intino.legio.application.ApplicationArtifact.class));
+		if (node.is("System#Artifact")) this.systemArtifactList.add(node.as(io.intino.legio.system.SystemArtifact.class));
 	}
 
 	@Override
@@ -48,10 +48,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Server")) this.serverList.remove(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.remove(node.as(io.intino.legio.Repository.class));
 		if (node.is("Runnable#Artifact$Pack")) this.runnablePackList.remove(node.as(io.intino.legio.runnable.artifact.RunnablePack.class));
-		if (node.is("Level#Artifact$Generation")) this.levelGenerationList.remove(node.as(io.intino.legio.level.artifact.LevelGeneration.class));
-		if (node.is("Platform#Artifact$Generation")) this.platformGenerationList.remove(node.as(io.intino.legio.platform.artifact.PlatformGeneration.class));
-		if (node.is("Application#Artifact$Generation")) this.applicationGenerationList.remove(node.as(io.intino.legio.application.artifact.ApplicationGeneration.class));
-		if (node.is("System#Artifact$Generation")) this.systemGenerationList.remove(node.as(io.intino.legio.system.artifact.SystemGeneration.class));
+		if (node.is("Level#Artifact")) this.levelArtifactList.remove(node.as(io.intino.legio.level.LevelArtifact.class));
+		if (node.is("Platform#Artifact")) this.platformArtifactList.remove(node.as(io.intino.legio.platform.PlatformArtifact.class));
+		if (node.is("Application#Artifact")) this.applicationArtifactList.remove(node.as(io.intino.legio.application.ApplicationArtifact.class));
+		if (node.is("System#Artifact")) this.systemArtifactList.remove(node.as(io.intino.legio.system.SystemArtifact.class));
 	}
 
 	public String message(String language, String key, Object... parameters) {
@@ -122,20 +122,20 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return runnablePackList;
 	}
 
-	public java.util.List<io.intino.legio.level.artifact.LevelGeneration> levelGenerationList() {
-		return levelGenerationList;
+	public java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList() {
+		return levelArtifactList;
 	}
 
-	public java.util.List<io.intino.legio.platform.artifact.PlatformGeneration> platformGenerationList() {
-		return platformGenerationList;
+	public java.util.List<io.intino.legio.platform.PlatformArtifact> platformArtifactList() {
+		return platformArtifactList;
 	}
 
-	public java.util.List<io.intino.legio.application.artifact.ApplicationGeneration> applicationGenerationList() {
-		return applicationGenerationList;
+	public java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList() {
+		return applicationArtifactList;
 	}
 
-	public java.util.List<io.intino.legio.system.artifact.SystemGeneration> systemGenerationList() {
-		return systemGenerationList;
+	public java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList() {
+		return systemArtifactList;
 	}
 
 	public java.util.List<io.intino.legio.Server> serverList(java.util.function.Predicate<io.intino.legio.Server> predicate) {
@@ -162,36 +162,36 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return runnablePackList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.level.artifact.LevelGeneration> levelGenerationList(java.util.function.Predicate<io.intino.legio.level.artifact.LevelGeneration> predicate) {
-		return levelGenerationList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList(java.util.function.Predicate<io.intino.legio.level.LevelArtifact> predicate) {
+		return levelArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.level.artifact.LevelGeneration levelGeneration(int index) {
-		return levelGenerationList.get(index);
+	public io.intino.legio.level.LevelArtifact levelArtifact(int index) {
+		return levelArtifactList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.platform.artifact.PlatformGeneration> platformGenerationList(java.util.function.Predicate<io.intino.legio.platform.artifact.PlatformGeneration> predicate) {
-		return platformGenerationList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.platform.PlatformArtifact> platformArtifactList(java.util.function.Predicate<io.intino.legio.platform.PlatformArtifact> predicate) {
+		return platformArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.platform.artifact.PlatformGeneration platformGeneration(int index) {
-		return platformGenerationList.get(index);
+	public io.intino.legio.platform.PlatformArtifact platformArtifact(int index) {
+		return platformArtifactList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.application.artifact.ApplicationGeneration> applicationGenerationList(java.util.function.Predicate<io.intino.legio.application.artifact.ApplicationGeneration> predicate) {
-		return applicationGenerationList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList(java.util.function.Predicate<io.intino.legio.application.ApplicationArtifact> predicate) {
+		return applicationArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.application.artifact.ApplicationGeneration applicationGeneration(int index) {
-		return applicationGenerationList.get(index);
+	public io.intino.legio.application.ApplicationArtifact applicationArtifact(int index) {
+		return applicationArtifactList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.system.artifact.SystemGeneration> systemGenerationList(java.util.function.Predicate<io.intino.legio.system.artifact.SystemGeneration> predicate) {
-		return systemGenerationList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList(java.util.function.Predicate<io.intino.legio.system.SystemArtifact> predicate) {
+		return systemArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.system.artifact.SystemGeneration systemGeneration(int index) {
-		return systemGenerationList.get(index);
+	public io.intino.legio.system.SystemArtifact systemArtifact(int index) {
+		return systemArtifactList.get(index);
 	}
 
 	public io.intino.tara.magritte.Graph graph() {
@@ -232,9 +232,9 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.Repository repository(java.lang.String mavenId) {
+		public io.intino.legio.Repository repository(java.lang.String identifier) {
 			io.intino.legio.Repository newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.Repository.class, namespace, name).as(io.intino.legio.Repository.class);
-			newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId));
+			newElement.node().set(newElement, "identifier", java.util.Collections.singletonList(identifier));
 			return newElement;
 		}
 
@@ -244,20 +244,20 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.platform.artifact.PlatformGeneration platformGeneration() {
-			io.intino.legio.platform.artifact.PlatformGeneration newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.platform.artifact.PlatformGeneration.class, namespace, name).as(io.intino.legio.platform.artifact.PlatformGeneration.class);
+		public io.intino.legio.platform.PlatformArtifact platformArtifact() {
+			io.intino.legio.platform.PlatformArtifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.platform.PlatformArtifact.class, namespace, name).as(io.intino.legio.platform.PlatformArtifact.class);
 			
 			return newElement;
 		}
 
-		public io.intino.legio.application.artifact.ApplicationGeneration applicationGeneration() {
-			io.intino.legio.application.artifact.ApplicationGeneration newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.application.artifact.ApplicationGeneration.class, namespace, name).as(io.intino.legio.application.artifact.ApplicationGeneration.class);
+		public io.intino.legio.application.ApplicationArtifact applicationArtifact() {
+			io.intino.legio.application.ApplicationArtifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.application.ApplicationArtifact.class, namespace, name).as(io.intino.legio.application.ApplicationArtifact.class);
 			
 			return newElement;
 		}
 
-		public io.intino.legio.system.artifact.SystemGeneration systemGeneration() {
-			io.intino.legio.system.artifact.SystemGeneration newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.system.artifact.SystemGeneration.class, namespace, name).as(io.intino.legio.system.artifact.SystemGeneration.class);
+		public io.intino.legio.system.SystemArtifact systemArtifact() {
+			io.intino.legio.system.SystemArtifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.system.SystemArtifact.class, namespace, name).as(io.intino.legio.system.SystemArtifact.class);
 			
 			return newElement;
 		}

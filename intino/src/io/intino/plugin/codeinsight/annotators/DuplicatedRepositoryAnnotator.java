@@ -1,4 +1,4 @@
-package io.intino.plugin.annotators;
+package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;

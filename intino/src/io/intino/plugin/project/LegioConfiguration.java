@@ -19,10 +19,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.legio.Artifact;
-import io.intino.legio.Artifact.Modeling;
 import io.intino.legio.Legio;
 import io.intino.legio.Repository;
 import io.intino.legio.Repository.Release;
+import io.intino.legio.level.LevelArtifact.Modeling;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
@@ -75,6 +75,7 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null && stashFile.exists()) stashFile.delete();
 		reloadInterfaceBuilder();
 		resolveLanguages();
+		reloadArtifactoriesMetaData();
 		if (WebModuleType.isWebModule(module) && this.legio != null)
 			new GulpExecutor(this.module, legio.artifact()).startGulpDev();
 		if (legio != null && legio.artifact() != null) legio.artifact().save();
@@ -115,10 +116,15 @@ public class LegioConfiguration implements Configuration {
 						 legio = newGraphFromLegio();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
+						 reloadArtifactoriesMetaData();
 						 if (legio != null && legio.artifact() != null) legio.artifact().save();
 					 }
 				 }
 		);
+	}
+
+	private void reloadArtifactoriesMetaData() {
+		new ArtifactorySensor(repositoryTypes()).update();
 	}
 
 	private void reloadInterfaceBuilder() {
@@ -161,7 +167,7 @@ public class LegioConfiguration implements Configuration {
 
 	private List<Library> resolveLanguages() {
 		List<Library> libraries = new ArrayList<>();
-		Modeling modeling = safe(() -> legio.artifact().modeling());
+		Modeling modeling = modeling();
 		if (modeling == null) return libraries;
 		for (LanguageLibrary language : languages()) {
 			final String effectiveVersion = language.effectiveVersion();
@@ -179,9 +185,13 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public List<String> taraCompilerClasspath() {
-		Artifact.Generation modeling = generation();
+		Modeling modeling = modeling();
 		if (modeling == null) return Collections.emptyList();
-		return new TaraBuilderResolver(this.module.getProject(), generation()).resolveBuilder();
+		return new TaraBuilderResolver(this.module.getProject(), modeling()).resolveBuilder();
+	}
+
+	private Modeling modeling() {
+		return safe(() -> legio.artifact().asLevel().modeling());
 	}
 
 	private void resolveWebDependencies() {
@@ -217,7 +227,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String workingPackage() {
-		return safe(() -> legio.artifact().generation().inPackage(), outDSL());
+		return safe(() -> legio.artifact().generation().targetPackage(), groupId() + "." + artifactId());
 	}
 
 	public String nativeLanguage() {
@@ -226,7 +236,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<? extends LanguageLibrary> languages() {
-		final List<Modeling.Language> list = safe(() -> legio.artifact().modeling().languageList());
+		final List<Modeling.Language> list = safe(() -> legio.artifact().asLevel().modeling().languageList());
 		if (list == null) return Collections.emptyList();
 		List<LanguageLibrary> languages = new ArrayList<>();
 		for (Modeling.Language language : list) {
@@ -335,11 +345,6 @@ public class LegioConfiguration implements Configuration {
 	public String outDSL() {
 		return safe(() -> legio.artifact().name());
 	}
-
-	public Artifact.Generation generation() {
-		return safe(() -> legio.artifact().generation());
-	}
-
 
 	public List<Artifact.Deployment> deployments() {
 		return safe(() -> legio.artifact().deploymentList());

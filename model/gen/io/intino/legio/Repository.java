@@ -4,7 +4,7 @@ import io.intino.legio.*;
 
 
 public class Repository extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-	protected java.lang.String mavenId;
+	protected java.lang.String identifier;
 	protected java.util.List<io.intino.legio.Repository.Type> typeList = new java.util.ArrayList<>();
 	protected java.util.List<io.intino.legio.Repository.Release> releaseList = new java.util.ArrayList<>();
 	protected io.intino.legio.Repository.Snapshot snapshot;
@@ -14,12 +14,12 @@ public class Repository extends io.intino.tara.magritte.Layer implements io.inti
 		super(node);
 	}
 
-	public java.lang.String mavenId() {
-		return mavenId;
+	public java.lang.String identifier() {
+		return identifier;
 	}
 
-	public void mavenId(java.lang.String value) {
-		this.mavenId = value;
+	public void identifier(java.lang.String value) {
+		this.identifier = value;
 	}
 
 	public java.util.List<io.intino.legio.Repository.Type> typeList() {
@@ -78,7 +78,7 @@ public class Repository extends io.intino.tara.magritte.Layer implements io.inti
 	@Override
 	public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-		map.put("mavenId", new java.util.ArrayList(java.util.Collections.singletonList(this.mavenId)));
+		map.put("identifier", new java.util.ArrayList(java.util.Collections.singletonList(this.identifier)));
 		return map;
 	}
 
@@ -107,13 +107,13 @@ public class Repository extends io.intino.tara.magritte.Layer implements io.inti
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
-		if (name.equalsIgnoreCase("mavenId")) this.mavenId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		if (name.equalsIgnoreCase("identifier")) this.identifier = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
 	protected void _set(java.lang.String name, java.util.List<?> values) {
 		super._set(name, values);
-		if (name.equalsIgnoreCase("mavenId")) this.mavenId = (java.lang.String) values.get(0);
+		if (name.equalsIgnoreCase("identifier")) this.identifier = (java.lang.String) values.get(0);
 	}
 
 	public Create create() {

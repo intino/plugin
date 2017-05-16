@@ -2,13 +2,13 @@ package io.intino.legio.natives.repository.type;
 
 import io.intino.legio.Repository;
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#99#2**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#94#2**/
 public class MavenID_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.Repository.Type self;
 
 	@Override
 	public String value() {
-		return self.ownerAs(Repository.class).mavenId();
+		return self.ownerAs(Repository.class).identifier();
 	}
 
 	@Override
