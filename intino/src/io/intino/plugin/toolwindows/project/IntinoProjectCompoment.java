@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows;
+package io.intino.plugin.toolwindows.project;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -14,7 +14,7 @@ import com.intellij.ui.content.ContentManager;
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.plugin.toolwindows.ViewConstants.*;
+import static io.intino.plugin.toolwindows.project.ViewConstants.*;
 
 public class IntinoProjectCompoment implements ProjectComponent {
 	private final Project project;

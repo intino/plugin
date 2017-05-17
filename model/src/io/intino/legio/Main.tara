@@ -38,14 +38,16 @@ Concept:{1..1}:Named Artifact
 			var string groupId
 			var string artifactId
 			var string version
-	Concept:{0..1} Generation
-		var string targetPackage
-	Concept:{0..1} Boxing
+	Concept:{0..1} Box
 		var string language
 		var string version
-	Concept Exports
+		var string sdk
 
-	Concept:{0..1} Pack
+	Concept:{0..1} Code
+		var string targetPackage
+	Concept Exports
+		var Repository.Type repository
+	Concept:{0..1} Package
 		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} mode
 		var boolean attachSources = false
 		var boolean attachDoc = false
@@ -56,10 +58,9 @@ Concept:{1..1}:Named Artifact
 			var string code
 
 	Concept:{0..1} Distribution
-		var string mavenId
-		has:{0..1} Repository.Release
-		has:{0..1} Repository.Snapshot
-		has:{0..1} Repository.Language
+		var Repository.Release release
+		var Repository.Language language
+
 		Concept:{0..1} Bitbucket
 			var string user
 			var string token
@@ -96,18 +97,17 @@ Concept Repository
 		sub:{0..1} Snapshot
 		sub:{0..1} Language
 
-Facet Runnable on Artifact.Pack
+Facet Runnable on Artifact.Package
 	var string mainClass
 
 Facet Level on Artifact
-	Concept:{1..1} Modeling
+	Concept:{1..1} Model
+		var string language
 		var string version
-		Concept Language
-			var string name
-			var string version
-			var string effectiveVersion = "" is private
+		var string sdk
+		var string effectiveVersion = "" is private
 	sub Platform
-	sub Application
+	sub Product
 	sub System
 
 Concept Argument is component

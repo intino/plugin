@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Repository;
-import io.intino.legio.level.LevelArtifact.Modeling;
+import io.intino.legio.level.LevelArtifact;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
@@ -41,22 +41,22 @@ public class LanguageResolver {
 
 	private final Module module;
 	private final List<Repository.Type> repositories;
-	private Modeling.Language language;
 	private final String version;
+	private final LevelArtifact.Model model;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public LanguageResolver(Module module, List<Repository.Type> repositories, Modeling.Language language, String version) {
+	public LanguageResolver(Module module, List<Repository.Type> repositories, LevelArtifact.Model model, String version) {
 		this.module = module;
 		this.repositories = repositories;
-		this.language = language;
+		this.model = model;
 		this.version = version;
 	}
 
 	public List<Library> resolve() {
-		if (language == null) return Collections.emptyList();
-		LanguageManager.silentReload(this.module.getProject(), language.name$(), version);
-		final List<Library> libraries = isMagritteLibrary(this.language.name$()) ? magritte(version) : languageFramework();
-		new TaraBuilderResolver(module.getProject(), language.ownerAs(Modeling.class)).resolveBuilder();
+		if (model == null) return Collections.emptyList();
+		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
+		final List<Library> libraries = isMagritteLibrary(this.model.language()) ? magritte(version) : languageFramework();
+		new TaraBuilderResolver(module.getProject(), model).resolveBuilder();
 		return libraries;
 	}
 
@@ -64,8 +64,7 @@ public class LanguageResolver {
 		List<Library> libraries = new ArrayList<>();
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
-			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
-					loadMagritteLibrary(version, libraries)));
+			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries)));
 		else
 			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
 					loadMagritteLibrary(version, libraries))), defaultModalityState());
@@ -75,7 +74,7 @@ public class LanguageResolver {
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(magritteID(version));
-		language.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
+		model.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
 		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(languageFramework);
 		libraries.addAll(flat(registeredLibraries));
 		manager.addToModule(libraries, DependencyScope.COMPILE);
@@ -88,7 +87,7 @@ public class LanguageResolver {
 
 	private List<Library> languageFramework() {
 		final List<Library> libraries = new ArrayList<>();
-		final Module module = moduleDependencyOf(this.module, language.name$(), version);
+		final Module module = moduleDependencyOf(this.module, model.language(), version);
 		final Application app = ApplicationManager.getApplication();
 		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
 		else
@@ -104,15 +103,15 @@ public class LanguageResolver {
 	private void addModuleDependency(Module dependency, List<Library> libraries) {
 		libraries.addAll(new LibraryManager(this.module).resolveAsModuleDependency(dependency));
 		final Configuration configuration = TaraUtil.configurationOf(dependency);
-		if (configuration != null) language.effectiveVersion(configuration.version());
+		if (configuration != null) model.effectiveVersion(configuration.version());
 	}
 
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
-		if (!LanguageManager.getLanguageFile(language.name$(), version).exists()) importLanguage();
-		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(language.name$(), version));
+		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) importLanguage();
+		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(model.language(), version));
 		libraries.addAll(flat(manager.registerOrGetLibrary(languageFramework)));
-		language.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
+		model.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
 		manager.addToModule(libraries, DependencyScope.COMPILE);
 	}
 
@@ -159,7 +158,7 @@ public class LanguageResolver {
 	}
 
 	private void importLanguage() {
-		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(language.name$(), version);
+		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language(), version);
 	}
 
 	@NotNull

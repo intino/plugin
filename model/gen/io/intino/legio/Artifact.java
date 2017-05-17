@@ -1,18 +1,15 @@
 package io.intino.legio;
 
-import io.intino.legio.*;
-
-
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
 	protected io.intino.legio.Artifact.License license;
 	protected io.intino.legio.Artifact.Imports imports;
 	protected io.intino.legio.Artifact.WebImports webImports;
-	protected io.intino.legio.Artifact.Generation generation;
-	protected io.intino.legio.Artifact.Boxing boxing;
+	protected io.intino.legio.Artifact.Box box;
+	protected io.intino.legio.Artifact.Code code;
 	protected java.util.List<io.intino.legio.Artifact.Exports> exportsList = new java.util.ArrayList<>();
-	protected io.intino.legio.Artifact.Pack pack;
+	protected io.intino.legio.Artifact.Package package$;
 	protected io.intino.legio.Artifact.Distribution distribution;
 	protected io.intino.legio.Artifact.QualityAnalytics qualityAnalytics;
 	protected java.util.List<io.intino.legio.Artifact.Deployment> deploymentList = new java.util.ArrayList<>();
@@ -49,12 +46,12 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return webImports;
 	}
 
-	public io.intino.legio.Artifact.Generation generation() {
-		return generation;
+	public io.intino.legio.Artifact.Box box() {
+		return box;
 	}
 
-	public io.intino.legio.Artifact.Boxing boxing() {
-		return boxing;
+	public io.intino.legio.Artifact.Code code() {
+		return code;
 	}
 
 	public java.util.List<io.intino.legio.Artifact.Exports> exportsList() {
@@ -69,8 +66,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return exportsList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.Artifact.Pack pack() {
-		return pack;
+	public io.intino.legio.Artifact.Package package$() {
+		return package$;
 	}
 
 	public io.intino.legio.Artifact.Distribution distribution() {
@@ -105,18 +102,18 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		this.webImports = value;
 	}
 
-	public void generation(io.intino.legio.Artifact.Generation value) {
-		this.generation = value;
+	public void box(io.intino.legio.Artifact.Box value) {
+		this.box = value;
 	}
 
-	public void boxing(io.intino.legio.Artifact.Boxing value) {
-		this.boxing = value;
+	public void code(io.intino.legio.Artifact.Code value) {
+		this.code = value;
 	}
 
 	
 
-	public void pack(io.intino.legio.Artifact.Pack value) {
-		this.pack = value;
+	public void package$(io.intino.legio.Artifact.Package value) {
+		this.package$ = value;
 	}
 
 	public void distribution(io.intino.legio.Artifact.Distribution value) {
@@ -138,6 +135,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return is(io.intino.legio.platform.PlatformArtifact.class);
 	}
 
+	public io.intino.legio.product.ProductArtifact asProduct() {
+		io.intino.tara.magritte.Layer as = this.as(io.intino.legio.product.ProductArtifact.class);
+		return as != null ? (io.intino.legio.product.ProductArtifact) as : addFacet(io.intino.legio.product.ProductArtifact.class);
+	}
+
+	public boolean isProduct() {
+		return is(io.intino.legio.product.ProductArtifact.class);
+	}
+
 	public io.intino.legio.level.LevelArtifact asLevel() {
 		io.intino.tara.magritte.Layer as = this.as(io.intino.legio.level.LevelArtifact.class);
 		return as != null ? (io.intino.legio.level.LevelArtifact) as : null;
@@ -145,15 +151,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 	public boolean isLevel() {
 		return is(io.intino.legio.level.LevelArtifact.class);
-	}
-
-	public io.intino.legio.application.ApplicationArtifact asApplication() {
-		io.intino.tara.magritte.Layer as = this.as(io.intino.legio.application.ApplicationArtifact.class);
-		return as != null ? (io.intino.legio.application.ApplicationArtifact) as : addFacet(io.intino.legio.application.ApplicationArtifact.class);
-	}
-
-	public boolean isApplication() {
-		return is(io.intino.legio.application.ApplicationArtifact.class);
 	}
 
 	public io.intino.legio.system.SystemArtifact asSystem() {
@@ -170,10 +167,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (license != null) components.add(this.license.node());
 		if (imports != null) components.add(this.imports.node());
 		if (webImports != null) components.add(this.webImports.node());
-		if (generation != null) components.add(this.generation.node());
-		if (boxing != null) components.add(this.boxing.node());
+		if (box != null) components.add(this.box.node());
+		if (code != null) components.add(this.code.node());
 		exportsList.stream().forEach(c -> components.add(c.node()));
-		if (pack != null) components.add(this.pack.node());
+		if (package$ != null) components.add(this.package$.node());
 		if (distribution != null) components.add(this.distribution.node());
 		if (qualityAnalytics != null) components.add(this.qualityAnalytics.node());
 		deploymentList.stream().forEach(c -> components.add(c.node()));
@@ -198,10 +195,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (node.is("Artifact$License")) this.license = node.as(io.intino.legio.Artifact.License.class);
 		if (node.is("Artifact$Imports")) this.imports = node.as(io.intino.legio.Artifact.Imports.class);
 		if (node.is("Artifact$WebImports")) this.webImports = node.as(io.intino.legio.Artifact.WebImports.class);
-		if (node.is("Artifact$Generation")) this.generation = node.as(io.intino.legio.Artifact.Generation.class);
-		if (node.is("Artifact$Boxing")) this.boxing = node.as(io.intino.legio.Artifact.Boxing.class);
+		if (node.is("Artifact$Box")) this.box = node.as(io.intino.legio.Artifact.Box.class);
+		if (node.is("Artifact$Code")) this.code = node.as(io.intino.legio.Artifact.Code.class);
 		if (node.is("Artifact$Exports")) this.exportsList.add(node.as(io.intino.legio.Artifact.Exports.class));
-		if (node.is("Artifact$Pack")) this.pack = node.as(io.intino.legio.Artifact.Pack.class);
+		if (node.is("Artifact$Package")) this.package$ = node.as(io.intino.legio.Artifact.Package.class);
 		if (node.is("Artifact$Distribution")) this.distribution = node.as(io.intino.legio.Artifact.Distribution.class);
 		if (node.is("Artifact$QualityAnalytics")) this.qualityAnalytics = node.as(io.intino.legio.Artifact.QualityAnalytics.class);
 		if (node.is("Artifact$Deployment")) this.deploymentList.add(node.as(io.intino.legio.Artifact.Deployment.class));
@@ -213,10 +210,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
         if (node.is("Artifact$License")) this.license = null;
         if (node.is("Artifact$Imports")) this.imports = null;
         if (node.is("Artifact$WebImports")) this.webImports = null;
-        if (node.is("Artifact$Generation")) this.generation = null;
-        if (node.is("Artifact$Boxing")) this.boxing = null;
+        if (node.is("Artifact$Box")) this.box = null;
+        if (node.is("Artifact$Code")) this.code = null;
         if (node.is("Artifact$Exports")) this.exportsList.remove(node.as(io.intino.legio.Artifact.Exports.class));
-        if (node.is("Artifact$Pack")) this.pack = null;
+        if (node.is("Artifact$Package")) this.package$ = null;
         if (node.is("Artifact$Distribution")) this.distribution = null;
         if (node.is("Artifact$QualityAnalytics")) this.qualityAnalytics = null;
         if (node.is("Artifact$Deployment")) this.deploymentList.remove(node.as(io.intino.legio.Artifact.Deployment.class));
@@ -267,33 +264,36 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Generation generation(java.lang.String targetPackage) {
-		    io.intino.legio.Artifact.Generation newElement = graph().concept(io.intino.legio.Artifact.Generation.class).createNode(name, node()).as(io.intino.legio.Artifact.Generation.class);
+		public io.intino.legio.Artifact.Box box(java.lang.String language, java.lang.String version, java.lang.String sdk) {
+		    io.intino.legio.Artifact.Box newElement = graph().concept(io.intino.legio.Artifact.Box.class).createNode(name, node()).as(io.intino.legio.Artifact.Box.class);
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			newElement.node().set(newElement, "sdk", java.util.Collections.singletonList(sdk)); 
+		    return newElement;
+		}
+
+		public io.intino.legio.Artifact.Code code(java.lang.String targetPackage) {
+		    io.intino.legio.Artifact.Code newElement = graph().concept(io.intino.legio.Artifact.Code.class).createNode(name, node()).as(io.intino.legio.Artifact.Code.class);
 			newElement.node().set(newElement, "targetPackage", java.util.Collections.singletonList(targetPackage)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Boxing boxing(java.lang.String language, java.lang.String version) {
-		    io.intino.legio.Artifact.Boxing newElement = graph().concept(io.intino.legio.Artifact.Boxing.class).createNode(name, node()).as(io.intino.legio.Artifact.Boxing.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-		    return newElement;
-		}
-
-		public io.intino.legio.Artifact.Exports exports() {
+		public io.intino.legio.Artifact.Exports exports(io.intino.legio.Repository.Type repository) {
 		    io.intino.legio.Artifact.Exports newElement = graph().concept(io.intino.legio.Artifact.Exports.class).createNode(name, node()).as(io.intino.legio.Artifact.Exports.class);
+			newElement.node().set(newElement, "repository", java.util.Collections.singletonList(repository)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Pack pack(io.intino.legio.Artifact.Pack.Mode mode) {
-		    io.intino.legio.Artifact.Pack newElement = graph().concept(io.intino.legio.Artifact.Pack.class).createNode(name, node()).as(io.intino.legio.Artifact.Pack.class);
+		public io.intino.legio.Artifact.Package package$(io.intino.legio.Artifact.Package.Mode mode) {
+		    io.intino.legio.Artifact.Package newElement = graph().concept(io.intino.legio.Artifact.Package.class).createNode(name, node()).as(io.intino.legio.Artifact.Package.class);
 			newElement.node().set(newElement, "mode", java.util.Collections.singletonList(mode)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Distribution distribution(java.lang.String mavenId) {
+		public io.intino.legio.Artifact.Distribution distribution(io.intino.legio.Repository.Release release, io.intino.legio.Repository.Language language) {
 		    io.intino.legio.Artifact.Distribution newElement = graph().concept(io.intino.legio.Artifact.Distribution.class).createNode(name, node()).as(io.intino.legio.Artifact.Distribution.class);
-			newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			newElement.node().set(newElement, "release", java.util.Collections.singletonList(release));
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language)); 
 		    return newElement;
 		}
 
@@ -1440,10 +1440,94 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 	}
 	
-	public static class Generation extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+	public static class Box extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.lang.String language;
+		protected java.lang.String version;
+		protected java.lang.String sdk;
+
+		public Box(io.intino.tara.magritte.Node node) {
+			super(node);
+		}
+
+		public java.lang.String language() {
+			return language;
+		}
+
+		public java.lang.String version() {
+			return version;
+		}
+
+		public java.lang.String sdk() {
+			return sdk;
+		}
+
+		public void language(java.lang.String value) {
+			this.language = value;
+		}
+
+		public void version(java.lang.String value) {
+			this.version = value;
+		}
+
+		public void sdk(java.lang.String value) {
+			this.sdk = value;
+		}
+
+		@Override
+		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
+			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
+			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
+			map.put("sdk", new java.util.ArrayList(java.util.Collections.singletonList(this.sdk)));
+			return map;
+		}
+
+		public io.intino.tara.magritte.Concept concept() {
+			return this.graph().concept(io.intino.legio.Artifact.Box.class);
+		}
+
+		@Override
+		protected void _load(java.lang.String name, java.util.List<?> values) {
+			super._load(name, values);
+			if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("sdk")) this.sdk = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		}
+
+		@Override
+		protected void _set(java.lang.String name, java.util.List<?> values) {
+			super._set(name, values);
+			if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("sdk")) this.sdk = (java.lang.String) values.get(0);
+		}
+
+		public Create create() {
+			return new Create(null);
+		}
+
+		public Create create(java.lang.String name) {
+			return new Create(name);
+		}
+
+		public class Create {
+			protected final java.lang.String name;
+
+			public Create(java.lang.String name) {
+				this.name = name;
+			}
+			
+		}
+		
+		public io.intino.legio.Legio legioWrapper() {
+			return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
+		}
+	}
+	
+	public static class Code extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.lang.String targetPackage;
 
-		public Generation(io.intino.tara.magritte.Node node) {
+		public Code(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -1463,7 +1547,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 
 		public io.intino.tara.magritte.Concept concept() {
-			return this.graph().concept(io.intino.legio.Artifact.Generation.class);
+			return this.graph().concept(io.intino.legio.Artifact.Code.class);
 		}
 
 		@Override
@@ -1500,88 +1584,25 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 	}
 	
-	public static class Boxing extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-		protected java.lang.String language;
-		protected java.lang.String version;
-
-		public Boxing(io.intino.tara.magritte.Node node) {
-			super(node);
-		}
-
-		public java.lang.String language() {
-			return language;
-		}
-
-		public java.lang.String version() {
-			return version;
-		}
-
-		public void language(java.lang.String value) {
-			this.language = value;
-		}
-
-		public void version(java.lang.String value) {
-			this.version = value;
-		}
-
-		@Override
-		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
-			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-			map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
-			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
-			return map;
-		}
-
-		public io.intino.tara.magritte.Concept concept() {
-			return this.graph().concept(io.intino.legio.Artifact.Boxing.class);
-		}
-
-		@Override
-		protected void _load(java.lang.String name, java.util.List<?> values) {
-			super._load(name, values);
-			if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-			else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-		}
-
-		@Override
-		protected void _set(java.lang.String name, java.util.List<?> values) {
-			super._set(name, values);
-			if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
-			else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
-		}
-
-		public Create create() {
-			return new Create(null);
-		}
-
-		public Create create(java.lang.String name) {
-			return new Create(name);
-		}
-
-		public class Create {
-			protected final java.lang.String name;
-
-			public Create(java.lang.String name) {
-				this.name = name;
-			}
-			
-		}
-		
-		public io.intino.legio.Legio legioWrapper() {
-			return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
-		}
-	}
-	
 	public static class Exports extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-		
+		protected io.intino.legio.Repository.Type repository;
 
 		public Exports(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
+		public io.intino.legio.Repository.Type repository() {
+			return repository;
+		}
+
+		public void repository(io.intino.legio.Repository.Type value) {
+			this.repository = value;
+		}
+
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("repository", this.repository != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.repository)) : java.util.Collections.emptyList());
 			return map;
 		}
 
@@ -1592,11 +1613,13 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
+			if (name.equalsIgnoreCase("repository")) this.repository = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.Repository.Type.class, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
+			if (name.equalsIgnoreCase("repository")) this.repository = values.get(0)!= null ? graph().loadNode(((io.intino.tara.magritte.Layer) values.get(0)).id()).as(io.intino.legio.Repository.Type.class) : null;
 		}
 
 		public Create create() {
@@ -1621,7 +1644,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 	}
 	
-	public static class Pack extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+	public static class Package extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected Mode mode;
 
 		public enum Mode {
@@ -1632,9 +1655,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		protected boolean includeTests;
 		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
-		protected java.util.List<io.intino.legio.Artifact.Pack.MavenPlugin> mavenPluginList = new java.util.ArrayList<>();
+		protected java.util.List<io.intino.legio.Artifact.Package.MavenPlugin> mavenPluginList = new java.util.ArrayList<>();
 
-		public Pack(io.intino.tara.magritte.Node node) {
+		public Package(io.intino.tara.magritte.Node node) {
 			super(node);
 		}
 
@@ -1662,7 +1685,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return finalName;
 		}
 
-		public void mode(io.intino.legio.Artifact.Pack.Mode value) {
+		public void mode(io.intino.legio.Artifact.Package.Mode value) {
 			this.mode = value;
 		}
 
@@ -1686,36 +1709,36 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			this.finalName = value;
 		}
 
-		public java.util.List<io.intino.legio.Artifact.Pack.MavenPlugin> mavenPluginList() {
+		public java.util.List<io.intino.legio.Artifact.Package.MavenPlugin> mavenPluginList() {
 			return java.util.Collections.unmodifiableList(mavenPluginList);
 		}
 
-		public io.intino.legio.Artifact.Pack.MavenPlugin mavenPlugin(int index) {
+		public io.intino.legio.Artifact.Package.MavenPlugin mavenPlugin(int index) {
 			return mavenPluginList.get(index);
 		}
 
-		public java.util.List<io.intino.legio.Artifact.Pack.MavenPlugin> mavenPluginList(java.util.function.Predicate<io.intino.legio.Artifact.Pack.MavenPlugin> predicate) {
+		public java.util.List<io.intino.legio.Artifact.Package.MavenPlugin> mavenPluginList(java.util.function.Predicate<io.intino.legio.Artifact.Package.MavenPlugin> predicate) {
 			return mavenPluginList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
 		
 
-		public io.intino.legio.runnable.artifact.RunnablePack asRunnable() {
-			return this.as(io.intino.legio.runnable.artifact.RunnablePack.class);
+		public io.intino.legio.runnable.artifact.RunnablePackage asRunnable() {
+			return this.as(io.intino.legio.runnable.artifact.RunnablePackage.class);
 		}
 
-		public io.intino.legio.runnable.artifact.RunnablePack asRunnable(java.lang.String mainClass) {
-			io.intino.legio.runnable.artifact.RunnablePack newElement = addFacet(io.intino.legio.runnable.artifact.RunnablePack.class);
+		public io.intino.legio.runnable.artifact.RunnablePackage asRunnable(java.lang.String mainClass) {
+			io.intino.legio.runnable.artifact.RunnablePackage newElement = addFacet(io.intino.legio.runnable.artifact.RunnablePackage.class);
 			newElement.node().set(newElement, "mainClass", java.util.Collections.singletonList(mainClass)); 
 		    return newElement;
 		}
 
 		public boolean isRunnable() {
-			return is(io.intino.legio.runnable.artifact.RunnablePack.class);
+			return is(io.intino.legio.runnable.artifact.RunnablePackage.class);
 		}
 
 		public void removeRunnable() {
-			this.removeFacet(io.intino.legio.runnable.artifact.RunnablePack.class);
+			this.removeFacet(io.intino.legio.runnable.artifact.RunnablePackage.class);
 		}
 
 		public java.util.List<io.intino.tara.magritte.Node> componentList() {
@@ -1737,19 +1760,19 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 
 		public io.intino.tara.magritte.Concept concept() {
-			return this.graph().concept(io.intino.legio.Artifact.Pack.class);
+			return this.graph().concept(io.intino.legio.Artifact.Package.class);
 		}
 
 		@Override
 		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
-			if (node.is("Artifact$Pack$MavenPlugin")) this.mavenPluginList.add(node.as(io.intino.legio.Artifact.Pack.MavenPlugin.class));
+			if (node.is("Artifact$Package$MavenPlugin")) this.mavenPluginList.add(node.as(io.intino.legio.Artifact.Package.MavenPlugin.class));
 		}
 
 		@Override
 	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
-	        if (node.is("Artifact$Pack$MavenPlugin")) this.mavenPluginList.remove(node.as(io.intino.legio.Artifact.Pack.MavenPlugin.class));
+	        if (node.is("Artifact$Package$MavenPlugin")) this.mavenPluginList.remove(node.as(io.intino.legio.Artifact.Package.MavenPlugin.class));
 	    }
 
 		@Override
@@ -1789,8 +1812,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				this.name = name;
 			}
 
-			public io.intino.legio.Artifact.Pack.MavenPlugin mavenPlugin(java.lang.String code) {
-			    io.intino.legio.Artifact.Pack.MavenPlugin newElement = graph().concept(io.intino.legio.Artifact.Pack.MavenPlugin.class).createNode(name, node()).as(io.intino.legio.Artifact.Pack.MavenPlugin.class);
+			public io.intino.legio.Artifact.Package.MavenPlugin mavenPlugin(java.lang.String code) {
+			    io.intino.legio.Artifact.Package.MavenPlugin newElement = graph().concept(io.intino.legio.Artifact.Package.MavenPlugin.class).createNode(name, node()).as(io.intino.legio.Artifact.Package.MavenPlugin.class);
 				newElement.node().set(newElement, "code", java.util.Collections.singletonList(code)); 
 			    return newElement;
 			}
@@ -1820,7 +1843,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			}
 
 			public io.intino.tara.magritte.Concept concept() {
-				return this.graph().concept(io.intino.legio.Artifact.Pack.MavenPlugin.class);
+				return this.graph().concept(io.intino.legio.Artifact.Package.MavenPlugin.class);
 			}
 
 			@Override
@@ -1864,9 +1887,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 	
 	public static class Distribution extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-		protected java.lang.String mavenId;
 		protected io.intino.legio.Repository.Release release;
-		protected io.intino.legio.Repository.Snapshot snapshot;
 		protected io.intino.legio.Repository.Language language;
 		protected io.intino.legio.Artifact.Distribution.Bitbucket bitbucket;
 
@@ -1874,40 +1895,24 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			super(node);
 		}
 
-		public java.lang.String mavenId() {
-			return mavenId;
-		}
-
-		public void mavenId(java.lang.String value) {
-			this.mavenId = value;
-		}
-
 		public io.intino.legio.Repository.Release release() {
 			return release;
-		}
-
-		public io.intino.legio.Repository.Snapshot snapshot() {
-			return snapshot;
 		}
 
 		public io.intino.legio.Repository.Language language() {
 			return language;
 		}
 
-		public io.intino.legio.Artifact.Distribution.Bitbucket bitbucket() {
-			return bitbucket;
-		}
-
 		public void release(io.intino.legio.Repository.Release value) {
 			this.release = value;
 		}
 
-		public void snapshot(io.intino.legio.Repository.Snapshot value) {
-			this.snapshot = value;
-		}
-
 		public void language(io.intino.legio.Repository.Language value) {
 			this.language = value;
+		}
+
+		public io.intino.legio.Artifact.Distribution.Bitbucket bitbucket() {
+			return bitbucket;
 		}
 
 		public void bitbucket(io.intino.legio.Artifact.Distribution.Bitbucket value) {
@@ -1916,9 +1921,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		public java.util.List<io.intino.tara.magritte.Node> componentList() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
-			if (release != null) components.add(this.release.node());
-			if (snapshot != null) components.add(this.snapshot.node());
-			if (language != null) components.add(this.language.node());
 			if (bitbucket != null) components.add(this.bitbucket.node());
 			return new java.util.ArrayList<>(components);
 		}
@@ -1926,7 +1928,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-			map.put("mavenId", new java.util.ArrayList(java.util.Collections.singletonList(this.mavenId)));
+			map.put("release", this.release != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.release)) : java.util.Collections.emptyList());
+			map.put("language", this.language != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.language)) : java.util.Collections.emptyList());
 			return map;
 		}
 
@@ -1937,31 +1940,27 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void addNode(io.intino.tara.magritte.Node node) {
 			super.addNode(node);
-			if (node.is("Repository$Release")) this.release = node.as(io.intino.legio.Repository.Release.class);
-			if (node.is("Repository$Snapshot")) this.snapshot = node.as(io.intino.legio.Repository.Snapshot.class);
-			if (node.is("Repository$Language")) this.language = node.as(io.intino.legio.Repository.Language.class);
 			if (node.is("Artifact$Distribution$Bitbucket")) this.bitbucket = node.as(io.intino.legio.Artifact.Distribution.Bitbucket.class);
 		}
 
 		@Override
 	    protected void removeNode(io.intino.tara.magritte.Node node) {
 	        super.removeNode(node);
-	        if (node.is("Repository$Release")) this.release = null;
-	        if (node.is("Repository$Snapshot")) this.snapshot = null;
-	        if (node.is("Repository$Language")) this.language = null;
 	        if (node.is("Artifact$Distribution$Bitbucket")) this.bitbucket = null;
 	    }
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("mavenId")) this.mavenId = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("release")) this.release = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.Repository.Release.class, this).get(0);
+			else if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.Repository.Language.class, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
-			if (name.equalsIgnoreCase("mavenId")) this.mavenId = (java.lang.String) values.get(0);
+			if (name.equalsIgnoreCase("release")) this.release = values.get(0)!= null ? graph().loadNode(((io.intino.tara.magritte.Layer) values.get(0)).id()).as(io.intino.legio.Repository.Release.class) : null;
+			else if (name.equalsIgnoreCase("language")) this.language = values.get(0)!= null ? graph().loadNode(((io.intino.tara.magritte.Layer) values.get(0)).id()).as(io.intino.legio.Repository.Language.class) : null;
 		}
 
 		public Create create() {
@@ -1977,24 +1976,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 			public Create(java.lang.String name) {
 				this.name = name;
-			}
-
-			public io.intino.legio.Repository.Release release(java.lang.String url) {
-			    io.intino.legio.Repository.Release newElement = graph().concept(io.intino.legio.Repository.Release.class).createNode(name, node()).as(io.intino.legio.Repository.Release.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
-			    return newElement;
-			}
-
-			public io.intino.legio.Repository.Snapshot snapshot(java.lang.String url) {
-			    io.intino.legio.Repository.Snapshot newElement = graph().concept(io.intino.legio.Repository.Snapshot.class).createNode(name, node()).as(io.intino.legio.Repository.Snapshot.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
-			    return newElement;
-			}
-
-			public io.intino.legio.Repository.Language language(java.lang.String url) {
-			    io.intino.legio.Repository.Language newElement = graph().concept(io.intino.legio.Repository.Language.class).createNode(name, node()).as(io.intino.legio.Repository.Language.class);
-				newElement.node().set(newElement, "url", java.util.Collections.singletonList(url)); 
-			    return newElement;
 			}
 
 			public io.intino.legio.Artifact.Distribution.Bitbucket bitbucket(java.lang.String user, java.lang.String token) {

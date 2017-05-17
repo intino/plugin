@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows;
+package io.intino.plugin.toolwindows.project;
 
 public interface ViewConstants {
 

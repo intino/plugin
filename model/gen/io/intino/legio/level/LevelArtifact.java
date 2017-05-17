@@ -5,7 +5,7 @@ import io.intino.legio.*;
 
 public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	
-	protected io.intino.legio.level.LevelArtifact.Modeling modeling;
+	protected io.intino.legio.level.LevelArtifact.Model model;
 	
 	
 	
@@ -38,8 +38,8 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		this._artifact.version(value);
 	}
 
-	public io.intino.legio.level.LevelArtifact.Modeling modeling() {
-		return modeling;
+	public io.intino.legio.level.LevelArtifact.Model model() {
+		return model;
 	}
 
 	public io.intino.legio.Artifact.License license() {
@@ -54,12 +54,12 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		return _artifact.webImports();
 	}
 
-	public io.intino.legio.Artifact.Generation generation() {
-		return _artifact.generation();
+	public io.intino.legio.Artifact.Box box() {
+		return _artifact.box();
 	}
 
-	public io.intino.legio.Artifact.Boxing boxing() {
-		return _artifact.boxing();
+	public io.intino.legio.Artifact.Code code() {
+		return _artifact.code();
 	}
 
 	public java.util.List<io.intino.legio.Artifact.Exports> exportsList() {
@@ -70,8 +70,8 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		return _artifact.exportsList().get(index);
 	}
 
-	public io.intino.legio.Artifact.Pack pack() {
-		return _artifact.pack();
+	public io.intino.legio.Artifact.Package package$() {
+		return _artifact.package$();
 	}
 
 	public io.intino.legio.Artifact.Distribution distribution() {
@@ -90,8 +90,8 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		return _artifact.deploymentList().get(index);
 	}
 
-	public void modeling(io.intino.legio.level.LevelArtifact.Modeling value) {
-		this.modeling = value;
+	public void model(io.intino.legio.level.LevelArtifact.Model value) {
+		this.model = value;
 	}
 
 	
@@ -116,7 +116,7 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 
 	public java.util.List<io.intino.tara.magritte.Node> componentList() {
 		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
-		if (modeling != null) components.add(this.modeling.node());
+		if (model != null) components.add(this.model.node());
 		
 		
 		
@@ -142,13 +142,13 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 	@Override
 	protected void addNode(io.intino.tara.magritte.Node node) {
 		super.addNode(node);
-		if (node.is("Level#Artifact$Modeling")) this.modeling = node.as(io.intino.legio.level.LevelArtifact.Modeling.class);
+		if (node.is("Level#Artifact$Model")) this.model = node.as(io.intino.legio.level.LevelArtifact.Model.class);
 	}
 
 	@Override
     protected void removeNode(io.intino.tara.magritte.Node node) {
         super.removeNode(node);
-        if (node.is("Level#Artifact$Modeling")) this.modeling = null;
+        if (node.is("Level#Artifact$Model")) this.model = null;
     }
 
 	@Override
@@ -183,9 +183,11 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 			this.name = name;
 		}
 
-		public io.intino.legio.level.LevelArtifact.Modeling modeling(java.lang.String version) {
-		    io.intino.legio.level.LevelArtifact.Modeling newElement = graph().concept(io.intino.legio.level.LevelArtifact.Modeling.class).createNode(name, node()).as(io.intino.legio.level.LevelArtifact.Modeling.class);
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
+		public io.intino.legio.level.LevelArtifact.Model model(java.lang.String language, java.lang.String version, java.lang.String sdk) {
+		    io.intino.legio.level.LevelArtifact.Model newElement = graph().concept(io.intino.legio.level.LevelArtifact.Model.class).createNode(name, node()).as(io.intino.legio.level.LevelArtifact.Model.class);
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			newElement.node().set(newElement, "sdk", java.util.Collections.singletonList(sdk)); 
 		    return newElement;
 		}
 
@@ -205,33 +207,36 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Generation generation(java.lang.String targetPackage) {
-		    io.intino.legio.Artifact.Generation newElement = graph().concept(io.intino.legio.Artifact.Generation.class).createNode(name, node()).as(io.intino.legio.Artifact.Generation.class);
+		public io.intino.legio.Artifact.Box box(java.lang.String language, java.lang.String version, java.lang.String sdk) {
+		    io.intino.legio.Artifact.Box newElement = graph().concept(io.intino.legio.Artifact.Box.class).createNode(name, node()).as(io.intino.legio.Artifact.Box.class);
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			newElement.node().set(newElement, "sdk", java.util.Collections.singletonList(sdk)); 
+		    return newElement;
+		}
+
+		public io.intino.legio.Artifact.Code code(java.lang.String targetPackage) {
+		    io.intino.legio.Artifact.Code newElement = graph().concept(io.intino.legio.Artifact.Code.class).createNode(name, node()).as(io.intino.legio.Artifact.Code.class);
 			newElement.node().set(newElement, "targetPackage", java.util.Collections.singletonList(targetPackage)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Boxing boxing(java.lang.String language, java.lang.String version) {
-		    io.intino.legio.Artifact.Boxing newElement = graph().concept(io.intino.legio.Artifact.Boxing.class).createNode(name, node()).as(io.intino.legio.Artifact.Boxing.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-		    return newElement;
-		}
-
-		public io.intino.legio.Artifact.Exports exports() {
+		public io.intino.legio.Artifact.Exports exports(io.intino.legio.Repository.Type repository) {
 		    io.intino.legio.Artifact.Exports newElement = graph().concept(io.intino.legio.Artifact.Exports.class).createNode(name, node()).as(io.intino.legio.Artifact.Exports.class);
+			newElement.node().set(newElement, "repository", java.util.Collections.singletonList(repository)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Pack pack(io.intino.legio.Artifact.Pack.Mode mode) {
-		    io.intino.legio.Artifact.Pack newElement = graph().concept(io.intino.legio.Artifact.Pack.class).createNode(name, node()).as(io.intino.legio.Artifact.Pack.class);
+		public io.intino.legio.Artifact.Package package$(io.intino.legio.Artifact.Package.Mode mode) {
+		    io.intino.legio.Artifact.Package newElement = graph().concept(io.intino.legio.Artifact.Package.class).createNode(name, node()).as(io.intino.legio.Artifact.Package.class);
 			newElement.node().set(newElement, "mode", java.util.Collections.singletonList(mode)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Distribution distribution(java.lang.String mavenId) {
+		public io.intino.legio.Artifact.Distribution distribution(io.intino.legio.Repository.Release release, io.intino.legio.Repository.Language language) {
 		    io.intino.legio.Artifact.Distribution newElement = graph().concept(io.intino.legio.Artifact.Distribution.class).createNode(name, node()).as(io.intino.legio.Artifact.Distribution.class);
-			newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			newElement.node().set(newElement, "release", java.util.Collections.singletonList(release));
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language)); 
 		    return newElement;
 		}
 
@@ -249,75 +254,78 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 		
 	}
 	
-	public static class Modeling extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+	public static class Model extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.lang.String language;
 		protected java.lang.String version;
-		protected java.util.List<io.intino.legio.level.LevelArtifact.Modeling.Language> languageList = new java.util.ArrayList<>();
+		protected java.lang.String sdk;
+		protected java.lang.String effectiveVersion;
 
-		public Modeling(io.intino.tara.magritte.Node node) {
+		public Model(io.intino.tara.magritte.Node node) {
 			super(node);
+		}
+
+		public java.lang.String language() {
+			return language;
 		}
 
 		public java.lang.String version() {
 			return version;
 		}
 
+		public java.lang.String sdk() {
+			return sdk;
+		}
+
+		public java.lang.String effectiveVersion() {
+			return effectiveVersion;
+		}
+
+		public void language(java.lang.String value) {
+			this.language = value;
+		}
+
 		public void version(java.lang.String value) {
 			this.version = value;
 		}
 
-		public java.util.List<io.intino.legio.level.LevelArtifact.Modeling.Language> languageList() {
-			return java.util.Collections.unmodifiableList(languageList);
+		public void sdk(java.lang.String value) {
+			this.sdk = value;
 		}
 
-		public io.intino.legio.level.LevelArtifact.Modeling.Language language(int index) {
-			return languageList.get(index);
-		}
-
-		public java.util.List<io.intino.legio.level.LevelArtifact.Modeling.Language> languageList(java.util.function.Predicate<io.intino.legio.level.LevelArtifact.Modeling.Language> predicate) {
-			return languageList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-		}
-
-		
-
-		public java.util.List<io.intino.tara.magritte.Node> componentList() {
-			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
-			languageList.stream().forEach(c -> components.add(c.node()));
-			return new java.util.ArrayList<>(components);
+		public void effectiveVersion(java.lang.String value) {
+			this.effectiveVersion = value;
 		}
 
 		@Override
 		public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
 			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
+			map.put("sdk", new java.util.ArrayList(java.util.Collections.singletonList(this.sdk)));
+			map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 			return map;
 		}
 
 		public io.intino.tara.magritte.Concept concept() {
-			return this.graph().concept(io.intino.legio.level.LevelArtifact.Modeling.class);
+			return this.graph().concept(io.intino.legio.level.LevelArtifact.Model.class);
 		}
-
-		@Override
-		protected void addNode(io.intino.tara.magritte.Node node) {
-			super.addNode(node);
-			if (node.is("Level#Artifact$Modeling$Language")) this.languageList.add(node.as(io.intino.legio.level.LevelArtifact.Modeling.Language.class));
-		}
-
-		@Override
-	    protected void removeNode(io.intino.tara.magritte.Node node) {
-	        super.removeNode(node);
-	        if (node.is("Level#Artifact$Modeling$Language")) this.languageList.remove(node.as(io.intino.legio.level.LevelArtifact.Modeling.Language.class));
-	    }
 
 		@Override
 		protected void _load(java.lang.String name, java.util.List<?> values) {
 			super._load(name, values);
-			if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("sdk")) this.sdk = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
 		protected void _set(java.lang.String name, java.util.List<?> values) {
 			super._set(name, values);
-			if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+			if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("sdk")) this.sdk = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 		}
 
 		public Create create() {
@@ -334,100 +342,8 @@ public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implem
 			public Create(java.lang.String name) {
 				this.name = name;
 			}
-
-			public io.intino.legio.level.LevelArtifact.Modeling.Language language(java.lang.String name$, java.lang.String version) {
-			    io.intino.legio.level.LevelArtifact.Modeling.Language newElement = graph().concept(io.intino.legio.level.LevelArtifact.Modeling.Language.class).createNode(name, node()).as(io.intino.legio.level.LevelArtifact.Modeling.Language.class);
-				newElement.node().set(newElement, "name", java.util.Collections.singletonList(name$));
-				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-			    return newElement;
-			}
 			
 		}
-		
-		public static class Language extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected java.lang.String name$;
-			protected java.lang.String version;
-			protected java.lang.String effectiveVersion;
-
-			public Language(io.intino.tara.magritte.Node node) {
-				super(node);
-			}
-
-			public java.lang.String name$() {
-				return name$;
-			}
-
-			public java.lang.String version() {
-				return version;
-			}
-
-			public java.lang.String effectiveVersion() {
-				return effectiveVersion;
-			}
-
-			public void name$(java.lang.String value) {
-				this.name$ = value;
-			}
-
-			public void version(java.lang.String value) {
-				this.version = value;
-			}
-
-			public void effectiveVersion(java.lang.String value) {
-				this.effectiveVersion = value;
-			}
-
-			@Override
-			public java.util.Map<java.lang.String, java.util.List<?>> variables() {
-				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("name", new java.util.ArrayList(java.util.Collections.singletonList(this.name$)));
-				map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
-				map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
-				return map;
-			}
-
-			public io.intino.tara.magritte.Concept concept() {
-				return this.graph().concept(io.intino.legio.level.LevelArtifact.Modeling.Language.class);
-			}
-
-			@Override
-			protected void _load(java.lang.String name, java.util.List<?> values) {
-				super._load(name, values);
-				if (name.equalsIgnoreCase("name")) this.name$ = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-			}
-
-			@Override
-			protected void _set(java.lang.String name, java.util.List<?> values) {
-				super._set(name, values);
-				if (name.equalsIgnoreCase("name")) this.name$ = (java.lang.String) values.get(0);
-				else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
-				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
-			}
-
-			public Create create() {
-				return new Create(null);
-			}
-
-			public Create create(java.lang.String name) {
-				return new Create(name);
-			}
-
-			public class Create {
-				protected final java.lang.String name;
-
-				public Create(java.lang.String name) {
-					this.name = name;
-				}
-				
-			}
-			
-			public io.intino.legio.Legio legioWrapper() {
-				return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);
-			}
-		}
-		
 		
 		public io.intino.legio.Legio legioWrapper() {
 			return (io.intino.legio.Legio) graph().wrapper(io.intino.legio.Legio.class);

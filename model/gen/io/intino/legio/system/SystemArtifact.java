@@ -48,12 +48,12 @@ public class SystemArtifact extends io.intino.legio.level.LevelArtifact implemen
 		return _artifact.webImports();
 	}
 
-	public io.intino.legio.Artifact.Generation generation() {
-		return _artifact.generation();
+	public io.intino.legio.Artifact.Box box() {
+		return _artifact.box();
 	}
 
-	public io.intino.legio.Artifact.Boxing boxing() {
-		return _artifact.boxing();
+	public io.intino.legio.Artifact.Code code() {
+		return _artifact.code();
 	}
 
 	public java.util.List<io.intino.legio.Artifact.Exports> exportsList() {
@@ -64,8 +64,8 @@ public class SystemArtifact extends io.intino.legio.level.LevelArtifact implemen
 		return _artifact.exportsList().get(index);
 	}
 
-	public io.intino.legio.Artifact.Pack pack() {
-		return _artifact.pack();
+	public io.intino.legio.Artifact.Package package$() {
+		return _artifact.package$();
 	}
 
 	public io.intino.legio.Artifact.Distribution distribution() {
@@ -171,33 +171,36 @@ public class SystemArtifact extends io.intino.legio.level.LevelArtifact implemen
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Generation generation(java.lang.String targetPackage) {
-		    io.intino.legio.Artifact.Generation newElement = graph().concept(io.intino.legio.Artifact.Generation.class).createNode(name, node()).as(io.intino.legio.Artifact.Generation.class);
+		public io.intino.legio.Artifact.Box box(java.lang.String language, java.lang.String version, java.lang.String sdk) {
+		    io.intino.legio.Artifact.Box newElement = graph().concept(io.intino.legio.Artifact.Box.class).createNode(name, node()).as(io.intino.legio.Artifact.Box.class);
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
+			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			newElement.node().set(newElement, "sdk", java.util.Collections.singletonList(sdk)); 
+		    return newElement;
+		}
+
+		public io.intino.legio.Artifact.Code code(java.lang.String targetPackage) {
+		    io.intino.legio.Artifact.Code newElement = graph().concept(io.intino.legio.Artifact.Code.class).createNode(name, node()).as(io.intino.legio.Artifact.Code.class);
 			newElement.node().set(newElement, "targetPackage", java.util.Collections.singletonList(targetPackage)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Boxing boxing(java.lang.String language, java.lang.String version) {
-		    io.intino.legio.Artifact.Boxing newElement = graph().concept(io.intino.legio.Artifact.Boxing.class).createNode(name, node()).as(io.intino.legio.Artifact.Boxing.class);
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language));
-			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
-		    return newElement;
-		}
-
-		public io.intino.legio.Artifact.Exports exports() {
+		public io.intino.legio.Artifact.Exports exports(io.intino.legio.Repository.Type repository) {
 		    io.intino.legio.Artifact.Exports newElement = graph().concept(io.intino.legio.Artifact.Exports.class).createNode(name, node()).as(io.intino.legio.Artifact.Exports.class);
+			newElement.node().set(newElement, "repository", java.util.Collections.singletonList(repository)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Pack pack(io.intino.legio.Artifact.Pack.Mode mode) {
-		    io.intino.legio.Artifact.Pack newElement = graph().concept(io.intino.legio.Artifact.Pack.class).createNode(name, node()).as(io.intino.legio.Artifact.Pack.class);
+		public io.intino.legio.Artifact.Package package$(io.intino.legio.Artifact.Package.Mode mode) {
+		    io.intino.legio.Artifact.Package newElement = graph().concept(io.intino.legio.Artifact.Package.class).createNode(name, node()).as(io.intino.legio.Artifact.Package.class);
 			newElement.node().set(newElement, "mode", java.util.Collections.singletonList(mode)); 
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Distribution distribution(java.lang.String mavenId) {
+		public io.intino.legio.Artifact.Distribution distribution(io.intino.legio.Repository.Release release, io.intino.legio.Repository.Language language) {
 		    io.intino.legio.Artifact.Distribution newElement = graph().concept(io.intino.legio.Artifact.Distribution.class).createNode(name, node()).as(io.intino.legio.Artifact.Distribution.class);
-			newElement.node().set(newElement, "mavenId", java.util.Collections.singletonList(mavenId)); 
+			newElement.node().set(newElement, "release", java.util.Collections.singletonList(release));
+			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language)); 
 		    return newElement;
 		}
 

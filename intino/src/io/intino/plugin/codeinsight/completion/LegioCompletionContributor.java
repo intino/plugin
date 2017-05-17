@@ -21,12 +21,12 @@ public class LegioCompletionContributor extends CompletionContributor {
 		inLanguageName();
 		inLanguageVersion();
 		inGenerationVersion();
-		inBoxingVersion();
-		inBoxingLanguage();
+		inBoxVersion();
+		inBoxLanguage();
 	}
 
 	private void inLanguageName() {
-		extend(CompletionType.BASIC, LegioFilters.inLanguageName, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inModelLanguage, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -45,7 +45,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 						if (!TaraModuleType.isTara(module)) return;
 						final Node container = (Node) TaraPsiImplUtil.getContainerOf(parameters.getOriginalPosition());
 						if (container == null) return;
-						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("name")).findAny().orElse(null);
+						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
 						if (name == null) return;
 						final String[] values = PropertiesComponent.getInstance().getValues(LANGUAGE_TAG + name.values().get(0).toString());
 						if (values == null) return;
@@ -55,8 +55,8 @@ public class LegioCompletionContributor extends CompletionContributor {
 		);
 	}
 
-	private void inBoxingVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxingVersion, new CompletionProvider<CompletionParameters>() {
+	private void inBoxVersion() {
+		extend(CompletionType.BASIC, LegioFilters.inBoxVersion, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -66,8 +66,8 @@ public class LegioCompletionContributor extends CompletionContributor {
 		);
 	}
 
-	private void inBoxingLanguage() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxingLanguage, new CompletionProvider<CompletionParameters>() {
+	private void inBoxLanguage() {
+		extend(CompletionType.BASIC, LegioFilters.inBoxLanguage, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -78,7 +78,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inGenerationVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inGenerationVersion, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inSDKVersion, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {

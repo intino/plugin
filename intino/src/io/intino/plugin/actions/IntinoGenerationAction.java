@@ -5,7 +5,6 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
@@ -65,7 +64,7 @@ public class IntinoGenerationAction extends IntinoAction {
 	private void buildModels(Module module) {
 		final List<TaraModel> models = TaraUtil.getFilesOfModuleByFileType(module, TaraFileType.instance());
 		if (models.isEmpty()) return;
-		withTask(new Task.Backgroundable(module.getProject(), "Generating Classes", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName()+": Generating Code", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
@@ -199,12 +198,7 @@ public class IntinoGenerationAction extends IntinoAction {
 		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
 		if (action == null)
 			Bus.notify(new Notification("Tara Language", "Interface not found", "Interface version not found", NotificationType.ERROR), null);
-		else {
-			final Application application = ApplicationManager.getApplication();
-			if (!application.isWriteAccessAllowed())
-				application.runWriteAction(() -> action.actionPerformed(createActionEvent()));
-			else action.actionPerformed(createActionEvent());
-		}
+		else action.actionPerformed(createActionEvent());
 	}
 
 	private AnActionEvent createActionEvent() {

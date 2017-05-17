@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows;
+package io.intino.plugin.toolwindows.project;
 
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.project.Project;

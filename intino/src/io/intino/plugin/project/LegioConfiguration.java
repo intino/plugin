@@ -22,7 +22,7 @@ import io.intino.legio.Artifact;
 import io.intino.legio.Legio;
 import io.intino.legio.Repository;
 import io.intino.legio.Repository.Release;
-import io.intino.legio.level.LevelArtifact.Modeling;
+import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
@@ -90,7 +90,7 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Purge Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
@@ -109,7 +109,7 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
@@ -128,8 +128,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadInterfaceBuilder() {
-		final Artifact.Boxing boxing = safe(() -> legio.artifact().boxing());
-		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.version());
+		final Artifact.Box boxing = safe(() -> legio.artifact().box());
+		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.sdk());
 	}
 
 	private Legio newGraphFromLegio() {
@@ -167,13 +167,12 @@ public class LegioConfiguration implements Configuration {
 
 	private List<Library> resolveLanguages() {
 		List<Library> libraries = new ArrayList<>();
-		Modeling modeling = modeling();
-		if (modeling == null) return libraries;
+		Model model = model();
+		if (model == null) return libraries;
 		for (LanguageLibrary language : languages()) {
 			final String effectiveVersion = language.effectiveVersion();
 			String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
-			libraries.addAll(new LanguageResolver(module, repositoryTypes(),
-					modeling.languageList(d -> d.name$().equals(language.name())).get(0), version).resolve());
+			libraries.addAll(new LanguageResolver(module, repositoryTypes(), model, version).resolve());
 		}
 		return libraries;
 	}
@@ -185,13 +184,13 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public List<String> taraCompilerClasspath() {
-		Modeling modeling = modeling();
+		Model modeling = model();
 		if (modeling == null) return Collections.emptyList();
-		return new TaraBuilderResolver(this.module.getProject(), modeling()).resolveBuilder();
+		return new TaraBuilderResolver(this.module.getProject(), model()).resolveBuilder();
 	}
 
-	private Modeling modeling() {
-		return safe(() -> legio.artifact().asLevel().modeling());
+	private Model model() {
+		return safe(() -> legio.artifact().asLevel().model());
 	}
 
 	private void resolveWebDependencies() {
@@ -201,9 +200,9 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Level level() {
 		if (legio == null || legio.artifact() == null) return null;
-		final Artifact.Generation generation = legio.artifact().generation();
-		if (generation == null) return null;
-		final String level = generation.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		final Artifact artifact = artifact();
+		if (artifact == null) return null;
+		final String level = artifact.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
 	}
 
@@ -227,7 +226,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String workingPackage() {
-		return safe(() -> legio.artifact().generation().targetPackage(), groupId() + "." + artifactId());
+		return safe(() -> legio.artifact().code().targetPackage(), groupId() + "." + artifactId());
 	}
 
 	public String nativeLanguage() {
@@ -236,65 +235,58 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<? extends LanguageLibrary> languages() {
-		final List<Modeling.Language> list = safe(() -> legio.artifact().asLevel().modeling().languageList());
-		if (list == null) return Collections.emptyList();
-		List<LanguageLibrary> languages = new ArrayList<>();
-		for (Modeling.Language language : list) {
-			languages.add(new LanguageLibrary() {
-				@Override
-				public String name() {
-					return language.name$();
-				}
+		Model model = safe(() -> legio.artifact().asLevel().model());
+		if (model == null) return Collections.emptyList();
+		return Collections.singletonList(new LanguageLibrary() {
+			@Override
+			public String name() {
+				return model.language();
+			}
 
-				@Override
-				public String version() {
-					return language.version();
-				}
+			@Override
+			public String version() {
+				return model.version();
+			}
 
-				@Override
-				public String effectiveVersion() {
-					return language.effectiveVersion();
-				}
+			@Override
+			public String effectiveVersion() {
+				return model.effectiveVersion();
+			}
 
-				@Override
-				public void version(String version) {
-					final Application application = ApplicationManager.getApplication();
-					TaraModel psiFile = !application.isReadAccessAllowed() ?
-							(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
-							(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
-					new WriteCommandAction(module.getProject(), psiFile) {
-						@Override
-						protected void run(@NotNull Result result) throws Throwable {
-							language.version(version);
-							final Node modeling = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Modeling")).findFirst().orElse(null);
-							if (modeling == null) return;
-							final Node language = modeling.components().stream().filter(f -> f.type().equals("Project.Modeling.Language")).findFirst().orElse(null);
-							if (language == null) return;
-							final Parameter versionParameter = language.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
-							versionParameter.substituteValues(Collections.singletonList(version));
-						}
-					}.execute();
-					reload();
-				}
-
-				@Override
-				public String generationPackage() {
-					try {
-						final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion());
-						if (!languageFile.exists()) return null;
-						Manifest manifest = new JarFile(languageFile).getManifest();
-						final Attributes tara = manifest.getAttributes("tara");
-						if (tara == null) return null;
-						return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
-					} catch (IOException e) {
-						LOG.error(e.getMessage(), e);
-						return null;
+			@Override
+			public void version(String version) {
+				final Application application = ApplicationManager.getApplication();
+				TaraModel psiFile = !application.isReadAccessAllowed() ?
+						(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
+						(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
+				new WriteCommandAction(module.getProject(), psiFile) {
+					@Override
+					protected void run(@NotNull Result result) throws Throwable {
+						model.version(version);
+						final Node modeling = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
+						if (modeling == null) return;
+						final Parameter versionParameter = modeling.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+						versionParameter.substituteValues(Collections.singletonList(version));
 					}
-				}
-			});
-		}
-		return languages;
+				}.execute();
+				reload();
+			}
 
+			@Override
+			public String generationPackage() {
+				try {
+					final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion());
+					if (!languageFile.exists()) return null;
+					Manifest manifest = new JarFile(languageFile).getManifest();
+					final Attributes tara = manifest.getAttributes("tara");
+					if (tara == null) return null;
+					return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
+				} catch (IOException e) {
+					LOG.error(e.getMessage(), e);
+					return null;
+				}
+			}
+		});
 	}
 
 	@Override
@@ -318,21 +310,14 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public AbstractMap.SimpleEntry<String, String> distributionLanguageRepository() {
 		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.artifact().distribution().language().url(), legio.artifact().distribution().mavenId()));
+				(legio.artifact().distribution().language().url(), legio.artifact().distribution().language().mavenID()));
 	}
 
 	@Override
 	public AbstractMap.SimpleEntry<String, String> distributionReleaseRepository() {
 		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.artifact().distribution().release().url(), legio.artifact().distribution().mavenId()));
+				(legio.artifact().distribution().release().url(), legio.artifact().distribution().release().mavenID()));
 	}
-
-	@Override
-	public AbstractMap.SimpleEntry<String, String> distributionSnapshotRepository() {
-		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.artifact().distribution().snapshot().url(), legio.artifact().distribution().mavenId()));
-	}
-
 
 	@Override
 	public Map<String, String> languageRepositories() {
@@ -350,23 +335,23 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.artifact().deploymentList());
 	}
 
-	public Artifact.Pack pack() {
-		return safe(() -> legio.artifact().pack());
+	public Artifact.Package pack() {
+		return safe(() -> legio.artifact().package$());
 	}
 
 	public Artifact.QualityAnalytics qualityAnalytics() {
 		return legio.artifact().qualityAnalytics();
 	}
 
-	public List<RunConfiguration> runConfigurations() {
+	public List<DeployConfiguration> deployConfigurations() {
 		final List<Artifact.Deployment> deploys = safeList(() -> deployments());
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
-		return deploys.stream().map(this::createRunConfiguration).collect(Collectors.toList());
+		return deploys.stream().map(this::createDeployConfiguration).collect(Collectors.toList());
 	}
 
 	@NotNull
-	private RunConfiguration createRunConfiguration(final Artifact.Deployment deployment) {
-		return new RunConfiguration() {
+	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment deployment) {
+		return new DeployConfiguration() {
 			@Override
 			public String name() {
 				return deployment.name();
@@ -419,7 +404,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String interfaceVersion() {
-		return safe(() -> legio.artifact().boxing().version());
+		return safe(() -> legio.artifact().box().sdk());
 	}
 
 	private String safe(StringWrapper wrapper) {
@@ -464,6 +449,10 @@ public class LegioConfiguration implements Configuration {
 
 	public Artifact artifact() {
 		return safe(() -> legio.artifact());
+	}
+
+	public PsiFile legioFile() {
+		return PsiManager.getInstance(module.getProject()).findFile(legioFile);
 	}
 
 	private interface StringWrapper {

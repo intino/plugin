@@ -29,7 +29,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.Artifact.Pack.Mode.*;
+import static io.intino.legio.Artifact.Package.*;
+import static io.intino.legio.Artifact.Package.Mode.*;
 
 
 public class PomCreator {
@@ -37,12 +38,12 @@ public class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
-	private final Artifact.Pack.Mode packageType;
+	private final Mode packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().pack().mode();
+		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().package$().mode();
 	}
 
 	public File frameworkPom() throws IOException {
@@ -61,7 +62,7 @@ public class PomCreator {
 	}
 
 	private File frameworkPom(File pom) {
-		Artifact.Pack build = configuration.pack();
+		Artifact.Package build = configuration.pack();
 		Frame frame = new Frame();
 		fillMavenId(frame);
 		frame.addSlot("sdk", ModuleRootManager.getInstance(module).getSdk().getSdkModificator().getName());
@@ -82,7 +83,7 @@ public class PomCreator {
 		frame.addSlot("version", configuration.version());
 	}
 
-	private void fillFramework(Artifact.Pack build, Frame frame) {
+	private void fillFramework(Artifact.Package pack, Frame frame) {
 		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(frame);
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
@@ -91,7 +92,7 @@ public class PomCreator {
 			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
 			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
-		if (build != null) configureBuild(frame, configuration.licence(), build);
+		if (pack != null) configureBuild(frame, configuration.licence(), pack);
 		addDependencies(frame);
 		addRepositories(frame);
 	}
@@ -184,10 +185,10 @@ public class PomCreator {
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
-	private void configureBuild(Frame frame, Artifact.License license, Artifact.Pack build) {
+	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
-		final Artifact.Pack.Mode type = build.mode();
+		final Artifact.Package.Mode type = build.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");

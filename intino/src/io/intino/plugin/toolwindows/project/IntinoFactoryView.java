@@ -1,16 +1,14 @@
-package io.intino.plugin.toolwindows;
+package io.intino.plugin.toolwindows.project;
 
-import com.intellij.ProjectTopics;
+import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.CollectionComboBoxModel;
-import com.intellij.util.Function;
-import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.IntinoGenerationAction;
@@ -18,8 +16,11 @@ import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.FactoryPhase;
-import io.intino.plugin.console.IntinoTopics;
-import org.jetbrains.annotations.NotNull;
+import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.plugin.lang.psi.TaraModel;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -27,9 +28,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.intino.plugin.toolwindows.IntinoFactoryView.FactoryPanel.Mode.Darcula;
@@ -42,18 +43,11 @@ import static java.util.Arrays.stream;
 
 public class IntinoFactoryView extends JPanel {
 	private JPanel contentPane;
-	private JComboBox modules;
 	private JPanel factoryContainerPanel;
 	private Project project;
 
 	IntinoFactoryView(Project project) {
 		this.project = project;
-		final MessageBusConnection connect = project.getMessageBus().connect();
-		connect.subscribe(ProjectTopics.MODULES, moduleListener());
-		connect.subscribe(IntinoTopics.LEGIO, moduleName -> {
-			loadComboBox(stream(ModuleManager.getInstance(project).getModules()).filter(m -> m.getName().equals(moduleName)).collect(Collectors.toList()));
-		});
-		loadComboBox(Arrays.asList(ModuleManager.getInstance(project).getModules()));
 		LafManager.getInstance().addLafManagerListener(source -> {
 			mode(source.getCurrentLookAndFeel().getName().equalsIgnoreCase("darcula"));
 			source.repaintUI();
@@ -101,11 +95,6 @@ public class IntinoFactoryView extends JPanel {
 		else new ReloadConfigurationAction().execute(selectedModule());
 	}
 
-	@SuppressWarnings("unchecked")
-	private void loadComboBox(List<Module> modules) {
-		this.modules.setModel(new CollectionComboBoxModel<>(modules));
-	}
-
 	private void createUIComponents() {
 		factoryContainerPanel = new FactoryPanel();
 		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode());
@@ -115,11 +104,38 @@ public class IntinoFactoryView extends JPanel {
 		((FactoryPanel) factoryContainerPanel).addActionListener(ExportAccessors, e -> exportAccessors());
 		((FactoryPanel) factoryContainerPanel).addActionListener(DistributeArtifact, e -> build(DistributeArtifact, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(DeployArtifact, e -> build(DeployArtifact, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Src, e -> navigate(Src, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Gen, e -> navigate(Src, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Imports, e -> navigate(Imports, e.getModifiers()));
 		mode(UIUtil.isUnderDarcula());
 	}
 
+	private void navigate(FactoryPanel.Product product, int modifiers) {
+		final Configuration configuration = TaraUtil.configurationOf(selectedModule());
+		if (configuration== null) return;
+		TaraModel model = ((TaraModel) ((LegioConfiguration) configuration).legioFile());
+		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
+		if (artifact == null) return;
+		Node node;
+		switch (product) {
+			case Src:
+				node = find(artifact, "Code");
+				if (node != null) ((Navigatable) node).navigate(true);
+				break;
+			case Imports:
+				node = find(artifact, "Imports");
+				if (node != null) ((Navigatable) node).navigate(true);
+				break;
+		}
+	}
+
+	private Node find(Node artifact, String type) {
+		return artifact.components().stream().filter(n -> n.type().endsWith(type)).findAny().orElse(null);
+	}
+
 	private Module selectedModule() {
-		return (Module) this.modules.getSelectedItem();
+		final DataContext resultSync = DataManager.getInstance().getDataContextFromFocus().getResultSync();
+		return resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
 	}
 
 	Component contentPane() {
@@ -405,28 +421,4 @@ public class IntinoFactoryView extends JPanel {
 		}
 	}
 
-	@NotNull
-	private ModuleListener moduleListener() {
-		return new ModuleListener() {
-			@Override
-			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
-				loadComboBox(Arrays.asList(ModuleManager.getInstance(project).getModules()));
-			}
-
-			@Override
-			public void beforeModuleRemoved(@NotNull Project project, @NotNull Module module) {
-
-			}
-
-			@Override
-			public void moduleRemoved(@NotNull Project project, @NotNull Module module) {
-				loadComboBox(Arrays.asList(ModuleManager.getInstance(project).getModules()));
-			}
-
-			@Override
-			public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
-				loadComboBox(modules);
-			}
-		};
-	}
 }

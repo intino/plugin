@@ -2,7 +2,7 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
-import io.intino.legio.level.LevelArtifact.Modeling.Language;
+import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
@@ -20,10 +20,10 @@ public class LanguageDeclarationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isModeling(Node element) {
-		return element.type().equals("Artifact.Modeling.Language") || element.simpleType().equals(languageCanonicalName());
+		return element.type().equals("Artifact.Model") || element.simpleType().equals(modelCanonicalName());
 	}
 
-	private String languageCanonicalName() {
-		return Language.class.getCanonicalName().replace(Language.class.getPackage().getName() + ".", "");
+	private String modelCanonicalName() {
+		return Model.class.getCanonicalName().replace(Model.class.getPackage().getName() + ".", "");
 	}
 }

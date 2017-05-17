@@ -6,7 +6,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
-import io.intino.legio.level.LevelArtifact.Modeling;
+import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.tara.plugin.lang.LanguageManager;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -28,9 +28,9 @@ public class TaraBuilderResolver {
 
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private final Project project;
-	private final Modeling modeling;
+	private final Model modeling;
 
-	public TaraBuilderResolver(Project project, Modeling modeling) {
+	public TaraBuilderResolver(Project project, Model modeling) {
 		this.project = project;
 		this.modeling = modeling;
 	}
@@ -41,8 +41,8 @@ public class TaraBuilderResolver {
 			final List<RemoteRepository> repos = new ArrayList<>();
 			repos.add(new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY));
 			repos.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-			String version = modeling.version();
-			final List<String> paths = librariesOf(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + version), JavaScopes.COMPILE));
+			String sdk = modeling.sdk();
+			final List<String> paths = librariesOf(new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + sdk), JavaScopes.COMPILE));
 			saveClassPath(paths);
 			return paths;
 		} catch (DependencyResolutionException e) {

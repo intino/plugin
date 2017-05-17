@@ -3,12 +3,12 @@ package io.intino.legio.runnable.artifact;
 import io.intino.legio.*;
 
 
-public class RunnablePack extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+public class RunnablePackage extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	
-	protected io.intino.legio.Artifact.Pack _pack;
+	protected io.intino.legio.Artifact.Package _package;
 
-	public RunnablePack(io.intino.tara.magritte.Node node) {
+	public RunnablePackage(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 
@@ -16,64 +16,64 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 		return mainClass;
 	}
 
-	public io.intino.legio.Artifact.Pack.Mode mode() {
-		return _pack.mode();
+	public io.intino.legio.Artifact.Package.Mode mode() {
+		return _package.mode();
 	}
 
 	public boolean attachSources() {
-		return _pack.attachSources();
+		return _package.attachSources();
 	}
 
 	public boolean attachDoc() {
-		return _pack.attachDoc();
+		return _package.attachDoc();
 	}
 
 	public boolean includeTests() {
-		return _pack.includeTests();
+		return _package.includeTests();
 	}
 
 	public java.lang.String classpathPrefix() {
-		return _pack.classpathPrefix();
+		return _package.classpathPrefix();
 	}
 
 	public java.lang.String finalName() {
-		return _pack.finalName();
+		return _package.finalName();
 	}
 
 	public void mainClass(java.lang.String value) {
 		this.mainClass = value;
 	}
 
-	public void mode(io.intino.legio.Artifact.Pack.Mode value) {
-		this._pack.mode(value);
+	public void mode(io.intino.legio.Artifact.Package.Mode value) {
+		this._package.mode(value);
 	}
 
 	public void attachSources(boolean value) {
-		this._pack.attachSources(value);
+		this._package.attachSources(value);
 	}
 
 	public void attachDoc(boolean value) {
-		this._pack.attachDoc(value);
+		this._package.attachDoc(value);
 	}
 
 	public void includeTests(boolean value) {
-		this._pack.includeTests(value);
+		this._package.includeTests(value);
 	}
 
 	public void classpathPrefix(java.lang.String value) {
-		this._pack.classpathPrefix(value);
+		this._package.classpathPrefix(value);
 	}
 
 	public void finalName(java.lang.String value) {
-		this._pack.finalName(value);
+		this._package.finalName(value);
 	}
 
-	public java.util.List<io.intino.legio.Artifact.Pack.MavenPlugin> mavenPluginList() {
-		return (java.util.List<io.intino.legio.Artifact.Pack.MavenPlugin>) _pack.mavenPluginList();
+	public java.util.List<io.intino.legio.Artifact.Package.MavenPlugin> mavenPluginList() {
+		return (java.util.List<io.intino.legio.Artifact.Package.MavenPlugin>) _package.mavenPluginList();
 	}
 
-	public io.intino.legio.Artifact.Pack.MavenPlugin mavenPluginList(int index) {
-		return _pack.mavenPluginList().get(index);
+	public io.intino.legio.Artifact.Package.MavenPlugin mavenPluginList(int index) {
+		return _package.mavenPluginList().get(index);
 	}
 
 	
@@ -91,7 +91,7 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 	}
 
 	public io.intino.tara.magritte.Concept concept() {
-		return this.graph().concept(io.intino.legio.Artifact.Pack.class);
+		return this.graph().concept(io.intino.legio.Artifact.Package.class);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 	@Override
 	protected void _sync(io.intino.tara.magritte.Layer layer) {
 		super._sync(layer);
-	    if (layer instanceof io.intino.legio.Artifact.Pack) _pack = (io.intino.legio.Artifact.Pack) layer;
+	    if (layer instanceof io.intino.legio.Artifact.Package) _package = (io.intino.legio.Artifact.Package) layer;
 	    
 	}
 
@@ -128,8 +128,8 @@ public class RunnablePack extends io.intino.tara.magritte.Layer implements io.in
 			this.name = name;
 		}
 
-		public io.intino.legio.Artifact.Pack.MavenPlugin mavenPlugin(java.lang.String code) {
-		    io.intino.legio.Artifact.Pack.MavenPlugin newElement = graph().concept(io.intino.legio.Artifact.Pack.MavenPlugin.class).createNode(name, node()).as(io.intino.legio.Artifact.Pack.MavenPlugin.class);
+		public io.intino.legio.Artifact.Package.MavenPlugin mavenPlugin(java.lang.String code) {
+		    io.intino.legio.Artifact.Package.MavenPlugin newElement = graph().concept(io.intino.legio.Artifact.Package.MavenPlugin.class).createNode(name, node()).as(io.intino.legio.Artifact.Package.MavenPlugin.class);
 			newElement.node().set(newElement, "code", java.util.Collections.singletonList(code)); 
 		    return newElement;
 		}

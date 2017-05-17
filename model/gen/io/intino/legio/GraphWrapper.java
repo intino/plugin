@@ -8,10 +8,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	private io.intino.legio.Artifact artifact;
 	private java.util.List<io.intino.legio.Server> serverList;
 	private java.util.List<io.intino.legio.Repository> repositoryList;
-	private java.util.List<io.intino.legio.runnable.artifact.RunnablePack> runnablePackList;
+	private java.util.List<io.intino.legio.runnable.artifact.RunnablePackage> runnablePackageList;
 	private java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList;
 	private java.util.List<io.intino.legio.platform.PlatformArtifact> platformArtifactList;
-	private java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList;
+	private java.util.List<io.intino.legio.product.ProductArtifact> productArtifactList;
 	private java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList;
 
 	public GraphWrapper(io.intino.tara.magritte.Graph graph) {
@@ -23,10 +23,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		artifact = this.graph.rootList(io.intino.legio.Artifact.class).stream().findFirst().orElse(null);
 		serverList = this.graph.rootList(io.intino.legio.Server.class);
 		repositoryList = this.graph.rootList(io.intino.legio.Repository.class);
-		runnablePackList = this.graph.rootList(io.intino.legio.runnable.artifact.RunnablePack.class);
+		runnablePackageList = this.graph.rootList(io.intino.legio.runnable.artifact.RunnablePackage.class);
 		levelArtifactList = this.graph.rootList(io.intino.legio.level.LevelArtifact.class);
 		platformArtifactList = this.graph.rootList(io.intino.legio.platform.PlatformArtifact.class);
-		applicationArtifactList = this.graph.rootList(io.intino.legio.application.ApplicationArtifact.class);
+		productArtifactList = this.graph.rootList(io.intino.legio.product.ProductArtifact.class);
 		systemArtifactList = this.graph.rootList(io.intino.legio.system.SystemArtifact.class);
 	}
 
@@ -35,10 +35,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Artifact")) this.artifact = node.as(io.intino.legio.Artifact.class);
 		if (node.is("Server")) this.serverList.add(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.add(node.as(io.intino.legio.Repository.class));
-		if (node.is("Runnable#Artifact$Pack")) this.runnablePackList.add(node.as(io.intino.legio.runnable.artifact.RunnablePack.class));
+		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.artifact.RunnablePackage.class));
 		if (node.is("Level#Artifact")) this.levelArtifactList.add(node.as(io.intino.legio.level.LevelArtifact.class));
 		if (node.is("Platform#Artifact")) this.platformArtifactList.add(node.as(io.intino.legio.platform.PlatformArtifact.class));
-		if (node.is("Application#Artifact")) this.applicationArtifactList.add(node.as(io.intino.legio.application.ApplicationArtifact.class));
+		if (node.is("Product#Artifact")) this.productArtifactList.add(node.as(io.intino.legio.product.ProductArtifact.class));
 		if (node.is("System#Artifact")) this.systemArtifactList.add(node.as(io.intino.legio.system.SystemArtifact.class));
 	}
 
@@ -47,10 +47,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Artifact")) this.artifact = null;
 		if (node.is("Server")) this.serverList.remove(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.remove(node.as(io.intino.legio.Repository.class));
-		if (node.is("Runnable#Artifact$Pack")) this.runnablePackList.remove(node.as(io.intino.legio.runnable.artifact.RunnablePack.class));
+		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.artifact.RunnablePackage.class));
 		if (node.is("Level#Artifact")) this.levelArtifactList.remove(node.as(io.intino.legio.level.LevelArtifact.class));
 		if (node.is("Platform#Artifact")) this.platformArtifactList.remove(node.as(io.intino.legio.platform.PlatformArtifact.class));
-		if (node.is("Application#Artifact")) this.applicationArtifactList.remove(node.as(io.intino.legio.application.ApplicationArtifact.class));
+		if (node.is("Product#Artifact")) this.productArtifactList.remove(node.as(io.intino.legio.product.ProductArtifact.class));
 		if (node.is("System#Artifact")) this.systemArtifactList.remove(node.as(io.intino.legio.system.SystemArtifact.class));
 	}
 
@@ -118,8 +118,8 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return repositoryList;
 	}
 
-	public java.util.List<io.intino.legio.runnable.artifact.RunnablePack> runnablePackList() {
-		return runnablePackList;
+	public java.util.List<io.intino.legio.runnable.artifact.RunnablePackage> runnablePackageList() {
+		return runnablePackageList;
 	}
 
 	public java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList() {
@@ -130,8 +130,8 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return platformArtifactList;
 	}
 
-	public java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList() {
-		return applicationArtifactList;
+	public java.util.List<io.intino.legio.product.ProductArtifact> productArtifactList() {
+		return productArtifactList;
 	}
 
 	public java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList() {
@@ -154,12 +154,12 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return repositoryList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.runnable.artifact.RunnablePack> runnablePackList(java.util.function.Predicate<io.intino.legio.runnable.artifact.RunnablePack> predicate) {
-		return runnablePackList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.runnable.artifact.RunnablePackage> runnablePackageList(java.util.function.Predicate<io.intino.legio.runnable.artifact.RunnablePackage> predicate) {
+		return runnablePackageList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.runnable.artifact.RunnablePack runnablePack(int index) {
-		return runnablePackList.get(index);
+	public io.intino.legio.runnable.artifact.RunnablePackage runnablePackage(int index) {
+		return runnablePackageList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.level.LevelArtifact> levelArtifactList(java.util.function.Predicate<io.intino.legio.level.LevelArtifact> predicate) {
@@ -178,12 +178,12 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return platformArtifactList.get(index);
 	}
 
-	public java.util.List<io.intino.legio.application.ApplicationArtifact> applicationArtifactList(java.util.function.Predicate<io.intino.legio.application.ApplicationArtifact> predicate) {
-		return applicationArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	public java.util.List<io.intino.legio.product.ProductArtifact> productArtifactList(java.util.function.Predicate<io.intino.legio.product.ProductArtifact> predicate) {
+		return productArtifactList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 	}
 
-	public io.intino.legio.application.ApplicationArtifact applicationArtifact(int index) {
-		return applicationArtifactList.get(index);
+	public io.intino.legio.product.ProductArtifact productArtifact(int index) {
+		return productArtifactList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.system.SystemArtifact> systemArtifactList(java.util.function.Predicate<io.intino.legio.system.SystemArtifact> predicate) {
@@ -238,8 +238,8 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.runnable.artifact.RunnablePack runnablePack(java.lang.String mainClass) {
-			io.intino.legio.runnable.artifact.RunnablePack newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.runnable.artifact.RunnablePack.class, namespace, name).as(io.intino.legio.runnable.artifact.RunnablePack.class);
+		public io.intino.legio.runnable.artifact.RunnablePackage runnablePackage(java.lang.String mainClass) {
+			io.intino.legio.runnable.artifact.RunnablePackage newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.runnable.artifact.RunnablePackage.class, namespace, name).as(io.intino.legio.runnable.artifact.RunnablePackage.class);
 			newElement.node().set(newElement, "mainClass", java.util.Collections.singletonList(mainClass));
 			return newElement;
 		}
@@ -250,8 +250,8 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
-		public io.intino.legio.application.ApplicationArtifact applicationArtifact() {
-			io.intino.legio.application.ApplicationArtifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.application.ApplicationArtifact.class, namespace, name).as(io.intino.legio.application.ApplicationArtifact.class);
+		public io.intino.legio.product.ProductArtifact productArtifact() {
+			io.intino.legio.product.ProductArtifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.product.ProductArtifact.class, namespace, name).as(io.intino.legio.product.ProductArtifact.class);
 			
 			return newElement;
 		}
