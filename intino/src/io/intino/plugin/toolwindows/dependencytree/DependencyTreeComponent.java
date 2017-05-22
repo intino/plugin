@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.project;
+package io.intino.plugin.toolwindows.dependencytree;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -14,14 +14,15 @@ import com.intellij.ui.content.ContentManager;
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.plugin.toolwindows.project.ViewConstants.*;
+import static io.intino.plugin.toolwindows.dependencytree.DependencyTreeComponent.ViewConstants.*;
 
-public class IntinoProjectCompoment implements ProjectComponent {
+
+public class DependencyTreeComponent implements ProjectComponent {
 	private final Project project;
-	private IntinoToolWindow toolWindow;
+	private DependencyTreeToolWindow toolWindow;
 	private ToolWindowEx myToolWindow;
 
-	public IntinoProjectCompoment(Project project) {
+	public DependencyTreeComponent(Project project) {
 		this.project = project;
 	}
 
@@ -46,7 +47,7 @@ public class IntinoProjectCompoment implements ProjectComponent {
 	}
 
 	private void registerToolWindow() {
-		toolWindow = new IntinoToolWindow(project);
+		toolWindow = new DependencyTreeToolWindow(project);
 		myToolWindow = (ToolWindowEx) ToolWindowManagerEx.getInstanceEx(project).
 				registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
 		myToolWindow.setIcon(IntinoIcons.INTINO_13);
@@ -72,4 +73,11 @@ public class IntinoProjectCompoment implements ProjectComponent {
 		myToolWindow = null;
 	}
 
+	public interface ViewConstants {
+
+		String PLUGIN_NAME = "Intino";
+		String PROJECT_COMPONENT_NAME = "DependencyTree";
+		String ID_TOOL_WINDOW = "Intino Dependencies";
+
+	}
 }

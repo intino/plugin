@@ -5,9 +5,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 
 
-class IntinoToolWindow extends SimpleToolWindowPanel implements DataProvider {
+class IntinoFactoryToolWindow extends SimpleToolWindowPanel implements DataProvider {
 
-	IntinoToolWindow(Project project) {
+	IntinoFactoryToolWindow(Project project) {
 		super(true, true);
 		add(new IntinoFactoryView(project).contentPane());
 	}

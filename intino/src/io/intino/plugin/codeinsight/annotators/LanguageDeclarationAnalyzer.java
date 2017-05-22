@@ -26,20 +26,20 @@ import java.util.stream.Collectors;
 import static io.intino.plugin.MessageProvider.message;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
-	private final Node languageNode;
+	private final Node modelNode;
 	private final LegioConfiguration configuration;
 	private Module module;
 
 	LanguageDeclarationAnalyzer(Node node, Module module) {
-		this.languageNode = node;
+		this.modelNode = node;
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 	}
 
 	@Override
 	public void analyze() {
-		if (configuration == null || languageNode == null) return;
-		final Parameter languageNameParameter = languageNode.parameters().stream().filter(p -> p.name().equals("name")).findFirst().orElse(null);
+		if (configuration == null || modelNode == null) return;
+		final Parameter languageNameParameter = modelNode.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
 		if (languageNameParameter == null) return;
 		final String languageName = languageNameParameter.values().get(0).toString();
 		if (languageName == null) return;
@@ -49,9 +49,9 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
-			results.put((PsiElement) this.languageNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
+			results.put((PsiElement) this.modelNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
 		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))
-			results.put(((TaraNode) this.languageNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
+			results.put(((TaraNode) this.modelNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
 	}
 
 	private boolean existMagritte(String version) {
@@ -65,7 +65,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	}
 
 	private String version() {
-		for (Parameter parameter : languageNode.parameters())
+		for (Parameter parameter : modelNode.parameters())
 			if (parameter.name().equals("version")) return parameter.values().get(0).toString();
 		return null;
 	}

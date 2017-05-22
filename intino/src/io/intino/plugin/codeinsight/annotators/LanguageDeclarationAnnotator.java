@@ -20,7 +20,8 @@ public class LanguageDeclarationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isModeling(Node element) {
-		return element.type().equals("Artifact.Model") || element.simpleType().equals(modelCanonicalName());
+		final String type = element.type().replace(":", "");
+		return type.equals("LevelArtifact.Model") || type.equals(modelCanonicalName());
 	}
 
 	private String modelCanonicalName() {

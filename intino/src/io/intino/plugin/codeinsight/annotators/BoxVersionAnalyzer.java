@@ -10,17 +10,17 @@ import io.intino.tara.plugin.lang.psi.TaraNode;
 
 import static io.intino.plugin.MessageProvider.message;
 
-public class BoxingVersionAnalyzer extends TaraAnalyzer {
+public class BoxVersionAnalyzer extends TaraAnalyzer {
 	private final Node interfaceNode;
 
-	BoxingVersionAnalyzer(Node node) {
+	BoxVersionAnalyzer(Node node) {
 		this.interfaceNode = node;
 	}
 
 	@Override
 	public void analyze() {
 		if (interfaceNode.parameters().isEmpty()) return;
-		Parameter parameter = interfaceNode.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+		Parameter parameter = interfaceNode.parameters().stream().filter(p -> p.name().equals("sdk")).findFirst().orElse(null);
 		if (parameter == null) {
 			if (interfaceNode.parameters().size() > 1)
 				parameter = interfaceNode.parameters().get(1);

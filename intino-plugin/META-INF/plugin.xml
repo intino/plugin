@@ -18,7 +18,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
         <annotator language="Tara"
-                   implementationClass="io.intino.plugin.codeinsight.annotators.InterfaceVersionAnnotator"/>
+                   implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>
@@ -89,10 +89,14 @@
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.IntinoProjectCompoment</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.store.StoreInspector</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.toolwindows.dependencytree.DependencyTreeComponent
+            </implementation-class>
         </component>
     </project-components>
 </idea-plugin>

@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -63,6 +64,7 @@ public class IntinoGenerationAction extends IntinoAction {
 
 	private void buildModels(Module module) {
 		final List<TaraModel> models = TaraUtil.getFilesOfModuleByFileType(module, TaraFileType.instance());
+		FileDocumentManager.getInstance().saveAllDocuments();
 		if (models.isEmpty()) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName()+": Generating Code", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override

@@ -15,14 +15,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.intino.tara.plugin.lang.TaraIcons.STASH_16;
 
-public class StoreInspector implements ProjectComponent {
+public class IntinoStoreComponent implements ProjectComponent {
 
 	private final Project project;
-	private StoreInspectorManager inspectorPanel;
+	private IntinoStoreToolWindow inspectorPanel;
 	private ToolWindowEx myToolWindow;
-	private String ID_TOOL_WINDOW = "Store Inspector";
+	private String ID_TOOL_WINDOW = "Intino Store";
 
-	public StoreInspector(Project project) {
+	public IntinoStoreComponent(Project project) {
 		this.project = project;
 	}
 
@@ -56,7 +56,7 @@ public class StoreInspector implements ProjectComponent {
 	}
 
 	private void doInit() {
-		inspectorPanel = new StoreInspectorManager(project);
+		inspectorPanel = new IntinoStoreToolWindow(project);
 		final ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(project);
 		myToolWindow = (ToolWindowEx) manager.registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
 		myToolWindow.setIcon(STASH_16);

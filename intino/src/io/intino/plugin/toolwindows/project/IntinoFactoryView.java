@@ -28,26 +28,41 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static io.intino.plugin.toolwindows.IntinoFactoryView.FactoryPanel.Mode.Darcula;
-import static io.intino.plugin.toolwindows.IntinoFactoryView.FactoryPanel.Mode.Light;
-import static io.intino.plugin.toolwindows.IntinoFactoryView.FactoryPanel.Operation.*;
-import static io.intino.plugin.toolwindows.IntinoFactoryView.FactoryPanel.Product.*;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Label.BoxLanguage;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Label.ModelLanguage;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Mode.Darcula;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Mode.Light;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Operation.*;
+import static io.intino.plugin.toolwindows.project.IntinoFactoryView.FactoryPanel.Product.*;
+import static java.awt.event.ActionEvent.SHIFT_MASK;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.stream;
 
 public class IntinoFactoryView extends JPanel {
 	private JPanel contentPane;
 	private JPanel factoryContainerPanel;
+	private JLabel moduleLabel;
 	private Project project;
+	private Instant lastAction;
 
 	IntinoFactoryView(Project project) {
 		this.project = project;
+		this.lastAction = Instant.now();
+		this.contentPane.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				final Module module = selectedModule();
+				if (module != null) moduleLabel.setText(module.getName());
+			}
+		});
 		LafManager.getInstance().addLafManagerListener(source -> {
 			mode(source.getCurrentLookAndFeel().getName().equalsIgnoreCase("darcula"));
 			source.repaintUI();
@@ -55,22 +70,30 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void generateCode() {
+		if (isRecurrent()) return;
+		lastAction = Instant.now();
 		new IntinoGenerationAction().execute(selectedModule());
 	}
 
 	private void build() {
+		if (isRecurrent()) return;
+		lastAction = Instant.now();
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
 		CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{selectedModule()}, true);
 		compilerManager.make(scope, null);
 	}
 
 	private void build(FactoryPanel.Operation operation, int modifiers) {
-		FactoryPhase phase = phaseOf(operation, (modifiers & InputEvent.SHIFT_MASK) != 0);
+		if (isRecurrent()) return;
+		lastAction = Instant.now();
+		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		new ArtifactBuilder(project, Collections.singletonList(selectedModule()), phase).build();
 	}
 
 	private void exportAccessors() {
+		if (isRecurrent()) return;
+		lastAction = Instant.now();
 		new ExportAction().execute(selectedModule());
 	}
 
@@ -86,12 +109,18 @@ public class IntinoFactoryView extends JPanel {
 		return null;
 	}
 
+	private boolean isRecurrent() {
+		return Instant.now().minus(5, SECONDS).isBefore(lastAction);
+	}
+
 	private void mode(boolean underDarcula) {
 		((FactoryPanel) factoryContainerPanel).mode(underDarcula ? Darcula : Light);
 	}
 
 	private void reload(int modifiers) {
-		if (modifiers == ActionEvent.SHIFT_MASK) new PurgeAndReloadConfigurationAction().execute(selectedModule());
+		if (isRecurrent()) return;
+		lastAction = Instant.now();
+		if (((modifiers & SHIFT_MASK) == SHIFT_MASK)) new PurgeAndReloadConfigurationAction().execute(selectedModule());
 		else new ReloadConfigurationAction().execute(selectedModule());
 	}
 
@@ -107,12 +136,17 @@ public class IntinoFactoryView extends JPanel {
 		((FactoryPanel) factoryContainerPanel).addActionListener(Src, e -> navigate(Src, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(Gen, e -> navigate(Src, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(Imports, e -> navigate(Imports, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Model, e -> navigate(Model, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Box, e -> navigate(Box, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Pack, e -> navigate(Pack, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Dist, e -> navigate(Dist, e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(Deploy, e -> navigate(Deploy, e.getModifiers()));
 		mode(UIUtil.isUnderDarcula());
 	}
 
 	private void navigate(FactoryPanel.Product product, int modifiers) {
 		final Configuration configuration = TaraUtil.configurationOf(selectedModule());
-		if (configuration== null) return;
+		if (configuration == null) return;
 		TaraModel model = ((TaraModel) ((LegioConfiguration) configuration).legioFile());
 		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
 		if (artifact == null) return;
@@ -122,8 +156,16 @@ public class IntinoFactoryView extends JPanel {
 				node = find(artifact, "Code");
 				if (node != null) ((Navigatable) node).navigate(true);
 				break;
-			case Imports:
-				node = find(artifact, "Imports");
+			case Pack:
+				node = find(artifact, "Package");
+				if (node != null) ((Navigatable) node).navigate(true);
+				break;
+			case Dist:
+				node = find(artifact, "Distribution");
+				if (node != null) ((Navigatable) node).navigate(true);
+				break;
+			default:
+				node = find(artifact, product.name());
 				if (node != null) ((Navigatable) node).navigate(true);
 				break;
 		}
@@ -145,11 +187,12 @@ public class IntinoFactoryView extends JPanel {
 	public static class FactoryPanel extends JPanel {
 		private Image image;
 		private int imageSize;
-		private int offset;
+		private int offsetX;
+		private static final int offsetY = 100;
 		private double scale;
-		private Font font;
 		private Map<Operation, JImageButton> buttons = new HashMap<>();
 		private Map<Product, ActionListener> listeners = new HashMap<>();
+		private Map<Label, String[]> labels = new HashMap<>();
 		private Mode mode;
 
 		public FactoryPanel() {
@@ -176,6 +219,10 @@ public class IntinoFactoryView extends JPanel {
 			return stream(Product.values());
 		}
 
+		private Stream<Label> labels() {
+			return stream(Label.values());
+		}
+
 		private Component createButton(Operation operation) {
 			JImageButton button = new JImageButton(operation);
 			buttons.put(operation, button);
@@ -194,21 +241,49 @@ public class IntinoFactoryView extends JPanel {
 		@Override
 		public void paint(Graphics g) {
 			setScale();
-			g.setFont(font);
+			g.setColor(backgroundColor());
 			drawImage(g);
 			products().forEach(p -> paint(g, p));
+			labels().forEach(l -> paint(g, l));
 			buttons.values().forEach(this::setLocation);
 			paintComponents(g);
 		}
 
 		private void paint(Graphics g, Product product) {
-			String name = product.name().toLowerCase();
-			FontMetrics metrics = g.getFontMetrics(font);
-			Rectangle rect = product.rect;
-			int x = offset + (scale(rect.x) + (scale(rect.width) - metrics.stringWidth(name)) / 2);
-			int y = (scale(rect.y) + ((scale(rect.height) - metrics.getHeight()) / 2 + metrics.getAscent()));
+			g.setFont(productFont());
 			g.setColor(foregroundColor());
+			FontMetrics metrics = g.getFontMetrics(productFont());
+			Rectangle rect = product.rect;
+
+			String name = product.name().toLowerCase();
+			int x = offsetX + (scale(rect.x) + (scale(rect.width) - metrics.stringWidth(name)) / 2);
+			int y = offsetY + (scale(rect.y) + ((scale(rect.height) - metrics.getHeight()) / 2 + metrics.getAscent()));
 			g.drawString(name, x, y);
+		}
+
+		private void paint(Graphics g, Label label) {
+			g.setFont(labelFont());
+			g.setColor(foregroundColor());
+			FontMetrics metrics = g.getFontMetrics(labelFont());
+			Rectangle rect = label.product.rect;
+
+			int index = -80;
+			for (int i = 0; i < 2; i++) {
+				final String[] strings = labels.get(label);
+				if (strings == null) continue;
+				int x = offsetX + (scale(rect.x) + (scale(rect.width) - metrics.stringWidth(strings[i])) / 2);
+				int y = offsetY + (scale(rect.y + index) - metrics.getHeight());
+				g.drawString(strings[i], x, y);
+				index += 200;
+			}
+		}
+
+		private Font labelFont() {
+			return new Font("Arial", Font.BOLD, scale(180));
+		}
+
+		private Font productFont() {
+			return new Font("Arial", Font.PLAIN, scale(200));
 		}
 
 		private Color backgroundColor() {
@@ -221,11 +296,11 @@ public class IntinoFactoryView extends JPanel {
 
 		private void setLocation(JImageButton button) {
 			Rectangle rect = button.operation.rect;
-			button.setBounds(scale(rect.x) + offset, scale(rect.y), scale(rect.width), scale(rect.height));
+			button.setBounds(scale(rect.x) + offsetX, scale(rect.y) + offsetY, scale(rect.width), scale(rect.height));
 		}
 
 		private void drawImage(Graphics g) {
-			g.drawImage(image, offset, 0, null);
+			g.drawImage(image, offsetX, offsetY, null);
 		}
 
 		private int scale(int value) {
@@ -242,15 +317,15 @@ public class IntinoFactoryView extends JPanel {
 		private void setScale() {
 			if (imageSize != imageSize()) image = image();
 			imageSize = imageSize();
-			offset = (this.getWidth() - imageSize) / 2;
-			scale = 1.0 * this.imageSize / 750;
-			font = new Font("Arial", Font.BOLD, scale(30));
+			offsetX = (this.getWidth() - imageSize) / 2;
+			scale = 1.0 * this.imageSize / 5000;
 		}
 
 		private Image image() {
 			try {
 				InputStream is = getClass().getResourceAsStream(imageName());
 				return ImageIO.read(is);
+
 			} catch (IOException e) {
 				return image;
 			}
@@ -261,7 +336,7 @@ public class IntinoFactoryView extends JPanel {
 		}
 
 		private int imageSize() {
-			return min(500, max(300, (int) Math.floor(this.getWidth() / 100) * 100));
+			return min(500, max(200, (int) Math.floor(this.getWidth() / 100) * 100));
 		}
 
 
@@ -276,7 +351,7 @@ public class IntinoFactoryView extends JPanel {
 				}
 
 				private Rectangle transform(Rectangle rect) {
-					return new Rectangle(scale(rect.x), scale(rect.y), scale(rect.width), scale(rect.height));
+					return new Rectangle(scale(rect.x) + offsetX, scale(rect.y) + offsetY, scale(rect.width), scale(rect.height));
 				}
 
 				@Override
@@ -301,6 +376,16 @@ public class IntinoFactoryView extends JPanel {
 			};
 		}
 
+		public FactoryPanel model(String language, String version) {
+			this.labels.put(ModelLanguage, new String[]{language, version});
+			return this;
+		}
+
+		public FactoryPanel box(String language, String version) {
+			this.labels.put(BoxLanguage, new String[]{language, version});
+			return this;
+		}
+
 		enum Mode {
 			Light("#ECECEC"), Darcula("#404243");
 
@@ -312,11 +397,11 @@ public class IntinoFactoryView extends JPanel {
 		}
 
 		enum Product {
-			Model(315, 120), Box(500, 120), Imports(41, 361), Src(230, 360), Gen(409, 361), Out(320, 597), Exports(581, 597),
-			Pack(320, 815), Repo(320, 1030), Server(320, 1245);
+			Model(1780, 20), Box(3000, 20), Imports(19, 1550), Src(1240, 1550), Gen(2399, 1550), Exports(4082, 1550),
+			Out(1802, 3078), Pack(1802, 4470), Dist(1802, 5850), Deploy(1802, 7238);
 
 			private Rectangle rect;
-			private static final int size = 125;
+			private static final int size = 900;
 
 			Product(int x, int y) {
 				this.rect = new Rectangle(x, y, size, size);
@@ -330,17 +415,27 @@ public class IntinoFactoryView extends JPanel {
 
 		enum Operation {
 			GenerateCode(Gen), ImportPackages(Imports), ExportAccessors(Exports),
-			BuildArtifact(Out), PackArtifact(Pack), DistributeArtifact(Repo), DeployArtifact(Server);
+			BuildArtifact(Out), PackArtifact(Pack), DistributeArtifact(Dist), DeployArtifact(Deploy);
 
 			private Rectangle rect;
-			private static final int size = 80;
+			private static final int size = 600;
 
 			Operation(Product product) {
 				this.rect = calculate(product.rect());
 			}
 
 			private static Rectangle calculate(Rectangle r) {
-				return new Rectangle(r.x + (r.width - size) / 2, r.y - size / 2 - 10, size, size);
+				return new Rectangle(r.x + (r.width - size) / 2, r.y - size / 2, size, size);
+			}
+		}
+
+		enum Label {
+			ModelLanguage(Model), BoxLanguage(Box);
+
+			private Product product;
+
+			Label(Product product) {
+				this.product = product;
 			}
 		}
 
@@ -355,6 +450,7 @@ public class IntinoFactoryView extends JPanel {
 				this.operation = operation;
 				this.addMouseListener(this);
 			}
+
 
 			@Override
 			public void paint(Graphics g) {

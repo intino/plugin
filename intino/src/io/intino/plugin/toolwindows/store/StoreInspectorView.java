@@ -1,7 +1,5 @@
 package io.intino.plugin.toolwindows.store;
 
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,8 +18,6 @@ import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StoreInspectorView extends JPanel {
 	private final Project project;
@@ -41,11 +37,7 @@ public class StoreInspectorView extends JPanel {
 			public void mousePressed(MouseEvent e) {
 				int selRow = storeTree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = storeTree.getPathForLocation(e.getX(), e.getY());
-				if (selRow != -1) {
-					if (e.getClickCount() == 2) {
-						openFile(selPath);
-					}
-				}
+				if (selRow != -1) if (e.getClickCount() == 2) openFile(selPath);
 			}
 		});
 		storeTree.addTreeExpansionListener(new TreeExpansionListener() {
@@ -105,19 +97,6 @@ public class StoreInspectorView extends JPanel {
 		storeTree.updateUI();
 	}
 
-	private void addStore() {
-		VirtualFile file = FileChooser.chooseFile(new FileChooserDescriptor(false, true, false, false, false, false), null, null);
-		if (file != null) stores.addItem(file.getPath());
-	}
-
-	private void deleteStore() {
-		if (stores.getSelectedIndex() >= 0) {
-			stores.removeItemAt(stores.getSelectedIndex());
-			reloadTree();
-			storeTree.updateUI();
-		}
-	}
-
 	private void createUIComponents() {
 		root = new DefaultMutableTreeNode("Store", true);
 		storeTree = new Tree(root);
@@ -127,19 +106,8 @@ public class StoreInspectorView extends JPanel {
 		storeTree.setCellRenderer(renderer);
 	}
 
-	JPanel getContentPane() {
+	JPanel contentPane() {
 		return contentPane;
-	}
-
-	List<String> savedStores() {
-		List<String> list = new ArrayList<>();
-		for (int i = 0; i < stores.getItemCount(); i++) list.add(stores.getItemAt(i));
-		return list;
-	}
-
-	void savedStores(List<String> storePaths) {
-		stores.removeAllItems();
-		for (String store : storePaths) stores.addItem(store);
 	}
 
 	private class FileNode {
