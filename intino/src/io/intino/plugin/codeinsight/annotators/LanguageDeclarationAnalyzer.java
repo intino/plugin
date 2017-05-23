@@ -45,7 +45,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		if (languageName == null) return;
 		String version = version();
 		if ("LATEST".equals(version))
-			version = configuration.language(l -> l.name().equals(languageName)).effectiveVersion();
+			version = configuration.language(l -> languageName.equals(l.name())).effectiveVersion();
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))

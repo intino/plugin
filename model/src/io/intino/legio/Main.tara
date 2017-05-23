@@ -108,7 +108,7 @@ Facet Level on Artifact
 		var string effectiveVersion = "" is private
 	sub Platform
 	sub Product
-	sub System
+	sub Solution
 
 Concept Argument is component
 	var string  value = ""

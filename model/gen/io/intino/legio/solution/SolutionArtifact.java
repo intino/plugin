@@ -1,9 +1,9 @@
-package io.intino.legio.system;
+package io.intino.legio.solution;
 
 import io.intino.legio.*;
 
 
-public class SystemArtifact extends io.intino.legio.level.LevelArtifact implements io.intino.tara.magritte.tags.Terminal {
+public class SolutionArtifact extends io.intino.legio.level.LevelArtifact implements io.intino.tara.magritte.tags.Terminal {
 	
 	
 	
@@ -16,7 +16,7 @@ public class SystemArtifact extends io.intino.legio.level.LevelArtifact implemen
 	
 	
 
-	public SystemArtifact(io.intino.tara.magritte.Node node) {
+	public SolutionArtifact(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
 

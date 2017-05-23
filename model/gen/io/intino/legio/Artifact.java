@@ -1,5 +1,8 @@
 package io.intino.legio;
 
+import io.intino.legio.*;
+
+
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
@@ -153,13 +156,13 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return is(io.intino.legio.level.LevelArtifact.class);
 	}
 
-	public io.intino.legio.system.SystemArtifact asSystem() {
-		io.intino.tara.magritte.Layer as = this.as(io.intino.legio.system.SystemArtifact.class);
-		return as != null ? (io.intino.legio.system.SystemArtifact) as : addFacet(io.intino.legio.system.SystemArtifact.class);
+	public io.intino.legio.solution.SolutionArtifact asSolution() {
+		io.intino.tara.magritte.Layer as = this.as(io.intino.legio.solution.SolutionArtifact.class);
+		return as != null ? (io.intino.legio.solution.SolutionArtifact) as : addFacet(io.intino.legio.solution.SolutionArtifact.class);
 	}
 
-	public boolean isSystem() {
-		return is(io.intino.legio.system.SystemArtifact.class);
+	public boolean isSolution() {
+		return is(io.intino.legio.solution.SolutionArtifact.class);
 	}
 
 	public java.util.List<io.intino.tara.magritte.Node> componentList() {
