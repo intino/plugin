@@ -14,7 +14,6 @@ import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +100,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
-		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.System.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
+		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.Solution.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull
@@ -111,12 +110,10 @@ abstract class AbstractArtifactBuilder {
 				configuration.version() + File.separator + outDSL + "-" + configuration.version() + JAR_EXTENSION);
 	}
 
-	@Nullable
-	private ProgressIndicator updateProgressIndicator(ProgressIndicator progressIndicator, String message) {
+	private void updateProgressIndicator(ProgressIndicator progressIndicator, String message) {
 		if (progressIndicator != null) {
 			progressIndicator.setText(message);
 			progressIndicator.setIndeterminate(true);
 		}
-		return progressIndicator;
 	}
 }

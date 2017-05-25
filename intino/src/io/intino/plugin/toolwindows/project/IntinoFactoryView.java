@@ -2,6 +2,9 @@ package io.intino.plugin.toolwindows.project;
 
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManager;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.compiler.CompileScope;
@@ -88,7 +91,11 @@ public class IntinoFactoryView extends JPanel {
 		lastAction = Instant.now();
 		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
-		new ArtifactBuilder(project, Collections.singletonList(selectedModule()), phase).build();
+		Module module = selectedModule();
+		if (module != null) new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
+		else Notifications.Bus.notify(new Notification("Tara Language",
+				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
+
 	}
 
 	private void exportAccessors() {

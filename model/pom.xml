@@ -22,6 +22,11 @@
         <testOutputDirectory>../out/test/model</testOutputDirectory>
         <directory>../out/build/model</directory>
         <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>res</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

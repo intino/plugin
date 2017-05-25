@@ -110,8 +110,6 @@ public class JavaDependencyResolver {
 			}
 			return artifacts;
 		} catch (DependencyResolutionException e) {
-			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories", e);
-			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
 	}
