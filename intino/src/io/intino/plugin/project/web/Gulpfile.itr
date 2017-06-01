@@ -140,7 +140,7 @@ def type(gulp)
 	};
 
 	const unionLib = () => {
-		return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,numeral,promise-polyfill}/**/*'),
+		return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,konos-server-web,numeral,promise-polyfill}/**/*'),
 			workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
 			.pipe(gulp.dest(packagePath('lib')));
 	};

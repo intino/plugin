@@ -110,6 +110,7 @@ public class JavaDependencyResolver {
 			}
 			return artifacts;
 		} catch (DependencyResolutionException e) {
+			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
 	}

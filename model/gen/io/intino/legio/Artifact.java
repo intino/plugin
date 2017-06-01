@@ -1056,7 +1056,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		protected java.lang.String webDirectory;
 		protected java.util.List<io.intino.legio.Artifact.WebImports.Resolution> resolutionList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.Artifact.WebImports.WebComponent> webComponentList = new java.util.ArrayList<>();
-		protected java.util.List<io.intino.legio.Artifact.WebImports.WebActivity> webActivityList = new java.util.ArrayList<>();
+		protected java.util.List<io.intino.legio.Artifact.WebImports.WebArtifact> webArtifactList = new java.util.ArrayList<>();
 
 		public WebImports(io.intino.tara.magritte.Node node) {
 			super(node);
@@ -1094,16 +1094,16 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return webComponentList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
-		public java.util.List<io.intino.legio.Artifact.WebImports.WebActivity> webActivityList() {
-			return java.util.Collections.unmodifiableList(webActivityList);
+		public java.util.List<io.intino.legio.Artifact.WebImports.WebArtifact> webArtifactList() {
+			return java.util.Collections.unmodifiableList(webArtifactList);
 		}
 
-		public io.intino.legio.Artifact.WebImports.WebActivity webActivity(int index) {
-			return webActivityList.get(index);
+		public io.intino.legio.Artifact.WebImports.WebArtifact webArtifact(int index) {
+			return webArtifactList.get(index);
 		}
 
-		public java.util.List<io.intino.legio.Artifact.WebImports.WebActivity> webActivityList(java.util.function.Predicate<io.intino.legio.Artifact.WebImports.WebActivity> predicate) {
-			return webActivityList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+		public java.util.List<io.intino.legio.Artifact.WebImports.WebArtifact> webArtifactList(java.util.function.Predicate<io.intino.legio.Artifact.WebImports.WebArtifact> predicate) {
+			return webArtifactList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
 		
@@ -1116,7 +1116,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
 			resolutionList.stream().forEach(c -> components.add(c.node()));
 			webComponentList.stream().forEach(c -> components.add(c.node()));
-			webActivityList.stream().forEach(c -> components.add(c.node()));
+			webArtifactList.stream().forEach(c -> components.add(c.node()));
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -1136,7 +1136,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			super.addNode(node);
 			if (node.is("Artifact$WebImports$Resolution")) this.resolutionList.add(node.as(io.intino.legio.Artifact.WebImports.Resolution.class));
 			if (node.is("Artifact$WebImports$WebComponent")) this.webComponentList.add(node.as(io.intino.legio.Artifact.WebImports.WebComponent.class));
-			if (node.is("Artifact$WebImports$WebActivity")) this.webActivityList.add(node.as(io.intino.legio.Artifact.WebImports.WebActivity.class));
+			if (node.is("Artifact$WebImports$WebArtifact")) this.webArtifactList.add(node.as(io.intino.legio.Artifact.WebImports.WebArtifact.class));
 		}
 
 		@Override
@@ -1144,7 +1144,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	        super.removeNode(node);
 	        if (node.is("Artifact$WebImports$Resolution")) this.resolutionList.remove(node.as(io.intino.legio.Artifact.WebImports.Resolution.class));
 	        if (node.is("Artifact$WebImports$WebComponent")) this.webComponentList.remove(node.as(io.intino.legio.Artifact.WebImports.WebComponent.class));
-	        if (node.is("Artifact$WebImports$WebActivity")) this.webActivityList.remove(node.as(io.intino.legio.Artifact.WebImports.WebActivity.class));
+	        if (node.is("Artifact$WebImports$WebArtifact")) this.webArtifactList.remove(node.as(io.intino.legio.Artifact.WebImports.WebArtifact.class));
 	    }
 
 		@Override
@@ -1187,8 +1187,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			    return newElement;
 			}
 
-			public io.intino.legio.Artifact.WebImports.WebActivity webActivity(java.lang.String groupId, java.lang.String artifactId, java.lang.String version) {
-			    io.intino.legio.Artifact.WebImports.WebActivity newElement = graph().concept(io.intino.legio.Artifact.WebImports.WebActivity.class).createNode(name, node()).as(io.intino.legio.Artifact.WebImports.WebActivity.class);
+			public io.intino.legio.Artifact.WebImports.WebArtifact webArtifact(java.lang.String groupId, java.lang.String artifactId, java.lang.String version) {
+			    io.intino.legio.Artifact.WebImports.WebArtifact newElement = graph().concept(io.intino.legio.Artifact.WebImports.WebArtifact.class).createNode(name, node()).as(io.intino.legio.Artifact.WebImports.WebArtifact.class);
 				newElement.node().set(newElement, "groupId", java.util.Collections.singletonList(groupId));
 				newElement.node().set(newElement, "artifactId", java.util.Collections.singletonList(artifactId));
 				newElement.node().set(newElement, "version", java.util.Collections.singletonList(version)); 
@@ -1341,13 +1341,13 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			}
 		}
 		
-		public static class WebActivity extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		public static class WebArtifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 			protected io.intino.tara.magritte.Expression<java.lang.String> identifier;
 			protected java.lang.String groupId;
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
 
-			public WebActivity(io.intino.tara.magritte.Node node) {
+			public WebArtifact(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
@@ -1394,7 +1394,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			}
 
 			public io.intino.tara.magritte.Concept concept() {
-				return this.graph().concept(io.intino.legio.Artifact.WebImports.WebActivity.class);
+				return this.graph().concept(io.intino.legio.Artifact.WebImports.WebArtifact.class);
 			}
 
 			@Override

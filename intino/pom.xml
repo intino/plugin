@@ -92,7 +92,7 @@
             <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
-            <version>1.0.7</version>
+            <version>1.0.4</version>
         </dependency>
 
         <dependency>

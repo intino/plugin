@@ -16,6 +16,8 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <fileDocumentManagerListener
+                implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>

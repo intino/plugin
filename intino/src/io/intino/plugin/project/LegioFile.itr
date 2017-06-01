@@ -2,12 +2,12 @@ def type(legio & empty)
 	dsl Legio
 
 	Artifact(groupId = "org.example", version = "1.0.0") $name as Platform
-		Modeling(version = "2.0.0") > Language(name = "Verso", version = "LATEST")
-    	Boxing(language = "Konos", version = "2.0.0")
+		Model(language = "Verso", version = "LATEST", sdk = "LATEST")
+    	Box(language = "Konos", version = "2.0.0", sdk = "LATEST")
     	Imports
     		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
 
-    	Pack(mode = ModulesAndLibrariesLinkedByManifest)
+    	Package(mode = ModulesAndLibrariesLinkedByManifest)
 
     Repository(identifier = "intino-maven")
     	Language(url = "https://artifactory.intino.io/artifactory/releases")
@@ -22,7 +22,7 @@ def type(legio) !type(empty)
 		]
     	Imports[
     		$dependency...[$NL]]
-    	Pack(mode = ModulesAndLibrariesLinkedByManifest)
+    	Package(mode = ModulesAndLibrariesLinkedByManifest)
     	[$distribution...[$NL]]
 
 	[$isIntino
@@ -47,11 +47,9 @@ def type(dependency)
 end
 
 def type(factory)
-	Modeling(version = "2.0.0")
-		Language(name = "$dsl", version = "$dslVersion")
+    Model(language = "$dsl", version = "$dslVersion", sdk = "LATEST")
 end
 
 def type(distribution)
-	Distribution("$id")
-		Release("$url")
+	Distribution($id)
 end

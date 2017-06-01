@@ -72,10 +72,14 @@ public class IntinoFactoryView extends JPanel {
 		});
 	}
 
-	private void generateCode() {
+	private void generateCode(int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
-		new IntinoGenerationAction().execute(selectedModule());
+		final IntinoGenerationAction action = new IntinoGenerationAction();
+		if ((modifiers & ActionEvent.SHIFT_MASK) != 0) {
+			action.execute(selectedModule());
+		}action.force(selectedModule());
+
 	}
 
 	private void build() {
@@ -133,7 +137,7 @@ public class IntinoFactoryView extends JPanel {
 
 	private void createUIComponents() {
 		factoryContainerPanel = new FactoryPanel();
-		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode());
+		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(ImportPackages, e -> reload(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(BuildArtifact, e -> build());
 		((FactoryPanel) factoryContainerPanel).addActionListener(PackArtifact, e -> build(PackArtifact, e.getModifiers()));

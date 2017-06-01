@@ -22,6 +22,7 @@ import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.console.IntinoTopics;
 import io.intino.plugin.console.MavenListener;
+import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
@@ -40,7 +41,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
@@ -49,6 +52,9 @@ import static java.util.Arrays.asList;
 public class IntinoGenerationAction extends IntinoAction {
 	private static final char NL = '\n';
 	private static final String ENCODING = "UTF-8";
+	private boolean isConnected = false;
+	private Set<String> pendingFiles = new HashSet<>();
+
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
@@ -56,17 +62,33 @@ public class IntinoGenerationAction extends IntinoAction {
 		execute(module);
 	}
 
+	@Override
 	public void execute(Module module) {
 		if (module == null) return;
-		buildModels(module);
+		if (interfaceModified()) generateKonos(module);
+		if (modelsModified()) buildModels(module);
+		pendingFiles.clear();
+	}
+
+	public void force(Module module) {
+		if (module == null) return;
 		generateKonos(module);
+		buildModels(module);
+	}
+
+	private boolean interfaceModified() {
+		return pendingFiles.stream().anyMatch(f -> f.endsWith("." + KonosFileType.instance().getDefaultExtension()));
+	}
+
+	private boolean modelsModified() {
+		return pendingFiles.stream().anyMatch(f -> f.endsWith("." + TaraFileType.instance().getDefaultExtension()));
 	}
 
 	private void buildModels(Module module) {
 		final List<TaraModel> models = TaraUtil.getFilesOfModuleByFileType(module, TaraFileType.instance());
 		FileDocumentManager.getInstance().saveAllDocuments();
 		if (models.isEmpty()) return;
-		withTask(new Task.Backgroundable(module.getProject(), module.getName()+": Generating Code", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Generating Code", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
@@ -217,6 +239,12 @@ public class IntinoGenerationAction extends IntinoAction {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
+		if (!isConnected && e.getProject() != null) {
+			final MessageBus messageBus = e.getProject().getMessageBus();
+			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> pendingFiles.add(file));
+			isConnected = true;
+		}
+		e.getPresentation().setVisible(!pendingFiles.isEmpty());
 		e.getPresentation().setIcon(IntinoIcons.GENARATION_16);
 	}
 }

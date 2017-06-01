@@ -15,8 +15,6 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.model.java.JavaResourceRootType;
-import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
 
@@ -29,8 +27,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.Artifact.Package.*;
+import static io.intino.legio.Artifact.Package.Mode;
 import static io.intino.legio.Artifact.Package.Mode.*;
+import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
+import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
+import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 
 
 public class PomCreator {
@@ -169,19 +170,27 @@ public class PomCreator {
 
 	private String[] srcDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(JavaSourceRootType.SOURCE);
+		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(SOURCE);
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
 	private List<String> resourceDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
-		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(RESOURCE);
+		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		for (Module dependency : collectModuleDependencies(module)) {
+			if (isWebModule(dependency)) {
+				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
+				if (extension != null && extension.getCompilerOutputUrl() != null)
+					resources.add(pathOf(extension.getCompilerOutputUrl()));
+			}
+		}
+		return resources;
 	}
 
 	private List<String> resourceTestDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.TEST_RESOURCE);
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(TEST_RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
