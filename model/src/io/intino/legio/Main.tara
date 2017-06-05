@@ -54,12 +54,13 @@ Concept:{1..1}:Named Artifact
 		var boolean includeTests = false
 		var string classpathPrefix = empty
 		var string finalName = empty
+		has Parameter
 		Concept MavenPlugin
 			var string code
 
-	Concept:{0..1} Distribution
+	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
-		var Repository.Language language
+		var Repository.Language language = empty
 
 		Concept:{0..1} Bitbucket
 			var string user
@@ -71,19 +72,20 @@ Concept:{1..1}:Named Artifact
 			var string token
 
 	Concept Deployment
-		var Server server
-		var string url = empty
-		Concept:{0..1} BugTracking
-			var string[] slackUsers = empty
-		Concept:{0..1} Requirements
-			Concept Memory
-			Concept CPU
-		Concept:{0..1} Configuration
-			has:Named Argument
-			Concept Service
-				has:Named Argument
-			Concept:{0..1} Store
-				var string path
+		Concept Destination
+			var Server server
+			var RunConfiguration runConfiguration
+			var string url = empty
+			Concept:{0..1} BugTracking
+				var string[] slackUsers = empty
+			Concept:{0..1} Requirements
+				Concept Memory
+				Concept CPU
+			sub:{0..1} Dev
+			sub:{0..1} Pro
+
+Concept RunConfiguration
+	has Argument
 
 Concept:Named Server
 	var string cesar
@@ -110,5 +112,11 @@ Facet Level on Artifact
 	sub Product
 	sub Solution
 
+Concept Parameter is component
+	var string name
+	var string value
+	var string description = ""
+
 Concept Argument is component
-	var string  value = ""
+	var string name
+	var string value

@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 
 
-public class IntinoFactoryToolWindow extends SimpleToolWindowPanel implements DataProvider {
+class IntinoFactoryToolWindow extends SimpleToolWindowPanel implements DataProvider {
 
 	IntinoFactoryToolWindow(Project project) {
 		super(true, true);

@@ -11,6 +11,7 @@ import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.Repository;
 import io.intino.legio.level.LevelArtifact;
+import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
@@ -56,7 +57,7 @@ public class LanguageResolver {
 		if (model == null) return Collections.emptyList();
 		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
 		final List<Library> libraries = isMagritteLibrary(this.model.language()) ? magritte(version) : languageFramework();
-		new TaraBuilderResolver(module.getProject(), model).resolveBuilder();
+		new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 		return libraries;
 	}
 

@@ -197,10 +197,9 @@ public class ProductArtifact extends io.intino.legio.level.LevelArtifact impleme
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Distribution distribution(io.intino.legio.Repository.Release release, io.intino.legio.Repository.Language language) {
+		public io.intino.legio.Artifact.Distribution distribution(io.intino.legio.Repository.Release release) {
 		    io.intino.legio.Artifact.Distribution newElement = graph().concept(io.intino.legio.Artifact.Distribution.class).createNode(name, node()).as(io.intino.legio.Artifact.Distribution.class);
-			newElement.node().set(newElement, "release", java.util.Collections.singletonList(release));
-			newElement.node().set(newElement, "language", java.util.Collections.singletonList(language)); 
+			newElement.node().set(newElement, "release", java.util.Collections.singletonList(release)); 
 		    return newElement;
 		}
 
@@ -210,9 +209,8 @@ public class ProductArtifact extends io.intino.legio.level.LevelArtifact impleme
 		    return newElement;
 		}
 
-		public io.intino.legio.Artifact.Deployment deployment(io.intino.legio.Server server) {
+		public io.intino.legio.Artifact.Deployment deployment() {
 		    io.intino.legio.Artifact.Deployment newElement = graph().concept(io.intino.legio.Artifact.Deployment.class).createNode(name, node()).as(io.intino.legio.Artifact.Deployment.class);
-			newElement.node().set(newElement, "server", java.util.Collections.singletonList(server)); 
 		    return newElement;
 		}
 		

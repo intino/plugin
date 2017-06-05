@@ -80,10 +80,10 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void publish(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		if (phase.equals(FactoryPhase.DEPLOY)) {
+		if (phase.equals(FactoryPhase.DEV) || phase.equals(FactoryPhase.PRO)) {
 			updateProgressIndicator(indicator, message("publishing.artifact"));
 			try {
-				new ArtifactDeployer(module).execute();
+				new ArtifactDeployer(module, phase).execute();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}

@@ -72,6 +72,9 @@ def type(pom)
 								<mainClass>$mainClass</mainClass>]
 								<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
 							</manifest>
+							[<manifestEntries>
+                              $parameter...[$NL]
+                            </manifestEntries>]
 						</archive>
 					</configuration>
 				</plugin>
@@ -170,6 +173,11 @@ def type(pom)
 
 		<dependencies>
 			$dependency...[$NL]
+			<dependency>
+                <groupId>com.sun.xml.security</groupId>
+                <artifactId>xml-security-impl</artifactId>
+                <version>1.0</version>
+            </dependency>
 		</dependencies>
 	</project>
 end
@@ -206,6 +214,10 @@ def type(repository) !type(Distribution) trigger(release)
 		<id>$name~-$random</id>
 		<url>$url</url>
 	</repository>
+end
+
+def trigger(parameter)
+    <$key>$value</$key>
 end
 
 def type(dependency) trigger(dependency)

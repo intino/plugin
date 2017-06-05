@@ -115,7 +115,8 @@ public class GulpExecutor {
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
 				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
-				addSlot("artifactID", artifact.name()).addSlot("port", new Random().nextInt(1000));
+				addSlot("artifactID", artifact.name()).addSlot("port", new Random().nextInt(1000)).
+				addSlot("activity", module.getName().replace("-activity", ""));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
 		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getCanonicalPath());
 		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().add("path", pathFormatter()).format(frame));

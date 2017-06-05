@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.dependencyresolution.TaraBuilderResolver.TARA_BUILDER_REPOSITORY;
+import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
 import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_RELEASES;
 
 public class ArtifactoryConnector {

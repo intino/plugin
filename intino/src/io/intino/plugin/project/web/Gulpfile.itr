@@ -12,7 +12,7 @@ def type(gulp)
 	const eventStream = require('event-stream');
 	const console = require('gulp-util');
 
-	const OutputPath = '$outDirectory+path~/www/$artifactID+lowercase';
+	const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
 	const WorkingDirectory = '$rootDirectory+path';
 	const WatchPort = 35$port;
 

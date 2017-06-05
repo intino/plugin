@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.Artifact;
 import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.legio.Parameter;
 import io.intino.legio.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
@@ -202,11 +203,12 @@ public class PomCreator {
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
+		for (Parameter parameter : build.parameterList())
+			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name$()).addSlot("value", parameter.value()));
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null)
 			frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
-
 	}
 
 	private void addDependantModuleSources(Frame frame, Module module) {

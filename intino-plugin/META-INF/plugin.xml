@@ -21,6 +21,8 @@
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.PackageParametersAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>

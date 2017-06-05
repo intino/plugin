@@ -84,8 +84,8 @@ public class ArtifactManager {
 		return usedProxyPorts.get(usedProxyPorts.size() - 1);
 	}
 
-	private boolean releasePort(Integer port) {
-		return usedProxyPorts.remove(port);
+	private void releasePort(Integer port) {
+		usedProxyPorts.remove(port);
 	}
 
 	private String getConnectionParameters(int localProxyPort) {
@@ -98,7 +98,7 @@ public class ArtifactManager {
 	}
 
 	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.deployments().get(0).server().cesar());
+		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getServer(system.runtime().serverName());
@@ -108,7 +108,7 @@ public class ArtifactManager {
 	}
 
 	private SystemSchema getSystem(LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.deployments().get(0).server().cesar());
+		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new RestCesarAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());

@@ -6,6 +6,7 @@ import io.intino.legio.*;
 public class RunnablePackage extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	
+	
 	protected io.intino.legio.Artifact.Package _package;
 
 	public RunnablePackage(io.intino.tara.magritte.Node node) {
@@ -68,6 +69,14 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 		this._package.finalName(value);
 	}
 
+	public java.util.List<io.intino.legio.Parameter> parameterList() {
+		return (java.util.List<io.intino.legio.Parameter>) _package.parameterList();
+	}
+
+	public io.intino.legio.Parameter parameterList(int index) {
+		return _package.parameterList().get(index);
+	}
+
 	public java.util.List<io.intino.legio.Artifact.Package.MavenPlugin> mavenPluginList() {
 		return (java.util.List<io.intino.legio.Artifact.Package.MavenPlugin>) _package.mavenPluginList();
 	}
@@ -78,8 +87,11 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 
 	
 
+	
+
 	public java.util.List<io.intino.tara.magritte.Node> componentList() {
 		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList());
+		
 		return new java.util.ArrayList<>(components);
 	}
 
@@ -126,6 +138,13 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 
 		public Create(java.lang.String name) {
 			this.name = name;
+		}
+
+		public io.intino.legio.Parameter parameter(java.lang.String name$, java.lang.String value) {
+		    io.intino.legio.Parameter newElement = graph().concept(io.intino.legio.Parameter.class).createNode(name, node()).as(io.intino.legio.Parameter.class);
+			newElement.node().set(newElement, "name", java.util.Collections.singletonList(name$));
+			newElement.node().set(newElement, "value", java.util.Collections.singletonList(value)); 
+		    return newElement;
 		}
 
 		public io.intino.legio.Artifact.Package.MavenPlugin mavenPlugin(java.lang.String code) {

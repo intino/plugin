@@ -6,6 +6,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	protected io.intino.tara.magritte.Graph graph;
 	private io.intino.legio.Artifact artifact;
+	private java.util.List<io.intino.legio.RunConfiguration> runConfigurationList;
 	private java.util.List<io.intino.legio.Server> serverList;
 	private java.util.List<io.intino.legio.Repository> repositoryList;
 	private java.util.List<io.intino.legio.runnable.artifact.RunnablePackage> runnablePackageList;
@@ -21,6 +22,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	public void update() {
 		artifact = this.graph.rootList(io.intino.legio.Artifact.class).stream().findFirst().orElse(null);
+		runConfigurationList = this.graph.rootList(io.intino.legio.RunConfiguration.class);
 		serverList = this.graph.rootList(io.intino.legio.Server.class);
 		repositoryList = this.graph.rootList(io.intino.legio.Repository.class);
 		runnablePackageList = this.graph.rootList(io.intino.legio.runnable.artifact.RunnablePackage.class);
@@ -33,6 +35,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	@Override
 	protected void addNode(io.intino.tara.magritte.Node node) {
 		if (node.is("Artifact")) this.artifact = node.as(io.intino.legio.Artifact.class);
+		if (node.is("RunConfiguration")) this.runConfigurationList.add(node.as(io.intino.legio.RunConfiguration.class));
 		if (node.is("Server")) this.serverList.add(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.add(node.as(io.intino.legio.Repository.class));
 		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.add(node.as(io.intino.legio.runnable.artifact.RunnablePackage.class));
@@ -45,6 +48,7 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 	@Override
 	protected void removeNode(io.intino.tara.magritte.Node node) {
 		if (node.is("Artifact")) this.artifact = null;
+		if (node.is("RunConfiguration")) this.runConfigurationList.remove(node.as(io.intino.legio.RunConfiguration.class));
 		if (node.is("Server")) this.serverList.remove(node.as(io.intino.legio.Server.class));
 		if (node.is("Repository")) this.repositoryList.remove(node.as(io.intino.legio.Repository.class));
 		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.remove(node.as(io.intino.legio.runnable.artifact.RunnablePackage.class));
@@ -110,6 +114,10 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 		return artifact;
 	}
 
+	public java.util.List<io.intino.legio.RunConfiguration> runConfigurationList() {
+		return runConfigurationList;
+	}
+
 	public java.util.List<io.intino.legio.Server> serverList() {
 		return serverList;
 	}
@@ -136,6 +144,14 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 
 	public java.util.List<io.intino.legio.solution.SolutionArtifact> solutionArtifactList() {
 		return solutionArtifactList;
+	}
+
+	public java.util.List<io.intino.legio.RunConfiguration> runConfigurationList(java.util.function.Predicate<io.intino.legio.RunConfiguration> predicate) {
+		return runConfigurationList.stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	}
+
+	public io.intino.legio.RunConfiguration runConfiguration(int index) {
+		return runConfigurationList.get(index);
 	}
 
 	public java.util.List<io.intino.legio.Server> serverList(java.util.function.Predicate<io.intino.legio.Server> predicate) {
@@ -223,6 +239,12 @@ public class GraphWrapper extends io.intino.tara.magritte.GraphWrapper {
 			io.intino.legio.Artifact newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.Artifact.class, namespace, name).as(io.intino.legio.Artifact.class);
 			newElement.node().set(newElement, "groupId", java.util.Collections.singletonList(groupId));
 			newElement.node().set(newElement, "version", java.util.Collections.singletonList(version));
+			return newElement;
+		}
+
+		public io.intino.legio.RunConfiguration runConfiguration() {
+			io.intino.legio.RunConfiguration newElement = GraphWrapper.this.graph.createRoot(io.intino.legio.RunConfiguration.class, namespace, name).as(io.intino.legio.RunConfiguration.class);
+			
 			return newElement;
 		}
 

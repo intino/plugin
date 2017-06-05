@@ -76,10 +76,8 @@ public class IntinoFactoryView extends JPanel {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
 		final IntinoGenerationAction action = new IntinoGenerationAction();
-		if ((modifiers & ActionEvent.SHIFT_MASK) != 0) {
-			action.execute(selectedModule());
-		}action.force(selectedModule());
-
+		if ((modifiers & ActionEvent.SHIFT_MASK) != 0) action.force(selectedModule());
+		else action.execute(selectedModule());
 	}
 
 	private void build() {
@@ -115,7 +113,7 @@ public class IntinoFactoryView extends JPanel {
 			case DistributeArtifact:
 				return shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
 			case DeployArtifact:
-				return FactoryPhase.DEPLOY;
+				return shift ? FactoryPhase.DEV : FactoryPhase.PRO;
 		}
 		return null;
 	}

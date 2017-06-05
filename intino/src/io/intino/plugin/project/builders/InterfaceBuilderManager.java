@@ -13,6 +13,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class InterfaceBuilderManager {
@@ -22,9 +23,17 @@ public class InterfaceBuilderManager {
 
 	public void reload(Project project, String version) {
 		if (InterfaceBuilderLoader.isLoaded(project, version)) return;
-		List<Artifact> library = konosLibrary(version);
-		if (library != null && !library.isEmpty())
-			InterfaceBuilderLoader.load(project, library.stream().map(this::pathOf).toArray(File[]::new), version);
+		List<Artifact> artifacts = konosLibrary(version);
+		if (!artifacts.isEmpty())
+			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), version);
+	}
+
+	public void purge(String version) {
+		final List<Artifact> artifacts = konosLibrary(version);
+		for (Artifact artifact : artifacts) {
+			final File file = artifact.getFile();
+			if (file != null && file.exists()) file.delete();
+		}
 	}
 
 	private File pathOf(Artifact artifact) {
@@ -36,7 +45,7 @@ public class InterfaceBuilderManager {
 		try {
 			return aether.resolve(new DefaultArtifact("io.intino.konos:builder:jar:" + version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 

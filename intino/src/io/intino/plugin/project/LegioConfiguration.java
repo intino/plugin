@@ -18,6 +18,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import io.intino.legio.Argument;
 import io.intino.legio.Artifact;
 import io.intino.legio.Legio;
 import io.intino.legio.Repository;
@@ -26,6 +27,7 @@ import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
@@ -48,7 +50,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 
 public class LegioConfiguration implements Configuration {
-	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
+	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());
 
 	private final Module module;
 	private VirtualFile legioFile;
@@ -95,7 +97,7 @@ public class LegioConfiguration implements Configuration {
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 legio = newGraphFromLegio();
-						 new DependencyPurger(module).execute();
+						 new DependencyPurger(module, LegioConfiguration.this).execute();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
 						 if (legio != null && legio.artifact() != null) legio.artifact().save();
@@ -186,10 +188,10 @@ public class LegioConfiguration implements Configuration {
 	public List<String> taraCompilerClasspath() {
 		Model modeling = model();
 		if (modeling == null) return Collections.emptyList();
-		return new TaraBuilderResolver(this.module.getProject(), model()).resolveBuilder();
+		return new ModelBuilderManager(this.module.getProject(), model()).resolveBuilder();
 	}
 
-	private Model model() {
+	public Model model() {
 		return safe(() -> legio.artifact().asLevel().model());
 	}
 
@@ -344,56 +346,33 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public List<DeployConfiguration> deployConfigurations() {
-		final List<Artifact.Deployment> deploys = safeList(() -> deployments());
+		final List<Artifact.Deployment> deploys = safeList(this::deployments);
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
-		return deploys.stream().map(this::createDeployConfiguration).collect(Collectors.toList());
+		return deploys.stream().flatMap(deploy -> deploy.destinationList().stream()).map(this::createDeployConfiguration).collect(Collectors.toList());
 	}
 
 	@NotNull
-	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment deployment) {
+	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment.Destination deployment) {
 		return new DeployConfiguration() {
-			@Override
 			public String name() {
 				return deployment.name();
 			}
 
-			@Override
+			public boolean pro() {
+				return deployment.is(Artifact.Deployment.Pro.class);
+			}
+
 			public List<Parameter> parameters() {
-				return deployment.configuration().argumentList().stream().map(p -> wrapParameter("", p)).collect(Collectors.toList());
-			}
-
-			@Override
-			public List<Service> services() {
-				return deployment.configuration().serviceList().stream().map(service -> new Service() {
-					public String name() {
-						return service.name();
-					}
-
-					public List<Parameter> parameters() {
-						return service.argumentList().stream().map(p -> wrapParameter(service.name(), p)).collect(Collectors.toList());
-					}
-				}).collect(Collectors.toList());
-			}
-
-			@Override
-			public String store() {
-				return deployment.configuration().store().path();
+				return deployment.runConfiguration().argumentList().stream().map(p -> wrapParameter(p)).collect(Collectors.toList());
 			}
 
 			@NotNull
-			private Parameter wrapParameter(String prefix, final io.intino.legio.Argument p) {
+			private Parameter wrapParameter(final Argument p) {
 				return new Parameter() {
-					@Override
 					public String name() {
-						return (prefix.isEmpty() ? "" : prefix + ".") + p.name();
+						return p.name();
 					}
 
-					@Override
-					public String type() {
-						return "String";
-					}
-
-					@Override
 					public String value() {
 						return p.value();
 					}
@@ -419,7 +398,7 @@ public class LegioConfiguration implements Configuration {
 		}
 	}
 
-	public static <T> T safe(Wrapper<T> wrapper) {
+	private static <T> T safe(Wrapper<T> wrapper) {
 		try {
 			return wrapper.value();
 		} catch (Throwable e) {
