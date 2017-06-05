@@ -1,11 +1,14 @@
 package io.intino.plugin.build.maven;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.EffectiveLanguageLevelUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.Artifact;
 import io.intino.legio.Artifact.Imports.Dependency;
@@ -67,7 +70,13 @@ public class PomCreator {
 		Artifact.Package build = configuration.pack();
 		Frame frame = new Frame();
 		fillMavenId(frame);
-		frame.addSlot("sdk", ModuleRootManager.getInstance(module).getSdk().getSdkModificator().getName());
+		final String[] languageLevel = {"1.8"};
+		final Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed())
+			languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption();
+		else application.runReadAction((Computable<String>) () ->
+				languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption());
+		frame.addSlot("sdk", languageLevel[0]);
 		fillFramework(build, frame);
 		writePom(pom, frame, PomTemplate.create());
 		return pom;

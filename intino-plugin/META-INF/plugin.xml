@@ -71,7 +71,7 @@
             <!--<add-to-group group-id="intino"/>-->
         </action>
         <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
-                text="Join To Legio"
+                text="Join to Intino"
                 description="Join module to legio or convert from maven">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>

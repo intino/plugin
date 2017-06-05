@@ -300,7 +300,7 @@ public class LegioConfiguration implements Configuration {
 
 	public Map<String, String> releaseRepositories() {
 		Map<String, String> repositories = new HashMap<>();
-		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList(t -> t.is(Release.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		safeList(() -> legio.repositoryList()).forEach(r -> repositories.putAll(r.typeList(t -> t.is(Release.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
 		return repositories;
 	}
 

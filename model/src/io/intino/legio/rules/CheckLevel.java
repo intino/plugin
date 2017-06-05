@@ -17,7 +17,8 @@ public class CheckLevel implements NodeRule {
 
 	private boolean hasLanguageRepository(Node node) {
 		for (Parameter parameter : node.parameters())
-			if (parameter.name().equals("language") && !parameter.values().isEmpty()) return true;
+			if ((parameter.name().equals("language") || parameter.position() == 1) && !parameter.values().isEmpty())
+				return true;
 		return false;
 	}
 
