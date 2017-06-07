@@ -135,7 +135,6 @@ def type(gulp)
 				minifyJS: true,
 				trimCustomFragments : true
 			}))
-			.pipe($$.crisper())
 			.pipe(gulp.dest(packagePath()));
 	};
 

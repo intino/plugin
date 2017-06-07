@@ -45,7 +45,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	}
 
 	private boolean hasDifferentVersion(Module module, String version) {
-		return !TaraUtil.configurationOf(module).version().equals(version);
+		return !version.equals(TaraUtil.configurationOf(module).version());
 	}
 
 	private Module findModule(Artifact.Imports.Dependency dependency) {

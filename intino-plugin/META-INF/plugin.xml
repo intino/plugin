@@ -16,6 +16,8 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <runLineMarkerContributor language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerContributor"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
@@ -46,7 +48,6 @@
     </extensions>
 
     <actions>
-
         <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>

@@ -19,6 +19,6 @@ public class MainClassAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isPackage(Node element) {
-		return element.simpleType().equals("Pack") || element.simpleType().equals("Artifact.Pack");
+		return element.simpleType().equals("Package") || element.simpleType().equals("Artifact.Package");
 	}
 }
