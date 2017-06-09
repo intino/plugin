@@ -242,10 +242,14 @@ public class PomCreator {
 		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : LanguageResolver.languageID(language.name(), language.version());
 	}
 
-	private Frame createDependencyFrame(Dependency id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).
-				addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).
-				addSlot("version", id.effectiveVersion().isEmpty() ? id.version() : id.effectiveVersion());
+	private Frame createDependencyFrame(Dependency d) {
+		final Frame frame = new Frame().addTypes("dependency").addSlot("groupId", d.groupId()).
+				addSlot("scope", d.concept().name()).addSlot("artifactId", d.artifactId().toLowerCase()).
+				addSlot("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
+		if (!d.excludeList().isEmpty()) for (Dependency.Exclude exclude : d.excludeList())
+			frame.addSlot("exclusion", new Frame().addTypes("exclusion").
+					addSlot("groupId", exclude.groupId()).addSlot("artifactId", exclude.artifactId()));
+		return frame;
 	}
 
 	private Frame createDependencyFrame(String[] id) {

@@ -143,8 +143,7 @@ public class LanguageResolver {
 
 
 	public static String languageID(String language, String version) {
-		if (isMagritteLibrary(language))
-			return magritteID(version);
+		if (isMagritteLibrary(language)) return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
 		else try {

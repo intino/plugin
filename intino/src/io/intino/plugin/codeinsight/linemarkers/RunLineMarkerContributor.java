@@ -23,7 +23,6 @@ public class RunLineMarkerContributor extends com.intellij.execution.lineMarker.
 		return null;
 	}
 
-
 	private boolean isIdentifier(PsiElement e) {
 		if (!(e instanceof TaraNode) || !e.getContainingFile().getFileType().equals(LegioFileType.instance()))
 			return false;
