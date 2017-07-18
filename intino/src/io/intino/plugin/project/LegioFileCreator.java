@@ -3,6 +3,7 @@ package io.intino.plugin.project;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.plugin.file.legio.LegioFileType;
 import org.siani.itrules.model.Frame;
 
 import java.io.File;
@@ -21,7 +22,7 @@ class LegioFileCreator {
 
 	VirtualFile getOrCreate() {
 		final String legio = LegioFileTemplate.create().format(new Frame().addTypes("legio", "empty").addSlot("name", module.getName()));
-		final File destiny = new File(new File(module.getModuleFilePath()).getParent(), "configuration.legio");
+		final File destiny = new File(new File(module.getModuleFilePath()).getParent(), LegioFileType.LEGIO_FILE);
 		if (destiny.exists()) return findFileByIoFile(destiny, true);
 		return VfsUtil.findFileByIoFile(write(legio, destiny).toFile(), true);
 	}

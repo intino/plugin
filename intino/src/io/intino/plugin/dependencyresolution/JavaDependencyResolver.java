@@ -10,8 +10,8 @@ import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Project.Dependencies.Dependency;
-import io.intino.legio.Project.Repositories;
+import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.legio.Repository;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
@@ -33,14 +33,14 @@ public class JavaDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
 
 	private final Module module;
-	private final Repositories repositories;
+	private final List<Repository.Type> repositories;
 	private final LibraryManager manager;
 	private final Aether aether;
 	private List<Dependency> dependencies;
 	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
-	public JavaDependencyResolver(Module module, Repositories repositories, List<Dependency> dependencies) {
+	public JavaDependencyResolver(Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
 		this.manager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
@@ -110,7 +110,6 @@ public class JavaDependencyResolver {
 			}
 			return artifacts;
 		} catch (DependencyResolutionException e) {
-			LOG.error("Failed resolving dependency " + dependency.identifier() + " in specified repositories", e);
 			e.printStackTrace();
 			return tryAsPom(aether, dependency.identifier().split(":"), scope);
 		}
@@ -150,9 +149,8 @@ public class JavaDependencyResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		if (repositories.repositoryList() == null) return remotes;
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.repositoryList().stream().filter(r -> r != null && !r.is(Repositories.Language.class)).map(remote -> new RemoteRepository(remote.mavenId(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenId()))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().filter(r -> r != null && !r.is(Repository.Language.class)).map(remote -> new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()))).collect(Collectors.toList()));
 		return remotes;
 	}
 

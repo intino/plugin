@@ -12,7 +12,7 @@ def type(gulp)
 	const eventStream = require('event-stream');
 	const console = require('gulp-util');
 
-	const OutputPath = '$outDirectory+path~/www/$artifactID+lowercase';
+	const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
 	const WorkingDirectory = '$rootDirectory+path';
 	const WatchPort = 35$port;
 
@@ -135,12 +135,11 @@ def type(gulp)
 				minifyJS: true,
 				trimCustomFragments : true
 			}))
-			.pipe($$.crisper())
 			.pipe(gulp.dest(packagePath()));
 	};
 
 	const unionLib = () => {
-		return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,numeral,promise-polyfill}/**/*'),
+		return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,konos-server-web,numeral,promise-polyfill}/**/*'),
 			workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
 			.pipe(gulp.dest(packagePath('lib')));
 	};

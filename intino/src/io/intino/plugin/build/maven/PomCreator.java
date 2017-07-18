@@ -1,24 +1,24 @@
 package io.intino.plugin.build.maven;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.EffectiveLanguageLevelUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.legio.LifeCycle;
-import io.intino.legio.Project;
-import io.intino.legio.Project.Dependencies.Dependency;
-import io.intino.legio.Project.Repositories.Repository;
-import io.intino.legio.Project.Repositories.Snapshot;
+import io.intino.legio.Artifact;
+import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.legio.Parameter;
+import io.intino.legio.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.model.java.JavaResourceRootType;
-import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
 <<<<<<< HEAD
@@ -36,9 +36,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.LifeCycle.Package.Type.LibrariesLinkedByManifest;
-import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesExtracted;
-import static io.intino.legio.LifeCycle.Package.Type.ModulesAndLibrariesLinkedByManifest;
+import static io.intino.legio.Artifact.Package.Mode;
+import static io.intino.legio.Artifact.Package.Mode.*;
+import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
+import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
+import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 
 
 public class PomCreator {
@@ -46,12 +48,12 @@ public class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private Set<Integer> randomGeneration = new HashSet<>();
-	private final LifeCycle.Package.Type packageType;
+	private final Mode packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.lifeCycle() == null || configuration.lifeCycle().package$() == null ? null: configuration.lifeCycle().package$().type();
+		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().package$().mode();
 	}
 
 	public File frameworkPom() throws IOException {
@@ -70,10 +72,16 @@ public class PomCreator {
 	}
 
 	private File frameworkPom(File pom) {
-		LifeCycle.Package build = configuration.build();
+		Artifact.Package build = configuration.pack();
 		Frame frame = new Frame();
 		fillMavenId(frame);
-		frame.addSlot("sdk", ModuleRootManager.getInstance(module).getSdk().getSdkModificator().getName());
+		final String[] languageLevel = {"1.8"};
+		final Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed())
+			languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption();
+		else application.runReadAction((Computable<String>) () ->
+				languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption());
+		frame.addSlot("sdk", languageLevel[0]);
 		fillFramework(build, frame);
 		writePom(pom, frame, PomTemplate.create());
 		return pom;
@@ -91,7 +99,7 @@ public class PomCreator {
 		frame.addSlot("version", configuration.version());
 	}
 
-	private void fillFramework(LifeCycle.Package build, Frame frame) {
+	private void fillFramework(Artifact.Package pack, Frame frame) {
 		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(frame);
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
@@ -100,7 +108,7 @@ public class PomCreator {
 			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
 			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
 		}
-		if (build != null) configureBuild(frame, configuration.licence(), build);
+		if (pack != null) configureBuild(frame, configuration.licence(), pack);
 		addDependencies(frame);
 		addRepositories(frame);
 	}
@@ -119,7 +127,7 @@ public class PomCreator {
 	}
 
 	private void addRepositories(Frame frame) {
-		configuration.legioRepositories().stream().filter(r -> !r.is(Project.Repositories.Language.class)).forEach(r ->
+		configuration.repositoryTypes().stream().filter(r -> !r.is(Repository.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		if (configuration.distributionReleaseRepository() != null)
 			frame.addSlot("repository", createDistributionRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
@@ -177,35 +185,44 @@ public class PomCreator {
 
 	private String[] srcDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(JavaSourceRootType.SOURCE);
+		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(SOURCE);
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
 	private List<String> resourceDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.RESOURCE);
-		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(RESOURCE);
+		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		for (Module dependency : collectModuleDependencies(module)) {
+			if (isWebModule(dependency)) {
+				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
+				if (extension != null && extension.getCompilerOutputUrl() != null)
+					resources.add(pathOf(extension.getCompilerOutputUrl()));
+			}
+		}
+		return resources;
 	}
 
 	private List<String> resourceTestDirectories(Module module) {
 		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(JavaResourceRootType.TEST_RESOURCE);
+		final List<VirtualFile> sourceRoots = manager.getSourceRoots(TEST_RESOURCE);
 		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 	}
 
-	private void configureBuild(Frame frame, Project.License license, LifeCycle.Package build) {
+	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
-		final LifeCycle.Package.Type type = build.type();
+		final Artifact.Package.Mode type = build.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
+		for (Parameter parameter : build.parameterList())
+			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name$()).addSlot("value", parameter.value()));
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null)
 			frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
-
 	}
 
 	private void addDependantModuleSources(Frame frame, Module module) {
@@ -230,22 +247,26 @@ public class PomCreator {
 		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : LanguageResolver.languageID(language.name(), language.version());
 	}
 
-	private Frame createDependencyFrame(Dependency id) {
-		return new Frame().addTypes("dependency").addSlot("groupId", id.groupId()).
-				addSlot("scope", id.concept().name()).addSlot("artifactId", id.artifactId().toLowerCase()).
-				addSlot("version", id.effectiveVersion().isEmpty() ? id.version() : id.effectiveVersion());
+	private Frame createDependencyFrame(Dependency d) {
+		final Frame frame = new Frame().addTypes("dependency").addSlot("groupId", d.groupId()).
+				addSlot("scope", d.concept().name()).addSlot("artifactId", d.artifactId().toLowerCase()).
+				addSlot("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
+		if (!d.excludeList().isEmpty()) for (Dependency.Exclude exclude : d.excludeList())
+			frame.addSlot("exclusion", new Frame().addTypes("exclusion").
+					addSlot("groupId", exclude.groupId()).addSlot("artifactId", exclude.artifactId()));
+		return frame;
 	}
 
 	private Frame createDependencyFrame(String[] id) {
 		return new Frame().addTypes("dependency").addSlot("groupId", id[0].toLowerCase()).addSlot("scope", "compile").addSlot("artifactId", id[1].toLowerCase()).addSlot("version", id[2]);
 	}
 
-	private Frame createRepositoryFrame(Repository repo) {
+	private Frame createRepositoryFrame(Repository.Type repo) {
 		return new Frame().addTypes("repository", repo.getClass().getSimpleName()).
-				addSlot("name", repo.mavenId()).
+				addSlot("name", repo.mavenID()).
 				addSlot("url", repo.url()).
 				addSlot("random", generateRandom()).
-				addSlot("type", repo instanceof Snapshot ? "snapshot" : "release");
+				addSlot("type", repo.is(Repository.Snapshot.class) ? "snapshot" : "release");
 	}
 
 	private int generateRandom() {

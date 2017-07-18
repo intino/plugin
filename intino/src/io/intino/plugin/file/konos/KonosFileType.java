@@ -24,7 +24,7 @@ public class KonosFileType extends TaraFileType {
 
 	@NotNull
 	public String getDescription() {
-		return "Konos file";
+		return "Box file";
 	}
 
 	@NotNull

@@ -20,8 +20,8 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LanguageImporter {
 
@@ -35,21 +35,21 @@ public class LanguageImporter {
 		this.configuration = configuration;
 	}
 
-	String importLanguage(String dsl, String version) {
+	void importLanguage(String dsl, String version) {
 		final String effectiveVersion = LegioUtil.effectiveVersionOf(dsl, version, (LegioConfiguration) configuration);
 		final boolean done = downloadLanguage(dsl, effectiveVersion);
 		if (done) {
 			configuration.language(d -> d.name().equals(dsl)).version(effectiveVersion);
 			reload(dsl, module.getProject());
-			return effectiveVersion;
-		} else return "";
+		}
 	}
 
 	private boolean downloadLanguage(String name, String version) {
 		try {
-			if (name.equalsIgnoreCase(Proteo.class.getSimpleName()) || name.equals(Verso.class.getSimpleName())) return true;
+			if (name.equalsIgnoreCase(Proteo.class.getSimpleName()) || name.equals(Verso.class.getSimpleName()))
+				return true;
 			final File languagesDirectory = new File(LanguageManager.getLanguagesDirectory().getPath());
-			new Aether(repository(), languagesDirectory).resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
+			new Aether(repositories(), languagesDirectory).resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
 			return true;
 		} catch (DependencyResolutionException e) {
 			error(e);
@@ -58,8 +58,8 @@ public class LanguageImporter {
 	}
 
 	@NotNull
-	private List<RemoteRepository> repository() {
-		return Collections.singletonList(new RemoteRepository(configuration.languageRepositoryId(), "default", configuration.languageRepository()));
+	private List<RemoteRepository> repositories() {
+		return configuration.languageRepositories().entrySet().stream().map((e) -> new RemoteRepository(e.getValue(), "default", e.getKey())).collect(Collectors.toList());
 	}
 
 	private void reload(String fileName, Project project) {

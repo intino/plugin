@@ -18,17 +18,18 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import io.intino.legio.Argument;
+import io.intino.legio.Artifact;
 import io.intino.legio.Legio;
-import io.intino.legio.LifeCycle;
-import io.intino.legio.Project;
-import io.intino.legio.Project.Dependencies.Dependency;
-import io.intino.legio.Project.Factory;
-import io.intino.legio.Project.Repositories.Repository;
+import io.intino.legio.Repository;
+import io.intino.legio.Repository.Release;
+import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
 import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
@@ -62,10 +63,12 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-public class LegioConfiguration implements Configuration {
-	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
+import static io.intino.tara.compiler.shared.TaraBuildConstants.WORKING_PACKAGE;
+import static java.util.stream.Collectors.toMap;
 
-	private static final String CONFIGURATION_LEGIO = "configuration.legio";
+public class LegioConfiguration implements Configuration {
+	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());
+
 	private final Module module;
 	private VirtualFile legioFile;
 	private Legio legio;
@@ -91,30 +94,30 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null && stashFile.exists()) stashFile.delete();
 		reloadInterfaceBuilder();
 		resolveLanguages();
+		reloadArtifactoriesMetaData();
 		if (WebModuleType.isWebModule(module) && this.legio != null)
-			new GulpExecutor(this.module, legio.project()).startGulpDev();
-		if (legio != null && legio.project() != null) legio.project().save();
+			new GulpExecutor(this.module, legio.artifact()).startGulpDev();
+		if (legio != null && legio.artifact() != null) legio.artifact().save();
 	}
-
 
 	@Override
 	public boolean isSuitable() {
-		return new File(new File(module.getModuleFilePath()).getParentFile(), CONFIGURATION_LEGIO).exists();
+		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
 	}
 
 	public void purgeAndReload() {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Purge Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 legio = newGraphFromLegio();
-						 new DependencyPurger(module).execute();
+						 new DependencyPurger(module, LegioConfiguration.this).execute();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
-						 if (legio != null && legio.project() != null) legio.project().save();
+						 if (legio != null && legio.artifact() != null) legio.artifact().save();
 					 }
 				 }
 		);
@@ -125,22 +128,27 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 legio = newGraphFromLegio();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
-						 if (legio != null && legio.project() != null) legio.project().save();
+						 reloadArtifactoriesMetaData();
+						 if (legio != null && legio.artifact() != null) legio.artifact().save();
 					 }
 				 }
 		);
 	}
 
+	private void reloadArtifactoriesMetaData() {
+		new ArtifactorySensor(repositoryTypes()).update();
+	}
+
 	private void reloadInterfaceBuilder() {
-		final Factory.Interface interfaceNode = safe(() -> legio.project().factory().interface$());
-		if (interfaceNode != null) new InterfaceBuilderManager().reload(module.getProject(), interfaceNode.version());
+		final Artifact.Box boxing = safe(() -> legio.artifact().box());
+		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.sdk());
 	}
 
 	private Legio newGraphFromLegio() {
@@ -163,14 +171,14 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void reloadDependencies() {
-		if (legio == null || legio.project() == null) return;
+		if (legio == null || legio.artifact() == null) return;
 		resolveJavaDependencies();
-		if (WebModuleType.isWebModule(module) && legio.project().webDependencies() != null) resolveWebDependencies();
+		if (WebModuleType.isWebModule(module) && legio.artifact().webImports() != null) resolveWebDependencies();
 	}
 
 	private void resolveJavaDependencies() {
 		if (dependencies() == null) return;
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, legio.project().repositories(), dependencies());
+		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, repositoryTypes(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
 		newLibraries.addAll(resolveLanguages());
 		LibraryManager.clean(module, newLibraries);
@@ -178,41 +186,57 @@ public class LegioConfiguration implements Configuration {
 
 	private List<Library> resolveLanguages() {
 		List<Library> libraries = new ArrayList<>();
-		Factory factory = safe(() -> legio.project().factory());
-		if (factory == null) return libraries;
+		Model model = model();
+		if (model == null) return libraries;
 		for (LanguageLibrary language : languages()) {
 			final String effectiveVersion = language.effectiveVersion();
 			String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
-			libraries.addAll(new LanguageResolver(module, legio.project().repositories().repositoryList(), factory.languageList(d -> d.name$().equals(language.name())).get(0), version).resolve());
+			libraries.addAll(new LanguageResolver(module, repositoryTypes(), model, version).resolve());
 		}
 		return libraries;
 	}
 
+	public List<Repository.Type> repositoryTypes() {
+		List<Repository.Type> repos = new ArrayList<>();
+		for (Repository r : safeList(() -> legio.repositoryList())) repos.addAll(r.typeList());
+		return repos;
+	}
+
+	public List<String> taraCompilerClasspath() {
+		Model modeling = model();
+		if (modeling == null) return Collections.emptyList();
+		return new ModelBuilderManager(this.module.getProject(), model()).resolveBuilder();
+	}
+
+	public Model model() {
+		return safe(() -> legio.artifact().asLevel().model());
+	}
+
 	private void resolveWebDependencies() {
-		new WebDependencyResolver(module, legio.project(), legio.project().webDependencies()).resolve();
+		new WebDependencyResolver(module, legio.artifact(), repositoryTypes(), legio.artifact().webImports()).resolve();
 	}
 
 	@Override
 	public Level level() {
-		if (legio == null || legio.project() == null) return null;
-		final Factory factory = legio.project().factory();
-		if (factory == null) return null;
-		final String level = factory.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		if (legio == null || legio.artifact() == null) return null;
+		final Artifact artifact = artifact();
+		if (artifact == null) return null;
+		final String level = artifact.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
 	}
 
 	@Override
 	public String artifactId() {
-		return safe(() -> legio.project().name());
+		return safe(() -> legio.artifact().name());
 	}
 
 	@Override
 	public String groupId() {
-		return safe(() -> legio.project().groupId());
+		return safe(() -> legio.artifact().groupId());
 	}
 
 	public String version() {
-		return safe(() -> legio.project().version());
+		return safe(() -> legio.artifact().version());
 	}
 
 	public void version(String version) {
@@ -221,7 +245,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String workingPackage() {
-		return safe(() -> legio.project().factory().inPackage(), outDSL());
+		return safe(() -> legio.artifact().code().targetPackage(), groupId() + "." + artifactId());
 	}
 
 	public String nativeLanguage() {
@@ -230,192 +254,147 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public List<? extends LanguageLibrary> languages() {
-		final List<Factory.Language> list = safe(() -> legio.project().factory().languageList());
-		if (list == null) return Collections.emptyList();
-		List<LanguageLibrary> languages = new ArrayList<>();
-		for (Factory.Language language : list) {
-			languages.add(new LanguageLibrary() {
-				@Override
-				public String name() {
-					return language.name$();
-				}
+		Model model = safe(() -> legio.artifact().asLevel().model());
+		if (model == null) return Collections.emptyList();
+		return Collections.singletonList(new LanguageLibrary() {
+			@Override
+			public String name() {
+				return model.language();
+			}
 
-				@Override
-				public String version() {
-					return language.version();
-				}
+			@Override
+			public String version() {
+				return model.version();
+			}
 
-				@Override
-				public String effectiveVersion() {
-					return language.effectiveVersion();
-				}
+			@Override
+			public String effectiveVersion() {
+				return model.effectiveVersion();
+			}
 
-				@Override
-				public void version(String version) {
-					final Application application = ApplicationManager.getApplication();
-					TaraModel psiFile = !application.isReadAccessAllowed() ?
-							(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
-							(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
-					new WriteCommandAction(module.getProject(), psiFile) {
-						@Override
-						protected void run(@NotNull Result result) throws Throwable {
-							language.version(version);
-							final Node factory = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Project.Factory")).findFirst().orElse(null);
-							if (factory == null) return;
-							final Node language = factory.components().stream().filter(f -> f.type().equals("Project.Factory.Language")).findFirst().orElse(null);
-							if (language == null) return;
-							final Parameter versionParameter = language.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
-							versionParameter.substituteValues(Collections.singletonList(version));
-						}
-					}.execute();
-					reload();
-				}
-
-				@Override
-				public String generationPackage() {
-					try {
-						final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion());
-						if (!languageFile.exists()) return null;
-						Manifest manifest = new JarFile(languageFile).getManifest();
-						final Attributes tara = manifest.getAttributes("tara");
-						if (tara == null) return null;
-						return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
-					} catch (IOException e) {
-						LOG.error(e.getMessage(), e);
-						return null;
+			@Override
+			public void version(String version) {
+				final Application application = ApplicationManager.getApplication();
+				TaraModel psiFile = !application.isReadAccessAllowed() ?
+						(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
+						(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
+				new WriteCommandAction(module.getProject(), psiFile) {
+					@Override
+					protected void run(@NotNull Result result) throws Throwable {
+						model.version(version);
+						final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
+						if (model == null) return;
+						final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+						versionParameter.substituteValues(Collections.singletonList(version));
 					}
-				}
-			});
+				}.execute();
+				reload();
+			}
+
+			@Override
+			public String generationPackage() {
+				Attributes attributes = languageParameters();
+				return attributes == null ? null : attributes.getValue(WORKING_PACKAGE.replace(".", "-"));
+			}
+		});
+	}
+
+	public Attributes languageParameters() {
+		final Model model = safe(() -> legio.artifact().asLevel().model());
+		if (model == null) return null;
+		final File languageFile = LanguageManager.getLanguageFile(model.language(), model.effectiveVersion());
+		if (!languageFile.exists()) return null;
+		try {
+			Manifest manifest = new JarFile(languageFile).getManifest();
+			return manifest == null ? null : manifest.getAttributes("tara");
+		} catch (IOException e) {
+			return null;
 		}
-		return languages;
 
 	}
 
 	@Override
-	public List<String> repositories() {
-		return safe(() -> legio.project().repositories().repositoryList().stream().
-				map(Repository::url).collect(Collectors.toList()));
+	public Map<String, String> repositories() {
+		Map<String, String> repositories = new HashMap<>();
+		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList().stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		return repositories;
 	}
 
 	public Map<String, String> releaseRepositories() {
-		return safe(() -> legio.project().repositories().releaseList().stream().
-				collect(Collectors.toMap(Repository::url, Repository::mavenId)));
+		Map<String, String> repositories = new HashMap<>();
+		safeList(() -> legio.repositoryList()).forEach(r -> repositories.putAll(r.typeList(t -> t.is(Release.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		return repositories;
 	}
 
 	@Override
 	public String snapshotRepository() {
-		return safe(() -> legio.project().repositories().snapshot().url());
+		return safe(() -> legio.repositoryList().get(0).snapshot().url());
 	}
 
 	@Override
 	public AbstractMap.SimpleEntry<String, String> distributionLanguageRepository() {
 		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.lifeCycle().distribution().language().url(), legio.lifeCycle().distribution().language().mavenId()));
+				(legio.artifact().distribution().language().url(), legio.artifact().distribution().language().mavenID()));
 	}
 
 	@Override
 	public AbstractMap.SimpleEntry<String, String> distributionReleaseRepository() {
 		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.lifeCycle().distribution().release().url(), legio.lifeCycle().distribution().release().mavenId()));
+				(legio.artifact().distribution().release().url(), legio.artifact().distribution().release().mavenID()));
 	}
 
 	@Override
-	public AbstractMap.SimpleEntry<String, String> distributionSnapshotRepository() {
-		return safe(() -> new AbstractMap.SimpleEntry<String, String>
-				(legio.lifeCycle().distribution().snapshot().url(), legio.lifeCycle().distribution().snapshot().mavenId()));
-	}
-
-	@Override
-	public String languageRepository() {
-		return safe(() -> legio.project().repositories().language().url());
-	}
-
-	public String languageRepositoryId() {
-		return safe(() -> legio.project().repositories().language().mavenId());
+	public Map<String, String> languageRepositories() {
+		Map<String, String> repositories = new HashMap<>();
+		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList(t -> t.is(Repository.Language.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		return repositories;
 	}
 
 	@Override
 	public String outDSL() {
-		return safe(() -> legio.project().name());
+		return safe(() -> legio.artifact().name());
 	}
 
-	public Factory factory() {
-		return safe(() -> legio.project().factory());
+	public List<Artifact.Deployment> deployments() {
+		return safe(() -> legio.artifact().deploymentList());
 	}
 
-	public LifeCycle lifeCycle() {
-		return safe(() -> legio.lifeCycle());
+	public Artifact.Package pack() {
+		return safe(() -> legio.artifact().package$());
 	}
 
-	public LifeCycle.Deploy deploy() {
-		return safe(() -> legio.lifeCycle().deploy());
+	public Artifact.QualityAnalytics qualityAnalytics() {
+		return legio.artifact().qualityAnalytics();
 	}
 
-	public LifeCycle.Package build() {
-		return safe(() -> legio.lifeCycle().package$());
-	}
-
-	public LifeCycle.QualityAnalytics qualityAnalytics() {
-		return legio.lifeCycle().qualityAnalytics();
-	}
-
-	public List<RunConfiguration> preRunConfigurations() {
-		final List<LifeCycle.Deploy.Pre> preDeploys = safeList(() -> deploy().preList());
-		if (preDeploys == null || preDeploys.isEmpty()) return Collections.emptyList();
-		return preDeploys.stream().map(this::createRunConfiguration).collect(Collectors.toList());
-	}
-
-	public List<RunConfiguration> deployRunConfigurations() {
-		final List<LifeCycle.Deploy.Pro> deploys = safeList(() -> deploy().proList());
+	public List<DeployConfiguration> deployConfigurations() {
+		final List<Artifact.Deployment> deploys = safeList(this::deployments);
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
-		return deploys.stream().map(this::createRunConfiguration).collect(Collectors.toList());
+		return deploys.stream().flatMap(deploy -> deploy.destinationList().stream()).map(this::createDeployConfiguration).collect(Collectors.toList());
 	}
 
 	@NotNull
-	private RunConfiguration createRunConfiguration(final LifeCycle.Deploy.Destination destination) {
-		return new RunConfiguration() {
-			@Override
+	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment.Destination deployment) {
+		return new DeployConfiguration() {
 			public String name() {
-				return destination.name();
+				return deployment.name();
 			}
 
-			@Override
+			public boolean pro() {
+				return deployment.is(Artifact.Deployment.Pro.class);
+			}
+
 			public List<Parameter> parameters() {
-				return destination.configuration().parameterList().stream().map(p -> wrapParameter("", p)).collect(Collectors.toList());
-			}
-
-			@Override
-			public List<Service> services() {
-				return destination.configuration().serviceList().stream().map(service -> new Service() {
-					public String name() {
-						return service.name();
-					}
-
-					public List<Parameter> parameters() {
-						return service.parameterList().stream().map(p -> wrapParameter(service.name(), p)).collect(Collectors.toList());
-					}
-				}).collect(Collectors.toList());
-			}
-
-			@Override
-			public String store() {
-				return destination.configuration().store().path();
+				return deployment.runConfiguration().argumentList().stream().map(this::wrapParameter).collect(Collectors.toList());
 			}
 
 			@NotNull
-			private Parameter wrapParameter(String prefix, final io.intino.legio.Parameter p) {
+			private Parameter wrapParameter(final Argument p) {
 				return new Parameter() {
-					@Override
 					public String name() {
-						return (prefix.isEmpty() ? "" : prefix + ".") + p.name();
+						return p.name();
 					}
 
-					@Override
-					public String type() {
-						return "String";
-					}
-
-					@Override
 					public String value() {
 						return p.value();
 					}
@@ -426,7 +405,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public String interfaceVersion() {
-		return safe(() -> legio.project().factory().interface$().version());
+		return safe(() -> legio.artifact().box().sdk());
 	}
 
 	private String safe(StringWrapper wrapper) {
@@ -436,15 +415,15 @@ public class LegioConfiguration implements Configuration {
 	private String safe(StringWrapper wrapper, String defaultValue) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return defaultValue;
 		}
 	}
 
-	public static <T> T safe(Wrapper<T> wrapper) {
+	private static <T> T safe(Wrapper<T> wrapper) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return null;
 		}
 	}
@@ -452,25 +431,29 @@ public class LegioConfiguration implements Configuration {
 	private <T> List<T> safeList(ListWrapper<T> wrapper) {
 		try {
 			return wrapper.value();
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
 	}
 
-	public List<Dependency> dependencies() {
-		return safeList(() -> legio.project().dependencies().dependencyList());
+	public List<Artifact.Imports.Dependency> dependencies() {
+		return safeList(() -> legio.artifact().imports().dependencyList());
 	}
 
 	public List<Repository> legioRepositories() {
-		return safeList(() -> legio.project().repositories().repositoryList());
+		return safeList(() -> legio.repositoryList());
 	}
 
-	public Project.License licence() {
-		return legio.project().license();
+	public Artifact.License licence() {
+		return legio.artifact().license();
 	}
 
-	public Project project() {
-		return safe(() -> legio.project());
+	public Artifact artifact() {
+		return safe(() -> legio.artifact());
+	}
+
+	public PsiFile legioFile() {
+		return PsiManager.getInstance(module.getProject()).findFile(legioFile);
 	}
 
 	private interface StringWrapper {

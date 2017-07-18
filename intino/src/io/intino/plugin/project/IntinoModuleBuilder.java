@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.tara.plugin.lang.TaraIcons;
+import io.intino.plugin.IntinoIcons;
 import io.intino.tara.plugin.project.TaraModuleType;
 import io.intino.tara.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
@@ -29,7 +29,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	@Override
 	public Icon getBigIcon() {
-		return TaraIcons.LOGO_24;
+		return IntinoIcons.LOGO_16;
 	}
 
 	@Override

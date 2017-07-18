@@ -5,7 +5,7 @@
 
     <groupId>io.intino.legio</groupId>
     <artifactId>model</artifactId>
-    <version>2.3.0</version>
+    <version>3.0.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -22,6 +22,11 @@
         <testOutputDirectory>../out/test/model</testOutputDirectory>
         <directory>../out/build/model</directory>
         <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>res</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -55,15 +60,12 @@
             <name>siani-maven-snapshot</name>
             <url>http://artifactory.siani.es/artifactory/libs-snapshot</url>
         </repository>
-    </repositories>
-
-    <distributionManagement>
         <repository>
             <id>intino-maven</id>
             <name>intino-maven-releases</name>
-            <url>https://artifactory.intino.io/artifactory/release-libraries</url>
+            <url>https://artifactory.intino.io/artifactory/releases</url>
         </repository>
-    </distributionManagement>
+    </repositories>
 
     <dependencies>
         <dependency>

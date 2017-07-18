@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>2.7.0</version>
+    <version>3.0.1</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -16,11 +16,21 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DependencyAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.InterfaceVersionAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.MainClassAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.LanguageDeclarationAnnotator"/>
-        <annotator language="Tara" implementationClass="io.intino.plugin.annotators.DuplicatedRepositoryAnnotator"/>
+        <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
+        <runLineMarkerContributor language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerContributor"/>
+        <fileDocumentManagerListener
+                implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.PackageParametersAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.DuplicatedRepositoryAnnotator"/>
         <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
                         serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
@@ -29,29 +39,45 @@
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
         <errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
         <copyPastePreProcessor implementation="io.intino.plugin.file.legio.LegioDependencyPasteProcessor"/>
-        <problemFileHighlightFilter implementation="io.intino.plugin.annotators.LegioProblemFileHighlightFilter"/>
+        <problemFileHighlightFilter
+                implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
         <moduleBuilder builderClass="io.intino.plugin.project.IntinoModuleBuilder"/>
-        <toolWindow id="Console" secondary="true" icon="/icons/legio/legio-13.png" anchor="bottom"
+        <toolWindow id="Intino Console" secondary="true" icon="/icons/intino/intino-13.png" anchor="bottom"
                     factoryClass="io.intino.plugin.console.ConsoleWindowFactory"/>
+        <completion.contributor language="Tara"
+                                implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
     </extensions>
 
     <actions>
-        <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
-                text="Join To Legio"
-                description="Join module to legio or convert from maven">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+
+        <action id="IntinoGenerate" class="io.intino.plugin.actions.IntinoGenerationAction"
+                text="Generate intino code"
+                icon="/icons/generate-16.png"
+                description="generates all intino source code">
+            <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
+            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
-        <action id="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
+        <action id="PurgeAndReloadConfigurationAction"
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
                 text="Purge and reload Legio Configuration"
                 description="Purge and reload configuration of project modules">
-            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
+
         </action>
-        <action id="io.intino.plugin.actions.ReloadConfigurationAction"
+        <action id="ReloadConfigurationAction"
                 class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
                 description="Reload configuration of project modules">
-            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
+            <keyboard-shortcut first-keystroke="control alt E" keymap="$default"/>
+            <!--<add-to-group group-id="intino"/>-->
         </action>
+        <action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
+                text="Join to Intino"
+                description="Join module to legio or convert from maven">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
         <action id="io.intino.plugin.actions.SubmitFeedbackAction"
                 class="io.intino.plugin.actions.SubmitFeedbackAction"
                 text="Submit Tara Feedback" description="You can report a bug or suggestion of plugin">
@@ -69,7 +95,14 @@
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.lifecycle.LifeCycleManager</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.toolwindows.dependencytree.DependencyTreeComponent
+            </implementation-class>
         </component>
     </project-components>
 </idea-plugin>

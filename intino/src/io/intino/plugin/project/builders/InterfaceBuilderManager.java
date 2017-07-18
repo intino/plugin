@@ -13,17 +13,27 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class InterfaceBuilderManager {
 
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 
 	public void reload(Project project, String version) {
-		if (BuilderLoader.isLoaded(project, version)) return;
-		List<Artifact> library = konosLibrary(version);
-		if (library != null && !library.isEmpty())
-			BuilderLoader.load(project, library.stream().map(this::pathOf).toArray(File[]::new), version);
+		if (InterfaceBuilderLoader.isLoaded(project, version)) return;
+		List<Artifact> artifacts = konosLibrary(version);
+		if (!artifacts.isEmpty())
+			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), version);
+	}
+
+	public void purge(String version) {
+		final List<Artifact> artifacts = konosLibrary(version);
+		for (Artifact artifact : artifacts) {
+			final File file = artifact.getFile();
+			if (file != null && file.exists()) file.delete();
+		}
 	}
 
 	private File pathOf(Artifact artifact) {
@@ -35,7 +45,7 @@ public class InterfaceBuilderManager {
 		try {
 			return aether.resolve(new DefaultArtifact("io.intino.konos:builder:jar:" + version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
@@ -46,7 +56,7 @@ public class InterfaceBuilderManager {
 			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", "http://artifactory.intino.io/artifactory/releases"));
+		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		return remotes;
 	}

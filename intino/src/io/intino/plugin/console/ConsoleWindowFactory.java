@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.impl.ToolWindowImpl;
 import com.intellij.ui.Gray;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -34,10 +35,20 @@ public class ConsoleWindowFactory implements ToolWindowFactory {
 			scrollPane.getHorizontalScrollBar().setValue(0);
 		}));
 		myToolWindow = toolWindow;
-		myToolWindow.setAutoHide(true);
+		myToolWindow.setAutoHide(false);
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-		Content content = contentFactory.createContent(myToolWindowContent, "Console", false);
+		Content content = contentFactory.createContent(myToolWindowContent, "", true);
 		toolWindow.getContentManager().addContent(content);
+	}
+
+	@Override
+	public void init(ToolWindow window) {
+		((ToolWindowImpl) window).ensureContentInitialized();
+	}
+
+	@Override
+	public boolean isDoNotActivateOnStart() {
+		return false;
 	}
 
 	private void createUIComponents() {

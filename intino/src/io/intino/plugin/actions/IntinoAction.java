@@ -17,9 +17,10 @@ public abstract class IntinoAction extends AnAction {
 	void notifyReload(Module module) {
 		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
 		if (balloon != null)
-			balloon.createNotification("Configuration of " + module.getName() + " reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
+			balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
+	public abstract void execute(Module module);
 
 	@Override
 	public void update(AnActionEvent e) {
@@ -29,7 +30,6 @@ public abstract class IntinoAction extends AnAction {
 		e.getPresentation().setEnabled(visible);
 		e.getPresentation().setIcon(IntinoIcons.LEGIO_16);
 	}
-
 
 	private boolean hasLegioModules(Project project) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();

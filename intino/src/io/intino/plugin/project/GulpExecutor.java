@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.legio.Project;
+import io.intino.legio.Artifact;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
@@ -34,14 +34,14 @@ public class GulpExecutor {
 	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
 	private static Boolean lock = false;
 
-	private Project project;
+	private Artifact artifact;
 	private final Module module;
 	private final File rootDirectory;
 	private final File nodeDirectory;
 
-	public GulpExecutor(Module module, Project legioProject) {
+	public GulpExecutor(Module module, Artifact artifact) {
 		this.module = module;
-		this.project = legioProject;
+		this.artifact = artifact;
 		this.rootDirectory = new File(module.getModuleFilePath()).getParentFile();
 		this.nodeDirectory = new File(System.getProperty("user.home"), ".node" + File.separator + "node");
 	}
@@ -111,11 +111,12 @@ public class GulpExecutor {
 
 	private File createGulp() throws IOException {
 		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-		if (compilerModuleExtension == null || project == null) return null;
+		if (compilerModuleExtension == null || artifact == null) return null;
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
 				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
-				addSlot("artifactID", project.name()).addSlot("port", new Random().nextInt(1000));
+				addSlot("artifactID", artifact.name()).addSlot("port", new Random().nextInt(1000)).
+				addSlot("activity", module.getName().replace("-activity", ""));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
 		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getCanonicalPath());
 		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().add("path", pathFormatter()).format(frame));
@@ -126,17 +127,17 @@ public class GulpExecutor {
 	}
 
 	private File createGulpPom(String task) {
-		if (project == null) return null;
+		if (artifact == null) return null;
 		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
-				addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).
-				addSlot("version", project.version()).addSlot("module", module.getName()).addSlot("task", task)));
+				addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name()).
+				addSlot("version", artifact.version()).addSlot("module", module.getName()).addSlot("task", task)));
 	}
 
 	private File createPackageFile() {
 		File packageFile = new File(nodeDirectory, "package.json");
 		packageFile.getParentFile().mkdirs();
 		if (packageFile.exists()) return packageFile;
-		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", project.groupId()).addSlot("artifactID", project.name()).addSlot("version", project.version())));
+		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name()).addSlot("version", artifact.version())));
 		return packageFile;
 	}
 
