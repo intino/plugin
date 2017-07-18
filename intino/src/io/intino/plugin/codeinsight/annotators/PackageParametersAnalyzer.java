@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.annotators;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
 import io.intino.plugin.project.LegioConfiguration;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -26,12 +26,10 @@ import static io.intino.plugin.MessageProvider.message;
 
 public class PackageParametersAnalyzer extends TaraAnalyzer {
 	private final Node packageNode;
-	private final Project project;
 	private final LegioConfiguration configuration;
 
 	PackageParametersAnalyzer(Node node) {
 		this.packageNode = node;
-		this.project = ((PsiElement) node).getProject();
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) packageNode);
 	}
 
@@ -84,9 +82,10 @@ public class PackageParametersAnalyzer extends TaraAnalyzer {
 		try {
 			final JarFile jarFile = new JarFile(languageFile);
 			final Manifest manifest = jarFile.getManifest();
-			for (Map.Entry<Object, Object> entry : manifest.getAttributes("framework").entrySet()) {
+			final Attributes framework = manifest.getAttributes("framework");
+			if (framework == null) return map;
+			for (Map.Entry<Object, Object> entry : framework.entrySet())
 				map.put(entry.getKey().toString(), entry.getValue().toString());
-			}
 		} catch (IOException ignored) {
 		}
 		return map;

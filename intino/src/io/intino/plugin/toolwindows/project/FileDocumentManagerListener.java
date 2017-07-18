@@ -41,6 +41,7 @@ public class FileDocumentManagerListener implements com.intellij.openapi.fileEdi
 				document.addDocumentListener(new DocumentListener() {
 					public void beforeDocumentChange(DocumentEvent event) {
 					}
+
 					public void documentChanged(DocumentEvent event) {
 						publish(psiFile);
 					}
@@ -55,7 +56,9 @@ public class FileDocumentManagerListener implements com.intellij.openapi.fileEdi
 	}
 
 	private void publish(PsiFile file) {
-		final MessageBus messageBus = file.getProject().getMessageBus();
+		final Project project = file.getProject();
+		if (project.isDisposed()) return;
+		final MessageBus messageBus = project.getMessageBus();
 		final IntinoFileListener legioListener = messageBus.syncPublisher(IntinoTopics.FILE_MODIFICATION);
 		legioListener.modified(file.getOriginalFile().getVirtualFile().getPath());
 		final MessageBusConnection connect = messageBus.connect();

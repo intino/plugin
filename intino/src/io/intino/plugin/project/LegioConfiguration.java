@@ -30,7 +30,6 @@ import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
 import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
@@ -47,6 +46,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.intino.tara.compiler.shared.TaraBuildConstants.WORKING_PACKAGE;
 import static java.util.stream.Collectors.toMap;
 
 public class LegioConfiguration implements Configuration {
@@ -265,9 +265,9 @@ public class LegioConfiguration implements Configuration {
 					@Override
 					protected void run(@NotNull Result result) throws Throwable {
 						model.version(version);
-						final Node modeling = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
-						if (modeling == null) return;
-						final Parameter versionParameter = modeling.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+						final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
+						if (model == null) return;
+						final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
 						versionParameter.substituteValues(Collections.singletonList(version));
 					}
 				}.execute();
@@ -276,19 +276,24 @@ public class LegioConfiguration implements Configuration {
 
 			@Override
 			public String generationPackage() {
-				try {
-					final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion());
-					if (!languageFile.exists()) return null;
-					Manifest manifest = new JarFile(languageFile).getManifest();
-					final Attributes tara = manifest.getAttributes("tara");
-					if (tara == null) return null;
-					return tara.getValue(TaraBuildConstants.WORKING_PACKAGE.replace(".", "-"));
-				} catch (IOException e) {
-					LOG.error(e.getMessage(), e);
-					return null;
-				}
+				Attributes attributes = languageParameters();
+				return attributes == null ? null : attributes.getValue(WORKING_PACKAGE.replace(".", "-"));
 			}
 		});
+	}
+
+	public Attributes languageParameters() {
+		final Model model = safe(() -> legio.artifact().asLevel().model());
+		if (model == null) return null;
+		final File languageFile = LanguageManager.getLanguageFile(model.language(), model.effectiveVersion());
+		if (!languageFile.exists()) return null;
+		try {
+			Manifest manifest = new JarFile(languageFile).getManifest();
+			return manifest == null ? null : manifest.getAttributes("tara");
+		} catch (IOException e) {
+			return null;
+		}
+
 	}
 
 	@Override
@@ -363,7 +368,7 @@ public class LegioConfiguration implements Configuration {
 			}
 
 			public List<Parameter> parameters() {
-				return deployment.runConfiguration().argumentList().stream().map(p -> wrapParameter(p)).collect(Collectors.toList());
+				return deployment.runConfiguration().argumentList().stream().map(this::wrapParameter).collect(Collectors.toList());
 			}
 
 			@NotNull

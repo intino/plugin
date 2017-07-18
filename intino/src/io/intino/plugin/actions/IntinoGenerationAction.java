@@ -246,5 +246,6 @@ public class IntinoGenerationAction extends IntinoAction {
 		}
 		e.getPresentation().setVisible(!pendingFiles.isEmpty());
 		e.getPresentation().setIcon(IntinoIcons.GENARATION_16);
+		e.getPresentation().setText("Generate intino code");
 	}
 }

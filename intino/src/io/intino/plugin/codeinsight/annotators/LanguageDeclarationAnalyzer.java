@@ -8,22 +8,25 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.Language;
+import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.Proteo;
 import io.intino.tara.dsl.Verso;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	private final Node modelNode;
@@ -44,14 +47,26 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		final String languageName = languageNameParameter.values().get(0).toString();
 		if (languageName == null) return;
 		String version = version();
-		if ("LATEST".equals(version))
-			version = configuration.language(l -> languageName.equals(l.name())).effectiveVersion();
+		if ("LATEST".equals(version)) {
+			final Configuration.LanguageLibrary language = configuration.language(l -> languageName.equals(l.name()));
+			version = language != null ? language.effectiveVersion() : null;
+		}
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
+		final Configuration.Level languageLevel = levelOfLanguage();
+		if (configuration.level().compareLevelWith(languageLevel) != 1)
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
-			results.put((PsiElement) this.modelNode, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("language.not.found")));
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))
-			results.put(((TaraNode) this.modelNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("magritte.not.found")));
+			results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("magritte.not.found")));
+	}
+
+	@NotNull
+	private Configuration.Level levelOfLanguage() {
+		final Attributes attributes = configuration.languageParameters();
+		if (attributes == null) return Configuration.Level.Platform;
+		return Configuration.Level.valueOf(attributes.getValue("level"));
 	}
 
 	private boolean existMagritte(String version) {

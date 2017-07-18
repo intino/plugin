@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -16,6 +16,7 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <runLineMarkerContributor language="Tara"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerContributor"/>
         <fileDocumentManagerListener
@@ -54,7 +55,7 @@
 
         <action id="IntinoGenerate" class="io.intino.plugin.actions.IntinoGenerationAction"
                 text="Generate intino code"
-                icon="/icons/generate.png"
+                icon="/icons/generate-16.png"
                 description="generates all intino source code">
             <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>

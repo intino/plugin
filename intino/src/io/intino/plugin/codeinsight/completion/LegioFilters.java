@@ -140,7 +140,7 @@ class LegioFilters {
 
 	private static boolean isElementAcceptable(Object element, PsiElement context) {
 		final PsiFile file = context.getContainingFile().getOriginalFile();
-		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && ((TaraModel) file).dsl().equals(Legio.class.getSimpleName());
+		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && Legio.class.getSimpleName().equals(((TaraModel) file).dsl());
 	}
 
 	private static boolean inModelNode(Node node) {
