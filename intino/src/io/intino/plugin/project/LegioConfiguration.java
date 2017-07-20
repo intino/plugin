@@ -18,10 +18,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import io.intino.legio.Argument;
-import io.intino.legio.Artifact;
-import io.intino.legio.Legio;
-import io.intino.legio.Repository;
+import io.intino.legio.*;
 import io.intino.legio.Repository.Release;
 import io.intino.legio.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.*;
@@ -296,7 +293,6 @@ public class LegioConfiguration implements Configuration {
 
 	}
 
-	@Override
 	public Map<String, String> repositories() {
 		Map<String, String> repositories = new HashMap<>();
 		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList().stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
@@ -344,6 +340,10 @@ public class LegioConfiguration implements Configuration {
 
 	public Artifact.Package pack() {
 		return safe(() -> legio.artifact().package$());
+	}
+
+	public List<RunConfiguration> runConfigurations() {
+		return safeList(() -> legio.runConfigurationList());
 	}
 
 	public Artifact.QualityAnalytics qualityAnalytics() {
@@ -437,6 +437,10 @@ public class LegioConfiguration implements Configuration {
 
 	public PsiFile legioFile() {
 		return PsiManager.getInstance(module.getProject()).findFile(legioFile);
+	}
+
+	public String runnerClass() {
+		return safe(() -> pack().asRunnable().mainClass());
 	}
 
 	private interface StringWrapper {

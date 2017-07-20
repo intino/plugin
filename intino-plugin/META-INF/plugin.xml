@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -16,9 +16,10 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
-        <runLineMarkerContributor language="Tara"
-                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerContributor"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
@@ -42,8 +43,6 @@
         <problemFileHighlightFilter
                 implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
         <moduleBuilder builderClass="io.intino.plugin.project.IntinoModuleBuilder"/>
-        <toolWindow id="Intino Console" secondary="true" icon="/icons/intino/intino-13.png" anchor="bottom"
-                    factoryClass="io.intino.plugin.console.ConsoleWindowFactory"/>
         <completion.contributor language="Tara"
                                 implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
     </extensions>
@@ -96,6 +95,9 @@
         </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.toolwindows.console.ConsoleWindowComponent</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>

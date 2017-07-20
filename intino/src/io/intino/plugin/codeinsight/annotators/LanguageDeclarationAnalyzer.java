@@ -18,7 +18,6 @@ import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.tara.compiler.shared.Configuration.Level.Platform;
 import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
@@ -54,7 +54,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		final Configuration.Level languageLevel = levelOfLanguage();
-		if (configuration.level().compareLevelWith(languageLevel) != 1)
+		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel!= null && configuration.level().compareLevelWith(languageLevel) != 1))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
@@ -62,10 +62,12 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 			results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("magritte.not.found")));
 	}
 
-	@NotNull
 	private Configuration.Level levelOfLanguage() {
+		final String name = configuration.languages().get(0).name();
+		if (name.equals(Verso.class.getSimpleName())) return null;
+		if (name.equals(Proteo.class.getSimpleName())) return Platform;
 		final Attributes attributes = configuration.languageParameters();
-		if (attributes == null) return Configuration.Level.Platform;
+		if (attributes == null) return Platform;
 		return Configuration.Level.valueOf(attributes.getValue("level"));
 	}
 

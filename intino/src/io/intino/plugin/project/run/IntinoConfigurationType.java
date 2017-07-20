@@ -13,7 +13,7 @@ import javax.swing.*;
 
 public class IntinoConfigurationType extends ApplicationConfigurationType {
 
-	IntinoConfigurationFactory icf = new IntinoConfigurationFactory(this);
+	private IntinoConfigurationFactory icf = new IntinoConfigurationFactory(this);
 
 	@Override
 	public String getDisplayName() {
@@ -49,7 +49,7 @@ public class IntinoConfigurationType extends ApplicationConfigurationType {
 		@NotNull
 		@Override
 		public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-			return new ApplicationConfiguration("Intino Configuration", project, IntinoConfigurationType.this);
+			return new IntinoRunConfiguration("Intino Configuration", project, IntinoConfigurationType.this);
 		}
 	}
 }
