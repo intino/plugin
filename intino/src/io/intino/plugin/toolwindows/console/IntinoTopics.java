@@ -1,4 +1,4 @@
-package io.intino.plugin.console;
+package io.intino.plugin.toolwindows.console;
 
 import com.intellij.util.messages.Topic;
 import io.intino.plugin.actions.LegioListener;

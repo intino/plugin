@@ -4,11 +4,19 @@ import io.intino.legio.*;
 
 
 public class RunConfiguration extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-	
+	protected java.lang.String mainClass;
 	protected java.util.List<io.intino.legio.Argument> argumentList = new java.util.ArrayList<>();
 
 	public RunConfiguration(io.intino.tara.magritte.Node node) {
 		super(node);
+	}
+
+	public java.lang.String mainClass() {
+		return mainClass;
+	}
+
+	public void mainClass(java.lang.String value) {
+		this.mainClass = value;
 	}
 
 	public java.util.List<io.intino.legio.Argument> argumentList() {
@@ -34,6 +42,7 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 	@Override
 	public java.util.Map<java.lang.String, java.util.List<?>> variables() {
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+		map.put("mainClass", new java.util.ArrayList(java.util.Collections.singletonList(this.mainClass)));
 		return map;
 	}
 
@@ -56,11 +65,13 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 	@Override
 	protected void _load(java.lang.String name, java.util.List<?> values) {
 		super._load(name, values);
+		if (name.equalsIgnoreCase("mainClass")) this.mainClass = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 	}
 
 	@Override
 	protected void _set(java.lang.String name, java.util.List<?> values) {
 		super._set(name, values);
+		if (name.equalsIgnoreCase("mainClass")) this.mainClass = (java.lang.String) values.get(0);
 	}
 
 	public Create create() {
