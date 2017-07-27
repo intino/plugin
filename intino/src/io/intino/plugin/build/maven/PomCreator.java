@@ -3,7 +3,6 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.EffectiveLanguageLevelUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
@@ -30,6 +29,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static io.intino.legio.Artifact.Package.Mode;
 import static io.intino.legio.Artifact.Package.Mode.*;
@@ -73,9 +73,9 @@ public class PomCreator {
 		final String[] languageLevel = {"1.8"};
 		final Application application = ApplicationManager.getApplication();
 		if (application.isReadAccessAllowed())
-			languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption();
+			languageLevel[0] = getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption();
 		else application.runReadAction((Computable<String>) () ->
-				languageLevel[0] = EffectiveLanguageLevelUtil.getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption());
+				languageLevel[0] = getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption());
 		frame.addSlot("sdk", languageLevel[0]);
 		fillFramework(build, frame);
 		writePom(pom, frame, PomTemplate.create());
@@ -129,11 +129,10 @@ public class PomCreator {
 	}
 
 	private void addLevelDependency(Frame frame) {
-		if (configuration.level() != null) {
-			for (Configuration.LanguageLibrary language : configuration.languages()) {
-				final String languageId = findLanguageId(language);
-				if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
-			}
+		if (configuration.level() == null) return;
+		for (Configuration.LanguageLibrary language : configuration.languages()) {
+			final String languageId = findLanguageId(language);
+			if (!languageId.isEmpty()) frame.addSlot("dependency", createDependencyFrame(languageId.split(":")));
 		}
 	}
 
@@ -142,12 +141,11 @@ public class PomCreator {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
-			if (configuration.level() != null) {
-				for (Configuration.LanguageLibrary language : configuration.languages()) {
-					final String languageID = LanguageResolver.languageID(language.name(), language.version());
-					if (languageID == null || languageID.isEmpty()) return;
-					frame.addSlot("dependency", createDependencyFrame(languageID.split(":")));
-				}
+			if (configuration.level() == null) continue;
+			for (Configuration.LanguageLibrary language : configuration.languages()) {
+				final String languageID = LanguageResolver.languageID(language.name(), language.version());
+				if (languageID == null || languageID.isEmpty()) return;
+				frame.addSlot("dependency", createDependencyFrame(languageID.split(":")));
 			}
 		}
 	}

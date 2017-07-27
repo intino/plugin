@@ -64,11 +64,11 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private CompileStatusNotification processArtifact() {
 		return (aborted, errors, warnings, compileContext) -> {
-			if (!aborted && errors == 0) doProcess();
+			if (!aborted && errors == 0) process();
 		};
 	}
 
-	private void doProcess() {
+	private void process() {
 		saveAll();
 		for (Module module : modules) if (!checkOverrideVersion(module, extractDSL(module))) return;
 		withTask(new Task.Backgroundable(project, firstUpperCase(factoryPhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {

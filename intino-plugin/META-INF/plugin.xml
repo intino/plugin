@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.0.2</version>
+    <version>3.0.3</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
