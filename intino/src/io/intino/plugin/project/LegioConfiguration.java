@@ -1,5 +1,7 @@
 package io.intino.plugin.project;
 
+import com.intellij.execution.RunManager;
+import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
@@ -25,6 +27,7 @@ import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.builders.ModelBuilderManager;
+import io.intino.plugin.project.run.IntinoRunConfiguration;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.io.Stash;
@@ -116,6 +119,7 @@ public class LegioConfiguration implements Configuration {
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
 						 reloadArtifactoriesMetaData();
+						 reloadRunConfigurations();
 						 if (legio != null && legio.artifact() != null) legio.artifact().save();
 					 }
 				 }
@@ -129,6 +133,27 @@ public class LegioConfiguration implements Configuration {
 	private void reloadInterfaceBuilder() {
 		final Artifact.Box boxing = safe(() -> legio.artifact().box());
 		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.sdk());
+	}
+
+	private void reloadRunConfigurations() {
+		final List<RunConfiguration> runConfigurations = safeList(() -> legio.runConfigurationList());
+		for (RunConfiguration runConfiguration : runConfigurations) {
+			ApplicationConfiguration configuration = findRunConfiguration(runConfiguration.name());
+			if (configuration != null) configuration.setProgramParameters(parametersOf(runConfiguration));
+		}
+	}
+
+	public static String parametersOf(io.intino.legio.RunConfiguration runConfiguration) {
+		StringBuilder builder = new StringBuilder();
+		for (Argument argument : runConfiguration.argumentList())
+			builder.append("\"").append(argument.name$()).append("=").append(argument.value()).append("\" ");
+		return builder.toString();
+	}
+
+	private ApplicationConfiguration findRunConfiguration(String name) {
+		final List<com.intellij.execution.configurations.RunConfiguration> list = RunManager.getInstance(module.getProject()).
+				getAllConfigurationsList().stream().filter(r -> r instanceof IntinoRunConfiguration).collect(Collectors.toList());
+		return (ApplicationConfiguration) list.stream().filter(r -> r.getName().equals(name)).findFirst().orElse(null);
 	}
 
 	private Legio newGraphFromLegio() {

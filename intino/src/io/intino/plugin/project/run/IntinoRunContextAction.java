@@ -20,7 +20,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
-import io.intino.legio.Argument;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -32,6 +31,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
+import static io.intino.plugin.project.LegioConfiguration.*;
 
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
@@ -52,7 +54,7 @@ public class IntinoRunContextAction extends RunContextAction {
 			if (producers.isEmpty()) return;
 			if (producers.size() > 1) {
 				final Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
-				producers.sort(ConfigurationFromContext.NAME_COMPARATOR);
+				producers.sort(NAME_COMPARATOR);
 				final ListPopup popup =
 						JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<ConfigurationFromContext>(ExecutionBundle.message("configuration.action.chooser.title"), producers) {
 							@Override
@@ -91,6 +93,7 @@ public class IntinoRunContextAction extends RunContextAction {
 	}
 
 	private void perform(final ConfigurationFromContext configurationFromContext) {
+		configurationFromContext.getConfiguration().setName(runConfiguration.name());
 		setRunParameters(configurationFromContext.getConfigurationSettings());
 		configurationFromContext.onFirstRun(context, () -> perform(context));
 	}
@@ -108,13 +111,6 @@ public class IntinoRunContextAction extends RunContextAction {
 		for (io.intino.legio.RunConfiguration legioConf : runConfigurations)
 			if (this.runConfiguration.name().equals(legioConf.name())) return parametersOf(legioConf);
 		return runConfigurations.isEmpty() ? "" : parametersOf(runConfigurations.get(0));
-	}
-
-	private String parametersOf(io.intino.legio.RunConfiguration runConfiguration) {
-		StringBuilder builder = new StringBuilder();
-		for (Argument argument : runConfiguration.argumentList())
-			builder.append("\"").append(argument.name$()).append("=").append(argument.value()).append("\" ");
-		return builder.toString();
 	}
 
 	@Override

@@ -54,7 +54,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		if (version == null || version.isEmpty()) return;
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		final Configuration.Level languageLevel = levelOfLanguage();
-		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel!= null && configuration.level().compareLevelWith(languageLevel) != 1))
+		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel != null && configuration.level()!= null && configuration.level().compareLevelWith(languageLevel) != 1))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
