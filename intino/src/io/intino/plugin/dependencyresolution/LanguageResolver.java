@@ -111,7 +111,8 @@ public class LanguageResolver {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) importLanguage();
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageID(model.language(), version));
-		libraries.addAll(flat(manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()))));
+		if (!framework.isEmpty())
+			libraries.addAll(flat(manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()))));
 		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
 		manager.addToModule(libraries, DependencyScope.COMPILE);
 	}

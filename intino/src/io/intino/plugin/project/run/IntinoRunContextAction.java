@@ -33,8 +33,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
-import static io.intino.plugin.project.LegioConfiguration.*;
+import static io.intino.plugin.project.LegioConfiguration.parametersOf;
 
+@SuppressWarnings("ComponentNotRegistered")
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
 	private Node runConfiguration;
@@ -118,8 +119,10 @@ public class IntinoRunContextAction extends RunContextAction {
 		final Presentation presentation = event.getPresentation();
 		final RunnerAndConfigurationSettings existing = context.findExisting();
 		RunnerAndConfigurationSettings configuration = existing;
-		if (configuration == null)
+		if (configuration == null) {
 			configuration = context.getConfiguration();
+			if (configuration != null) configuration.setName(this.runConfiguration.name());
+		}
 		if (configuration == null) {
 			presentation.setEnabled(false);
 			presentation.setVisible(false);
@@ -129,7 +132,7 @@ public class IntinoRunContextAction extends RunContextAction {
 			final List<ConfigurationFromContext> fromContext = getConfigurationsFromContext();
 			if (existing == null && !fromContext.isEmpty())
 				context.setConfiguration(fromContext.get(0).getConfigurationSettings());
-			final String name = suggestRunActionName((LocatableConfiguration) configuration.getConfiguration());
+			final String name = configuration.getName();
 			updatePresentation(presentation, existing != null || fromContext.size() <= 1 ? name : "", context);
 		}
 	}

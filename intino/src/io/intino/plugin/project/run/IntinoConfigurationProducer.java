@@ -43,8 +43,6 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		return false;
 	}
 
-
-
 	@Override
 	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
 		return true;
