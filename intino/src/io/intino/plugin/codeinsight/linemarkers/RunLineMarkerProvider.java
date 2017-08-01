@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
+import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.mapNotNull;
 
@@ -95,7 +96,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private static String getText(@NotNull AnAction action, @NotNull PsiElement element) {
 		DataContext parent = DataManager.getInstance().getDataContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
-		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, ActionPlaces.STATUS_BAR_PLACE, dataContext);
+		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
 		action.update(event);
 		Presentation presentation = event.getPresentation();
 		return presentation.isEnabled() && presentation.isVisible() ? presentation.getText() : null;

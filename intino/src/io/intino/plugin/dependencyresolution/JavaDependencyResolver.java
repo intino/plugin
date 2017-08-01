@@ -29,6 +29,8 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyMap;
+
 public class JavaDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
 
@@ -77,7 +79,7 @@ public class JavaDependencyResolver {
 
 	private List<Library> asLibrary(Dependency d) {
 		final Map<Artifact, DependencyScope> artifacts = collectedArtifacts.get(d);
-		final Map<DependencyScope, List<Library>> resolved = manager.registerOrGetLibrary(artifacts);
+		final Map<DependencyScope, List<Library>> resolved = manager.registerOrGetLibrary(artifacts, emptyMap());
 		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
 		else d.effectiveVersion("");
 		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
@@ -132,11 +134,11 @@ public class JavaDependencyResolver {
 	}
 
 	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, String scope) {
-		if (dependency.length != 3) return Collections.emptyMap();
+		if (dependency.length != 3) return emptyMap();
 		try {
 			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope), scope(scope));
 		} catch (DependencyResolutionException e) {
-			return Collections.emptyMap();
+			return emptyMap();
 		}
 	}
 

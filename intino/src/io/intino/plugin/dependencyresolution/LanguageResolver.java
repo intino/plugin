@@ -74,9 +74,9 @@ public class LanguageResolver {
 
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
-		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(magritteID(version));
-		model.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
-		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(languageFramework);
+		final Map<Artifact, DependencyScope> framework = findLanguageFramework(magritteID(version));
+		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
+		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()));
 		libraries.addAll(flat(registeredLibraries));
 		manager.addToModule(libraries, DependencyScope.COMPILE);
 		return libraries;
@@ -110,10 +110,16 @@ public class LanguageResolver {
 	private void addExternalLibraries(List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(this.module);
 		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) importLanguage();
-		final Map<Artifact, DependencyScope> languageFramework = findLanguageFramework(languageID(model.language(), version));
-		libraries.addAll(flat(manager.registerOrGetLibrary(languageFramework)));
-		model.effectiveVersion(!languageFramework.isEmpty() ? languageFramework.keySet().iterator().next().getVersion() : "");
+		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageID(model.language(), version));
+		if (!framework.isEmpty())
+			libraries.addAll(flat(manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()))));
+		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
 		manager.addToModule(libraries, DependencyScope.COMPILE);
+	}
+
+	private Map<Artifact, Artifact> sources(Artifact artifact) {
+		Artifact sources = sourcesOf(artifact);
+		return Collections.singletonMap(artifact, sources);
 	}
 
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
@@ -132,6 +138,15 @@ public class LanguageResolver {
 			return toMap(new Aether(collectRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE), DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyMap();
+		}
+	}
+
+	private Artifact sourcesOf(Artifact artifact) {
+		try {
+			return new Aether(collectRemotes(), localRepository).
+					resolve(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion()), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
 		}
 	}
 

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import static com.intellij.openapi.roots.DependencyScope.COMPILE;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
+import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 
 public class LibraryManager {
 
@@ -39,12 +40,12 @@ public class LibraryManager {
 		return null;
 	}
 
-	Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts) {
+	Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
 		if (table == null) return Collections.emptyMap();
 		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
 		for (Artifact artifact : artifacts.keySet()) {
 			Library library = findLibrary(artifact);
-			if (library == null) library = registerLibrary(artifact);
+			if (library == null) library = registerLibrary(artifact, sources.get(artifact));
 			if (!registered.containsKey(artifacts.get(artifact)))
 				registered.put(artifacts.get(artifact), new ArrayList<>());
 			registered.get(artifacts.get(artifact)).add(library);
@@ -178,11 +179,12 @@ public class LibraryManager {
 		return null;
 	}
 
-	private Library registerLibrary(Artifact dependency) {
+	private Library registerLibrary(Artifact dependency, Artifact sources) {
 		final LibraryTable.ModifiableModel tableModel = table.getModifiableModel();
 		final Library library = tableModel.createLibrary(nameOf(dependency));
 		final Library.ModifiableModel libraryModel = library.getModifiableModel();
 		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(dependency.getFile()), CLASSES);
+		if (sources != null) libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(sources.getFile()), SOURCES);
 		libraryModel.commit();
 		tableModel.commit();
 		return library;
