@@ -1,8 +1,5 @@
 package io.intino.legio;
 
-import io.intino.legio.*;
-
-
 public class RunConfiguration extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	protected java.util.List<io.intino.legio.Argument> argumentList = new java.util.ArrayList<>();

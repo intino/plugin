@@ -173,7 +173,7 @@
         <dependency>
             <groupId>org.siani.itrules</groupId>
             <artifactId>itrules</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.1</version>
         </dependency>
         <dependency>
             <groupId>io.intino.cesar</groupId>
