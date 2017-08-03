@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -104,8 +103,8 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void saveConfiguration(Module module) {
-		final Document document = FileDocumentManager.getInstance().getDocument(((LegioConfiguration) TaraUtil.configurationOf(module)).legioFile().getVirtualFile());
-		if (document != null) FileDocumentManager.getInstance().saveDocument(document);
+		final FileDocumentManager manager = FileDocumentManager.getInstance();
+		manager.saveAllDocuments();
 	}
 
 	private void exportAccessors() {

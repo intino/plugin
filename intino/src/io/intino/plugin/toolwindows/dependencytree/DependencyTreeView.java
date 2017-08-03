@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
 import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.plugin.dependencyresolution.DependencyLogger;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -20,6 +21,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.List;
 
 public class DependencyTreeView extends JPanel {
 	private JPanel contentPane;
@@ -56,7 +58,9 @@ public class DependencyTreeView extends JPanel {
 				if (component.getUserObject() instanceof String) renderProject(component);
 				if (component.getUserObject() instanceof ModuleNode)
 					renderModule(component, moduleOf(((ModuleNode) component.getUserObject()).name));
-				else renderLibrary(component, ((DependencyNode) component.getUserObject()));
+				else if (component.getUserObject() instanceof DependencyNode)
+					renderLibrary(component, ((DependencyNode) component.getUserObject()));
+				else renderLibrary(component, component.getUserObject().toString());
 			}
 
 			@Override
@@ -99,9 +103,26 @@ public class DependencyTreeView extends JPanel {
 		dependencyTree.updateUI();
 	}
 
-	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode directory) {
+	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode library) {
 		parent.removeAllChildren();
+		final List<String> libraries = DependencyLogger.instance().dependencyTree().get(library.library);
+		addLibraries(parent, libraries);
 		dependencyTree.updateUI();
+	}
+
+	private void renderLibrary(DefaultMutableTreeNode parent, String library) {
+		parent.removeAllChildren();
+		final List<String> libraries = DependencyLogger.instance().dependencyTree().get(library);
+		addLibraries(parent, libraries);
+		dependencyTree.updateUI();
+	}
+
+	private void addLibraries(DefaultMutableTreeNode parent, List<String> libraries) {
+		if (libraries != null) for (String lib : libraries) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(lib));
+			parent.add(node);
+			node.setAllowsChildren(false);
+		}
 	}
 
 	private void createUIComponents() {
