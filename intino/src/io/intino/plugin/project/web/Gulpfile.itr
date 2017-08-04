@@ -80,6 +80,7 @@ def type(gulp)
 		return gulp.src($[packagePath('*.html'), '!' + packagePath('/components.html')])
 			.pipe($$.replace('src="', 'src="$$url/'))
 			.pipe($$.replace('href="', 'href="$$url/'))
+			.pipe($$.replace('href-absolute=', 'href='))
 			.pipe(gulp.dest(packagePath()));
 	});
 
