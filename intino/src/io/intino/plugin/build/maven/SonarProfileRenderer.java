@@ -1,7 +1,7 @@
 package io.intino.plugin.build.maven;
 
 import com.intellij.openapi.module.Module;
-import io.intino.legio.Artifact;
+import io.intino.legio.graph.Artifact;
 import io.intino.plugin.project.LegioConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

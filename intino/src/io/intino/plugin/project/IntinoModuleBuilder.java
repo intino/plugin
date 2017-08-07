@@ -27,7 +27,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		return "Intino";
 	}
 
-	@Override
+
 	public Icon getBigIcon() {
 		return IntinoIcons.LOGO_16;
 	}

@@ -1,8 +1,8 @@
 package io.intino.plugin.project;
 
 import com.intellij.ide.util.PropertiesComponent;
-import io.intino.legio.Repository;
-import io.intino.legio.Repository.Type;
+import io.intino.legio.graph.Repository;
+import io.intino.legio.graph.Repository.Type;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +61,7 @@ public class ArtifactorySensor {
 	private Map<String, String> by(List<Type> types, Class<? extends Type> type) {
 		try {
 
-			return types.stream().filter(t -> t.is(type)).collect(Collectors.toMap(Type::url, Type::mavenID));
+			return types.stream().filter(t -> t.i$(type)).collect(Collectors.toMap(Type::url, Type::mavenID));
 		} catch (Throwable e) {
 		}
 		return Collections.emptyMap();

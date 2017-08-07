@@ -10,8 +10,8 @@ import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Artifact.Imports.Dependency;
-import io.intino.legio.Repository;
+import io.intino.legio.graph.Artifact.Imports.Dependency;
+import io.intino.legio.graph.Repository;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
@@ -27,9 +27,9 @@ import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 
 public class JavaDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
@@ -59,8 +59,17 @@ public class JavaDependencyResolver {
 	}
 
 	private void collectArtifacts() {
+		final DependencyLogger logger = DependencyLogger.instance();
 		for (Dependency dependency : dependencies)
-			if (moduleOf(dependency) == null) collectedArtifacts.put(dependency, collectArtifacts(dependency));
+			if (moduleOf(dependency) == null) {
+				final Map<Artifact, DependencyScope> artifacts = collectArtifacts(dependency);
+				logger.add(dependency.identifier(), identifiersOf(artifacts));
+				collectedArtifacts.put(dependency, artifacts);
+			}
+	}
+
+	private List<String> identifiersOf(Map<Artifact, DependencyScope> artifacts) {
+		return artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + artifacts.get(a).getDisplayName()).collect(toList());
 	}
 
 	private List<Library> processDependencies() {
@@ -84,13 +93,13 @@ public class JavaDependencyResolver {
 		else d.effectiveVersion("");
 		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
 		d.artifacts().clear();
-		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(Collectors.toList()));
+		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(toList()));
 		d.resolved(true);
-		return resolved.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
 	}
 
 	private Module moduleOf(Dependency d) {
-		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(this.module)).collect(Collectors.toList());
+		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(this.module)).collect(toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
@@ -125,7 +134,7 @@ public class JavaDependencyResolver {
 
 	@NotNull
 	private ExclusionsDependencyFilter exclusionsOf(Dependency dependency) {
-		return new ExclusionsDependencyFilter(dependency.excludeList().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(Collectors.toList()));
+		return new ExclusionsDependencyFilter(dependency.excludeList().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(toList()));
 	}
 
 	@NotNull
@@ -152,7 +161,7 @@ public class JavaDependencyResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().filter(r -> r != null && !r.is(Repository.Language.class)).map(remote -> new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(remote -> new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()))).collect(toList()));
 		return remotes;
 	}
 

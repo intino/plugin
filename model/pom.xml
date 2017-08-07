@@ -5,12 +5,12 @@
 
     <groupId>io.intino.legio</groupId>
     <artifactId>model</artifactId>
-    <version>3.0.1</version>
+    <version>3.1.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <tara.level>Application</tara.level>
+        <tara.level>Product</tara.level>
         <tara.working.package>io.intino.legio</tara.working.package>
         <tara.dsl>Proteo</tara.dsl>
         <tara.dsl.version>1.0.0</tara.dsl.version>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>magritte</artifactId>
-            <version>1.0.6</version>
+            <version>2.1.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.intino.tara</groupId>
@@ -94,7 +94,7 @@
             <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
-            <version>1.0.3</version>
+            <version>1.0.6</version>
         </dependency>
     </dependencies>
 </project>

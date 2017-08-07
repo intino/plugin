@@ -108,9 +108,9 @@ public class IntinoRunContextAction extends RunContextAction {
 	private String collectParameters() {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(context.getModule());
 		if (configuration == null) return "";
-		final List<io.intino.legio.RunConfiguration> runConfigurations = configuration.runConfigurations();
-		for (io.intino.legio.RunConfiguration legioConf : runConfigurations)
-			if (this.runConfiguration.name().equals(legioConf.name())) return parametersOf(legioConf);
+		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = configuration.runConfigurations();
+		for (io.intino.legio.graph.RunConfiguration legioConf : runConfigurations)
+			if (this.runConfiguration.name().equals(legioConf.name$())) return parametersOf(legioConf);
 		return runConfigurations.isEmpty() ? "" : parametersOf(runConfigurations.get(0));
 	}
 

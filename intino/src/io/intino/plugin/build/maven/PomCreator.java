@@ -9,10 +9,10 @@ import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.legio.Artifact;
-import io.intino.legio.Artifact.Imports.Dependency;
-import io.intino.legio.Parameter;
-import io.intino.legio.Repository;
+import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.Artifact.Imports.Dependency;
+import io.intino.legio.graph.Parameter;
+import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
-import static io.intino.legio.Artifact.Package.Mode;
-import static io.intino.legio.Artifact.Package.Mode.*;
+import static io.intino.legio.graph.Artifact.Package.Mode;
+import static io.intino.legio.graph.Artifact.Package.Mode.*;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
@@ -127,7 +127,7 @@ public class PomCreator {
 	}
 
 	private void addRepositories(Frame frame) {
-		configuration.repositoryTypes().stream().filter(r -> !r.is(Repository.Language.class)).forEach(r ->
+		configuration.repositoryTypes().stream().filter(r -> !r.i$(Repository.Language.class)).forEach(r ->
 				frame.addSlot("repository", createRepositoryFrame(r)));
 		if (configuration.distributionReleaseRepository() != null)
 			frame.addSlot("repository", createDistributionRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
@@ -216,7 +216,7 @@ public class PomCreator {
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
 		for (Parameter parameter : build.parameterList())
-			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name$()).addSlot("value", parameter.value()));
+			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name()).addSlot("value", parameter.value()));
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null)
@@ -247,7 +247,7 @@ public class PomCreator {
 
 	private Frame createDependencyFrame(Dependency d) {
 		final Frame frame = new Frame().addTypes("dependency").addSlot("groupId", d.groupId()).
-				addSlot("scope", d.concept().name()).addSlot("artifactId", d.artifactId().toLowerCase()).
+				addSlot("scope", d.core$().graph().concept(d.getClass()).name()).addSlot("artifactId", d.artifactId().toLowerCase()).
 				addSlot("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
 		if (!d.excludeList().isEmpty()) for (Dependency.Exclude exclude : d.excludeList())
 			frame.addSlot("exclusion", new Frame().addTypes("exclusion").
@@ -264,7 +264,7 @@ public class PomCreator {
 				addSlot("name", repo.mavenID()).
 				addSlot("url", repo.url()).
 				addSlot("random", generateRandom()).
-				addSlot("type", repo.is(Repository.Snapshot.class) ? "snapshot" : "release");
+				addSlot("type", repo.i$(Repository.Snapshot.class) ? "snapshot" : "release");
 	}
 
 	private int generateRandom() {

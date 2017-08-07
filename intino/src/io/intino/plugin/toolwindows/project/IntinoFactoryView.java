@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
@@ -94,10 +95,16 @@ public class IntinoFactoryView extends JPanel {
 		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		Module module = selectedModule();
+		saveConfiguration(module);
 		if (module != null) new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
 		else Notifications.Bus.notify(new Notification("Tara Language",
 				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
 
+	}
+
+	private void saveConfiguration(Module module) {
+		final FileDocumentManager manager = FileDocumentManager.getInstance();
+		manager.saveAllDocuments();
 	}
 
 	private void exportAccessors() {

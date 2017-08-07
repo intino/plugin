@@ -55,7 +55,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		final Configuration.Level languageLevel = levelOfLanguage();
 		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel != null && configuration.level() != null && configuration.level().compareLevelWith(languageLevel) != 1))
-			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel.name())));
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Verso or Proteo" : languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))

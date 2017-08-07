@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.tara.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.firstUpperCase;
+import static org.siani.itrules.engine.formatters.StringFormatter.firstUpperCase;
 
 
 abstract class AbstractArtifactBuilder {
@@ -41,7 +41,7 @@ abstract class AbstractArtifactBuilder {
 
 	private void processLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
 		if (shouldDistributeLanguage(module, lifeCyclePhase)) {
-			updateProgressIndicator(indicator, message("language.action", firstUpperCase(lifeCyclePhase.gerund().toLowerCase())));
+			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			distributeLanguage(module);
 		}
 	}
@@ -59,7 +59,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void processFramework(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		updateProgressIndicator(indicator, message("framework.action", firstUpperCase(phase.gerund().toLowerCase())));
+		updateProgressIndicator(indicator, message("framework.action", firstUpperCase().format(phase.gerund().toLowerCase()).toString()));
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);

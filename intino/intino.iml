@@ -7,7 +7,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../out/production/intino" />
     <output-test url="file://$MODULE_DIR$/../out/test/intino" />
     <content url="file://$MODULE_DIR$">
@@ -18,12 +18,16 @@
       <excludeFolder url="file://$MODULE_DIR$/../legio/.tara" />
       <excludeFolder url="file://$MODULE_DIR$/../legio/out" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA 2017" jdkType="IDEA JDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: io.intino.tara:builder:2.0.6" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.konos:konos-rest-accessor-java:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.konos:konos-core:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.ness:inl:1.0.6" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.tara:builder:2.1.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.konos:builder:2.0.8" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.konos:builder:2.0.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-codegen:2.1.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-parser:1.0.15" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.swagger:swagger-compat-spec-parser:1.0.15" level="project" />
@@ -74,12 +78,12 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: commons-cli:commons-cli:1.2" level="project" />
     <orderEntry type="library" name="Maven: io.intino.cottons:cotton-utils:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tika:tika-core:0.4" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.tara:magritte:1.0.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.4" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.tara:magritte:2.1.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.6" level="project" />
     <orderEntry type="module-library">
-      <library name="Maven: tara.dsl:legio:3.0.0">
+      <library name="Maven: tara.dsl:legio:3.1.0">
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/tara/dsl/legio/3.0.0/Legio-3.0.0.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/tara/dsl/legio/3.1.0/Legio-3.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -141,13 +145,13 @@
     <orderEntry type="library" name="Maven: org.apache.maven:maven-model:3.3.9" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-interpolation:1.24" level="project" />
     <orderEntry type="library" name="Maven: com.moandjiezana.toml:toml4j:0.7.1" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.0.24" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
-    <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.1" level="project" />
     <orderEntry type="library" name="Maven: io.intino.cesar:restcesar-accessor:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.konos:konos-rest-accessor-java:1.1.1" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.konos:konos-core:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.ness:inl:1.0.6" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.konos:konos-rest-accessor-java:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.konos:konos-core:2.0.2" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.ness:inl:1.0.7" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.security:xml-security-impl:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15:1.45" level="project" />

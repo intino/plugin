@@ -11,10 +11,10 @@ import io.intino.cesar.schemas.SystemSchema;
 import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Forbidden;
 import io.intino.konos.exceptions.Unknown;
-import io.intino.legio.Argument;
-import io.intino.legio.Artifact.Deployment;
-import io.intino.legio.Artifact.Deployment.Destination;
-import io.intino.legio.RunConfiguration;
+import io.intino.legio.graph.Argument;
+import io.intino.legio.graph.Artifact.Deployment;
+import io.intino.legio.graph.Artifact.Deployment.Destination;
+import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.LegioConfiguration;
@@ -92,7 +92,7 @@ public class ArtifactDeployer {
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new Runtime().serverName(destination.server().name()));
+				runtime(new Runtime().serverName(destination.server().name$()));
 	}
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(RunConfiguration configuration) {

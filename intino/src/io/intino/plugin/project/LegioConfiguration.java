@@ -20,9 +20,9 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import io.intino.legio.*;
-import io.intino.legio.Repository.Release;
-import io.intino.legio.level.LevelArtifact.Model;
+import io.intino.legio.graph.*;
+import io.intino.legio.graph.Repository.Release;
+import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
@@ -68,10 +68,9 @@ import static java.util.stream.Collectors.toMap;
 
 public class LegioConfiguration implements Configuration {
 	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());
-
 	private final Module module;
 	private VirtualFile legioFile;
-	private Legio legio;
+	private LegioGraph legio;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -97,7 +96,7 @@ public class LegioConfiguration implements Configuration {
 		reloadArtifactoriesMetaData();
 		if (WebModuleType.isWebModule(module) && this.legio != null)
 			new GulpExecutor(this.module, legio.artifact()).startGulpDev();
-		if (legio != null && legio.artifact() != null) legio.artifact().save();
+		if (legio != null && legio.artifact() != null) legio.artifact().save$();
 	}
 
 	@Override
@@ -117,7 +116,7 @@ public class LegioConfiguration implements Configuration {
 						 new DependencyPurger(module, LegioConfiguration.this).execute();
 						 reloadInterfaceBuilder();
 						 reloadDependencies();
-						 if (legio != null && legio.artifact() != null) legio.artifact().save();
+						 if (legio != null && legio.artifact() != null) legio.artifact().save$();
 					 }
 				 }
 		);
@@ -137,7 +136,7 @@ public class LegioConfiguration implements Configuration {
 						 reloadDependencies();
 						 reloadArtifactoriesMetaData();
 						 reloadRunConfigurations();
-						 if (legio != null && legio.artifact() != null) legio.artifact().save();
+						 if (legio != null && legio.artifact() != null) legio.artifact().save$();
 					 }
 				 }
 		);
@@ -155,15 +154,15 @@ public class LegioConfiguration implements Configuration {
 	private void reloadRunConfigurations() {
 		final List<RunConfiguration> runConfigurations = safeList(() -> legio.runConfigurationList());
 		for (RunConfiguration runConfiguration : runConfigurations) {
-			ApplicationConfiguration configuration = findRunConfiguration(runConfiguration.name());
+			ApplicationConfiguration configuration = findRunConfiguration(runConfiguration.name$());
 			if (configuration != null) configuration.setProgramParameters(parametersOf(runConfiguration));
 		}
 	}
 
-	public static String parametersOf(io.intino.legio.RunConfiguration runConfiguration) {
+	public static String parametersOf(io.intino.legio.graph.RunConfiguration runConfiguration) {
 		StringBuilder builder = new StringBuilder();
 		for (Argument argument : runConfiguration.argumentList())
-			builder.append("\"").append(argument.name$()).append("=").append(argument.value()).append("\" ");
+			builder.append("\"").append(argument.name()).append("=").append(argument.value()).append("\" ");
 		return builder.toString();
 	}
 
@@ -173,7 +172,7 @@ public class LegioConfiguration implements Configuration {
 		return (ApplicationConfiguration) list.stream().filter(r -> r.getName().equals(name)).findFirst().orElse(null);
 	}
 
-	private Legio newGraphFromLegio() {
+	private LegioGraph newGraphFromLegio() {
 		Stash legioStash = loadNewConfiguration();
 		return legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
 	}
@@ -243,13 +242,13 @@ public class LegioConfiguration implements Configuration {
 		if (legio == null || legio.artifact() == null) return null;
 		final Artifact artifact = artifact();
 		if (artifact == null) return null;
-		final String level = artifact.node().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		final String level = artifact.core$().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
 	}
 
 	@Override
 	public String artifactId() {
-		return safe(() -> legio.artifact().name());
+		return safe(() -> legio.artifact().name$());
 	}
 
 	@Override
@@ -343,7 +342,7 @@ public class LegioConfiguration implements Configuration {
 
 	public Map<String, String> releaseRepositories() {
 		Map<String, String> repositories = new HashMap<>();
-		safeList(() -> legio.repositoryList()).forEach(r -> repositories.putAll(r.typeList(t -> t.is(Release.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		safeList(() -> legio.repositoryList()).forEach(r -> repositories.putAll(r.typeList(t -> t.i$(Release.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
 		return repositories;
 	}
 
@@ -367,13 +366,13 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Map<String, String> languageRepositories() {
 		Map<String, String> repositories = new HashMap<>();
-		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList(t -> t != null && t.is(Repository.Language.class) && t.mavenID() != null && t.url() != null).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
 		return repositories;
 	}
 
 	@Override
 	public String outDSL() {
-		return safe(() -> legio.artifact().name());
+		return safe(() -> legio.artifact().name$());
 	}
 
 	public List<Artifact.Deployment> deployments() {
@@ -402,11 +401,11 @@ public class LegioConfiguration implements Configuration {
 	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment.Destination deployment) {
 		return new DeployConfiguration() {
 			public String name() {
-				return deployment.name();
+				return deployment.name$();
 			}
 
 			public boolean pro() {
-				return deployment.is(Artifact.Deployment.Pro.class);
+				return deployment.i$(Artifact.Deployment.Pro.class);
 			}
 
 			public List<Parameter> parameters() {
