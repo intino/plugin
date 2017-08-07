@@ -2,7 +2,7 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.legio.Artifact;
+import io.intino.legio.graph.Artifact;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
@@ -59,9 +59,9 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	private Artifact.Imports.Dependency findDependencyNode() {
 		if (configuration == null) return null;
-		for (Artifact.Imports.Dependency dependency : configuration.dependencies())
-			if (dependencyNode.simpleType().equals(dependency.concept().id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), dependency))
-				return dependency;
+		for (Artifact.Imports.Dependency d : configuration.dependencies())
+			if (dependencyNode.simpleType().equals(d.core$().graph().concept(d.getClass()).id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), d))
+				return d;
 		return null;
 	}
 

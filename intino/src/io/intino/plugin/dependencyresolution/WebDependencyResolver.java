@@ -12,11 +12,11 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
-import io.intino.legio.Artifact;
-import io.intino.legio.Artifact.WebImports.Resolution;
-import io.intino.legio.Artifact.WebImports.WebArtifact;
-import io.intino.legio.Artifact.WebImports.WebComponent;
-import io.intino.legio.Repository;
+import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.Artifact.WebImports.Resolution;
+import io.intino.legio.graph.Artifact.WebImports.WebArtifact;
+import io.intino.legio.graph.Artifact.WebImports.WebComponent;
+import io.intino.legio.graph.Repository;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.BowerTemplate;
@@ -37,7 +37,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.legio.Artifact.WebImports;
+import static io.intino.legio.graph.Artifact.WebImports;
 import static io.intino.plugin.MessageProvider.message;
 
 public class WebDependencyResolver {
@@ -101,7 +101,7 @@ public class WebDependencyResolver {
 
 	private void extractInLibDirectory(WebArtifact artifact, File jarFile) {
 		try {
-			final File outputDir = new File(libComponentsDirectory, artifact.name().toLowerCase());
+			final File outputDir = new File(libComponentsDirectory, artifact.name$().toLowerCase());
 			ZipUtil.extract(jarFile, outputDir, null);
 			FileUtil.delete(new File(outputDir, "META-INF"));
 			writeManifest(artifact, outputDir);
@@ -184,7 +184,7 @@ public class WebDependencyResolver {
 	private File createBowerFile() {
 		final Frame frame = fill(new Frame().addTypes("bower"));
 		for (WebComponent webComponent : webComponents) {
-			final Frame dependency = new Frame().addSlot("name", webComponent.name()).addSlot("version", webComponent.version());
+			final Frame dependency = new Frame().addSlot("name", webComponent.name$()).addSlot("version", webComponent.version());
 			if (webComponent.url() != null && !webComponent.url().isEmpty())
 				dependency.addSlot("url", webComponent.url());
 			frame.addSlot("dependency", dependency);
@@ -199,7 +199,7 @@ public class WebDependencyResolver {
 	}
 
 	private Frame fill(Frame frame) {
-		return frame.addSlot("groupId", artifact.groupId()).addSlot("artifactId", artifact.name()).addSlot("version", artifact.version());
+		return frame.addSlot("groupId", artifact.groupId()).addSlot("artifactId", artifact.name$()).addSlot("version", artifact.version());
 	}
 
 	private File write(String content, File destiny) {
@@ -215,7 +215,7 @@ public class WebDependencyResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name(), "default", r.url())).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name$(), "default", r.url())).collect(Collectors.toList()));
 		return remotes;
 	}
 

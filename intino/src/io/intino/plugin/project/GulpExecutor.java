@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.legio.Artifact;
+import io.intino.legio.graph.Artifact;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
@@ -115,7 +115,7 @@ public class GulpExecutor {
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
 				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
-				addSlot("artifactID", artifact.name()).addSlot("port", new Random().nextInt(1000)).
+				addSlot("artifactID", artifact.name$()).addSlot("port", new Random().nextInt(1000)).
 				addSlot("activity", module.getName().replace("-activity", ""));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
 		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getCanonicalPath());
@@ -129,7 +129,7 @@ public class GulpExecutor {
 	private File createGulpPom(String task) {
 		if (artifact == null) return null;
 		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
-				addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name()).
+				addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).
 				addSlot("version", artifact.version()).addSlot("module", module.getName()).addSlot("task", task)));
 	}
 
@@ -137,7 +137,7 @@ public class GulpExecutor {
 		File packageFile = new File(nodeDirectory, "package.json");
 		packageFile.getParentFile().mkdirs();
 		if (packageFile.exists()) return packageFile;
-		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name()).addSlot("version", artifact.version())));
+		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).addSlot("version", artifact.version())));
 		return packageFile;
 	}
 

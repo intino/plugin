@@ -1,7 +1,7 @@
 package io.intino.plugin.project;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.legio.Legio;
+import io.intino.legio.graph.LegioGraph;
 import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashSerializer;
 import io.intino.tara.magritte.Graph;
@@ -15,13 +15,13 @@ import java.nio.file.Files;
 class GraphLoader {
 	private static final Logger LOG = Logger.getInstance("GraphLoader");
 
-	static Legio loadGraph(Stash stash, File stashDestiny) {
+	static LegioGraph loadGraph(Stash stash, File stashDestiny) {
 		final ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(GraphLoader.class.getClassLoader());
 		try {
-			final Graph graph = Graph.use(store(stash, stashDestiny), Legio.class).load();
+			final Graph graph = new Graph(store(stash, stashDestiny)).loadStashes("model");
 			Thread.currentThread().setContextClassLoader(currentLoader);
-			return graph.wrapper(Legio.class);
+			return graph.as(LegioGraph.class);
 		} catch (Throwable e) {
 			LOG.debug(e.getMessage());
 			return null;

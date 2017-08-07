@@ -6,7 +6,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
-import io.intino.legio.level.LevelArtifact.Model;
+import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.tara.plugin.lang.LanguageManager;
 import org.sonatype.aether.artifact.Artifact;

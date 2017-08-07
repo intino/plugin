@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.Tree;
-import io.intino.legio.Artifact.Imports.Dependency;
+import io.intino.legio.graph.Artifact.Imports.Dependency;
 import io.intino.plugin.dependencyresolution.DependencyLogger;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
