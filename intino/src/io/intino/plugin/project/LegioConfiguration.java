@@ -349,7 +349,11 @@ public class LegioConfiguration implements Configuration {
 	@Override
 	public Map<String, String> languageRepositories() {
 		Map<String, String> repositories = new HashMap<>();
-		legio.repositoryList().forEach(r -> repositories.putAll(r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		for (Repository r : legio.repositoryList()) {
+			final List<Repository.Type> types = r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null);
+			if (types.isEmpty()) continue;
+			repositories.putAll(types.stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID)));
+		}
 		return repositories;
 	}
 

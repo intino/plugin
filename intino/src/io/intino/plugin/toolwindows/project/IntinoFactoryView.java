@@ -105,6 +105,7 @@ public class IntinoFactoryView extends JPanel {
 	private void saveConfiguration(Module module) {
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
 		manager.saveAllDocuments();
+		TaraUtil.configurationOf(module).reload();
 	}
 
 	private void exportAccessors() {

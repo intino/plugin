@@ -1,8 +1,5 @@
 package io.intino.legio.graph;
 
-import io.intino.legio.graph.*;
-
-
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String groupId;
 	protected java.lang.String version;
@@ -611,10 +608,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
 			protected java.lang.String effectiveVersion;
-			protected Boolean transitive;
+			protected boolean transitive;
 			protected java.util.List<java.lang.String> artifacts = new java.util.ArrayList<>();
-			protected Boolean resolved;
-			protected Boolean toModule;
+			protected boolean resolve;
+			protected boolean toModule;
 			protected java.util.List<io.intino.legio.graph.Artifact.Imports.Dependency.Exclude> excludeList = new java.util.ArrayList<>();
 
 			public Dependency(io.intino.tara.magritte.Node node) {
@@ -645,7 +642,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return effectiveVersion;
 			}
 
-			public Boolean transitive() {
+			public boolean transitive() {
 				return transitive;
 			}
 
@@ -661,11 +658,11 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return artifacts().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 			}
 
-			public Boolean resolved() {
-				return resolved;
+			public boolean resolve() {
+				return resolve;
 			}
 
-			public Boolean toModule() {
+			public boolean toModule() {
 				return toModule;
 			}
 
@@ -699,17 +696,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return (Dependency) this;
 			}
 
-			public Dependency transitive(Boolean value) {
+			public Dependency transitive(boolean value) {
 				this.transitive = value;
 				return (Dependency) this;
 			}
 
-			public Dependency resolved(Boolean value) {
-				this.resolved = value;
+			public Dependency resolve(boolean value) {
+				this.resolve = value;
 				return (Dependency) this;
 			}
 
-			public Dependency toModule(Boolean value) {
+			public Dependency toModule(boolean value) {
 				this.toModule = value;
 				return (Dependency) this;
 			}
@@ -745,7 +742,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 				map.put("transitive", new java.util.ArrayList(java.util.Collections.singletonList(this.transitive)));
 				map.put("artifacts", this.artifacts);
-				map.put("resolved", new java.util.ArrayList(java.util.Collections.singletonList(this.resolved)));
+				map.put("resolve", new java.util.ArrayList(java.util.Collections.singletonList(this.resolve)));
 				map.put("toModule", new java.util.ArrayList(java.util.Collections.singletonList(this.toModule)));
 				return map;
 			}
@@ -773,7 +770,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
-				else if (name.equalsIgnoreCase("resolved")) this.resolved = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("resolve")) this.resolve = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("toModule")) this.toModule = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			}
 
@@ -788,7 +785,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = (java.lang.Boolean) values.get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
-				else if (name.equalsIgnoreCase("resolved")) this.resolved = (java.lang.Boolean) values.get(0);
+				else if (name.equalsIgnoreCase("resolve")) this.resolve = (java.lang.Boolean) values.get(0);
 				else if (name.equalsIgnoreCase("toModule")) this.toModule = (java.lang.Boolean) values.get(0);
 			}
 
@@ -1521,9 +1518,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		public enum Mode {
 			ModulesAndLibrariesExtracted, LibrariesLinkedByManifest, ModulesAndLibrariesLinkedByManifest;
 		}
-		protected Boolean attachSources;
-		protected Boolean attachDoc;
-		protected Boolean includeTests;
+		protected boolean attachSources;
+		protected boolean attachDoc;
+		protected boolean includeTests;
 		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
 		protected java.util.List<io.intino.legio.graph.Parameter> parameterList = new java.util.ArrayList<>();
@@ -1537,15 +1534,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return mode;
 		}
 
-		public Boolean attachSources() {
+		public boolean attachSources() {
 			return attachSources;
 		}
 
-		public Boolean attachDoc() {
+		public boolean attachDoc() {
 			return attachDoc;
 		}
 
-		public Boolean includeTests() {
+		public boolean includeTests() {
 			return includeTests;
 		}
 
@@ -1562,17 +1559,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Package) this;
 		}
 
-		public Package attachSources(Boolean value) {
+		public Package attachSources(boolean value) {
 			this.attachSources = value;
 			return (Package) this;
 		}
 
-		public Package attachDoc(Boolean value) {
+		public Package attachDoc(boolean value) {
 			this.attachDoc = value;
 			return (Package) this;
 		}
 
-		public Package includeTests(Boolean value) {
+		public Package includeTests(boolean value) {
 			this.includeTests = value;
 			return (Package) this;
 		}
