@@ -52,11 +52,18 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
 
-        <action id="IntinoGenerate" class="io.intino.plugin.actions.IntinoGenerationAction"
+        <action id="IntinoGenerate"
+                class="io.intino.plugin.actions.IntinoGenerationAction"
                 text="Generate intino code"
-                icon="/icons/generate-16.png"
                 description="generates all intino source code">
             <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
+            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
+        </action>
+        <action id="InterfaceGeneration"
+                class="io.intino.plugin.actions.InterfaceGenerationAction"
+                text="Generate konos interface code"
+                description="generates interface intino source code">
+            <keyboard-shortcut first-keystroke="control alt k" keymap="$default"/>
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
         <action id="PurgeAndReloadConfigurationAction"
