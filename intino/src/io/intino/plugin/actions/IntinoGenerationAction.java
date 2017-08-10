@@ -75,7 +75,7 @@ public class IntinoGenerationAction extends IntinoAction {
 	public void force(Module module) {
 		if (module == null) return;
 		konos(module);
-		model(module);
+//		model(module);
 	}
 
 	public boolean konos(Module module) {
@@ -87,7 +87,7 @@ public class IntinoGenerationAction extends IntinoAction {
 	}
 
 	private boolean generateKonos(Module module) {
-		return ((InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGenerationAction")).execute(module);
+		return ((InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration")).execute(module);
 	}
 
 	private boolean modelsModified() {
