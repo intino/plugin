@@ -34,7 +34,14 @@ public class InterfaceGenerationAction extends AnAction {
 	}
 
 	public boolean execute(Module module) {
-		if (!interfaceModified(module)) return true;
+		return !interfaceModified(module) || doExecute(module);
+	}
+
+	boolean force(Module module) {
+		return doExecute(module);
+	}
+
+	private boolean doExecute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return false;
 		final String version = configuration.interfaceVersion();

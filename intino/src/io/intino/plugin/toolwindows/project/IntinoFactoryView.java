@@ -105,7 +105,8 @@ public class IntinoFactoryView extends JPanel {
 	private void saveConfiguration(Module module) {
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
 		manager.saveAllDocuments();
-		TaraUtil.configurationOf(module).reload();
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (configuration != null) configuration.reload();
 	}
 
 	private void exportAccessors() {
@@ -121,7 +122,7 @@ public class IntinoFactoryView extends JPanel {
 			case DistributeArtifact:
 				return shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
 			case DeployArtifact:
-				return shift ? FactoryPhase.DEV : FactoryPhase.PRO;
+				return shift ? FactoryPhase.PRO : FactoryPhase.DEV;
 		}
 		return null;
 	}

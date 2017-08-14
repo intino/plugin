@@ -74,20 +74,23 @@ public class IntinoGenerationAction extends IntinoAction {
 
 	public void force(Module module) {
 		if (module == null) return;
-		konos(module);
+		forceKonos(module);
 //		model(module);
 	}
 
-	public boolean konos(Module module) {
-		return generateKonos(module);
+
+	private void forceKonos(Module module) {
+		final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+		action.force(module);
+	}
+
+	private void konos(Module module) {
+		final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+		action.execute(module);
 	}
 
 	private void model(Module module) {
 		if (modelsModified()) buildModels(module);
-	}
-
-	private boolean generateKonos(Module module) {
-		return ((InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration")).execute(module);
 	}
 
 	private boolean modelsModified() {

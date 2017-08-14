@@ -3,7 +3,7 @@ package io.intino.plugin.deploy;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.cesar.RestCesarAccessor;
+import io.intino.cesar.CesarRestAccessor;
 import io.intino.cesar.schemas.Artifactory;
 import io.intino.cesar.schemas.Packaging;
 import io.intino.cesar.schemas.Runtime;
@@ -56,19 +56,11 @@ public class ArtifactDeployer {
 		}
 	}
 
-	private void deploy(Deployment.Dev dev) throws IntinoException {
+	private void deploy(Deployment.Destination destination) throws IntinoException {
 		try {
 			final String user = user();
-			new RestCesarAccessor(urlOf(dev.server().cesar())).postDeploySystem(user, createSystem(dev));
-		} catch (Unknown | Forbidden | BadRequest unknown) {
-			throw new IntinoException(unknown.getMessage());
-		}
-	}
-
-	private void deploy(Deployment.Pro pro) throws IntinoException {
-		try {
-			final String user = user();
-			new RestCesarAccessor(urlOf(pro.server().cesar())).postDeploySystem(user, createSystem(pro));
+			if (destination.server() == null) throw new IntinoException("Server not found");
+			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeploySystem(user, createSystem(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}

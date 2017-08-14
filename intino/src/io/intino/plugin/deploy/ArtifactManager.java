@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.jcraft.jsch.Channel;
-import io.intino.cesar.RestCesarAccessor;
+import io.intino.cesar.CesarRestAccessor;
 import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.ServerSchema;
 import io.intino.cesar.schemas.SystemSchema;
@@ -101,7 +101,7 @@ public class ArtifactManager {
 		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new RestCesarAccessor(url).getServer(system.runtime().serverName());
+			return new CesarRestAccessor(url).getServer(system.runtime().serverName());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
@@ -111,7 +111,7 @@ public class ArtifactManager {
 		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new RestCesarAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
+			return new CesarRestAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
