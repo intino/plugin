@@ -46,6 +46,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.project.LibraryConflictResolver.libraryOf;
+import static io.intino.plugin.project.LibraryConflictResolver.mustAdd;
 import static io.intino.tara.compiler.shared.TaraBuildConstants.WORKING_PACKAGE;
 import static java.util.stream.Collectors.toMap;
 
@@ -184,7 +186,13 @@ public class LegioConfiguration implements Configuration {
 		if (dependencies() == null) return;
 		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, repositoryTypes(), dependencies());
 		final List<Library> newLibraries = resolver.resolve();
-		newLibraries.addAll(resolveLanguages());
+		final List<Library> languageLibraries = resolveLanguages();
+		for (Library languageLibrary : languageLibraries) {
+			if (mustAdd(languageLibrary, newLibraries)) {
+				newLibraries.remove(libraryOf(newLibraries, languageLibrary.getName()));
+				newLibraries.add(languageLibrary);
+			}
+		}
 		LibraryManager.clean(module, newLibraries);
 	}
 
@@ -348,6 +356,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public Map<String, String> languageRepositories() {
+		if (legio == null) return Collections.emptyMap();
 		Map<String, String> repositories = new HashMap<>();
 		for (Repository r : legio.repositoryList()) {
 			final List<Repository.Type> types = r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null);

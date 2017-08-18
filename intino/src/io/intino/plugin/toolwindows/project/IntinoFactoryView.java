@@ -99,7 +99,6 @@ public class IntinoFactoryView extends JPanel {
 		if (module != null) new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
 		else Notifications.Bus.notify(new Notification("Tara Language",
 				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
-
 	}
 
 	private void saveConfiguration(Module module) {

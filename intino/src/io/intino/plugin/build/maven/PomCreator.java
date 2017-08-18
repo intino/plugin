@@ -33,6 +33,8 @@ import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiv
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static io.intino.legio.graph.Artifact.Package.Mode;
 import static io.intino.legio.graph.Artifact.Package.Mode.*;
+import static io.intino.plugin.dependencyresolution.LanguageResolver.languageID;
+import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
@@ -59,8 +61,9 @@ public class PomCreator {
 	private File webPom(File pom) {
 		Frame frame = new Frame();
 		fillMavenId(frame);
-		frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
-		frame.addSlot("outDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "production" + File.separator);
+		final String compilerOutputUrl = CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl();
+		frame.addSlot("buildDirectory", pathOf(compilerOutputUrl) + separator + "build" + separator);
+		frame.addSlot("outDirectory", pathOf(compilerOutputUrl) + separator + "production" + separator);
 		addRepositories(frame);
 		writePom(pom, frame, ActivityPomTemplate.create());
 		return pom;
@@ -101,7 +104,7 @@ public class PomCreator {
 		if (extension != null) {
 			frame.addSlot("outDirectory", pathOf(extension.getCompilerOutputUrl()));
 			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
-			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + File.separator + "build" + File.separator);
+			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + separator + "build" + separator);
 		}
 		if (pack != null) configureBuild(frame, configuration.licence(), pack);
 		addDependencies(frame);
@@ -143,7 +146,7 @@ public class PomCreator {
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
 			if (configuration.level() == null) continue;
 			for (Configuration.LanguageLibrary language : configuration.languages()) {
-				final String languageID = LanguageResolver.languageID(language.name(), language.version());
+				final String languageID = languageID(language.name(), language.version());
 				if (languageID == null || languageID.isEmpty()) return;
 				frame.addSlot("dependency", createDependencyFrame(languageID.split(":")));
 			}
@@ -237,7 +240,9 @@ public class PomCreator {
 	}
 
 	private String findLanguageId(Configuration.LanguageLibrary language) {
-		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : LanguageResolver.languageID(language.name(), language.version());
+		if (packageType.equals(ModulesAndLibrariesLinkedByManifest))
+			return languageID(language.name(), language.version());
+		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageID(language.name(), language.version());
 	}
 
 	private Frame createDependencyFrame(Dependency d) {
