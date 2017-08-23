@@ -39,7 +39,9 @@ public class LibraryConflictResolver {
 	}
 
 	private static Version versionOf(String library) {
-		return new Version(library.substring(library.lastIndexOf(":") + 1).trim().replaceFirst("\\.v.*", ""));
+		final String version = library.substring(library.lastIndexOf(":") + 1);
+		final String toRemove = version.trim().replaceFirst("([0-9]+(\\.[0-9]+)*)", "");
+		return new Version(version.trim().replace(toRemove, ""));
 	}
 
 	private static class Version implements Comparable<Version> {
@@ -54,7 +56,7 @@ public class LibraryConflictResolver {
 			if (version == null)
 				throw new IllegalArgumentException("Version can not be null");
 			if (!version.matches("[0-9]+(\\.[0-9]+)*"))
-				throw new IllegalArgumentException("Invalid version format");
+				throw new IllegalArgumentException("Invalid version format: " + version);
 			this.version = version;
 		}
 
