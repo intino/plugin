@@ -75,6 +75,7 @@ Concept:{1..1}:Named Artifact
 			var Server server
 			var RunConfiguration runConfiguration
 			var string url = empty
+			var string project = empty
 			Concept:{0..1} BugTracking
 				var string[] slackUsers = empty
 			Concept:{0..1} Requirements

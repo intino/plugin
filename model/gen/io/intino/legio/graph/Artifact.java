@@ -2217,6 +2217,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			protected io.intino.legio.graph.Server server;
 			protected io.intino.legio.graph.RunConfiguration runConfiguration;
 			protected java.lang.String url;
+			protected java.lang.String project;
 			protected io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking bugTracking;
 			protected io.intino.legio.graph.Artifact.Deployment.Destination.Requirements requirements;
 
@@ -2236,6 +2237,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return url;
 			}
 
+			public java.lang.String project() {
+				return project;
+			}
+
 			public Destination server(io.intino.legio.graph.Server value) {
 				this.server = value;
 				return (Destination) this;
@@ -2248,6 +2253,11 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 			public Destination url(java.lang.String value) {
 				this.url = value;
+				return (Destination) this;
+			}
+
+			public Destination project(java.lang.String value) {
+				this.project = value;
 				return (Destination) this;
 			}
 
@@ -2282,6 +2292,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				map.put("server", this.server != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.server)) : java.util.Collections.emptyList());
 				map.put("runConfiguration", this.runConfiguration != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.runConfiguration)) : java.util.Collections.emptyList());
 				map.put("url", new java.util.ArrayList(java.util.Collections.singletonList(this.url)));
+				map.put("project", new java.util.ArrayList(java.util.Collections.singletonList(this.project)));
 				return map;
 			}
 
@@ -2305,6 +2316,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				if (name.equalsIgnoreCase("server")) this.server = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.graph.Server.class, this).get(0);
 				else if (name.equalsIgnoreCase("runConfiguration")) this.runConfiguration = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.graph.RunConfiguration.class, this).get(0);
 				else if (name.equalsIgnoreCase("url")) this.url = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("project")) this.project = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
@@ -2313,6 +2325,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				if (name.equalsIgnoreCase("server")) this.server = values.get(0)!= null ? core$().graph().load(((io.intino.tara.magritte.Layer) values.get(0)).core$().id()).as(io.intino.legio.graph.Server.class) : null;
 				else if (name.equalsIgnoreCase("runConfiguration")) this.runConfiguration = values.get(0)!= null ? core$().graph().load(((io.intino.tara.magritte.Layer) values.get(0)).core$().id()).as(io.intino.legio.graph.RunConfiguration.class) : null;
 				else if (name.equalsIgnoreCase("url")) this.url = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("project")) this.project = (java.lang.String) values.get(0);
 			}
 
 			public Create create() {

@@ -111,7 +111,7 @@ public class ArtifactManager {
 		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url).getSystem(configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
+			return new CesarRestAccessor(url).getSystem(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}

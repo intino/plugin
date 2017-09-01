@@ -2,7 +2,7 @@ package io.intino.legio.graph.natives.repository.type;
 
 import io.intino.legio.graph.Repository;
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#97#2**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#98#2**/
 public class MavenID_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.graph.Repository.Type self;
 

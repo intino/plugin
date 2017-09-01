@@ -80,7 +80,7 @@ public class ArtifactDeployer {
 	private SystemSchema createSystem(Destination destination) {
 		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
 		final String classpathPrefix = configuration.pack().asRunnable().classpathPrefix();
-		return new SystemSchema().id(id).publicURL(destination.url()).
+		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).name(id).publicURL(destination.url()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).

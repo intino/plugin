@@ -52,6 +52,7 @@ public class InterfaceGenerationAction extends AnAction {
 			return false;
 		} else {
 			ApplicationManager.getApplication().invokeAndWait(() -> action.actionPerformed(createActionEvent()));
+			pendingFiles.clear();
 			return true;
 		}
 	}
