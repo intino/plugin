@@ -121,7 +121,7 @@ public class IntinoFactoryView extends JPanel {
 			case DistributeArtifact:
 				return shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
 			case DeployArtifact:
-				return shift ? FactoryPhase.PRO : FactoryPhase.DEV;
+				return FactoryPhase.DEPLOY;
 		}
 		return null;
 	}

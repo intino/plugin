@@ -70,19 +70,20 @@ Concept:{1..1}:Named Artifact
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept Deployment
-		Concept Destination
-			var Server server
-			var RunConfiguration runConfiguration
-			var string url = empty
-			var string project = empty
-			Concept:{0..1} BugTracking
-				var string[] slackUsers = empty
-			Concept:{0..1} Requirements
-				Concept Memory
-				Concept CPU
-			sub:{0..1} Dev
-			sub:{0..1} Pro
+	Concept:Named Deployment
+		Concept:{0..1} Dev extends Destination
+		Concept:{0..1} Pro extends Destination
+
+Concept Destination is component
+	var Server server
+	var RunConfiguration runConfiguration
+	var string url = empty
+	var string project = empty
+	Concept:{0..1} BugTracking
+		var string[] slackUsers = empty
+	Concept:{0..1} Requirements
+		Concept Memory
+		Concept CPU
 
 Concept RunConfiguration
 	var string mainClass = ""

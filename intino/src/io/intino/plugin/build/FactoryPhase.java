@@ -7,8 +7,7 @@ public enum FactoryPhase {
 	PACKAGE("packaging", "packaged", "clean", "package"),
 	INSTALL("installing", "installed", "clean", "package", "install"),
 	DISTRIBUTE("distributing", "distributed", "clean", "package", "install", "deploy"),
-	DEV("deploying", "deployed", "clean", "package", "install", "deploy"),
-	PRO("deploying", "deployed", "clean", "package", "install", "deploy"),
+	DEPLOY("deploying", "deployed", "clean", "package", "install", "deploy"),
 	MANAGE("managing", "managed");
 
 	private final String gerund;

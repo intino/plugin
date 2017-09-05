@@ -3,7 +3,11 @@ package io.intino.plugin.build;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.wm.WindowManager;
+import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.deploy.ArtifactDeployer;
@@ -22,12 +26,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.build.FactoryPhase.DEPLOY;
+import static java.util.Collections.emptyList;
 import static org.siani.itrules.engine.formatters.StringFormatter.firstUpperCase;
 
 
 abstract class AbstractArtifactBuilder {
 	private static final String JAR_EXTENSION = ".jar";
-
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
@@ -36,7 +41,8 @@ abstract class AbstractArtifactBuilder {
 		if (!errorMessages.isEmpty()) return;
 		processFramework(module, phase, indicator);
 		if (!errorMessages.isEmpty()) return;
-		publish(module, phase, indicator);
+
+		if (deploy(module, phase, indicator)) successMessages.add("deployment Done");
 	}
 
 	private void processLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
@@ -70,6 +76,20 @@ abstract class AbstractArtifactBuilder {
 		}
 	}
 
+	private boolean deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) {
+		if (phase.equals(DEPLOY)) {
+			updateProgressIndicator(indicator, message("publishing.artifact"));
+			try {
+				List<Destination> destinations = collectDestinations(module.getProject(), (LegioConfiguration) TaraUtil.configurationOf(module));
+				if (!destinations.isEmpty()) return new ArtifactDeployer(module, destinations).execute();
+				else return false;
+			} catch (IntinoException e) {
+				errorMessages.add(e.getMessage());
+			}
+		}
+		return false;
+	}
+
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
@@ -79,15 +99,19 @@ abstract class AbstractArtifactBuilder {
 			throw new IntinoException(message("distribution.repository.not.found"));
 	}
 
-	private void publish(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		if (phase.equals(FactoryPhase.DEV) || phase.equals(FactoryPhase.PRO)) {
-			updateProgressIndicator(indicator, message("publishing.artifact"));
-			try {
-				new ArtifactDeployer(module, phase).execute();
-			} catch (IntinoException e) {
-				errorMessages.add(e.getMessage());
-			}
+	private List<Destination> collectDestinations(Project project, LegioConfiguration conf) {
+		final List<Artifact.Deployment> deployments = conf.deployments();
+		if (deployments.size() > 1) {
+			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
 		}
+		return deployments.isEmpty() ? emptyList() : destinationsOf(deployments.get(0));
+	}
+
+	private List<Destination> destinationsOf(Artifact.Deployment deployment) {
+		List<Destination> destinations = new ArrayList<>();
+		if (deployment.dev() != null) destinations.add(deployment.dev());
+		if (deployment.pro() != null) destinations.add(deployment.pro());
+		return destinations;
 	}
 
 	private void executeGulpDependencies(Module module) {

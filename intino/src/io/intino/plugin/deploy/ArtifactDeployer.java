@@ -12,11 +12,9 @@ import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Forbidden;
 import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.graph.Argument;
-import io.intino.legio.graph.Artifact.Deployment;
-import io.intino.legio.graph.Artifact.Deployment.Destination;
+import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -37,26 +35,20 @@ public class ArtifactDeployer {
 
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private FactoryPhase phase;
-	private List<Deployment> deployments;
+	private List<Destination> destinations;
 
-	public ArtifactDeployer(Module module, FactoryPhase phase) {
+	public ArtifactDeployer(Module module, List<Destination> destinations) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.phase = phase;
-		this.deployments = configuration.deployments();
+		this.destinations = destinations;
 	}
 
-	public void execute() throws IntinoException {
-		for (Deployment deployment : deployments) {
-			final Deployment.Dev dev = deployment.dev();
-			final Deployment.Pro pro = deployment.pro();
-			if (dev != null) deploy(dev);
-			if (phase.equals(FactoryPhase.PRO) && pro != null) deploy(pro);
-		}
+	public boolean execute() throws IntinoException {
+		for (Destination destination : destinations) deploy(destination);
+		return true;
 	}
 
-	private void deploy(Deployment.Destination destination) throws IntinoException {
+	private void deploy(Destination destination) throws IntinoException {
 		try {
 			final String user = user();
 			if (destination.server() == null) throw new IntinoException("Server not found");

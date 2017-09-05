@@ -31,8 +31,10 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
+import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.legio.graph.Artifact.Package.Mode;
-import static io.intino.legio.graph.Artifact.Package.Mode.*;
+import static io.intino.legio.graph.Artifact.Package.Mode.LibrariesLinkedByManifest;
+import static io.intino.legio.graph.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageID;
 import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
@@ -112,9 +114,10 @@ public class PomCreator {
 	}
 
 	private void addDependencies(Frame frame) {
-		if (packageType.equals(LibrariesLinkedByManifest) || packageType.equals(ModulesAndLibrariesExtracted))
-			addDependantModuleSources(frame, module);
+		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(frame, module);
+		else frame.addSlot("compile", "");
 		Set<String> dependencies = new HashSet<>();
+
 		for (Dependency dependency : configuration.dependencies()) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
@@ -155,13 +158,8 @@ public class PomCreator {
 
 	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
-		final List<String> res = resourceDirectories(module);
-		for (Module dep : getModuleDependencies())
-			res.addAll(resourceDirectories(dep));
-		frame.addSlot("resourceDirectory", res.toArray(new String[res.size()]));
+		frame.addSlot("resourceDirectory", resourceDirectories(module).toArray(new String[0]));
 		final List<String> resTest = resourceTestDirectories(module);
-		for (Module dep : getModuleDependencies())
-			resTest.addAll(resourceTestDirectories(dep));
 		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
 	}
 
@@ -172,7 +170,7 @@ public class PomCreator {
 
 	private List<Module> collectModuleDependencies(Module module) {
 		List<Module> list = new ArrayList<>();
-		for (Module dependant : ModuleRootManager.getInstance(module).getModuleDependencies()) {
+		for (Module dependant : getInstance(module).getModuleDependencies()) {
 			list.add(dependant);
 			list.addAll(collectModuleDependencies(dependant));
 		}
@@ -180,13 +178,13 @@ public class PomCreator {
 	}
 
 	private String[] srcDirectories(Module module) {
-		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+		final ModuleRootManager manager = getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(SOURCE);
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
 	private List<String> resourceDirectories(Module module) {
-		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
+		final ModuleRootManager manager = getInstance(module);
 		final List<VirtualFile> sourceRoots = manager.getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 		for (Module dependency : collectModuleDependencies(module)) {
@@ -200,9 +198,11 @@ public class PomCreator {
 	}
 
 	private List<String> resourceTestDirectories(Module module) {
-		final ModuleRootManager manager = ModuleRootManager.getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(TEST_RESOURCE);
-		return sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(TEST_RESOURCE);
+		List<String> list = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
+		for (Module dep : getModuleDependencies())
+			list.addAll(getInstance(dep).getSourceRoots(TEST_RESOURCE).stream().map(VirtualFile::getPath).collect(Collectors.toList()));
+		return list;
 	}
 
 	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package build) {
@@ -221,11 +221,10 @@ public class PomCreator {
 			frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
 	}
 
-	private void addDependantModuleSources(Frame frame, Module module) {
+	private void addDependantModuleAsSources(Frame frame, Module module) {
 		for (Module dependency : collectModuleDependencies(module)) {
 			ApplicationManager.getApplication().runReadAction(() -> {
-				final VirtualFile[] sourceRoots = ModuleRootManager.getInstance(dependency).getModifiableModel().getSourceRoots(false);
-				for (VirtualFile sourceRoot : sourceRoots)
+				for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
 					if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
 			});
 		}
