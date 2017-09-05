@@ -94,7 +94,7 @@ public class JavaDependencyResolver {
 		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
 		d.artifacts().clear();
 		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(toList()));
-		d.resolved(true);
+		d.resolve(true);
 		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
 	}
 

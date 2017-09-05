@@ -611,10 +611,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			protected java.lang.String artifactId;
 			protected java.lang.String version;
 			protected java.lang.String effectiveVersion;
-			protected Boolean transitive;
+			protected boolean transitive;
 			protected java.util.List<java.lang.String> artifacts = new java.util.ArrayList<>();
-			protected Boolean resolved;
-			protected Boolean toModule;
+			protected boolean resolve;
+			protected boolean toModule;
 			protected java.util.List<io.intino.legio.graph.Artifact.Imports.Dependency.Exclude> excludeList = new java.util.ArrayList<>();
 
 			public Dependency(io.intino.tara.magritte.Node node) {
@@ -645,7 +645,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return effectiveVersion;
 			}
 
-			public Boolean transitive() {
+			public boolean transitive() {
 				return transitive;
 			}
 
@@ -661,11 +661,11 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return artifacts().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 			}
 
-			public Boolean resolved() {
-				return resolved;
+			public boolean resolve() {
+				return resolve;
 			}
 
-			public Boolean toModule() {
+			public boolean toModule() {
 				return toModule;
 			}
 
@@ -699,17 +699,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				return (Dependency) this;
 			}
 
-			public Dependency transitive(Boolean value) {
+			public Dependency transitive(boolean value) {
 				this.transitive = value;
 				return (Dependency) this;
 			}
 
-			public Dependency resolved(Boolean value) {
-				this.resolved = value;
+			public Dependency resolve(boolean value) {
+				this.resolve = value;
 				return (Dependency) this;
 			}
 
-			public Dependency toModule(Boolean value) {
+			public Dependency toModule(boolean value) {
 				this.toModule = value;
 				return (Dependency) this;
 			}
@@ -745,7 +745,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				map.put("effectiveVersion", new java.util.ArrayList(java.util.Collections.singletonList(this.effectiveVersion)));
 				map.put("transitive", new java.util.ArrayList(java.util.Collections.singletonList(this.transitive)));
 				map.put("artifacts", this.artifacts);
-				map.put("resolved", new java.util.ArrayList(java.util.Collections.singletonList(this.resolved)));
+				map.put("resolve", new java.util.ArrayList(java.util.Collections.singletonList(this.resolve)));
 				map.put("toModule", new java.util.ArrayList(java.util.Collections.singletonList(this.toModule)));
 				return map;
 			}
@@ -773,7 +773,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
-				else if (name.equalsIgnoreCase("resolved")) this.resolved = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("resolve")) this.resolve = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 				else if (name.equalsIgnoreCase("toModule")) this.toModule = io.intino.tara.magritte.loaders.BooleanLoader.load(values, this).get(0);
 			}
 
@@ -788,7 +788,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				else if (name.equalsIgnoreCase("effectiveVersion")) this.effectiveVersion = (java.lang.String) values.get(0);
 				else if (name.equalsIgnoreCase("transitive")) this.transitive = (java.lang.Boolean) values.get(0);
 				else if (name.equalsIgnoreCase("artifacts")) this.artifacts = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
-				else if (name.equalsIgnoreCase("resolved")) this.resolved = (java.lang.Boolean) values.get(0);
+				else if (name.equalsIgnoreCase("resolve")) this.resolve = (java.lang.Boolean) values.get(0);
 				else if (name.equalsIgnoreCase("toModule")) this.toModule = (java.lang.Boolean) values.get(0);
 			}
 
@@ -1521,9 +1521,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		public enum Mode {
 			ModulesAndLibrariesExtracted, LibrariesLinkedByManifest, ModulesAndLibrariesLinkedByManifest;
 		}
-		protected Boolean attachSources;
-		protected Boolean attachDoc;
-		protected Boolean includeTests;
+		protected boolean attachSources;
+		protected boolean attachDoc;
+		protected boolean includeTests;
 		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
 		protected java.util.List<io.intino.legio.graph.Parameter> parameterList = new java.util.ArrayList<>();
@@ -1537,15 +1537,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return mode;
 		}
 
-		public Boolean attachSources() {
+		public boolean attachSources() {
 			return attachSources;
 		}
 
-		public Boolean attachDoc() {
+		public boolean attachDoc() {
 			return attachDoc;
 		}
 
-		public Boolean includeTests() {
+		public boolean includeTests() {
 			return includeTests;
 		}
 
@@ -1562,17 +1562,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Package) this;
 		}
 
-		public Package attachSources(Boolean value) {
+		public Package attachSources(boolean value) {
 			this.attachSources = value;
 			return (Package) this;
 		}
 
-		public Package attachDoc(Boolean value) {
+		public Package attachDoc(boolean value) {
 			this.attachDoc = value;
 			return (Package) this;
 		}
 
-		public Package includeTests(Boolean value) {
+		public Package includeTests(boolean value) {
 			this.includeTests = value;
 			return (Package) this;
 		}
@@ -2090,24 +2090,11 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 	public static class Deployment extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 
-		protected java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination> destinationList = new java.util.ArrayList<>();
 		protected io.intino.legio.graph.Artifact.Deployment.Dev dev;
 		protected io.intino.legio.graph.Artifact.Deployment.Pro pro;
 
 		public Deployment(io.intino.tara.magritte.Node node) {
 			super(node);
-		}
-
-		public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination> destinationList() {
-			return java.util.Collections.unmodifiableList(destinationList);
-		}
-
-		public io.intino.legio.graph.Artifact.Deployment.Destination destination(int index) {
-			return destinationList.get(index);
-		}
-
-		public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination> destinationList(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment.Destination> predicate) {
-			return destinationList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
 		public io.intino.legio.graph.Artifact.Deployment.Dev dev() {
@@ -2117,8 +2104,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		public io.intino.legio.graph.Artifact.Deployment.Pro pro() {
 			return pro;
 		}
-
-
 
 		public Deployment dev(io.intino.legio.graph.Artifact.Deployment.Dev value) {
 			this.dev = value;
@@ -2132,7 +2117,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-			new java.util.ArrayList<>(destinationList).forEach(c -> components.add(c.core$()));
 			if (dev != null) components.add(this.dev.core$());
 			if (pro != null) components.add(this.pro.core$());
 			return new java.util.ArrayList<>(components);
@@ -2148,7 +2132,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void addNode$(io.intino.tara.magritte.Node node) {
 			super.addNode$(node);
-			if (node.is("Artifact$Deployment$Destination")) this.destinationList.add(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.class));
 			if (node.is("Artifact$Deployment$Dev")) this.dev = node.as(io.intino.legio.graph.Artifact.Deployment.Dev.class);
 			if (node.is("Artifact$Deployment$Pro")) this.pro = node.as(io.intino.legio.graph.Artifact.Deployment.Pro.class);
 		}
@@ -2156,7 +2139,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 	    protected void removeNode$(io.intino.tara.magritte.Node node) {
 	        super.removeNode$(node);
-	        if (node.is("Artifact$Deployment$Destination")) this.destinationList.remove(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.class));
 	        if (node.is("Artifact$Deployment$Dev")) this.dev = null;
 	        if (node.is("Artifact$Deployment$Pro")) this.pro = null;
 	    }
@@ -2186,8 +2168,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				this.name = name;
 			}
 
-
-
 			public io.intino.legio.graph.Artifact.Deployment.Dev dev(io.intino.legio.graph.Server server, io.intino.legio.graph.RunConfiguration runConfiguration) {
 			    io.intino.legio.graph.Artifact.Deployment.Dev newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Dev.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Dev.class);
 				newElement.core$().set(newElement, "server", java.util.Collections.singletonList(server));
@@ -2212,386 +2192,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 
 
-
-
 		}
 
-		public static abstract class Destination extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected io.intino.legio.graph.Server server;
-			protected io.intino.legio.graph.RunConfiguration runConfiguration;
-			protected java.lang.String url;
-			protected io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking bugTracking;
-			protected io.intino.legio.graph.Artifact.Deployment.Destination.Requirements requirements;
-
-			public Destination(io.intino.tara.magritte.Node node) {
-				super(node);
-			}
-
-			public io.intino.legio.graph.Server server() {
-				return server;
-			}
-
-			public io.intino.legio.graph.RunConfiguration runConfiguration() {
-				return runConfiguration;
-			}
-
-			public java.lang.String url() {
-				return url;
-			}
-
-			public Destination server(io.intino.legio.graph.Server value) {
-				this.server = value;
-				return (Destination) this;
-			}
-
-			public Destination runConfiguration(io.intino.legio.graph.RunConfiguration value) {
-				this.runConfiguration = value;
-				return (Destination) this;
-			}
-
-			public Destination url(java.lang.String value) {
-				this.url = value;
-				return (Destination) this;
-			}
-
-			public io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking bugTracking() {
-				return bugTracking;
-			}
-
-			public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements requirements() {
-				return requirements;
-			}
-
-			public Destination bugTracking(io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking value) {
-				this.bugTracking = value;
-				return (Destination) this;
-			}
-
-			public Destination requirements(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements value) {
-				this.requirements = value;
-				return (Destination) this;
-			}
-
-			protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
-				java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-				if (bugTracking != null) components.add(this.bugTracking.core$());
-				if (requirements != null) components.add(this.requirements.core$());
-				return new java.util.ArrayList<>(components);
-			}
-
-			@Override
-			protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
-				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("server", this.server != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.server)) : java.util.Collections.emptyList());
-				map.put("runConfiguration", this.runConfiguration != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.runConfiguration)) : java.util.Collections.emptyList());
-				map.put("url", new java.util.ArrayList(java.util.Collections.singletonList(this.url)));
-				return map;
-			}
-
-			@Override
-			protected void addNode$(io.intino.tara.magritte.Node node) {
-				super.addNode$(node);
-				if (node.is("Artifact$Deployment$Destination$BugTracking")) this.bugTracking = node.as(io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking.class);
-				if (node.is("Artifact$Deployment$Destination$Requirements")) this.requirements = node.as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.class);
-			}
-
-			@Override
-		    protected void removeNode$(io.intino.tara.magritte.Node node) {
-		        super.removeNode$(node);
-		        if (node.is("Artifact$Deployment$Destination$BugTracking")) this.bugTracking = null;
-		        if (node.is("Artifact$Deployment$Destination$Requirements")) this.requirements = null;
-		    }
-
-			@Override
-			protected void load$(java.lang.String name, java.util.List<?> values) {
-				super.load$(name, values);
-				if (name.equalsIgnoreCase("server")) this.server = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.graph.Server.class, this).get(0);
-				else if (name.equalsIgnoreCase("runConfiguration")) this.runConfiguration = io.intino.tara.magritte.loaders.NodeLoader.load(values, io.intino.legio.graph.RunConfiguration.class, this).get(0);
-				else if (name.equalsIgnoreCase("url")) this.url = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-			}
-
-			@Override
-			protected void set$(java.lang.String name, java.util.List<?> values) {
-				super.set$(name, values);
-				if (name.equalsIgnoreCase("server")) this.server = values.get(0)!= null ? core$().graph().load(((io.intino.tara.magritte.Layer) values.get(0)).core$().id()).as(io.intino.legio.graph.Server.class) : null;
-				else if (name.equalsIgnoreCase("runConfiguration")) this.runConfiguration = values.get(0)!= null ? core$().graph().load(((io.intino.tara.magritte.Layer) values.get(0)).core$().id()).as(io.intino.legio.graph.RunConfiguration.class) : null;
-				else if (name.equalsIgnoreCase("url")) this.url = (java.lang.String) values.get(0);
-			}
-
-			public Create create() {
-				return new Create(null);
-			}
-
-			public Create create(java.lang.String name) {
-				return new Create(name);
-			}
-
-			public class Create  {
-				protected final java.lang.String name;
-
-				public Create(java.lang.String name) {
-					this.name = name;
-				}
-
-				public io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking bugTracking() {
-				    io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Destination.BugTracking.class);
-
-				    return newElement;
-				}
-
-				public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements requirements() {
-				    io.intino.legio.graph.Artifact.Deployment.Destination.Requirements newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.class);
-
-				    return newElement;
-				}
-
-			}
-
-			public Clear clear() {
-				return new Clear();
-			}
-
-			public class Clear  {
-
-
-
-			}
-
-			public static class BugTracking extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-				protected java.util.List<java.lang.String> slackUsers = new java.util.ArrayList<>();
-
-				public BugTracking(io.intino.tara.magritte.Node node) {
-					super(node);
-				}
-
-				public java.util.List<java.lang.String> slackUsers() {
-					return slackUsers;
-				}
-
-				public java.lang.String slackUsers(int index) {
-					return slackUsers.get(index);
-				}
-
-				public java.util.List<java.lang.String> slackUsers(java.util.function.Predicate<java.lang.String> predicate) {
-					return slackUsers().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-				}
-
-				@Override
-				protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
-					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-					map.put("slackUsers", this.slackUsers);
-					return map;
-				}
-
-				@Override
-				protected void load$(java.lang.String name, java.util.List<?> values) {
-					super.load$(name, values);
-					if (name.equalsIgnoreCase("slackUsers")) this.slackUsers = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
-				}
-
-				@Override
-				protected void set$(java.lang.String name, java.util.List<?> values) {
-					super.set$(name, values);
-					if (name.equalsIgnoreCase("slackUsers")) this.slackUsers = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
-				}
-
-
-				public io.intino.legio.graph.LegioGraph graph() {
-					return (io.intino.legio.graph.LegioGraph) core$().graph().as(io.intino.legio.graph.LegioGraph.class);
-				}
-			}
-
-			public static class Requirements extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-
-				protected java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory> memoryList = new java.util.ArrayList<>();
-				protected java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU> cPUList = new java.util.ArrayList<>();
-
-				public Requirements(io.intino.tara.magritte.Node node) {
-					super(node);
-				}
-
-				public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory> memoryList() {
-					return java.util.Collections.unmodifiableList(memoryList);
-				}
-
-				public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory memory(int index) {
-					return memoryList.get(index);
-				}
-
-				public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory> memoryList(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory> predicate) {
-					return memoryList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-				}
-
-				public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU> cPUList() {
-					return java.util.Collections.unmodifiableList(cPUList);
-				}
-
-				public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU cPU(int index) {
-					return cPUList.get(index);
-				}
-
-				public java.util.List<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU> cPUList(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU> predicate) {
-					return cPUList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-				}
-
-
-
-
-
-				protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
-					java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-					new java.util.ArrayList<>(memoryList).forEach(c -> components.add(c.core$()));
-					new java.util.ArrayList<>(cPUList).forEach(c -> components.add(c.core$()));
-					return new java.util.ArrayList<>(components);
-				}
-
-				@Override
-				protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
-					java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-
-					return map;
-				}
-
-				@Override
-				protected void addNode$(io.intino.tara.magritte.Node node) {
-					super.addNode$(node);
-					if (node.is("Artifact$Deployment$Destination$Requirements$Memory")) this.memoryList.add(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory.class));
-					if (node.is("Artifact$Deployment$Destination$Requirements$CPU")) this.cPUList.add(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU.class));
-				}
-
-				@Override
-			    protected void removeNode$(io.intino.tara.magritte.Node node) {
-			        super.removeNode$(node);
-			        if (node.is("Artifact$Deployment$Destination$Requirements$Memory")) this.memoryList.remove(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory.class));
-			        if (node.is("Artifact$Deployment$Destination$Requirements$CPU")) this.cPUList.remove(node.as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU.class));
-			    }
-
-				@Override
-				protected void load$(java.lang.String name, java.util.List<?> values) {
-					super.load$(name, values);
-				}
-
-				@Override
-				protected void set$(java.lang.String name, java.util.List<?> values) {
-					super.set$(name, values);
-				}
-
-				public Create create() {
-					return new Create(null);
-				}
-
-				public Create create(java.lang.String name) {
-					return new Create(name);
-				}
-
-				public class Create  {
-					protected final java.lang.String name;
-
-					public Create(java.lang.String name) {
-						this.name = name;
-					}
-
-					public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory memory() {
-					    io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory.class);
-
-					    return newElement;
-					}
-
-					public io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU cPU() {
-					    io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU.class);
-
-					    return newElement;
-					}
-
-				}
-
-				public Clear clear() {
-					return new Clear();
-				}
-
-				public class Clear  {
-					public void memory(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.Memory> filter) {
-						new java.util.ArrayList<>(memoryList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
-					}
-
-					public void cPU(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment.Destination.Requirements.CPU> filter) {
-						new java.util.ArrayList<>(cPUList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
-					}
-				}
-
-				public static class Memory extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-
-
-					public Memory(io.intino.tara.magritte.Node node) {
-						super(node);
-					}
-
-					@Override
-					protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
-						java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-
-						return map;
-					}
-
-					@Override
-					protected void load$(java.lang.String name, java.util.List<?> values) {
-						super.load$(name, values);
-					}
-
-					@Override
-					protected void set$(java.lang.String name, java.util.List<?> values) {
-						super.set$(name, values);
-					}
-
-
-					public io.intino.legio.graph.LegioGraph graph() {
-						return (io.intino.legio.graph.LegioGraph) core$().graph().as(io.intino.legio.graph.LegioGraph.class);
-					}
-				}
-
-				public static class CPU extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-
-
-					public CPU(io.intino.tara.magritte.Node node) {
-						super(node);
-					}
-
-					@Override
-					protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
-						java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-
-						return map;
-					}
-
-					@Override
-					protected void load$(java.lang.String name, java.util.List<?> values) {
-						super.load$(name, values);
-					}
-
-					@Override
-					protected void set$(java.lang.String name, java.util.List<?> values) {
-						super.set$(name, values);
-					}
-
-
-					public io.intino.legio.graph.LegioGraph graph() {
-						return (io.intino.legio.graph.LegioGraph) core$().graph().as(io.intino.legio.graph.LegioGraph.class);
-					}
-				}
-
-
-				public io.intino.legio.graph.LegioGraph graph() {
-					return (io.intino.legio.graph.LegioGraph) core$().graph().as(io.intino.legio.graph.LegioGraph.class);
-				}
-			}
-
-
-			public io.intino.legio.graph.LegioGraph graph() {
-				return (io.intino.legio.graph.LegioGraph) core$().graph().as(io.intino.legio.graph.LegioGraph.class);
-			}
-		}
-
-		public static class Dev extends io.intino.legio.graph.Artifact.Deployment.Destination implements io.intino.tara.magritte.tags.Terminal {
+		public static class Dev extends io.intino.legio.graph.Destination implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
 
 
 			public Dev(io.intino.tara.magritte.Node node) {
@@ -2621,7 +2224,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			}
 		}
 
-		public static class Pro extends io.intino.legio.graph.Artifact.Deployment.Destination implements io.intino.tara.magritte.tags.Terminal {
+		public static class Pro extends io.intino.legio.graph.Destination implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
 
 
 			public Pro(io.intino.tara.magritte.Node node) {

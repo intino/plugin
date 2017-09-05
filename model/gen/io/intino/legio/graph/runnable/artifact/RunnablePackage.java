@@ -21,15 +21,15 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 		return _package.mode();
 	}
 
-	public Boolean attachSources() {
+	public boolean attachSources() {
 		return _package.attachSources();
 	}
 
-	public Boolean attachDoc() {
+	public boolean attachDoc() {
 		return _package.attachDoc();
 	}
 
-	public Boolean includeTests() {
+	public boolean includeTests() {
 		return _package.includeTests();
 	}
 
@@ -51,17 +51,17 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 		return (RunnablePackage) this;
 	}
 
-	public RunnablePackage attachSources(Boolean value) {
+	public RunnablePackage attachSources(boolean value) {
 		this._package.attachSources(value);
 		return (RunnablePackage) this;
 	}
 
-	public RunnablePackage attachDoc(Boolean value) {
+	public RunnablePackage attachDoc(boolean value) {
 		this._package.attachDoc(value);
 		return (RunnablePackage) this;
 	}
 
-	public RunnablePackage includeTests(Boolean value) {
+	public RunnablePackage includeTests(boolean value) {
 		this._package.includeTests(value);
 		return (RunnablePackage) this;
 	}

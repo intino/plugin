@@ -74,12 +74,13 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		withTask(new Task.Backgroundable(project, firstUpperCase(factoryPhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				for (Module module : modules) process(module, factoryPhase, indicator);
+				for (Module module : modules)
+					process(module, factoryPhase, indicator);
 				ApplicationManager.getApplication().invokeLater(() -> {
 					reloadProject();
 					if (!errorMessages.isEmpty())
 						Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", factoryPhase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
-					else processMessages(successMessages, modules);
+					else processSuccessMessages();
 				});
 			}
 		});
@@ -119,14 +120,16 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
 	}
 
-	private void processMessages(List<String> successMessages, List<Module> modules) {
-		StringBuilder messageBuf = new StringBuilder();
+	private void processSuccessMessages() {
+		StringBuilder messageBuilder = new StringBuilder();
 		for (String message : successMessages) {
-			if (messageBuf.length() != 0) messageBuf.append('\n');
-			messageBuf.append(message);
+			if (messageBuilder.length() != 0) messageBuilder.append('\n');
+			messageBuilder.append(message);
 		}
-		final Module first = modules.get(0);
-		notify(first.getProject(), messageBuf.toString().isEmpty() ? first.getName() : messageBuf.toString(), modules.size() == 1 ?
+		final Module module = modules.get(0);
+		final String message = messageBuilder.toString();
+		if (message.isEmpty()) return;
+		notify(module.getProject(), module.getName(), modules.size() == 1 ?
 				MessageProvider.message("success.publish.message", factoryPhase.participle()) : MessageProvider.message("success.language.publishing.message", factoryPhase.participle()));
 	}
 

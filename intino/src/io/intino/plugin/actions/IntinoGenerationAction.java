@@ -1,10 +1,11 @@
 package io.intino.plugin.actions;
 
-import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -16,14 +17,16 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.console.IntinoTopics;
 import io.intino.plugin.toolwindows.console.MavenListener;
-import io.intino.plugin.file.konos.KonosFileType;
-import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
 import io.intino.tara.plugin.lang.file.TaraFileType;
@@ -53,8 +56,7 @@ public class IntinoGenerationAction extends IntinoAction {
 	private static final char NL = '\n';
 	private static final String ENCODING = "UTF-8";
 	private boolean isConnected = false;
-	private Set<String> pendingFiles = new HashSet<>();
-
+	private Set<PsiFile> pendingFiles = new HashSet<>();
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
@@ -65,23 +67,34 @@ public class IntinoGenerationAction extends IntinoAction {
 	@Override
 	public void execute(Module module) {
 		if (module == null) return;
-		if (interfaceModified()) generateKonos(module);
-		if (modelsModified()) buildModels(module);
+		konos(module);
+		model(module);
 		pendingFiles.clear();
 	}
 
 	public void force(Module module) {
 		if (module == null) return;
-		generateKonos(module);
-		buildModels(module);
+		forceKonos(module);
+//		model(module);
 	}
 
-	private boolean interfaceModified() {
-		return pendingFiles.stream().anyMatch(f -> f.endsWith("." + KonosFileType.instance().getDefaultExtension()));
+
+	private void forceKonos(Module module) {
+		final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+		action.force(module);
+	}
+
+	private void konos(Module module) {
+		final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+		action.execute(module);
+	}
+
+	private void model(Module module) {
+		if (modelsModified()) buildModels(module);
 	}
 
 	private boolean modelsModified() {
-		return pendingFiles.stream().anyMatch(f -> f.endsWith("." + TaraFileType.instance().getDefaultExtension()));
+		return pendingFiles.stream().anyMatch(f -> TaraFileType.instance().equals(f.getFileType()));
 	}
 
 	private void buildModels(Module module) {
@@ -214,23 +227,6 @@ public class IntinoGenerationAction extends IntinoAction {
 		return sources.get(0);
 	}
 
-	private void generateKonos(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration == null) return;
-		final String version = configuration.interfaceVersion();
-		if (version == null || version.isEmpty()) return;
-		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
-		if (action == null)
-			Bus.notify(new Notification("Tara Language", "Interface not found", "Interface version not found", NotificationType.ERROR), null);
-		else action.actionPerformed(createActionEvent());
-	}
-
-	private AnActionEvent createActionEvent() {
-		return new AnActionEvent(null, DataManager.getInstance().getDataContextFromFocus().getResult(),
-				ActionPlaces.UNKNOWN, new Presentation(),
-				ActionManager.getInstance(), 0);
-	}
-
 	@NotNull
 	private File getTaraJar(File root) {
 		return new File(root.getParentFile(), "tara-plugin.jar");
@@ -241,7 +237,11 @@ public class IntinoGenerationAction extends IntinoAction {
 		super.update(e);
 		if (!isConnected && e.getProject() != null) {
 			final MessageBus messageBus = e.getProject().getMessageBus();
-			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> pendingFiles.add(file));
+			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
+				final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
+				if (vFile == null) return;
+				pendingFiles.add(PsiManager.getInstance(e.getProject()).findFile(vFile));
+			});
 			isConnected = true;
 		}
 		e.getPresentation().setVisible(!pendingFiles.isEmpty());

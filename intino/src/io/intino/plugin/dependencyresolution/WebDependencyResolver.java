@@ -164,9 +164,9 @@ public class WebDependencyResolver {
 
 	private String filterBower(String output) {
 		String[] lines = output.split("\n");
-		String result = "";
-		for (String line : lines) if (line.contains("bower")) result += line + "\n";
-		return result;
+		StringBuilder result = new StringBuilder();
+		for (String line : lines) if (line.contains("bower")) result.append(line).append("\n");
+		return result.toString();
 	}
 
 	private File createPackageFile() {
@@ -190,7 +190,7 @@ public class WebDependencyResolver {
 			frame.addSlot("dependency", dependency);
 		}
 		for (Resolution resolution : resolutions)
-			frame.addSlot("resolution", new Frame().addSlot("name", resolution.name$()).addSlot("version", resolution.version()));
+			frame.addSlot("resolution", new Frame().addSlot("name", resolution.name()).addSlot("version", resolution.version()));
 		return write(BowerTemplate.create().format(frame), new File(nodeDirectory, "bower.json"));
 	}
 

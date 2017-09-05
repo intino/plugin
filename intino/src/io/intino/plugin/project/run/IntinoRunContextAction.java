@@ -21,6 +21,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +107,7 @@ public class IntinoRunContextAction extends RunContextAction {
 	}
 
 	private String collectParameters() {
-		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(context.getModule());
+		final LegioConfiguration configuration = (LegioConfiguration) configuration();
 		if (configuration == null) return "";
 		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = configuration.runConfigurations();
 		for (io.intino.legio.graph.RunConfiguration legioConf : runConfigurations)
@@ -118,7 +119,9 @@ public class IntinoRunContextAction extends RunContextAction {
 	public void update(AnActionEvent event) {
 		final Presentation presentation = event.getPresentation();
 		final RunnerAndConfigurationSettings existing = context.findExisting();
-		RunnerAndConfigurationSettings configuration = existing;
+		RunnerAndConfigurationSettings configuration = null;
+		if (existing != null && existing.getName().equalsIgnoreCase(configuration().artifactId() + "-" + this.runConfiguration.name()))
+			configuration = existing;
 		if (configuration == null) {
 			configuration = context.getConfiguration();
 			if (configuration != null) configuration.setName(this.runConfiguration.name());
@@ -127,6 +130,7 @@ public class IntinoRunContextAction extends RunContextAction {
 			presentation.setEnabled(false);
 			presentation.setVisible(false);
 		} else {
+			configuration.setName(configuration().artifactId() + "-" + this.runConfiguration.name());
 			presentation.setEnabled(true);
 			presentation.setVisible(true);
 			final List<ConfigurationFromContext> fromContext = getConfigurationsFromContext();
@@ -135,6 +139,10 @@ public class IntinoRunContextAction extends RunContextAction {
 			final String name = configuration.getName();
 			updatePresentation(presentation, existing != null || fromContext.size() <= 1 ? name : "", context);
 		}
+	}
+
+	private Configuration configuration() {
+		return TaraUtil.configurationOf(context.getModule());
 	}
 
 	private ConfigurationContext createContext(@NotNull PsiElement psiClass) {

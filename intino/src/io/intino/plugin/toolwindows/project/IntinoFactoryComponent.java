@@ -1,7 +1,12 @@
 package io.intino.plugin.toolwindows.project;
 
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.compiler.CompileContext;
+import com.intellij.openapi.compiler.CompileTask;
+import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -12,6 +17,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.InterfaceGenerationAction;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.toolwindows.project.IntinoFactoryComponent.ViewConstants.*;
@@ -32,11 +38,21 @@ public class IntinoFactoryComponent implements ProjectComponent {
 
 	@Override
 	public void projectOpened() {
+		final CompilerManager compilerManager = CompilerManager.getInstance(project);
+		compilerManager.addBeforeTask(new CompileTask() {
+			@Override
+			public boolean execute(CompileContext context) {
+				final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+				for (Module module : context.getCompileScope().getAffectedModules()) {
+					action.execute(module);
+				}
+				return true;
+			}
+		});
 	}
 
 	@Override
 	public void projectClosed() {
-		unregisterToolWindow();
 	}
 
 	@NotNull

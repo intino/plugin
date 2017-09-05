@@ -185,6 +185,7 @@ public class LanguageResolver {
 	}
 
 	private RemoteRepository remoteFrom(Repository.Type remote) {
+		if (remote.core$().variables().get("mavenID").get(0) == null) return null;
 		return new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
 	}
 

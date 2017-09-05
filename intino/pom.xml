@@ -54,7 +54,7 @@
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>builder</artifactId>
-            <version>[2.1.2, 3.0.0)</version>
+            <version>[2.1.4, 3.0.0)</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.intino.tara</groupId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
-            <version>2.0.10</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -100,7 +100,8 @@
             <artifactId>legio</artifactId>
             <version>${project.version}</version>
             <scope>system</scope>
-            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar</systemPath>
+            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar
+            </systemPath>
         </dependency>
         <dependency>
             <groupId>com.jcabi</groupId>
@@ -173,12 +174,12 @@
         <dependency>
             <groupId>org.siani.itrules</groupId>
             <artifactId>itrules</artifactId>
-            <version>1.9.1</version>
+            <version>1.9.3</version>
         </dependency>
         <dependency>
-            <groupId>io.intino.cesar</groupId>
-            <artifactId>restcesar-accessor</artifactId>
-            <version>1.0.0</version>
+            <groupId>io.intino</groupId>
+            <artifactId>cesar-rest-accessor</artifactId>
+            <version>2.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

@@ -99,12 +99,13 @@ public class IntinoFactoryView extends JPanel {
 		if (module != null) new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
 		else Notifications.Bus.notify(new Notification("Tara Language",
 				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
-
 	}
 
 	private void saveConfiguration(Module module) {
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
 		manager.saveAllDocuments();
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (configuration != null) configuration.reload();
 	}
 
 	private void exportAccessors() {
@@ -120,7 +121,7 @@ public class IntinoFactoryView extends JPanel {
 			case DistributeArtifact:
 				return shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
 			case DeployArtifact:
-				return shift ? FactoryPhase.DEV : FactoryPhase.PRO;
+				return FactoryPhase.DEPLOY;
 		}
 		return null;
 	}

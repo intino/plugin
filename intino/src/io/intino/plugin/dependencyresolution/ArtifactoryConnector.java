@@ -11,8 +11,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
 import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_RELEASES;
+import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
 
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
@@ -46,6 +46,7 @@ public class ArtifactoryConnector {
 	}
 
 	private List<String> extractLanguages(String result) {
+		if (result == null || result.isEmpty() || !result.contains("<pre><a")) return Collections.emptyList();
 		result = result.substring(result.indexOf("<pre><a"), result.lastIndexOf("</pre"));
 		final List<String> languages = new ArrayList<>(Arrays.asList(result.split("\n")));
 		languages.remove(0);

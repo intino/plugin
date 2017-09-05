@@ -11,7 +11,6 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 public class ExportAction {
 
-
 	public void execute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return;

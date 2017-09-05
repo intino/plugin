@@ -3,7 +3,7 @@ package io.intino.plugin.deploy;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.cesar.RestCesarAccessor;
+import io.intino.cesar.CesarRestAccessor;
 import io.intino.cesar.schemas.Artifactory;
 import io.intino.cesar.schemas.Packaging;
 import io.intino.cesar.schemas.Runtime;
@@ -12,11 +12,9 @@ import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Forbidden;
 import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.graph.Argument;
-import io.intino.legio.graph.Artifact.Deployment;
-import io.intino.legio.graph.Artifact.Deployment.Destination;
+import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -37,38 +35,24 @@ public class ArtifactDeployer {
 
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private FactoryPhase phase;
-	private List<Deployment> deployments;
+	private List<Destination> destinations;
 
-	public ArtifactDeployer(Module module, FactoryPhase phase) {
+	public ArtifactDeployer(Module module, List<Destination> destinations) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.phase = phase;
-		this.deployments = configuration.deployments();
+		this.destinations = destinations;
 	}
 
-	public void execute() throws IntinoException {
-		for (Deployment deployment : deployments) {
-			final Deployment.Dev dev = deployment.dev();
-			final Deployment.Pro pro = deployment.pro();
-			if (dev != null) deploy(dev);
-			if (phase.equals(FactoryPhase.PRO) && pro != null) deploy(pro);
-		}
+	public boolean execute() throws IntinoException {
+		for (Destination destination : destinations) deploy(destination);
+		return true;
 	}
 
-	private void deploy(Deployment.Dev dev) throws IntinoException {
+	private void deploy(Destination destination) throws IntinoException {
 		try {
 			final String user = user();
-			new RestCesarAccessor(urlOf(dev.server().cesar())).postDeploySystem(user, createSystem(dev));
-		} catch (Unknown | Forbidden | BadRequest unknown) {
-			throw new IntinoException(unknown.getMessage());
-		}
-	}
-
-	private void deploy(Deployment.Pro pro) throws IntinoException {
-		try {
-			final String user = user();
-			new RestCesarAccessor(urlOf(pro.server().cesar())).postDeploySystem(user, createSystem(pro));
+			if (destination.server() == null) throw new IntinoException("Server not found");
+			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeploySystem(user, createSystem(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -88,7 +72,7 @@ public class ArtifactDeployer {
 	private SystemSchema createSystem(Destination destination) {
 		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
 		final String classpathPrefix = configuration.pack().asRunnable().classpathPrefix();
-		return new SystemSchema().id(id).publicURL(destination.url()).
+		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).name(id).publicURL(destination.url()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).

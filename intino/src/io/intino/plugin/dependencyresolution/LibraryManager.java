@@ -20,6 +20,7 @@ import static com.intellij.openapi.roots.DependencyScope.COMPILE;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
+import static io.intino.plugin.project.LibraryConflictResolver.mustAddEntry;
 
 public class LibraryManager {
 
@@ -30,14 +31,6 @@ public class LibraryManager {
 	public LibraryManager(Module module) {
 		this.module = module;
 		table = module != null ? LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject()) : null;
-	}
-
-	public Library findLibrary(String artifact) {
-		if (table == null) return null;
-		final String dependency = nameOf(artifact);
-		for (Library library : table.getLibraries())
-			if (dependency.equals(library.getName())) return library;
-		return null;
 	}
 
 	Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
@@ -192,7 +185,7 @@ public class LibraryManager {
 
 	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
 		for (LibraryOrderEntry entry : registered)
-			if (library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE))
+			if ((library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE)) || !mustAddEntry(library, registered))
 				return true;
 		return false;
 	}
