@@ -3,7 +3,6 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.DependencyScope;
@@ -32,8 +31,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 
 public class JavaDependencyResolver {
-	private static final Logger LOG = Logger.getInstance(JavaDependencyResolver.class.getName());
-
 	private final Module module;
 	private final List<Repository.Type> repositories;
 	private final LibraryManager manager;

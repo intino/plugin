@@ -1,7 +1,12 @@
+package io.intino.plugin.build;
+
 import com.intellij.openapi.diagnostic.Logger;
+import com.jcabi.aether.Aether;
 import io.intino.konos.Resource;
 import io.intino.konos.restful.RestfulApi;
 import io.intino.konos.restful.exceptions.RestfulFailure;
+import io.intino.legio.graph.Artifact.Distribution.OnBitbucket;
+import io.intino.plugin.project.LegioConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -12,24 +17,40 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.resolution.DependencyResolutionException;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 
-public class TunnelTest {
-	private static final Logger logger = Logger.getInstance(TunnelTest.class);
+public class BitbucketDeployer {
+	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
+	private final OnBitbucket bitbucket;
+	private File jar;
 
+	public BitbucketDeployer(LegioConfiguration configuration) {
+		this.bitbucket = configuration.artifact().distribution().onBitbucket();
+		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name$() + ":" + configuration.artifact().version());
+	}
 
-	@Test
-	public void testBitbucket() throws Exception {
+	public void execute() {
 		final URL url = url();
-		HttpPost post = new HttpPost(url.toURI());
-		post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ==");
-		post.setEntity(multipartEntityOf(resource()));
-		final RestfulApi.Response response = executeMethod(url, post);
+		try {
+			HttpPost post = new HttpPost(url.toURI());
+			post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ=="); //octavioroncal:qMzm283xtuFBUjSsUDYa
+			post.setEntity(multipartEntityOf(resource()));
+			final RestfulApi.Response response = executeMethod(url, post);
+			System.out.println(response.content());
+		} catch (URISyntaxException | FileNotFoundException | RestfulFailure e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private HttpEntity multipartEntityOf(Resource resource) throws RestfulFailure {
@@ -68,17 +89,12 @@ public class TunnelTest {
 
 	@NotNull
 	private Resource resource() throws FileNotFoundException {
-		return new Resource("files", "cesar-2.0.1.jar", "application/java-archive", new FileInputStream(jar()));
+		return new Resource("files", jar.getName(), "application/java-archive", new FileInputStream(jar));
 	}
 
-	private File jar() {
-		return new File("/Users/oroncal/.m2/repository/io/intino/cesar/2.0.1/cesar-2.0.1.jar");
-	}
-
-	@NotNull
 	private URL url() {
 		try {
-			return new URL("https://api.bitbucket.org/2.0/repositories/intino/cesar/downloads");
+			return new URL("https://api.bitbucket.org/2.0/repositories/" + bitbucket.owner() + "/" + bitbucket.slugName() + "/downloads");
 		} catch (MalformedURLException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -123,5 +139,16 @@ public class TunnelTest {
 				return sb.toString();
 			}
 		};
+	}
+
+	private File find(String artifact) {
+		Aether aether = new Aether(Collections.emptyList(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		try {
+			final List<Artifact> resolve = aether.resolve(new DefaultArtifact(artifact.toLowerCase()), JavaScopes.COMPILE, (node, parents) -> true);
+			return resolve.get(0).getFile();
+		} catch (DependencyResolutionException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
