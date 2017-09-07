@@ -112,6 +112,7 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+		if (module.isDisposed() || module.getProject().isDisposed()) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
