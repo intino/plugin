@@ -30,7 +30,7 @@ public class InterfaceGenerationAction extends AnAction {
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
-		execute(e.getData(MODULE));
+		force(e.getData(MODULE));
 	}
 
 	public boolean execute(Module module) {
@@ -81,6 +81,6 @@ public class InterfaceGenerationAction extends AnAction {
 			});
 			isConnected = true;
 		}
-		e.getPresentation().setVisible(false);
+		e.getPresentation().setVisible(true);
 	}
 }

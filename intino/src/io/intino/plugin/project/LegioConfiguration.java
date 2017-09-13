@@ -129,6 +129,7 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+		if (module.isDisposed() || module.getProject().isDisposed()) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
@@ -407,11 +408,11 @@ public class LegioConfiguration implements Configuration {
 	public List<DeployConfiguration> deployConfigurations() {
 		final List<Artifact.Deployment> deploys = safeList(this::deployments);
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
-		return deploys.stream().flatMap(deploy -> deploy.destinationList().stream()).map(this::createDeployConfiguration).collect(Collectors.toList());
+		return deploys.stream().flatMap(deploy -> deploy.destinations().stream()).map(this::createDeployConfiguration).collect(Collectors.toList());
 	}
 
 	@NotNull
-	private DeployConfiguration createDeployConfiguration(final Artifact.Deployment.Destination deployment) {
+	private DeployConfiguration createDeployConfiguration(final Destination deployment) {
 		return new DeployConfiguration() {
 			public String name() {
 				return deployment.name$();

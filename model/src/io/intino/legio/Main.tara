@@ -61,9 +61,9 @@ Concept:{1..1}:Named Artifact
 		var Repository.Release release
 		var Repository.Language language = empty
 
-		Concept:{0..1} Bitbucket
-			var string user
-			var string token
+		Concept:{0..1} onBitbucket
+			var string owner
+			var string slugName
 
 	Concept:{0..1} QualityAnalytics
 		var string url
@@ -71,6 +71,7 @@ Concept:{1..1}:Named Artifact
 			var string token
 
 	Concept:Named Deployment
+		var function:Destinations destinations = 'java.util.Arrays.asList(self.dev(), self.pro())' is private
 		Concept:{0..1} Dev extends Destination
 		Concept:{0..1} Pro extends Destination
 

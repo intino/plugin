@@ -66,11 +66,13 @@ abstract class AbstractArtifactBuilder {
 
 	private void processFramework(Module module, FactoryPhase phase, ProgressIndicator indicator) {
 		updateProgressIndicator(indicator, message("framework.action", firstUpperCase().format(phase.gerund().toLowerCase()).toString()));
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
 			executeGulpDependencies(module);
 			new MavenRunner(module).executeFramework(phase);
+			if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.artifact().distribution() != null && configuration.artifact().distribution().onBitbucket() != null)
+				new BitbucketDeployer(configuration).execute();
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
 		}

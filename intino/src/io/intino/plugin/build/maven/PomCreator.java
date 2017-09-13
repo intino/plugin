@@ -163,7 +163,7 @@ public class PomCreator {
 
 	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
-		frame.addSlot("resourceDirectory", resourceDirectories(module).toArray(new String[0]));
+		frame.addSlot("resourceDirectory", resourceDirectories(module, configuration.artifact().package$()).toArray(new String[0]));
 		final List<String> resTest = resourceTestDirectories(module);
 		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
 	}
@@ -188,15 +188,17 @@ public class PomCreator {
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
-	private List<String> resourceDirectories(Module module) {
-		final ModuleRootManager manager = getInstance(module);
-		final List<VirtualFile> sourceRoots = manager.getSourceRoots(RESOURCE);
+	private List<String> resourceDirectories(Module module, Artifact.Package aPackage) {
+		final List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 		for (Module dependency : collectModuleDependencies(module)) {
 			if (isWebModule(dependency)) {
 				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 				if (extension != null && extension.getCompilerOutputUrl() != null)
 					resources.add(pathOf(extension.getCompilerOutputUrl()));
+			} else if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) {
+				List<VirtualFile> roots = getInstance(dependency).getSourceRoots(RESOURCE);
+				resources.addAll(roots.stream().map(VirtualFile::getPath).collect(Collectors.toList()));
 			}
 		}
 		return resources;

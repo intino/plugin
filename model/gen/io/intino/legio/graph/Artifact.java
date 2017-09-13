@@ -1,6 +1,6 @@
 package io.intino.legio.graph;
 
-import io.intino.legio.graph.*;
+import java.util.List;
 
 
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
@@ -1782,7 +1782,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	public static class Distribution extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected io.intino.legio.graph.Repository.Release release;
 		protected io.intino.legio.graph.Repository.Language language;
-		protected io.intino.legio.graph.Artifact.Distribution.Bitbucket bitbucket;
+		protected io.intino.legio.graph.Artifact.Distribution.OnBitbucket onBitbucket;
 
 		public Distribution(io.intino.tara.magritte.Node node) {
 			super(node);
@@ -1806,18 +1806,18 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Distribution) this;
 		}
 
-		public io.intino.legio.graph.Artifact.Distribution.Bitbucket bitbucket() {
-			return bitbucket;
+		public io.intino.legio.graph.Artifact.Distribution.OnBitbucket onBitbucket() {
+			return onBitbucket;
 		}
 
-		public Distribution bitbucket(io.intino.legio.graph.Artifact.Distribution.Bitbucket value) {
-			this.bitbucket = value;
+		public Distribution onBitbucket(io.intino.legio.graph.Artifact.Distribution.OnBitbucket value) {
+			this.onBitbucket = value;
 			return (Distribution) this;
 		}
 
 		protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-			if (bitbucket != null) components.add(this.bitbucket.core$());
+			if (onBitbucket != null) components.add(this.onBitbucket.core$());
 			return new java.util.ArrayList<>(components);
 		}
 
@@ -1832,13 +1832,13 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void addNode$(io.intino.tara.magritte.Node node) {
 			super.addNode$(node);
-			if (node.is("Artifact$Distribution$Bitbucket")) this.bitbucket = node.as(io.intino.legio.graph.Artifact.Distribution.Bitbucket.class);
+			if (node.is("Artifact$Distribution$OnBitbucket")) this.onBitbucket = node.as(io.intino.legio.graph.Artifact.Distribution.OnBitbucket.class);
 		}
 
 		@Override
 	    protected void removeNode$(io.intino.tara.magritte.Node node) {
 	        super.removeNode$(node);
-	        if (node.is("Artifact$Distribution$Bitbucket")) this.bitbucket = null;
+	        if (node.is("Artifact$Distribution$OnBitbucket")) this.onBitbucket = null;
 	    }
 
 		@Override
@@ -1870,10 +1870,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				this.name = name;
 			}
 
-			public io.intino.legio.graph.Artifact.Distribution.Bitbucket bitbucket(java.lang.String user, java.lang.String token) {
-			    io.intino.legio.graph.Artifact.Distribution.Bitbucket newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.Bitbucket.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Distribution.Bitbucket.class);
-				newElement.core$().set(newElement, "user", java.util.Collections.singletonList(user));
-				newElement.core$().set(newElement, "token", java.util.Collections.singletonList(token));
+			public io.intino.legio.graph.Artifact.Distribution.OnBitbucket onBitbucket(java.lang.String owner, java.lang.String slugName) {
+			    io.intino.legio.graph.Artifact.Distribution.OnBitbucket newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.OnBitbucket.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Distribution.OnBitbucket.class);
+				newElement.core$().set(newElement, "owner", java.util.Collections.singletonList(owner));
+				newElement.core$().set(newElement, "slugName", java.util.Collections.singletonList(slugName));
 			    return newElement;
 			}
 
@@ -1887,52 +1887,52 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		}
 
-		public static class Bitbucket extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-			protected java.lang.String user;
-			protected java.lang.String token;
+		public static class OnBitbucket extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+			protected java.lang.String owner;
+			protected java.lang.String slugName;
 
-			public Bitbucket(io.intino.tara.magritte.Node node) {
+			public OnBitbucket(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
-			public java.lang.String user() {
-				return user;
+			public java.lang.String owner() {
+				return owner;
 			}
 
-			public java.lang.String token() {
-				return token;
+			public java.lang.String slugName() {
+				return slugName;
 			}
 
-			public Bitbucket user(java.lang.String value) {
-				this.user = value;
-				return (Bitbucket) this;
+			public OnBitbucket owner(java.lang.String value) {
+				this.owner = value;
+				return (OnBitbucket) this;
 			}
 
-			public Bitbucket token(java.lang.String value) {
-				this.token = value;
-				return (Bitbucket) this;
+			public OnBitbucket slugName(java.lang.String value) {
+				this.slugName = value;
+				return (OnBitbucket) this;
 			}
 
 			@Override
 			protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 				java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-				map.put("user", new java.util.ArrayList(java.util.Collections.singletonList(this.user)));
-				map.put("token", new java.util.ArrayList(java.util.Collections.singletonList(this.token)));
+				map.put("owner", new java.util.ArrayList(java.util.Collections.singletonList(this.owner)));
+				map.put("slugName", new java.util.ArrayList(java.util.Collections.singletonList(this.slugName)));
 				return map;
 			}
 
 			@Override
 			protected void load$(java.lang.String name, java.util.List<?> values) {
 				super.load$(name, values);
-				if (name.equalsIgnoreCase("user")) this.user = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
-				else if (name.equalsIgnoreCase("token")) this.token = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				if (name.equalsIgnoreCase("owner")) this.owner = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+				else if (name.equalsIgnoreCase("slugName")) this.slugName = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			}
 
 			@Override
 			protected void set$(java.lang.String name, java.util.List<?> values) {
 				super.set$(name, values);
-				if (name.equalsIgnoreCase("user")) this.user = (java.lang.String) values.get(0);
-				else if (name.equalsIgnoreCase("token")) this.token = (java.lang.String) values.get(0);
+				if (name.equalsIgnoreCase("owner")) this.owner = (java.lang.String) values.get(0);
+				else if (name.equalsIgnoreCase("slugName")) this.slugName = (java.lang.String) values.get(0);
 			}
 
 
@@ -2089,12 +2089,21 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 
 	public static class Deployment extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
-
+		protected io.intino.legio.graph.functions.Destinations destinations;
 		protected io.intino.legio.graph.Artifact.Deployment.Dev dev;
 		protected io.intino.legio.graph.Artifact.Deployment.Pro pro;
 
 		public Deployment(io.intino.tara.magritte.Node node) {
 			super(node);
+		}
+
+		public List<Destination> destinations() {
+			return destinations.destinations();
+		}
+
+		public Deployment destinations(io.intino.legio.graph.functions.Destinations value) {
+			this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(destinations, this, io.intino.legio.graph.functions.Destinations.class);
+			return (Deployment) this;
 		}
 
 		public io.intino.legio.graph.Artifact.Deployment.Dev dev() {
@@ -2125,7 +2134,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
-
+			map.put("destinations", this.destinations != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.destinations)) : java.util.Collections.emptyList());
 			return map;
 		}
 
@@ -2146,11 +2155,13 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void load$(java.lang.String name, java.util.List<?> values) {
 			super.load$(name, values);
+			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.Destinations.class).get(0);
 		}
 
 		@Override
 		protected void set$(java.lang.String name, java.util.List<?> values) {
 			super.set$(name, values);
+			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.Destinations.class);
 		}
 
 		public Create create() {

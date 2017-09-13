@@ -1,6 +1,8 @@
 package io.intino.legio.graph.solution;
 
 import io.intino.legio.graph.*;
+import java.util.List;
+import io.intino.legio.graph.Destination;
 
 
 public class SolutionArtifact extends io.intino.legio.graph.level.LevelArtifact implements io.intino.tara.magritte.tags.Terminal {
