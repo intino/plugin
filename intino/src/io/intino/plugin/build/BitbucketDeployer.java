@@ -41,6 +41,7 @@ public class BitbucketDeployer {
 	}
 
 	public void execute() {
+		if (jar == null) return;
 		final URL url = url();
 		try {
 			HttpPost post = new HttpPost(url.toURI());
@@ -145,9 +146,8 @@ public class BitbucketDeployer {
 		Aether aether = new Aether(Collections.emptyList(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 		try {
 			final List<Artifact> resolve = aether.resolve(new DefaultArtifact(artifact.toLowerCase()), JavaScopes.COMPILE, (node, parents) -> true);
-			return resolve.get(0).getFile();
+			return resolve.isEmpty() ? null : resolve.get(0).getFile();
 		} catch (DependencyResolutionException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}

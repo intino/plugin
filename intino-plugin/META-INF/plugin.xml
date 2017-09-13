@@ -64,7 +64,6 @@
                 text="Generate konos interface code"
                 description="generates interface intino source code">
             <keyboard-shortcut first-keystroke="control alt k" keymap="$default"/>
-            <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
         <action id="PurgeAndReloadConfigurationAction"
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"

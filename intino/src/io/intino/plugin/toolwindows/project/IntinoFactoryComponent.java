@@ -1,8 +1,6 @@
 package io.intino.plugin.toolwindows.project;
 
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.compiler.CompileTask;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -39,15 +37,12 @@ public class IntinoFactoryComponent implements ProjectComponent {
 	@Override
 	public void projectOpened() {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		compilerManager.addBeforeTask(new CompileTask() {
-			@Override
-			public boolean execute(CompileContext context) {
-				final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
-				for (Module module : context.getCompileScope().getAffectedModules()) {
-					action.execute(module);
-				}
-				return true;
+		compilerManager.addBeforeTask(context -> {
+			final InterfaceGenerationAction action = (InterfaceGenerationAction) ActionManager.getInstance().getAction("InterfaceGeneration");
+			for (Module module : context.getCompileScope().getAffectedModules()) {
+				action.execute(module);
 			}
+			return true;
 		});
 	}
 
@@ -89,7 +84,6 @@ public class IntinoFactoryComponent implements ProjectComponent {
 	}
 
 	public interface ViewConstants {
-
 		String PLUGIN_NAME = "Intino";
 		String PROJECT_COMPONENT_NAME = "ProjectComponent";
 		String ID_TOOL_WINDOW = "Intino Factory";
