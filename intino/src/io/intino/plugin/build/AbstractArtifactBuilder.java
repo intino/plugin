@@ -1,7 +1,6 @@
 package io.intino.plugin.build;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static java.util.Collections.emptyList;
@@ -71,11 +71,15 @@ abstract class AbstractArtifactBuilder {
 			check(phase, configuration);
 			executeGulpDependencies(module);
 			new MavenRunner(module).executeFramework(phase);
-			if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.artifact().distribution() != null && configuration.artifact().distribution().onBitbucket() != null)
-				new BitbucketDeployer(configuration).execute();
+			bitbucket(phase, configuration);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
 		}
+	}
+
+	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
+		if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.artifact().distribution() != null && configuration.artifact().distribution().onBitbucket() != null)
+			new BitbucketDeployer(configuration).execute();
 	}
 
 	private boolean deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) {
@@ -103,9 +107,8 @@ abstract class AbstractArtifactBuilder {
 
 	private List<Destination> collectDestinations(Project project, LegioConfiguration conf) {
 		final List<Artifact.Deployment> deployments = conf.deployments();
-		if (deployments.size() > 1) {
+		if (deployments.size() > 1)
 			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
-		}
 		return deployments.isEmpty() ? emptyList() : destinationsOf(deployments.get(0));
 	}
 
@@ -117,7 +120,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void executeGulpDependencies(Module module) {
-		if (WebModuleType.isWebModule(module))
+		if (isWebModule(module))
 			new GulpExecutor(module, ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact()).startGulpDeploy();
 	}
 

@@ -226,7 +226,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private void resolveWebDependencies() {
-		new WebDependencyResolver(module, legio.artifact(), repositoryTypes(), legio.artifact().webImports()).resolve();
+		new WebDependencyResolver(module, legio.artifact(), repositoryTypes()).resolve();
 	}
 
 	@Override

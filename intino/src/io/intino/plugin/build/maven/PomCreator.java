@@ -56,8 +56,7 @@ public class PomCreator {
 	}
 
 	public File frameworkPom() throws IOException {
-		final File pom = pomFile();
-		return isWebModule(module) ? webPom(pom) : frameworkPom(pom);
+		return isWebModule(module) ? webPom(pomFile()) : frameworkPom(pomFile());
 	}
 
 	private File webPom(File pom) {
