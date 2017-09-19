@@ -12,9 +12,14 @@ def type(bower)
 	}
 end
 
+def type(artifact) trigger(dependency)
+	"$name": $url
+end
+
 def trigger(dependency)
 	"$name": "[$url#]$version"
 end
+
 
 def trigger(resolution)
 	"$name": "$version"

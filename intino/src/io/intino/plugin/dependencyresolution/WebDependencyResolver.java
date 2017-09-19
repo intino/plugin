@@ -57,8 +57,8 @@ public class WebDependencyResolver {
 	}
 
 	public void resolve() {
-		resolveArtifacts();
-		final BowerFileCreator creator = new BowerFileCreator(artifact);
+		final List<File> webArtifacts = resolveArtifacts();
+		final BowerFileCreator creator = new BowerFileCreator(artifact, webArtifacts);
 		File bower = creator.createBowerFile(nodeDirectory);
 		File bowerrc = creator.createBowerrcFile(libComponentsDirectory, nodeDirectory);
 		File pom = createPomFile();
@@ -70,13 +70,15 @@ public class WebDependencyResolver {
 		packageJson.delete();
 	}
 
-	private void resolveArtifacts() {
+	private List<File> resolveArtifacts() {
+		List<File> manifests = new ArrayList<>();
 		Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 		for (WebArtifact artifact : webArtifacts) {
 			if (isOverriding(artifact)) continue;
 			final List<org.sonatype.aether.artifact.Artifact> artifacts = resolve(aether, artifact);
-			if (!artifacts.isEmpty()) extractInLibDirectory(artifact, artifacts.get(0).getFile());
+			if (!artifacts.isEmpty()) manifests.add(extractInLibDirectory(artifact, artifacts.get(0).getFile()));
 		}
+		return manifests;
 	}
 
 	private boolean isOverriding(WebArtifact artifact) {

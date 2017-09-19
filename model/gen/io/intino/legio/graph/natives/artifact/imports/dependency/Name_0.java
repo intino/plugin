@@ -2,7 +2,7 @@ package io.intino.legio.graph.natives.artifact.imports.dependency;
 
 
 
-/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#11#3**/
+/**#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#12#3**/
 public class Name_0 implements io.intino.tara.magritte.Expression<String> {
 	private io.intino.legio.graph.Artifact.Imports.Dependency self;
 

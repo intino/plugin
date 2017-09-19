@@ -1,6 +1,8 @@
 package io.intino.legio.graph;
 
+import io.intino.legio.graph.*;
 import java.util.List;
+import io.intino.legio.graph.Destination;
 
 
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
@@ -257,8 +259,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			this.name = name;
 		}
 
-		public io.intino.legio.graph.Artifact.License license(io.intino.legio.graph.Artifact.License.Type type) {
+		public io.intino.legio.graph.Artifact.License license(java.lang.String author, io.intino.legio.graph.Artifact.License.Type type) {
 		    io.intino.legio.graph.Artifact.License newElement = core$().graph().concept(io.intino.legio.graph.Artifact.License.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.License.class);
+			newElement.core$().set(newElement, "author", java.util.Collections.singletonList(author));
 			newElement.core$().set(newElement, "type", java.util.Collections.singletonList(type));
 		    return newElement;
 		}
@@ -352,6 +355,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 
 	public static class License extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.lang.String author;
 		protected Type type;
 
 		public enum Type {
@@ -362,8 +366,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			super(node);
 		}
 
+		public java.lang.String author() {
+			return author;
+		}
+
 		public Type type() {
 			return type;
+		}
+
+		public License author(java.lang.String value) {
+			this.author = value;
+			return (License) this;
 		}
 
 		public License type(io.intino.legio.graph.Artifact.License.Type value) {
@@ -374,6 +387,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("author", new java.util.ArrayList(java.util.Collections.singletonList(this.author)));
 			map.put("type", new java.util.ArrayList(java.util.Collections.singletonList(this.type)));
 			return map;
 		}
@@ -381,13 +395,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void load$(java.lang.String name, java.util.List<?> values) {
 			super.load$(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			if (name.equalsIgnoreCase("author")) this.author = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
 		}
 
 		@Override
 		protected void set$(java.lang.String name, java.util.List<?> values) {
 			super.set$(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
+			if (name.equalsIgnoreCase("author")) this.author = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
 		}
 
 

@@ -3,6 +3,7 @@ package io.intino.plugin.build;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
 import io.intino.legio.graph.Artifact;
@@ -15,6 +16,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
+import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static java.util.Collections.emptyList;
@@ -41,7 +44,6 @@ abstract class AbstractArtifactBuilder {
 		if (!errorMessages.isEmpty()) return;
 		processFramework(module, phase, indicator);
 		if (!errorMessages.isEmpty()) return;
-
 		if (deploy(module, phase, indicator)) successMessages.add("deployment Done");
 	}
 
@@ -71,9 +73,29 @@ abstract class AbstractArtifactBuilder {
 			check(phase, configuration);
 			executeGulpDependencies(module);
 			new MavenRunner(module).executeFramework(phase);
+			cleanWebOutputs(module);
 			bitbucket(phase, configuration);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
+		}
+	}
+
+	private void cleanWebOutputs(Module module) {
+		final CompilerModuleExtension moduleExtension = CompilerModuleExtension.getInstance(module);
+		if (moduleExtension == null || moduleExtension.getCompilerOutputUrl() == null) return;
+		File outDirectory = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", ""));
+		for (Module dependant : getInstance(module).getModuleDependencies())
+			if (isWebModule(dependant)) cleanWebResources(outDirectory, dependant);
+	}
+
+	private void cleanWebResources(File outDirectory, Module dependant) {
+		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependant);
+		if (extension == null || extension.getCompilerOutputUrl() == null) return;
+		final String[] list = new File(extension.getCompilerOutputUrl().replaceFirst("file:", "")).list();
+		if (list == null) return;
+		for (String name : list) {
+			final File file = new File(outDirectory, name);
+			if (file.exists()) FileUtils.deleteQuietly(file);
 		}
 	}
 

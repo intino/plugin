@@ -20,7 +20,7 @@ public class ArtifactorySensor {
 	private final ArtifactoryConnector connector;
 
 	ArtifactorySensor(List<Type> types) {
-		this.connector = new ArtifactoryConnector(by(types, Repository.Release.class), by(types, Repository.Snapshot.class), by(types, Repository.Language.class));
+		this.connector = new ArtifactoryConnector(by(types, Repository.Language.class));
 		this.properties = PropertiesComponent.getInstance();
 	}
 
