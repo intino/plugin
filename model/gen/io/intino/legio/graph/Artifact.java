@@ -2105,12 +2105,25 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 
 	public static class Deployment extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.util.List<java.lang.String> tags = new java.util.ArrayList<>();
 		protected io.intino.legio.graph.functions.Destinations destinations;
 		protected io.intino.legio.graph.Artifact.Deployment.Dev dev;
 		protected io.intino.legio.graph.Artifact.Deployment.Pro pro;
 
 		public Deployment(io.intino.tara.magritte.Node node) {
 			super(node);
+		}
+
+		public java.util.List<java.lang.String> tags() {
+			return tags;
+		}
+
+		public java.lang.String tags(int index) {
+			return tags.get(index);
+		}
+
+		public java.util.List<java.lang.String> tags(java.util.function.Predicate<java.lang.String> predicate) {
+			return tags().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
 		public List<Destination> destinations() {
@@ -2150,6 +2163,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("tags", this.tags);
 			map.put("destinations", this.destinations != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.destinations)) : java.util.Collections.emptyList());
 			return map;
 		}
@@ -2171,13 +2185,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void load$(java.lang.String name, java.util.List<?> values) {
 			super.load$(name, values);
-			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.Destinations.class).get(0);
+			if (name.equalsIgnoreCase("tags")) this.tags = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
+			else if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.Destinations.class).get(0);
 		}
 
 		@Override
 		protected void set$(java.lang.String name, java.util.List<?> values) {
 			super.set$(name, values);
-			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.Destinations.class);
+			if (name.equalsIgnoreCase("tags")) this.tags = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
+			else if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.Destinations.class);
 		}
 
 		public Create create() {

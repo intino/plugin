@@ -72,6 +72,7 @@ Concept:{1..1}:Named Artifact
 			var string token
 
 	Concept:Named Deployment
+		var string[] tags = empty
 		var function:Destinations destinations = 'java.util.Arrays.asList(self.dev(), self.pro())' is private
 		Concept:{0..1} Dev extends Destination
 		Concept:{0..1} Pro extends Destination
