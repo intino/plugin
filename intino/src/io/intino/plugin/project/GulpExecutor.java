@@ -153,9 +153,10 @@ public class GulpExecutor {
 		return packageFile;
 	}
 
-	private String outDirectory(CompilerModuleExtension compilerModuleExtension) {
+	private String outDirectory(CompilerModuleExtension extension) {
 		try {
-			return new File(new URL(compilerModuleExtension.getCompilerOutputUrl()).getFile()).getCanonicalPath();
+			String url = extension.getCompilerOutputUrl().replace("file://","").replace("file:","");
+			return new File(url).getCanonicalPath();
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return "";
