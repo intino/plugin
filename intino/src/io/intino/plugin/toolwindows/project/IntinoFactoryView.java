@@ -11,9 +11,11 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
+import com.sun.xml.internal.ws.api.server.WebModule;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.IntinoGenerationAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
@@ -103,6 +105,7 @@ public class IntinoFactoryView extends JPanel {
 
 	private void saveConfiguration(Module module) {
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
+		if (WebModuleType.isWebModule(module)) return;
 		manager.saveAllDocuments();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration != null) configuration.reload();
