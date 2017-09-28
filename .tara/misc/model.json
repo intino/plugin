@@ -1,0 +1,9 @@
+{
+  "Project.Dependencies.Dependency.identifier": [],
+  "Repository.Type.mavenID": [
+    "import io.intino.legio.graph.Repository;"
+  ],
+  "Artifact.Generation.targetPackage": [
+    "import io.intino.legio.Artifact;"
+  ]
+}
