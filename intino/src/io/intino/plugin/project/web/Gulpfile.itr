@@ -49,7 +49,7 @@ def type(gulp)
 
 	gulp.task('do-compile', cb => {
 		return eventStream.concat(
-			compileFile('/components.html')
+			compileFile(packagePath(''), '/components.html')
 		);
 	});
 
@@ -115,16 +115,17 @@ def type(gulp)
 	const workingPath = subpath => !subpath ? WorkingDirectory : path.join(WorkingDirectory, subpath);
 
 	const compileFile = (src) => {
-		return gulp.src(src)
-			.pipe($$.vulcanize({
-			    abspath: '$rootDirectory+path/dist',
-				stripComments: true,
-				inlineCss: true,
-				inlineScripts: true
-			}))
-			.pipe($$.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>', '<!-- commented by sumus to fix important events bug <iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>-->')) // fix important paper-chip bug
-			.pipe(gulp.dest(packagePath()))
-			.pipe($$.size({title: 'vulcanize'}));
+        var isWin = (os.type().toLowerCase().startsWith() == "win");
+        var vulcanizeOptions = { stripComments: true, inlineCss: true, inlineScripts: true };
+
+        if (isWin) vulcanizeOptions.abspath = path;
+        else src = path + src;
+
+        return gulp.src(src)
+            .pipe($.vulcanize(vulcanizeOptions))
+            .pipe($.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\/iron-a11y-keys>', '<!-- commented by sumus to fix important events bug <iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\/iron-a11y-keys>-->')) // fix important paper-chip bug
+            .pipe(gulp.dest(packagePath()))
+            .pipe($.size({title: 'vulcanize'}));
 	};
 
 	const obfuscateFile = (src) => {
