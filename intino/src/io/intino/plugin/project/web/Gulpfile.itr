@@ -11,7 +11,7 @@ def type(gulp)
 	const concat = require('gulp-concat');
 	const eventStream = require('event-stream');
 	const console = require('gulp-util');
-
+    const os = require('os');
 	const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
 	const WorkingDirectory = '$rootDirectory+path';
 	const WatchPort = 35$port;
@@ -114,7 +114,7 @@ def type(gulp)
 	const outputPath = subpath => !subpath ? OutputPath : path.join(OutputPath, subpath);
 	const workingPath = subpath => !subpath ? WorkingDirectory : path.join(WorkingDirectory, subpath);
 
-	const compileFile = (src) => {
+	const compileFile = (path, src) => {
         var isWin = (os.type().toLowerCase().startsWith() == "win");
         var vulcanizeOptions = { stripComments: true, inlineCss: true, inlineScripts: true };
 
@@ -122,10 +122,10 @@ def type(gulp)
         else src = path + src;
 
         return gulp.src(src)
-            .pipe($.vulcanize(vulcanizeOptions))
-            .pipe($.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\/iron-a11y-keys>', '<!-- commented by sumus to fix important events bug <iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\/iron-a11y-keys>-->')) // fix important paper-chip bug
+            .pipe($$.vulcanize(vulcanizeOptions))
+            .pipe($$.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>', '<!-- commented by sumus to fix important events bug <iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>-->')) // fix important paper-chip bug
             .pipe(gulp.dest(packagePath()))
-            .pipe($.size({title: 'vulcanize'}));
+            .pipe($$.size({title: 'vulcanize'}));
 	};
 
 	const obfuscateFile = (src) => {
