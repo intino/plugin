@@ -40,6 +40,7 @@ import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
+import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
 
 
 public class PomCreator {
@@ -227,6 +228,8 @@ public class PomCreator {
 			ApplicationManager.getApplication().runReadAction(() -> {
 				for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
 					if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
+				for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
+					if (testRoot != null) frame.addSlot("testModuleDependency", testRoot.getPath());
 			});
 		}
 	}

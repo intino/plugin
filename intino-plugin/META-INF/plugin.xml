@@ -16,6 +16,8 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <editorNotificationProvider
+                implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesNotificationProvider"/>
         <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <codeInsight.lineMarkerProvider language="Tara"
