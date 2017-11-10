@@ -5,9 +5,9 @@ import io.intino.tara.dsl.Proteo;
 import io.intino.tara.dsl.Verso;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,13 +17,9 @@ import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
-	private Map<String, String> snapshotRepositories;
 	private final Map<String, String> languageRepositories;
-	private final Map<String, String> releaseRepositories;
 
-	public ArtifactoryConnector(Map<String, String> releaseRepositories, Map<String, String> snapshotRepositories, Map<String, String> languageRepositories) {
-		this.releaseRepositories = releaseRepositories;
-		this.snapshotRepositories = snapshotRepositories;
+	public ArtifactoryConnector(Map<String, String> languageRepositories) {
 		this.languageRepositories = languageRepositories;
 	}
 
@@ -32,17 +28,41 @@ public class ArtifactoryConnector {
 		try {
 			for (String repo : languageRepositories.keySet()) {
 				URL url = new URL(repo + "/" + "tara/dsl" + "/");
-				final String result = new String(read(url.openStream()).toByteArray());
+				final String result = new String(read(connect(url)).toByteArray());
 				if (result.isEmpty()) continue;
 				langs.addAll(extractLanguages(result));
 			}
 			langs.add("Verso");
 			langs.add("Proteo");
 			return langs;
-		} catch (IOException ignored) {
-			System.out.println(ignored.getMessage());
+		} catch (Throwable ignored) {
+			return Collections.emptyList();
+		}
+	}
+
+	public List<String> versions(String dsl) {
+		try {
+			for (String repo : languageRepositories.keySet()) {
+				if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
+					return proteoVersions();
+				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+				final String mavenMetadata = new String(read(connect(url)).toByteArray());
+				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
+			}
+		} catch (Throwable ignored) {
 		}
 		return Collections.emptyList();
+	}
+
+	private InputStream connect(URL url) {
+		try {
+			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(2000);
+			connection.setReadTimeout(2000);
+			return connection.getInputStream();
+		} catch (Throwable e) {
+			return null;
+		}
 	}
 
 	private List<String> extractLanguages(String result) {
@@ -53,26 +73,11 @@ public class ArtifactoryConnector {
 		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).collect(Collectors.toList());
 	}
 
-	public List<String> versions(String dsl) {
-		try {
-			for (String repo : languageRepositories.keySet()) {
-				if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
-					return proteoVersions();
-				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
-				final String mavenMetadata = new String(read(url.openStream()).toByteArray());
-				if (mavenMetadata.isEmpty()) continue;
-				return extractVersions(mavenMetadata);
-			}
-		} catch (IOException ignored) {
-		}
-		return Collections.emptyList();
-	}
-
 	public List<String> boxingVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/konos/builder/maven-metadata.xml");
-			return extractVersions(new String(read(url.openStream()).toByteArray()));
-		} catch (IOException ignored) {
+			return extractVersions(new String(read(connect(url)).toByteArray()));
+		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
 	}
@@ -80,15 +85,15 @@ public class ArtifactoryConnector {
 	public List<String> generationVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/tara/builder/maven-metadata.xml");
-			return extractVersions(new String(read(url.openStream()).toByteArray()));
-		} catch (IOException ignored) {
+			return extractVersions(new String(read(connect(url)).toByteArray()));
+		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
 	}
 
-	private List<String> proteoVersions() throws IOException {
+	private List<String> proteoVersions() throws Throwable {
 		URL url = new URL(TARA_BUILDER_REPOSITORY + "/" + Proteo.GROUP_ID.replace(".", "/") + "/" + Proteo.ARTIFACT_ID + "/maven-metadata.xml");
-		final String mavenMetadata = new String(read(url.openStream()).toByteArray());
+		final String mavenMetadata = new String(read(connect(url)).toByteArray());
 		return extractVersions(mavenMetadata);
 	}
 
@@ -100,10 +105,11 @@ public class ArtifactoryConnector {
 		return Arrays.stream(metadata.trim().split("\n")).map(String::trim).collect(Collectors.toList());
 	}
 
-	private ByteArrayOutputStream read(InputStream stream) throws IOException {
+	private ByteArrayOutputStream read(InputStream stream) throws Throwable {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		if (stream == null) return baos;
 		try {
-			byte[] byteChunk = new byte[4096]; // Or whatever size you want to read in at a time.
+			byte[] byteChunk = new byte[4096];
 			int n;
 			while ((n = stream.read(byteChunk)) > 0)
 				baos.write(byteChunk, 0, n);

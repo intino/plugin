@@ -179,7 +179,7 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
 		List<RemoteRepository> remotes = new ArrayList<>();
-		remotes.addAll(repositories.stream().map(this::remoteFrom).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
 		return remotes;
 	}

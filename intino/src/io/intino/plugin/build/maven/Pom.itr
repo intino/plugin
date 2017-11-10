@@ -152,6 +152,7 @@ def type(pom)
 							<configuration>
 								<sources>
 									<source>test-gen</source>
+									$testModuleDependency...[$NL]
 								</sources>
 							</configuration>
 							</execution>
@@ -212,9 +213,14 @@ def trigger(sourceDirectory)
 	<source>$value</source>
 end
 
+def trigger(testModuleDependency)
+	<source>$value</source>
+end
+
 def trigger(moduleDependency)
 	<source>$value</source>
 end
+
 
 def trigger(resourceDirectory)
 	<resource><directory>$value</directory></resource>

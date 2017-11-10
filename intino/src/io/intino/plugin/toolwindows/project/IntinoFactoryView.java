@@ -11,6 +11,7 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
@@ -102,7 +103,9 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void saveConfiguration(Module module) {
+		if (module == null) return;
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
+		if (WebModuleType.isWebModule(module)) return;
 		manager.saveAllDocuments();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration != null) configuration.reload();

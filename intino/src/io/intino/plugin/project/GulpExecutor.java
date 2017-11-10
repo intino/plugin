@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.graph.Artifact;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.dependencyresolution.web.BowerFileCreator;
 import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
 import io.intino.plugin.project.web.GulpPomTemplate;
 import io.intino.plugin.project.web.GulpfileTemplate;
@@ -82,6 +83,7 @@ public class GulpExecutor {
 			final File gulp = createGulp();
 			final File packageJson = createPackageFile();
 			final File gulpPom = createGulpPom("deploy");
+			createDeployBower();
 			run(gulpPom, null);
 			gulp.delete();
 			packageJson.delete();
@@ -91,6 +93,16 @@ public class GulpExecutor {
 		}
 	}
 
+	private void createDeployBower() {
+		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
+		if (artifact == null) return;
+		new BowerFileCreator(artifact).createBowerFile(destination);
+	}
+
+	public static void removeDeployBower(Module module) {
+		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
+		new File(destination, "bower.json").delete();
+	}
 
 	private synchronized void run(File pom, InvocationOutputHandler handler) {
 		try {
@@ -110,11 +122,11 @@ public class GulpExecutor {
 
 
 	private File createGulp() throws IOException {
-		final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-		if (compilerModuleExtension == null || artifact == null) return null;
+		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
+		if (extension == null || artifact == null) return null;
 		final List<String> resourceDirectories = resourceDirectories();
 		final Frame frame = new Frame().addTypes("gulp").
-				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(compilerModuleExtension)).
+				addSlot("rootDirectory", rootDirectory.getCanonicalPath()).addSlot("outDirectory", outDirectory(extension)).
 				addSlot("artifactID", artifact.name$()).addSlot("port", new Random().nextInt(1000)).
 				addSlot("activity", module.getName().replace("-activity", ""));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
@@ -141,9 +153,10 @@ public class GulpExecutor {
 		return packageFile;
 	}
 
-	private String outDirectory(CompilerModuleExtension compilerModuleExtension) {
+	private String outDirectory(CompilerModuleExtension extension) {
 		try {
-			return new File(new URL(compilerModuleExtension.getCompilerOutputUrl()).getFile()).getCanonicalPath();
+			String url = extension.getCompilerOutputUrl().replace("file://","").replace("file:","");
+			return new File(url).getCanonicalPath();
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return "";
@@ -165,4 +178,5 @@ public class GulpExecutor {
 		}
 		return destination;
 	}
+
 }

@@ -3,7 +3,7 @@ package io.intino.legio.graph.natives.artifact.deployment;
 import java.util.List;
 import io.intino.legio.graph.Destination;
 
-/**Artifact.Deployment#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#74#2**/
+/**Artifact.Deployment#/Users/oroncal/workspace/intino/model/src/io/intino/legio/Main.tara#77#2**/
 public class Destinations_0 implements io.intino.legio.graph.functions.Destinations, io.intino.tara.magritte.Function {
 	private io.intino.legio.graph.Artifact.Deployment self;
 

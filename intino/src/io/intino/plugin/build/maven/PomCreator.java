@@ -45,6 +45,7 @@ import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
+import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
 
 
 public class PomCreator {
@@ -61,8 +62,7 @@ public class PomCreator {
 	}
 
 	public File frameworkPom() throws IOException {
-		final File pom = pomFile();
-		return isWebModule(module) ? webPom(pom) : frameworkPom(pom);
+		return isWebModule(module) ? webPom(pomFile()) : frameworkPom(pomFile());
 	}
 
 	private File webPom(File pom) {
@@ -163,7 +163,7 @@ public class PomCreator {
 
 	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
-		frame.addSlot("resourceDirectory", resourceDirectories(module, configuration.artifact().package$()).toArray(new String[0]));
+		frame.addSlot("resourceDirectory", resourceDirectories(module).toArray(new String[0]));
 		final List<String> resTest = resourceTestDirectories(module);
 		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
 	}
@@ -188,7 +188,7 @@ public class PomCreator {
 		return sourceRoots.stream().map(VirtualFile::getName).toArray(String[]::new);
 	}
 
-	private List<String> resourceDirectories(Module module, Artifact.Package aPackage) {
+	private List<String> resourceDirectories(Module module) {
 		final List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 		for (Module dependency : collectModuleDependencies(module)) {
@@ -233,6 +233,8 @@ public class PomCreator {
 			ApplicationManager.getApplication().runReadAction(() -> {
 				for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
 					if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
+				for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
+					if (testRoot != null) frame.addSlot("testModuleDependency", testRoot.getPath());
 			});
 		}
 	}

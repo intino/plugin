@@ -157,8 +157,9 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 			super(name);
 		}
 
-		public io.intino.legio.graph.Artifact.License license(io.intino.legio.graph.Artifact.License.Type type) {
+		public io.intino.legio.graph.Artifact.License license(java.lang.String author, io.intino.legio.graph.Artifact.License.Type type) {
 		    io.intino.legio.graph.Artifact.License newElement = core$().graph().concept(io.intino.legio.graph.Artifact.License.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.License.class);
+			newElement.core$().set(newElement, "author", java.util.Collections.singletonList(author));
 			newElement.core$().set(newElement, "type", java.util.Collections.singletonList(type));
 		    return newElement;
 		}

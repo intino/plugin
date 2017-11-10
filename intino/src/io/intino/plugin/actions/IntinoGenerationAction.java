@@ -14,6 +14,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -235,12 +236,13 @@ public class IntinoGenerationAction extends IntinoAction {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		if (!isConnected && e.getProject() != null) {
-			final MessageBus messageBus = e.getProject().getMessageBus();
+		final Project project = e.getProject();
+		if (!isConnected && project != null) {
+			final MessageBus messageBus = project.getMessageBus();
 			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
 				final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
 				if (vFile == null) return;
-				pendingFiles.add(PsiManager.getInstance(e.getProject()).findFile(vFile));
+				pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
 			});
 			isConnected = true;
 		}

@@ -12,6 +12,7 @@ import io.intino.konos.exceptions.BadRequest;
 import io.intino.konos.exceptions.Forbidden;
 import io.intino.konos.exceptions.Unknown;
 import io.intino.legio.graph.Argument;
+import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.IntinoException;
@@ -72,7 +73,9 @@ public class ArtifactDeployer {
 	private SystemSchema createSystem(Destination destination) {
 		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
 		final String classpathPrefix = configuration.pack().asRunnable().classpathPrefix();
-		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).name(id).publicURL(destination.url()).
+		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).
+				name(id).tag(destination.core$().ownerAs(Artifact.Deployment.class).tags()).
+				publicURL(destination.url()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).

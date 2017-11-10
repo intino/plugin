@@ -1,6 +1,8 @@
 package io.intino.legio.graph;
 
+import io.intino.legio.graph.*;
 import java.util.List;
+import io.intino.legio.graph.Destination;
 
 
 public class Artifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
@@ -257,8 +259,9 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			this.name = name;
 		}
 
-		public io.intino.legio.graph.Artifact.License license(io.intino.legio.graph.Artifact.License.Type type) {
+		public io.intino.legio.graph.Artifact.License license(java.lang.String author, io.intino.legio.graph.Artifact.License.Type type) {
 		    io.intino.legio.graph.Artifact.License newElement = core$().graph().concept(io.intino.legio.graph.Artifact.License.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.License.class);
+			newElement.core$().set(newElement, "author", java.util.Collections.singletonList(author));
 			newElement.core$().set(newElement, "type", java.util.Collections.singletonList(type));
 		    return newElement;
 		}
@@ -352,6 +355,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 
 	public static class License extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.lang.String author;
 		protected Type type;
 
 		public enum Type {
@@ -362,8 +366,17 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			super(node);
 		}
 
+		public java.lang.String author() {
+			return author;
+		}
+
 		public Type type() {
 			return type;
+		}
+
+		public License author(java.lang.String value) {
+			this.author = value;
+			return (License) this;
 		}
 
 		public License type(io.intino.legio.graph.Artifact.License.Type value) {
@@ -374,6 +387,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("author", new java.util.ArrayList(java.util.Collections.singletonList(this.author)));
 			map.put("type", new java.util.ArrayList(java.util.Collections.singletonList(this.type)));
 			return map;
 		}
@@ -381,13 +395,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void load$(java.lang.String name, java.util.List<?> values) {
 			super.load$(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
+			if (name.equalsIgnoreCase("author")) this.author = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("type")) this.type = io.intino.tara.magritte.loaders.WordLoader.load(values, Type.class, this).get(0);
 		}
 
 		@Override
 		protected void set$(java.lang.String name, java.util.List<?> values) {
 			super.set$(name, values);
-			if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
+			if (name.equalsIgnoreCase("author")) this.author = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("type")) this.type = (Type) values.get(0);
 		}
 
 
@@ -1370,6 +1386,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		protected java.lang.String language;
 		protected java.lang.String version;
 		protected java.lang.String sdk;
+		protected java.lang.String targetPackage;
 
 		public Box(io.intino.tara.magritte.Node node) {
 			super(node);
@@ -1387,6 +1404,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return sdk;
 		}
 
+		public java.lang.String targetPackage() {
+			return targetPackage;
+		}
+
 		public Box language(java.lang.String value) {
 			this.language = value;
 			return (Box) this;
@@ -1402,12 +1423,18 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Box) this;
 		}
 
+		public Box targetPackage(java.lang.String value) {
+			this.targetPackage = value;
+			return (Box) this;
+		}
+
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 			map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
 			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 			map.put("sdk", new java.util.ArrayList(java.util.Collections.singletonList(this.sdk)));
+			map.put("targetPackage", new java.util.ArrayList(java.util.Collections.singletonList(this.targetPackage)));
 			return map;
 		}
 
@@ -1417,6 +1444,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("sdk")) this.sdk = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("targetPackage")) this.targetPackage = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -1425,6 +1453,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("sdk")) this.sdk = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("targetPackage")) this.targetPackage = (java.lang.String) values.get(0);
 		}
 
 
@@ -2089,12 +2118,25 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	}
 
 	public static class Deployment extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+		protected java.util.List<java.lang.String> tags = new java.util.ArrayList<>();
 		protected io.intino.legio.graph.functions.Destinations destinations;
 		protected io.intino.legio.graph.Artifact.Deployment.Dev dev;
 		protected io.intino.legio.graph.Artifact.Deployment.Pro pro;
 
 		public Deployment(io.intino.tara.magritte.Node node) {
 			super(node);
+		}
+
+		public java.util.List<java.lang.String> tags() {
+			return tags;
+		}
+
+		public java.lang.String tags(int index) {
+			return tags.get(index);
+		}
+
+		public java.util.List<java.lang.String> tags(java.util.function.Predicate<java.lang.String> predicate) {
+			return tags().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
 
 		public List<Destination> destinations() {
@@ -2134,6 +2176,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
+			map.put("tags", this.tags);
 			map.put("destinations", this.destinations != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.destinations)) : java.util.Collections.emptyList());
 			return map;
 		}
@@ -2155,13 +2198,15 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void load$(java.lang.String name, java.util.List<?> values) {
 			super.load$(name, values);
-			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.Destinations.class).get(0);
+			if (name.equalsIgnoreCase("tags")) this.tags = io.intino.tara.magritte.loaders.StringLoader.load(values, this);
+			else if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.Destinations.class).get(0);
 		}
 
 		@Override
 		protected void set$(java.lang.String name, java.util.List<?> values) {
 			super.set$(name, values);
-			if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.Destinations.class);
+			if (name.equalsIgnoreCase("tags")) this.tags = new java.util.ArrayList<>((java.util.List<java.lang.String>) values);
+			else if (name.equalsIgnoreCase("destinations")) this.destinations = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.Destinations.class);
 		}
 
 		public Create create() {

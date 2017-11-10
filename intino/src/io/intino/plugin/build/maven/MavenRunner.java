@@ -2,12 +2,14 @@ package io.intino.plugin.build.maven;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.toolwindows.console.IntinoTopics;
 import io.intino.plugin.toolwindows.console.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
@@ -99,6 +101,7 @@ public class MavenRunner {
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {
 			FileUtil.delete(pom);
+			if (WebModuleType.isWebModule(module)) GulpExecutor.removeDeployBower(module);
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
 		}

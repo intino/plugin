@@ -5,6 +5,7 @@ def type(legio & empty)
 		Model(language = "Verso", version = "LATEST", sdk = "LATEST")
     	Box(language = "Konos", version = "2.0.0", sdk = "LATEST")
     	Imports
+    		Compile(groupId = "io.intino.konos", artifactId = "konos-core", version = "LATEST")
     		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
 
     	Package(mode = ModulesAndLibrariesLinkedByManifest)

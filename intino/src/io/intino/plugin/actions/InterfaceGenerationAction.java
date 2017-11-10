@@ -7,6 +7,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -44,7 +45,7 @@ public class InterfaceGenerationAction extends AnAction {
 	private boolean doExecute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return false;
-		final String version = configuration.interfaceVersion();
+		final String version = configuration.boxVersion();
 		if (version == null || version.isEmpty()) return false;
 		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
 		if (action == null) {
@@ -71,13 +72,14 @@ public class InterfaceGenerationAction extends AnAction {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		if (!isConnected && e.getProject() != null) {
-			final MessageBus messageBus = e.getProject().getMessageBus();
+		final Project project = e.getProject();
+		if (!isConnected && project != null) {
+			final MessageBus messageBus = project.getMessageBus();
 			final String konosExtension = KonosFileType.instance().getDefaultExtension();
 			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
 				final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
 				if (vFile == null || !konosExtension.equalsIgnoreCase(vFile.getExtension())) return;
-				pendingFiles.add(PsiManager.getInstance(e.getProject()).findFile(vFile));
+				pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
 			});
 			isConnected = true;
 		}
