@@ -46,6 +46,6 @@ public class DependencyPurger {
 	}
 
 	private void purgeInterfaceBuilder() {
-		new InterfaceBuilderManager().purge(configuration.interfaceVersion());
+		new InterfaceBuilderManager().purge(configuration.boxVersion());
 	}
 }

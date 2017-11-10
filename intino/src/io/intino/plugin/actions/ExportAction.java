@@ -14,7 +14,7 @@ public class ExportAction {
 	public void execute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return;
-		final String version = configuration.interfaceVersion();
+		final String version = configuration.boxVersion();
 		if (version == null || version.isEmpty()) return;
 		ActionManager.getInstance().getAction("PublishAccessors" + version).actionPerformed(createActionEvent());
 	}

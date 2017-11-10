@@ -1386,6 +1386,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		protected java.lang.String language;
 		protected java.lang.String version;
 		protected java.lang.String sdk;
+		protected java.lang.String targetPackage;
 
 		public Box(io.intino.tara.magritte.Node node) {
 			super(node);
@@ -1403,6 +1404,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return sdk;
 		}
 
+		public java.lang.String targetPackage() {
+			return targetPackage;
+		}
+
 		public Box language(java.lang.String value) {
 			this.language = value;
 			return (Box) this;
@@ -1418,12 +1423,18 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Box) this;
 		}
 
+		public Box targetPackage(java.lang.String value) {
+			this.targetPackage = value;
+			return (Box) this;
+		}
+
 		@Override
 		protected java.util.Map<java.lang.String, java.util.List<?>> variables$() {
 			java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 			map.put("language", new java.util.ArrayList(java.util.Collections.singletonList(this.language)));
 			map.put("version", new java.util.ArrayList(java.util.Collections.singletonList(this.version)));
 			map.put("sdk", new java.util.ArrayList(java.util.Collections.singletonList(this.sdk)));
+			map.put("targetPackage", new java.util.ArrayList(java.util.Collections.singletonList(this.targetPackage)));
 			return map;
 		}
 
@@ -1433,6 +1444,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			if (name.equalsIgnoreCase("language")) this.language = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("version")) this.version = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 			else if (name.equalsIgnoreCase("sdk")) this.sdk = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+			else if (name.equalsIgnoreCase("targetPackage")) this.targetPackage = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		}
 
 		@Override
@@ -1441,6 +1453,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			if (name.equalsIgnoreCase("language")) this.language = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("version")) this.version = (java.lang.String) values.get(0);
 			else if (name.equalsIgnoreCase("sdk")) this.sdk = (java.lang.String) values.get(0);
+			else if (name.equalsIgnoreCase("targetPackage")) this.targetPackage = (java.lang.String) values.get(0);
 		}
 
 

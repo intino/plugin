@@ -372,6 +372,11 @@ public class LegioConfiguration implements Configuration {
 		return safe(() -> legio.artifact().name$());
 	}
 
+	@Override
+	public String boxPackage() {
+		return safe(() -> legio.artifact().box().targetPackage());
+	}
+
 	public List<Artifact.Deployment> deployments() {
 		return safe(() -> legio.artifact().deploymentList());
 	}
@@ -425,7 +430,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	@Override
-	public String interfaceVersion() {
+	public String boxVersion() {
 		return safe(() -> legio.artifact().box().sdk());
 	}
 
