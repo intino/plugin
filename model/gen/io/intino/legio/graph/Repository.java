@@ -133,19 +133,19 @@ public class Repository extends io.intino.tara.magritte.Layer implements io.inti
 
 
 		public io.intino.legio.graph.Repository.Release release(java.lang.String url) {
-		    io.intino.legio.graph.Repository.Release newElement = core$().graph().concept(io.intino.legio.graph.Repository.Release.class).createNode(name, core$()).as(io.intino.legio.graph.Repository.Release.class);
+		    io.intino.legio.graph.Repository.Release newElement = core$().graph().concept(io.intino.legio.graph.Repository.Release.class).createNode(this.name, core$()).as(io.intino.legio.graph.Repository.Release.class);
 			newElement.core$().set(newElement, "url", java.util.Collections.singletonList(url));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Repository.Snapshot snapshot(java.lang.String url) {
-		    io.intino.legio.graph.Repository.Snapshot newElement = core$().graph().concept(io.intino.legio.graph.Repository.Snapshot.class).createNode(name, core$()).as(io.intino.legio.graph.Repository.Snapshot.class);
+		    io.intino.legio.graph.Repository.Snapshot newElement = core$().graph().concept(io.intino.legio.graph.Repository.Snapshot.class).createNode(this.name, core$()).as(io.intino.legio.graph.Repository.Snapshot.class);
 			newElement.core$().set(newElement, "url", java.util.Collections.singletonList(url));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Repository.Language language(java.lang.String url) {
-		    io.intino.legio.graph.Repository.Language newElement = core$().graph().concept(io.intino.legio.graph.Repository.Language.class).createNode(name, core$()).as(io.intino.legio.graph.Repository.Language.class);
+		    io.intino.legio.graph.Repository.Language newElement = core$().graph().concept(io.intino.legio.graph.Repository.Language.class).createNode(this.name, core$()).as(io.intino.legio.graph.Repository.Language.class);
 			newElement.core$().set(newElement, "url", java.util.Collections.singletonList(url));
 		    return newElement;
 		}

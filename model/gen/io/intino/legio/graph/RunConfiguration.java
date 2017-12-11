@@ -87,7 +87,7 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 		}
 
 		public io.intino.legio.graph.Argument argument(java.lang.String name, java.lang.String value) {
-		    io.intino.legio.graph.Argument newElement = core$().graph().concept(io.intino.legio.graph.Argument.class).createNode(name, core$()).as(io.intino.legio.graph.Argument.class);
+		    io.intino.legio.graph.Argument newElement = core$().graph().concept(io.intino.legio.graph.Argument.class).createNode(this.name, core$()).as(io.intino.legio.graph.Argument.class);
 			newElement.core$().set(newElement, "name", java.util.Collections.singletonList(name));
 			newElement.core$().set(newElement, "value", java.util.Collections.singletonList(value));
 		    return newElement;
