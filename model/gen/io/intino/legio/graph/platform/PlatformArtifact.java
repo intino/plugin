@@ -158,26 +158,26 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 		}
 
 		public io.intino.legio.graph.Artifact.License license(java.lang.String author, io.intino.legio.graph.Artifact.License.Type type) {
-		    io.intino.legio.graph.Artifact.License newElement = core$().graph().concept(io.intino.legio.graph.Artifact.License.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.License.class);
+		    io.intino.legio.graph.Artifact.License newElement = core$().graph().concept(io.intino.legio.graph.Artifact.License.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.License.class);
 			newElement.core$().set(newElement, "author", java.util.Collections.singletonList(author));
 			newElement.core$().set(newElement, "type", java.util.Collections.singletonList(type));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Imports imports() {
-		    io.intino.legio.graph.Artifact.Imports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Imports.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Imports.class);
+		    io.intino.legio.graph.Artifact.Imports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Imports.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Imports.class);
 
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.WebImports webImports() {
-		    io.intino.legio.graph.Artifact.WebImports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.WebImports.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.WebImports.class);
+		    io.intino.legio.graph.Artifact.WebImports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.WebImports.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.WebImports.class);
 
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Box box(java.lang.String language, java.lang.String version, java.lang.String sdk) {
-		    io.intino.legio.graph.Artifact.Box newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Box.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Box.class);
+		    io.intino.legio.graph.Artifact.Box newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Box.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Box.class);
 			newElement.core$().set(newElement, "language", java.util.Collections.singletonList(language));
 			newElement.core$().set(newElement, "version", java.util.Collections.singletonList(version));
 			newElement.core$().set(newElement, "sdk", java.util.Collections.singletonList(sdk));
@@ -185,37 +185,37 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 		}
 
 		public io.intino.legio.graph.Artifact.Code code(java.lang.String targetPackage) {
-		    io.intino.legio.graph.Artifact.Code newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Code.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Code.class);
+		    io.intino.legio.graph.Artifact.Code newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Code.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Code.class);
 			newElement.core$().set(newElement, "targetPackage", java.util.Collections.singletonList(targetPackage));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Exports exports(io.intino.legio.graph.Repository.Type repository) {
-		    io.intino.legio.graph.Artifact.Exports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Exports.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Exports.class);
+		    io.intino.legio.graph.Artifact.Exports newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Exports.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Exports.class);
 			newElement.core$().set(newElement, "repository", java.util.Collections.singletonList(repository));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Package package$(io.intino.legio.graph.Artifact.Package.Mode mode) {
-		    io.intino.legio.graph.Artifact.Package newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Package.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Package.class);
+		    io.intino.legio.graph.Artifact.Package newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Package.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Package.class);
 			newElement.core$().set(newElement, "mode", java.util.Collections.singletonList(mode));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Distribution distribution(io.intino.legio.graph.Repository.Release release) {
-		    io.intino.legio.graph.Artifact.Distribution newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Distribution.class);
+		    io.intino.legio.graph.Artifact.Distribution newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Distribution.class);
 			newElement.core$().set(newElement, "release", java.util.Collections.singletonList(release));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.QualityAnalytics qualityAnalytics(java.lang.String url) {
-		    io.intino.legio.graph.Artifact.QualityAnalytics newElement = core$().graph().concept(io.intino.legio.graph.Artifact.QualityAnalytics.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.QualityAnalytics.class);
+		    io.intino.legio.graph.Artifact.QualityAnalytics newElement = core$().graph().concept(io.intino.legio.graph.Artifact.QualityAnalytics.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.QualityAnalytics.class);
 			newElement.core$().set(newElement, "url", java.util.Collections.singletonList(url));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Deployment deployment() {
-		    io.intino.legio.graph.Artifact.Deployment newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Deployment.class);
+		    io.intino.legio.graph.Artifact.Deployment newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Deployment.class);
 
 		    return newElement;
 		}

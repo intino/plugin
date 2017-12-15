@@ -134,13 +134,13 @@ public class Destination extends io.intino.tara.magritte.Layer implements io.int
 		}
 
 		public io.intino.legio.graph.Destination.BugTracking bugTracking() {
-		    io.intino.legio.graph.Destination.BugTracking newElement = core$().graph().concept(io.intino.legio.graph.Destination.BugTracking.class).createNode(name, core$()).as(io.intino.legio.graph.Destination.BugTracking.class);
+		    io.intino.legio.graph.Destination.BugTracking newElement = core$().graph().concept(io.intino.legio.graph.Destination.BugTracking.class).createNode(this.name, core$()).as(io.intino.legio.graph.Destination.BugTracking.class);
 
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Destination.Requirements requirements() {
-		    io.intino.legio.graph.Destination.Requirements newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.class).createNode(name, core$()).as(io.intino.legio.graph.Destination.Requirements.class);
+		    io.intino.legio.graph.Destination.Requirements newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.class).createNode(this.name, core$()).as(io.intino.legio.graph.Destination.Requirements.class);
 
 		    return newElement;
 		}
@@ -292,13 +292,13 @@ public class Destination extends io.intino.tara.magritte.Layer implements io.int
 			}
 
 			public io.intino.legio.graph.Destination.Requirements.Memory memory() {
-			    io.intino.legio.graph.Destination.Requirements.Memory newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.Memory.class).createNode(name, core$()).as(io.intino.legio.graph.Destination.Requirements.Memory.class);
+			    io.intino.legio.graph.Destination.Requirements.Memory newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.Memory.class).createNode(this.name, core$()).as(io.intino.legio.graph.Destination.Requirements.Memory.class);
 
 			    return newElement;
 			}
 
 			public io.intino.legio.graph.Destination.Requirements.CPU cPU() {
-			    io.intino.legio.graph.Destination.Requirements.CPU newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.CPU.class).createNode(name, core$()).as(io.intino.legio.graph.Destination.Requirements.CPU.class);
+			    io.intino.legio.graph.Destination.Requirements.CPU newElement = core$().graph().concept(io.intino.legio.graph.Destination.Requirements.CPU.class).createNode(this.name, core$()).as(io.intino.legio.graph.Destination.Requirements.CPU.class);
 
 			    return newElement;
 			}

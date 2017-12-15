@@ -145,14 +145,14 @@ public class RunnablePackage extends io.intino.tara.magritte.Layer implements io
 		}
 
 		public io.intino.legio.graph.Parameter parameter(java.lang.String name, java.lang.String value) {
-		    io.intino.legio.graph.Parameter newElement = core$().graph().concept(io.intino.legio.graph.Parameter.class).createNode(name, core$()).as(io.intino.legio.graph.Parameter.class);
+		    io.intino.legio.graph.Parameter newElement = core$().graph().concept(io.intino.legio.graph.Parameter.class).createNode(this.name, core$()).as(io.intino.legio.graph.Parameter.class);
 			newElement.core$().set(newElement, "name", java.util.Collections.singletonList(name));
 			newElement.core$().set(newElement, "value", java.util.Collections.singletonList(value));
 		    return newElement;
 		}
 
 		public io.intino.legio.graph.Artifact.Package.MavenPlugin mavenPlugin(java.lang.String code) {
-		    io.intino.legio.graph.Artifact.Package.MavenPlugin newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Package.MavenPlugin.class).createNode(name, core$()).as(io.intino.legio.graph.Artifact.Package.MavenPlugin.class);
+		    io.intino.legio.graph.Artifact.Package.MavenPlugin newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Package.MavenPlugin.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Package.MavenPlugin.class);
 			newElement.core$().set(newElement, "code", java.util.Collections.singletonList(code));
 		    return newElement;
 		}
