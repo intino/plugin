@@ -77,9 +77,12 @@ public class InterfaceGenerationAction extends AnAction {
 			final MessageBus messageBus = project.getMessageBus();
 			final String konosExtension = KonosFileType.instance().getDefaultExtension();
 			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
-				final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
-				if (vFile == null || !konosExtension.equalsIgnoreCase(vFile.getExtension())) return;
-				pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
+				try {
+					final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
+					if (vFile == null || !konosExtension.equalsIgnoreCase(vFile.getExtension())) return;
+					pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
+				} catch (Throwable t) {
+				}
 			});
 			isConnected = true;
 		}
