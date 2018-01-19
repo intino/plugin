@@ -23,13 +23,11 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class ArtifactDeployer {
 	private static final Logger LOG = Logger.getInstance(ArtifactDeployer.class.getName());
@@ -53,6 +51,8 @@ public class ArtifactDeployer {
 		try {
 			final String user = user();
 			if (destination.server() == null) throw new IntinoException("Server not found");
+			if (!correctParameters(destination.runConfiguration().argumentList()))
+				throw new IntinoException("Arguments are duplicated");
 			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeploySystem(user, createSystem(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
@@ -84,6 +84,11 @@ public class ArtifactDeployer {
 
 	private List<io.intino.cesar.schemas.Parameter> extractParameters(RunConfiguration configuration) {
 		return configuration.argumentList().stream().map(ArtifactDeployer::parametersFromNode).collect(toList());
+	}
+
+	private boolean correctParameters(List<Argument> arguments) {
+		Set<String> parameters = new HashSet<>();
+		return arguments.stream().allMatch(argument -> parameters.add(argument.name()));
 	}
 
 	private static io.intino.cesar.schemas.Parameter parametersFromNode(Argument node) {

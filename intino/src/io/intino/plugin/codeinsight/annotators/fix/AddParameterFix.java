@@ -103,11 +103,11 @@ public class AddParameterFix extends WithLiveTemplateFix implements IntentionAct
 	}
 
 	private String createTemplateText(int indents) {
-		String text = buildIndentation(indents);
+		StringBuilder text = new StringBuilder(buildIndentation(indents));
 		int i = 0;
 		for (String parameter : requiredParameters.keySet())
-			text += "Parameter(name = \"" + parameter + "\", value = \"$VALUE" + i++ + "$\")\n";
-		return text;
+			text.append("Parameter(name = \"").append(parameter).append("\", value = \"$VALUE").append(i++).append("$\")\n");
+		return text.toString();
 	}
 
 	private String buildIndentation(int indents) {

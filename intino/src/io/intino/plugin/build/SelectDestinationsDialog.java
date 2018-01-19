@@ -17,10 +17,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
 public class SelectDestinationsDialog {
@@ -41,10 +42,10 @@ public class SelectDestinationsDialog {
 		final List[] destinations = new List[]{new ArrayList<>()};
 		final Application application = ApplicationManager.getApplication();
 		application.invokeAndWait(() -> {
-			String[] options = new String[]{"Cancel", "Accept"};
+			String[] options = new String[]{"Accept", "Cancel"};
 			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations of deployment",
-					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, IntinoIcons.INTINO_80, options, options[1]);
-			destinations[0] = option == 1 ? selectedDestinations() : Collections.emptyList();
+					YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, IntinoIcons.INTINO_80, options, options[1]);
+			destinations[0] = option == 1 ? selectedDestinations() : emptyList();
 		}, ModalityState.any());
 		return destinations[0];
 	}
@@ -71,7 +72,6 @@ public class SelectDestinationsDialog {
 		final DefaultTableModel tableModel = new DefaultTableModel(destinationsData(), ARTIFACTORY_FIELDS) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
-
 				return column != 0 && checkExist(this.getValueAt(row, 0).toString(), column);
 			}
 		};

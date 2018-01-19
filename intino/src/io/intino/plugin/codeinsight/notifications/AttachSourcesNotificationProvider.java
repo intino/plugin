@@ -1,5 +1,6 @@
 package io.intino.plugin.codeinsight.notifications;
 
+import com.intellij.codeEditor.JavaEditorFileSwapper;
 import com.intellij.ide.highlighter.JavaClassFileType;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -7,8 +8,11 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
+import io.intino.plugin.dependencyresolution.LibraryManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 public class AttachSourcesNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel> {
 
@@ -35,7 +39,7 @@ public class AttachSourcesNotificationProvider extends EditorNotifications.Provi
 	public EditorNotificationPanel createNotificationPanel(@NotNull VirtualFile file, @NotNull FileEditor fileEditor) {
 		if (!JavaClassFileType.INSTANCE.equals(file.getFileType())) return null;
 		if (isAlreadyAdded(file)) return null;
-		return createPanel(project);
+		return createPanel(file);
 	}
 
 	private boolean isAlreadyAdded(VirtualFile file) {
@@ -43,10 +47,21 @@ public class AttachSourcesNotificationProvider extends EditorNotifications.Provi
 	}
 
 
-	private EditorNotificationPanel createPanel(@NotNull final Project project) {
+	private EditorNotificationPanel createPanel(VirtualFile file) {
 		final EditorNotificationPanel panel = new EditorNotificationPanel();
 		panel.setText("Compiled class");
-		panel.createActionLabel("Download sources", notifications::updateAllNotifications);
+		panel.createActionLabel("Download sources", () -> attachSources(file));
+
 		return panel;
+	}
+
+	private void attachSources(VirtualFile file) {
+		File library = new File(file.getCanonicalPath().substring(0, file.getCanonicalPath().indexOf("!")));
+		attachSources(library);
+		notifications.updateAllNotifications();
+	}
+
+	private void attachSources(File library) {
+		//TODO
 	}
 }
