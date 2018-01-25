@@ -27,7 +27,6 @@ import java.util.*;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public class ArtifactDeployer {
 	private static final Logger LOG = Logger.getInstance(ArtifactDeployer.class.getName());

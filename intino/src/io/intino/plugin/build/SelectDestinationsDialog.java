@@ -1,5 +1,6 @@
 package io.intino.plugin.build;
 
+import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -17,6 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
 
@@ -38,11 +40,11 @@ public class SelectDestinationsDialog {
 		createUIComponents();
 	}
 
-	List<Destination> showAndGet() {
+	List showAndGet() {
 		final List[] destinations = new List[]{new ArrayList<>()};
 		final Application application = ApplicationManager.getApplication();
 		application.invokeAndWait(() -> {
-			String[] options = new String[]{"Accept", "Cancel"};
+			String[] options = new String[]{"Cancel", "Accept"};
 			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations of deployment",
 					YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, IntinoIcons.INTINO_80, options, options[1]);
 			destinations[0] = option == 1 ? selectedDestinations() : emptyList();
