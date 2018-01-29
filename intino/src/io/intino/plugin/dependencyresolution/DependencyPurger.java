@@ -7,6 +7,7 @@ import io.intino.plugin.build.maven.PomCreator;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.builders.ModelBuilderManager;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class DependencyPurger {
 	}
 
 	private void purgeDependencies() throws IOException, MavenInvocationException {
+		if (!(TaraUtil.configurationOf(module) instanceof LegioConfiguration)) return;
 		File file = new PomCreator(module).frameworkPom();
 		runner.invokeMaven(file, "dependency:purge-local-repository");
 		file.delete();

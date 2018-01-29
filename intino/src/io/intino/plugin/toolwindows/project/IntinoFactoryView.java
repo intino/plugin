@@ -103,9 +103,8 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void saveConfiguration(Module module) {
-		if (module == null) return;
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
-		if (WebModuleType.isWebModule(module)) return;
+		if (module == null || WebModuleType.isWebModule(module)) return;
 		manager.saveAllDocuments();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration != null) configuration.reload();

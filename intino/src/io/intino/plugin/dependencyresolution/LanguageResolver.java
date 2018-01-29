@@ -75,7 +75,8 @@ public class LanguageResolver {
 	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
 		final LibraryManager manager = new LibraryManager(module);
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(magritteID(version));
-		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
+		if (framework.isEmpty()) return libraries;
+		model.effectiveVersion(framework.keySet().iterator().next().getVersion());
 		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()));
 		libraries.addAll(flat(registeredLibraries));
 		manager.addToModule(libraries, DependencyScope.COMPILE);

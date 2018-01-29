@@ -148,7 +148,6 @@ public class GulpExecutor {
 	private File createPackageFile() {
 		File packageFile = new File(nodeDirectory, "package.json");
 		packageFile.getParentFile().mkdirs();
-		if (packageFile.exists()) return packageFile;
 		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).addSlot("version", artifact.version())));
 		return packageFile;
 	}

@@ -14,13 +14,13 @@ import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.intellij.openapi.roots.DependencyScope.COMPILE;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static io.intino.plugin.project.LibraryConflictResolver.mustAddEntry;
+import static java.util.stream.Collectors.toList;
 
 public class LibraryManager {
 
@@ -61,8 +61,8 @@ public class LibraryManager {
 
 	void addToModule(List<Library> libraries, DependencyScope scope) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
-				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(Collectors.toList());
-		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope)).collect(Collectors.toList());
+				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(toList());
+		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope) || mustAddEntry(library, registered)).collect(toList());
 		toRegister.forEach(library -> addDependency(module, library, scope, false));
 	}
 
@@ -70,7 +70,7 @@ public class LibraryManager {
 		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
 		return Arrays.stream(model.getOrderEntries()).
 				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(COMPILE)).
-				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(Collectors.toList());
+				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(toList());
 	}
 
 	public static void clean(Module module, List<Library> newLibraries) {
@@ -97,14 +97,14 @@ public class LibraryManager {
 		return Arrays.stream(modifiableModel.getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry && (((LibraryOrderEntry) e).getLibrary() == null || !newLibraries.contains(((LibraryOrderEntry) e).getLibrary()))).
 				map(l -> (LibraryOrderEntry) l).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	private static List<LibraryOrderEntry> collectInvalidLibraries(ModifiableRootModel modifiableModel) {
 		Map<String, String> entries = new HashMap<>();
 		List<LibraryOrderEntry> toRemove = new ArrayList<>();
 		final List<LibraryOrderEntry> libraryOrderEntries = Arrays.stream(modifiableModel.getOrderEntries()).
-				filter(e -> e instanceof LibraryOrderEntry).map(e -> ((LibraryOrderEntry) e)).collect(Collectors.toList());
+				filter(e -> e instanceof LibraryOrderEntry).map(e -> ((LibraryOrderEntry) e)).collect(toList());
 		libraryOrderEntries.forEach(e -> {
 			final Library l = e.getLibrary();
 			if (l == null || l.getName() == null) return;
@@ -156,7 +156,7 @@ public class LibraryManager {
 
 	private static boolean isUsed(Module module, Library library) {
 		if (library == null) return false;
-		final List<Module> others = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).collect(Collectors.toList());
+		final List<Module> others = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).collect(toList());
 		for (Module other : others) {
 			final ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(other).getModifiableModel();
 			final OrderEntry orderEntry = Arrays.stream(modifiableModel.getOrderEntries()).
@@ -184,17 +184,14 @@ public class LibraryManager {
 	}
 
 	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
-		for (LibraryOrderEntry entry : registered)
-			if ((library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE)) || !mustAddEntry(library, registered))
+		for (LibraryOrderEntry entry : registered) {
+			if ((library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE)))
 				return true;
+		}
 		return false;
 	}
 
 	private String nameOf(Artifact dependency) {
 		return LEGIO + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion();
-	}
-
-	private String nameOf(String dependency) {
-		return LEGIO + dependency;
 	}
 }

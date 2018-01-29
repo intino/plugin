@@ -59,8 +59,7 @@ abstract class AbstractArtifactBuilder {
 			Configuration configuration = TaraUtil.configurationOf(module);
 			File dslFile = dslFilePath(configuration);
 			LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
-			MavenRunner runner = new MavenRunner(module);
-			runner.executeLanguage(configuration);
+			new MavenRunner(module).executeLanguage(configuration);
 		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
 		}

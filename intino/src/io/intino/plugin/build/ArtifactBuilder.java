@@ -23,6 +23,7 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
@@ -73,8 +74,10 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		withTask(new Task.Backgroundable(project, firstUpperCase(factoryPhase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				for (Module module : modules)
+				for (Module module : modules) {
+					if (!(TaraUtil.configurationOf(module) instanceof LegioConfiguration)) continue;
 					process(module, factoryPhase, indicator);
+				}
 				ApplicationManager.getApplication().invokeLater(() -> {
 					reloadProject();
 					if (!errorMessages.isEmpty())

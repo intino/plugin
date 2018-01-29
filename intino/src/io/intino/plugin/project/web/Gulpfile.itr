@@ -68,13 +68,19 @@ def type(gulp)
 		);
 	});
 
-	gulp.task('install', $['resolve-url-dependencies'],() => {
-		del($[outputPath()], {force:true});
+    gulp.task('install', cb => {
+        runSequence('clean-out', 'populate-out', cb);
+    });
 
-		return eventStream.concat(
-			gulp.src($[packagePath('/**/*')], { dot: true }).pipe(gulp.dest(outputPath()))
-		);
-	});
+    gulp.task('clean-out', () => {
+        return del($[outputPath()], {force:true});
+    });
+
+    gulp.task('populate-out', $['resolve-url-dependencies'],() => {
+        return eventStream.concat(
+            gulp.src($[packagePath('/**/*')], { dot: true }).pipe(gulp.dest(outputPath()))
+        );
+    });
 
 	gulp.task('resolve-url-dependencies', () => {
 		return gulp.src($[packagePath('*.html'), '!' + packagePath('/components.html')])
