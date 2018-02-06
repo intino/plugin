@@ -115,10 +115,11 @@ public class MavenRunner {
 		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 
-	public InvocationResult invokeMaven(File pom, String... phases) throws MavenInvocationException, IOException {
+	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException, IOException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList(phases));
 		request.setJavaHome(new File(System.getProperty("java.home")));
+		request.setMavenOpts(mavenOpts);
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
@@ -128,7 +129,7 @@ public class MavenRunner {
 	}
 
 	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException, IOException {
-		return invokeMaven(pom, lifeCyclePhase.mavenActions().toArray(new String[lifeCyclePhase.mavenActions().size()]));
+		return invokeMaven(pom, "", lifeCyclePhase.mavenActions().toArray(new String[lifeCyclePhase.mavenActions().size()]));
 	}
 
 	public String output() {
