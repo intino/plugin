@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class BowerFileCreator {
@@ -27,17 +29,14 @@ public class BowerFileCreator {
 	private List<JsonObject> bowers;
 
 	public BowerFileCreator(Artifact artifact) {
-		this.artifact = artifact;
-		this.webComponents = artifact.webImports().webComponentList();
-		this.resolutions = artifact.webImports().resolutionList();
-		this.bowers = new ArrayList<>();
+		this(artifact, emptyList());
 	}
 
-	public BowerFileCreator(Artifact artifact, List<File> artifactbowers) {
+	public BowerFileCreator(Artifact artifact, List<File> artifactBowers) {
 		this.artifact = artifact;
-		this.webComponents = artifact.webImports().webComponentList();
-		this.resolutions = artifact.webImports().resolutionList();
-		this.bowers = artifactbowers.stream().filter(File::exists).map(this::readBower).collect(toList());
+		this.webComponents = artifact.webImports() == null ? emptyList() : artifact.webImports().webComponentList();
+		this.resolutions = artifact.webImports() == null ? emptyList() : artifact.webImports().resolutionList();
+		this.bowers = artifactBowers.stream().filter(File::exists).map(this::readBower).collect(toList());
 	}
 
 	public File createBowerFile(File destination) {

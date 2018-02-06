@@ -39,7 +39,7 @@ public class DependencyPurger {
 	private void purgeDependencies() throws IOException, MavenInvocationException {
 		if (!(TaraUtil.configurationOf(module) instanceof LegioConfiguration)) return;
 		File file = new PomCreator(module).frameworkPom();
-		runner.invokeMaven(file, "dependency:purge-local-repository");
+		runner.invokeMaven(file, "", "dependency:purge-local-repository");
 		file.delete();
 	}
 

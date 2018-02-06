@@ -119,8 +119,7 @@ public class LanguageResolver {
 	}
 
 	private Map<Artifact, Artifact> sources(Artifact artifact) {
-		Artifact sources = sourcesOf(artifact);
-		return Collections.singletonMap(artifact, sources);
+		return Collections.singletonMap(artifact, sourcesOf(artifact));
 	}
 
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {

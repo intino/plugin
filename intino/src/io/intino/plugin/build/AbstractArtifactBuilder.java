@@ -10,6 +10,7 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.dependencyresolution.web.BowerFileCreator;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
@@ -30,6 +31,7 @@ import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
+import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static java.util.Collections.emptyList;
 import static org.siani.itrules.engine.formatters.StringFormatter.firstUpperCase;
 
@@ -70,7 +72,7 @@ abstract class AbstractArtifactBuilder {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
-			executeGulpDependencies(module);
+			compileWeb(phase, module);
 			new MavenRunner(module).executeFramework(phase);
 			cleanWebOutputs(module);
 			bitbucket(phase, configuration);
@@ -108,13 +110,26 @@ abstract class AbstractArtifactBuilder {
 			updateProgressIndicator(indicator, message("publishing.artifact"));
 			try {
 				List<Destination> destinations = collectDestinations(module.getProject(), (LegioConfiguration) TaraUtil.configurationOf(module));
-				if (!destinations.isEmpty()) return new ArtifactDeployer(module, destinations).execute();
-				else return false;
+				return !destinations.isEmpty() && new ArtifactDeployer(module, destinations).execute();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}
 		}
 		return false;
+	}
+
+	private void compileWeb(FactoryPhase phase, Module module) {
+		if (!isWebModule(module)) return;
+		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact();
+		if (artifact == null) return;
+		if (!phase.equals(DISTRIBUTE) && !phase.equals(DEPLOY)) new GulpExecutor(module, artifact).startGulpDeploy();
+		else createDeployBower(module, artifact);
+	}
+
+	private void createDeployBower(Module module, Artifact artifact) {
+		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
+		destination.mkdirs();
+		new BowerFileCreator(artifact).createBowerFile(destination);
 	}
 
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
@@ -138,11 +153,6 @@ abstract class AbstractArtifactBuilder {
 		if (deployment.dev() != null) destinations.add(deployment.dev());
 		if (deployment.pro() != null) destinations.add(deployment.pro());
 		return destinations;
-	}
-
-	private void executeGulpDependencies(Module module) {
-		if (isWebModule(module))
-			new GulpExecutor(module, ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact()).startGulpDeploy();
 	}
 
 	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {

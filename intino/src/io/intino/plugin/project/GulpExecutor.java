@@ -22,7 +22,6 @@ import org.siani.itrules.model.Frame;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -83,7 +82,6 @@ public class GulpExecutor {
 			final File gulp = createGulp();
 			final File packageJson = createPackageFile();
 			final File gulpPom = createGulpPom("deploy");
-			createDeployBower();
 			run(gulpPom, null);
 			gulp.delete();
 			packageJson.delete();
@@ -93,25 +91,19 @@ public class GulpExecutor {
 		}
 	}
 
-	private void createDeployBower() {
-		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
-		if (artifact == null) return;
-		new BowerFileCreator(artifact).createBowerFile(destination);
+	private synchronized void run(File pom, InvocationOutputHandler handler) {
+		try {
+			final MavenRunner mavenRunner = new MavenRunner(module, handler);
+			final InvocationResult result = mavenRunner.invokeMaven(pom, "", "generate-resources");
+			processResult(pom, result);
+		} catch (MavenInvocationException | IOException | IntinoException e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 
 	public static void removeDeployBower(Module module) {
 		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
 		new File(destination, "bower.json").delete();
-	}
-
-	private synchronized void run(File pom, InvocationOutputHandler handler) {
-		try {
-			final MavenRunner mavenRunner = new MavenRunner(module, handler);
-			final InvocationResult result = mavenRunner.invokeMaven(pom, "generate-resources");
-			processResult(pom, result);
-		} catch (MavenInvocationException | IOException | IntinoException e) {
-			LOG.error(e.getMessage(), e);
-		}
 	}
 
 	private void processResult(File pom, InvocationResult result) throws IntinoException {
@@ -154,7 +146,7 @@ public class GulpExecutor {
 
 	private String outDirectory(CompilerModuleExtension extension) {
 		try {
-			String url = extension.getCompilerOutputUrl().replace("file://","").replace("file:","");
+			String url = extension.getCompilerOutputUrl().replace("file://", "").replace("file:", "");
 			return new File(url).getCanonicalPath();
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);

@@ -116,7 +116,7 @@ public class WebDependencyResolver {
 	private void run(File pom) {
 		try {
 			final MavenRunner mavenRunner = new MavenRunner(module);
-			final InvocationResult result = mavenRunner.invokeMaven(pom, "generate-resources");
+			final InvocationResult result = mavenRunner.invokeMaven(pom, skipOptions(), "generate-resources");
 			processResult(mavenRunner, pom, result);
 		} catch (MavenInvocationException | IOException e) {
 			notifyError(message("error.resolving.web.dependencies", e.getMessage()));
@@ -125,16 +125,24 @@ public class WebDependencyResolver {
 		}
 	}
 
+	private String skipOptions() {
+		return npmInstalled() ? "-Dskip.npm" : "";
+	}
+
+	private boolean npmInstalled() {
+		return new File(System.getProperty("user.home"), ".node/node/node_modules/npm").exists();
+	}
+
 	private void notifyError(String message) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
 		if (balloon == null) balloon = NotificationGroup.balloonGroup("Tara Language");
 		List<String> lines = Arrays.asList(message.split("\n"));
 		for (int i = 0; i <= lines.size() / 5; i++) {
-			String choppedMessage = "";
+			StringBuilder choppedMessage = new StringBuilder();
 			for (int j = 0; j < 5; j++)
-				if (lines.size() > j + 5 * i) choppedMessage += lines.get(j + 5 * i) + "\n";
-			if (choppedMessage.trim().isEmpty()) choppedMessage = "No content";
-			balloon.createNotification(choppedMessage, MessageType.ERROR).setImportant(true).notify(this.module.getProject());
+				if (lines.size() > j + 5 * i) choppedMessage.append(lines.get(j + 5 * i)).append("\n");
+			if (choppedMessage.toString().trim().isEmpty()) choppedMessage = new StringBuilder("No content");
+			balloon.createNotification(choppedMessage.toString(), MessageType.ERROR).setImportant(true).notify(this.module.getProject());
 		}
 	}
 
@@ -164,7 +172,9 @@ public class WebDependencyResolver {
 	}
 
 	private File createPomFile() {
-		return write(PomTemplate.create().format(fill(new Frame().addTypes("pom"))), new File(rootDirectory, "pom.xml"));
+		Frame pom = new Frame().addTypes("pom");
+		if (!npmInstalled()) pom.addSlot("node", "");
+		return write(PomTemplate.create().format(fill(pom)), new File(rootDirectory, "pom.xml"));
 	}
 
 	private Frame fill(Frame frame) {
