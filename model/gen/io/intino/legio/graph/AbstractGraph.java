@@ -10,6 +10,8 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 	private java.util.List<io.intino.legio.graph.Server> serverList;
 	private java.util.List<io.intino.legio.graph.Repository> repositoryList;
 	private java.util.List<io.intino.legio.graph.runnable.artifact.RunnablePackage> runnablePackageList;
+	private java.util.List<io.intino.legio.graph.macos.artifact.MacOSPackage> macOSPackageList;
+	private java.util.List<io.intino.legio.graph.windows.artifact.WindowsPackage> windowsPackageList;
 	private java.util.List<io.intino.legio.graph.level.LevelArtifact> levelArtifactList;
 	private java.util.List<io.intino.legio.graph.platform.PlatformArtifact> platformArtifactList;
 	private java.util.List<io.intino.legio.graph.product.ProductArtifact> productArtifactList;
@@ -28,6 +30,8 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 		this.serverList = new java.util.ArrayList<>(wrapper.serverList);
 		this.repositoryList = new java.util.ArrayList<>(wrapper.repositoryList);
 		this.runnablePackageList = new java.util.ArrayList<>(wrapper.runnablePackageList);
+		this.macOSPackageList = new java.util.ArrayList<>(wrapper.macOSPackageList);
+		this.windowsPackageList = new java.util.ArrayList<>(wrapper.windowsPackageList);
 		this.levelArtifactList = new java.util.ArrayList<>(wrapper.levelArtifactList);
 		this.platformArtifactList = new java.util.ArrayList<>(wrapper.platformArtifactList);
 		this.productArtifactList = new java.util.ArrayList<>(wrapper.productArtifactList);
@@ -41,6 +45,8 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 		serverList = this.graph.rootList(io.intino.legio.graph.Server.class);
 		repositoryList = this.graph.rootList(io.intino.legio.graph.Repository.class);
 		runnablePackageList = this.graph.rootList(io.intino.legio.graph.runnable.artifact.RunnablePackage.class);
+		macOSPackageList = this.graph.rootList(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+		windowsPackageList = this.graph.rootList(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
 		levelArtifactList = this.graph.rootList(io.intino.legio.graph.level.LevelArtifact.class);
 		platformArtifactList = this.graph.rootList(io.intino.legio.graph.platform.PlatformArtifact.class);
 		productArtifactList = this.graph.rootList(io.intino.legio.graph.product.ProductArtifact.class);
@@ -54,6 +60,8 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Server")) this.serverList.add(node.as(io.intino.legio.graph.Server.class));
 		if (node.is("Repository")) this.repositoryList.add(node.as(io.intino.legio.graph.Repository.class));
 		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.add(node.as(io.intino.legio.graph.runnable.artifact.RunnablePackage.class));
+		if (node.is("MacOS#Artifact$Package")) this.macOSPackageList.add(node.as(io.intino.legio.graph.macos.artifact.MacOSPackage.class));
+		if (node.is("Windows#Artifact$Package")) this.windowsPackageList.add(node.as(io.intino.legio.graph.windows.artifact.WindowsPackage.class));
 		if (node.is("Level#Artifact")) this.levelArtifactList.add(node.as(io.intino.legio.graph.level.LevelArtifact.class));
 		if (node.is("Platform#Artifact")) this.platformArtifactList.add(node.as(io.intino.legio.graph.platform.PlatformArtifact.class));
 		if (node.is("Product#Artifact")) this.productArtifactList.add(node.as(io.intino.legio.graph.product.ProductArtifact.class));
@@ -67,6 +75,8 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 		if (node.is("Server")) this.serverList.remove(node.as(io.intino.legio.graph.Server.class));
 		if (node.is("Repository")) this.repositoryList.remove(node.as(io.intino.legio.graph.Repository.class));
 		if (node.is("Runnable#Artifact$Package")) this.runnablePackageList.remove(node.as(io.intino.legio.graph.runnable.artifact.RunnablePackage.class));
+		if (node.is("MacOS#Artifact$Package")) this.macOSPackageList.remove(node.as(io.intino.legio.graph.macos.artifact.MacOSPackage.class));
+		if (node.is("Windows#Artifact$Package")) this.windowsPackageList.remove(node.as(io.intino.legio.graph.windows.artifact.WindowsPackage.class));
 		if (node.is("Level#Artifact")) this.levelArtifactList.remove(node.as(io.intino.legio.graph.level.LevelArtifact.class));
 		if (node.is("Platform#Artifact")) this.platformArtifactList.remove(node.as(io.intino.legio.graph.platform.PlatformArtifact.class));
 		if (node.is("Product#Artifact")) this.productArtifactList.remove(node.as(io.intino.legio.graph.product.ProductArtifact.class));
@@ -95,6 +105,14 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 
 	public java.util.List<io.intino.legio.graph.runnable.artifact.RunnablePackage> runnablePackageList() {
 		return runnablePackageList;
+	}
+
+	public java.util.List<io.intino.legio.graph.macos.artifact.MacOSPackage> macOSPackageList() {
+		return macOSPackageList;
+	}
+
+	public java.util.List<io.intino.legio.graph.windows.artifact.WindowsPackage> windowsPackageList() {
+		return windowsPackageList;
 	}
 
 	public java.util.List<io.intino.legio.graph.level.LevelArtifact> levelArtifactList() {
@@ -143,6 +161,22 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 
 	public io.intino.legio.graph.runnable.artifact.RunnablePackage runnablePackage(int index) {
 		return runnablePackageList.get(index);
+	}
+
+	public java.util.stream.Stream<io.intino.legio.graph.macos.artifact.MacOSPackage> macOSPackageList(java.util.function.Predicate<io.intino.legio.graph.macos.artifact.MacOSPackage> filter) {
+		return macOSPackageList.stream().filter(filter);
+	}
+
+	public io.intino.legio.graph.macos.artifact.MacOSPackage macOSPackage(int index) {
+		return macOSPackageList.get(index);
+	}
+
+	public java.util.stream.Stream<io.intino.legio.graph.windows.artifact.WindowsPackage> windowsPackageList(java.util.function.Predicate<io.intino.legio.graph.windows.artifact.WindowsPackage> filter) {
+		return windowsPackageList.stream().filter(filter);
+	}
+
+	public io.intino.legio.graph.windows.artifact.WindowsPackage windowsPackage(int index) {
+		return windowsPackageList.get(index);
 	}
 
 	public java.util.stream.Stream<io.intino.legio.graph.level.LevelArtifact> levelArtifactList(java.util.function.Predicate<io.intino.legio.graph.level.LevelArtifact> filter) {
@@ -241,6 +275,18 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 			return newElement;
 		}
 
+		public io.intino.legio.graph.macos.artifact.MacOSPackage macOSPackage(java.lang.String macIcon) {
+			io.intino.legio.graph.macos.artifact.MacOSPackage newElement = AbstractGraph.this.graph.createRoot(io.intino.legio.graph.macos.artifact.MacOSPackage.class, stash, name).a$(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+			newElement.core$().set(newElement, "macIcon", java.util.Collections.singletonList(macIcon));
+			return newElement;
+		}
+
+		public io.intino.legio.graph.windows.artifact.WindowsPackage windowsPackage(java.lang.String windowsIcon) {
+			io.intino.legio.graph.windows.artifact.WindowsPackage newElement = AbstractGraph.this.graph.createRoot(io.intino.legio.graph.windows.artifact.WindowsPackage.class, stash, name).a$(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
+			newElement.core$().set(newElement, "windowsIcon", java.util.Collections.singletonList(windowsIcon));
+			return newElement;
+		}
+
 		public io.intino.legio.graph.platform.PlatformArtifact platformArtifact() {
 			io.intino.legio.graph.platform.PlatformArtifact newElement = AbstractGraph.this.graph.createRoot(io.intino.legio.graph.platform.PlatformArtifact.class, stash, name).a$(io.intino.legio.graph.platform.PlatformArtifact.class);
 
@@ -275,6 +321,14 @@ public class AbstractGraph extends io.intino.tara.magritte.GraphWrapper {
 
 	    public void runnablePackage(java.util.function.Predicate<io.intino.legio.graph.runnable.artifact.RunnablePackage> filter) {
 	    	new java.util.ArrayList<>(AbstractGraph.this.runnablePackageList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
+	    }
+
+	    public void macOSPackage(java.util.function.Predicate<io.intino.legio.graph.macos.artifact.MacOSPackage> filter) {
+	    	new java.util.ArrayList<>(AbstractGraph.this.macOSPackageList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
+	    }
+
+	    public void windowsPackage(java.util.function.Predicate<io.intino.legio.graph.windows.artifact.WindowsPackage> filter) {
+	    	new java.util.ArrayList<>(AbstractGraph.this.windowsPackageList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
 	    }
 
 	    public void platformArtifact(java.util.function.Predicate<io.intino.legio.graph.platform.PlatformArtifact> filter) {

@@ -108,6 +108,13 @@ Concept Repository
 Facet Runnable on Artifact.Package
 	var string mainClass
 
+Facet MacOS on Artifact.Package with Runnable
+	var string macIcon
+	var string resourceDirectory = empty
+
+Facet Windows on Artifact.Package with Runnable
+	var string windowsIcon
+
 Facet Level on Artifact
 	Concept:{1..1} Model
 		var string language

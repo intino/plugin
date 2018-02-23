@@ -56,7 +56,7 @@ public class PomCreator {
 		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().package$().mode();
 	}
 
-	public File frameworkPom() throws IOException {
+	public File frameworkPom() {
 		return isWebModule(module) ? webPom(pomFile()) : frameworkPom(pomFile());
 	}
 
@@ -88,8 +88,12 @@ public class PomCreator {
 	}
 
 	@NotNull
-	private File pomFile() throws IOException {
-		return new File(new File(module.getModuleFilePath()).getParent(), "pom2.xml");
+	private File pomFile() {
+		return new File(moduleDirectory(), "pom2.xml");
+	}
+
+	private String moduleDirectory() {
+		return new File(module.getModuleFilePath()).getParent();
 	}
 
 	private void fillMavenId(Frame frame) {
@@ -104,20 +108,36 @@ public class PomCreator {
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 		if (extension != null) {
-			frame.addSlot("outDirectory", pathOf(extension.getCompilerOutputUrl()));
-			frame.addSlot("testOutDirectory", pathOf(extension.getCompilerOutputUrlForTests()));
-			frame.addSlot("buildDirectory", pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl()) + separator + "build" + separator);
+			frame.addSlot("outDirectory", outDirectory(extension));
+			frame.addSlot("testOutDirectory", testOutDirectory(extension));
+			frame.addSlot("buildDirectory", buildDirectory());
 		}
 		if (pack != null) configureBuild(frame, configuration.licence(), pack);
 		addDependencies(frame);
 		addRepositories(frame);
 	}
 
+	@NotNull
+	private String buildDirectory() {
+		return projectOutDirectory() + separator + "build" + separator;
+	}
+
+	private String outDirectory(CompilerModuleExtension extension) {
+		return pathOf(extension.getCompilerOutputUrl());
+	}
+
+	private String testOutDirectory(CompilerModuleExtension extension) {
+		return pathOf(extension.getCompilerOutputUrlForTests());
+	}
+
+	private String projectOutDirectory() {
+		return pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl());
+	}
+
 	private void addDependencies(Frame frame) {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(frame, module);
 		else frame.addSlot("compile", "");
 		Set<String> dependencies = new HashSet<>();
-
 		for (Dependency dependency : configuration.dependencies()) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
@@ -190,7 +210,7 @@ public class PomCreator {
 			if (isWebModule(dependency)) {
 				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 				if (extension != null && extension.getCompilerOutputUrl() != null)
-					resources.add(pathOf(extension.getCompilerOutputUrl()));
+					resources.add(outDirectory(extension));
 			} else if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) {
 				List<VirtualFile> roots = getInstance(dependency).getSourceRoots(RESOURCE);
 				resources.addAll(roots.stream().map(VirtualFile::getPath).collect(Collectors.toList()));
@@ -210,6 +230,8 @@ public class PomCreator {
 	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package build) {
 		if (build.attachSources()) frame.addSlot("attachSources", "");
 		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
+		if (build.isMacOS()) frame.addSlot("osx", osx(build));
+		if (build.isWindows()) frame.addSlot("windows", windows(build));
 		final Artifact.Package.Mode type = build.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
@@ -219,19 +241,33 @@ public class PomCreator {
 			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name()).addSlot("value", parameter.value()));
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
-		if (license != null)
-			frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
+		if (license != null) frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
+	}
+
+	private Frame osx(Artifact.Package build) {
+		final Frame frame = new Frame().addSlot("mainClass", build.asRunnable().mainClass());
+		if (build.asMacOS().macIcon() != null && !build.asMacOS().macIcon().isEmpty())
+			frame.addSlot("icon", build.asMacOS().macIcon());
+		return frame;
+	}
+
+	private Frame windows(Artifact.Package build) {
+		final Frame frame = new Frame().addSlot("mainClass", build.asRunnable().mainClass());
+		frame.addSlot("icon", build.asWindows().windowsIcon());
+		final Artifact artifact = configuration.artifact();
+		frame.addSlot("name", artifact.name$()).addSlot("out", buildDirectory()).addSlot("version", artifact.version());
+		frame.addSlot("prefix", build.classpathPrefix() != null ? build.classpathPrefix() : "dependency");
+		return frame;
 	}
 
 	private void addDependantModuleAsSources(Frame frame, Module module) {
-		for (Module dependency : collectModuleDependencies(module)) {
+		for (Module dependency : collectModuleDependencies(module))
 			ApplicationManager.getApplication().runReadAction(() -> {
 				for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
 					if (sourceRoot != null) frame.addSlot("moduleDependency", sourceRoot.getPath());
 				for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
 					if (testRoot != null) frame.addSlot("testModuleDependency", testRoot.getPath());
 			});
-		}
 	}
 
 	private String pathOf(String path) {
