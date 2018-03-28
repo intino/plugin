@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>magritte</artifactId>
-            <version>2.1.0</version>
+            <version>2.1.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.intino.tara</groupId>
@@ -94,7 +94,7 @@
             <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
-            <version>1.0.6</version>
+            <version>1.0.8</version>
         </dependency>
     </dependencies>
 </project>

@@ -110,7 +110,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private PsiClass findRunnerClass(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		if (configuration == null) return null;
-		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.runnerClass(), GlobalSearchScope.moduleScope(module));
+		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.runnerClass(), GlobalSearchScope.projectScope(module.getProject()));
 	}
 
 	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
