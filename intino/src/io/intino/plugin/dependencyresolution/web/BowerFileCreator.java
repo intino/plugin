@@ -52,8 +52,12 @@ public class BowerFileCreator {
 			if (frames != null) frame.addSlot("resolution", frames);
 		}
 		final File bowerFile = write(BowerTemplate.create().format(frame), new File(destination, "bower.json"));
+		return isEmpty(frame) ? null : bowerFile;
+	}
+
+	private boolean isEmpty(Frame frame) {
 		final List<String> slots = asList(frame.slots());
-		return !slots.contains("dependency") && !slots.contains("resolution") ? null : bowerFile;
+		return (!slots.contains("dependency") && !slots.contains("resolution")) || (!frame.frames("dependency").hasNext() && !frame.frames("resolution").hasNext());
 	}
 
 	private Frame dependencyFrameOf(WebComponent webComponent) {
