@@ -60,6 +60,7 @@ public class WebDependencyResolver {
 		final List<File> webArtifacts = resolveArtifacts();
 		final BowerFileCreator creator = new BowerFileCreator(artifact, webArtifacts);
 		File bower = creator.createBowerFile(nodeDirectory);
+		if (bower == null) return;
 		File bowerrc = creator.createBowerrcFile(libComponentsDirectory, nodeDirectory);
 		File pom = createPomFile();
 		File packageJson = createPackageFile();

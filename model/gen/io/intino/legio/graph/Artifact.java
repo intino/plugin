@@ -1662,6 +1662,42 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			core$().removeFacet(io.intino.legio.graph.runnable.artifact.RunnablePackage.class);
 		}
 
+		public io.intino.legio.graph.macos.artifact.MacOSPackage asMacOS() {
+			return a$(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+		}
+
+		public io.intino.legio.graph.macos.artifact.MacOSPackage asMacOS(java.lang.String macIcon) {
+			io.intino.legio.graph.macos.artifact.MacOSPackage newElement = core$().addFacet(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+			newElement.core$().set(newElement, "macIcon", java.util.Collections.singletonList(macIcon));
+		    return newElement;
+		}
+
+		public boolean isMacOS() {
+			return core$().is(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+		}
+
+		public void removeMacOS() {
+			core$().removeFacet(io.intino.legio.graph.macos.artifact.MacOSPackage.class);
+		}
+
+		public io.intino.legio.graph.windows.artifact.WindowsPackage asWindows() {
+			return a$(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
+		}
+
+		public io.intino.legio.graph.windows.artifact.WindowsPackage asWindows(java.lang.String windowsIcon) {
+			io.intino.legio.graph.windows.artifact.WindowsPackage newElement = core$().addFacet(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
+			newElement.core$().set(newElement, "windowsIcon", java.util.Collections.singletonList(windowsIcon));
+		    return newElement;
+		}
+
+		public boolean isWindows() {
+			return core$().is(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
+		}
+
+		public void removeWindows() {
+			core$().removeFacet(io.intino.legio.graph.windows.artifact.WindowsPackage.class);
+		}
+
 		protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
 			new java.util.ArrayList<>(parameterList).forEach(c -> components.add(c.core$()));

@@ -52,6 +52,11 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 			final String value = info.tooltipProvider.apply(element1);
 			return value.length() == 0 ? null : value;
 		};
+		return getLineMarkerInfo(element, info, actionGroup, tooltipProvider);
+	}
+
+	@NotNull
+	private LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
 		return new LineMarkerInfo<PsiElement>(element, element.getTextRange(), info.icon, Pass.LINE_MARKERS,
 				tooltipProvider, null,
 				GutterIconRenderer.Alignment.CENTER) {
@@ -105,7 +110,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private PsiClass findRunnerClass(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		if (configuration == null) return null;
-		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.runnerClass(), GlobalSearchScope.moduleScope(module));
+		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.runnerClass(), GlobalSearchScope.projectScope(module.getProject()));
 	}
 
 	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
@@ -125,7 +130,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 
 	private boolean isRunConfiguration(PsiElement e) {
-		return !(!(e instanceof TaraNode) || !e.getContainingFile().getFileType().equals(LegioFileType.instance())) &&
+		return e.getContainingFile().getFileType().equals(LegioFileType.instance()) && e instanceof TaraNode &&
 				((TaraNode) e).type().equals("RunConfiguration");
 	}
 

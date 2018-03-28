@@ -20,6 +20,7 @@ import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependenc
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static io.intino.plugin.project.LibraryConflictResolver.mustAddEntry;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public class LibraryManager {
@@ -100,9 +101,9 @@ public class LibraryManager {
 				collect(toList());
 	}
 
-	private static List<LibraryOrderEntry> collectInvalidLibraries(ModifiableRootModel modifiableModel) {
+	private static Collection<LibraryOrderEntry> collectInvalidLibraries(ModifiableRootModel modifiableModel) {
 		Map<String, String> entries = new HashMap<>();
-		List<LibraryOrderEntry> toRemove = new ArrayList<>();
+		Set<LibraryOrderEntry> toRemove = new HashSet<>();
 		final List<LibraryOrderEntry> libraryOrderEntries = Arrays.stream(modifiableModel.getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(e -> ((LibraryOrderEntry) e)).collect(toList());
 		libraryOrderEntries.forEach(e -> {
@@ -112,18 +113,31 @@ public class LibraryManager {
 				entries.put(l.getName(), "");
 				return;
 			}
-			final String libraryName = l.getName().substring(0, l.getName().lastIndexOf(":"));
-			final String version = l.getName().substring(l.getName().lastIndexOf(":") + 1);
-			if (!entries.containsKey(libraryName)) entries.put(libraryName, version);
-			else
-				toRemove.add(entries.get(libraryName).compareTo(version) > 1 ? e : searchLibrary(libraryOrderEntries, libraryName));
+			if (!entries.containsKey(nameOf(l))) entries.put(nameOf(l), versionOf(l));
+			else {
+				if (entries.get(nameOf(l)).compareTo(versionOf(l)) > 0) toRemove.add(e);
+				else {
+					toRemove.add(searchLibrary(libraryOrderEntries, l.getName()));
+					entries.put(nameOf(l), versionOf(l));
+				}
+			}
 		});
 		return toRemove;
 	}
 
+	@NotNull
+	private static String versionOf(Library l) {
+		return requireNonNull(l.getName()).substring(l.getName().lastIndexOf(":") + 1);
+	}
+
+	@NotNull
+	private static String nameOf(Library l) {
+		return requireNonNull(l.getName()).substring(0, l.getName().lastIndexOf(":"));
+	}
+
 	private static LibraryOrderEntry searchLibrary(List<LibraryOrderEntry> libraryOrderEntries, String name) {
 		for (LibraryOrderEntry entry : libraryOrderEntries)
-			if (entry.getLibrary() != null && entry.getLibrary().getName().startsWith(name + ":"))
+			if (entry.getLibrary() != null && entry.getLibrary().getName().startsWith(name))
 				return entry;
 		return null;
 	}
@@ -185,7 +199,7 @@ public class LibraryManager {
 
 	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
 		for (LibraryOrderEntry entry : registered) {
-			if ((library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE)))
+			if (library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE))
 				return true;
 		}
 		return false;

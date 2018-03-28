@@ -5,7 +5,7 @@ import java.util.List;
 import io.intino.legio.graph.Destination;
 
 
-public class LevelArtifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
+public abstract class LevelArtifact extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 
 	protected io.intino.legio.graph.level.LevelArtifact.Model model;
 

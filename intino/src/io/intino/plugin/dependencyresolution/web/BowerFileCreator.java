@@ -14,10 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -51,7 +51,9 @@ public class BowerFileCreator {
 			final Frame[] frames = resolutionFrameOf(bower);
 			if (frames != null) frame.addSlot("resolution", frames);
 		}
-		return write(BowerTemplate.create().format(frame), new File(destination, "bower.json"));
+		final File bowerFile = write(BowerTemplate.create().format(frame), new File(destination, "bower.json"));
+		final List<String> slots = asList(frame.slots());
+		return !slots.contains("dependency") && !slots.contains("resolution") ? null : bowerFile;
 	}
 
 	private Frame dependencyFrameOf(WebComponent webComponent) {

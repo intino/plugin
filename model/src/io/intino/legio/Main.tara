@@ -86,8 +86,12 @@ Concept Destination is component
 	Concept:{0..1} BugTracking
 		var string[] slackUsers = empty
 	Concept:{0..1} Requirements
+		Concept HDD
+			var integer:{GB} min
 		Concept Memory
+			var integer:{MB} min
 		Concept CPU
+			var integer cores
 
 Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
@@ -107,6 +111,13 @@ Concept Repository
 
 Facet Runnable on Artifact.Package
 	var string mainClass
+
+Facet MacOS on Artifact.Package with Runnable
+	var string macIcon
+	var string resourceDirectory = empty
+
+Facet Windows on Artifact.Package with Runnable
+	var string windowsIcon
 
 Facet Level on Artifact
 	Concept:{1..1} Model

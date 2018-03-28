@@ -50,6 +50,7 @@ public class ArtifactDeployer {
 		try {
 			final String user = user();
 			if (destination.server() == null) throw new IntinoException("Server not found");
+			if (!configuration.pack().isRunnable()) throw new IntinoException("Packaging must be runnable");
 			if (!correctParameters(destination.runConfiguration().argumentList()))
 				throw new IntinoException("Arguments are duplicated");
 			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeploySystem(user, createSystem(destination));

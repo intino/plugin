@@ -98,6 +98,7 @@ public class MavenRunner {
 	public void executeFramework(FactoryPhase phase) throws MavenInvocationException, IOException {
 		final File pom = new PomCreator(module).frameworkPom();
 		final InvocationResult result = invokeMaven(pom, phase);
+		applyBuildFixes(module, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {
 			FileUtil.delete(pom);
@@ -105,6 +106,10 @@ public class MavenRunner {
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
 		}
+	}
+
+	private void applyBuildFixes(Module module, FactoryPhase phase) {
+		new BuildFixer(module).apply();
 	}
 
 	public void invokeMaven(String... phases) {
