@@ -165,7 +165,7 @@ public class LegioConfiguration implements Configuration {
 
 	private Stash loadNewConfiguration() {
 		try {
-			return new StashBuilder(Collections.singletonList(new File(legioFile.getPath())), new tara.dsl.Legio(), module.getName()).build();
+			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName()).build();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			return null;

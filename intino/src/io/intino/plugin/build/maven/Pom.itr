@@ -14,7 +14,7 @@ def type(pom)
 		<properties>
 			<maven.compiler.source>$sdk</maven.compiler.source>
 			<maven.compiler.target>$sdk</maven.compiler.target>
-			[<project.build.sourceEncoding>$encoding</project.build.sourceEncoding>]
+			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 			<sonar.language>java</sonar.language>
 			<sonar.login></sonar.login>
 			<sonar.password></sonar.password>
