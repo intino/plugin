@@ -29,8 +29,6 @@ import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static java.util.stream.Collectors.toList;
 
 public class ArtifactDeployer {
-	private static final Logger LOG = Logger.getInstance(ArtifactDeployer.class.getName());
-
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private List<Destination> destinations;

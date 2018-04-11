@@ -143,7 +143,7 @@ abstract class AbstractArtifactBuilder {
 
 	private List<Destination> collectDestinations(Project project, LegioConfiguration conf) {
 		final List<Artifact.Deployment> deployments = conf.deployments();
-		if (deployments.size() > 1)
+		if (deployments.size() > 1 || (!deployments.isEmpty() && deployments.get(0).destinations().size() > 1))
 			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
 		return deployments.isEmpty() ? emptyList() : destinationsOf(deployments.get(0));
 	}

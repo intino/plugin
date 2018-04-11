@@ -1,178 +1,181 @@
 def type(gulp)
-	'use strict';
 
-	// libraries
-	const gulp = require('gulp');
-	const $$ = require('gulp-load-plugins')();
-	const del = require('del');
-	const runSequence = require('run-sequence');
-	const merge = require('merge-stream');
-	const path = require('path');
-	const concat = require('gulp-concat');
-	const eventStream = require('event-stream');
-	const console = require('gulp-util');
-    const os = require('os');
-	const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
-	const WorkingDirectory = '$rootDirectory+path';
-	const WatchPort = 35$port;
+'use strict';
 
-	// root tasks
-	gulp.task('default', cb => {
-		runSequence('clean', 'package', 'install', cb);
-	});
+// libraries
+const gulp = require('gulp');
+const $$ = require('gulp-load-plugins')();
+const del = require('del');
+const runSequence = require('run-sequence');
+const merge = require('merge-stream');
+const path = require('path');
+const concat = require('gulp-concat');
+const eventStream = require('event-stream');
+const console = require('gulp-util');
+const os = require('os');
+const rsync = require('gulp-rsync');
+const fs = require('fs');
+const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
+const WorkingDirectory = '$rootDirectory+path';
+const ActivityName = '$activity+lowercase';
+const WatchPort = 35$port;
 
-	gulp.task('dev', cb => {
-		runSequence('default', 'watch', cb);
-	});
+// root tasks
+gulp.task('dev', cb => {
+    runSequence('clean', 'copy-lib-to-output', 'package-dev', 'watch', cb);
+});
 
-	gulp.task('deploy', cb => {
-		runSequence('clean', 'package', 'obfuscate', 'install', cb);
-	});
+gulp.task('deploy', cb => {
+    runSequence('clean', 'package-deploy', cb);
+});
 
-	// sub tasks
-	gulp.task('clean', () => {return del($[packagePath()], {force:true}); });
+// sub tasks
+gulp.task('clean', () => {
+    return del($[outputPath()], {force:true});
+});
 
-	gulp.task('package', cb => {
-		runSequence('compile', 'clean-compile', 'union', cb);
-	});
+gulp.task('copy-lib-to-output', () => {
+    return eventStream.concat(
+        unionLibs(workingPath('lib/**/*'), outputPath("/lib"))
+    );
+});
 
-	gulp.task('compile', cb => {
-		runSequence('prepare-compile', 'do-compile', cb);
-	});
+gulp.task('package-dev', cb => {
+    runSequence('union-dev', 'resolve-dev-url-dependencies', cb);
+});
 
-	gulp.task('prepare-compile', cb => {
-		return eventStream.concat(
-			gulp.src(workingPath('src/**/*')).pipe(gulp.dest(packagePath("/"))),
-			gulp.src(workingPath('lib/**/*')).pipe(gulp.dest(packagePath("/lib")))
-		);
-	});
+gulp.task('union-dev', () => {
+    return eventStream.concat(
+        unionWidgets(workingPath('src/widgets/**/*'), outputPath("/src/widgets")),
+        unionFonts(workingPath('src/fonts/**/*'), outputPath("/fonts")),
+        unionStyles(workingPath('src/styles/**/*'), outputPath("/styles")),
+        unionImages(workingPath('src/images/**/*'), outputPath("/images")),
+        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, incremental: true, root: 'src', destination: outputPath('')}))
+    );
+});
 
-	gulp.task('do-compile', cb => {
-		return eventStream.concat(
-			compileFile(packagePath(''), '/components.html')
-		);
-	});
+gulp.task('package-deploy', cb => {
+    runSequence('union-deploy', 'resolve-deploy-url-dependencies', cb);
+});
 
-	gulp.task('clean-compile', cb => {
-		return del($[packagePath('/components'), packagePath('/widgets'), packagePath('/widgets.html'), packagePath('/lib')], {force:true});
-	});
+gulp.task('union-deploy', cb => {
+    return eventStream.concat(
+        unionFonts(workingPath('src/fonts/**/*'), outputPath("/fonts")),
+        unionStyles(workingPath('src/styles/**/*'), outputPath("/styles")),
+        unionImages(workingPath('src/images/**/*'), outputPath("/images")),
+        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('src/components.html'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, incremental: true, root: 'src', destination: outputPath('')})),
+        unionLib(),
+        compileFile(workingPath('src'), '/components.html'),
+        obfuscateFile(outputPath('/components.html'))
+    );
+});
 
-	gulp.task('union', cb => {
-		return eventStream.concat(
-			unionFonts(workingPath('src/fonts/**/*'), packagePath("/fonts")),
-			unionStyles(workingPath('src/styles/**/*'), packagePath("/styles")),
-			gulp.src(workingPath('src/styles/**/*')).pipe(gulp.dest(packagePath("/styles"))),
-			unionImages(workingPath('src/images/**/*'), packagePath("/images")),
-			gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('src/components.html'), '!' + workingPath('**/.DS_Store')]).pipe(gulp.dest(packagePath(''))),
-			unionLib()
-		);
-	});
+gulp.task('resolve-deploy-url-dependencies', () => {
+    return gulp.src($[outputPath('*.html'), '!' + outputPath('/components.html')])
+        .pipe($$.replace('src="', 'src="$$url/'))
+        .pipe($$.replace('href="', 'href="$$url/'))
+        .pipe($$.replace('href-absolute=', 'href='))
+        .pipe(gulp.dest(outputPath()));
+});
 
-    gulp.task('install', cb => {
-        runSequence('clean-out', 'populate-out', cb);
-    });
+gulp.task('resolve-dev-url-dependencies', () => {
+    gulp.src($[outputPath('*.html'), '!' + outputPath('components.html')])
+        .pipe($$.replace('src="', 'src="/' + ActivityName + '/'))
+        .pipe($$.replace('href="', 'href="/' + ActivityName + '/'))
+        .pipe($$.replace('href-absolute=', 'href='))
+        .pipe(gulp.dest(outputPath()));
+    gulp.src($[outputPath('components.html')])
+        .pipe($$.replace('src="', 'src="/' + ActivityName + '/src/'))
+        .pipe($$.replace('href="', 'href="/' + ActivityName + '/src/'))
+        .pipe($$.replace('href-absolute=', 'href='))
+        .pipe(gulp.dest(outputPath()));
+});
 
-    gulp.task('clean-out', () => {
-        return del($[outputPath()], {force:true});
-    });
+gulp.task('watch', () => {
+    const tasksToLaunch = $['refresh-dev-server'];
 
-    gulp.task('populate-out', $['resolve-url-dependencies'],() => {
-        return eventStream.concat(
-            gulp.src($[packagePath('/**/*')], { dot: true }).pipe(gulp.dest(outputPath()))
-        );
-    });
+gulp.watch($[workingPath('src/**/*.html')], tasksToLaunch);
+gulp.watch($[workingPath('src/styles/**/*.css')], tasksToLaunch);
+gulp.watch($[workingPath('src/widgets/**/*.css')], tasksToLaunch);
+gulp.watch($[workingPath('src/widgets/**/*.html')], tasksToLaunch);
+gulp.watch($[workingPath('src/components/**/*.css')], tasksToLaunch);
+gulp.watch($[workingPath('src/components/**/*.html')], tasksToLaunch);
+gulp.watch($[workingPath('src/images/**/*')], tasksToLaunch);
 
-	gulp.task('resolve-url-dependencies', () => {
-		return gulp.src($[packagePath('*.html'), '!' + packagePath('/components.html')])
-			.pipe($$.replace('src="', 'src="$$url/'))
-			.pipe($$.replace('href="', 'href="$$url/'))
-			.pipe($$.replace('href-absolute=', 'href='))
-			.pipe(gulp.dest(packagePath()));
-	});
+$$.livereload.listen({ port: WatchPort, basePath: '.' });
+});
 
-	gulp.task('watch', () => {
-		const tasksToLaunch = $['refresh-dev-server'];
+gulp.task('refresh-dev-server', $['package-dev', 'refresh-browser']);
+gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($$.livereload()));
 
-		gulp.watch($[workingPath('src/**/*.html')], tasksToLaunch);
-		gulp.watch($[workingPath('src/styles/**/*.css')], tasksToLaunch);
-		gulp.watch($[workingPath('src/widgets/**/*.css')], tasksToLaunch);
-		gulp.watch($[workingPath('src/widgets/**/*.html')], tasksToLaunch);
-		gulp.watch($[workingPath('src/components/**/*.css')], tasksToLaunch);
-		gulp.watch($[workingPath('src/components/**/*.html')], tasksToLaunch);
-		gulp.watch($[workingPath('src/images/**/*')], tasksToLaunch);
+// constants
+const outputPath = subpath => !subpath ? OutputPath : path.join(OutputPath, subpath);
+const workingPath = subpath => !subpath ? WorkingDirectory : path.join(WorkingDirectory, subpath);
 
-		$$.livereload.listen({ port: WatchPort, basePath: '.' });
-	});
+const compileFile = (path, src) => {
+    var isWin = (os.type().toLowerCase().startsWith() == "win");
+    var vulcanizeOptions = { stripComments: true, inlineCss: true, inlineScripts: true };
 
-	gulp.task('refresh-dev-server', $['default', 'refresh-browser']);
-	gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($$.livereload()));
+    if (isWin) vulcanizeOptions.abspath = path;
+    else src = path + src;
 
-	gulp.task('obfuscate', () => {
-		return eventStream.concat(
-			obfuscateFile(packagePath('/components.html'))
-		);
-	});
+    return gulp.src(src)
+        .pipe($$.vulcanize(vulcanizeOptions))
+        .pipe($$.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>', '<!--<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>-->')) // fix important paper-chip bug
+        .pipe(gulp.dest(outputPath()))
+        .pipe($$.size({title: 'vulcanize'}));
+};
 
-	// constants
-	const PackageDirectory = '$rootDirectory+path/dist';
+const obfuscateFile = (src) => {
+    return gulp.src(src)
+        .pipe($$.htmlmin({
+            collapseWhitespace: true,
+            removeComments: true,
+            removeTagWhitespace: true,
+            minifyCSS: true,
+            minifyJS: true,
+            trimCustomFragments : true
+        }))
+        .pipe(gulp.dest(outputPath()));
+};
 
-	const packagePath = subpath => !subpath ? PackageDirectory : path.join(PackageDirectory, subpath);
-	const outputPath = subpath => !subpath ? OutputPath : path.join(OutputPath, subpath);
-	const workingPath = subpath => !subpath ? WorkingDirectory : path.join(WorkingDirectory, subpath);
+const unionLib = () => {
+    return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,konos-server-web,alexandria-activity-elements,numeral,promise-polyfill}/**/*'),
+        workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
+        .pipe(rsync({ silent: true, incremental: true, root: 'lib', destination: outputPath('lib') }));
+};
 
-	const compileFile = (path, src) => {
-        var isWin = (os.type().toLowerCase().startsWith() == "win");
-        var vulcanizeOptions = { stripComments: true, inlineCss: true, inlineScripts: true };
+const unionLibs = (src, dest) => {
+    return gulp.src(src)
+        .pipe(gulp.dest(dest))
+        .pipe($$.size({title: 'libs'}));
+};
 
-        if (isWin) vulcanizeOptions.abspath = path;
-        else src = path + src;
+const unionWidgets = (src, dest) => {
+    if (!fs.existsSync(outputPath("src"))) fs.mkdirSync(outputPath("src"));
+    return gulp.src(src)
+        .pipe(rsync({ silent: true, incremental: true, root: 'src/widgets', destination: dest }))
+        .pipe($$.size({title: 'widgets'}));
+};
 
-        return gulp.src(src)
-            .pipe($$.vulcanize(vulcanizeOptions))
-            .pipe($$.replace('<iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>', '<!-- commented by sumus to fix important events bug <iron-a11y-keys target="{{}}" keys="space enter" on-keys-pressed="toggleOpened"><\\/iron-a11y-keys>-->')) // fix important paper-chip bug
-            .pipe(gulp.dest(packagePath()))
-            .pipe($$.size({title: 'vulcanize'}));
-	};
+const unionStyles = (src, dest) => {
+    return gulp.src(src)
+        .pipe(gulp.dest(dest))
+        .pipe($$.size({title: 'styles'}));
+};
 
-	const obfuscateFile = (src) => {
-		return gulp.src(src)
-			.pipe($$.htmlmin({
-				collapseWhitespace: true,
-				removeComments: true,
-				removeTagWhitespace: true,
-				minifyCSS: true,
-				minifyJS: true,
-				trimCustomFragments : true
-			}))
-			.pipe(gulp.dest(packagePath()));
-	};
+const unionImages = (src, dest) => {
+    return gulp.src(src)
+        .pipe(rsync({ silent: true, incremental: true, root: 'src/images', destination: dest }))
+        .pipe($$.size({title: 'images'}));
+};
 
-	const unionLib = () => {
-		return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,konos-server-web,alexandria-activity-elements,numeral,promise-polyfill}/**/*'),
-			workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
-			.pipe(gulp.dest(packagePath('lib')));
-	};
+const unionFonts = (src, dest) => {
+    return gulp.src(src)
+        .pipe(rsync({ silent: true, incremental: true, root: 'src/fonts', destination: dest }))
+        .pipe($$.size({title: 'fonts'}));
+};
 
-	const unionStyles = (src, dest) => {
-		return gulp.src(src)
-			.pipe($$.changed(src, {extension: '.html'}))
-			.pipe($$.changed(src, {extension: '.css'}))
-			.pipe(gulp.dest(dest))
-			.pipe(gulp.dest(dest))
-			.pipe($$.size({title: src}));
-	};
+require('web-component-tester').gulp.init(gulp);
 
-	const unionImages = (src, dest) => {
-		return gulp.src(src)
-			.pipe(gulp.dest(dest))
-			.pipe($$.size({title: 'images'}));
-	};
-
-	const unionFonts = (src, dest) => {
-		return gulp.src(src)
-			.pipe(gulp.dest(dest))
-			.pipe($$.size({title: 'fonts'}));
-	};
-
-	require('web-component-tester').gulp.init(gulp);
 end

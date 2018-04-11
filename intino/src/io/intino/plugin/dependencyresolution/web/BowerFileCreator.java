@@ -13,6 +13,7 @@ import org.siani.itrules.model.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +53,17 @@ public class BowerFileCreator {
 			if (frames != null) frame.addSlot("resolution", frames);
 		}
 		final File bowerFile = write(BowerTemplate.create().format(frame), new File(destination, "bower.json"));
+		try {
+			Files.copy(bowerFile.toPath(), new File(bowerFile.getParentFile(), ".bower.json").toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return isEmpty(frame) ? null : bowerFile;
+	}
+
+	private boolean isEmpty(Frame frame) {
 		final List<String> slots = asList(frame.slots());
-		return !slots.contains("dependency") && !slots.contains("resolution") ? null : bowerFile;
+		return (!slots.contains("dependency") && !slots.contains("resolution")) || (!frame.frames("dependency").hasNext() && !frame.frames("resolution").hasNext());
 	}
 
 	private Frame dependencyFrameOf(WebComponent webComponent) {
