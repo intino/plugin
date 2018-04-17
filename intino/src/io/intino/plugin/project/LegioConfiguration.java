@@ -172,7 +172,7 @@ public class LegioConfiguration implements Configuration {
 	private ApplicationConfiguration findRunConfiguration(String name) {
 		final List<com.intellij.execution.configurations.RunConfiguration> list = RunManager.getInstance(module.getProject()).
 				getAllConfigurationsList().stream().filter(r -> r instanceof IntinoRunConfiguration).collect(Collectors.toList());
-		return (ApplicationConfiguration) list.stream().filter(r -> r.getName().equals(name)).findFirst().orElse(null);
+		return (ApplicationConfiguration) list.stream().filter(r -> (r.getName()).equalsIgnoreCase(artifact().name$().toLowerCase() + "-" + name)).findFirst().orElse(null);
 	}
 
 	private LegioGraph newGraphFromLegio() {
@@ -182,7 +182,8 @@ public class LegioConfiguration implements Configuration {
 
 	private Stash loadNewConfiguration() {
 		try {
-			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName()).build();
+
+			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), System.out).build();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			return null;

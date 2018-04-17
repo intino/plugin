@@ -71,7 +71,7 @@
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

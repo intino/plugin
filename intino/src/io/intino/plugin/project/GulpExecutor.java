@@ -9,7 +9,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.graph.Artifact;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
-import io.intino.plugin.dependencyresolution.web.BowerFileCreator;
 import io.intino.plugin.dependencyresolution.web.Package_jsonTemplate;
 import io.intino.plugin.project.web.GulpPomTemplate;
 import io.intino.plugin.project.web.GulpfileTemplate;
@@ -132,9 +131,10 @@ public class GulpExecutor {
 
 	private File createGulpPom(String task) {
 		if (artifact == null) return null;
-		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().format(new Frame().addTypes("pom").
+		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().add("path", pathFormatter()).format(new Frame().addTypes("pom").
 				addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).
-				addSlot("version", artifact.version()).addSlot("module", module.getName()).addSlot("task", task)));
+				addSlot("version", artifact.version()).addSlot("module", module.getName()).addSlot("task", task).
+				addSlot("workingDirectory", rootDirectory)));
 	}
 
 	private File createPackageFile() {

@@ -8,6 +8,8 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.impl.RunConfigurationLevel;
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -120,17 +122,20 @@ public class IntinoRunContextAction extends RunContextAction {
 		final Presentation presentation = event.getPresentation();
 		final RunnerAndConfigurationSettings existing = context.findExisting();
 		RunnerAndConfigurationSettings configuration = null;
-		if (existing != null && existing.getName().equalsIgnoreCase(configuration().artifactId() + "-" + this.runConfiguration.name()))
+		if (existing != null && existing.getName().equalsIgnoreCase(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase()))
 			configuration = existing;
 		if (configuration == null) {
 			configuration = context.getConfiguration();
-			if (configuration != null) configuration.setName(this.runConfiguration.name());
+			if (configuration != null) {
+				configuration.setName(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase());
+				((RunnerAndConfigurationSettingsImpl) configuration).setLevel(RunConfigurationLevel.PROJECT);
+			}
 		}
 		if (configuration == null) {
 			presentation.setEnabled(false);
 			presentation.setVisible(false);
 		} else {
-			configuration.setName(configuration().artifactId() + "-" + this.runConfiguration.name());
+			configuration.setName(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase());
 			presentation.setEnabled(true);
 			presentation.setVisible(true);
 			final List<ConfigurationFromContext> fromContext = getConfigurationsFromContext();
@@ -163,5 +168,10 @@ public class IntinoRunContextAction extends RunContextAction {
 			if (isEnabledFor(configurationFromContext.getConfiguration()))
 				enabledConfigurations.add(configurationFromContext);
 		return enabledConfigurations;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }

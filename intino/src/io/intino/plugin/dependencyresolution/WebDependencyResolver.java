@@ -131,7 +131,7 @@ public class WebDependencyResolver {
 	}
 
 	private boolean npmInstalled() {
-		return new File(System.getProperty("user.home"), ".node/node/node_modules/npm").exists();
+		return new File(System.getProperty("user.home"), ".node/node_modules/npm").exists();
 	}
 
 	private void notifyError(String message) {
