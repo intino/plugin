@@ -19,7 +19,7 @@ def type(pom)
 				<plugin>
 					<groupId>com.github.eirslett</groupId>
 					<artifactId>frontend-maven-plugin</artifactId>
-					<version>1.3</version>
+					<version>1.6</version>
 					<executions>
 						<execution>
                             <id>gulp build</id>
@@ -28,7 +28,7 @@ def type(pom)
                             </goals>
 
                             <configuration>
-								<workingDirectory>$${user.home}/.node/node</workingDirectory>
+								<workingDirectory>$workingDirectory+path</workingDirectory>
 								<arguments>$task</arguments>
 							</configuration>
                         </execution>
