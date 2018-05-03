@@ -17,16 +17,17 @@ import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
-	private final Map<String, String> languageRepositories;
+	private final Map<String, String> repositories;
 
-	public ArtifactoryConnector(Map<String, String> languageRepositories) {
-		this.languageRepositories = languageRepositories;
+	public ArtifactoryConnector(Map<String, String> repositories) {
+		this.repositories = repositories;
+		this.repositories.put("https://repo.maven.apache.org/maven2/", "maven2");
 	}
 
 	public List<String> languages() {
 		List<String> langs = new ArrayList<>();
 		try {
-			for (String repo : languageRepositories.keySet()) {
+			for (String repo : repositories.keySet()) {
 				URL url = new URL(repo + "/" + "tara/dsl" + "/");
 				final String result = new String(read(connect(url)).toByteArray());
 				if (result.isEmpty()) continue;
@@ -40,12 +41,24 @@ public class ArtifactoryConnector {
 		}
 	}
 
-	public List<String> versions(String dsl) {
+	public List<String> dslVersions(String dsl) {
 		try {
-			for (String repo : languageRepositories.keySet()) {
-				if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
-					return proteoVersions();
+			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
+				return proteoVersions();
+			for (String repo : repositories.keySet()) {
 				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+				final String mavenMetadata = new String(read(connect(url)).toByteArray());
+				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
+			}
+		} catch (Throwable ignored) {
+		}
+		return Collections.emptyList();
+	}
+
+	public List<String> versions(String artifact) {
+		try {
+			for (String repo : repositories.keySet()) {
+				URL url = new URL(repo + "/" + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml");
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}

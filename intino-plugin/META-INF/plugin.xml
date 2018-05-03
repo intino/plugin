@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.2.4</version>
+    <version>3.2.5</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -55,7 +55,9 @@
         <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
-
+        <action id="NewTaraFile" class="io.intino.plugin.actions.CreateModelFileAction">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
         <action id="IntinoGenerate"
                 class="io.intino.plugin.actions.IntinoGenerationAction"
                 text="Generate intino code"
@@ -73,7 +75,6 @@
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
                 text="Purge and reload Legio Configuration"
                 description="Purge and reload configuration of project modules">
-
         </action>
         <action id="ReloadConfigurationAction"
                 class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"

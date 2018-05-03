@@ -42,7 +42,7 @@ public class GulpExecutor {
 		this.module = module;
 		this.artifact = artifact;
 		this.rootDirectory = new File(module.getModuleFilePath()).getParentFile();
-		this.nodeDirectory = new File(System.getProperty("user.home"), ".node" + File.separator + "node");
+		this.nodeDirectory = new File(System.getProperty("user.home"), "node");
 	}
 
 	synchronized void startGulpDev() {
@@ -93,7 +93,7 @@ public class GulpExecutor {
 	private synchronized void run(File pom, InvocationOutputHandler handler) {
 		try {
 			final MavenRunner mavenRunner = new MavenRunner(module, handler);
-			final InvocationResult result = mavenRunner.invokeMaven(pom, "", "generate-resources");
+			final InvocationResult result = mavenRunner.invokeMaven(pom, skipOptions(), "generate-resources");
 			processResult(pom, result);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			LOG.error(e.getMessage(), e);
@@ -111,7 +111,6 @@ public class GulpExecutor {
 		else FileUtil.delete(pom);
 	}
 
-
 	private File createGulp() throws IOException {
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 		if (extension == null || artifact == null) return null;
@@ -122,7 +121,7 @@ public class GulpExecutor {
 				addSlot("activity", module.getName().replace("-activity", ""));
 		if (!resourceDirectories.isEmpty()) frame.addSlot("resDirectory", resourceDirectories.get(0));
 		else frame.addSlot("resDirectory", new File(rootDirectory, "res").getCanonicalPath());
-		return write(new File(nodeDirectory, "gulpFile.js"), GulpfileTemplate.create().add("path", pathFormatter()).format(frame));
+		return write(new File(nodeDirectory.getParent(), "gulpFile.js"), GulpfileTemplate.create().add("path", pathFormatter()).format(frame));
 	}
 
 	private Formatter pathFormatter() {
@@ -131,17 +130,25 @@ public class GulpExecutor {
 
 	private File createGulpPom(String task) {
 		if (artifact == null) return null;
-		return write(new File(nodeDirectory, "pom.xml"), GulpPomTemplate.create().add("path", pathFormatter()).format(new Frame().addTypes("pom").
+		return write(new File(nodeDirectory.getParent(), "pom.xml"), GulpPomTemplate.create().add("path", pathFormatter()).format(new Frame().addTypes("pom").
 				addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).
 				addSlot("version", artifact.version()).addSlot("module", module.getName()).addSlot("task", task).
 				addSlot("workingDirectory", rootDirectory)));
 	}
 
 	private File createPackageFile() {
-		File packageFile = new File(nodeDirectory, "package.json");
+		File packageFile = new File(nodeDirectory.getParent(), "package.json");
 		packageFile.getParentFile().mkdirs();
 		write(packageFile, Package_jsonTemplate.create().format(new Frame().addTypes("package").addSlot("groupID", artifact.groupId()).addSlot("artifactID", artifact.name$()).addSlot("version", artifact.version())));
 		return packageFile;
+	}
+
+	private String skipOptions() {
+		return nodeInstalled() ? "-Dskip.npm" : "";
+	}
+
+	private boolean nodeInstalled() {
+		return new File(System.getProperty("user.home"), ".node/node/node").exists();
 	}
 
 	private String outDirectory(CompilerModuleExtension extension) {

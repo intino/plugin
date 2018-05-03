@@ -5,11 +5,17 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.ProcessingContext;
+import io.intino.plugin.project.ArtifactorySensor;
+import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.TaraModuleType;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import static io.intino.plugin.project.ArtifactorySensor.*;
 import static io.intino.tara.plugin.project.module.ModuleProvider.moduleOf;
@@ -20,6 +26,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	public LegioCompletionContributor() {
 		inLanguageName();
 		inLanguageVersion();
+		inImportVersion();
 		inGenerationVersion();
 		inBoxVersion();
 		inBoxLanguage();
@@ -86,6 +93,43 @@ public class LegioCompletionContributor extends CompletionContributor {
 					}
 				}
 		);
+	}
+
+	private void inImportVersion() {
+		extend(CompletionType.BASIC, LegioFilters.inDependencyVersion, new CompletionProvider<CompletionParameters>() {
+					public void addCompletions(@NotNull CompletionParameters parameters,
+											   ProcessingContext context,
+											   @NotNull CompletionResultSet resultSet) {
+						resolveDependency(parameters, resultSet);
+					}
+				}
+		);
+	}
+
+	private void resolveDependency(CompletionParameters parameters, CompletionResultSet resultSet) {
+		final Module module = moduleOf(parameters.getOriginalFile());
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) return;
+		final List<String> values = new ArtifactorySensor(((LegioConfiguration) configuration).repositoryTypes()).dependencyVersions(artifactFrom(TaraPsiImplUtil.getContainerNodeOf(parameters.getOriginalPosition())));
+		if (values == null) return;
+		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
+		JavaCompletionSorting.addJavaSorting(parameters, resultSet);
+	}
+
+	private String artifactFrom(Node node) {
+		return groupId(node.parameters()) + ":" + artifactId(node.parameters());
+	}
+
+	private String artifactId(List<Parameter> parameters) {
+		for (Parameter parameter : parameters)
+			if (parameter.name().equalsIgnoreCase("artifactId")) return parameter.values().get(0).toString();
+		return parameters.isEmpty() ? "" : parameters.get(0).values().get(0).toString();
+	}
+
+	private String groupId(List<Parameter> parameters) {
+		for (Parameter parameter : parameters)
+			if (parameter.name().equalsIgnoreCase("groupId")) return parameter.values().get(0).toString();
+		return parameters.isEmpty() ? "" : parameters.get(0).values().get(0).toString();
 	}
 
 	private void resolve(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet resultSet, String tag) {

@@ -302,7 +302,7 @@ public class LegioConfiguration implements Configuration {
 						versionParameter.substituteValues(Collections.singletonList(version));
 					}
 				}.execute();
-				reload();
+//				reload();
 			}
 
 			@Override

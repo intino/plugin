@@ -6,6 +6,7 @@ import io.intino.legio.graph.Repository.Type;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,15 @@ public class ArtifactorySensor {
 	public static final String LANGUAGES_TAG = "tara.dsls";
 	public static final String LANGUAGE_TAG = "tara.dsl.";
 	public static final String BOXING_TAG = "konos.boxing";
+	public static final String DEPENDENCY_TAG = "dependency.library";
 	public static final String GENERATION_TAG = "tara.generation";
 	private final PropertiesComponent properties;
-	private final ArtifactoryConnector connector;
+	private final ArtifactoryConnector languageConnectors;
+	private final ArtifactoryConnector dependencyConnectors;
 
-	ArtifactorySensor(List<Type> types) {
-		this.connector = new ArtifactoryConnector(by(types, Repository.Language.class));
+	public ArtifactorySensor(List<Type> repositories) {
+		this.languageConnectors = new ArtifactoryConnector(by(repositories, Repository.Language.class));
+		this.dependencyConnectors = new ArtifactoryConnector(by(repositories, Repository.Release.class, Repository.Snapshot.class));
 		this.properties = PropertiesComponent.getInstance();
 	}
 
@@ -29,40 +33,43 @@ public class ArtifactorySensor {
 		languagesVersions(languages);
 		boxingVersions();
 		generationVersions();
-
 	}
 
 	@NotNull
 	private List<String> languages() {
-		final List<String> languages = connector.languages();
-		if (!languages.isEmpty()) properties.setValues(LANGUAGES_TAG, languages.stream().toArray(String[]::new));
+		final List<String> languages = languageConnectors.languages();
+		if (!languages.isEmpty()) properties.setValues(LANGUAGES_TAG, languages.toArray(new String[0]));
 		return languages;
 	}
 
 	private void languagesVersions(List<String> languages) {
 		for (String language : languages) {
-			final List<String> versions = connector.versions(language);
+			final List<String> versions = languageConnectors.dslVersions(language);
 			if (!versions.isEmpty())
-				properties.setValues(LANGUAGE_TAG + language, versions.stream().toArray(String[]::new));
+				properties.setValues(LANGUAGE_TAG + language, versions.toArray(new String[0]));
 		}
 	}
 
 	private void boxingVersions() {
-		final List<String> versions = connector.boxingVersions();
+		final List<String> versions = languageConnectors.boxingVersions();
 		if (!versions.isEmpty())
-			properties.setValues(BOXING_TAG, versions.stream().toArray(String[]::new));
+			properties.setValues(BOXING_TAG, versions.toArray(new String[0]));
 	}
 
 	private void generationVersions() {
-		final List<String> versions = connector.generationVersions();
-		if (!versions.isEmpty()) properties.setValues(GENERATION_TAG, versions.stream().toArray(String[]::new));
+		final List<String> versions = languageConnectors.generationVersions();
+		if (!versions.isEmpty()) properties.setValues(GENERATION_TAG, versions.toArray(new String[0]));
 	}
 
-	private Map<String, String> by(List<Type> types, Class<? extends Type> type) {
-		try {
+	public List<String> dependencyVersions(String artifact) {
+		return dependencyConnectors.versions(artifact);
+	}
 
-			return types.stream().filter(t -> t.i$(type)).collect(Collectors.toMap(Type::url, Type::mavenID));
-		} catch (Throwable e) {
+	@SafeVarargs
+	private final Map<String, String> by(List<Type> types, Class<? extends Type>... repositories) {
+		try {
+			return types.stream().filter(t -> Arrays.stream(repositories).anyMatch(t::i$)).collect(Collectors.toMap(Type::url, Type::mavenID));
+		} catch (Throwable ignored) {
 		}
 		return Collections.emptyMap();
 	}

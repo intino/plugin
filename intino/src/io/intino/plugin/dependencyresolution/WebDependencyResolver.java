@@ -51,7 +51,7 @@ public class WebDependencyResolver {
 		this.artifact = artifact;
 		this.repositories = repositories;
 		this.webArtifacts = artifact.webImports().webArtifactList();
-		this.nodeDirectory = new File(System.getProperty("user.home"), ".node" + File.separator + "node");
+		this.nodeDirectory = new File(System.getProperty("user.home"), "node");
 		this.rootDirectory = new File(module.getModuleFilePath()).getParentFile();
 		this.libComponentsDirectory = new File(rootDirectory, LIB_DIRECTORY);
 	}
@@ -59,9 +59,9 @@ public class WebDependencyResolver {
 	public void resolve() {
 		final List<File> webArtifacts = resolveArtifacts();
 		final BowerFileCreator creator = new BowerFileCreator(artifact, webArtifacts);
-		File bower = creator.createBowerFile(nodeDirectory);
+		File bower = creator.createBowerFile(nodeDirectory.getParentFile());
 		if (bower == null) return;
-		File bowerrc = creator.createBowerrcFile(libComponentsDirectory, nodeDirectory);
+		File bowerrc = creator.createBowerrcFile(libComponentsDirectory, nodeDirectory.getParentFile());
 		File pom = createPomFile();
 		File packageJson = createPackageFile();
 		run(pom);
@@ -127,11 +127,11 @@ public class WebDependencyResolver {
 	}
 
 	private String skipOptions() {
-		return npmInstalled() ? "-Dskip.npm" : "";
+		return nodeInstalled() ? "-Dskip.npm" : "";
 	}
 
-	private boolean npmInstalled() {
-		return new File(System.getProperty("user.home"), ".node/node_modules/npm").exists();
+	private boolean nodeInstalled() {
+		return new File(System.getProperty("user.home"), "/node/node").exists() || new File(System.getProperty("user.home"), "/node/node.exe").exists();
 	}
 
 	private void notifyError(String message) {
@@ -165,7 +165,7 @@ public class WebDependencyResolver {
 	}
 
 	private File createPackageFile() {
-		File packageFile = new File(nodeDirectory, "package.json");
+		File packageFile = new File(nodeDirectory.getParent(), "package.json");
 		packageFile.getParentFile().mkdirs();
 		if (packageFile.exists()) return packageFile;
 		write(Package_jsonTemplate.create().format(fill(new Frame().addTypes("package"))), packageFile);
@@ -174,7 +174,7 @@ public class WebDependencyResolver {
 
 	private File createPomFile() {
 		Frame pom = new Frame().addTypes("pom");
-		if (!npmInstalled()) pom.addSlot("node", "");
+		if (!nodeInstalled()) pom.addSlot("node", "node");
 		return write(PomTemplate.create().format(fill(pom)), new File(rootDirectory, "pom.xml"));
 	}
 

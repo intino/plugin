@@ -7,6 +7,7 @@ def type(package)
 			"babel-preset-env": "^1.6.1",
             "bower": "^1.7.7",
             "del": "^2.2.2",
+            "fs-extra": "^5.0.0",
             "eslint-plugin-html": "^1.4.0",
             "gulp": "^3.9.1",
             "gulp-autoprefixer": "^2.1.0",

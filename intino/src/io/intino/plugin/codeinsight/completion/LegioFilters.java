@@ -5,7 +5,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
+import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.Box;
+import io.intino.legio.graph.Artifact.Imports.Compile;
+import io.intino.legio.graph.Artifact.Imports.Provided;
 import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.tara.Checker;
 import io.intino.tara.lang.model.Node;
@@ -33,6 +36,8 @@ class LegioFilters {
 			.and(new FilterPattern(new InBoxVersionFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inSDKVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InSDKVersionFilter()));
+	static final PsiElementPattern.Capture<PsiElement> inDependencyVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
+			.and(new FilterPattern(new InDependencyVersionFilter()));
 
 
 	private static class InLanguageNameFilter implements ElementFilter {
@@ -48,7 +53,6 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
-
 	}
 
 	private static class InLanguageVersionFilter implements ElementFilter {
@@ -64,7 +68,6 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
-
 	}
 
 	private static class InBoxLanguageFilter implements ElementFilter {
@@ -85,7 +88,6 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
-
 	}
 
 	private static class InBoxVersionFilter implements ElementFilter {
@@ -107,7 +109,6 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
-
 	}
 
 	private static class InSDKVersionFilter implements ElementFilter {
@@ -124,7 +125,21 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
+	}
 
+	private static class InDependencyVersionFilter implements ElementFilter {
+		@Override
+		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
+			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			if (node == null) return false;
+			check(node);
+			return isElementAcceptable(element, context) && inDependencyNode(node) && inParameter(context, "version");
+		}
+
+		@Override
+		public boolean isClassAcceptable(Class hintClass) {
+			return true;
+		}
 	}
 
 	private static void check(Node node) {
@@ -143,9 +158,19 @@ class LegioFilters {
 		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && Legio.class.getSimpleName().equals(((TaraModel) file).dsl());
 	}
 
+
 	private static boolean inModelNode(Node node) {
 		final String type = node.type().replace(":", "");
 		return type.equals(Model.class.getSimpleName()) || type.equals(typeName(Model.class));
+	}
+
+	private static boolean inDependencyNode(Node node) {
+		final String type = node.type().replace(":", "");
+		return is(type, Compile.class) || is(type, Artifact.Imports.Test.class) || is(type, Provided.class) || is(type, Artifact.Imports.Runtime.class);
+	}
+
+	private static boolean is(String type, Class aClass) {
+		return type.equals(aClass.getSimpleName()) || type.equals(typeName(aClass));
 	}
 
 	private static boolean inParameter(PsiElement context, String parameterName) {

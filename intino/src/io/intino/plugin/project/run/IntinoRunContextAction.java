@@ -121,13 +121,16 @@ public class IntinoRunContextAction extends RunContextAction {
 	public void update(AnActionEvent event) {
 		final Presentation presentation = event.getPresentation();
 		final RunnerAndConfigurationSettings existing = context.findExisting();
+		final Configuration legio = configuration();
+		if (legio == null) return;
+		String name = legio.artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase();
 		RunnerAndConfigurationSettings configuration = null;
-		if (existing != null && existing.getName().equalsIgnoreCase(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase()))
+		if (existing != null && existing.getName().equalsIgnoreCase(name))
 			configuration = existing;
 		if (configuration == null) {
 			configuration = context.getConfiguration();
 			if (configuration != null) {
-				configuration.setName(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase());
+				configuration.setName(name);
 				((RunnerAndConfigurationSettingsImpl) configuration).setLevel(RunConfigurationLevel.PROJECT);
 			}
 		}
@@ -135,19 +138,18 @@ public class IntinoRunContextAction extends RunContextAction {
 			presentation.setEnabled(false);
 			presentation.setVisible(false);
 		} else {
-			configuration.setName(configuration().artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase());
+			configuration.setName(name);
 			presentation.setEnabled(true);
 			presentation.setVisible(true);
 			final List<ConfigurationFromContext> fromContext = getConfigurationsFromContext();
 			if (existing == null && !fromContext.isEmpty())
 				context.setConfiguration(fromContext.get(0).getConfigurationSettings());
-			final String name = configuration.getName();
-			updatePresentation(presentation, existing != null || fromContext.size() <= 1 ? name : "", context);
+			updatePresentation(presentation, configuration.getName(), context);
 		}
 	}
 
 	private Configuration configuration() {
-		return TaraUtil.configurationOf(context.getModule());
+		return TaraUtil.configurationOf((PsiElement) runConfiguration);
 	}
 
 	private ConfigurationContext createContext(@NotNull PsiElement psiClass) {
