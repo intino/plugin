@@ -95,6 +95,7 @@ Concept Destination is component
 
 Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
+	var string vmOptions = ""
 	has Argument
 
 Concept:Named Server

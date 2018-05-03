@@ -9,6 +9,7 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.application.ApplicationConfigurationType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
@@ -38,19 +39,13 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 			ApplicationConfiguration template =
 					(ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
 			final Module predefinedModule = template.getConfigurationModule().getModule();
-			if (Comparing.equal(predefinedModule, configurationModule)) return true;
+			return Comparing.equal(predefinedModule, configurationModule);
 		}
 		return false;
 	}
 
 	@Override
-	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
-		return true;
-	}
-
-	@Override
 	public boolean shouldReplace(@NotNull ConfigurationFromContext self, @NotNull ConfigurationFromContext other) {
-		return true;
+		return self.getSourceElement().equals(other.getSourceElement());
 	}
-
 }

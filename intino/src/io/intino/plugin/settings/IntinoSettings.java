@@ -11,7 +11,7 @@ import java.util.List;
 @State(
 		name = "Intino.Settings",
 		storages = {
-				@Storage(id = "IntinoSettings", file = "$PROJECT_FILE$"),
+				@Storage(file = "$PROJECT_FILE$"),
 				@Storage(file = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml", scheme = StorageScheme.DIRECTORY_BASED)
 		}
 )

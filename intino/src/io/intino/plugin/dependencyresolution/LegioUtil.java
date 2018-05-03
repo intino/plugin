@@ -12,7 +12,7 @@ public class LegioUtil {
 	public static String effectiveVersionOf(String dsl, String version, LegioConfiguration configuration) {
 		if (version.equals(LATEST_VERSION)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			new ArtifactoryConnector(configuration.languageRepositories()).versions(dsl).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(configuration.languageRepositories()).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
 			return versions.isEmpty() ? LATEST_VERSION : versions.get(versions.lastKey());
 		}
 		return version;

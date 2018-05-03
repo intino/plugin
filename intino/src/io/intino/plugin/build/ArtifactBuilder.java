@@ -107,7 +107,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return new ArtifactoryConnector(configuration.languageRepositories()).versions(dsl).contains(version);
+		return new ArtifactoryConnector(configuration.languageRepositories()).dslVersions(dsl).contains(version);
 	}
 
 	private void saveAll() {

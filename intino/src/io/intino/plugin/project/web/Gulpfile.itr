@@ -14,10 +14,10 @@ const eventStream = require('event-stream');
 const console = require('gulp-util');
 const os = require('os');
 const rsync = require('gulp-rsync');
-const fs = require('fs');
+const fs = require('fs-extra');
 const OutputPath = '$outDirectory+path~/www/$activity+lowercase';
 const WorkingDirectory = '$rootDirectory+path';
-const ActivityName = '$activity+lowercase';
+const UiName = '$activity+lowercase';
 const WatchPort = 35$port;
 
 // root tasks
@@ -31,7 +31,7 @@ gulp.task('deploy', cb => {
 
 // sub tasks
 gulp.task('clean', () => {
-    return del($[outputPath()], {force:true});
+    return del([outputPath()], {force:true});
 });
 
 gulp.task('copy-lib-to-output', () => {
@@ -46,11 +46,17 @@ gulp.task('package-dev', cb => {
 
 gulp.task('union-dev', () => {
     return eventStream.concat(
-        unionWidgets(workingPath('src/widgets/**/*'), outputPath("/src/widgets")),
-        unionFonts(workingPath('src/fonts/**/*'), outputPath("/fonts")),
+        unionSource(workingPath('src/fonts/**/*'), outputPath("/fonts"), "fonts"),
+        unionSource(workingPath('src/fonts/**/*'), outputPath("/src/fonts"), "fonts"),
+        unionSource(workingPath('src/images/**/*'), outputPath("/images"), "images"),
+        unionSource(workingPath('src/images/**/*'), outputPath("/src/images"), "images"),
+        unionSource(workingPath('src/js/**/*'), outputPath("/js"), "js"),
+        unionSource(workingPath('src/js/**/*'), outputPath("/src/js"), "js"),
         unionStyles(workingPath('src/styles/**/*'), outputPath("/styles")),
-        unionImages(workingPath('src/images/**/*'), outputPath("/images")),
-        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, incremental: true, root: 'src', destination: outputPath('')}))
+        unionSource(workingPath('src/video/**/*'), outputPath("/video"), "video"),
+        unionSource(workingPath('src/video/**/*'), outputPath("/src/video"), "video"),
+        unionWidgets(workingPath('src/widgets/**/*'), outputPath("/src/widgets")),
+        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, root: 'src', incremental: true, destination: outputPath('')}))
     );
 });
 
@@ -60,10 +66,12 @@ gulp.task('package-deploy', cb => {
 
 gulp.task('union-deploy', cb => {
     return eventStream.concat(
-        unionFonts(workingPath('src/fonts/**/*'), outputPath("/fonts")),
+        unionSource(workingPath('src/fonts/**/*'), outputPath("/fonts"), "fonts"),
+        unionSource(workingPath('src/images/**/*'), outputPath("/images"), "images"),
+        unionSource(workingPath('src/js/**/*'), outputPath("/js"), "js"),
         unionStyles(workingPath('src/styles/**/*'), outputPath("/styles")),
-        unionImages(workingPath('src/images/**/*'), outputPath("/images")),
-        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('src/components.html'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, incremental: true, root: 'src', destination: outputPath('')})),
+        unionSource(workingPath('src/video/**/*'), outputPath("/video"), "video"),
+        gulp.src($[workingPath('src/*.{html,js}'), '!' + workingPath('src/components.html'), '!' + workingPath('**/.DS_Store')]).pipe(rsync({ silent: true, root: workingPath('src'), incremental: true, destination: outputPath('')})),
         unionLib(),
         compileFile(workingPath('src'), '/components.html'),
         obfuscateFile(outputPath('/components.html'))
@@ -80,15 +88,15 @@ gulp.task('resolve-deploy-url-dependencies', () => {
 
 gulp.task('resolve-dev-url-dependencies', () => {
     gulp.src($[outputPath('*.html'), '!' + outputPath('components.html')])
-        .pipe($$.replace('src="', 'src="/' + ActivityName + '/'))
-        .pipe($$.replace('href="', 'href="/' + ActivityName + '/'))
-        .pipe($$.replace('href-absolute=', 'href='))
-        .pipe(gulp.dest(outputPath()));
-    gulp.src($[outputPath('components.html')])
-        .pipe($$.replace('src="', 'src="/' + ActivityName + '/src/'))
-        .pipe($$.replace('href="', 'href="/' + ActivityName + '/src/'))
-        .pipe($$.replace('href-absolute=', 'href='))
-        .pipe(gulp.dest(outputPath()));
+    .pipe($$.replace('src="', 'src="/' + UiName + '/'))
+    .pipe($$.replace('href="', 'href="/' + UiName + '/'))
+    .pipe($$.replace('href-absolute=', 'href='))
+    .pipe(gulp.dest(outputPath()));
+gulp.src($[outputPath('components.html')])
+    .pipe($$.replace('src="', 'src="/' + UiName + '/src/'))
+    .pipe($$.replace('href="', 'href="/' + UiName + '/src/'))
+    .pipe($$.replace('href-absolute=', 'href='))
+    .pipe(gulp.dest(outputPath()));
 });
 
 gulp.task('watch', () => {
@@ -102,11 +110,11 @@ gulp.watch($[workingPath('src/components/**/*.css')], tasksToLaunch);
 gulp.watch($[workingPath('src/components/**/*.html')], tasksToLaunch);
 gulp.watch($[workingPath('src/images/**/*')], tasksToLaunch);
 
-$$.livereload.listen({ port: WatchPort, basePath: '.' });
+$.livereload.listen({ port: WatchPort, basePath: '.' });
 });
 
 gulp.task('refresh-dev-server', $['package-dev', 'refresh-browser']);
-gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($$.livereload()));
+gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($.livereload()));
 
 // constants
 const outputPath = subpath => !subpath ? OutputPath : path.join(OutputPath, subpath);
@@ -128,7 +136,7 @@ const compileFile = (path, src) => {
 
 const obfuscateFile = (src) => {
     return gulp.src(src)
-        .pipe($$.htmlmin({
+        .pipe($.htmlmin({
             collapseWhitespace: true,
             removeComments: true,
             removeTagWhitespace: true,
@@ -140,22 +148,17 @@ const obfuscateFile = (src) => {
 };
 
 const unionLib = () => {
-    return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,moment,konos-server-web,alexandria-activity-elements,numeral,promise-polyfill}/**/*'),
-        workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
-        .pipe(rsync({ silent: true, incremental: true, root: 'lib', destination: outputPath('lib') }));
+    gulp.src($[workingPath('lib/{moment,konos-server-web,alexandria-ui-elements}/**/*')])
+        .pipe(gulp.dest(outputPath('lib')));
+
+    return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,numeral,promise-polyfill}/**/*'), workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
+        .pipe(rsync({ silent: true, root: workingPath('lib'), incremental: true, destination: outputPath('lib') }));
 };
 
 const unionLibs = (src, dest) => {
     return gulp.src(src)
         .pipe(gulp.dest(dest))
-        .pipe($$.size({title: 'libs'}));
-};
-
-const unionWidgets = (src, dest) => {
-    if (!fs.existsSync(outputPath("src"))) fs.mkdirSync(outputPath("src"));
-    return gulp.src(src)
-        .pipe(rsync({ silent: true, incremental: true, root: 'src/widgets', destination: dest }))
-        .pipe($$.size({title: 'widgets'}));
+        .pipe($.size({title: 'libs'}));
 };
 
 const unionStyles = (src, dest) => {
@@ -164,16 +167,18 @@ const unionStyles = (src, dest) => {
         .pipe($$.size({title: 'styles'}));
 };
 
-const unionImages = (src, dest) => {
+const unionWidgets = (src, dest) => {
+    fs.ensureDir(outputPath("src/widgets"));
     return gulp.src(src)
-        .pipe(rsync({ silent: true, incremental: true, root: 'src/images', destination: dest }))
-        .pipe($$.size({title: 'images'}));
+        .pipe(rsync({ silent: true, root: workingPath('src/widgets'), incremental: true, destination: dest }))
+        .pipe($$.size({title: 'widgets'}));
 };
 
-const unionFonts = (src, dest) => {
+const unionSource = (src, dest, name) => {
+    fs.ensureDir(outputPath("src/" + name));
     return gulp.src(src)
-        .pipe(rsync({ silent: true, incremental: true, root: 'src/fonts', destination: dest }))
-        .pipe($$.size({title: 'fonts'}));
+        .pipe(rsync({ silent: true, root: workingPath('src/' + name), incremental: true, destination: dest }))
+        .pipe($$.size({title: name}));
 };
 
 require('web-component-tester').gulp.init(gulp);

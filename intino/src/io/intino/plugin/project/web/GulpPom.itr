@@ -13,7 +13,6 @@ def type(pom)
 			<maven.compiler.target>1.8</maven.compiler.target>
 			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		</properties>
-
 		<build>
 			<plugins>
 				<plugin>
@@ -26,18 +25,14 @@ def type(pom)
                             <goals>
                                 <goal>gulp</goal>
                             </goals>
-
                             <configuration>
-								<workingDirectory>$workingDirectory+path</workingDirectory>
 								<arguments>$task</arguments>
+								<workingDirectory>$${user.home}/</workingDirectory>
+                                <installDirectory>$${user.home}/</installDirectory>
+                                <nodeVersion>v6.9.2</nodeVersion>
 							</configuration>
                         </execution>
 					</executions>
-					<configuration>
-						<nodeVersion>v6.9.2</nodeVersion>
-						<installDirectory>$${user.home}/.node</installDirectory>
-					</configuration>
-
 				</plugin>
 			</plugins>
 		</build>
