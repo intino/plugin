@@ -2,7 +2,7 @@ package io.intino.plugin.build;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.jcabi.aether.Aether;
-import io.intino.konos.Resource;
+import io.intino.konos.alexandria.schema.Resource;
 import io.intino.konos.restful.RestfulApi;
 import io.intino.konos.restful.exceptions.RestfulFailure;
 import io.intino.legio.graph.Artifact.Distribution.OnBitbucket;
@@ -36,8 +36,8 @@ public class BitbucketDeployer {
 	private File jar;
 
 	public BitbucketDeployer(LegioConfiguration configuration) {
-		this.bitbucket = configuration.artifact().distribution().onBitbucket();
-		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name$() + ":" + configuration.artifact().version());
+		this.bitbucket = configuration.graph().artifact().distribution().onBitbucket();
+		this.jar = find(configuration.graph().artifact().groupId() + ":" + configuration.graph().artifact().name$() + ":" + configuration.graph().artifact().version());
 	}
 
 	public void execute() {
@@ -45,7 +45,7 @@ public class BitbucketDeployer {
 		final URL url = url();
 		try {
 			HttpPost post = new HttpPost(url.toURI());
-			post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ=="); //octavioroncal:qMzm283xtuFBUjSsUDYa
+			post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ==");
 			post.setEntity(multipartEntityOf(resource()));
 			final RestfulApi.Response response = executeMethod(url, post);
 			System.out.println(response.content());
@@ -83,14 +83,14 @@ public class BitbucketDeployer {
 	}
 
 	private void addContent(MultipartEntityBuilder builder, Resource resource) throws RestfulFailure {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(resource.content(), ContentType.create(resource.contentType()), resource.fileName())).build();
+		final FormBodyPart part = FormBodyPartBuilder.create(resource.id(), new InputStreamBody(resource.data(), ContentType.create(resource.contentType()), resource.id())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
 		builder.addPart(part);
 	}
 
 	@NotNull
 	private Resource resource() throws FileNotFoundException {
-		return new Resource("files", jar.getName(), "application/java-archive", new FileInputStream(jar));
+		return new Resource("files").data(new FileInputStream(jar));
 	}
 
 	private URL url() {

@@ -32,6 +32,7 @@ import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
+import static io.intino.plugin.project.Safe.safe;
 import static java.util.Collections.emptyList;
 import static org.siani.itrules.engine.formatters.StringFormatter.firstUpperCase;
 
@@ -101,7 +102,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
-		if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.artifact().distribution() != null && configuration.artifact().distribution().onBitbucket() != null)
+		if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.graph().artifact().distribution() != null && configuration.graph().artifact().distribution().onBitbucket() != null)
 			new BitbucketDeployer(configuration).execute();
 	}
 
@@ -120,7 +121,7 @@ abstract class AbstractArtifactBuilder {
 
 	private void compileWeb(FactoryPhase phase, Module module) {
 		if (!isWebModule(module)) return;
-		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact();
+		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact();
 		if (artifact == null) return;
 		if (!phase.equals(DISTRIBUTE) && !phase.equals(DEPLOY)) new GulpExecutor(module, artifact).startGulpDeploy();
 		else createDeployBower(module, artifact);
@@ -135,14 +136,14 @@ abstract class AbstractArtifactBuilder {
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
-		if (((LegioConfiguration) configuration).pack() == null)
+		if (safe(() -> ((LegioConfiguration) configuration).graph().artifact().package$()) == null)
 			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))
 			throw new IntinoException(message("distribution.repository.not.found"));
 	}
 
 	private List<Destination> collectDestinations(Project project, LegioConfiguration conf) {
-		final List<Artifact.Deployment> deployments = conf.deployments();
+		final List<Artifact.Deployment> deployments = safe(() -> conf.graph().artifact().deploymentList());
 		if (deployments.size() > 1 || (!deployments.isEmpty() && deployments.get(0).destinations().size() > 1))
 			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
 		return deployments.isEmpty() ? emptyList() : destinationsOf(deployments.get(0));
@@ -150,7 +151,7 @@ abstract class AbstractArtifactBuilder {
 
 	private List<Destination> destinationsOf(Artifact.Deployment deployment) {
 		List<Destination> destinations = new ArrayList<>();
-		if (deployment.dev() != null) destinations.add(deployment.dev());
+		if (deployment.pre() != null) destinations.add(deployment.pre());
 		if (deployment.pro() != null) destinations.add(deployment.pro());
 		return destinations;
 	}

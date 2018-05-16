@@ -8,11 +8,10 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.impl.RunConfigurationLevel;
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupStep;
@@ -37,15 +36,16 @@ import java.util.List;
 
 import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
 import static io.intino.plugin.project.LegioConfiguration.parametersOf;
+import static io.intino.plugin.project.Safe.safeList;
 
 @SuppressWarnings("ComponentNotRegistered")
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
 	private Node runConfiguration;
 
-	public IntinoRunContextAction(@NotNull Executor executor, PsiClass runClass, PsiElement runConfiguration) {
+	public IntinoRunContextAction(@NotNull Executor executor, PsiElement runConfiguration) {
 		super(executor);
-		this.context = createContext(runClass);
+		this.context = createContext(runConfiguration);
 		this.runConfiguration = (Node) runConfiguration;
 	}
 
@@ -82,7 +82,9 @@ public class IntinoRunContextAction extends RunContextAction {
 				if (event instanceof MouseEvent) popup.show(new RelativePoint((MouseEvent) event));
 				else if (editor != null) popup.showInBestPositionFor(editor);
 				else popup.showInBestPositionFor(dataContext);
-			} else perform(producers.get(0));
+			} else {
+				perform(producers.get(0));
+			}
 			return;
 		}
 		setRunParameters(existing);
@@ -97,7 +99,7 @@ public class IntinoRunContextAction extends RunContextAction {
 	}
 
 	private void perform(final ConfigurationFromContext configurationFromContext) {
-		configurationFromContext.getConfiguration().setName(runConfiguration.name());
+//		configurationFromContext.getConfiguration().setName(runConfiguration.name());
 		setRunParameters(configurationFromContext.getConfigurationSettings());
 		configurationFromContext.onFirstRun(context, () -> perform(context));
 	}
@@ -111,53 +113,37 @@ public class IntinoRunContextAction extends RunContextAction {
 	private String collectParameters() {
 		final LegioConfiguration configuration = (LegioConfiguration) configuration();
 		if (configuration == null) return "";
-		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = configuration.runConfigurations();
+		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = safeList(() -> configuration.graph().runConfigurationList());
 		for (io.intino.legio.graph.RunConfiguration legioConf : runConfigurations)
 			if (this.runConfiguration.name().equals(legioConf.name$())) return parametersOf(legioConf);
 		return runConfigurations.isEmpty() ? "" : parametersOf(runConfigurations.get(0));
 	}
 
 	@Override
-	public void update(AnActionEvent event) {
-		final Presentation presentation = event.getPresentation();
-		final RunnerAndConfigurationSettings existing = context.findExisting();
-		final Configuration legio = configuration();
-		if (legio == null) return;
-		String name = legio.artifactId().toLowerCase() + "-" + this.runConfiguration.name().toLowerCase();
-		RunnerAndConfigurationSettings configuration = null;
-		if (existing != null && existing.getName().equalsIgnoreCase(name))
-			configuration = existing;
-		if (configuration == null) {
-			configuration = context.getConfiguration();
-			if (configuration != null) {
-				configuration.setName(name);
-				((RunnerAndConfigurationSettingsImpl) configuration).setLevel(RunConfigurationLevel.PROJECT);
-			}
-		}
-		if (configuration == null) {
-			presentation.setEnabled(false);
-			presentation.setVisible(false);
-		} else {
-			configuration.setName(name);
-			presentation.setEnabled(true);
-			presentation.setVisible(true);
-			final List<ConfigurationFromContext> fromContext = getConfigurationsFromContext();
-			if (existing == null && !fromContext.isEmpty())
-				context.setConfiguration(fromContext.get(0).getConfigurationSettings());
-			updatePresentation(presentation, configuration.getName(), context);
-		}
+	public void update(final AnActionEvent event) {
+		super.update(event);
+
+	}
+
+	private void set(Presentation presentation, boolean b) {
+		presentation.setEnabled(b);
+		presentation.setVisible(b);
+	}
+
+	private Project getProject(AnActionEvent event) {
+		return event.getProject() == null ? ((PsiElement) event.getDataContext().getData("psi.Element")).getProject() : event.getProject();
 	}
 
 	private Configuration configuration() {
 		return TaraUtil.configurationOf((PsiElement) runConfiguration);
 	}
 
-	private ConfigurationContext createContext(@NotNull PsiElement psiClass) {
+	private ConfigurationContext createContext(@NotNull PsiElement runConfiguration) {
 		MapDataContext dataContext = new MapDataContext();
-		dataContext.put(CommonDataKeys.PROJECT, psiClass.getProject());
+		dataContext.put(CommonDataKeys.PROJECT, runConfiguration.getProject());
 		if (LangDataKeys.MODULE.getData(dataContext) == null)
-			dataContext.put(LangDataKeys.MODULE, ModuleUtilCore.findModuleForPsiElement(psiClass));
-		dataContext.put(Location.DATA_KEY, PsiLocation.fromPsiElement(psiClass));
+			dataContext.put(LangDataKeys.MODULE, ModuleUtilCore.findModuleForPsiElement(runConfiguration));
+		dataContext.put(Location.DATA_KEY, PsiLocation.fromPsiElement(runConfiguration));
 		return ConfigurationContext.getFromContext(dataContext);
 	}
 

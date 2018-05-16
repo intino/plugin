@@ -31,7 +31,7 @@ gulp.task('deploy', cb => {
 
 // sub tasks
 gulp.task('clean', () => {
-    return del([outputPath()], {force:true});
+    return del($[outputPath()], {force:true});
 });
 
 gulp.task('copy-lib-to-output', () => {
@@ -110,11 +110,11 @@ gulp.watch($[workingPath('src/components/**/*.css')], tasksToLaunch);
 gulp.watch($[workingPath('src/components/**/*.html')], tasksToLaunch);
 gulp.watch($[workingPath('src/images/**/*')], tasksToLaunch);
 
-$.livereload.listen({ port: WatchPort, basePath: '.' });
+$$.livereload.listen({ port: WatchPort, basePath: '.' });
 });
 
 gulp.task('refresh-dev-server', $['package-dev', 'refresh-browser']);
-gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($.livereload()));
+gulp.task('refresh-browser', () => gulp.src(outputPath('/*.html')).pipe($$.livereload()));
 
 // constants
 const outputPath = subpath => !subpath ? OutputPath : path.join(OutputPath, subpath);
@@ -136,7 +136,7 @@ const compileFile = (path, src) => {
 
 const obfuscateFile = (src) => {
     return gulp.src(src)
-        .pipe($.htmlmin({
+        .pipe($$.htmlmin({
             collapseWhitespace: true,
             removeComments: true,
             removeTagWhitespace: true,
@@ -158,7 +158,7 @@ const unionLib = () => {
 const unionLibs = (src, dest) => {
     return gulp.src(src)
         .pipe(gulp.dest(dest))
-        .pipe($.size({title: 'libs'}));
+        .pipe($$.size({title: 'libs'}));
 };
 
 const unionStyles = (src, dest) => {

@@ -1,21 +1,32 @@
 package io.intino.plugin.project;
 
+import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LibraryConflictResolver {
 
 	public static boolean mustAdd(Library languageLibrary, List<Library> newLibraries) {
 		Library library = libraryOf(newLibraries, languageLibrary.getName());
-		return library == null || versionOf(library.getName()).compareTo(versionOf(languageLibrary.getName())) < 0;
+		return library == null || isNewer(languageLibrary, library);
 	}
 
-	public static boolean mustAddEntry(Library languageLibrary, List<LibraryOrderEntry> newLibraries) {
+	public static boolean shouldAddEntry(Library languageLibrary, List<LibraryOrderEntry> newLibraries) {
 		LibraryOrderEntry library = libraryEntryOf(newLibraries, languageLibrary.getName());
-		return library == null || versionOf(library.getLibrary().getName()).compareTo(versionOf(languageLibrary.getName())) < 0;
+		return library == null || isNewer(languageLibrary, library.getLibrary());
+	}
+
+	private static boolean isNewer(Library aLibrary, Library library) {
+		return compare(aLibrary, library) < 0;
+	}
+
+	private static int compare(Library aLibrary, Library library) {
+		return versionOf(library.getName()).compareTo(versionOf(aLibrary.getName()));
 	}
 
 	public static Library libraryOf(List<Library> libraries, String name) {
@@ -26,12 +37,21 @@ public class LibraryConflictResolver {
 	}
 
 	public static LibraryOrderEntry libraryEntryOf(List<LibraryOrderEntry> libraries, String name) {
-		for (LibraryOrderEntry newLibrary : libraries)
-			if (newLibrary.getLibrary() != null && newLibrary.getLibrary().getName() != null && libraryName(newLibrary.getLibrary().getName()).equalsIgnoreCase(libraryName(name)))
-				return newLibrary;
-		return null;
+		List<LibraryOrderEntry> candidates = libraries.stream().filter(entry -> entry.getLibrary() != null && entry.getLibrary().getName() != null && libraryName(entry.getLibrary().getName()).equalsIgnoreCase(libraryName(name))).collect(Collectors.toList());
+		if (candidates.isEmpty()) return null;
+		candidates.sort((o1, o2) -> compare(o1.getLibrary(), o2.getLibrary()));
+		return candidates.get(0);
 	}
 
+
+	@SuppressWarnings("ConstantConditions")
+	public static List<LibraryOrderEntry> shouldReplace(Library library, List<LibraryOrderEntry> collection) {
+		if (library == null) return Collections.emptyList();
+		return collection.stream().
+				filter(entry -> entry != null && entry.getLibrary() != null).
+				filter(entry -> libraryName(entry.getLibrary().getName()).equals(libraryName(library.getName())) && isNewer(library, entry.getLibrary())).
+				collect(Collectors.toList());
+	}
 
 	@NotNull
 	private static String libraryName(String library) {

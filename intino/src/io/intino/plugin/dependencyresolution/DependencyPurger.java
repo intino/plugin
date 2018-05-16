@@ -13,6 +13,8 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import java.io.File;
 import java.io.IOException;
 
+import static io.intino.plugin.project.Safe.safe;
+
 public class DependencyPurger {
 	private static final Logger LOG = Logger.getInstance(DependencyPurger.class.getName());
 
@@ -44,7 +46,7 @@ public class DependencyPurger {
 	}
 
 	private void purgeModelBuilder() {
-		new ModelBuilderManager(this.module.getProject(), configuration.model()).purge();
+		new ModelBuilderManager(this.module.getProject(), safe(() -> configuration.graph().artifact().asLevel().model())).purge();
 	}
 
 	private void purgeInterfaceBuilder() {

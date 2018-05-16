@@ -35,6 +35,7 @@ import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.mapNotNull;
+import static io.intino.plugin.project.Safe.safe;
 
 public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
@@ -90,7 +91,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		final Executor[] executors = ExecutorRegistry.getInstance().getRegisteredExecutors();
 
 		final RunContextAction[] actions =
-				new RunContextAction[]{new IntinoRunContextAction(executors[0], runnerClass, runConfiguration), new IntinoRunContextAction(executors[1], runnerClass, runConfiguration)};
+				new RunContextAction[]{new IntinoRunContextAction(executors[0], runConfiguration), new IntinoRunContextAction(executors[1], runConfiguration)};
 		for (RunContextAction action : actions) {
 			action.getTemplatePresentation().setEnabled(true);
 			action.getTemplatePresentation().setVisible(true);
@@ -110,7 +111,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private PsiClass findRunnerClass(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		if (configuration == null) return null;
-		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.runnerClass(), GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+		return JavaPsiFacade.getInstance(module.getProject()).findClass(safe(() -> safe(() -> configuration.graph().artifact().package$()).asRunnable().mainClass()), GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
 	}
 
 	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {

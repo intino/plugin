@@ -33,14 +33,14 @@ import static java.util.stream.Collectors.toList;
 public class JavaDependencyResolver {
 	private final Module module;
 	private final List<Repository.Type> repositories;
-	private final LibraryManager manager;
+	private final LibraryManager moduleLibrariesManager;
 	private final Aether aether;
 	private List<Dependency> dependencies;
 	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
 	public JavaDependencyResolver(Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
-		this.manager = new LibraryManager(module);
+		this.moduleLibrariesManager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
 		this.dependencies = dependencies;
@@ -50,9 +50,9 @@ public class JavaDependencyResolver {
 	public List<Library> resolve() {
 		collectArtifacts();
 		final Application application = ApplicationManager.getApplication();
-		final List<Library> libraries = new ArrayList<>();
+		final Set<Library> libraries = new HashSet<>();
 		application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) this::processDependencies)), ModalityState.defaultModalityState());
-		return libraries;
+		return new ArrayList<>(libraries);
 	}
 
 	private void collectArtifacts() {
@@ -72,10 +72,9 @@ public class JavaDependencyResolver {
 	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
 		for (Dependency d : dependencies) {
-			if (collectedArtifacts.containsKey(d)) newLibraries.addAll(asLibrary(d));
+			if (isLibrary(d)) newLibraries.addAll(asLibrary(d));
 			else {
-				Module moduleDependency = moduleOf(d);
-				newLibraries.addAll(manager.resolveAsModuleDependency(moduleDependency));
+				newLibraries.addAll(moduleLibrariesManager.resolveAsModuleDependency(moduleOf(d)));
 				d.effectiveVersion(d.version());
 				d.toModule(true);
 			}
@@ -85,14 +84,19 @@ public class JavaDependencyResolver {
 
 	private List<Library> asLibrary(Dependency d) {
 		final Map<Artifact, DependencyScope> artifacts = collectedArtifacts.get(d);
-		final Map<DependencyScope, List<Library>> resolved = manager.registerOrGetLibrary(artifacts, emptyMap());
+		final Map<DependencyScope, List<Library>> resolved = moduleLibrariesManager.registerOrGetLibrary(artifacts, emptyMap());
 		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
 		else d.effectiveVersion("");
-		for (DependencyScope scope : resolved.keySet()) manager.addToModule(resolved.get(scope), scope);
+		for (DependencyScope scope : resolved.keySet())
+			moduleLibrariesManager.addToModule(resolved.get(scope), scope);
 		d.artifacts().clear();
 		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(toList()));
 		d.resolve(true);
 		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
+	}
+
+	private boolean isLibrary(Dependency d) {
+		return collectedArtifacts.containsKey(d);
 	}
 
 	private Module moduleOf(Dependency d) {

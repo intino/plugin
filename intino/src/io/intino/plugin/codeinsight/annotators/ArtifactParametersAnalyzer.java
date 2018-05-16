@@ -4,10 +4,10 @@ import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.Level;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraNode;
@@ -21,33 +21,31 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
-public class PackageParametersAnalyzer extends TaraAnalyzer {
-	private final Node packageNode;
+public class ArtifactParametersAnalyzer extends TaraAnalyzer {
+	private final Node artifactNode;
 	private final LegioConfiguration configuration;
 
-	PackageParametersAnalyzer(Node node) {
-		this.packageNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) packageNode);
+	ArtifactParametersAnalyzer(Node node) {
+		this.artifactNode = node;
+		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) artifactNode);
 	}
 
 	@Override
 	public void analyze() {
 		if (configuration == null || configuration.languages().isEmpty()) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
-		Map<String, String> notFoundParameters = new LinkedHashMap<>();
-
-		for (String parameter : languageParameters.keySet())
-			if (!isDeclared(parameter)) notFoundParameters.put(parameter, languageParameters.get(parameter));
-
+		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) packageNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.WARNING, message("parameters.missing"), new AddParameterFix((PsiElement) packageNode, notFoundParameters)));
+			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Level.values()[configuration.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
 	}
 
 	private boolean isDeclared(String parameter) {
-		for (Node node : packageNode.components()) {
+		for (Node node : artifactNode.components()) {
 			final Parameter parameterNode = nameParameter(node);
 			if (node.type().endsWith("Parameter") && parameterNode != null && !parameterNode.values().isEmpty() && parameter.equals(parameterNode.values().get(0).toString()))
 				return true;
@@ -58,12 +56,6 @@ public class PackageParametersAnalyzer extends TaraAnalyzer {
 	private Parameter nameParameter(Node node) {
 		for (Parameter parameter : node.parameters())
 			if (parameter.name().equals("name") || parameter.position() == 0) return parameter;
-		return null;
-	}
-
-	private Parameter valueParameter(Node node) {
-		for (Parameter parameter : node.parameters())
-			if (parameter.name().equals("value") || parameter.position() == 1) return parameter;
 		return null;
 	}
 

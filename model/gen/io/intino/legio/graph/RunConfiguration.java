@@ -1,11 +1,13 @@
 package io.intino.legio.graph;
 
 import io.intino.legio.graph.*;
+import java.util.Map;
 
 
 public class RunConfiguration extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 	protected java.lang.String mainClass;
 	protected java.lang.String vmOptions;
+	protected io.intino.legio.graph.functions.FinalArguments finalArguments;
 	protected java.util.List<io.intino.legio.graph.Argument> argumentList = new java.util.ArrayList<>();
 
 	public RunConfiguration(io.intino.tara.magritte.Node node) {
@@ -20,6 +22,10 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 		return vmOptions;
 	}
 
+	public Map<String, String> finalArguments() {
+		return finalArguments.arguments();
+	}
+
 	public RunConfiguration mainClass(java.lang.String value) {
 		this.mainClass = value;
 		return (RunConfiguration) this;
@@ -27,6 +33,11 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 
 	public RunConfiguration vmOptions(java.lang.String value) {
 		this.vmOptions = value;
+		return (RunConfiguration) this;
+	}
+
+	public RunConfiguration finalArguments(io.intino.legio.graph.functions.FinalArguments value) {
+		this.finalArguments = io.intino.tara.magritte.loaders.FunctionLoader.load(finalArguments, this, io.intino.legio.graph.functions.FinalArguments.class);
 		return (RunConfiguration) this;
 	}
 
@@ -55,6 +66,7 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 		java.util.Map<String, java.util.List<?>> map = new java.util.LinkedHashMap<>();
 		map.put("mainClass", new java.util.ArrayList(java.util.Collections.singletonList(this.mainClass)));
 		map.put("vmOptions", new java.util.ArrayList(java.util.Collections.singletonList(this.vmOptions)));
+		map.put("finalArguments", this.finalArguments != null ? new java.util.ArrayList(java.util.Collections.singletonList(this.finalArguments)) : java.util.Collections.emptyList());
 		return map;
 	}
 
@@ -75,6 +87,7 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 		super.load$(name, values);
 		if (name.equalsIgnoreCase("mainClass")) this.mainClass = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
 		else if (name.equalsIgnoreCase("vmOptions")) this.vmOptions = io.intino.tara.magritte.loaders.StringLoader.load(values, this).get(0);
+		else if (name.equalsIgnoreCase("finalArguments")) this.finalArguments = io.intino.tara.magritte.loaders.FunctionLoader.load(values, this, io.intino.legio.graph.functions.FinalArguments.class).get(0);
 	}
 
 	@Override
@@ -82,6 +95,7 @@ public class RunConfiguration extends io.intino.tara.magritte.Layer implements i
 		super.set$(name, values);
 		if (name.equalsIgnoreCase("mainClass")) this.mainClass = (java.lang.String) values.get(0);
 		else if (name.equalsIgnoreCase("vmOptions")) this.vmOptions = (java.lang.String) values.get(0);
+		else if (name.equalsIgnoreCase("finalArguments")) this.finalArguments = io.intino.tara.magritte.loaders.FunctionLoader.load(values.get(0), this, io.intino.legio.graph.functions.FinalArguments.class);
 	}
 
 	public Create create() {

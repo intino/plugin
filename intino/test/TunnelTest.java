@@ -1,5 +1,5 @@
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.konos.Resource;
+import io.intino.konos.alexandria.schema.Resource;
 import io.intino.konos.restful.RestfulApi;
 import io.intino.konos.restful.exceptions.RestfulFailure;
 import org.apache.http.HttpEntity;
@@ -61,14 +61,14 @@ public class TunnelTest {
 	}
 
 	private void addContent(MultipartEntityBuilder builder, Resource resource) throws RestfulFailure {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(resource.content(), ContentType.create(resource.contentType()), resource.fileName())).build();
+		final FormBodyPart part = FormBodyPartBuilder.create(resource.id(), new InputStreamBody(resource.data(), ContentType.create(resource.contentType()), resource.id())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
 		builder.addPart(part);
 	}
 
 	@NotNull
 	private Resource resource() throws FileNotFoundException {
-		return new Resource("files", "cesar-2.0.1.jar", "application/java-archive", new FileInputStream(jar()));
+		return new Resource("files").data(new FileInputStream(jar()));
 	}
 
 	private File jar() {

@@ -1,17 +1,14 @@
 package io.intino.plugin.deploy;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.Artifactory;
-import io.intino.cesar.schemas.Packaging;
-import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.SystemSchema;
-import io.intino.konos.exceptions.BadRequest;
-import io.intino.konos.exceptions.Forbidden;
-import io.intino.konos.exceptions.Unknown;
-import io.intino.legio.graph.Argument;
+import io.intino.cesar.schemas.SystemSchema.Artifactory;
+import io.intino.cesar.schemas.SystemSchema.Packaging;
+import io.intino.konos.alexandria.exceptions.BadRequest;
+import io.intino.konos.alexandria.exceptions.Forbidden;
+import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
@@ -23,9 +20,13 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
+import static io.intino.plugin.project.Safe.safe;
 import static java.util.stream.Collectors.toList;
 
 public class ArtifactDeployer {
@@ -48,13 +49,19 @@ public class ArtifactDeployer {
 		try {
 			final String user = user();
 			if (destination.server() == null) throw new IntinoException("Server not found");
-			if (!configuration.pack().isRunnable()) throw new IntinoException("Packaging must be runnable");
-			if (!correctParameters(destination.runConfiguration().argumentList()))
+			final Artifact.Package aPackage = safe(() -> configuration.graph().artifact().package$());
+			if (aPackage == null) throw new IntinoException("Package configuration not found");
+			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
+			if (!correctParameters(destination.runConfiguration().finalArguments()))
 				throw new IntinoException("Arguments are duplicated");
-			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeploySystem(user, createSystem(destination));
+			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeployProcess(user, createSystem(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
+	}
+
+	private boolean correctParameters(Map<String, String> arguments) {
+		return configuration.graph().artifact().parameterList().stream().allMatch(p -> arguments.containsKey(p.name()) && arguments.get(p.name()) != null);
 	}
 
 	@NotNull
@@ -70,34 +77,27 @@ public class ArtifactDeployer {
 
 	private SystemSchema createSystem(Destination destination) {
 		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
-		final String classpathPrefix = configuration.pack().asRunnable().classpathPrefix();
+		final String classpathPrefix = configuration.graph().artifact().package$().asRunnable().classpathPrefix();
 		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).
 				name(id).tag(destination.core$().ownerAs(Artifact.Deployment.class).tags()).
 				publicURL(destination.url()).
 				artifactoryList(artifactories()).packaging(new Packaging().
 				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
 				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new Runtime().serverName(destination.server().name$()));
+				runtime(new SystemSchema.Runtime().serverName(destination.server().name$()));
 	}
 
-	private List<io.intino.cesar.schemas.Parameter> extractParameters(RunConfiguration configuration) {
-		return configuration.argumentList().stream().map(ArtifactDeployer::parametersFromNode).collect(toList());
+	private List<Packaging.Parameter> extractParameters(RunConfiguration configuration) {
+		return configuration.finalArguments().entrySet().stream().map(ArtifactDeployer::parametersFromNode).collect(toList());
 	}
 
-	private boolean correctParameters(List<Argument> arguments) {
-		Set<String> parameters = new HashSet<>();
-		return arguments.stream().allMatch(argument -> parameters.add(argument.name()));
-	}
-
-	private static io.intino.cesar.schemas.Parameter parametersFromNode(Argument node) {
-		return new io.intino.cesar.schemas.Parameter().name(node.name().replace("-", ".")).value(node.value());
+	private static Packaging.Parameter parametersFromNode(Map.Entry<String, String> node) {
+		return new Packaging.Parameter().name(node.getKey().replace("-", ".")).value(node.getValue());
 	}
 
 	private List<Artifactory> artifactories() {
-		List<Artifactory> artifactories = new ArrayList<>();
 		Map<String, String> repositories = collectRepositories();
-		artifactories.addAll(repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList()));
-		return artifactories;
+		return new ArrayList<>(repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList()));
 	}
 
 	private Map<String, String> collectRepositories() {

@@ -23,6 +23,8 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.intino.plugin.project.Safe.safeList;
+
 public class DependencyTreeView extends JPanel {
 	private JPanel contentPane;
 	private JTree dependencyTree;
@@ -93,7 +95,7 @@ public class DependencyTreeView extends JPanel {
 		parent.removeAllChildren();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		for (Dependency dependency : ((LegioConfiguration) configuration).dependencies()) {
+		for (Dependency dependency : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList())) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(dependency.identifier()));
 			parent.add(node);
 			node.setAllowsChildren(true);

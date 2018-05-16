@@ -6,15 +6,16 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.jcraft.jsch.Channel;
 import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.Runtime;
 import io.intino.cesar.schemas.ServerSchema;
 import io.intino.cesar.schemas.SystemSchema;
-import io.intino.konos.exceptions.BadRequest;
-import io.intino.konos.exceptions.Unknown;
+import io.intino.cesar.schemas.SystemSchema.Runtime;
+import io.intino.konos.alexandria.exceptions.BadRequest;
+import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.Safe;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import javax.swing.*;
@@ -24,6 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactManager {
 	private Module module;
@@ -92,13 +95,13 @@ public class ArtifactManager {
 		return "-J-DsocksProxyHost=localhost -J-DsocksProxyPort=" + localProxyPort;
 	}
 
-	private String connectionChain(SystemSchema system) throws IntinoException {
+	private String connectionChain(SystemSchema system) {
 		final Runtime runtime = system.runtime();
 		return runtime.ip();
 	}
 
 	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
+		final URL url = urlOf(Safe.safe(() -> configuration.graph().artifact().deploymentList()).get(0).pre().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new CesarRestAccessor(url).getServer(system.runtime().serverName());
@@ -108,7 +111,7 @@ public class ArtifactManager {
 	}
 
 	private SystemSchema getSystem(LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(configuration.deployments().get(0).dev().server().cesar());
+		final URL url = urlOf(Safe.safe(() -> configuration.graph().artifact().deploymentList()).get(0).pre().server().cesar());
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			return new CesarRestAccessor(url).getSystem(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());

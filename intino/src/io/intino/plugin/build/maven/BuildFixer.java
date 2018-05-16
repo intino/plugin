@@ -30,7 +30,7 @@ public class BuildFixer {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		this.buildDirectory = new File(buildDirectory(), "build");
-		this.build = configuration.artifact().package$();
+		this.build = configuration.graph().artifact().package$();
 	}
 
 	void apply() {

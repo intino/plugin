@@ -15,6 +15,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	protected io.intino.legio.graph.Artifact.Code code;
 	protected java.util.List<io.intino.legio.graph.Artifact.Exports> exportsList = new java.util.ArrayList<>();
 	protected io.intino.legio.graph.Artifact.Package package$;
+	protected java.util.List<io.intino.legio.graph.Parameter> parameterList = new java.util.ArrayList<>();
 	protected io.intino.legio.graph.Artifact.Distribution distribution;
 	protected io.intino.legio.graph.Artifact.QualityAnalytics qualityAnalytics;
 	protected java.util.List<io.intino.legio.graph.Artifact.Deployment> deploymentList = new java.util.ArrayList<>();
@@ -77,6 +78,18 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		return package$;
 	}
 
+	public java.util.List<io.intino.legio.graph.Parameter> parameterList() {
+		return java.util.Collections.unmodifiableList(parameterList);
+	}
+
+	public io.intino.legio.graph.Parameter parameter(int index) {
+		return parameterList.get(index);
+	}
+
+	public java.util.List<io.intino.legio.graph.Parameter> parameterList(java.util.function.Predicate<io.intino.legio.graph.Parameter> predicate) {
+		return parameterList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
+	}
+
 	public io.intino.legio.graph.Artifact.Distribution distribution() {
 		return distribution;
 	}
@@ -128,6 +141,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		this.package$ = value;
 		return (Artifact) this;
 	}
+
+
 
 	public Artifact distribution(io.intino.legio.graph.Artifact.Distribution value) {
 		this.distribution = value;
@@ -186,6 +201,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (code != null) components.add(this.code.core$());
 		new java.util.ArrayList<>(exportsList).forEach(c -> components.add(c.core$()));
 		if (package$ != null) components.add(this.package$.core$());
+		new java.util.ArrayList<>(parameterList).forEach(c -> components.add(c.core$()));
 		if (distribution != null) components.add(this.distribution.core$());
 		if (qualityAnalytics != null) components.add(this.qualityAnalytics.core$());
 		new java.util.ArrayList<>(deploymentList).forEach(c -> components.add(c.core$()));
@@ -210,6 +226,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		if (node.is("Artifact$Code")) this.code = node.as(io.intino.legio.graph.Artifact.Code.class);
 		if (node.is("Artifact$Exports")) this.exportsList.add(node.as(io.intino.legio.graph.Artifact.Exports.class));
 		if (node.is("Artifact$Package")) this.package$ = node.as(io.intino.legio.graph.Artifact.Package.class);
+		if (node.is("Parameter")) this.parameterList.add(node.as(io.intino.legio.graph.Parameter.class));
 		if (node.is("Artifact$Distribution")) this.distribution = node.as(io.intino.legio.graph.Artifact.Distribution.class);
 		if (node.is("Artifact$QualityAnalytics")) this.qualityAnalytics = node.as(io.intino.legio.graph.Artifact.QualityAnalytics.class);
 		if (node.is("Artifact$Deployment")) this.deploymentList.add(node.as(io.intino.legio.graph.Artifact.Deployment.class));
@@ -225,6 +242,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
         if (node.is("Artifact$Code")) this.code = null;
         if (node.is("Artifact$Exports")) this.exportsList.remove(node.as(io.intino.legio.graph.Artifact.Exports.class));
         if (node.is("Artifact$Package")) this.package$ = null;
+        if (node.is("Parameter")) this.parameterList.remove(node.as(io.intino.legio.graph.Parameter.class));
         if (node.is("Artifact$Distribution")) this.distribution = null;
         if (node.is("Artifact$QualityAnalytics")) this.qualityAnalytics = null;
         if (node.is("Artifact$Deployment")) this.deploymentList.remove(node.as(io.intino.legio.graph.Artifact.Deployment.class));
@@ -304,6 +322,12 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		    return newElement;
 		}
 
+		public io.intino.legio.graph.Parameter parameter(java.lang.String name) {
+		    io.intino.legio.graph.Parameter newElement = core$().graph().concept(io.intino.legio.graph.Parameter.class).createNode(this.name, core$()).as(io.intino.legio.graph.Parameter.class);
+			newElement.core$().set(newElement, "name", java.util.Collections.singletonList(name));
+		    return newElement;
+		}
+
 		public io.intino.legio.graph.Artifact.Distribution distribution(io.intino.legio.graph.Repository.Release release) {
 		    io.intino.legio.graph.Artifact.Distribution newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Distribution.class);
 			newElement.core$().set(newElement, "release", java.util.Collections.singletonList(release));
@@ -344,6 +368,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 
 
+
+		public void parameter(java.util.function.Predicate<io.intino.legio.graph.Parameter> filter) {
+			new java.util.ArrayList<>(parameterList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
+		}
 
 
 
@@ -1555,7 +1583,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		protected boolean includeTests;
 		protected java.lang.String classpathPrefix;
 		protected java.lang.String finalName;
-		protected java.util.List<io.intino.legio.graph.Parameter> parameterList = new java.util.ArrayList<>();
 		protected java.util.List<io.intino.legio.graph.Artifact.Package.MavenPlugin> mavenPluginList = new java.util.ArrayList<>();
 
 		public Package(io.intino.tara.magritte.Node node) {
@@ -1616,18 +1643,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Package) this;
 		}
 
-		public java.util.List<io.intino.legio.graph.Parameter> parameterList() {
-			return java.util.Collections.unmodifiableList(parameterList);
-		}
-
-		public io.intino.legio.graph.Parameter parameter(int index) {
-			return parameterList.get(index);
-		}
-
-		public java.util.List<io.intino.legio.graph.Parameter> parameterList(java.util.function.Predicate<io.intino.legio.graph.Parameter> predicate) {
-			return parameterList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
-		}
-
 		public java.util.List<io.intino.legio.graph.Artifact.Package.MavenPlugin> mavenPluginList() {
 			return java.util.Collections.unmodifiableList(mavenPluginList);
 		}
@@ -1639,8 +1654,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		public java.util.List<io.intino.legio.graph.Artifact.Package.MavenPlugin> mavenPluginList(java.util.function.Predicate<io.intino.legio.graph.Artifact.Package.MavenPlugin> predicate) {
 			return mavenPluginList().stream().filter(predicate).collect(java.util.stream.Collectors.toList());
 		}
-
-
 
 
 
@@ -1700,7 +1713,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-			new java.util.ArrayList<>(parameterList).forEach(c -> components.add(c.core$()));
 			new java.util.ArrayList<>(mavenPluginList).forEach(c -> components.add(c.core$()));
 			return new java.util.ArrayList<>(components);
 		}
@@ -1720,14 +1732,12 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void addNode$(io.intino.tara.magritte.Node node) {
 			super.addNode$(node);
-			if (node.is("Parameter")) this.parameterList.add(node.as(io.intino.legio.graph.Parameter.class));
 			if (node.is("Artifact$Package$MavenPlugin")) this.mavenPluginList.add(node.as(io.intino.legio.graph.Artifact.Package.MavenPlugin.class));
 		}
 
 		@Override
 	    protected void removeNode$(io.intino.tara.magritte.Node node) {
 	        super.removeNode$(node);
-	        if (node.is("Parameter")) this.parameterList.remove(node.as(io.intino.legio.graph.Parameter.class));
 	        if (node.is("Artifact$Package$MavenPlugin")) this.mavenPluginList.remove(node.as(io.intino.legio.graph.Artifact.Package.MavenPlugin.class));
 	    }
 
@@ -1768,13 +1778,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				this.name = name;
 			}
 
-			public io.intino.legio.graph.Parameter parameter(java.lang.String name, java.lang.String value) {
-			    io.intino.legio.graph.Parameter newElement = core$().graph().concept(io.intino.legio.graph.Parameter.class).createNode(this.name, core$()).as(io.intino.legio.graph.Parameter.class);
-				newElement.core$().set(newElement, "name", java.util.Collections.singletonList(name));
-				newElement.core$().set(newElement, "value", java.util.Collections.singletonList(value));
-			    return newElement;
-			}
-
 			public io.intino.legio.graph.Artifact.Package.MavenPlugin mavenPlugin(java.lang.String code) {
 			    io.intino.legio.graph.Artifact.Package.MavenPlugin newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Package.MavenPlugin.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Package.MavenPlugin.class);
 				newElement.core$().set(newElement, "code", java.util.Collections.singletonList(code));
@@ -1788,10 +1791,6 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		}
 
 		public class Clear  {
-			public void parameter(java.util.function.Predicate<io.intino.legio.graph.Parameter> filter) {
-				new java.util.ArrayList<>(parameterList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
-			}
-
 			public void mavenPlugin(java.util.function.Predicate<io.intino.legio.graph.Artifact.Package.MavenPlugin> filter) {
 				new java.util.ArrayList<>(mavenPluginList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
 			}
@@ -2156,7 +2155,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 	public static class Deployment extends io.intino.tara.magritte.Layer implements io.intino.tara.magritte.tags.Terminal {
 		protected java.util.List<java.lang.String> tags = new java.util.ArrayList<>();
 		protected io.intino.legio.graph.functions.Destinations destinations;
-		protected io.intino.legio.graph.Artifact.Deployment.Dev dev;
+		protected io.intino.legio.graph.Artifact.Deployment.Pre pre;
 		protected io.intino.legio.graph.Artifact.Deployment.Pro pro;
 
 		public Deployment(io.intino.tara.magritte.Node node) {
@@ -2184,16 +2183,16 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 			return (Deployment) this;
 		}
 
-		public io.intino.legio.graph.Artifact.Deployment.Dev dev() {
-			return dev;
+		public io.intino.legio.graph.Artifact.Deployment.Pre pre() {
+			return pre;
 		}
 
 		public io.intino.legio.graph.Artifact.Deployment.Pro pro() {
 			return pro;
 		}
 
-		public Deployment dev(io.intino.legio.graph.Artifact.Deployment.Dev value) {
-			this.dev = value;
+		public Deployment pre(io.intino.legio.graph.Artifact.Deployment.Pre value) {
+			this.pre = value;
 			return (Deployment) this;
 		}
 
@@ -2204,7 +2203,7 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 			java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
-			if (dev != null) components.add(this.dev.core$());
+			if (pre != null) components.add(this.pre.core$());
 			if (pro != null) components.add(this.pro.core$());
 			return new java.util.ArrayList<>(components);
 		}
@@ -2220,14 +2219,14 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 		@Override
 		protected void addNode$(io.intino.tara.magritte.Node node) {
 			super.addNode$(node);
-			if (node.is("Artifact$Deployment$Dev")) this.dev = node.as(io.intino.legio.graph.Artifact.Deployment.Dev.class);
+			if (node.is("Artifact$Deployment$Pre")) this.pre = node.as(io.intino.legio.graph.Artifact.Deployment.Pre.class);
 			if (node.is("Artifact$Deployment$Pro")) this.pro = node.as(io.intino.legio.graph.Artifact.Deployment.Pro.class);
 		}
 
 		@Override
 	    protected void removeNode$(io.intino.tara.magritte.Node node) {
 	        super.removeNode$(node);
-	        if (node.is("Artifact$Deployment$Dev")) this.dev = null;
+	        if (node.is("Artifact$Deployment$Pre")) this.pre = null;
 	        if (node.is("Artifact$Deployment$Pro")) this.pro = null;
 	    }
 
@@ -2260,8 +2259,8 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 				this.name = name;
 			}
 
-			public io.intino.legio.graph.Artifact.Deployment.Dev dev(io.intino.legio.graph.Server server, io.intino.legio.graph.RunConfiguration runConfiguration) {
-			    io.intino.legio.graph.Artifact.Deployment.Dev newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Dev.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Dev.class);
+			public io.intino.legio.graph.Artifact.Deployment.Pre pre(io.intino.legio.graph.Server server, io.intino.legio.graph.RunConfiguration runConfiguration) {
+			    io.intino.legio.graph.Artifact.Deployment.Pre newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Deployment.Pre.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Deployment.Pre.class);
 				newElement.core$().set(newElement, "server", java.util.Collections.singletonList(server));
 				newElement.core$().set(newElement, "runConfiguration", java.util.Collections.singletonList(runConfiguration));
 			    return newElement;
@@ -2286,10 +2285,10 @@ public class Artifact extends io.intino.tara.magritte.Layer implements io.intino
 
 		}
 
-		public static class Dev extends io.intino.legio.graph.Destination implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
+		public static class Pre extends io.intino.legio.graph.Destination implements io.intino.tara.magritte.tags.Component, io.intino.tara.magritte.tags.Terminal {
 
 
-			public Dev(io.intino.tara.magritte.Node node) {
+			public Pre(io.intino.tara.magritte.Node node) {
 				super(node);
 			}
 
