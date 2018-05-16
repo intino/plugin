@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.3.0</version>
+    <version>3.3.1</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -29,6 +29,8 @@
                    implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.ArtifactParametersAnnotator"/>
+        <annotator language="Tara"
+                   implementationClass="io.intino.plugin.codeinsight.annotators.ArtifactParameterAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.RunConfigurationAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>

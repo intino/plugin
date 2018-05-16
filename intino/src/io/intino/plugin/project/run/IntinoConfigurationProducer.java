@@ -53,6 +53,7 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 
 	public boolean isConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
+		if (location == null) return false;
 		final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(location);
 		final PsiClass aClass = getMainClass(legio, location);
 		if (aClass != null && Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.MAIN_CLASS_NAME)) {
@@ -95,10 +96,5 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 	@Override
 	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
 		return super.isPreferredConfiguration(self, other);
-	}
-
-	@Nullable
-	private static Project getProjectFromContext(ConfigurationContext context) {
-		return context.getLocation().getProject();
 	}
 }

@@ -109,7 +109,7 @@ public class WebDependencyResolver {
 		try {
 			return aether.resolve(new DefaultArtifact(artifact.groupId().toLowerCase(), artifact.artifactId().toLowerCase(), "sources", "jar", artifact.version()), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
-			LOG.error("Error extracting widgets", e);
+			LOG.warn("Error resolving widgets", e);
 		}
 		return Collections.emptyList();
 	}
