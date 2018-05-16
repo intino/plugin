@@ -14,6 +14,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.console.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -35,7 +36,10 @@ public class InterfaceGenerationAction extends AnAction {
 	}
 
 	public boolean execute(Module module) {
-		return !interfaceModified(module) || doExecute(module);
+		final Configuration configuration = TaraUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) return false;
+		if (!interfaceModified(module)) return true;
+		return doExecute(module);
 	}
 
 	boolean force(Module module) {

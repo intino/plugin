@@ -19,7 +19,8 @@ import static com.intellij.openapi.roots.DependencyScope.COMPILE;
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
-import static io.intino.plugin.project.LibraryConflictResolver.mustAddEntry;
+import static io.intino.plugin.project.LibraryConflictResolver.shouldAddEntry;
+import static io.intino.plugin.project.LibraryConflictResolver.shouldReplace;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -40,11 +41,18 @@ public class LibraryManager {
 		for (Artifact artifact : artifacts.keySet()) {
 			Library library = findLibrary(artifact);
 			if (library == null) library = registerLibrary(artifact, sources.get(artifact));
-			if (!registered.containsKey(artifacts.get(artifact)))
-				registered.put(artifacts.get(artifact), new ArrayList<>());
+			if (!scopeRegistered(artifacts, registered, artifact)) newScope(artifacts, registered, artifact);
 			registered.get(artifacts.get(artifact)).add(library);
 		}
 		return registered;
+	}
+
+	private boolean scopeRegistered(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		return registered.containsKey(artifacts.get(artifact));
+	}
+
+	private void newScope(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		registered.put(artifacts.get(artifact), new ArrayList<>());
 	}
 
 	List<Library> resolveAsModuleDependency(Module moduleDependency) {
@@ -63,9 +71,21 @@ public class LibraryManager {
 	void addToModule(List<Library> libraries, DependencyScope scope) {
 		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
 				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(toList());
-		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope) || mustAddEntry(library, registered)).collect(toList());
-		toRegister.forEach(library -> addDependency(module, library, scope, false));
+		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope) && shouldAddEntry(library, registered)).collect(toList());
+
+		toRegister.forEach(library -> {
+			final List<LibraryOrderEntry> toReplace = shouldReplace(library, registered);
+			if (!toReplace.isEmpty()) removeOlder(toReplace);
+			addDependency(module, library, scope, false);
+		});
 	}
+
+	private void removeOlder(List<LibraryOrderEntry> toReplace) {
+		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> ModuleRootManager.getInstance(module).getModifiableModel());
+		final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
+		removeLibraries(module, rootModel, table, toReplace);
+	}
+
 
 	private List<Library> compileDependenciesOf(Module module) {
 		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
@@ -147,7 +167,7 @@ public class LibraryManager {
 		try {
 			for (LibraryOrderEntry entry : toRemove)
 				if (entry != null) {
-					if (entry.isValid()) modifiableModel.removeOrderEntry(entry);
+					if (entry.getLibrary() == null) modifiableModel.removeOrderEntry(entry);
 					else {
 						final LibraryOrderEntry libraryOrderEntry = modifiableModel.findLibraryOrderEntry(entry.getLibrary());
 						if (libraryOrderEntry != null && libraryOrderEntry.isValid())
@@ -198,11 +218,11 @@ public class LibraryManager {
 	}
 
 	private boolean isRegistered(List<LibraryOrderEntry> registered, Library library, DependencyScope scope) {
-		for (LibraryOrderEntry entry : registered) {
-			if (library.equals(entry.getLibrary()) && (entry.getScope().equals(scope) || entry.getScope() == COMPILE))
-				return true;
-		}
-		return false;
+		return registered.stream().anyMatch(entry -> library.equals(entry.getLibrary()) && validScope(scope, entry.getScope()));
+	}
+
+	private boolean validScope(DependencyScope newLib, DependencyScope registered) {
+		return registered.ordinal() <= newLib.ordinal();
 	}
 
 	private String nameOf(Artifact dependency) {

@@ -16,6 +16,7 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.Safe.safeList;
 
 class DependencyAnalyzer extends TaraAnalyzer {
 	private Module module;
@@ -60,7 +61,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	private Artifact.Imports.Dependency findDependencyNode() {
 		if (configuration == null) return null;
-		for (Artifact.Imports.Dependency d : configuration.dependencies())
+		for (Artifact.Imports.Dependency d : safeList(() -> configuration.graph().artifact().imports().dependencyList()))
 			if (dependencyNode.simpleType().equals(d.core$().graph().concept(d.getClass()).id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), d))
 				return d;
 		return null;

@@ -18,6 +18,7 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 
 
 
+
 	public PlatformArtifact(io.intino.tara.magritte.Node node) {
 		super(node);
 	}
@@ -72,6 +73,14 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 		return _artifact.package$();
 	}
 
+	public java.util.List<io.intino.legio.graph.Parameter> parameterList() {
+		return (java.util.List<io.intino.legio.graph.Parameter>) _artifact.parameterList();
+	}
+
+	public io.intino.legio.graph.Parameter parameterList(int index) {
+		return _artifact.parameterList().get(index);
+	}
+
 	public io.intino.legio.graph.Artifact.Distribution distribution() {
 		return _artifact.distribution();
 	}
@@ -108,8 +117,11 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 
 
 
+
+
 	protected java.util.List<io.intino.tara.magritte.Node> componentList$() {
 		java.util.Set<io.intino.tara.magritte.Node> components = new java.util.LinkedHashSet<>(super.componentList$());
+
 
 
 
@@ -202,6 +214,12 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 		    return newElement;
 		}
 
+		public io.intino.legio.graph.Parameter parameter(java.lang.String name) {
+		    io.intino.legio.graph.Parameter newElement = core$().graph().concept(io.intino.legio.graph.Parameter.class).createNode(this.name, core$()).as(io.intino.legio.graph.Parameter.class);
+			newElement.core$().set(newElement, "name", java.util.Collections.singletonList(name));
+		    return newElement;
+		}
+
 		public io.intino.legio.graph.Artifact.Distribution distribution(io.intino.legio.graph.Repository.Release release) {
 		    io.intino.legio.graph.Artifact.Distribution newElement = core$().graph().concept(io.intino.legio.graph.Artifact.Distribution.class).createNode(this.name, core$()).as(io.intino.legio.graph.Artifact.Distribution.class);
 			newElement.core$().set(newElement, "release", java.util.Collections.singletonList(release));
@@ -229,6 +247,10 @@ public class PlatformArtifact extends io.intino.legio.graph.level.LevelArtifact 
 	public class Clear extends io.intino.legio.graph.level.LevelArtifact.Clear {
 		public void exports(java.util.function.Predicate<io.intino.legio.graph.Artifact.Exports> filter) {
 			new java.util.ArrayList<>(exportsList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
+		}
+
+		public void parameter(java.util.function.Predicate<io.intino.legio.graph.Parameter> filter) {
+			new java.util.ArrayList<>(parameterList()).stream().filter(filter).forEach(io.intino.tara.magritte.Layer::delete$);
 		}
 
 		public void deployment(java.util.function.Predicate<io.intino.legio.graph.Artifact.Deployment> filter) {

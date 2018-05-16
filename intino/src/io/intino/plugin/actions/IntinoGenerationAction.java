@@ -24,8 +24,10 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
+import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.toolwindows.console.IntinoTopics;
 import io.intino.plugin.toolwindows.console.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
@@ -44,12 +46,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
 import static java.util.Arrays.asList;
 
@@ -116,7 +116,7 @@ public class IntinoGenerationAction extends IntinoAction {
 	private void runCompiler(Module module, Configuration configuration, List<TaraModel> models) {
 		try {
 			String argsFile = createArgsFile(module, models);
-			final List<String> libraries = ((LegioConfiguration) configuration).taraCompilerClasspath();
+			final List<String> libraries = taraCompilerClasspath(module, (LegioConfiguration) configuration);
 			List<String> commandParameters = new ArrayList<>();
 			commandParameters.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
 			commandParameters.addAll(asList("-Dfile.encoding=UTF-8", "-cp", String.join(":", libraries)));
@@ -134,6 +134,13 @@ public class IntinoGenerationAction extends IntinoAction {
 		} catch (Throwable e) {
 			Bus.notify(new Notification("Tara Language", "Error occurred", "Exception: " + e.getMessage(), NotificationType.ERROR), null);
 		}
+	}
+
+
+	private List<String> taraCompilerClasspath(Module module, LegioConfiguration configuration) {
+		LevelArtifact.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		if (model == null) return Collections.emptyList();
+		return new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 	}
 
 	private String read(BufferedReader reader) {

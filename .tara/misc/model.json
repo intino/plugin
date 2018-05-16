@@ -6,9 +6,6 @@
   "Artifact.Generation.targetPackage": [
     "import io.intino.legio.Artifact;"
   ],
-  "Artifact.Deployment.destinations": [
-    "import java.util.List;",
-    "import io.intino.legio.graph.Destination;",
-    "import java.util.ArrayList;"
-  ]
+  "Artifact.Deployment.destinations": [],
+  "RunConfiguration.finalArguments": []
 }

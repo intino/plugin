@@ -7,16 +7,16 @@ import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import org.jetbrains.annotations.NotNull;
 
-public class PackageParametersAnnotator extends TaraAnnotator {
+public class RunConfigurationAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 		this.holder = holder;
-		if (element instanceof Node && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) && isPackage((Node) element))
-			analyzeAndAnnotate(new PackageParametersAnalyzer((Node) element));
+		if (element instanceof Node && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) && isRunConfiguration((Node) element))
+			analyzeAndAnnotate(new RunConfigurationAnalyzer((Node) element));
 	}
 
-	private boolean isPackage(Node element) {
-		return element.simpleType().equals("Package") || element.simpleType().equals("Artifact.Package");
+	private boolean isRunConfiguration(Node element) {
+		return element.simpleType().equals("RunConfiguration");
 	}
 }

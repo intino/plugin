@@ -37,7 +37,7 @@ public class SonarProfileRenderer {
 
 	public SonarProfileRenderer(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		analytics = configuration.qualityAnalytics();
+		analytics = configuration.graph().artifact().qualityAnalytics();
 		loadDoc();
 	}
 

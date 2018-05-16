@@ -11,7 +11,6 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
-import io.intino.legio.graph.Parameter;
 import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
@@ -36,6 +35,8 @@ import static io.intino.legio.graph.Artifact.Package.Mode;
 import static io.intino.legio.graph.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.legio.graph.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageID;
+import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.project.Safe.safeList;
 import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
@@ -53,7 +54,7 @@ public class PomCreator {
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = configuration.pack() == null || configuration.artifact() == null ? null : configuration.artifact().package$().mode();
+		packageType = safe(() -> configuration.graph().artifact().package$()) == null || configuration.graph().artifact() == null ? null : configuration.graph().artifact().package$().mode();
 	}
 
 	public File frameworkPom() {
@@ -72,7 +73,7 @@ public class PomCreator {
 	}
 
 	private File frameworkPom(File pom) {
-		Artifact.Package build = configuration.pack();
+		Artifact.Package build = safe(() -> configuration.graph().artifact().package$());
 		Frame frame = new Frame();
 		fillMavenId(frame);
 		final String[] languageLevel = {"1.8"};
@@ -112,7 +113,7 @@ public class PomCreator {
 			frame.addSlot("testOutDirectory", testOutDirectory(extension));
 			frame.addSlot("buildDirectory", buildDirectory());
 		}
-		if (pack != null) configureBuild(frame, configuration.licence(), pack);
+		if (pack != null) configureBuild(frame, configuration.graph().artifact().license(), pack);
 		addDependencies(frame);
 		addRepositories(frame);
 	}
@@ -138,7 +139,7 @@ public class PomCreator {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(frame, module);
 		else frame.addSlot("compile", "");
 		Set<String> dependencies = new HashSet<>();
-		for (Dependency dependency : configuration.dependencies()) {
+		for (Dependency dependency : safeList(() -> configuration.graph().artifact().imports().dependencyList())) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
 				frame.addSlot("dependency", createDependencyFrame(dependency));
@@ -165,7 +166,7 @@ public class PomCreator {
 	private void addModuleTypeDependencies(Frame frame, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
-			for (Dependency d : ((LegioConfiguration) configuration).dependencies())
+			for (Dependency d : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList()))
 				if (dependencies.add(d.identifier())) frame.addSlot("dependency", createDependencyFrame(d));
 			if (configuration.level() == null) continue;
 			for (Configuration.LanguageLibrary language : configuration.languages()) {
@@ -180,7 +181,7 @@ public class PomCreator {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
 		frame.addSlot("resourceDirectory", resourceDirectories(module).toArray(new String[0]));
 		final List<String> resTest = resourceTestDirectories(module);
-		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[resTest.size()]));
+		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[0]));
 	}
 
 	@NotNull
@@ -237,8 +238,11 @@ public class PomCreator {
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
-		for (Parameter parameter : build.parameterList())
-			frame.addSlot("parameter", new Frame().addTypes("parameter").addSlot("key", parameter.name()).addSlot("value", parameter.value()));
+		configuration.graph().artifact().parameterList().forEach(parameter -> {
+			final Frame pFrame = new Frame().addTypes("parameter").addSlot("key", parameter.name());
+			if (parameter.defaultValue() != null) pFrame.addSlot("value", parameter.defaultValue());
+			frame.addSlot("parameter", pFrame);
+		});
 		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
 		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
 		if (license != null) frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
@@ -254,7 +258,7 @@ public class PomCreator {
 	private Frame windows(Artifact.Package build) {
 		final Frame frame = new Frame().addSlot("mainClass", build.asRunnable().mainClass());
 		frame.addSlot("icon", build.asWindows().windowsIcon());
-		final Artifact artifact = configuration.artifact();
+		final Artifact artifact = configuration.graph().artifact();
 		frame.addSlot("name", artifact.name$()).addSlot("out", buildDirectory()).addSlot("version", artifact.version());
 		frame.addSlot("prefix", build.classpathPrefix() != null ? build.classpathPrefix() : "dependency");
 		return frame;

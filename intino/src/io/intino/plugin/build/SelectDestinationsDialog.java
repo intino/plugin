@@ -63,7 +63,7 @@ public class SelectDestinationsDialog {
 
 	private Destination findDestination(String value, boolean pro) {
 		for (Artifact.Deployment deployment : deployments)
-			if (deployment.name$().equalsIgnoreCase(value)) return pro ? deployment.pro() : deployment.dev();
+			if (deployment.name$().equalsIgnoreCase(value)) return pro ? deployment.pro() : deployment.pre();
 		return null;
 	}
 
@@ -96,7 +96,7 @@ public class SelectDestinationsDialog {
 	private boolean checkExist(String value, int column) {
 		for (Artifact.Deployment deployment : deployments) {
 			if (deployment.name$().equalsIgnoreCase(value)) {
-				if (column == 1) return deployment.dev() != null;
+				if (column == 1) return deployment.pre() != null;
 				return deployment.pro() != null;
 			}
 		}
@@ -124,49 +124,7 @@ public class SelectDestinationsDialog {
 	private Object[][] destinationsData() {
 		Object[][] objects = new Object[deployments.size()][3];
 		for (int i = 0; i < deployments.size(); i++)
-			objects[i] = new Object[]{deployments.get(i).name$(), deployments.get(i).dev() != null, deployments.get(i).pro() != null};
+			objects[i] = new Object[]{deployments.get(i).name$(), deployments.get(i).pre() != null, deployments.get(i).pro() != null};
 		return objects;
-	}
-
-	private class DestinationCellEditor implements TableCellEditor {
-		@Override
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-			return null;
-		}
-
-		@Override
-		public Object getCellEditorValue() {
-			return null;
-		}
-
-		@Override
-		public boolean isCellEditable(EventObject anEvent) {
-			return true;
-		}
-
-		@Override
-		public boolean shouldSelectCell(EventObject anEvent) {
-			return true;
-		}
-
-		@Override
-		public boolean stopCellEditing() {
-			return false;
-		}
-
-		@Override
-		public void cancelCellEditing() {
-
-		}
-
-		@Override
-		public void addCellEditorListener(CellEditorListener l) {
-
-		}
-
-		@Override
-		public void removeCellEditorListener(CellEditorListener l) {
-
-		}
 	}
 }

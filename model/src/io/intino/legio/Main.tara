@@ -55,10 +55,9 @@ Concept:{1..1}:Named Artifact
 		var boolean includeTests = false
 		var string classpathPrefix = empty
 		var string finalName = empty
-		has Parameter
 		Concept MavenPlugin
 			var string code
-
+	has Parameter
 	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
 		var Repository.Language language = empty
@@ -74,8 +73,8 @@ Concept:{1..1}:Named Artifact
 
 	Concept:Named Deployment
 		var string[] tags = empty
-		var function:Destinations destinations = 'java.util.Arrays.asList(self.dev(), self.pro())' is private
-		Concept:{0..1} Dev extends Destination
+		var function:Destinations destinations = @destinations is private
+		Concept:{0..1} Pre extends Destination
 		Concept:{0..1} Pro extends Destination
 
 Concept Destination is component
@@ -97,6 +96,7 @@ Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
 	var string vmOptions = ""
 	has Argument
+	var function:FinalArguments finalArguments = @finalArguments is private
 
 Concept:Named Server
 	var string cesar
@@ -132,7 +132,7 @@ Facet Level on Artifact
 
 Concept Parameter is component
 	var string name
-	var string value
+	var string defaultValue = empty
 	var string description = ""
 
 Concept Argument is component

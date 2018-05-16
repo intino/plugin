@@ -6,15 +6,26 @@ import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.application.AbstractApplicationConfigurationProducer;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.application.ApplicationConfigurationType;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
+import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.RunConfiguration;
+import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.Safe;
+import io.intino.tara.plugin.lang.psi.TaraNode;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static com.intellij.psi.search.GlobalSearchScope.allScope;
 
 public class IntinoConfigurationProducer extends AbstractApplicationConfigurationProducer<IntinoRunConfiguration> {
 
@@ -23,19 +34,33 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		super(configurationType);
 	}
 
+	@Override
+	protected boolean setupConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context, Ref<PsiElement> sourceElement) {
+		final PsiElement element = sourceElement.get();
+		final boolean isSuitable = element instanceof TaraNode && ((TaraNode) element).type().equals(RunConfiguration.class.getSimpleName());
+		if (isSuitable) {
+			final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(element);
+			final PsiClass mainClass = getMainClass(legio, element);
+			if (mainClass == null) return false;
+			configuration.setName(configurationName(element, legio).toLowerCase());
+			setupConfigurationModule(context, configuration);
+			configuration.setMainClass(mainClass);
+
+		}
+		return isSuitable;
+	}
+
 
 	public boolean isConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
-		final PsiClass aClass = ApplicationConfigurationType.getMainClass(location);
+		final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(location);
+		final PsiClass aClass = getMainClass(legio, location);
 		if (aClass != null && Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.MAIN_CLASS_NAME)) {
 			final PsiMethod method = PsiTreeUtil.getParentOfType(location, PsiMethod.class, false);
-			if (method != null && TestFrameworks.getInstance().isTestMethod(method)) {
-				return false;
-			}
-
+			if (method != null && TestFrameworks.getInstance().isTestMethod(method)) return false;
 			final Module configurationModule = configuration.getConfigurationModule().getModule();
-			if (Comparing.equal(context.getModule(), configurationModule)) return true;
-
+			if (Comparing.equal(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
+				return true;
 			ApplicationConfiguration template =
 					(ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
 			final Module predefinedModule = template.getConfigurationModule().getModule();
@@ -44,8 +69,36 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		return false;
 	}
 
+	@NotNull
+	private String configurationName(PsiElement location, LegioConfiguration legio) {
+		return legio.artifactId() + "-" + name(location);
+	}
+
+	private String name(PsiElement location) {
+		return location instanceof TaraNode ?
+				((TaraNode) location).name() :
+				TaraPsiImplUtil.getContainerNodeOf(location).name();
+	}
+
+	private PsiClass getMainClass(LegioConfiguration legio, PsiElement runConfigurationNode) {
+		final Artifact.Package safe = Safe.safe(() -> legio.graph().artifact().package$());
+		if (safe == null || !safe.isRunnable()) return null;
+		final JavaPsiFacade facade = JavaPsiFacade.getInstance(runConfigurationNode.getProject());
+		return facade.findClass(safe.asRunnable().mainClass(), allScope(runConfigurationNode.getProject()));
+	}
+
 	@Override
 	public boolean shouldReplace(@NotNull ConfigurationFromContext self, @NotNull ConfigurationFromContext other) {
 		return self.getSourceElement().equals(other.getSourceElement());
+	}
+
+	@Override
+	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
+		return super.isPreferredConfiguration(self, other);
+	}
+
+	@Nullable
+	private static Project getProjectFromContext(ConfigurationContext context) {
+		return context.getLocation().getProject();
 	}
 }

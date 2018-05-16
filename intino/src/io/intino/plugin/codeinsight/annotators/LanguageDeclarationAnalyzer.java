@@ -41,7 +41,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || modelNode == null) return;
+		if (configuration == null || modelNode == null || configuration.graph() == null) return;
 		final Parameter languageNameParameter = modelNode.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
 		if (languageNameParameter == null) return;
 		final String languageName = languageNameParameter.values().get(0).toString();
