@@ -7,7 +7,6 @@ import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.application.AbstractApplicationConfigurationProducer;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.JavaPsiFacade;
@@ -19,11 +18,11 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
+import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 
@@ -50,7 +49,6 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		return isSuitable;
 	}
 
-
 	public boolean isConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
 		if (location == null) return false;
@@ -62,10 +60,8 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 			final Module configurationModule = configuration.getConfigurationModule().getModule();
 			if (Comparing.equal(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
 				return true;
-			ApplicationConfiguration template =
-					(ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
-			final Module predefinedModule = template.getConfigurationModule().getModule();
-			return Comparing.equal(predefinedModule, configurationModule);
+			ApplicationConfiguration template = (ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
+			return Comparing.equal(template.getConfigurationModule().getModule(), configurationModule);
 		}
 		return false;
 	}
@@ -76,9 +72,12 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 	}
 
 	private String name(PsiElement location) {
-		return location instanceof TaraNode ?
-				((TaraNode) location).name() :
-				TaraPsiImplUtil.getContainerNodeOf(location).name();
+		if (location instanceof TaraNode) return ((TaraNode) location).name();
+		else {
+			final Node node = TaraPsiImplUtil.getContainerNodeOf(location);
+			if (node == null) return null;
+			return node.name();
+		}
 	}
 
 	private PsiClass getMainClass(LegioConfiguration legio, PsiElement runConfigurationNode) {
