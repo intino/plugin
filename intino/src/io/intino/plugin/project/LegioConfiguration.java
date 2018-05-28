@@ -297,8 +297,11 @@ public class LegioConfiguration implements Configuration {
 		return repositories;
 	}
 
-	public String snapshotRepository() {
-		return safe(() -> graph.repositoryList().get(0).snapshot().url());
+
+	public Map<String, String> snapshotRepositories() {
+		Map<String, String> repositories = new HashMap<>();
+		safeList(() -> graph.repositoryList()).forEach(r -> repositories.putAll(r.typeList(t -> t.i$(Repository.Snapshot.class)).stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID))));
+		return repositories;
 	}
 
 	public AbstractMap.SimpleEntry<String, String> distributionLanguageRepository() {

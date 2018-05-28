@@ -104,6 +104,7 @@ public class ArtifactDeployer {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put(configuration.distributionReleaseRepository().getKey(), configuration.distributionReleaseRepository().getValue());
 		map.putAll(configuration.releaseRepositories());
+		map.putAll(configuration.snapshotRepositories());
 		for (Module dependant : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration dependantConf = TaraUtil.configurationOf(dependant);
 			if (dependantConf != null) map.putAll(dependantConf.releaseRepositories());

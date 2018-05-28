@@ -148,7 +148,7 @@ const obfuscateFile = (src) => {
 };
 
 const unionLib = () => {
-    gulp.src($[workingPath('lib/{moment,konos-server-web,alexandria-ui-elements}/**/*')])
+    gulp.src($[workingPath('lib/{moment,konos-server-web,alexandria-ui-elements,alexandria-activity-elements}/**/*')])
         .pipe(gulp.dest(outputPath('lib')));
 
     return gulp.src($[workingPath('lib/{jquery,webcomponentsjs,numeral,promise-polyfill}/**/*'), workingPath('lib/{cotton-cookies,cotton-push}/*.js')])
