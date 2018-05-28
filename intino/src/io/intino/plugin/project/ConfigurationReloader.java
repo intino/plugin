@@ -45,7 +45,7 @@ public class ConfigurationReloader {
 	}
 
 	void reloadRunConfigurations() {
-		final List<RunConfiguration> runConfigurations = safeList(() -> graph.runConfigurationList());
+		@SuppressWarnings("Convert2MethodRef") final List<RunConfiguration> runConfigurations = safeList(() -> graph.runConfigurationList());
 		for (RunConfiguration runConfiguration : runConfigurations) {
 			ApplicationConfiguration configuration = findRunConfiguration(runConfiguration.name$());
 			if (configuration != null) configuration.setProgramParameters(parametersOf(runConfiguration));

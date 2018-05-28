@@ -44,7 +44,6 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 			configuration.setName(configurationName(element, legio).toLowerCase());
 			setupConfigurationModule(context, configuration);
 			configuration.setMainClass(mainClass);
-
 		}
 		return isSuitable;
 	}

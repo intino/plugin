@@ -48,7 +48,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	public void build() {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		CompileScope scope = compilerManager.createModulesCompileScope(modules.toArray(new Module[modules.size()]), true);
+		CompileScope scope = compilerManager.createModulesCompileScope(modules.toArray(new Module[0]), true);
 		if (languageExists()) compilerManager.make(scope, processArtifact());
 		else compilerManager.compile(scope, processArtifact());
 	}

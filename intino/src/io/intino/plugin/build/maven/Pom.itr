@@ -93,7 +93,7 @@ def type(pom)
 				]<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.6</version>
+					<version>3.2.0</version>
 					<configuration>
 						[<finalName>$finalName</finalName>]
 						<archive>
@@ -101,6 +101,7 @@ def type(pom)
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
 								<mainClass>$mainClass</mainClass>]
 								<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
+								<useUniqueVersions>false</useUniqueVersions>
 							</manifest>
 							[<manifestEntries>
                               $parameter...[$NL]
