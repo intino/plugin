@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.WebModuleType;
@@ -14,6 +15,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -28,6 +30,7 @@ import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
+import io.intino.tara.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraElementFactory;
 import io.intino.tara.plugin.lang.psi.TaraModel;
@@ -146,6 +149,83 @@ public class LegioConfiguration implements Configuration {
 				Arrays.stream(parameters).forEach(p -> addParameter((TaraNode) artifactNode, p));
 			}
 		}.execute();
+	}
+
+	public void addCompileDependencies(List<String> ids) {
+		if (ids.isEmpty()) return;
+		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
+		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
+		documentManager.saveDocument(document);
+		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+		new WriteCommandAction(module.getProject(), legioFile()) {
+			protected void run(@NotNull Result result) {
+				final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
+				if (artifactNode == null) return;
+				Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
+				if (imports == null) imports = createImports();
+				Node finalImports = imports;
+				ids.forEach(i -> {
+					final String[] split = i.split(":");
+					addCompileDependency((TaraNode) finalImports, split[0], split[1], split[2]);
+				});
+			}
+		}.execute();
+		documentManager.saveDocument(document);
+		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+	}
+
+	public void updateCompileDependencies(List<String> ids) {
+		if (ids.isEmpty()) return;
+		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
+		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
+		documentManager.saveDocument(document);
+		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+		new WriteCommandAction(module.getProject(), legioFile()) {
+			protected void run(@NotNull Result result) {
+				final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
+				if (artifactNode == null) return;
+				Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
+				if (imports == null) return;
+				ids.forEach(i -> {
+					final String[] split = i.split(":");
+					Node node = findDependency(imports, split);
+					if (node == null) return;
+					node.parameters().get(node.parameters().size() - 1).substituteValues(Collections.singletonList(split[2]));
+				});
+			}
+		}.execute();
+		documentManager.saveDocument(document);
+		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+	}
+
+	private Node findDependency(Node imports, String[] ids) {
+		for (Node node : imports.components()) {
+			if (parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1]))
+				return node;
+		}
+		return null;
+	}
+
+	private String parameterValue(String parameterName, List<Parameter> parameters) {
+		return parameters.stream().filter(parameter -> parameter.name().equals(parameterName)).findFirst().map(parameter -> parameter.values().get(0).toString()).orElse("");
+	}
+
+	private Node createImports() {
+		return null;//TODO
+	}
+
+	private void addCompileDependency(TaraNode imports, String groupId, String artifactId, String version) {
+		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
+		Node node = factory.createFullNode("Compile(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
+		node.type("Artifact.Imports.Compile");
+		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		PsiElement last = null;
+		if (imports.components().isEmpty()) {
+			imports.add(factory.createBodyNewLine(2));
+			last = imports;
+		} else last = (PsiElement) imports.components().get(imports.components().size() - 1);
+		PsiElement separator = imports.addAfter(factory.createBodyNewLine(2), last);
+		imports.addAfter((PsiElement) node, separator);
 	}
 
 	private void addParameter(TaraNode artifactNode, String p) {

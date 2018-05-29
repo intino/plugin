@@ -92,7 +92,7 @@ public class ArtifactDeployer {
 	}
 
 	private static Packaging.Parameter parametersFromNode(Map.Entry<String, String> node) {
-		return new Packaging.Parameter().name(node.getKey().replace("-", ".")).value(node.getValue());
+		return new Packaging.Parameter().name(node.getKey()).value(node.getValue());
 	}
 
 	private List<Artifactory> artifactories() {

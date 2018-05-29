@@ -64,7 +64,7 @@ public class LibraryConflictResolver {
 		return new Version(version.trim().replace(toRemove, ""));
 	}
 
-	private static class Version implements Comparable<Version> {
+	public static class Version implements Comparable<Version> {
 
 		private String version;
 
