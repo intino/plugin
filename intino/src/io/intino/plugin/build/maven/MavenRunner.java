@@ -24,12 +24,6 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-<<<<<<< HEAD
-import io.intino.tara.compiler.core.errorcollection.TaraException;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.LanguageManager;
-=======
->>>>>>> release/1.2.0
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +39,6 @@ import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLe
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
-
 	private static final Logger LOG = Logger.getInstance(MavenRunner.class);
 	private Module module;
 	private InvocationOutputHandler handler;

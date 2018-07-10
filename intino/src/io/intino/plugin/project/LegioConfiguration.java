@@ -37,23 +37,6 @@ import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraNodeImpl;
 import org.jetbrains.annotations.NotNull;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import io.intino.tara.StashBuilder;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
-import tara.dsl.Legio;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.io.Stash;
-import io.intino.tara.io.StashDeserializer;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-=======
-import tara.dsl.Legio;
->>>>>>> release/1.2.0
-=======
->>>>>>> release/2.2.0
 
 import java.io.File;
 import java.io.IOException;
