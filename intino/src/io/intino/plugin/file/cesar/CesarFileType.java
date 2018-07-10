@@ -1,43 +1,42 @@
-package io.intino.plugin.file.legio;
+package io.intino.plugin.file.cesar;
 
 import io.intino.plugin.IntinoIcons;
+import io.intino.tara.plugin.lang.file.TaraFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.intino.tara.plugin.lang.file.TaraFileType;
 
-public class LegioFileType extends TaraFileType {
-	public static LegioFileType INSTANCE;
-	public static final String LEGIO_FILE = "artifact.legio";
+public class CesarFileType extends TaraFileType {
+	public static CesarFileType INSTANCE;
+	public static final String CESAR_FILE = "project.cesar";
 
 
-	private LegioFileType() {
+	private CesarFileType() {
 		super();
 	}
 
-	public static LegioFileType instance() {
-		return INSTANCE != null ? INSTANCE : (INSTANCE = new LegioFileType());
+	public static CesarFileType instance() {
+		return INSTANCE != null ? INSTANCE : (INSTANCE = new CesarFileType());
 	}
 
 	@NotNull
 	public String getName() {
-		return "Legio";
+		return "Cesar";
 	}
 
 	@NotNull
 	public String getDescription() {
-		return "Legio file";
+		return "Cesar file";
 	}
 
 	@NotNull
 	public String getDefaultExtension() {
-		return "legio";
+		return "cesar";
 	}
 
 	@Nullable
 	@Override
 	public javax.swing.Icon getIcon() {
-		return IntinoIcons.LEGIO_16;
+		return IntinoIcons.LOGO_16;
 	}
-
 
 }

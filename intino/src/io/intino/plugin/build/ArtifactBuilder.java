@@ -56,6 +56,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private boolean languageExists() {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
+			if (configuration == null) return false;
 			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.version());
 			if (shouldDistributeLanguage(module, factoryPhase) && !languageFile.exists()) return false;
 		}

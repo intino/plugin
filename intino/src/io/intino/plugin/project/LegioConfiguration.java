@@ -84,6 +84,7 @@ public class LegioConfiguration implements Configuration {
 		reloader.reloadInterfaceBuilder();
 		reloader.resolveLanguages();
 		reloader.reloadArtifactoriesMetaData();
+		reloader.reloadCesar();
 		if (WebModuleType.isWebModule(module) && this.graph != null)
 			new GulpExecutor(this.module, graph.artifact()).startGulpDev();
 		if (graph != null && graph.artifact() != null) graph.artifact().save$();
@@ -127,6 +128,7 @@ public class LegioConfiguration implements Configuration {
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
 						 reloader.reloadRunConfigurations();
+						 reloader.reloadCesar();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
 					 }
 				 }

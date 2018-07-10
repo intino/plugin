@@ -120,7 +120,7 @@ public class MavenRunner {
 		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 
-	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException, IOException {
+	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList(phases));
 		request.setJavaHome(new File(System.getProperty("java.home")));
@@ -141,7 +141,7 @@ public class MavenRunner {
 		return this.output;
 	}
 
-	private InvocationResult invokeMaven(InvocationRequest request) throws MavenInvocationException, IOException {
+	private InvocationResult invokeMaven(InvocationRequest request) throws MavenInvocationException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
@@ -171,8 +171,9 @@ public class MavenRunner {
 		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new IOException(output));
 	}
 
-	private void log(Invoker invoker) throws IOException {
+	private void log(Invoker invoker) {
 		invoker.setOutputHandler(handler);
+		invoker.setErrorHandler(handler);
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")

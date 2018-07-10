@@ -85,11 +85,11 @@ Concept Destination is component
 	Concept:{0..1} BugTracking
 		var string[] slackUsers = empty
 	Concept:{0..1} Requirements
-		Concept HDD
-			var integer:{GB} min
-		Concept Memory
+		Concept:{0..1} HDD
+			var double:{GB} min
+		Concept:{0..1} Memory
 			var integer:{MB} min
-		Concept CPU
+		Concept:{0..1} CPU
 			var integer cores
 
 Concept:CheckDuplicatedArguments RunConfiguration
@@ -99,7 +99,7 @@ Concept:CheckDuplicatedArguments RunConfiguration
 	var function:FinalArguments finalArguments = @finalArguments is private
 
 Concept:Named Server
-	var string cesar
+
 
 Concept Repository
 	var string identifier

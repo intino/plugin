@@ -108,11 +108,20 @@ public class BitbucketDeployer {
 			@Override
 			public String content() {
 				try {
-					if (response == null)
-						return null;
-
+					if (response == null) return null;
 					return stringContentOf(response.getEntity().getContent());
 				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+					return null;
+				}
+			}
+
+			@Override
+			public InputStream contentAsStream() {
+				try {
+					return response.getEntity().getContent();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
 					return null;
 				}
 			}
@@ -126,13 +135,13 @@ public class BitbucketDeployer {
 					buffer = new BufferedReader(new InputStreamReader(input));
 					while ((line = buffer.readLine()) != null) sb.append(line);
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(),e );
 				} finally {
 					if (buffer != null) {
 						try {
 							buffer.close();
 						} catch (IOException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage(),e );
 						}
 					}
 				}

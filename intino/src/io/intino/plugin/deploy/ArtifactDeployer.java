@@ -3,9 +3,9 @@ package io.intino.plugin.deploy;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.SystemSchema;
-import io.intino.cesar.schemas.SystemSchema.Artifactory;
-import io.intino.cesar.schemas.SystemSchema.Packaging;
+import io.intino.cesar.schemas.ProcessDeployment;
+import io.intino.cesar.schemas.ProcessDeployment.Artifactory;
+import io.intino.cesar.schemas.ProcessDeployment.Packaging;
 import io.intino.konos.alexandria.exceptions.BadRequest;
 import io.intino.konos.alexandria.exceptions.Forbidden;
 import io.intino.konos.alexandria.exceptions.Unknown;
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 import static java.util.stream.Collectors.toList;
 
 public class ArtifactDeployer {
@@ -47,14 +48,14 @@ public class ArtifactDeployer {
 
 	private void deploy(Destination destination) throws IntinoException {
 		try {
-			final String user = user();
+			final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
 			if (destination.server() == null) throw new IntinoException("Server not found");
 			final Artifact.Package aPackage = safe(() -> configuration.graph().artifact().package$());
 			if (aPackage == null) throw new IntinoException("Package configuration not found");
 			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
 			if (!correctParameters(destination.runConfiguration().finalArguments()))
 				throw new IntinoException("Arguments are duplicated");
-			new CesarRestAccessor(urlOf(destination.server().cesar())).postDeployProcess(user, createSystem(destination));
+			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(cesar.getValue(), createProcess(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -64,27 +65,25 @@ public class ArtifactDeployer {
 		return configuration.graph().artifact().parameterList().stream().allMatch(p -> arguments.containsKey(p.name()) && arguments.get(p.name()) != null);
 	}
 
-	@NotNull
-	private String user() throws IntinoException {
-		final String user = cesarUser();
-		if (user.isEmpty()) throw new IntinoException("Cesar user not found, please specify it in Intino settings");
-		return user;
-	}
-
-	private String cesarUser() {
-		return IntinoSettings.getSafeInstance(module.getProject()).cesarUser();
-	}
-
-	private SystemSchema createSystem(Destination destination) {
-		final String id = (configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version()).toLowerCase();
+	private ProcessDeployment createProcess(Destination destination) {
 		final String classpathPrefix = configuration.graph().artifact().package$().asRunnable().classpathPrefix();
-		return new SystemSchema().project(destination.project() != null ? destination.project() : module.getProject().getName()).
-				name(id).tag(destination.core$().ownerAs(Artifact.Deployment.class).tags()).
-				publicURL(destination.url()).
-				artifactoryList(artifactories()).packaging(new Packaging().
-				artifact(id).parameterList(extractParameters(destination.runConfiguration())).
-				classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				runtime(new SystemSchema.Runtime().serverName(destination.server().name$()));
+		return new ProcessDeployment().project(destination.project() != null ? destination.project() : module.getProject().getName()).
+				groupId(configuration.groupId()).artifactId(configuration.artifactId()).version(configuration.version())
+				.datalake(destination.core$().ownerAs(Artifact.Deployment.class).tags().contains("Datalake")).
+						artifactoryList(artifactories()).
+						prerequisites(requirements(destination)).
+						packaging(new Packaging().parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+						destinationServer(destination.server().name$());
+	}
+
+	@NotNull
+	private ProcessDeployment.Prerequisites requirements(Destination destination) {
+		final ProcessDeployment.Prerequisites prerequisites = new ProcessDeployment.Prerequisites();
+		if (destination.requirements() != null) {
+			prerequisites.memory(destination.requirements().memory().min());
+			prerequisites.hdd(destination.requirements().hDD().min());
+		}
+		return prerequisites;
 	}
 
 	private List<Packaging.Parameter> extractParameters(RunConfiguration configuration) {
@@ -113,7 +112,7 @@ public class ArtifactDeployer {
 	}
 
 	private Artifactory addCredentials(Artifactory artifactory) {
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
+		final IntinoSettings settings = getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(artifactory.id()))
 				artifactory.user(credential.username).password(credential.password);

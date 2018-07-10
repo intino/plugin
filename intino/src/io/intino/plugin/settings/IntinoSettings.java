@@ -4,9 +4,13 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
+import io.intino.plugin.IntinoException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 
 @State(
 		name = "Intino.Settings",
@@ -54,7 +58,6 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		myState.trackerApiToken = trackerApiToken;
 	}
 
-
 	public String cesarUser() {
 		return myState.cesarUser;
 	}
@@ -62,6 +65,25 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	public void cesarUser(String cesarUser) {
 		myState.cesarUser = cesarUser;
 	}
+
+	public String cesarUrl() {
+		return myState.cesarUrl;
+	}
+
+	public void cesarUrl(String url) {
+		myState.cesarUrl = url;
+	}
+
+
+	@NotNull
+	public Map.Entry<String, String> cesar() throws IntinoException {
+		final String cesar = cesarUrl();
+		final String user = cesarUser();
+		if (cesar.isEmpty() || user.isEmpty())
+			throw new IntinoException("Cesar credentials not found, please specify it in Intino settings");
+		return new AbstractMap.SimpleEntry<>(cesar, user);
+	}
+
 
 	public boolean overrides() {
 		return myState.overrides;
@@ -93,6 +115,8 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 
 		@Tag("cesarUser")
 		public String cesarUser = "";
+		@Tag("cesarUrl")
+		public String cesarUrl = "";
 	}
 
 }

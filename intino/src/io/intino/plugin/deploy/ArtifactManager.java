@@ -6,9 +6,9 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.jcraft.jsch.Channel;
 import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.ServerSchema;
-import io.intino.cesar.schemas.SystemSchema;
-import io.intino.cesar.schemas.SystemSchema.Runtime;
+import io.intino.cesar.schemas.ProcessInfo;
+import io.intino.cesar.schemas.ProcessInfo.Runtime;
+import io.intino.cesar.schemas.ServerInfo;
 import io.intino.konos.alexandria.exceptions.BadRequest;
 import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.plugin.IntinoException;
@@ -25,8 +25,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 
 public class ArtifactManager {
 	private Module module;
@@ -42,10 +43,10 @@ public class ArtifactManager {
 	public void start() {
 		try {
 			final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-			final SystemSchema system = getSystem(configuration);
+			final ProcessInfo system = getProcess(configuration);
 			final int proxyPort = nextProxyPort();
 			Channel channel;
-			if ((channel = initTunnel(serverOf(system, configuration), proxyPort)) == null) return;
+			if ((channel = initTunnel(serverOf(system), proxyPort)) == null) return;
 			final ProcessBuilder jconsole = new ProcessBuilder("jconsole", getConnectionParameters(proxyPort), connectionChain(system)).redirectErrorStream(true).redirectOutput(new File("./error.txt"));
 			final Process process = jconsole.start();
 			startCloserListener(proxyPort, channel, process);
@@ -54,7 +55,7 @@ public class ArtifactManager {
 		}
 	}
 
-	private Channel initTunnel(ServerSchema serverSchema, int proxyPort) {
+	private Channel initTunnel(ServerInfo serverSchema, int proxyPort) {
 		String[] options = new String[]{"Cancel", "Accept"};
 		final JPanel panel = userDialog();
 		int option = JOptionPane.showOptionDialog(null, panel, "Management Connection",
@@ -95,32 +96,34 @@ public class ArtifactManager {
 		return "-J-DsocksProxyHost=localhost -J-DsocksProxyPort=" + localProxyPort;
 	}
 
-	private String connectionChain(SystemSchema system) {
+	private String connectionChain(ProcessInfo system) {
 		final Runtime runtime = system.runtime();
 		return runtime.ip();
 	}
 
-	private ServerSchema serverOf(SystemSchema system, LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(Safe.safe(() -> configuration.graph().artifact().deploymentList()).get(0).pre().server().cesar());
+	private ServerInfo serverOf(ProcessInfo system) throws IntinoException {
+		final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url).getServer(system.runtime().serverName());
+			return new CesarRestAccessor(url, cesar.getValue()).getServer(system.runtime().serverName());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
 
-	private SystemSchema getSystem(LegioConfiguration configuration) throws IntinoException {
-		final URL url = urlOf(Safe.safe(() -> configuration.graph().artifact().deploymentList()).get(0).pre().server().cesar());
+	private ProcessInfo getProcess(LegioConfiguration configuration) throws IntinoException {
+		final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url).getSystem(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
+			return new CesarRestAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
 
-	static URL urlOf(String cesar) {
+	public static URL urlOf(String cesar) {
 		try {
 			return new URL(cesar.startsWith("http") ? cesar : "https://" + cesar);
 		} catch (MalformedURLException e) {

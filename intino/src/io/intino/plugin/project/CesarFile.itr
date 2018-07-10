@@ -1,56 +1,86 @@
-def type(legio & empty)
-	dsl Legio
+def type(project)
+	dsl Cesar
 
-	Artifact(groupId = "org.example", version = "1.0.0") $name as Platform
-		Model(language = "Verso", version = "LATEST", sdk = "LATEST")
-    	Box(language = "Konos", version = "3.0.1", sdk = "LATEST")
-    	Imports
-    		Compile(groupId = "io.intino.konos", artifactId = "alexandria-core", version = "LATEST")
-    		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+    Project $name
+        [alias = $alias
+        ]servers = [$servers?0]
+        devices = [$devices?0]
+        server-processes = [$server-processes?0]
+        device-processes = [$device-processes?0]
+        datalakes = [$datalakes?0]
+        datamarts = [$datamarts?0][
 
-    	Package(mode = ModulesAndLibrariesLinkedByManifest)
+        has $device+nameValue...[$NL has ]][
 
-    Repository(identifier = "intino-maven")
-    	Language(url = "https://artifactory.intino.io/artifactory/releases")
-    	Release(url = "https://artifactory.intino.io/artifactory/releases")
+        has $process+nameValue...[$NL has ]]
+
+        $server...[$NL]
+
+        $process...[$NL]
 end
 
-def type(legio) !type(empty)
-	dsl Legio
 
-	Artifact(groupId = "$groupId", version = "$version") $artifactId[ as $level+firstUpperCase]
-		[$factory
-		]
-    	Imports[
-    		$dependency...[$NL]]
-    	Package(mode = ModulesAndLibrariesLinkedByManifest)
-    	[$distribution...[$NL]]
-
-	[$isIntino
-	Repository(identifier = "intino-maven")
-		Release(url = "https://artifactory.intino.io/artifactory/releases")
-		Language(url = "https://artifactory.intino.io/artifactory/releases")]
-	[$repository...[$NL]]
+def trigger(nameValue)
+    $name
 end
 
-def type(release) trigger(repository)
-	Repository(identifier = "$id")
-		Release(url = "$url")
+
+def trigger(server)
+    Server $name
+        id = "$id"
+        status = $status
+        [architecture = "$architecture"][
+        cores = $cores]
+        [os = "$os"]
+        [jvm = "$jvm"]
+
+        [UpTime("$boot")]
+        [temperature = $temperature~°]
+        [$serverCpu]
+        [$serverMemory]
+        //Swap(size = 2.29GB, used = 1.65GB, free = 28%, pagination = 18faults/second)
+        [$fileSystem]
+
+        Network(ip = "$ip")
+            inbound = 150 Mb/s
+            outbound = 1430 Mb/s
+            Ports
+                //Port(nginx, 80 443)
+                //Port(ness, "0xFEED")
+
+            Connections(44)
+                Client("205.234.11.204", "Canada")
+                Client("203.13.121.205", "Mexico")
+
+        Rule("CPU.usage > 30%") as Warning
+        Rule("Physical-Memory.usage > 80%") as Alert
+        Rule("Swap-Memory usage > 80%") as Alert
+
+        //has hss.consul hss.cesar
+        //has hss.ness hss.nginx
+        //has hss.federation hss.dashboard
 end
 
-def type(snapshot) trigger(repository)
-	Repository(identifier = "$id")
-		Snapshot(url = "$url")
+def trigger(serverCpu)
+    CPU([usage = $usage%][, processes = $processes][, threads = $threads])
 end
 
-def type(dependency)
-	$type+FirstUpperCase(groupId = "$groupId", artifactId = "$artifactId", version = "$version")
+def trigger(serverMemory)
+    Memory(size = $size MB[, used = $used MB][, free = $free %])
 end
 
-def type(factory)
-    Model(language = "$dsl", version = "$dslVersion", sdk = "LATEST")
+def trigger(fileSystem)
+    Filesystem(size = $size MB[, used = $used %])
 end
 
-def type(distribution)
-	Distribution($id)
+def trigger(process)
+
+end
+
+def attribute(true) trigger(status)
+    active
+end
+
+def attribute(false) trigger(status)
+    inactive
 end

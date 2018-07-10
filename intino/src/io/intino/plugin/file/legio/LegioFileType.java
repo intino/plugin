@@ -38,6 +38,4 @@ public class LegioFileType extends TaraFileType {
 	public javax.swing.Icon getIcon() {
 		return IntinoIcons.LEGIO_16;
 	}
-
-
 }
