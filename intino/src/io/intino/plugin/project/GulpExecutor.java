@@ -95,7 +95,7 @@ public class GulpExecutor {
 			final MavenRunner mavenRunner = new MavenRunner(module, handler);
 			final InvocationResult result = mavenRunner.invokeMaven(pom, skipOptions(), "generate-resources");
 			processResult(pom, result);
-		} catch (MavenInvocationException | IOException | IntinoException e) {
+		} catch (MavenInvocationException | IntinoException e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}

@@ -1,0 +1,86 @@
+def type(project)
+	dsl Cesar
+
+    Project $name
+        [alias = $alias
+        ]servers = [$servers?0]
+        devices = [$devices?0]
+        server-processes = [$server-processes?0]
+        device-processes = [$device-processes?0]
+        datalakes = [$datalakes?0]
+        datamarts = [$datamarts?0][
+
+        has $device+nameValue...[$NL has ]][
+
+        has $process+nameValue...[$NL has ]]
+
+        $server...[$NL]
+
+        $process...[$NL]
+end
+
+
+def trigger(nameValue)
+    $name
+end
+
+
+def trigger(server)
+    Server $name
+        id = "$id"
+        status = $status
+        [architecture = "$architecture"][
+        cores = $cores]
+        [os = "$os"]
+        [jvm = "$jvm"]
+
+        [UpTime("$boot")]
+        [temperature = $temperature~°]
+        [$serverCpu]
+        [$serverMemory]
+        //Swap(size = 2.29GB, used = 1.65GB, free = 28%, pagination = 18faults/second)
+        [$fileSystem]
+
+        Network(ip = "$ip")
+            inbound = 150 Mb/s
+            outbound = 1430 Mb/s
+            Ports
+                //Port(nginx, 80 443)
+                //Port(ness, "0xFEED")
+
+            Connections(44)
+                Client("205.234.11.204", "Canada")
+                Client("203.13.121.205", "Mexico")
+
+        Rule("CPU.usage > 30%") as Warning
+        Rule("Physical-Memory.usage > 80%") as Alert
+        Rule("Swap-Memory usage > 80%") as Alert
+
+        //has hss.consul hss.cesar
+        //has hss.ness hss.nginx
+        //has hss.federation hss.dashboard
+end
+
+def trigger(serverCpu)
+    CPU([usage = $usage%][, processes = $processes][, threads = $threads])
+end
+
+def trigger(serverMemory)
+    Memory(size = $size MB[, used = $used MB][, free = $free %])
+end
+
+def trigger(fileSystem)
+    Filesystem(size = $size MB[, used = $used %])
+end
+
+def trigger(process)
+
+end
+
+def attribute(true) trigger(status)
+    active
+end
+
+def attribute(false) trigger(status)
+    inactive
+end

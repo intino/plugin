@@ -119,7 +119,7 @@ public class WebDependencyResolver {
 			final MavenRunner mavenRunner = new MavenRunner(module);
 			final InvocationResult result = mavenRunner.invokeMaven(pom, skipOptions(), "generate-resources");
 			processResult(mavenRunner, pom, result);
-		} catch (MavenInvocationException | IOException e) {
+		} catch (MavenInvocationException e) {
 			notifyError(message("error.resolving.web.dependencies", e.getMessage()));
 		} catch (IntinoException e) {
 			notifyError(e.getMessage());

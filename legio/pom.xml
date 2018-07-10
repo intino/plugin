@@ -5,6 +5,7 @@
 
     <groupId>io.intino.legio</groupId>
     <artifactId>model</artifactId>
+    <name>legio</name>
     <version>3.1.0</version>
 
     <properties>
@@ -18,9 +19,9 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/model</outputDirectory>
-        <testOutputDirectory>../out/test/model</testOutputDirectory>
-        <directory>../out/build/model</directory>
+        <outputDirectory>../out/production/legio</outputDirectory>
+        <testOutputDirectory>../out/test/legio</testOutputDirectory>
+        <directory>../out/build/legio</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -94,7 +95,7 @@
             <groupId>io.intino.tara</groupId>
             <artifactId>language</artifactId>
             <scope>provided</scope>
-            <version>1.0.8</version>
+            <version>1.0.9</version>
         </dependency>
     </dependencies>
 </project>

@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 public class TunnelTest {
 	private static final Logger logger = Logger.getInstance(TunnelTest.class);
 
-
 	@Test
 	public void testBitbucket() throws Exception {
 		final URL url = url();
@@ -90,14 +89,19 @@ public class TunnelTest {
 
 			@Override
 			public String content() {
+				//noinspection Duplicates
 				try {
-					if (response == null)
-						return null;
-
+					if (response == null) return null;
 					return stringContentOf(response.getEntity().getContent());
 				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
 					return null;
 				}
+			}
+
+			@Override
+			public InputStream contentAsStream() {
+				return null;
 			}
 
 			private String stringContentOf(InputStream input) {
@@ -115,7 +119,7 @@ public class TunnelTest {
 						try {
 							buffer.close();
 						} catch (IOException e) {
-							e.printStackTrace();
+							logger.error(e.getMessage(), e);
 						}
 					}
 				}

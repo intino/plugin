@@ -26,6 +26,8 @@ public class IntinoSettingsPanel {
 	private JBTable table;
 	private JPanel tablePanel;
 	private JTextField cesarUser;
+	private JPanel cesar;
+	private JTextField url;
 
 	IntinoSettingsPanel() {
 		tracker.setBorder(BorderFactory.createTitledBorder("Issue Tracker"));
@@ -43,14 +45,16 @@ public class IntinoSettingsPanel {
 		trackerProject.setText(settings.trackerProjectId());
 		trackerApi.setText(settings.trackerApiToken());
 		cesarUser.setText(settings.cesarUser());
+		url.setText(settings.cesarUrl());
 	}
 
-	void applyConfigurationData(IntinoSettings settings) throws ConfigurationException {
+	void applyConfigurationData(IntinoSettings settings) {
 		settings.artifactories(createArtifactories());
 		settings.overrides(overrides.isSelected());
 		settings.trackerProjectId(trackerProject.getText());
 		settings.trackerApiToken(trackerApi.getText());
 		settings.cesarUser(cesarUser.getText());
+		settings.cesarUrl(url.getText());
 		settings.saveState();
 	}
 

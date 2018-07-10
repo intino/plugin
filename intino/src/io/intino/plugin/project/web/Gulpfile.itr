@@ -87,15 +87,15 @@ gulp.task('resolve-deploy-url-dependencies', () => {
 });
 
 gulp.task('resolve-dev-url-dependencies', () => {
-    gulp.src($[outputPath('*.html'), '!' + outputPath('components.html')])
-    .pipe($$.replace('src="', 'src="/' + UiName + '/'))
-    .pipe($$.replace('href="', 'href="/' + UiName + '/'))
-    .pipe($$.replace('href-absolute=', 'href='))
+    gulp.src([outputPath('*.html'), '!' + outputPath('components.html')])
+    .pipe($.replace('src="', 'src="$$url/'))
+    .pipe($.replace('href="', 'href="$$url/'))
+    .pipe($.replace('href-absolute=', 'href='))
     .pipe(gulp.dest(outputPath()));
-gulp.src($[outputPath('components.html')])
-    .pipe($$.replace('src="', 'src="/' + UiName + '/src/'))
-    .pipe($$.replace('href="', 'href="/' + UiName + '/src/'))
-    .pipe($$.replace('href-absolute=', 'href='))
+    gulp.src([outputPath('components.html')])
+    .pipe($.replace('src="', 'src="src/'))
+    .pipe($.replace('href="', 'href="src/'))
+    .pipe($.replace('href-absolute=', 'href='))
     .pipe(gulp.dest(outputPath()));
 });
 
