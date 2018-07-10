@@ -19,6 +19,11 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
+<<<<<<< HEAD
+import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+=======
+>>>>>>> release/1.2.0
 
 import java.io.File;
 import java.io.IOException;

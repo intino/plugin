@@ -1,6 +1,5 @@
 package io.intino.legio.graph.rules;
 
-
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.rules.NodeRule;
 

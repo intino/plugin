@@ -1,10 +1,10 @@
 package io.intino.plugin;
 
 import com.intellij.CommonBundle;
-import io.intino.tara.plugin.messages.UTF8Control;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
+import io.intino.tara.plugin.messages.UTF8Control;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
