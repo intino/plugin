@@ -5,6 +5,7 @@ import com.jcabi.aether.Aether;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -43,7 +44,7 @@ public class InterfaceBuilderManager {
 	private List<Artifact> konosLibrary(String version) {
 		final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
 		try {
-			return aether.resolve(new DefaultArtifact("io.intino.konos:builder:jar:" + version), JavaScopes.COMPILE);
+			return aether.resolve(new DefaultArtifact("io.intino.konos", "builder", "jar", version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyList();
 		}
@@ -53,11 +54,11 @@ public class InterfaceBuilderManager {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		try {
-			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()));
+			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
+		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
 		return remotes;
 	}
 

@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -180,13 +181,16 @@ public class LanguageResolver {
 	private List<RemoteRepository> collectRemotes() {
 		List<RemoteRepository> remotes = new ArrayList<>();
 		remotes.addAll(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
 		return remotes;
 	}
 
 	private RemoteRepository remoteFrom(Repository.Type remote) {
 		if (remote.core$().variables().get("mavenID").get(0) == null) return null;
-		return new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
+		return new RemoteRepository(remote.mavenID(), "default", remote.url()).
+				setAuthentication(provideAuthentication(remote.mavenID())).
+				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"));
 	}
 
 	private Authentication provideAuthentication(String mavenId) {

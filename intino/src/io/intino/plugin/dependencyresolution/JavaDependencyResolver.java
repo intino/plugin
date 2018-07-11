@@ -16,13 +16,33 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.DependencyGraphTransformer;
+import org.sonatype.aether.collection.DependencyManager;
+import org.sonatype.aether.collection.DependencySelector;
+import org.sonatype.aether.collection.DependencyTraverser;
+import org.sonatype.aether.impl.internal.DefaultRepositorySystem;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
+import org.sonatype.aether.resolution.VersionRangeRequest;
+import org.sonatype.aether.resolution.VersionRangeResult;
+import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.artifact.DefaultArtifactType;
+import org.sonatype.aether.util.artifact.DefaultArtifactTypeRegistry;
 import org.sonatype.aether.util.artifact.JavaScopes;
 import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
+import org.sonatype.aether.util.graph.manager.ClassicDependencyManager;
+import org.sonatype.aether.util.graph.selector.AndDependencySelector;
+import org.sonatype.aether.util.graph.selector.ExclusionDependencySelector;
+import org.sonatype.aether.util.graph.selector.OptionalDependencySelector;
+import org.sonatype.aether.util.graph.selector.ScopeDependencySelector;
+import org.sonatype.aether.util.graph.transformer.ChainedDependencyGraphTransformer;
+import org.sonatype.aether.util.graph.transformer.JavaDependencyContextRefiner;
+import org.sonatype.aether.util.graph.traverser.FatArtifactTraverser;
 
 import java.io.File;
 import java.util.*;
@@ -113,7 +133,6 @@ public class JavaDependencyResolver {
 	private Map<Artifact, DependencyScope> collectArtifacts(Dependency dependency) {
 		final String scope = dependency.getClass().getSimpleName().toLowerCase();
 		try {
-
 			final Map<Artifact, DependencyScope> artifacts = toMap(resolve(dependency, scope), scope(scope));
 			if (scope.equalsIgnoreCase(JavaScopes.COMPILE)) {
 				final Map<Artifact, DependencyScope> m = toMap(resolve(dependency, JavaScopes.RUNTIME), DependencyScope.RUNTIME);
@@ -128,9 +147,9 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
-		if (dependency.excludeList().isEmpty())
-			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
-		return aether.resolve(new DefaultArtifact(dependency.identifier()), scope, exclusionsOf(dependency));
+		final DefaultArtifact artifact = new DefaultArtifact(dependency.groupId(), dependency.artifactId(), "jar", dependency.version());
+		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope);
+		return aether.resolve(artifact, scope, exclusionsOf(dependency));
 	}
 
 	@NotNull
@@ -161,9 +180,15 @@ public class JavaDependencyResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(remote -> new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()))).collect(toList()));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
 		return remotes;
+	}
+
+	private RemoteRepository repository(Repository.Type remote) {
+		final RemoteRepository repository = new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
+		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"));
+		return repository;
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
