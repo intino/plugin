@@ -2,6 +2,8 @@ package io.intino.plugin.project;
 
 import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -47,8 +49,6 @@ import static io.intino.plugin.project.Safe.safeList;
 import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 
 public class ConfigurationReloader {
-	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
-
 	private Module module;
 	private final LegioGraph graph;
 
@@ -119,101 +119,5 @@ public class ConfigurationReloader {
 		return repos;
 	}
 
-	void reloadCesar() {
-		try {
-			if (graph == null || graph.serverList() == null) return;
-			if (graph.serverList().isEmpty() || accessor() == null || !projectExists()) return;
-			String text = loadText();
-			writeCesarConfiguration(text);
-		} catch (IOException ignored) {
-		}
-	}
 
-	private void writeCesarConfiguration(String text) throws IOException {
-		Path file = getProjectFile();
-		Files.write(file, text.getBytes());
-		final VirtualFile ioFile = VfsUtil.findFileByIoFile(file.toFile(), true);
-		if (ioFile != null) FileDocumentManager.getInstance().reloadFiles(ioFile);
-	}
-
-	private String loadText() {
-		try {
-			final CesarRestAccessor accessor = accessor();
-
-			ProjectInfo project = accessor.getProject(module.getProject().getName());
-			if (project == null)
-				return "Impossible to retrieve information from cesar. Check your configuration or internet connection";
-			return textFrom(project, accessor);
-		} catch (Unknown | BadRequest e) {
-			return "Impossible to retrieve information from cesar. Check your configuration or internet connection";
-		}
-	}
-
-	private boolean projectExists() {
-		try {
-			final CesarRestAccessor accessor = accessor();
-			accessor.getProject(this.module.getProject().getName());
-		} catch (BadRequest | Unknown e) {
-			return false;
-		}
-		return false;
-	}
-
-	private String textFrom(ProjectInfo project, CesarRestAccessor accessor) {
-		return CesarFileTemplate.create().format(new Frame("project").addSlot("name", project.name()).
-				addSlot("servers", project.serverInfoList().size()).
-				addSlot("devices", project.deviceInfoList().size()).
-				addSlot("server", toServersFrames(project.serverInfoList(), accessor)).
-				addSlot("device", toDevicesFrames(project.deviceInfoList())).
-				addSlot("process", toSystemsFrames(project.processInfoList())));
-	}
-
-	private Frame[] toServersFrames(List<ServerInfo> serverInfos, CesarRestAccessor accessor) {
-		return serverInfos.stream().map(s -> {
-			final Frame frame = new Frame("server").
-					addSlot("name", s.id()).
-					addSlot("id", s.id()).
-					addSlot("status", s.active()).
-					addSlot("architecture", s.architecture()).
-					addSlot("cores", s.cores()).
-					addSlot("jvm", s.jvm()).
-					addSlot("os", s.os()).
-					addSlot("ip", s.ip());
-			fillStatusServer(frame, s, accessor);
-			return frame;
-		}).toArray(Frame[]::new);
-	}
-
-	private void fillStatusServer(Frame frame, ServerInfo server, CesarRestAccessor accessor) {
-		try {
-			final ServerStatus status = accessor.getServerStatus(server.id());
-			frame.addSlot("boot", status.bootTime());
-			frame.addSlot("serverCpu", new Frame().addSlot("usage", status.cpu()).addSlot("size", server.hddSize()));
-			frame.addSlot("serverMemory", new Frame().addSlot("used", status.memory()).addSlot("size", server.memorySize()));
-			frame.addSlot("fileSystem", new Frame().addSlot("size", server.hddSize()).addSlot("used", status.hdd()));
-		} catch (BadRequest | Unknown badRequest) {
-			LOG.error(badRequest.getMessage());
-		}
-	}
-
-	private Frame[] toDevicesFrames(List<DeviceInfo> deviceInfos) {
-		return new Frame[0];
-	}
-
-	private Frame[] toSystemsFrames(List<ProcessInfo> processInfos) {
-		return new Frame[0];
-	}
-
-	private Path getProjectFile() {
-		return new File(module.getProject().getBasePath(), CesarFileType.CESAR_FILE).toPath();
-	}
-
-	private CesarRestAccessor accessor() {
-		try {
-			final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
-			return new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue());
-		} catch (IntinoException e) {
-			return null;
-		}
-	}
 }
