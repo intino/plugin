@@ -58,7 +58,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	@NotNull
 	private LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
-		return new LineMarkerInfo<PsiElement>(element, element.getTextRange(), info.icon, Pass.LINE_MARKERS,
+		return new LineMarkerInfo<PsiElement>(leafOf(element), element.getTextRange(), info.icon, Pass.LINE_MARKERS,
 				tooltipProvider, null,
 				GutterIconRenderer.Alignment.CENTER) {
 			@NotNull
@@ -83,6 +83,12 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 				};
 			}
 		};
+	}
+
+	private PsiElement leafOf(@NotNull PsiElement element) {
+		PsiElement leaf = element;
+		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
+		return leaf;
 	}
 
 	private Info createInfo(Module module, PsiElement runConfiguration) {

@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElement;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeRoot;
 import io.intino.tara.plugin.codeinsight.JavaHelper;
 import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.project.module.ModuleProvider;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import static com.intellij.icons.AllIcons.Gutter.ImplementedMethod;
 import static io.intino.tara.plugin.lang.psi.impl.TaraUtil.configurationOf;
@@ -48,8 +46,13 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 	}
 
 	private static PsiElement resolveToJavaImplementation(Node node) {
-		final String key = simpleType(node) + "#" + node.name();
-		if (node.name().isEmpty() || !nodeMap.containsKey(key)) return null;
+		final String type = simpleType(node);
+		String key = type + "#" + node.name();
+		if (node.name().isEmpty()) return null;
+		else if (!nodeMap.containsKey(key)) {
+			key = type + "#" + node.container().name();
+			if (!nodeMap.containsKey(key)) return null;
+		}
 		Module module = ModuleProvider.moduleOf((PsiElement) node);
 		if (module == null) return null;
 		return JavaHelper.getJavaHelper(((PsiElement) node).getProject()).findClass(boxPackage(module).toLowerCase() + "." + nodeMap.get(key));
@@ -58,7 +61,8 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 	private static String simpleType(Node node) {
 		String type = node.type();
 		if (type.contains(":")) type = type.substring(node.type().indexOf(":") + 1);
-		if (type.contains(".")) type = type.substring(node.type().indexOf(".") + 1);
+		if (type.contains("."))
+			type = node.type().indexOf(".") == type.length() ? type : type.substring(node.type().indexOf(".") + 1);
 		return type;
 	}
 
