@@ -1,8 +1,8 @@
 package io.intino.plugin.project;
 
-import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
+import io.intino.plugin.IntinoException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -26,7 +26,11 @@ public class LibraryConflictResolver {
 	}
 
 	private static int compare(Library aLibrary, Library library) {
-		return versionOf(library.getName()).compareTo(versionOf(aLibrary.getName()));
+		final Version version = versionOf(library.getName());
+		if (version == null) return 1;
+		final Version that = versionOf(aLibrary.getName());
+		if (that == null) return -1;
+		return version.compareTo(that);
 	}
 
 	public static Library libraryOf(List<Library> libraries, String name) {
@@ -61,7 +65,15 @@ public class LibraryConflictResolver {
 	private static Version versionOf(String library) {
 		final String version = library.substring(library.lastIndexOf(":") + 1);
 		final String toRemove = version.trim().replaceFirst("([0-9]+(\\.[0-9]+)*)", "");
-		return new Version(version.trim().replace(toRemove, ""));
+		try {
+			return new Version(version.trim().replace(toRemove, ""));
+		} catch (IntinoException e) {
+			try {
+				return new Version(version.trim());
+			} catch (IntinoException e1) {
+				return null;
+			}
+		}
 	}
 
 	public static class Version implements Comparable<Version> {
@@ -72,11 +84,11 @@ public class LibraryConflictResolver {
 			return this.version;
 		}
 
-		public Version(String version) {
+		public Version(String version) throws IntinoException {
 			if (version == null)
-				throw new IllegalArgumentException("Version can not be null");
+				throw new IntinoException("Version can not be null");
 			if (!version.matches("[0-9]+(\\.[0-9]+)*"))
-				throw new IllegalArgumentException("Invalid version format: " + version);
+				throw new IntinoException("Invalid version format: " + version);
 			this.version = version;
 		}
 
