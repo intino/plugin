@@ -87,7 +87,7 @@ gulp.task('resolve-deploy-url-dependencies', () => {
 });
 
 gulp.task('resolve-dev-url-dependencies', () => {
-    gulp.src([outputPath('*.html'), '!' + outputPath('components.html')])
+    gulp.src($[outputPath('*.html'), '!' + outputPath('components.html')])
     .pipe($$.replace('src="', 'src="$$url/'))
     .pipe($$.replace('href="', 'href="$$url/'))
     .pipe($$.replace('href-absolute=', 'href='))
