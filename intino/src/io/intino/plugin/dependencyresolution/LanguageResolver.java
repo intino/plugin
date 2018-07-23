@@ -207,6 +207,6 @@ public class LanguageResolver {
 	}
 
 	private static boolean isMagritteLibrary(String language) {
-		return language.equals(Proteo.class.getSimpleName()) || language.equals(Verso.class.getSimpleName());
+		return Proteo.class.getSimpleName().equals(language) || Verso.class.getSimpleName().equals(language);
 	}
 }

@@ -61,8 +61,10 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 	private static String simpleType(Node node) {
 		String type = node.type();
 		if (type.contains(":")) type = type.substring(node.type().indexOf(":") + 1);
-		if (type.contains("."))
-			type = node.type().indexOf(".") == type.length() ? type : type.substring(node.type().indexOf(".") + 1);
+		if (type.contains(".")) {
+			if (node.type().endsWith(".")) type = type.substring(0, type.length() - 1);
+			else type = node.type().indexOf(".") == type.length() ? type : type.substring(node.type().indexOf(".") + 1);
+		}
 		return type;
 	}
 
