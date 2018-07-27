@@ -2,51 +2,31 @@ package io.intino.plugin.project;
 
 import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.*;
-import io.intino.konos.alexandria.exceptions.BadRequest;
-import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.LegioGraph;
 import io.intino.legio.graph.Repository;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.legio.graph.level.LevelArtifact;
-import io.intino.plugin.IntinoException;
 import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.dependencyresolution.LibraryManager;
 import io.intino.plugin.dependencyresolution.WebDependencyResolver;
-import io.intino.plugin.file.cesar.CesarFileType;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.run.IntinoRunConfiguration;
-import org.siani.itrules.model.Frame;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.project.LegioConfiguration.parametersOf;
 import static io.intino.plugin.project.LibraryConflictResolver.libraryOf;
 import static io.intino.plugin.project.LibraryConflictResolver.mustAdd;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 
 public class ConfigurationReloader {
 	private Module module;

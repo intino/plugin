@@ -6,10 +6,7 @@ import io.intino.legio.graph.Repository.Type;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArtifactorySensor {
@@ -68,9 +65,9 @@ public class ArtifactorySensor {
 	@SafeVarargs
 	private final Map<String, String> by(List<Type> types, Class<? extends Type>... repositories) {
 		try {
-			return types.stream().filter(t -> Arrays.stream(repositories).anyMatch(t::i$)).collect(Collectors.toMap(Type::url, Type::mavenID));
+			return new HashMap<>(types.stream().filter(t -> Arrays.stream(repositories).anyMatch(t::i$)).collect(Collectors.toMap(Type::url, Type::mavenID)));
 		} catch (Throwable ignored) {
 		}
-		return Collections.emptyMap();
+		return new HashMap<>();
 	}
 }

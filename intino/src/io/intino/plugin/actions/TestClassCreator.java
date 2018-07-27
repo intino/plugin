@@ -10,7 +10,6 @@ import com.intellij.psi.PsiManager;
 import io.intino.tara.Language;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.ProteoConstants;
-import io.intino.tara.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
@@ -33,7 +32,7 @@ class TestClassCreator {
 	}
 
 	private static Map<String, String> templateParameters(Module module, Configuration conf, String dsl, String newName) {
-		Map<String, String> map = new HashMap();
+		Map<String, String> map = new HashMap<>();
 		map.put("NAME", newName);
 		final Language language = LanguageManager.getLanguage(module.getProject(), dsl);
 		map.put("APPLICATION", dsl);

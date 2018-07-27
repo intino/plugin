@@ -1,5 +1,6 @@
 package io.intino.plugin.build;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -97,6 +98,7 @@ abstract class AbstractArtifactBuilder {
 		if (list == null) return;
 		for (String name : list) {
 			final File file = new File(outDirectory, name);
+			Logger.getInstance(AbstractArtifactBuilder.class.getName()).info("removing directory -> " + file.getAbsolutePath());
 			if (file.exists()) FileUtils.deleteQuietly(file);
 		}
 	}
