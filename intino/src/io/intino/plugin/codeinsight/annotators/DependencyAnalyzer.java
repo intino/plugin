@@ -7,7 +7,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.tara.plugin.annotator.TaraAnnotator;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.psi.TaraNode;
@@ -16,6 +16,7 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.LibraryConflictResolver.VersionRange.*;
 import static io.intino.plugin.project.Safe.safeList;
 
 class DependencyAnalyzer extends TaraAnalyzer {
@@ -34,9 +35,9 @@ class DependencyAnalyzer extends TaraAnalyzer {
 		if (configuration == null || !configuration.inited()) return;
 		final Artifact.Imports.Dependency dependency = findDependencyNode();
 		if (dependency == null || dependency.resolve() && dependency.artifacts().isEmpty()) {
-			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("reject.dependency.not.found")));
-		} else if (dependency.toModule() && hasDifferentVersion(findModule(dependency), dependency.version()))
-			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.WARNING, message("warning.module.dependency.with.different.version")));
+			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
+		} else if (dependency.toModule() && !hasSameVersion(findModule(dependency), dependency.version()))
+			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.module.dependency.with.different.version")));
 //		LibraryManager manager = new LibraryManager(ModuleProvider.moduleOf((PsiElement) dependencyNode));
 //		else for (String artifact : dependencyForNode.artifacts()) {
 //			final Library library = manager.findLibrary(artifact);
@@ -45,9 +46,13 @@ class DependencyAnalyzer extends TaraAnalyzer {
 //		}
 	}
 
-	private boolean hasDifferentVersion(Module module, String version) {
+	private boolean hasSameVersion(Module module, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return configuration == null || !version.equals(configuration.version());
+		return configuration == null || version.equals(configuration.version()) || isRange(version) && versionIsUnderRange(configuration.version(), version);
+	}
+
+	private boolean versionIsUnderRange(String moduleVersion, String version) {
+		return isInRange(moduleVersion, rangeValuesOf(version));
 	}
 
 	private Module findModule(Artifact.Imports.Dependency dependency) {

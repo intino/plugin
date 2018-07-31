@@ -380,7 +380,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public Map<String, String> languageRepositories() {
-		if (graph == null) return Collections.emptyMap();
+		if (graph == null) return new HashMap<>();
 		Map<String, String> repositories = new HashMap<>();
 		for (Repository r : graph.repositoryList()) {
 			final List<Repository.Type> types = r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null);

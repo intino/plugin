@@ -50,11 +50,15 @@ public class CesarReloader {
 		final VirtualFile ioFile = VfsUtil.findFileByIoFile(file.toFile(), true);
 		if (ioFile != null) {
 			final Application application = ApplicationManager.getApplication();
-			if (application.isDispatchThread()) FileDocumentManager.getInstance().reloadFiles(ioFile);
-			else application.invokeLater(() -> FileDocumentManager.getInstance().reloadFiles(ioFile));
-			final Document document = FileDocumentManager.getInstance().getDocument(ioFile);
-			if (document != null) document.setReadOnly(true);
+			if (application.isDispatchThread()) setReadOnly(ioFile);
+			else application.invokeLater(() -> setReadOnly(ioFile));
 		}
+	}
+
+	private void setReadOnly(VirtualFile ioFile) {
+		FileDocumentManager.getInstance().reloadFiles(ioFile);
+		final Document document = FileDocumentManager.getInstance().getDocument(ioFile);
+		if (document != null) document.setReadOnly(true);
 	}
 
 	private String loadText(ProjectInfo project) {
