@@ -49,6 +49,7 @@ public class JavaDependencyResolver {
 	}
 
 	public List<Library> resolve() {
+		if (module == null) return Collections.emptyList();
 		collectArtifacts();
 		final Application application = ApplicationManager.getApplication();
 		final Set<Library> libraries = new HashSet<>();
@@ -72,14 +73,13 @@ public class JavaDependencyResolver {
 
 	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
-		for (Dependency d : dependencies) {
+		for (Dependency d : dependencies)
 			if (isLibrary(d)) newLibraries.addAll(asLibrary(d));
 			else {
 				newLibraries.addAll(moduleLibrariesManager.resolveAsModuleDependency(moduleOf(d)));
 				d.effectiveVersion(d.version());
 				d.toModule(true);
 			}
-		}
 		return newLibraries;
 	}
 
