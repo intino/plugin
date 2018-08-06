@@ -76,6 +76,10 @@ public class LegioConfiguration implements Configuration {
 		return graph;
 	}
 
+	public Module module() {
+		return module;
+	}
+
 	private void initConfiguration() {
 		File stashFile = stashFile();
 		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());

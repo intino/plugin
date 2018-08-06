@@ -16,6 +16,7 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -40,7 +41,7 @@ public class JavaDependencyResolver {
 	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
-	public JavaDependencyResolver(Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
+	public JavaDependencyResolver(@Nullable Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
 		this.moduleLibrariesManager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
@@ -95,6 +96,23 @@ public class JavaDependencyResolver {
 		d.resolve(true);
 		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
 	}
+
+	public Artifact sourcesOf(Artifact artifact) {
+		try {
+			return aether.resolve(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion()), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
+		}
+	}
+
+	public Artifact sourcesOf(String groupId, String artifactId, String version) {
+		try {
+			return aether.resolve(new DefaultArtifact(groupId, artifactId, "sources", "jar", version), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
+		}
+	}
+
 
 	private boolean isLibrary(Dependency d) {
 		return collectedArtifacts.containsKey(d);

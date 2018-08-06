@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.4.5</version>
+    <version>3.4.6</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -16,8 +16,6 @@
     <idea-version since-build="145"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <editorNotificationProvider
-                implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesNotificationProvider"/>
         <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <codeInsight.lineMarkerProvider language="Tara"
@@ -41,6 +39,8 @@
         <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
                         serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
+        <attachSourcesProvider
+                implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>

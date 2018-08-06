@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 
 public class LibraryManager {
 
-	private static final String LEGIO = "Legio: ";
+	public static final String LEGIO = "Legio: ";
 	private Module module;
 	private final LibraryTable table;
 
@@ -35,7 +35,7 @@ public class LibraryManager {
 		table = module != null ? LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject()) : null;
 	}
 
-	Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
+	public Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
 		if (table == null) return Collections.emptyMap();
 		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
 		for (Artifact artifact : artifacts.keySet()) {
@@ -47,12 +47,13 @@ public class LibraryManager {
 		return registered;
 	}
 
-	private boolean scopeRegistered(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
-		return registered.containsKey(artifacts.get(artifact));
-	}
-
-	private void newScope(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
-		registered.put(artifacts.get(artifact), new ArrayList<>());
+	public Map<DependencyScope, List<Library>> registerSources(Map<Artifact, Artifact> sources) {
+		if (table == null) return Collections.emptyMap();
+		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
+		for (Artifact artifact : sources.keySet()) {
+			registerSources(artifact, sources.get(artifact));
+		}
+		return registered;
 	}
 
 	List<Library> resolveAsModuleDependency(Module moduleDependency) {
@@ -66,6 +67,14 @@ public class LibraryManager {
 		final List<Library> libraries = compileDependenciesOf(moduleDependency);
 		addToModule(libraries, COMPILE);
 		return libraries;
+	}
+
+	private boolean scopeRegistered(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		return registered.containsKey(artifacts.get(artifact));
+	}
+
+	private void newScope(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		registered.put(artifacts.get(artifact), new ArrayList<>());
 	}
 
 	void addToModule(List<Library> libraries, DependencyScope scope) {
@@ -212,6 +221,16 @@ public class LibraryManager {
 		final Library.ModifiableModel libraryModel = library.getModifiableModel();
 		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(dependency.getFile()), CLASSES);
 		if (sources != null) libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(sources.getFile()), SOURCES);
+		libraryModel.commit();
+		tableModel.commit();
+		return library;
+	}
+
+	public Library registerSources(Artifact dependency, Artifact sources) {
+		final LibraryTable.ModifiableModel tableModel = table.getModifiableModel();
+		final Library library = findLibrary(dependency);
+		final Library.ModifiableModel libraryModel = library.getModifiableModel();
+		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(sources.getFile()), SOURCES);
 		libraryModel.commit();
 		tableModel.commit();
 		return library;
