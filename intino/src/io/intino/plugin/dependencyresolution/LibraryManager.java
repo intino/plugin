@@ -47,13 +47,9 @@ public class LibraryManager {
 		return registered;
 	}
 
-	public Map<DependencyScope, List<Library>> registerSources(Map<Artifact, Artifact> sources) {
-		if (table == null) return Collections.emptyMap();
-		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
-		for (Artifact artifact : sources.keySet()) {
-			registerSources(artifact, sources.get(artifact));
-		}
-		return registered;
+	public void registerSources(Map<Artifact, Artifact> sources) {
+		if (table == null) return;
+		for (Artifact artifact : sources.keySet()) registerSources(artifact, sources.get(artifact));
 	}
 
 	List<Library> resolveAsModuleDependency(Module moduleDependency) {
