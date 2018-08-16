@@ -8,8 +8,8 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.*;
+import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.cesar.box.schemas.*;
 import io.intino.konos.alexandria.exceptions.BadRequest;
 import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.plugin.IntinoException;
@@ -78,11 +78,11 @@ public class CesarReloader {
 
 	private String textFrom(ProjectInfo project, CesarRestAccessor accessor) {
 		return CesarFileTemplate.create().format(new Frame("project").addSlot("name", project.name()).
-				addSlot("servers", project.serverInfoList().size()).
-				addSlot("devices", project.deviceInfoList().size()).
-				addSlot("server", toServersFrames(project.serverInfoList(), accessor)).
-				addSlot("device", toDevicesFrames(project.deviceInfoList())).
-				addSlot("process", toSystemsFrames(project.processInfoList())));
+				addSlot("servers", project.serverInfos().size()).
+				addSlot("devices", project.deviceInfos().size()).
+				addSlot("server", toServersFrames(project.serverInfos(), accessor)).
+				addSlot("device", toDevicesFrames(project.deviceInfos())).
+				addSlot("process", toSystemsFrames(project.processInfos())));
 	}
 
 	private Frame[] toServersFrames(List<ServerInfo> serverInfos, CesarRestAccessor accessor) {
@@ -105,9 +105,9 @@ public class CesarReloader {
 		try {
 			final ServerStatus status = accessor.getServerStatus(server.id());
 			frame.addSlot("boot", status.bootTime());
-			frame.addSlot("serverCpu", new Frame().addSlot("usage", status.cpu()).addSlot("size", server.hddSize()));
+			frame.addSlot("serverCpu", new Frame().addSlot("usage", status.cpu()).addSlot("size", server.diskSize()));
 			frame.addSlot("serverMemory", new Frame().addSlot("used", status.memory()).addSlot("size", server.memorySize()));
-			frame.addSlot("fileSystem", new Frame().addSlot("size", server.hddSize()).addSlot("used", status.hdd()));
+			frame.addSlot("fileSystem", new Frame().addSlot("size", server.diskSize()).addSlot("used", status.hdd()));
 		} catch (BadRequest | Unknown badRequest) {
 			LOG.error(badRequest.getMessage());
 		}
