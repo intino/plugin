@@ -105,7 +105,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		List<LegioConfiguration> result = new ArrayList<>();
 		for (OrderEntry each : ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(psiFile.getVirtualFile())) {
 			Configuration configuration = TaraUtil.configurationOf(each.getOwnerModule());
-			if (configuration != null) result.add((LegioConfiguration) configuration);
+			if (configuration instanceof LegioConfiguration) result.add((LegioConfiguration) configuration);
 		}
 		return result;
 	}
