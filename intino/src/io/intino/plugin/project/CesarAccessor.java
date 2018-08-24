@@ -26,21 +26,23 @@ import java.util.Map;
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 
-public class CesarReloader {
-	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
+public class CesarAccessor {
+	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
 	private final Project project;
 
-	public CesarReloader(Project project) {
+	public CesarAccessor(Project project) {
 		this.project = project;
 	}
 
-	public void reload() {
+	public ProjectInfo projectInfo() {
 		try {
-			ProjectInfo info;
-			if (accessor() == null || (info = projectExists()) == null) return;
+			ProjectInfo info = null;
+			if (accessor() == null || (info = projectExists()) == null) return info;
 			String text = loadText(info);
 			writeCesarConfiguration(text);
+			return info;
 		} catch (IOException ignored) {
+			return null;
 		}
 	}
 
@@ -125,7 +127,7 @@ public class CesarReloader {
 		return new File(this.project.getBasePath(), CesarFileType.CESAR_FILE).toPath();
 	}
 
-	private CesarRestAccessor accessor() {
+	public CesarRestAccessor accessor() {
 		try {
 			final Map.Entry<String, String> cesar = getSafeInstance(this.project).cesar();
 			return new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue());

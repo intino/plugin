@@ -12,7 +12,7 @@ public class IntinoIcons {
 	private static final boolean RETINA = UIUtil.isRetina();
 
 	private static Icon scale(Icon icon) {
-		return IconUtil.scale(icon, 0.5);
+		return IconUtil.scale(icon, null,0.5f);
 	}
 
 	public static final Icon INTINO_16 = RETINA ? scale(getIcon("/icons/intino/intino-32.png")) : getIcon("/icons/intino/intino-16.png");
@@ -28,7 +28,6 @@ public class IntinoIcons {
 
 	public static class Operations {
 		public static class Dark {
-
 			public static final Icon BUILD = RETINA ? scale(getIcon("/toolwindow/dark/build-64.png")) : getIcon("/toolwindow/dark/build-32.png");
 			public static final Icon DEPLOY = RETINA ? scale(getIcon("/toolwindow/dark/deploy-64.png")) : getIcon("/toolwindow/dark/deploy-32.png");
 			public static final Icon DISTRIBUTE = RETINA ? scale(getIcon("/toolwindow/dark/distribute-64.png")) : getIcon("/toolwindow/dark/distribute-32.png");

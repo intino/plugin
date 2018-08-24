@@ -4,6 +4,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -17,6 +18,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.JpsJavaSdkType;
 import org.siani.itrules.Template;
 import org.siani.itrules.model.Frame;
 
@@ -58,7 +60,7 @@ public class PomCreator {
 	}
 
 	public File frameworkPom() {
-		return isWebModule(module) ? webPom(pomFile()) : frameworkPom(pomFile());
+		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile()) : frameworkPom(pomFile());
 	}
 
 	private File webPom(File pom) {
@@ -79,9 +81,9 @@ public class PomCreator {
 		final String[] languageLevel = {"1.8"};
 		final Application application = ApplicationManager.getApplication();
 		if (application.isReadAccessAllowed())
-			languageLevel[0] = getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption();
+			languageLevel[0] = JpsJavaSdkType.complianceOption(getEffectiveLanguageLevel(module).toJavaVersion());
 		else application.runReadAction((Computable<String>) () ->
-				languageLevel[0] = getEffectiveLanguageLevel(module).getCompilerComplianceDefaultOption());
+				languageLevel[0] = JpsJavaSdkType.complianceOption(getEffectiveLanguageLevel(module).toJavaVersion()));
 		frame.addSlot("sdk", languageLevel[0]);
 		fillFramework(build, frame);
 		writePom(pom, frame, PomTemplate.create());
@@ -208,7 +210,7 @@ public class PomCreator {
 		final List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 		for (Module dependency : collectModuleDependencies(module)) {
-			if (isWebModule(dependency)) {
+			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) {
 				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 				if (extension != null && extension.getCompilerOutputUrl() != null)
 					resources.add(outDirectory(extension));

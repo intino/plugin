@@ -6,7 +6,7 @@
     <output-test url="file://$MODULE_DIR$/../out/test/intino" />
     <exclude-output />
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
+    <orderEntry type="jdk" jdkName="IDEA_U Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="intino" />
   </component>

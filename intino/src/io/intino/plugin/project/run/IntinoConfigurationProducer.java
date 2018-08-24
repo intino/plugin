@@ -53,7 +53,7 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		if (location == null) return false;
 		final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(location);
 		final PsiClass aClass = getMainClass(legio, location);
-		if (aClass != null && Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.MAIN_CLASS_NAME)) {
+		if (aClass != null && Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
 			final PsiMethod method = PsiTreeUtil.getParentOfType(location, PsiMethod.class, false);
 			if (method != null && TestFrameworks.getInstance().isTestMethod(method)) return false;
 			final Module configurationModule = configuration.getConfigurationModule().getModule();

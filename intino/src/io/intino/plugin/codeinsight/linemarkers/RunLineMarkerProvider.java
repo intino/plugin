@@ -8,7 +8,6 @@ import com.intellij.execution.ExecutorRegistry;
 import com.intellij.execution.actions.RunContextAction;
 import com.intellij.execution.lineMarker.LineMarkerActionWrapper;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
@@ -35,6 +34,7 @@ import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.mapNotNull;
+import static io.intino.plugin.DataContext.getContext;
 import static io.intino.plugin.project.Safe.safe;
 
 public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
@@ -106,7 +106,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	}
 
 	private static String getText(@NotNull AnAction action, @NotNull PsiElement element) {
-		DataContext parent = DataManager.getInstance().getDataContext();
+		DataContext parent = getContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
 		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
 		action.update(event);

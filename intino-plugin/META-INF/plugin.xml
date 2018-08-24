@@ -9,6 +9,7 @@
     ]]></description>
 
     <depends>io.intino.tara</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
     <change-notes><![CDATA[
 
     ]]>
@@ -112,7 +113,7 @@
             <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.console.ConsoleWindowComponent</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.output.ConsoleWindowComponent</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>

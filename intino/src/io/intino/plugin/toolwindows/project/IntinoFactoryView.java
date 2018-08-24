@@ -11,7 +11,7 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.WebModuleType;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
@@ -26,22 +26,24 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.jetbrains.concurrency.AsyncPromise;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
+import static io.intino.plugin.DataContext.getContext;
 import static io.intino.plugin.toolwindows.project.FactoryPanel.Mode.Darcula;
 import static io.intino.plugin.toolwindows.project.FactoryPanel.Mode.Light;
 import static io.intino.plugin.toolwindows.project.FactoryPanel.Operation.*;
 import static io.intino.plugin.toolwindows.project.FactoryPanel.Product.*;
 import static java.awt.event.ActionEvent.SHIFT_MASK;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.Arrays.stream;
 
 public class IntinoFactoryView extends JPanel {
 	private JPanel contentPane;
@@ -96,7 +98,7 @@ public class IntinoFactoryView extends JPanel {
 
 	private void saveConfiguration(Module module) {
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
-		if (module == null || WebModuleType.isWebModule(module)) return;
+		if (module == null || ModuleTypeWithWebFeatures.isAvailable(module)) return;
 		manager.saveAllDocuments();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration != null) configuration.reload();
@@ -191,9 +193,11 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private Module selectedModule() {
-		final DataContext resultSync = DataManager.getInstance().getDataContextFromFocus().getResultSync();
+		final DataContext resultSync = getContext();
 		return resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
 	}
+
+
 
 	Component contentPane() {
 		return contentPane;

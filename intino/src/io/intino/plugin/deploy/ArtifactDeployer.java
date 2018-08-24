@@ -68,7 +68,7 @@ public class ArtifactDeployer {
 	private ProcessDeployment createProcess(Destination destination) {
 		final String classpathPrefix = configuration.graph().artifact().package$().asRunnable().classpathPrefix();
 		return new ProcessDeployment().project(destination.project() != null ? destination.project() : module.getProject().getName()).
-				groupId(configuration.groupId()).artifactId(configuration.artifactId()).version(configuration.version()).
+				groupId(configuration.groupId()).artifactId(configuration.artifactId().toLowerCase()).version(configuration.version()).
 				jvmOptions(destination.runConfiguration().vmOptions()).
 				datalake(destination.core$().ownerAs(Artifact.Deployment.class).tags().contains("Datalake")).
 				artifactoryList(artifactories()).

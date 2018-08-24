@@ -71,7 +71,7 @@
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
-            <version>4.2.3</version>
+            <version>4.3.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -111,7 +111,6 @@
             <scope>system</scope>
             <systemPath>${user.home}/.m2/repository/tara/dsl/cesar/1.0/Cesar-1.0.jar</systemPath>
         </dependency>
-
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aether</artifactId>
@@ -189,6 +188,17 @@
             <groupId>io.intino</groupId>
             <artifactId>cesar-rest-accessor</artifactId>
             <version>2.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.konos</groupId>
+            <artifactId>alexandria-ness-accessor</artifactId>
+            <version>LATEST</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

@@ -1,6 +1,5 @@
 package io.intino.plugin.actions;
 
-import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -15,7 +14,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
@@ -25,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.intellij.openapi.actionSystem.LangDataKeys.MODULE;
+import static io.intino.plugin.DataContext.getContext;
 
 public class InterfaceGenerationAction extends AnAction {
 	private boolean isConnected = false;
@@ -67,7 +67,7 @@ public class InterfaceGenerationAction extends AnAction {
 	}
 
 	private AnActionEvent createActionEvent() {
-		final DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResultSync();
+		final DataContext dataContext = getContext();
 		return new AnActionEvent(null, dataContext,
 				ActionPlaces.UNKNOWN, new Presentation(),
 				ActionManager.getInstance(), 0);

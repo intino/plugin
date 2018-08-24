@@ -3,6 +3,7 @@ package io.intino.plugin.project;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.roots.libraries.Library;
 import io.intino.legio.graph.Artifact;
@@ -57,7 +58,7 @@ public class ConfigurationReloader {
 	void reloadDependencies() {
 		if (graph == null || graph.artifact() == null) return;
 		resolveJavaDependencies();
-		if (WebModuleType.isWebModule(module) && graph.artifact().webImports() != null)
+		if (ModuleTypeWithWebFeatures.isAvailable(module) && graph.artifact().webImports() != null)
 			new WebDependencyResolver(module, graph.artifact(), repositories()).resolve();
 	}
 
