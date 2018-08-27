@@ -1,6 +1,5 @@
 package io.intino.plugin.toolwindows.project;
 
-import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -22,11 +21,13 @@ import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.toolwindows.project.components.Element;
+import io.intino.plugin.toolwindows.project.components.FactoryPanel;
+import io.intino.plugin.toolwindows.project.components.Operation;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import org.jetbrains.concurrency.AsyncPromise;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,13 +36,12 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 
 import static io.intino.plugin.DataContext.getContext;
-import static io.intino.plugin.toolwindows.project.FactoryPanel.Mode.Darcula;
-import static io.intino.plugin.toolwindows.project.FactoryPanel.Mode.Light;
-import static io.intino.plugin.toolwindows.project.FactoryPanel.Operation.*;
-import static io.intino.plugin.toolwindows.project.FactoryPanel.Product.*;
+import static io.intino.plugin.toolwindows.project.components.Element.*;
+import static io.intino.plugin.toolwindows.project.components.Mode.Darcula;
+import static io.intino.plugin.toolwindows.project.components.Mode.Light;
+import static io.intino.plugin.toolwindows.project.components.Operation.*;
 import static java.awt.event.ActionEvent.SHIFT_MASK;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -84,7 +84,7 @@ public class IntinoFactoryView extends JPanel {
 		compilerManager.make(scope, null);
 	}
 
-	private void build(FactoryPanel.Operation operation, int modifiers) {
+	private void build(Operation operation, int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
 		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
@@ -110,7 +110,7 @@ public class IntinoFactoryView extends JPanel {
 		new ExportAction().execute(selectedModule());
 	}
 
-	private FactoryPhase phaseOf(FactoryPanel.Operation operation, boolean shift) {
+	private FactoryPhase phaseOf(Operation operation, boolean shift) {
 		switch (operation) {
 			case PackArtifact:
 				return FactoryPhase.PACKAGE;
@@ -161,14 +161,14 @@ public class IntinoFactoryView extends JPanel {
 		mode(UIUtil.isUnderDarcula());
 	}
 
-	private void navigate(FactoryPanel.Product product, int modifiers) {
+	private void navigate(Element element, int modifiers) {
 		final Configuration configuration = TaraUtil.configurationOf(selectedModule());
 		if (configuration == null) return;
 		TaraModel model = ((TaraModel) ((LegioConfiguration) configuration).legioFile());
 		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
 		if (artifact == null) return;
 		Node node;
-		switch (product) {
+		switch (element) {
 			case Src:
 				node = find(artifact, "Code");
 				if (node != null) ((Navigatable) node).navigate(true);
@@ -182,7 +182,7 @@ public class IntinoFactoryView extends JPanel {
 				if (node != null) ((Navigatable) node).navigate(true);
 				break;
 			default:
-				node = find(artifact, product.name());
+				node = find(artifact, element.name());
 				if (node != null) ((Navigatable) node).navigate(true);
 				break;
 		}

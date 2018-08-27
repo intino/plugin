@@ -9,7 +9,7 @@
     ]]></description>
 
     <depends>io.intino.tara</depends>
-    <depends>org.jetbrains.plugins.terminal</depends>
+
     <change-notes><![CDATA[
 
     ]]>

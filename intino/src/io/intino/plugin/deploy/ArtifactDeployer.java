@@ -81,8 +81,8 @@ public class ArtifactDeployer {
 	private ProcessDeployment.Prerequisites requirements(Destination destination) {
 		final ProcessDeployment.Prerequisites prerequisites = new ProcessDeployment.Prerequisites();
 		if (destination.requirements() != null) {
-			prerequisites.memory(destination.requirements().memory().min());
-			prerequisites.hdd(destination.requirements().hDD().min());
+			prerequisites.memory(destination.requirements().memory(0).min());
+			prerequisites.hdd(destination.requirements().hDD(0).min());
 		}
 		return prerequisites;
 	}
