@@ -19,7 +19,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../legio/.tara" />
       <excludeFolder url="file://$MODULE_DIR$/../legio/out" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA_U Tara" jdkType="IDEA JDK" />
+    <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: io.intino.tara:builder:2.3.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />

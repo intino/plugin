@@ -48,6 +48,7 @@ public class FactoryPanel extends JPanel {
 
 	public void addActionListener(Operation operation, ActionListener listener) {
 		extendedButtons.get(operation).addActionListener(listener);
+		if (compactButtons.containsKey(operation)) compactButtons.get(operation).addActionListener(listener);
 	}
 
 	public void addActionListener(Element element, ActionListener listener) {
@@ -155,6 +156,11 @@ public class FactoryPanel extends JPanel {
 
 	private Color foregroundColor() {
 		return mode == Light ? Color.BLACK : Color.WHITE;
+	}
+
+	private void setLocation(CompactImageButton button) {
+		Point point = button.getDefaultLocation();
+		button.setBounds(point.x, point.y, 30, 30);
 	}
 
 	private void setLocation(ImageButton button) {

@@ -33,7 +33,7 @@ class ExtendedImageButton extends ImageButton {
 	}
 
 
-	public void addActionListener(ActionListener listener) {
+	void addActionListener(ActionListener listener) {
 		this.listener = listener;
 	}
 

@@ -4,12 +4,25 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 class CompactImageButton extends ImageButton {
 	private final Color foregroundColor;
 	private ActionListener listener;
 	private boolean pressed = false;
 	private boolean hover = false;
+	private static Map<Operation, Integer> operationPositions = new HashMap<>();
+	private static int scale;
+
+	static {
+		operationPositions.put(Operation.ImportPackages, 126);
+		operationPositions.put(Operation.GenerateCode, 211);
+		operationPositions.put(Operation.ExportAccessors, 295);
+		operationPositions.put(Operation.PackArtifact, 379);
+		operationPositions.put(Operation.DistributeArtifact, 464);
+		operationPositions.put(Operation.DeployArtifact, 549);
+	}
 
 	public CompactImageButton(Operation operation, Color foregroundColor) {
 		this.operation = operation;
@@ -17,23 +30,18 @@ class CompactImageButton extends ImageButton {
 		this.addMouseListener(this);
 	}
 
+	public Point getDefaultLocation() {
+		return new Point(52, operationPositions.get(this.operation));
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		if (!hover) return;
-		int size = pressed ? 15 : 10;
-
-		int width = (this.getWidth() * size) / 10;
-		int height = (this.getHeight() * size) / 10;
-
-		int x = (this.getWidth() - width) / 2;
-		int y = (this.getHeight() - height) / 2;
 		g.setColor(foregroundColor);
-		g.fillOval(x, y, width, height);
-		g.setColor(foregroundColor);
+		g.fillOval(0, 0, this.getWidth(), this.getWidth());
 	}
 
-
-	public void addActionListener(ActionListener listener) {
+	void addActionListener(ActionListener listener) {
 		this.listener = listener;
 	}
 
