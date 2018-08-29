@@ -22,17 +22,16 @@ class CompactImageButton extends ImageButton {
 		operationPositions.put(Operation.DeployArtifact, 543);
 	}
 
-	public CompactImageButton(Operation operation, Color foregroundColor) {
+	CompactImageButton(Operation operation, Color foregroundColor) {
 		this.operation = operation;
 		this.foregroundColor = foregroundColor;
 		this.addMouseListener(this);
 	}
 
-	public Point getDefaultLocation() {
+	Point getDefaultLocation() {
 		return new Point(48, operationPositions.get(this.operation));
 	}
 
-	@Override
 	public void paint(Graphics g) {
 		if (!hover) return;
 		g.setColor(foregroundColor);
@@ -43,27 +42,22 @@ class CompactImageButton extends ImageButton {
 		this.listener = listener;
 	}
 
-	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (listener == null) return;
 		listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiers()));
 	}
 
-	@Override
 	public void mousePressed(MouseEvent e) {
 	}
 
-	@Override
 	public void mouseReleased(MouseEvent e) {
 	}
 
-	@Override
 	public void mouseEntered(MouseEvent e) {
 		hover = true;
 		repaint();
 	}
 
-	@Override
 	public void mouseExited(MouseEvent e) {
 		hover = false;
 		repaint();
