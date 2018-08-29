@@ -10,18 +10,16 @@ import java.util.Map;
 class CompactImageButton extends ImageButton {
 	private final Color foregroundColor;
 	private ActionListener listener;
-	private boolean pressed = false;
 	private boolean hover = false;
 	private static Map<Operation, Integer> operationPositions = new HashMap<>();
-	private static int scale;
 
 	static {
-		operationPositions.put(Operation.ImportPackages, 126);
-		operationPositions.put(Operation.GenerateCode, 211);
-		operationPositions.put(Operation.ExportAccessors, 295);
-		operationPositions.put(Operation.PackArtifact, 379);
-		operationPositions.put(Operation.DistributeArtifact, 464);
-		operationPositions.put(Operation.DeployArtifact, 549);
+		operationPositions.put(Operation.ImportPackages, 121);
+		operationPositions.put(Operation.GenerateCode, 205);
+		operationPositions.put(Operation.ExportAccessors, 289);
+		operationPositions.put(Operation.PackArtifact, 374);
+		operationPositions.put(Operation.DistributeArtifact, 458);
+		operationPositions.put(Operation.DeployArtifact, 543);
 	}
 
 	public CompactImageButton(Operation operation, Color foregroundColor) {
@@ -31,7 +29,7 @@ class CompactImageButton extends ImageButton {
 	}
 
 	public Point getDefaultLocation() {
-		return new Point(52, operationPositions.get(this.operation));
+		return new Point(48, operationPositions.get(this.operation));
 	}
 
 	@Override
@@ -53,14 +51,10 @@ class CompactImageButton extends ImageButton {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		pressed = true;
-		repaint();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		pressed = false;
-		repaint();
 	}
 
 	@Override

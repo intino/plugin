@@ -126,10 +126,6 @@ public class IntinoFactoryView extends JPanel {
 		return Instant.now().minus(5, SECONDS).isBefore(lastAction);
 	}
 
-	private void mode(boolean underDarcula) {
-		((FactoryPanel) factoryContainerPanel).mode(underDarcula ? Darcula : Light);
-	}
-
 	private void reload(int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
@@ -142,7 +138,7 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void createFactoryPanel() {
-		factoryContainerPanel = new FactoryPanel();
+		factoryContainerPanel = new FactoryPanel(UIUtil.isUnderDarcula() ? Darcula : Light);
 		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(ImportPackages, e -> reload(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(BuildArtifact, e -> build());
@@ -158,7 +154,10 @@ public class IntinoFactoryView extends JPanel {
 		((FactoryPanel) factoryContainerPanel).addActionListener(Pack, e -> navigate(Pack, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(Dist, e -> navigate(Dist, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(Deploy, e -> navigate(Deploy, e.getModifiers()));
-		mode(UIUtil.isUnderDarcula());
+	}
+
+	private void mode(boolean underDarcula) {
+		((FactoryPanel) factoryContainerPanel).mode(underDarcula ? Darcula : Light);
 	}
 
 	private void navigate(Element element, int modifiers) {
@@ -196,7 +195,6 @@ public class IntinoFactoryView extends JPanel {
 		final DataContext resultSync = getContext();
 		return resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
 	}
-
 
 
 	Component contentPane() {

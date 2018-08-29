@@ -23,7 +23,9 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none"/>
+        <border type="none">
+          <color color="-4521954"/>
+        </border>
         <children/>
       </grid>
       <component id="ff427" class="javax.swing.JLabel" binding="moduleLabel">

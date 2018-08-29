@@ -33,8 +33,14 @@ public class OutputsToolWindow {
 				consoleWindow.show(null);
 				buildOutput.scrollTo(buildOutput.getContentSize());
 			}
-			buildOutput.print("\n" + line, line.trim().startsWith("[ERROR]") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
+			buildOutput.print("\n" + line, contentType(line));
 		}));
+	}
+
+	private ConsoleViewContentType contentType(String line) {
+		if (line.trim().startsWith("[ERROR]")) return ConsoleViewContentType.LOG_ERROR_OUTPUT;
+		if (line.trim().startsWith("[WARNING]")) return ConsoleViewContentType.LOG_WARNING_OUTPUT;
+		else return ConsoleViewContentType.NORMAL_OUTPUT;
 	}
 
 	public JPanel content() {

@@ -34,7 +34,8 @@ public class FactoryPanel extends JPanel {
 	private Map<Label, String[]> labels = new HashMap<>();
 	private Mode mode;
 
-	public FactoryPanel() {
+	public FactoryPanel(Mode mode) {
+		this.mode = mode;
 		this.setLayout(null);
 		this.operations().forEach(this::createButton);
 		this.addMouseListener(listener());
@@ -155,7 +156,7 @@ public class FactoryPanel extends JPanel {
 	}
 
 	private Color foregroundColor() {
-		return mode == Light ? Color.BLACK : Color.WHITE;
+		return mode == Light ? Darcula.color() : Color.WHITE;
 	}
 
 	private void setLocation(CompactImageButton button) {
