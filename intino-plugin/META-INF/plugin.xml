@@ -54,6 +54,8 @@
                                 implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
         <codeInsight.lineMarkerProvider language="Tara"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.InterfaceToJavaImplementation"/>
+        <consoleActionsPostProcessor
+                implementation="io.intino.plugin.toolwindows.output.ConsoleActionsProcessor"/>
     </extensions>
 
     <actions>

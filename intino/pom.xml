@@ -195,6 +195,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>alexandria-ness-accessor</artifactId>

@@ -62,7 +62,7 @@ public class MavenRunner {
 	private void publish(String line) {
 		if (module.getProject().isDisposed()) return;
 		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.MAVEN);
+		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
 		mavenListener.println(line);
 		final MessageBusConnection connect = messageBus.connect();
 		connect.deliverImmediately();

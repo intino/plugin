@@ -159,7 +159,7 @@ public class IntinoGenerationAction extends IntinoAction {
 
 	private void sendMessage(Module module, String value) {
 		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.MAVEN);
+		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
 		mavenListener.println(value);
 	}
 

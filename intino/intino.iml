@@ -154,7 +154,7 @@
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
     <orderEntry type="library" name="Maven: org.siani.itrules:itrules:1.9.3" level="project" />
     <orderEntry type="library" name="Maven: io.intino:cesar-rest-accessor:2.2.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.konos:alexandria-rest-accessor-java:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.konos:alexandria-rest-accessor-java:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:alexandria-core:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: io.intino.ness:inl:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" level="project" />
@@ -163,6 +163,14 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpmime:4.5.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.1" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-client:1.8.3" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-core:1.8.3" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-spi:1.8.3" level="project" />
+    <orderEntry type="library" name="Maven: javax.websocket:javax.websocket-api:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.tyrus:tyrus-container-grizzly-client:1.8.3" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-framework:2.3.15-gfa" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http-server:2.3.15-gfa" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.grizzly:grizzly-http:2.3.15-gfa" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:alexandria-ness-accessor:2.4.8" level="project" />
     <orderEntry type="library" name="Maven: io.intino.konos:alexandria-jms:1.0.15" level="project" />
     <orderEntry type="library" name="Maven: org.apache.activemq:activemq-client:5.15.2" level="project" />
