@@ -1,6 +1,5 @@
 package io.intino.plugin.settings;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.StripeTable;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -40,7 +39,7 @@ public class IntinoSettingsPanel {
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			model.addRow(new Object[]{artifactory.serverId.trim(), artifactory.username.trim(), artifactory.password.trim()});
 		}
-		table.addRowSelectionInterval(0, 0);
+		if (table.getRowCount() > 0) table.addRowSelectionInterval(0, 0);
 		overrides.setSelected(settings.overrides());
 		trackerProject.setText(settings.trackerProjectId());
 		trackerApi.setText(settings.trackerApiToken());

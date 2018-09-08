@@ -24,17 +24,18 @@ public class BuildFixer {
 	private final File buildDirectory;
 	private final LegioConfiguration configuration;
 	private final Module module;
-	private final Artifact.Package build;
+	private Artifact.Package build;
 
 	BuildFixer(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		this.buildDirectory = new File(buildDirectory(), "build");
-		this.build = configuration.graph().artifact().package$();
+		if (configuration != null && configuration.graph() != null)
+			this.build = configuration.graph().artifact().package$();
 	}
 
 	void apply() {
-		if (build.isMacOS()) {
+		if (build != null && build.isMacOS()) {
 			File appFile = appFile();
 			if (appFile != null) {
 				final MacOSPackage macos = build.asMacOS();
