@@ -35,7 +35,6 @@ public class OutputsToolWindow {
 	private ConsoleView buildOutput;
 	private List<ConsoleView> processOutputs = new ArrayList<>();
 
-
 	public OutputsToolWindow(Project project) {
 		OutputsToolWindow.project = project;
 		project.getMessageBus().connect().subscribe(IntinoTopics.BUILD_CONSOLE, line -> ApplicationManager.getApplication().invokeLater(() -> {

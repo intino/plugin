@@ -106,6 +106,7 @@ public class CesarAccessor {
 	private void fillStatusServer(Frame frame, ServerInfo server, CesarRestAccessor accessor) {
 		try {
 			final ServerStatus status = accessor.getServerStatus(server.id());
+			if (status.bootTime() == null) return;
 			frame.addSlot("boot", status.bootTime());
 			frame.addSlot("serverCpu", new Frame().addSlot("usage", status.cpu()).addSlot("size", server.diskSize()));
 			frame.addSlot("serverMemory", new Frame().addSlot("used", status.memory()).addSlot("size", server.memorySize()));
