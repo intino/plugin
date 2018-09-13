@@ -31,7 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
-import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.legio.graph.Artifact.Package.Mode;
 import static io.intino.legio.graph.Artifact.Package.Mode.LibrariesLinkedByManifest;
@@ -192,12 +191,15 @@ public class PomCreator {
 	}
 
 	private List<Module> collectModuleDependencies(Module module) {
-		List<Module> list = new ArrayList<>();
+		return new ArrayList<>(collectModuleDependencies(module, new HashSet<>()));
+	}
+
+	private Set<Module> collectModuleDependencies(Module module, Set<Module> collection) {
 		for (Module dependant : getInstance(module).getModuleDependencies()) {
-			list.add(dependant);
-			list.addAll(collectModuleDependencies(dependant));
+			if (!collection.contains(dependant)) collection.addAll(collectModuleDependencies(dependant, collection));
+			collection.add(dependant);
 		}
-		return list;
+		return collection;
 	}
 
 	private String[] srcDirectories(Module module) {
@@ -209,7 +211,7 @@ public class PomCreator {
 	private List<String> resourceDirectories(Module module) {
 		final List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
-		for (Module dependency : collectModuleDependencies(module)) {
+		for (Module dependency : collectModuleDependencies(module, new HashSet<>())) {
 			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) {
 				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 				if (extension != null && extension.getCompilerOutputUrl() != null)
