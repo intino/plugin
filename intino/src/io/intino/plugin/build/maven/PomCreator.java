@@ -315,7 +315,7 @@ public class PomCreator {
 	}
 
 	private int generateRandom() {
-		Integer random = new Random().nextInt(10);
+		int random = new Random().nextInt(10);
 		while (!randomGeneration.add(random)) random = new Random().nextInt(10);
 		return random;
 	}

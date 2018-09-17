@@ -196,17 +196,7 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>io.intino.konos</groupId>
-            <artifactId>alexandria-ness-accessor</artifactId>
-            <version>LATEST</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>

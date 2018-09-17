@@ -9,8 +9,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+
+import java.util.Arrays;
 
 public abstract class IntinoAction extends AnAction {
 
@@ -32,12 +33,7 @@ public abstract class IntinoAction extends AnAction {
 	}
 
 	private boolean hasLegioModules(Project project) {
-		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		for (Module module : modules) {
-			final Configuration configuration = TaraUtil.configurationOf(module);
-			if (configuration != null && configuration instanceof LegioConfiguration)
-				return true;
-		}
-		return false;
+		return Arrays.stream(ModuleManager.getInstance(project).getModules()).
+				anyMatch(module -> TaraUtil.configurationOf(module) instanceof LegioConfiguration);
 	}
 }
