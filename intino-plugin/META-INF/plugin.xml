@@ -109,6 +109,9 @@
     </application-components>
     <project-components>
         <component>
+            <implementation-class>io.intino.plugin.toolwindows.cesarbot.CesarBotWindowComponent</implementation-class>
+        </component>
+        <component>
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>

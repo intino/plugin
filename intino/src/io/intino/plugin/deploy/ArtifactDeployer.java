@@ -20,7 +20,6 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class ArtifactDeployer {
 			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
 			if (!correctParameters(destination.runConfiguration().finalArguments()))
 				throw new IntinoException("Arguments are duplicated");
-			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(cesar.getValue(), createProcess(destination));
+			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -97,7 +96,7 @@ public class ArtifactDeployer {
 
 	private List<Artifactory> artifactories() {
 		Map<String, String> repositories = collectRepositories();
-		return new ArrayList<>(repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList()));
+		return repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList());
 	}
 
 	private Map<String, String> collectRepositories() {
