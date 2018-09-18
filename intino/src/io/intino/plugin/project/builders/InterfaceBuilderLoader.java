@@ -47,7 +47,7 @@ public class InterfaceBuilderLoader {
 			if (isLoaded(module, version)) return;
 			final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(libraries);
 			if (classLoader == null) return;
-			Manifest manifest = Manifest.load();
+			Manifest manifest = Manifest.load(classLoader);
 			if (manifest == null) return;
 			registerBuilder(version, classLoader, manifest);
 			addLanguage(module, classLoader);
@@ -130,13 +130,12 @@ public class InterfaceBuilderLoader {
 		List<Action> actions;
 		Map<String, String> dependencies;
 
-		static Manifest load() {
-			ClassLoader classLoader = Manifest.class.getClassLoader();
+		static Manifest load(ClassLoader classLoader) {
 			InputStream stream = classLoader.getResourceAsStream("manifest.json");
 			if (stream != null) return new Gson().fromJson(new InputStreamReader(stream), Manifest.class);
 			else {
-				InputStream manifest = classLoader.getResourceAsStream(KONOS + ".toml");
-				return manifest == null ? null : new Toml().read(manifest).to(Manifest.class);
+				stream = classLoader.getResourceAsStream(KONOS + ".toml");
+				return stream == null ? null : new Toml().read(stream).to(Manifest.class);
 			}
 		}
 
