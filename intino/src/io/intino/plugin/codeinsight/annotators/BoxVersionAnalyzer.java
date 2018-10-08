@@ -47,7 +47,9 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 
 	private List<String> boxVersionOfOtherModules() {
 		List<String> versions = new ArrayList<>();
-		for (Module m : ModuleManager.getInstance(module.getProject()).getModules()) {
+		ModuleManager instance = ModuleManager.getInstance(module.getProject());
+		if (instance == null) return versions;
+		for (Module m : instance.getModules()) {
 			if (m.equals(this.module)) continue;
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration != null) {
