@@ -47,7 +47,7 @@ public class ProcessOutputLoader {
 			});
 			listening = true;
 		} catch (Unknown e) {
-			Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
+			Logger.getInstance(ProcessOutputLoader.class.getName()).info(e.getMessage(), e);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package io.intino.plugin.project.builders;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
 import org.jetbrains.annotations.NotNull;
@@ -18,15 +19,21 @@ import java.util.Collections;
 import java.util.List;
 
 public class InterfaceBuilderManager {
+	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class);
 
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 
 	public void reload(Project project, String version) {
-		if (InterfaceBuilderLoader.isLoaded(project, version)) return;
+		if (InterfaceBuilderLoader.isLoaded(project, version)) {
+			logger.info("Konos " + version + " is already loaded");
+			return;
+		}
 		List<Artifact> artifacts = konosLibrary(version);
-		if (!artifacts.isEmpty())
+		if (!artifacts.isEmpty()) {
 			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), version);
+			logger.info("Konos " + version + " loaded successfully");
+		}
 	}
 
 	public void purge(String version) {

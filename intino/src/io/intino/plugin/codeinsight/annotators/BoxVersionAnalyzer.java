@@ -29,7 +29,7 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		if (interfaceNode.parameters().isEmpty()) return;
-		Parameter parameter = interfaceNode.parameters().stream().filter(p -> p.name().equals("sdk")).findFirst().orElse(null);
+		Parameter parameter = interfaceNode.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
 		if (parameter == null) {
 			if (interfaceNode.parameters().size() > 1)
 				parameter = interfaceNode.parameters().get(1);
@@ -52,7 +52,7 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration != null) {
 				String version = configuration.boxVersion();
-				if (version != null) versions.add(version);
+				if (version != null && !version.isEmpty()) versions.add(version);
 			}
 		}
 		return versions;

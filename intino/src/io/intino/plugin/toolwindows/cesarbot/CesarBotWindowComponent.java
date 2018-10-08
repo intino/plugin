@@ -60,7 +60,7 @@ public class CesarBotWindowComponent implements ProjectComponent {
 	@NotNull
 	@Override
 	public String getComponentName() {
-		return "intino.console.ProjectComponent";
+		return "intino.cesar.bot";
 	}
 
 

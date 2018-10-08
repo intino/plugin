@@ -4,7 +4,6 @@ import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
-import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.roots.libraries.Library;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.LegioGraph;
@@ -39,8 +38,8 @@ public class ConfigurationReloader {
 	}
 
 	void reloadInterfaceBuilder() {
-		final Artifact.Box boxing = safe(() -> graph.artifact().box());
-		if (boxing != null) new InterfaceBuilderManager().reload(module.getProject(), boxing.sdk());
+		final Artifact.Box box = safe(() -> graph.artifact().box());
+		if (box != null) new InterfaceBuilderManager().reload(module.getProject(), box.version());
 	}
 
 	void reloadRunConfigurations() {

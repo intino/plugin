@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -27,6 +28,7 @@ import static com.intellij.openapi.actionSystem.LangDataKeys.MODULE;
 import static io.intino.plugin.DataContext.getContext;
 
 public class InterfaceGenerationAction extends AnAction {
+	private static final Logger logger = Logger.getInstance(InterfaceGenerationAction.class);
 	private boolean isConnected = false;
 	private Set<PsiFile> pendingFiles = new HashSet<>();
 
@@ -56,8 +58,10 @@ public class InterfaceGenerationAction extends AnAction {
 			Notifications.Bus.notify(new Notification("Tara Language", "Interface not found", "Interface version not found", NotificationType.ERROR), null);
 			return false;
 		} else {
+			logger.info("Konos action found");
 			ApplicationManager.getApplication().invokeAndWait(() -> action.actionPerformed(createActionEvent()));
 			pendingFiles.clear();
+			logger.info("Konos action executed");
 			return true;
 		}
 	}

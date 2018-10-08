@@ -31,7 +31,7 @@ public class InterfaceBuilderLoader {
 	}
 
 	static boolean isLoaded(Project module, String version) {
-		return version.equalsIgnoreCase(versionsByProject.get(module)) && areClassesLoaded(version);
+		return version != null && version.equalsIgnoreCase(versionsByProject.get(module)) && areClassesLoaded(version);
 	}
 
 	private static boolean areClassesLoaded(String version) {

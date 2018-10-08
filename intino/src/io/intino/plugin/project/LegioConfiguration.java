@@ -435,7 +435,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String boxVersion() {
-		return safe(() -> graph.artifact().box().sdk());
+		return safe(() -> graph.artifact().box().version());
 	}
 
 	public PsiFile legioFile() {

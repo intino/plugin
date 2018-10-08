@@ -41,7 +41,7 @@ Concept:{1..1}:Named Artifact
 	Concept:{0..1} Box
 		var string language
 		var string version
-		var string sdk
+		var string sdk = empty
 		var string targetPackage = "box"
 
 	Concept:{0..1} Code

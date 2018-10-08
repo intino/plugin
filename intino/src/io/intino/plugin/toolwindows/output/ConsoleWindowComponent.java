@@ -60,7 +60,7 @@ public class ConsoleWindowComponent implements ProjectComponent {
 	@NotNull
 	@Override
 	public String getComponentName() {
-		return "intino.console.ProjectComponent";
+		return "intino.outputs";
 	}
 
 
