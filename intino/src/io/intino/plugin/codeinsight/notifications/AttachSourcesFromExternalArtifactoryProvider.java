@@ -57,7 +57,8 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 					Application application = ApplicationManager.getApplication();
 					application.runWriteAction(() -> {
 						for (LibraryOrderEntry orderEntry : orderEntries) {
-							new LibraryManager(orderEntry.getOwnerModule()).registerSources(Collections.singletonMap(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", artifact.getVersion()), artifact));
+							Map<Artifact, Artifact> jar = Collections.singletonMap(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", artifact.getVersion()), artifact);
+							new LibraryManager(orderEntry.getOwnerModule()).registerSources(jar);
 						}
 					});
 					resultWrapper.setDone();
