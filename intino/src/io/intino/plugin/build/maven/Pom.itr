@@ -102,9 +102,20 @@ def type(pom)
 								<mainClass>$mainClass</mainClass>]
 								<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
 							</manifest>
-							[<manifestEntries>
-                              $parameter...[$NL]
-                            </manifestEntries>]
+							<manifestSections>
+                                [<manifestSection>
+                                    <name>parameters</name>
+                                    <manifestEntries>
+                                      $parameter...[$NL]
+                                    </manifestEntries>
+                                </manifestSection>]
+                                [<manifestSection>
+                                    <name>vmoptions</name>
+                                    <manifestEntries>
+                                        <value>$vmOptions</value>
+                                    </manifestEntries>
+                                </manifestSection>]
+                            </manifestSections>
 						</archive>
 					</configuration>
 				</plugin>
@@ -256,7 +267,7 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-    <$key>$value</$key>
+    <$key>$value[##$description]</$key>
 end
 
 def type(dependency) trigger(dependency)

@@ -55,13 +55,13 @@ Concept:{1..1}:Named Artifact
 		var boolean includeTests = false
 		var string classpathPrefix = empty
 		var string finalName = empty
+		var string defaultJVMOptions = ""
 		Concept MavenPlugin
 			var string code
 	has Parameter
 	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
 		var Repository.Language language = empty
-
 		Concept:{0..1} onBitbucket
 			var string owner
 			var string slugName

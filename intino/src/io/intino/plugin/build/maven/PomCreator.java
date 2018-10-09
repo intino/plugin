@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
+import io.intino.legio.graph.Parameter;
 import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
@@ -232,24 +233,35 @@ public class PomCreator {
 		return list;
 	}
 
-	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package build) {
-		if (build.attachSources()) frame.addSlot("attachSources", "");
-		if (build.attachDoc()) frame.addSlot("attachJavaDoc", "");
-		if (build.isMacOS()) frame.addSlot("osx", osx(build));
-		if (build.isWindows()) frame.addSlot("windows", windows(build));
-		final Artifact.Package.Mode type = build.mode();
+	private void configureBuild(Frame frame, Artifact.License license, Artifact.Package aPackage) {
+		if (aPackage.attachSources()) frame.addSlot("attachSources", "");
+		if (aPackage.attachDoc()) frame.addSlot("attachJavaDoc", "");
+		if (aPackage.isMacOS()) frame.addSlot("osx", osx(aPackage));
+		if (aPackage.isWindows()) frame.addSlot("windows", windows(aPackage));
+		final Artifact.Package.Mode type = aPackage.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
 			frame.addSlot("linkLibraries", "true");
 		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
-		if (build.isRunnable()) frame.addSlot("mainClass", build.asRunnable().mainClass());
-		configuration.graph().artifact().parameterList().forEach(parameter -> {
-			final Frame pFrame = new Frame().addTypes("parameter").addSlot("key", parameter.name());
-			if (parameter.defaultValue() != null) pFrame.addSlot("value", parameter.defaultValue());
-			frame.addSlot("parameter", pFrame);
-		});
-		if (build.classpathPrefix() != null) frame.addSlot("classpathPrefix", build.classpathPrefix());
-		if (build.finalName() != null && !build.finalName().isEmpty()) frame.addSlot("finalName", build.finalName());
+		if (aPackage.isRunnable()) frame.addSlot("mainClass", aPackage.asRunnable().mainClass());
+		configuration.graph().artifact().parameterList().forEach(parameter -> addParameter(frame, parameter));
+		if (aPackage.defaultJVMOptions() != null && !aPackage.defaultJVMOptions().isEmpty())
+			addMVOptions(frame, aPackage.defaultJVMOptions());
+		if (aPackage.classpathPrefix() != null) frame.addSlot("classpathPrefix", aPackage.classpathPrefix());
+		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
+			frame.addSlot("finalName", aPackage.finalName());
 		if (license != null) frame.addSlot("license", new Frame().addTypes("license", license.type().name()));
+	}
+
+	private void addMVOptions(Frame frame, String jvmOptions) {
+		frame.addSlot("vmOptions", jvmOptions);
+	}
+
+	private void addParameter(Frame frame, Parameter parameter) {
+		final Frame pFrame = new Frame().addTypes("parameter").addSlot("key", parameter.name());
+		if (parameter.defaultValue() != null) pFrame.addSlot("value", parameter.defaultValue());
+		if (parameter.description() != null && !parameter.description().isEmpty())
+			pFrame.addSlot("description", parameter.description());
+		frame.addSlot("parameter", pFrame);
 	}
 
 	private Frame osx(Artifact.Package build) {

@@ -31,8 +31,10 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 		if (configuration == null || configuration.graph() == null) return;
 		List<String> parameters = collectRequiredParameters();
 		List<String> notFoundParameters = notFoundArguments(parameters);
-		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) runConfigurationNode).getSignature(), new TaraAnnotator.AnnotateAndFix(level(), message("parameters.missed"), new AddArgumentFix((PsiElement) runConfigurationNode, notFoundParameters)));
+		if (!notFoundParameters.isEmpty()) {
+			SemanticNotification.Level level = level();
+			results.put(((TaraNode) runConfigurationNode).getSignature(), new TaraAnnotator.AnnotateAndFix(level, message(level == SemanticNotification.Level.ERROR ? "error.parameters.missed" : "parameters.missed", String.join(", ", notFoundParameters)), new AddArgumentFix((PsiElement) runConfigurationNode, notFoundParameters)));
+		}
 	}
 
 	private List<String> notFoundArguments(List<String> parameters) {

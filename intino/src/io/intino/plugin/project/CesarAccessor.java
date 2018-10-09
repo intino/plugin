@@ -32,7 +32,7 @@ public class CesarAccessor {
 	CesarRestAccessor accessor() {
 		try {
 			final Map.Entry<String, String> cesar = getSafeInstance(this.project).cesar();
-			return new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue());
+			return new CesarRestAccessor(urlOf(cesar.getKey().trim()), cesar.getValue());
 		} catch (IntinoException e) {
 			return null;
 		}
