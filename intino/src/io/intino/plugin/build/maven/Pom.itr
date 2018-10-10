@@ -267,7 +267,7 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-    <$key>$value[##$description]</$key>
+    <_$key>$value[##$description]</_$key>
 end
 
 def type(dependency) trigger(dependency)

@@ -37,18 +37,18 @@ public class ProcessOutputLoader {
 	}
 
 	private void consumeLog(Map<String, Consumer<String>> consumers) {
-//		try {
-//			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());TODO
-//			cesarAccessor.accessor().listenLog(project.getName(), text -> {
-//				int endIndex = text.indexOf("#");
-//				if (endIndex < 0) return;
-//				Consumer<String> consumer = consumers.get(text.substring(0, endIndex));
-//				if (consumer != null) consumer.accept(text.substring(endIndex + 1));
-//			});
-//			listening = true;
-//		} catch (Unknown e) {
-//			Logger.getInstance(ProcessOutputLoader.class.getName()).info(e.getMessage(), e);
-//		}
+		try {
+			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			cesarAccessor.accessor().listenLog(project.getName(), text -> {
+				int endIndex = text.indexOf("#");
+				if (endIndex < 0) return;
+				Consumer<String> consumer = consumers.get(text.substring(0, endIndex));
+				if (consumer != null) consumer.accept(text.substring(endIndex + 1));
+			});
+			listening = true;
+		} catch (Unknown e) {
+			Logger.getInstance(ProcessOutputLoader.class.getName()).info(e.getMessage(), e);
+		}
 	}
 
 	private void initLog(Map<String, Consumer<String>> consumers, String artifactId) {

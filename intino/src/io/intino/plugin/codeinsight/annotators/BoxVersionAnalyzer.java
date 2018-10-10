@@ -28,7 +28,7 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (interfaceNode.parameters().isEmpty()) return;
+		if (module == null || interfaceNode.parameters().isEmpty()) return;
 		Parameter parameter = interfaceNode.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
 		if (parameter == null) {
 			if (interfaceNode.parameters().size() > 1)

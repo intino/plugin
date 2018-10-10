@@ -52,7 +52,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 				final ActionCallback resultWrapper = new ActionCallback();
 				List<Artifact> sources = resolveSources(orderEntries.get(0), configurations);
-				if (!sources.isEmpty()) {
+				if (!sources.isEmpty() && sources.get(0) != null) {
 					final Artifact artifact = sources.get(0);
 					Application application = ApplicationManager.getApplication();
 					application.runWriteAction(() -> {
