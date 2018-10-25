@@ -6,8 +6,8 @@ import io.intino.plugin.project.builders.InterfaceBuilderLoader;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
+import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -38,15 +38,16 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 		final String version = parameter.values().get(0).toString();
 		if (!InterfaceBuilderLoader.exists(version))
 			results.put(((TaraNode) interfaceNode).getSignature(),
-					new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("error.interface.version.not.found", version)));
+					new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.found", version)));
 		else if (boxVersionOfOtherModules().stream().anyMatch(s -> !s.equalsIgnoreCase(version))) {
 			results.put(((TaraNode) interfaceNode).getSignature(),
-					new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.WARNING, message("warn.interface.version.differ.in.project", version)));
+					new AnnotateAndFix(Level.WARNING, message("warn.interface.version.differ.in.project", version)));
 		}
 	}
 
 	private List<String> boxVersionOfOtherModules() {
 		List<String> versions = new ArrayList<>();
+		if (module == null) return versions;
 		ModuleManager instance = ModuleManager.getInstance(module.getProject());
 		if (instance == null) return versions;
 		for (Module m : instance.getModules()) {

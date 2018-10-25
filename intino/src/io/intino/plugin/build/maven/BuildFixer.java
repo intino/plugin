@@ -39,15 +39,17 @@ public class BuildFixer {
 			File appFile = appFile();
 			if (appFile != null) {
 				final MacOSPackage macos = build.asMacOS();
-				if (macos.resourceDirectory() != null) copyResources(macos.resourceDirectory(), appFile);
+				if (macos.resourceDirectory() != null && !macos.resourceDirectory().isEmpty())
+					copyResources(macos.resourceDirectory(), appFile);
 			}
 		}
 	}
 
 	private void copyResources(String resourceDirectory, File appDirectory) {
-		final File resources = new File(moduleDirectory(), resourceDirectory);
+		final File directory = new File(moduleDirectory(), resourceDirectory);
+		if (!directory.exists()) return;
 		try {
-			copyDir(resources, new File(appDirectory, resources.getName()));
+			copyDir(directory, new File(appDirectory, directory.getName()));
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

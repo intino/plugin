@@ -52,27 +52,36 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 				final ActionCallback resultWrapper = new ActionCallback();
 				List<Artifact> sources = resolveSources(orderEntries.get(0), configurations);
-				if (!sources.isEmpty() && sources.get(0) != null) {
-					final Artifact artifact = sources.get(0);
-					Application application = ApplicationManager.getApplication();
-					application.runWriteAction(() -> {
-						for (LibraryOrderEntry orderEntry : orderEntries) {
-							Map<Artifact, Artifact> jar = Collections.singletonMap(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", artifact.getVersion()), artifact);
-							new LibraryManager(orderEntry.getOwnerModule()).registerSources(jar);
-						}
-					});
-					resultWrapper.setDone();
-				} else {
-					Notifications.Bus.notify(new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP,
-									"Cannot download sources",
-									"<html>Sources not found" + "</html>",
-									NotificationType.WARNING),
-							psiFile.getProject());
-					resultWrapper.setRejected();
-				}
+				if (!sources.isEmpty() && sources.get(0) != null)
+					attachSources(orderEntries, resultWrapper, sources.get(0), psiFile);
+				else notifyNotFound(resultWrapper, psiFile);
 				return resultWrapper;
 			}
 		});
+	}
+
+	private void attachSources(List<LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact artifact, PsiFile psiFile) {
+		Application application = ApplicationManager.getApplication();
+		application.runWriteAction(() -> {
+			if (artifact == null) {
+				notifyNotFound(resultWrapper, psiFile);
+				return;
+			}
+			for (LibraryOrderEntry orderEntry : orderEntries) {
+				Map<Artifact, Artifact> jar = Collections.singletonMap(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", artifact.getVersion()), artifact);
+				new LibraryManager(orderEntry.getOwnerModule()).registerSources(jar);
+			}
+		});
+		resultWrapper.setDone();
+	}
+
+	private void notifyNotFound(ActionCallback resultWrapper, PsiFile psiFile) {
+		Notifications.Bus.notify(new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP,
+						"Cannot download sources",
+						"<html>Sources not found" + "</html>",
+						NotificationType.WARNING),
+				psiFile.getProject());
+		resultWrapper.setRejected();
 	}
 
 	@NotNull

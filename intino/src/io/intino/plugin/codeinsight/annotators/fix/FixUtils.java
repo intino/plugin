@@ -11,6 +11,7 @@ public class FixUtils {
 
 
 	static void addNewLine(TaraNode node) {
+		if (node.getContainingFile() == null) return;
 		try {
 			if (ApplicationManager.getApplication().isWriteAccessAllowed()) newLine(node);
 			else
