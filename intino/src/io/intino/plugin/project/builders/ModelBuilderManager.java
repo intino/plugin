@@ -11,6 +11,7 @@ import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.tara.plugin.lang.LanguageManager;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -58,8 +59,8 @@ public class ModelBuilderManager {
 
 	private List<Artifact> artifacts() throws DependencyResolutionException {
 		final List<RemoteRepository> repos = Arrays.asList(
-				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY),
-				new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
+				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")),
+				new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
 		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + model.sdk()), JavaScopes.COMPILE);
 	}
 

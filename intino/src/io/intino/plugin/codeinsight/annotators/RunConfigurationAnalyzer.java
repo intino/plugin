@@ -5,8 +5,8 @@ import io.intino.plugin.codeinsight.annotators.fix.AddArgumentFix;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
+import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
+import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -31,8 +31,12 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 		if (configuration == null || configuration.graph() == null) return;
 		List<String> parameters = collectRequiredParameters();
 		List<String> notFoundParameters = notFoundArguments(parameters);
-		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) runConfigurationNode).getSignature(), new TaraAnnotator.AnnotateAndFix(level(), message("parameters.missed"), new AddArgumentFix((PsiElement) runConfigurationNode, notFoundParameters)));
+		if (!notFoundParameters.isEmpty()) {
+			Level level = level();
+			results.put(((TaraNode) runConfigurationNode).getSignature(), new AnnotateAndFix(level, message(level == Level.ERROR ?
+					"error.parameters.missed" :
+					"parameters.missed", String.join(", ", notFoundParameters)), new AddArgumentFix((PsiElement) runConfigurationNode, notFoundParameters)));
+		}
 	}
 
 	private List<String> notFoundArguments(List<String> parameters) {
@@ -44,9 +48,10 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 	}
 
 	@NotNull
-	private SemanticNotification.Level level() {
-		return configuration.graph().artifact().deploymentList().stream().flatMap(deploy -> deploy.destinations().stream()).anyMatch(destination -> destination.runConfiguration().name$().equals(runConfigurationNode.name())) ?
-				SemanticNotification.Level.ERROR : SemanticNotification.Level.WARNING;
+	private Level level() {
+		return configuration.graph().artifact().deploymentList().stream().flatMap(deploy -> deploy.destinations().stream()).
+				anyMatch(destination -> destination != null && destination.runConfiguration() != null && runConfigurationNode.name().equals(destination.runConfiguration().name$())) ?
+				Level.ERROR : Level.WARNING;
 	}
 
 	private boolean isDeclared(String parameter) {

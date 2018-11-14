@@ -2,7 +2,7 @@ package io.intino.plugin.build.maven;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.WebModuleType;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
@@ -10,8 +10,8 @@ import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.GulpExecutor;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
-import io.intino.plugin.toolwindows.console.MavenListener;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
+import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.actions.utils.FileSystemUtils;
 import io.intino.tara.plugin.lang.LanguageManager;
@@ -24,12 +24,6 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-<<<<<<< HEAD
-import io.intino.tara.compiler.core.errorcollection.TaraException;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.LanguageManager;
-=======
->>>>>>> release/1.2.0
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +39,6 @@ import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLe
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
-
 	private static final Logger LOG = Logger.getInstance(MavenRunner.class);
 	private Module module;
 	private InvocationOutputHandler handler;
@@ -69,7 +62,7 @@ public class MavenRunner {
 	private void publish(String line) {
 		if (module.getProject().isDisposed()) return;
 		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.MAVEN);
+		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
 		mavenListener.println(line);
 		final MessageBusConnection connect = messageBus.connect();
 		connect.deliverImmediately();
@@ -102,7 +95,7 @@ public class MavenRunner {
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {
 			FileUtil.delete(pom);
-			if (WebModuleType.isWebModule(module)) GulpExecutor.removeDeployBower(module);
+			if (ModuleTypeWithWebFeatures.isAvailable(module)) GulpExecutor.removeDeployBower(module);
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
 		}
@@ -122,7 +115,7 @@ public class MavenRunner {
 		MavenRunnerSettings runnerSettings = org.jetbrains.idea.maven.execution.MavenRunner.getInstance(module.getProject()).getSettings().clone();
 		runnerSettings.setSkipTests(false);
 		runnerSettings.setRunMavenInBackground(true);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, new File(project.getPath()).getParent(), asList(phases), Collections.emptyList());
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, "pom2.xml", new File(project.getPath()).getParent(), asList(phases), Collections.emptyList());
 		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
 	}
 

@@ -1,6 +1,8 @@
 package io.intino.plugin.build;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
@@ -87,7 +89,7 @@ abstract class AbstractArtifactBuilder {
 		if (moduleExtension == null || moduleExtension.getCompilerOutputUrl() == null) return;
 		File outDirectory = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", ""));
 		for (Module dependant : getInstance(module).getModuleDependencies())
-			if (isWebModule(dependant)) cleanWebResources(outDirectory, dependant);
+			if (ModuleTypeWithWebFeatures.isAvailable(dependant)) cleanWebResources(outDirectory, dependant);
 	}
 
 	private void cleanWebResources(File outDirectory, Module dependant) {
@@ -97,6 +99,7 @@ abstract class AbstractArtifactBuilder {
 		if (list == null) return;
 		for (String name : list) {
 			final File file = new File(outDirectory, name);
+			Logger.getInstance(AbstractArtifactBuilder.class.getName()).info("removing directory -> " + file.getAbsolutePath());
 			if (file.exists()) FileUtils.deleteQuietly(file);
 		}
 	}
@@ -120,7 +123,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void compileWeb(FactoryPhase phase, Module module) {
-		if (!isWebModule(module)) return;
+		if (!ModuleTypeWithWebFeatures.isAvailable(module)) return;
 		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact();
 		if (artifact == null) return;
 		if (!phase.equals(DISTRIBUTE) && !phase.equals(DEPLOY)) new GulpExecutor(module, artifact).startGulpDeploy();

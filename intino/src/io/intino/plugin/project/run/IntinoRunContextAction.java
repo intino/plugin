@@ -17,7 +17,6 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
@@ -98,15 +97,15 @@ public class IntinoRunContextAction extends RunContextAction {
 				: configurationType.getDisplayName();
 	}
 
-	private void perform(final ConfigurationFromContext configurationFromContext) {
-//		configurationFromContext.getConfiguration().setName(runConfiguration.name());
-		setRunParameters(configurationFromContext.getConfigurationSettings());
-		configurationFromContext.onFirstRun(context, () -> perform(context));
+	private void perform(final ConfigurationFromContext conf) {
+		setRunParameters(conf.getConfigurationSettings());
+		conf.onFirstRun(context, () -> perform(context));
 	}
 
 	private void setRunParameters(RunnerAndConfigurationSettings configurationSettings) {
 		context.setConfiguration(configurationSettings);
 		final ApplicationConfiguration configuration = (ApplicationConfiguration) configurationSettings.getConfiguration();
+		configuration.setModule(context.getModule());
 		configuration.setProgramParameters(collectParameters());
 	}
 
@@ -128,10 +127,6 @@ public class IntinoRunContextAction extends RunContextAction {
 	private void set(Presentation presentation, boolean b) {
 		presentation.setEnabled(b);
 		presentation.setVisible(b);
-	}
-
-	private Project getProject(AnActionEvent event) {
-		return event.getProject() == null ? ((PsiElement) event.getDataContext().getData("psi.Element")).getProject() : event.getProject();
 	}
 
 	private Configuration configuration() {

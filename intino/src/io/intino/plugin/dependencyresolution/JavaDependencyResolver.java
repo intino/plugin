@@ -16,9 +16,11 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -39,7 +41,7 @@ public class JavaDependencyResolver {
 	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
-	public JavaDependencyResolver(Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
+	public JavaDependencyResolver(@Nullable Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
 		this.moduleLibrariesManager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
@@ -48,6 +50,7 @@ public class JavaDependencyResolver {
 	}
 
 	public List<Library> resolve() {
+		if (module == null) return Collections.emptyList();
 		collectArtifacts();
 		final Application application = ApplicationManager.getApplication();
 		final Set<Library> libraries = new HashSet<>();
@@ -71,14 +74,13 @@ public class JavaDependencyResolver {
 
 	private List<Library> processDependencies() {
 		List<Library> newLibraries = new ArrayList<>();
-		for (Dependency d : dependencies) {
+		for (Dependency d : dependencies)
 			if (isLibrary(d)) newLibraries.addAll(asLibrary(d));
 			else {
 				newLibraries.addAll(moduleLibrariesManager.resolveAsModuleDependency(moduleOf(d)));
 				d.effectiveVersion(d.version());
 				d.toModule(true);
 			}
-		}
 		return newLibraries;
 	}
 
@@ -94,6 +96,23 @@ public class JavaDependencyResolver {
 		d.resolve(true);
 		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
 	}
+
+	public Artifact sourcesOf(Artifact artifact) {
+		try {
+			return aether.resolve(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion()), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
+		}
+	}
+
+	public Artifact sourcesOf(String groupId, String artifactId, String version) {
+		try {
+			return aether.resolve(new DefaultArtifact(groupId, artifactId, "sources", "jar", version), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
+		}
+	}
+
 
 	private boolean isLibrary(Dependency d) {
 		return collectedArtifacts.containsKey(d);
@@ -113,7 +132,6 @@ public class JavaDependencyResolver {
 	private Map<Artifact, DependencyScope> collectArtifacts(Dependency dependency) {
 		final String scope = dependency.getClass().getSimpleName().toLowerCase();
 		try {
-
 			final Map<Artifact, DependencyScope> artifacts = toMap(resolve(dependency, scope), scope(scope));
 			if (scope.equalsIgnoreCase(JavaScopes.COMPILE)) {
 				final Map<Artifact, DependencyScope> m = toMap(resolve(dependency, JavaScopes.RUNTIME), DependencyScope.RUNTIME);
@@ -128,9 +146,9 @@ public class JavaDependencyResolver {
 	}
 
 	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
-		if (dependency.excludeList().isEmpty())
-			return aether.resolve(new DefaultArtifact(dependency.identifier()), scope);
-		return aether.resolve(new DefaultArtifact(dependency.identifier()), scope, exclusionsOf(dependency));
+		final DefaultArtifact artifact = new DefaultArtifact(dependency.groupId(), dependency.artifactId(), "jar", dependency.version());
+		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope);
+		return aether.resolve(artifact, scope, exclusionsOf(dependency));
 	}
 
 	@NotNull
@@ -161,9 +179,15 @@ public class JavaDependencyResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/"));
-		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(remote -> new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()))).collect(toList()));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
 		return remotes;
+	}
+
+	private RemoteRepository repository(Repository.Type remote) {
+		final RemoteRepository repository = new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
+		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"));
+		return repository;
 	}
 
 	private Authentication provideAuthentication(String mavenId) {

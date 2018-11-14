@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
 import io.intino.tara.compiler.shared.Configuration;

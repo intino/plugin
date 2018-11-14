@@ -10,7 +10,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.tara.plugin.lang.file.TaraFileType;
 import org.jetbrains.annotations.NotNull;

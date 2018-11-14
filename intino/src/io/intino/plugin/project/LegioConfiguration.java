@@ -2,13 +2,11 @@ package io.intino.plugin.project;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.WebModuleType;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -19,6 +17,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.legio.graph.level.LevelArtifact.Model;
@@ -37,23 +36,6 @@ import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraNodeImpl;
 import org.jetbrains.annotations.NotNull;
-<<<<<<< HEAD
-<<<<<<< HEAD
-import io.intino.tara.StashBuilder;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
-import tara.dsl.Legio;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.io.Stash;
-import io.intino.tara.io.StashDeserializer;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-=======
-import tara.dsl.Legio;
->>>>>>> release/1.2.0
-=======
->>>>>>> release/2.2.0
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +45,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -93,6 +76,10 @@ public class LegioConfiguration implements Configuration {
 		return graph;
 	}
 
+	public Module module() {
+		return module;
+	}
+
 	private void initConfiguration() {
 		File stashFile = stashFile();
 		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
@@ -101,8 +88,11 @@ public class LegioConfiguration implements Configuration {
 		reloader.reloadInterfaceBuilder();
 		reloader.resolveLanguages();
 		reloader.reloadArtifactoriesMetaData();
-		reloader.reloadCesar();
-		if (WebModuleType.isWebModule(module) && this.graph != null)
+		if (graph != null && !graph.serverList().isEmpty()) {
+			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
+			if (info != null) new ProcessOutputLoader(module.getProject()).loadOutputs(info.processInfos());
+		}
+		if (ModuleTypeWithWebFeatures.isAvailable(module) && this.graph != null)
 			new GulpExecutor(this.module, graph.artifact()).startGulpDev();
 		if (graph != null && graph.artifact() != null) graph.artifact().save$();
 	}
@@ -145,7 +135,7 @@ public class LegioConfiguration implements Configuration {
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
 						 reloader.reloadRunConfigurations();
-						 reloader.reloadCesar();
+						 if (graph != null && !graph.serverList().isEmpty()) new CesarAccessor(module.getProject()).projectInfo();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
 					 }
 				 }
@@ -161,13 +151,11 @@ public class LegioConfiguration implements Configuration {
 
 	public void addParameters(String... parameters) {
 		if (parameters.length == 0) return;
-		new WriteCommandAction(module.getProject(), legioFile()) {
-			protected void run(@NotNull Result result) {
-				final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
-				if (artifactNode == null) return;
-				Arrays.stream(parameters).forEach(p -> addParameter((TaraNode) artifactNode, p));
-			}
-		}.execute();
+		writeCommandAction(module.getProject(), legioFile()).run(() -> {
+			final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
+			if (artifactNode == null) return;
+			Arrays.stream(parameters).forEach(p -> addParameter((TaraNode) artifactNode, p));
+		});
 	}
 
 	public void addCompileDependencies(List<String> ids) {
@@ -176,19 +164,17 @@ public class LegioConfiguration implements Configuration {
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
-		new WriteCommandAction(module.getProject(), legioFile()) {
-			protected void run(@NotNull Result result) {
-				final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
-				if (artifactNode == null) return;
-				Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
-				if (imports == null) imports = createImports();
-				Node finalImports = imports;
-				ids.forEach(i -> {
-					final String[] split = i.split(":");
-					addCompileDependency((TaraNode) finalImports, split[0], split[1], split[2]);
-				});
-			}
-		}.execute();
+		writeCommandAction(module.getProject(), legioFile()).run(() -> {
+			final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
+			if (artifactNode == null) return;
+			Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
+			if (imports == null) imports = createImports();
+			Node finalImports = imports;
+			ids.forEach(i -> {
+				final String[] split = i.split(":");
+				addCompileDependency((TaraNode) finalImports, split[0], split[1], split[2]);
+			});
+		});
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
 	}
@@ -199,30 +185,24 @@ public class LegioConfiguration implements Configuration {
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
-		new WriteCommandAction(module.getProject(), legioFile()) {
-			protected void run(@NotNull Result result) {
-				final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
-				if (artifactNode == null) return;
-				Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
-				if (imports == null) return;
-				ids.forEach(i -> {
-					final String[] split = i.split(":");
-					Node node = findDependency(imports, split);
-					if (node == null) return;
-					node.parameters().get(node.parameters().size() - 1).substituteValues(Collections.singletonList(split[2]));
-				});
-			}
-		}.execute();
+		writeCommandAction(module.getProject(), legioFile()).run(() -> {
+			final Node artifactNode = ((TaraModel) legioFile()).components().stream().filter(c -> c.type().equals(Artifact.class.getSimpleName())).findFirst().orElse(null);
+			if (artifactNode == null) return;
+			Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
+			if (imports == null) return;
+			ids.forEach(i -> {
+				final String[] split = i.split(":");
+				Node node = findDependency(imports, split);
+				if (node == null) return;
+				node.parameters().get(node.parameters().size() - 1).substituteValues(Collections.singletonList(split[2]));
+			});
+		});
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
 	}
 
 	private Node findDependency(Node imports, String[] ids) {
-		for (Node node : imports.components()) {
-			if (parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1]))
-				return node;
-		}
-		return null;
+		return imports.components().stream().filter(node -> parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1])).findFirst().orElse(null);
 	}
 
 	private String parameterValue(String parameterName, List<Parameter> parameters) {
@@ -335,15 +315,13 @@ public class LegioConfiguration implements Configuration {
 				TaraModel psiFile = !application.isReadAccessAllowed() ?
 						(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
 						(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
-				new WriteCommandAction(module.getProject(), psiFile) {
-					protected void run(@NotNull Result result) {
-						model.version(version);
-						final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
-						if (model == null) return;
-						final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
-						versionParameter.substituteValues(Collections.singletonList(version));
-					}
-				}.execute();
+				writeCommandAction(module.getProject(), legioFile()).run(() -> {
+					model.version(version);
+					final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
+					if (model == null) return;
+					final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
+					versionParameter.substituteValues(Collections.singletonList(version));
+				});
 //				reload();
 			}
 
@@ -397,7 +375,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public Map<String, String> languageRepositories() {
-		if (graph == null) return Collections.emptyMap();
+		if (graph == null) return new HashMap<>();
 		Map<String, String> repositories = new HashMap<>();
 		for (Repository r : graph.repositoryList()) {
 			final List<Repository.Type> types = r.typeList(t -> t != null && t.i$(Repository.Language.class) && t.mavenID() != null && t.url() != null);
@@ -457,7 +435,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String boxVersion() {
-		return safe(() -> graph.artifact().box().sdk());
+		return safe(() -> graph.artifact().box().version());
 	}
 
 	public PsiFile legioFile() {

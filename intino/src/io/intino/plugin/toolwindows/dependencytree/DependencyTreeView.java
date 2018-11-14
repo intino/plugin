@@ -73,7 +73,7 @@ public class DependencyTreeView extends JPanel {
 	}
 
 	private void goToLibrary(TreePath library) {
-
+		System.out.println(library.toString());
 	}
 
 	private Module moduleOf(String name) {

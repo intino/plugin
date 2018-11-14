@@ -1,5 +1,6 @@
 package io.intino.plugin.project.builders;
 
+import com.google.gson.Gson;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -9,6 +10,7 @@ import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -29,7 +31,7 @@ public class InterfaceBuilderLoader {
 	}
 
 	static boolean isLoaded(Project module, String version) {
-		return version.equalsIgnoreCase(versionsByProject.get(module)) && areClassesLoaded(version);
+		return version != null && version.equalsIgnoreCase(versionsByProject.get(module)) && areClassesLoaded(version);
 	}
 
 	private static boolean areClassesLoaded(String version) {
@@ -45,9 +47,9 @@ public class InterfaceBuilderLoader {
 			if (isLoaded(module, version)) return;
 			final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(libraries);
 			if (classLoader == null) return;
-			Builder builder = Builder.from(classLoader.getResourceAsStream(KONOS + ".toml"));
-			if (builder == null) return;
-			registerBuilder(version, classLoader, builder);
+			Manifest manifest = Manifest.load(classLoader);
+			if (manifest == null) return;
+			registerBuilder(version, classLoader, manifest);
 			addLanguage(module, classLoader);
 			loadedVersions.put(version, classLoader);
 			versionsByProject.put(module, version);
@@ -56,9 +58,8 @@ public class InterfaceBuilderLoader {
 		}
 	}
 
-	private static void registerBuilder(String version, ClassLoader classLoader, Builder builder) {
-		if (!areClassesLoaded(version))
-			registerActions(classLoader, builder.actions, version);
+	private static void registerBuilder(String version, ClassLoader classLoader, Manifest manifest) {
+		if (!areClassesLoaded(version)) registerActions(classLoader, manifest.actions, version);
 	}
 
 	private static void addLanguage(Project project, ClassLoader classLoader) {
@@ -75,9 +76,9 @@ public class InterfaceBuilderLoader {
 		}
 	}
 
-	private static void registerActions(ClassLoader classLoader, List<Builder.Action> actions, String version) {
+	private static void registerActions(ClassLoader classLoader, List<Manifest.Action> actions, String version) {
 		final ActionManager manager = ActionManager.getInstance();
-		for (Builder.Action action : actions) {
+		for (Manifest.Action action : actions) {
 			if (manager.getAction(action.id + version) != null) {
 				LOG.debug("action already registered: " + action.id + version);
 				continue;
@@ -102,7 +103,7 @@ public class InterfaceBuilderLoader {
 		return null;
 	}
 
-	private static AnAction loadAction(ClassLoader classLoader, Builder.Action action) {
+	private static AnAction loadAction(ClassLoader classLoader, Manifest.Action action) {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -125,26 +126,17 @@ public class InterfaceBuilderLoader {
 		}
 	}
 
-
-	public static class Builder {
-		String name;
-		String version;
-		String changeNotes;
-		String gulpFileTemplate;
-		String packageJsonFileTemplate;
-
+	public static class Manifest {
 		List<Action> actions;
+		Map<String, String> dependencies;
 
-		public String gulpFileTemplate() {
-			return gulpFileTemplate;
-		}
-
-		public String packageJsonFileTemplate() {
-			return packageJsonFileTemplate;
-		}
-
-		static Builder from(InputStream manifest) {
-			return manifest == null ? null : new Toml().read(manifest).to(Builder.class);
+		static Manifest load(ClassLoader classLoader) {
+			InputStream stream = classLoader.getResourceAsStream("manifest.json");
+			if (stream != null) return new Gson().fromJson(new InputStreamReader(stream), Manifest.class);
+			else {
+				stream = classLoader.getResourceAsStream(KONOS + ".toml");
+				return stream == null ? null : new Toml().read(stream).to(Manifest.class);
+			}
 		}
 
 		static class Action {

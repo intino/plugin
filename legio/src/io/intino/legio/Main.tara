@@ -41,7 +41,7 @@ Concept:{1..1}:Named Artifact
 	Concept:{0..1} Box
 		var string language
 		var string version
-		var string sdk
+		var string sdk = empty
 		var string targetPackage = "box"
 
 	Concept:{0..1} Code
@@ -55,13 +55,13 @@ Concept:{1..1}:Named Artifact
 		var boolean includeTests = false
 		var string classpathPrefix = empty
 		var string finalName = empty
+		var string defaultJVMOptions = ""
 		Concept MavenPlugin
 			var string code
 	has Parameter
 	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
 		var Repository.Language language = empty
-
 		Concept:{0..1} onBitbucket
 			var string owner
 			var string slugName
@@ -71,7 +71,7 @@ Concept:{1..1}:Named Artifact
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:Named Deployment
+	Concept:Named:MustHaveDistribution Deployment
 		var string[] tags = empty
 		var function:Destinations destinations = @destinations is private
 		Concept:{0..1} Pre extends Destination

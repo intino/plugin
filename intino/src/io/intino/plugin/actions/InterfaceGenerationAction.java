@@ -1,11 +1,11 @@
 package io.intino.plugin.actions;
 
-import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -15,7 +15,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
@@ -25,8 +25,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.intellij.openapi.actionSystem.LangDataKeys.MODULE;
+import static io.intino.plugin.DataContext.getContext;
 
 public class InterfaceGenerationAction extends AnAction {
+	private static final Logger logger = Logger.getInstance(InterfaceGenerationAction.class);
 	private boolean isConnected = false;
 	private Set<PsiFile> pendingFiles = new HashSet<>();
 
@@ -56,8 +58,10 @@ public class InterfaceGenerationAction extends AnAction {
 			Notifications.Bus.notify(new Notification("Tara Language", "Interface not found", "Interface version not found", NotificationType.ERROR), null);
 			return false;
 		} else {
+			logger.info("Konos action found");
 			ApplicationManager.getApplication().invokeAndWait(() -> action.actionPerformed(createActionEvent()));
 			pendingFiles.clear();
+			logger.info("Konos action executed");
 			return true;
 		}
 	}
@@ -67,7 +71,7 @@ public class InterfaceGenerationAction extends AnAction {
 	}
 
 	private AnActionEvent createActionEvent() {
-		final DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResultSync();
+		final DataContext dataContext = getContext();
 		return new AnActionEvent(null, dataContext,
 				ActionPlaces.UNKNOWN, new Presentation(),
 				ActionManager.getInstance(), 0);

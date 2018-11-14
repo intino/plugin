@@ -28,8 +28,8 @@ import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.ModelBuilderManager;
-import io.intino.plugin.toolwindows.console.IntinoTopics;
-import io.intino.plugin.toolwindows.console.MavenListener;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
+import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
 import io.intino.tara.plugin.lang.file.TaraFileType;
@@ -159,7 +159,7 @@ public class IntinoGenerationAction extends IntinoAction {
 
 	private void sendMessage(Module module, String value) {
 		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.MAVEN);
+		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
 		mavenListener.println(value);
 	}
 

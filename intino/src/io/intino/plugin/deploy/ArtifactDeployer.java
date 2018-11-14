@@ -2,10 +2,10 @@ package io.intino.plugin.deploy;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.cesar.CesarRestAccessor;
-import io.intino.cesar.schemas.ProcessDeployment;
-import io.intino.cesar.schemas.ProcessDeployment.Artifactory;
-import io.intino.cesar.schemas.ProcessDeployment.Packaging;
+import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.cesar.box.schemas.ProcessDeployment;
+import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
+import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.konos.alexandria.exceptions.BadRequest;
 import io.intino.konos.alexandria.exceptions.Forbidden;
 import io.intino.konos.alexandria.exceptions.Unknown;
@@ -20,7 +20,6 @@ import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class ArtifactDeployer {
 			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
 			if (!correctParameters(destination.runConfiguration().finalArguments()))
 				throw new IntinoException("Arguments are duplicated");
-			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(cesar.getValue(), createProcess(destination));
+			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -68,12 +67,13 @@ public class ArtifactDeployer {
 	private ProcessDeployment createProcess(Destination destination) {
 		final String classpathPrefix = configuration.graph().artifact().package$().asRunnable().classpathPrefix();
 		return new ProcessDeployment().project(destination.project() != null ? destination.project() : module.getProject().getName()).
-				groupId(configuration.groupId()).artifactId(configuration.artifactId()).version(configuration.version())
-				.datalake(destination.core$().ownerAs(Artifact.Deployment.class).tags().contains("Datalake")).
-						artifactoryList(artifactories()).
-						prerequisites(requirements(destination)).
-						packaging(new Packaging().parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-						destinationServer(destination.server().name$());
+				groupId(configuration.groupId()).artifactId(configuration.artifactId().toLowerCase()).version(configuration.version()).
+				jvmOptions(destination.runConfiguration().vmOptions()).
+				datalake(destination.core$().ownerAs(Artifact.Deployment.class).tags().contains("Datalake")).
+				artifactoryList(artifactories()).
+				prerequisites(requirements(destination)).
+				packaging(new ProcessDeployment.Packaging().parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+				destinationServer(destination.server().name$());
 	}
 
 	@NotNull
@@ -86,17 +86,17 @@ public class ArtifactDeployer {
 		return prerequisites;
 	}
 
-	private List<Packaging.Parameter> extractParameters(RunConfiguration configuration) {
+	private List<Parameter> extractParameters(RunConfiguration configuration) {
 		return configuration.finalArguments().entrySet().stream().map(ArtifactDeployer::parametersFromNode).collect(toList());
 	}
 
-	private static Packaging.Parameter parametersFromNode(Map.Entry<String, String> node) {
-		return new Packaging.Parameter().name(node.getKey()).value(node.getValue());
+	private static Parameter parametersFromNode(Map.Entry<String, String> node) {
+		return new Parameter().name(node.getKey()).value(node.getValue());
 	}
 
 	private List<Artifactory> artifactories() {
 		Map<String, String> repositories = collectRepositories();
-		return new ArrayList<>(repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList()));
+		return repositories.entrySet().stream().map(entry -> addCredentials(new Artifactory().url(entry.getKey()).id(entry.getValue()))).collect(toList());
 	}
 
 	private Map<String, String> collectRepositories() {

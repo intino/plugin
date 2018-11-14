@@ -24,29 +24,32 @@ public class BuildFixer {
 	private final File buildDirectory;
 	private final LegioConfiguration configuration;
 	private final Module module;
-	private final Artifact.Package build;
+	private Artifact.Package build;
 
 	BuildFixer(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		this.buildDirectory = new File(buildDirectory(), "build");
-		this.build = configuration.graph().artifact().package$();
+		if (configuration != null && configuration.graph() != null)
+			this.build = configuration.graph().artifact().package$();
 	}
 
 	void apply() {
-		if (build.isMacOS()) {
+		if (build != null && build.isMacOS()) {
 			File appFile = appFile();
 			if (appFile != null) {
 				final MacOSPackage macos = build.asMacOS();
-				if (macos.resourceDirectory() != null) copyResources(macos.resourceDirectory(), appFile);
+				if (macos.resourceDirectory() != null && !macos.resourceDirectory().isEmpty())
+					copyResources(macos.resourceDirectory(), appFile);
 			}
 		}
 	}
 
 	private void copyResources(String resourceDirectory, File appDirectory) {
-		final File resources = new File(moduleDirectory(), resourceDirectory);
+		final File directory = new File(moduleDirectory(), resourceDirectory);
+		if (!directory.exists()) return;
 		try {
-			copyDir(resources, new File(appDirectory, resources.getName()));
+			copyDir(directory, new File(appDirectory, directory.getName()));
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

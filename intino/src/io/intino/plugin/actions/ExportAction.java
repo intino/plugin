@@ -9,6 +9,8 @@ import com.intellij.openapi.module.Module;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
+import static io.intino.plugin.DataContext.getContext;
+
 public class ExportAction {
 
 	public void execute(Module module) {
@@ -20,7 +22,7 @@ public class ExportAction {
 	}
 
 	private AnActionEvent createActionEvent() {
-		return new AnActionEvent(null, DataManager.getInstance().getDataContextFromFocus().getResult(),
+		return new AnActionEvent(null, getContext(),
 				ActionPlaces.UNKNOWN, new Presentation(),
 				ActionManager.getInstance(), 0);
 	}

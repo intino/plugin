@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.4.3</version>
+    <version>3.5.3</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -9,15 +9,14 @@
     ]]></description>
 
     <depends>io.intino.tara</depends>
+
     <change-notes><![CDATA[
 
     ]]>
     </change-notes>
-    <idea-version since-build="145"/>
+    <idea-version since-build="182"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <editorNotificationProvider
-                implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesNotificationProvider"/>
         <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <codeInsight.lineMarkerProvider language="Tara"
@@ -41,6 +40,8 @@
         <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
                         serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
+        <attachSourcesProvider
+                implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.project.ConfigurationListener"/>
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
@@ -53,6 +54,8 @@
                                 implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
         <codeInsight.lineMarkerProvider language="Tara"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.InterfaceToJavaImplementation"/>
+        <consoleActionsPostProcessor
+                implementation="io.intino.plugin.toolwindows.output.ConsoleActionsProcessor"/>
     </extensions>
 
     <actions>
@@ -106,13 +109,16 @@
     </application-components>
     <project-components>
         <component>
+            <implementation-class>io.intino.plugin.toolwindows.cesarbot.CesarBotWindowComponent</implementation-class>
+        </component>
+        <component>
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.console.ConsoleWindowComponent</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.output.ConsoleWindowComponent</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>
