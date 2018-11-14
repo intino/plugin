@@ -146,7 +146,7 @@ public class PomCreator {
 			if (dependencies.add(dependency.identifier()))
 				frame.addSlot("dependency", createDependencyFrame(dependency));
 		}
-		addModuleTypeDependencies(frame, dependencies);
+		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addModuleTypeDependencies(frame, dependencies);
 		addLevelDependency(frame);
 	}
 

@@ -31,6 +31,7 @@ public class CesarFileCreator {
 	}
 
 	public void writeCesarConfiguration(ProjectInfo info) {
+		if (info == null) return;
 		Path file = getProjectFile();
 		try {
 			Files.write(file, loadText(info).getBytes());
@@ -45,7 +46,6 @@ public class CesarFileCreator {
 		}
 
 	}
-
 
 	private String loadText(ProjectInfo project) {
 		final CesarRestAccessor accessor = new CesarAccessor(this.project).accessor();
