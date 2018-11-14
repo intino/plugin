@@ -42,7 +42,6 @@ class GraphLoader {
 					Files.write(stashDestiny.toPath(), StashSerializer.serialize(stash));
 				} catch (IOException e) {
 					LOG.error(e.getMessage(), e);
-					e.printStackTrace();
 				}
 			}
 		};

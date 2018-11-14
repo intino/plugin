@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.intellij.openapi.module.WebModuleTypeBase.isWebModule;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
@@ -164,7 +163,8 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
-		return TaraUtil.configurationOf(module).level() != null && !Configuration.Level.Solution.equals(TaraUtil.configurationOf(module).level()) && lifeCyclePhase.mavenActions().contains("deploy");
+		Configuration configuration = TaraUtil.configurationOf(module);
+		return configuration.level() != null && !Configuration.Level.Solution.equals(configuration.level()) && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull
