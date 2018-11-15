@@ -135,7 +135,8 @@ public class LegioConfiguration implements Configuration {
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
 						 reloader.reloadRunConfigurations();
-						 if (graph != null && !graph.serverList().isEmpty()) new CesarAccessor(module.getProject()).projectInfo();
+						 if (graph != null && !graph.serverList().isEmpty())
+							 new CesarAccessor(module.getProject()).projectInfo();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
 					 }
 				 }
@@ -287,7 +288,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String workingPackage() {
-		return safe(() -> graph.artifact().code().targetPackage(), groupId() + "." + artifactId());
+		return safe(() -> graph.artifact().code().targetPackage(),
+				(groupId() + "." + artifactId()).replace("-", "").replace("_", ""));
 	}
 
 	public String nativeLanguage() {
