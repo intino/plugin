@@ -41,7 +41,10 @@ public class ArtifactDeployer {
 	}
 
 	public boolean execute() throws IntinoException {
-		for (Destination destination : destinations) deploy(destination);
+		for (Destination destination : destinations) {
+			deploy(destination);
+			waitASecond();
+		}
 		return true;
 	}
 
@@ -117,5 +120,12 @@ public class ArtifactDeployer {
 			if (credential.serverId.equals(artifactory.id()))
 				artifactory.user(credential.username).password(credential.password);
 		return artifactory;
+	}
+
+	private void waitASecond() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
 	}
 }
