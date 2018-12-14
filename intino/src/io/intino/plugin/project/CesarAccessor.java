@@ -29,7 +29,7 @@ public class CesarAccessor {
 		}
 	}
 
-	CesarRestAccessor accessor() {
+	public CesarRestAccessor accessor() {
 		try {
 			final Map.Entry<String, String> cesar = getSafeInstance(this.project).cesar();
 			return new CesarRestAccessor(urlOf(cesar.getKey().trim()), cesar.getValue());

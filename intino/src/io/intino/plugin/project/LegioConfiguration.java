@@ -86,7 +86,7 @@ public class LegioConfiguration implements Configuration {
 		if (graph == null && stashFile.exists()) stashFile.delete();
 		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
 		reloader.reloadInterfaceBuilder();
-		reloader.resolveLanguages();
+		reloader.reloadLanguage();
 		reloader.reloadArtifactoriesMetaData();
 		if (graph != null && !graph.serverList().isEmpty()) {
 			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
