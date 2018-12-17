@@ -343,7 +343,7 @@ def trigger(windows)
 end
 
 def type(copyDependencies) trigger(classpath)
-    <classpathPrefix>$classpathPrefix?dependency]/</classpathPrefix>
+    <classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
 end
 
 def trigger(copyDependencies)

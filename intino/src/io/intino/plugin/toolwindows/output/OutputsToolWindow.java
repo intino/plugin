@@ -27,8 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.intellij.icons.AllIcons.General.Run;
@@ -55,7 +55,6 @@ public class OutputsToolWindow {
 			buildOutput.print("\n" + line, contentType(line));
 		}));
 	}
-
 
 	private ConsoleViewContentType contentType(String line) {
 		if (line.trim().startsWith("[ERROR]")) return ConsoleViewContentType.LOG_ERROR_OUTPUT;
@@ -89,6 +88,7 @@ public class OutputsToolWindow {
 		return level.substring(level.indexOf("\n") + 1);
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<Message> toInl(String text) {
 		try {
 			return IteratorUtils.toList(new InlReader(new ByteArrayInputStream(text.getBytes())));

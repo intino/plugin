@@ -44,7 +44,6 @@ public class CesarFileCreator {
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
-
 	}
 
 	private String loadText(ProjectInfo project) {
