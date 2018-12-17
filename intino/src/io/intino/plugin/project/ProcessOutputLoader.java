@@ -24,5 +24,4 @@ public class ProcessOutputLoader {
 			processInfos.stream().filter(p -> !window.existsOutputTab(p)).forEach(window::addProcessOutputTab);
 		});
 	}
-
 }

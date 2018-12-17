@@ -8,10 +8,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.alexandria.exceptions.BadRequest;
+import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.*;
-import io.intino.konos.alexandria.exceptions.BadRequest;
-import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.plugin.file.cesar.CesarFileType;
 import org.siani.itrules.model.Frame;
 

@@ -2,13 +2,13 @@ package io.intino.plugin.deploy;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
+import io.intino.alexandria.exceptions.BadRequest;
+import io.intino.alexandria.exceptions.Forbidden;
+import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.ProcessDeployment;
 import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
-import io.intino.konos.alexandria.exceptions.BadRequest;
-import io.intino.konos.alexandria.exceptions.Forbidden;
-import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
