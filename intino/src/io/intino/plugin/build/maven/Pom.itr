@@ -98,6 +98,7 @@ def type(pom)
 						[<finalName>$finalName</finalName>]
 						<archive>
 							<manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
 								<mainClass>$mainClass</mainClass>]
 								[$copyDependencies+classpath]

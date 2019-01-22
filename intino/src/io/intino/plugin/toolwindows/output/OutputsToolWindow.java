@@ -1,6 +1,5 @@
 package io.intino.plugin.toolwindows.output;
 
-import com.google.gson.JsonParser;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
@@ -8,19 +7,16 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
 import io.intino.alexandria.inl.InlReader;
 import io.intino.alexandria.inl.Message;
 import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.plugin.project.CesarAccessor;
-import io.intino.plugin.project.ProcessOutputLoader;
 import org.apache.commons.collections.IteratorUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,11 +27,9 @@ import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.intellij.icons.AllIcons.General.Run;
-import static com.intellij.icons.AllIcons.Ide.Macro.Recording_stop;
-
 public class OutputsToolWindow {
 
+	static final String CLEAR = "##clear##";
 	static Project project;
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
@@ -46,6 +40,10 @@ public class OutputsToolWindow {
 	public OutputsToolWindow(Project project) {
 		OutputsToolWindow.project = project;
 		this.buildOutput = createBuildView();
+		subscribeBuildConsole(project);
+	}
+
+	private void subscribeBuildConsole(Project project) {
 		project.getMessageBus().connect().subscribe(IntinoTopics.BUILD_CONSOLE, line -> ApplicationManager.getApplication().invokeLater(() -> {
 			ToolWindow consoleWindow = ConsoleWindowComponent.getInstance(project).consoleWindow();
 			if (!consoleWindow.isVisible()) {
@@ -71,47 +69,25 @@ public class OutputsToolWindow {
 	}
 
 	public void addProcessOutputTab(ProcessInfo processInfo) {
-		ConsoleView consoleView = createConsoleView(processInfo);
+		ConsoleView consoleView = createRemoteProcessView(processInfo);
 		consumers.put(processInfo.id(), text -> {
-			List<Message> messages;
-			if (text.startsWith("[") && !(messages = toInl(text)).isEmpty())
-				for (Message message : messages) {
-					String level = levelFrom(message);
-					consoleView.print("\n\n" + compactLog(message), level.equalsIgnoreCase("error") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
-				}
-			else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
+			if (text.equals(CLEAR)) consoleView.clear();
+			else printMessages(consoleView, text);
 		});
 	}
 
-	private String compactLog(Message message) {
-		String level = message.remove("level").toString();
-		return level.substring(level.indexOf("\n") + 1);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<Message> toInl(String text) {
-		try {
-			return IteratorUtils.toList(new InlReader(new ByteArrayInputStream(text.getBytes())));
-		} catch (Exception e) {
-			return Collections.emptyList();
-		}
-	}
-
-	private String levelFrom(Message message) {
-		String level = message.get("level");
-		return level == null ? "INFO" : level;
-	}
-
 	@NotNull
-	private ConsoleView createConsoleView(ProcessInfo info) {
-		ConsoleView consoleView = createConsoleView();
+	private ConsoleView createRemoteProcessView(ProcessInfo info) {
+		ConsoleView consoleView = createRemoteProcessView();
 		processOutputs.add(consoleView);
 		String displayName = displayOf(info);
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), displayName);
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new SyncAction(info, descriptor));
+		actionGroup.add(new SyncLogAction(info, descriptor, consumers));
+		actionGroup.add(new StartAction(info, descriptor));
+		actionGroup.add(new DebugAction(info, descriptor));
 		actionGroup.addAll(consoleView.createConsoleActions());
 		actionGroup.add(new CloseAction(DefaultRunExecutor.getRunExecutorInstance(), descriptor, project) {
 			@Override
@@ -132,7 +108,7 @@ public class OutputsToolWindow {
 
 	@NotNull
 	private ConsoleView createBuildView() {
-		ConsoleView consoleView = createConsoleView();
+		ConsoleView consoleView = createRemoteProcessView();
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), "build");
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
@@ -148,84 +124,42 @@ public class OutputsToolWindow {
 
 	@NotNull
 	private String displayOf(ProcessInfo info) {
-		return info.runtime().serverName() + " : " + info.artifact();
+		return info.server().name() + " : " + info.artifact();
 	}
 
 
-	private ConsoleView createConsoleView() {
+	private ConsoleView createRemoteProcessView() {
 		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
 		TextConsoleBuilder consoleBuilder = factory.createBuilder(project);
 		return consoleBuilder.getConsole();
-
 	}
 
-	private class SyncAction extends AnAction implements DumbAware {
-
-		private final ProcessInfo info;
-		private final CesarAccessor cesarAccessor;
-		boolean inited = false;
-		boolean listening = false;
-		private RunContentDescriptor myContentDescriptor;
-
-		public SyncAction(ProcessInfo info, RunContentDescriptor contentDescriptor) {
-			this.info = info;
-			myContentDescriptor = contentDescriptor;
-			cesarAccessor = new CesarAccessor(project);
-			final Presentation templatePresentation = getTemplatePresentation();
-			templatePresentation.setIcon(Run);
-			templatePresentation.setText("Run");
-			templatePresentation.setDescription("Run");
-		}
-
-		@Override
-		public void actionPerformed(@NotNull AnActionEvent e) {
-			if (inited) {
-				stop();
-				inited = false;
-				return;
+	private void printMessages(ConsoleView consoleView, String text) {
+		List<Message> messages;
+		if (text.startsWith("[") && !(messages = toInl(text)).isEmpty())
+			for (Message message : messages) {
+				String level = levelFrom(message);
+				consoleView.print("\n\n" + compactLog(message), level.equalsIgnoreCase("error") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
 			}
-			initLog();
-			listenLog();
-			update(e);
-		}
+		else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
+	}
 
-		@Override
-		public void update(AnActionEvent e) {
-			super.update(e);
-			e.getPresentation().setIcon(inited ? Recording_stop : Run);
-		}
+	private String compactLog(Message message) {
+		String level = message.remove("level").toString();
+		return level.substring(level.indexOf("\n") + 1);
+	}
 
-		public void stop() {
-			cesarAccessor.accessor().stopListenLog();
+	@SuppressWarnings("unchecked")
+	private List<Message> toInl(String text) {
+		try {
+			return IteratorUtils.toList(new InlReader(new ByteArrayInputStream(text.getBytes())));
+		} catch (Exception e) {
+			return Collections.emptyList();
 		}
+	}
 
-		private void listenLog() {
-			try {
-				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-				cesarAccessor.accessor().listenLog(project.getName(), text -> {
-					text = new JsonParser().parse(text).getAsJsonObject().get("name").getAsString();
-					int endIndex = text.indexOf("#");
-					if (endIndex < 0) return;
-					int messageStart = text.indexOf("#", endIndex + 1);
-					Consumer<String> consumer = consumers.get(text.substring(0, messageStart));
-					if (consumer != null) consumer.accept(text.substring(messageStart + 1));
-				});
-			} catch (io.intino.alexandria.exceptions.Unknown e) {
-				Logger.getInstance(ProcessOutputLoader.class.getName()).info(e.getMessage(), e);
-			}
-		}
-
-		private void initLog() {
-			String processLog = null;
-			try {
-				CesarAccessor cesarAccessor = new CesarAccessor(project);
-				processLog = cesarAccessor.accessor().getProcessLog(project.getName(), info.id()).replace("\\n", "\n");
-			} catch (BadRequest | Unknown e) {
-				Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
-			}
-			consumers.get(info.id()).accept(processLog);
-			inited = true;
-		}
-
+	private String levelFrom(Message message) {
+		String level = message.get("level");
+		return level == null ? "INFO" : level;
 	}
 }

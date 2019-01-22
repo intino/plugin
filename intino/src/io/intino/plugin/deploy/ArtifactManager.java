@@ -9,7 +9,7 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessInfo.Runtime;
+import io.intino.cesar.box.schemas.ProcessInfo.Server;
 import io.intino.cesar.box.schemas.ServerInfo;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
@@ -97,7 +97,7 @@ public class ArtifactManager {
 	}
 
 	private String connectionChain(ProcessInfo system) {
-		final Runtime runtime = system.runtime();
+		final Server runtime = system.server();
 		return runtime.ip();
 	}
 
@@ -106,7 +106,7 @@ public class ArtifactManager {
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url, cesar.getValue()).getServer(system.runtime().serverName());
+			return new CesarRestAccessor(url, cesar.getValue()).getServer(system.server().name());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}

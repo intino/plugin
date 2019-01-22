@@ -4,6 +4,8 @@ import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.cesar.box.schemas.ProcessInfo;
+import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.plugin.IntinoException;
 
@@ -25,6 +27,24 @@ public class CesarAccessor {
 		try {
 			if (accessor == null) return null;
 			return accessor.getProject(this.project.getName());
+		} catch (BadRequest | Unknown e) {
+			return null;
+		}
+	}
+
+	public ProcessInfo processInfo(String id) {
+		try {
+			if (accessor == null) return null;
+			return accessor.getProcess(this.project.getName(), id);
+		} catch (BadRequest | Unknown e) {
+			return null;
+		}
+	}
+
+	public ProcessStatus processStatus(String project, String id) {
+		try {
+			if (accessor == null) return null;
+			return accessor.getProcessStatus(this.project.getName(), id);
 		} catch (BadRequest | Unknown e) {
 			return null;
 		}
