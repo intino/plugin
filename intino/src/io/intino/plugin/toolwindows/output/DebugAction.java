@@ -2,6 +2,9 @@ package io.intino.plugin.toolwindows.output;
 
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -35,7 +38,11 @@ public class DebugAction extends AnAction implements DumbAware {
 		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
 		try {
 			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.project(), this.info.id(), status.running(), true);
-			if (success) status.running(!status.running());
+			if (success) {
+				status.running(!status.running());
+				status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+				Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
+			}
 		} catch (BadRequest | Unknown bd) {
 			Logger.error(bd);
 		}
