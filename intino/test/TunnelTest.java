@@ -1,7 +1,7 @@
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.konos.alexandria.schema.Resource;
-import io.intino.konos.restful.RestfulApi;
-import io.intino.konos.restful.exceptions.RestfulFailure;
+import io.intino.alexandria.Resource;
+import io.intino.alexandria.restaccessor.RestAccessor;
+import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -28,7 +28,7 @@ public class TunnelTest {
 		HttpPost post = new HttpPost(url.toURI());
 		post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ==");
 		post.setEntity(multipartEntityOf(resource()));
-		final RestfulApi.Response response = executeMethod(url, post);
+		final RestAccessor.Response response = executeMethod(url, post);
 	}
 
 	private HttpEntity multipartEntityOf(Resource resource) throws RestfulFailure {
@@ -41,7 +41,7 @@ public class TunnelTest {
 		return entityBuilder.build();
 	}
 
-	private RestfulApi.Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
+	private RestAccessor.Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
 		HttpResponse response;
 		final CloseableHttpClient client = HttpClientBuilder.create().build();
 		try {
@@ -84,8 +84,8 @@ public class TunnelTest {
 		}
 	}
 
-	private RestfulApi.Response responseOf(HttpResponse response) {
-		return new RestfulApi.Response() {
+	private RestAccessor.Response responseOf(HttpResponse response) {
+		return new RestAccessor.Response() {
 
 			@Override
 			public String content() {

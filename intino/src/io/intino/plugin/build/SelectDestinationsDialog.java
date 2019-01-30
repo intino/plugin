@@ -12,12 +12,9 @@ import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -85,21 +82,18 @@ public class SelectDestinationsDialog {
 		table.getColumn(ARTIFACTORY_FIELDS[2]);
 		table.getColumn(ARTIFACTORY_FIELDS[1]);
 		deploymentsPanel = ToolbarDecorator.createDecorator(table).disableUpAction().disableDownAction().createPanel();
-		deploymentsPanel.setMaximumSize(new Dimension(400, 200));
 		deploymentsPanel.setMinimumSize(new Dimension(400, 200));
-		table.setMaximumSize(new Dimension(400, 200));
 		table.setMinimumSize(new Dimension(400, 200));
-		table.setPreferredSize(new Dimension(400, 200));
+		table.setMaximumSize(new Dimension(400, 1400));
 		deploymentsPanel.setPreferredSize(new Dimension(400, 200));
 	}
 
 	private boolean checkExist(String value, int column) {
-		for (Artifact.Deployment deployment : deployments) {
+		for (Artifact.Deployment deployment : deployments)
 			if (deployment.name$().equalsIgnoreCase(value)) {
 				if (column == 1) return deployment.pre() != null;
 				return deployment.pro() != null;
 			}
-		}
 		return false;
 	}
 

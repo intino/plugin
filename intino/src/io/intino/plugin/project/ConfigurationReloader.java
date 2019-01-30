@@ -16,6 +16,7 @@ import io.intino.plugin.dependencyresolution.LibraryManager;
 import io.intino.plugin.dependencyresolution.WebDependencyResolver;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.run.IntinoRunConfiguration;
+import io.intino.tara.plugin.lang.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +30,8 @@ import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ConfigurationReloader {
-	private Module module;
 	private final LegioGraph graph;
+	private Module module;
 
 	public ConfigurationReloader(Module module, LegioGraph graph) {
 		this.module = module;
@@ -76,7 +77,15 @@ public class ConfigurationReloader {
 		newLibraries.add(languageLibrary);
 	}
 
-	List<Library> resolveLanguages() {
+	void reloadLanguage() {
+		LevelArtifact.Model model = safe(() -> graph.artifact().asLevel().model());
+		if (model == null) return;
+		final String effectiveVersion = model.effectiveVersion();
+		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? model.version() : effectiveVersion;
+		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
+	}
+
+	private List<Library> resolveLanguages() {
 		List<Library> libraries = new ArrayList<>();
 		LevelArtifact.Model model = safe(() -> graph.artifact().asLevel().model());
 		if (model == null) return libraries;

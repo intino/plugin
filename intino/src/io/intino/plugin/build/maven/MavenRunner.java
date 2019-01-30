@@ -95,6 +95,9 @@ public class MavenRunner {
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {
 			FileUtil.delete(pom);
+			File reducedPom = new File(pom.getParentFile(), "dependency-reduced-pom.xml");
+			if (reducedPom.exists()) FileUtil.delete(reducedPom);
+			new MavenPostBuildActions(module).execute();
 			if (ModuleTypeWithWebFeatures.isAvailable(module)) GulpExecutor.removeDeployBower(module);
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
@@ -132,7 +135,7 @@ public class MavenRunner {
 		return invoker.execute(request);
 	}
 
-	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException, IOException {
+	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException {
 		return invokeMaven(pom, "", lifeCyclePhase.mavenActions().toArray(new String[lifeCyclePhase.mavenActions().size()]));
 	}
 

@@ -98,9 +98,10 @@ def type(pom)
 						[<finalName>$finalName</finalName>]
 						<archive>
 							<manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
 								<mainClass>$mainClass</mainClass>]
-								<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
+								[$copyDependencies+classpath]
 							</manifest>
 							<manifestSections>
                                 [<manifestSection>
@@ -119,27 +120,7 @@ def type(pom)
 						</archive>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-dependency-plugin</artifactId>
-					<version>2.10</version>
-					<executions>
-						<execution>
-							<id>copy-dependencies</id>
-							<phase>package</phase>
-							<goals>
-								<goal>copy-dependencies</goal>
-							</goals>
-							<configuration>[
-							    <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
-							    <includeScope>runtime</includeScope>
-								<overWriteReleases>false</overWriteReleases>
-								<overWriteSnapshots>false</overWriteSnapshots>
-								<overWriteIfNewer>true</overWriteIfNewer>
-							</configuration>
-						</execution>
-					</executions>
-					</plugin>
+				[$copyDependencies]
 				[
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
@@ -218,11 +199,6 @@ def type(pom)
 
 		<dependencies>
 			$dependency...[$NL]
-			<dependency>
-                <groupId>com.sun.xml.security</groupId>
-                <artifactId>xml-security-impl</artifactId>
-                <version>1.0</version>
-            </dependency>
 		</dependencies>
 	</project>
 end
@@ -361,6 +337,34 @@ def trigger(windows)
                         <internalName>$name</internalName>
                         <originalFilename>$name.exe</originalFilename>
                     </versionInfo>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+end
+
+def type(copyDependencies) trigger(classpath)
+    <classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
+end
+
+def trigger(copyDependencies)
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+            <execution>
+                <id>copy-dependencies</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>[
+                    <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+                    <includeScope>runtime</includeScope>
+                    <overWriteReleases>false</overWriteReleases>
+                    <overWriteSnapshots>false</overWriteSnapshots>
+                    <overWriteIfNewer>true</overWriteIfNewer>
                 </configuration>
             </execution>
         </executions>

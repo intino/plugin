@@ -14,29 +14,36 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import io.intino.konos.alexandria.Inl;
-import io.intino.ness.inl.Message;
+import io.intino.alexandria.inl.InlReader;
+import io.intino.alexandria.inl.Message;
+import io.intino.cesar.box.schemas.ProcessInfo;
+import org.apache.commons.collections.IteratorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
 
+	static final String CLEAR = "##clear##";
 	static Project project;
-
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
-	private JPanel outputPanel;
 	private ConsoleView buildOutput;
 	private List<ConsoleView> processOutputs = new ArrayList<>();
+	private Map<String, Consumer<String>> consumers = new HashMap<>();
 
 	public OutputsToolWindow(Project project) {
 		OutputsToolWindow.project = project;
+		this.buildOutput = createBuildView();
+		subscribeBuildConsole(project);
+	}
+
+	private void subscribeBuildConsole(Project project) {
 		project.getMessageBus().connect().subscribe(IntinoTopics.BUILD_CONSOLE, line -> ApplicationManager.getApplication().invokeLater(() -> {
 			ToolWindow consoleWindow = ConsoleWindowComponent.getInstance(project).consoleWindow();
 			if (!consoleWindow.isVisible()) {
@@ -57,49 +64,30 @@ public class OutputsToolWindow {
 		return myToolWindowContent;
 	}
 
-	public boolean existsOutputTab(String title) {
-		return tabs.indexOfTab(title) > -1;
+	public boolean existsOutputTab(ProcessInfo info) {
+		return tabs.indexOfTab(displayOf(info)) > -1;
 	}
 
-	public Consumer<String> addProcessOutputTab(String title) {
-		ConsoleView consoleView = createConsoleView(title);
-		return text -> {
-			List<Message> messages;
-			if (!(messages = toInl(text)).isEmpty()) {
-				for (Message message : messages) {
-					String level = levelFrom(message);
-					consoleView.print("\n\n" + compactLog(message), level.equalsIgnoreCase("error") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
-				}
-			} else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
-		};
-	}
-
-	private String compactLog(Message message) {
-		String level = message.remove("level").toString();
-		return level.substring(level.indexOf("\n") + 1);
-	}
-
-	private List<Message> toInl(String text) {
-		try {
-			return Inl.load(text);
-		} catch (Exception e) {
-			return Collections.emptyList();
-		}
-	}
-
-	private String levelFrom(Message message) {
-		String level = message.get("level");
-		return level == null ? "INFO" : level;
+	public void addProcessOutputTab(ProcessInfo processInfo) {
+		ConsoleView consoleView = createRemoteProcessView(processInfo);
+		consumers.put(processInfo.id(), text -> {
+			if (text.equals(CLEAR)) consoleView.clear();
+			else printMessages(consoleView, text);
+		});
 	}
 
 	@NotNull
-	private ConsoleView createConsoleView(String title) {
-		ConsoleView consoleView = createConsoleView();
+	private ConsoleView createRemoteProcessView(ProcessInfo info) {
+		ConsoleView consoleView = createRemoteProcessView();
 		processOutputs.add(consoleView);
-		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), title);
+		String displayName = displayOf(info);
+		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), displayName);
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
+		actionGroup.add(new SyncLogAction(info, descriptor, consumers));
+		actionGroup.add(new StartAction(info, descriptor));
+		actionGroup.add(new DebugAction(info, descriptor));
 		actionGroup.addAll(consoleView.createConsoleActions());
 		actionGroup.add(new CloseAction(DefaultRunExecutor.getRunExecutorInstance(), descriptor, project) {
 			@Override
@@ -114,21 +102,64 @@ public class OutputsToolWindow {
 		toolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
 		ui.add(toolbar.getComponent(), BorderLayout.WEST);
-		tabs.addTab(title, ui);
+		tabs.addTab(displayName, ui);
 		return consoleView;
 	}
 
-	private ConsoleView createConsoleView() {
+	@NotNull
+	private ConsoleView createBuildView() {
+		ConsoleView consoleView = createRemoteProcessView();
+		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), "build");
+		final JComponent ui = descriptor.getComponent();
+		JComponent consoleViewComponent = consoleView.getComponent();
+		final DefaultActionGroup actionGroup = new DefaultActionGroup();
+		actionGroup.addAll(consoleView.createConsoleActions());
+		final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("BuildConsole", actionGroup, false);
+		toolbar.setTargetComponent(consoleViewComponent);
+		ui.add(consoleViewComponent, BorderLayout.CENTER);
+		ui.add(toolbar.getComponent(), BorderLayout.WEST);
+		tabs.addTab("build", ui);
+		return consoleView;
+	}
+
+	@NotNull
+	private String displayOf(ProcessInfo info) {
+		return info.server().name() + " : " + info.artifact();
+	}
+
+
+	private ConsoleView createRemoteProcessView() {
 		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
 		TextConsoleBuilder consoleBuilder = factory.createBuilder(project);
 		return consoleBuilder.getConsole();
-
 	}
 
-	private void createUIComponents() {
-		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-		TextConsoleBuilder consoleBuilder = factory.createBuilder(project);
-		this.buildOutput = consoleBuilder.getConsole();
-		outputPanel = (JPanel) buildOutput.getComponent();
+	private void printMessages(ConsoleView consoleView, String text) {
+		List<Message> messages;
+		if (text.startsWith("[") && !(messages = toInl(text)).isEmpty())
+			for (Message message : messages) {
+				String level = levelFrom(message);
+				consoleView.print("\n\n" + compactLog(message), level.equalsIgnoreCase("error") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
+			}
+		else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
+	}
+
+	private String compactLog(Message message) {
+		String level = message.remove("level").toString();
+		return level.substring(level.indexOf("\n") + 1);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Message> toInl(String text) {
+		try {
+			return IteratorUtils.toList(new InlReader(new ByteArrayInputStream(text.getBytes())));
+		} catch (Exception e) {
+			return Collections.emptyList();
+		}
+	}
+
+	private String levelFrom(Message message) {
+		String level = message.get("level");
+		return level == null ? "INFO" : level;
 	}
 }

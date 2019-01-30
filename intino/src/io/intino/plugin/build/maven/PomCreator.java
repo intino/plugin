@@ -239,14 +239,17 @@ public class PomCreator {
 		if (aPackage.isMacOS()) frame.addSlot("osx", osx(aPackage));
 		if (aPackage.isWindows()) frame.addSlot("windows", windows(aPackage));
 		final Artifact.Package.Mode type = aPackage.mode();
-		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest))
+		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest)) {
 			frame.addSlot("linkLibraries", "true");
-		else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
+			Frame copyDependencies = new Frame("copyDependencies");
+			frame.addSlot("copyDependencies", copyDependencies);
+			if (aPackage.classpathPrefix() != null)
+				copyDependencies.addSlot("classpathPrefix", aPackage.classpathPrefix());
+		} else frame.addSlot("linkLibraries", "false").addSlot("extractedLibraries", "");
 		if (aPackage.isRunnable()) frame.addSlot("mainClass", aPackage.asRunnable().mainClass());
 		configuration.graph().artifact().parameterList().forEach(parameter -> addParameter(frame, parameter));
 		if (aPackage.defaultJVMOptions() != null && !aPackage.defaultJVMOptions().isEmpty())
 			addMVOptions(frame, aPackage.defaultJVMOptions());
-		if (aPackage.classpathPrefix() != null) frame.addSlot("classpathPrefix", aPackage.classpathPrefix());
 		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
 			frame.addSlot("finalName", aPackage.finalName());
 		if (license != null) frame.addSlot("license", new Frame().addTypes("license", license.type().name()));

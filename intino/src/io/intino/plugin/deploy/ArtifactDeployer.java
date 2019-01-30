@@ -2,13 +2,13 @@ package io.intino.plugin.deploy;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
+import io.intino.alexandria.exceptions.BadRequest;
+import io.intino.alexandria.exceptions.Forbidden;
+import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.ProcessDeployment;
 import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
-import io.intino.konos.alexandria.exceptions.BadRequest;
-import io.intino.konos.alexandria.exceptions.Forbidden;
-import io.intino.konos.alexandria.exceptions.Unknown;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.legio.graph.RunConfiguration;
@@ -41,7 +41,10 @@ public class ArtifactDeployer {
 	}
 
 	public boolean execute() throws IntinoException {
-		for (Destination destination : destinations) deploy(destination);
+		for (Destination destination : destinations) {
+			deploy(destination);
+			waitASecond();
+		}
 		return true;
 	}
 
@@ -117,5 +120,12 @@ public class ArtifactDeployer {
 			if (credential.serverId.equals(artifactory.id()))
 				artifactory.user(credential.username).password(credential.password);
 		return artifactory;
+	}
+
+	private void waitASecond() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
 	}
 }

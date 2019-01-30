@@ -86,7 +86,7 @@ public class LegioConfiguration implements Configuration {
 		if (graph == null && stashFile.exists()) stashFile.delete();
 		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
 		reloader.reloadInterfaceBuilder();
-		reloader.resolveLanguages();
+		reloader.reloadLanguage();
 		reloader.reloadArtifactoriesMetaData();
 		if (graph != null && !graph.serverList().isEmpty()) {
 			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
@@ -109,7 +109,7 @@ public class LegioConfiguration implements Configuration {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
-						 graph = newGraphFromLegio();
+						 LegioConfiguration.this.graph = newGraphFromLegio();
 						 new DependencyPurger(module, LegioConfiguration.this).execute();
 						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
 						 reloader.reloadInterfaceBuilder();
@@ -129,13 +129,14 @@ public class LegioConfiguration implements Configuration {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
-						 graph = newGraphFromLegio();
+						 LegioConfiguration.this.graph = newGraphFromLegio();
 						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
 						 reloader.reloadRunConfigurations();
-						 if (graph != null && !graph.serverList().isEmpty()) new CesarAccessor(module.getProject()).projectInfo();
+						 if (graph != null && !graph.serverList().isEmpty())
+							 new CesarAccessor(module.getProject()).projectInfo();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
 					 }
 				 }
@@ -264,7 +265,7 @@ public class LegioConfiguration implements Configuration {
 
 	public Level level() {
 		if (graph == null || graph.artifact() == null) return null;
-		final Artifact artifact = graph().artifact();
+		final Artifact artifact = graph.artifact();
 		if (artifact == null) return null;
 		final String level = artifact.core$().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
@@ -287,7 +288,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String workingPackage() {
-		return safe(() -> graph.artifact().code().targetPackage(), groupId() + "." + artifactId());
+		return safe(() -> graph.artifact().code().targetPackage(),
+				(groupId() + "." + artifactId()).replace("-", "").replace("_", ""));
 	}
 
 	public String nativeLanguage() {
