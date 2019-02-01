@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
-
 	static final String CLEAR = "##clear##";
 	static Project project;
 	private JPanel myToolWindowContent;

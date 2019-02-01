@@ -1,5 +1,6 @@
 package io.intino.plugin.settings;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.siani.itrules.model.Frame;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,6 +17,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 import static java.io.File.separator;
 
 class ArtifactoryCredentialsManager {
+	private static final Logger logger = Logger.getInstance(ArtifactoryCredentialsManager.class);
 
 	private static final String USERNAME = "username";
 	private static final String ID = "id";
@@ -43,6 +46,43 @@ class ArtifactoryCredentialsManager {
 			doc = docBuilder.parse(settingsFile().getPath());
 		} catch (ParserConfigurationException | SAXException | IOException ignored) {
 		}
+	}
+
+	private static void commit(Document doc) {
+		try {
+			doc.getDocumentElement().normalize();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(settingsFile());
+			transformer.transform(source, result);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void createSettingsFile(List<ArtifactoryCredential> credentials) {
+		Frame artifactory = new Frame().addTypes("artifactory");
+		List<Frame> credentialFrames = credentials.stream().
+				map(credential -> new Frame().addTypes("server").addSlot("name", credential.serverId).addSlot(USERNAME, credential.username).addSlot(PASSWORD, credential.password)).collect(Collectors.toList());
+		artifactory.addSlot("server", credentialFrames.toArray(new Frame[credentialFrames.size()]));
+		final String settings = ArtifactorySettingsTemplate.create().format(artifactory);
+		write(settings);
+	}
+
+	private static void write(String settings) {
+		try {
+			Files.write(settingsFile().toPath(), settings.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static File settingsFile() {
+		final File home = new File(System.getProperty("user.home"));
+		return new File(home, ".m2" + separator + "settings.xml");
 	}
 
 	List<io.intino.plugin.settings.ArtifactoryCredential> loadCredentials() {
@@ -97,56 +137,47 @@ class ArtifactoryCredentialsManager {
 		serverId.setTextContent(name);
 		Element userNode = doc.createElement(USERNAME);
 		Element passwordNode = doc.createElement(PASSWORD);
+		Element configurationNode = createConfiguration();
 		serverNode.appendChild(serverId);
 		serverNode.appendChild(userNode);
 		serverNode.appendChild(passwordNode);
+		;
+		serverNode.appendChild(doc.importNode(configurationNode, true));
 		return serversNode.appendChild(serverNode);
+	}
+
+	private Element createConfiguration() {
+		try {
+			return DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(new ByteArrayInputStream(configurationText().getBytes()))
+					.getDocumentElement();
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+
+	private String configurationText() {
+		return "\t<configuration>\n" +
+				"\t\t<timeout>5000</timeout>\n" +
+				"\t\t<httpConfiguration>\n" +
+				"\t\t\t<all>\n" +
+				"\t\t\t\t<connectionTimeout>5000</connectionTimeout>\n" +
+				"\t\t\t\t<readTimeout>5000</readTimeout>\n" +
+				"\t\t\t</all>\n" +
+				"\t\t</httpConfiguration>\n" +
+				"\t</configuration>";
 	}
 
 	private Node createServers() {
 		return doc.getElementsByTagName(SETTINGS).item(0).appendChild(doc.createElement(SERVERS));
 	}
 
-	private static void commit(Document doc) {
-		try {
-			doc.getDocumentElement().normalize();
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(settingsFile());
-			transformer.transform(source, result);
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void createSettingsFile(List<ArtifactoryCredential> credentials) {
-		Frame artifactory = new Frame().addTypes("artifactory");
-		List<Frame> credentialFrames = credentials.stream().
-				map(credential -> new Frame().addTypes("server").addSlot("name", credential.serverId).addSlot(USERNAME, credential.username).addSlot(PASSWORD, credential.password)).collect(Collectors.toList());
-		artifactory.addSlot("server", credentialFrames.toArray(new Frame[credentialFrames.size()]));
-		final String settings = ArtifactorySettingsTemplate.create().format(artifactory);
-		write(settings);
-	}
-
-	private static void write(String settings) {
-		try {
-			Files.write(settingsFile().toPath(), settings.getBytes());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private List<Node> asList(NodeList elements) {
 		List<Node> nodes = new ArrayList<>();
 		for (int i = 0; i < elements.getLength(); i++) nodes.add(elements.item(i));
 		return nodes;
-	}
-
-	private static File settingsFile() {
-		final File home = new File(System.getProperty("user.home"));
-		return new File(home, ".m2" + separator + "settings.xml");
 	}
 }
