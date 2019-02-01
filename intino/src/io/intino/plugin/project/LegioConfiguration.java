@@ -21,7 +21,6 @@ import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.legio.graph.level.LevelArtifact.Model;
-import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -115,7 +114,7 @@ public class LegioConfiguration implements Configuration {
 						 reloading = true;
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 LegioConfiguration.this.graph = newGraphFromLegio();
-						 new DependencyPurger(module, LegioConfiguration.this).execute();
+//						 new DependencyPurger(module, LegioConfiguration.this).execute();
 						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();

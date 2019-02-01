@@ -48,7 +48,12 @@ public class JavaDependencyResolver {
 		this.repositories = repositories;
 		this.updatePolicy = updatePolicy;
 		this.dependencies = dependencies;
-		this.aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		this.aether = new Aether(collectRemotes(), localRepository());
+	}
+
+	@NotNull
+	private File localRepository() {
+		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
 	public List<Library> resolve() {
