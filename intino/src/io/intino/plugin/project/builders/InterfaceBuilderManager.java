@@ -18,11 +18,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class InterfaceBuilderManager {
-	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class);
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
-	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+public class InterfaceBuilderManager {
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
+	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class);
+	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public void reload(Project project, String version) {
 		if (InterfaceBuilderLoader.isLoaded(project, version)) {
@@ -61,11 +62,11 @@ public class InterfaceBuilderManager {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		try {
-			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
 
