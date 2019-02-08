@@ -42,7 +42,7 @@ def type(pom)
 			    [$compile<plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.6.2</version>
+                    <version>3.8.0</version>
                     <executions>
                         <execution>
                             <id>default-compile</id>
@@ -93,7 +93,7 @@ def type(pom)
 				]<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.6</version>
+					<version>3.1.0</version>
 					<configuration>
 						[<finalName>$finalName</finalName>]
 						<archive>

@@ -32,7 +32,6 @@ public class ConsoleWindowComponent implements ProjectComponent {
 
 	private void createToolWindows() {
 		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-		OutputsToolWindow.project = project;
 		outputsToolWindow = new OutputsToolWindow(project);
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 		consoleWindow = toolWindowManager.registerToolWindow(CONSOLE_WINDOW_ID, true, ToolWindowAnchor.BOTTOM);

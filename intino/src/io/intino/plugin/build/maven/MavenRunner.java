@@ -125,13 +125,12 @@ public class MavenRunner {
 	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList(phases));
-		request.setJavaHome(new File(System.getProperty("java.home")));
-		request.setMavenOpts(mavenOpts);
+
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
+		configure(request, mavenHome, mavenOpts);
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
 		log(invoker);
-		config(request, mavenHome);
 		return invoker.execute(request);
 	}
 
@@ -149,7 +148,7 @@ public class MavenRunner {
 		if (mavenHome == null) return null;
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
 		log(invoker);
-		config(request, mavenHome);
+		configure(request, mavenHome, "");
 		return invoker.execute(request);
 	}
 
@@ -179,9 +178,11 @@ public class MavenRunner {
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void config(InvocationRequest request, File mavenHome) {
+	private void configure(InvocationRequest request, File mavenHome, String mavenOpts) {
 		final File mvn = new File(mavenHome, "bin" + File.separator + "mvn");
 		mvn.setExecutable(true);
+		request.setMavenOpts(mavenOpts);
+		request.setShowErrors(true);
 		final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
 		if (sdk != null && sdk.getHomePath() != null) request.setJavaHome(new File(sdk.getHomePath()));
 	}

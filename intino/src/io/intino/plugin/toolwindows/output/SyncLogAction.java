@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.schemas.ProcessInfo;
@@ -25,15 +26,17 @@ class SyncLogAction extends AnAction implements DumbAware {
 	private final Icon LogIcon = AllIcons.Debugger.Console_log;
 	private final ProcessInfo info;
 	private final CesarAccessor cesarAccessor;
-	boolean inited = false;
-	private RunContentDescriptor myContentDescriptor;
+	private final  RunContentDescriptor myContentDescriptor;
+	private final Project project;
 	private final Map<String, Consumer<String>> consumers;
+	private boolean inited = false;
 
-	public SyncLogAction(ProcessInfo info, RunContentDescriptor contentDescriptor, Map<String, Consumer<String>> consumers) {
+	public SyncLogAction(ProcessInfo info, RunContentDescriptor contentDescriptor, Project project, Map<String, Consumer<String>> consumers) {
 		this.info = info;
 		myContentDescriptor = contentDescriptor;
+		this.project = project;
 		this.consumers = consumers;
-		cesarAccessor = new CesarAccessor(OutputsToolWindow.project);
+		cesarAccessor = new CesarAccessor(project);
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(LogIcon);
 		templatePresentation.setText("Listen Log");
@@ -65,7 +68,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 	private void listenLog() {
 		try {
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-			cesarAccessor.accessor().listenLog(OutputsToolWindow.project.getName(), text -> {
+			cesarAccessor.accessor().listenLog(project.getName(), text -> {
 				text = new JsonParser().parse(text).getAsJsonObject().get("name").getAsString();
 				int endIndex = text.indexOf("#");
 				if (endIndex < 0) return;
@@ -86,8 +89,8 @@ class SyncLogAction extends AnAction implements DumbAware {
 	private void initLog() {
 		String processLog = null;
 		try {
-			CesarAccessor cesarAccessor = new CesarAccessor(OutputsToolWindow.project);
-			processLog = cesarAccessor.accessor().getProcessLog(OutputsToolWindow.project.getName(), info.id()).replace("\\n", "\n");
+			CesarAccessor cesarAccessor = new CesarAccessor(project);
+			processLog = cesarAccessor.accessor().getProcessLog(project.getName(), info.id()).replace("\\n", "\n");
 		} catch (BadRequest | Unknown e) {
 			Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
 		}
