@@ -40,6 +40,10 @@ public class ArtifactDeployer {
 		this.destinations = destinations;
 	}
 
+	private static Parameter parametersFromNode(Map.Entry<String, String> node) {
+		return new Parameter().name(node.getKey()).value(node.getValue());
+	}
+
 	public boolean execute() throws IntinoException {
 		for (Destination destination : destinations) {
 			deploy(destination);
@@ -82,19 +86,16 @@ public class ArtifactDeployer {
 	@NotNull
 	private ProcessDeployment.Prerequisites requirements(Destination destination) {
 		final ProcessDeployment.Prerequisites prerequisites = new ProcessDeployment.Prerequisites();
-		if (destination.requirements() != null) {
-			prerequisites.memory(destination.requirements().memory().min());
-			prerequisites.hdd(destination.requirements().hDD().min());
+		Destination.Requirements r = destination.requirements();
+		if (r != null) {
+			if (r.memory() != null) prerequisites.memory(r.memory().min());
+			if (r.hDD() != null) prerequisites.hdd(r.hDD().min());
 		}
 		return prerequisites;
 	}
 
 	private List<Parameter> extractParameters(RunConfiguration configuration) {
 		return configuration.finalArguments().entrySet().stream().map(ArtifactDeployer::parametersFromNode).collect(toList());
-	}
-
-	private static Parameter parametersFromNode(Map.Entry<String, String> node) {
-		return new Parameter().name(node.getKey()).value(node.getValue());
 	}
 
 	private List<Artifactory> artifactories() {

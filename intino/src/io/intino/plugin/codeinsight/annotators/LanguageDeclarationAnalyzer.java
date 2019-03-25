@@ -52,8 +52,12 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 			version = language != null ? language.effectiveVersion() : null;
 		}
 		if (version == null || version.isEmpty()) return;
+		if (configuration.languageParameters() == null) {
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
+			return;
+		}
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
-		final Configuration.Level languageLevel = levelOfLanguage();
+		final Configuration.Level languageLevel = languageLevel();
 		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel != null && configuration.level() != null && configuration.level().compareLevelWith(languageLevel) != 1))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Verso or Proteo" : languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
@@ -62,13 +66,12 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 			results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("magritte.not.found")));
 	}
 
-	private Configuration.Level levelOfLanguage() {
+	private Configuration.Level languageLevel() {
 		if (configuration.languages().isEmpty()) return null;
 		final String name = configuration.languages().get(0).name();
-		if (name.equals(Verso.class.getSimpleName())) return null;
-		if (name.equals(Proteo.class.getSimpleName())) return Platform;
+		if (Verso.class.getSimpleName().equals(name)) return null;
+		if (Proteo.class.getSimpleName().equals(name)) return Platform;
 		final Attributes attributes = configuration.languageParameters();
-		if (attributes == null) return Platform;
 		return Configuration.Level.valueOf(attributes.getValue("level"));
 	}
 

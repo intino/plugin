@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -124,7 +123,7 @@ public class MavenRunner {
 
 	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Arrays.asList(phases));
+		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Collections.singletonList(phases[phases.length - 1]));
 
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
