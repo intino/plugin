@@ -57,7 +57,7 @@ public class CesarAccessor {
 	private CesarRestAccessor createAccessor() {
 		try {
 			final Map.Entry<String, String> credentials = getSafeInstance(this.project).cesar();
-			return new CesarRestAccessor(urlOf(credentials.getKey().trim()), credentials.getValue());
+			return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
 		} catch (IntinoException e) {
 			return null;
 		}

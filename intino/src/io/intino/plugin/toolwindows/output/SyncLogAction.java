@@ -26,7 +26,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 	private final Icon LogIcon = AllIcons.Debugger.Console_log;
 	private final ProcessInfo info;
 	private final CesarAccessor cesarAccessor;
-	private final  RunContentDescriptor myContentDescriptor;
+	private final RunContentDescriptor myContentDescriptor;
 	private final Project project;
 	private final Map<String, Consumer<String>> consumers;
 	private boolean inited = false;
@@ -94,8 +94,10 @@ class SyncLogAction extends AnAction implements DumbAware {
 		} catch (BadRequest | Unknown e) {
 			Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
 		}
-		consumers.get(info.id()).accept(OutputsToolWindow.CLEAR);
-		consumers.get(info.id()).accept(processLog);
-		inited = true;
+		if (processLog != null) {
+			consumers.get(info.id()).accept(OutputsToolWindow.CLEAR);
+			consumers.get(info.id()).accept(processLog);
+			inited = true;
+		}
 	}
 }
