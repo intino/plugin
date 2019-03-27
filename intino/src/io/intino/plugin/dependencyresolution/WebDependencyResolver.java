@@ -195,8 +195,8 @@ public class WebDependencyResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
-		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name$(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"))).collect(Collectors.toList()));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY)));
+		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name$(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
 		return remotes;
 	}
 }

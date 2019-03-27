@@ -31,11 +31,13 @@ import static io.intino.plugin.project.Safe.safeList;
 
 public class ConfigurationReloader {
 	private final LegioGraph graph;
+	private final String updatePolicy;
 	private Module module;
 
-	public ConfigurationReloader(Module module, LegioGraph graph) {
+	public ConfigurationReloader(Module module, LegioGraph graph, String updatePolicy) {
 		this.module = module;
 		this.graph = graph;
+		this.updatePolicy = updatePolicy;
 	}
 
 	void reloadInterfaceBuilder() {
@@ -64,7 +66,7 @@ public class ConfigurationReloader {
 
 	private void resolveJavaDependencies() {
 		if (safeList(() -> graph.artifact().imports().dependencyList()) == null) return;
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, repositories(), safeList(() -> graph.artifact().imports().dependencyList()));
+		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, repositories(), updatePolicy, safeList(() -> graph.artifact().imports().dependencyList()));
 		final List<Library> newLibraries = resolver.resolve();
 		final List<Library> languageLibraries = resolveLanguages();
 		for (Library languageLibrary : languageLibraries)

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.6.0</version>
+    <version>3.6.3</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -32,6 +32,11 @@
                    implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>
         <annotator language="Tara"
                    implementationClass="io.intino.plugin.codeinsight.annotators.DuplicatedRepositoryAnnotator"/>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.RemoveFromLocalRepository</className>
+            <category>Remove version from local repository</category>
+            <descriptionDirectoryName>RemoveFromLocalRepository</descriptionDirectoryName>
+        </intentionAction>
         <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
                         serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>

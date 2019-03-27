@@ -21,7 +21,6 @@ import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.legio.graph.level.LevelArtifact.Model;
-import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -36,6 +35,7 @@ import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraNodeImpl;
 import org.jetbrains.annotations.NotNull;
+import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +57,7 @@ public class LegioConfiguration implements Configuration {
 	private final Module module;
 	private VirtualFile legioFile;
 	private LegioGraph graph;
+	private boolean reloading = false;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -84,7 +85,7 @@ public class LegioConfiguration implements Configuration {
 		File stashFile = stashFile();
 		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		if (graph == null && stashFile.exists()) stashFile.delete();
-		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
+		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
 		reloader.reloadInterfaceBuilder();
 		reloader.reloadLanguage();
 		reloader.reloadArtifactoriesMetaData();
@@ -102,25 +103,32 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void purgeAndReload() {
+		if (reloading) return;
+		reloading = true;
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
+						 reloading = true;
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 LegioConfiguration.this.graph = newGraphFromLegio();
-						 new DependencyPurger(module, LegioConfiguration.this).execute();
-						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
+//						 new DependencyPurger(module, LegioConfiguration.this).execute();
+						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
+						 reloading = false;
 					 }
 				 }
 		);
+		reloading = false;
 	}
 
 	public void reload() {
+		if (reloading) return;
+		reloading = true;
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
@@ -128,9 +136,10 @@ public class LegioConfiguration implements Configuration {
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, ALWAYS_BACKGROUND) {
 					 @Override
 					 public void run(@NotNull ProgressIndicator indicator) {
+						 reloading = true;
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 LegioConfiguration.this.graph = newGraphFromLegio();
-						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph);
+						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
@@ -138,9 +147,11 @@ public class LegioConfiguration implements Configuration {
 						 if (graph != null && !graph.serverList().isEmpty())
 							 new CesarAccessor(module.getProject()).projectInfo();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
+						 reloading = false;
 					 }
 				 }
 		);
+		reloading = false;
 	}
 
 	public static String parametersOf(io.intino.legio.graph.RunConfiguration runConfiguration) {

@@ -22,6 +22,7 @@ import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.util.*;
@@ -86,7 +87,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 	@NotNull
 	private List<Artifact> resolveSources(LibraryOrderEntry entry, List<LegioConfiguration> configurations) {
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(configurations.get(0).module(), repositoryTypes(configurations), Collections.emptyList());
+		final JavaDependencyResolver resolver = new JavaDependencyResolver(configurations.get(0).module(), repositoryTypes(configurations), RepositoryPolicy.UPDATE_POLICY_ALWAYS, Collections.emptyList());
 		List<Artifact> artifacts = new ArrayList<>();
 		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(LibraryManager.LEGIO, "");
 		final String[] names = libraryName.split(":");

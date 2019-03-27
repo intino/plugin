@@ -8,7 +8,9 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,12 +35,22 @@ public class DependencyPurger {
 			purgeDependencies();
 			purgeModelBuilder();
 			purgeInterfaceBuilder();
-		} catch (IOException | MavenInvocationException e) {
+		} catch (MavenInvocationException e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}
 
-	private void purgeDependencies() throws IOException, MavenInvocationException {
+	public void purgeDependency(String id) {
+		File file = new File(localRepository(), id.replace(":", File.separator));
+		if (!file.exists()) return;
+		try {
+			FileUtils.deleteDirectory(file);
+		} catch (IOException e) {
+			LOG.error(e);
+		}
+	}
+
+	private void purgeDependencies() throws MavenInvocationException {
 		if (!(TaraUtil.configurationOf(module) instanceof LegioConfiguration)) return;
 		File file = new PomCreator(module).frameworkPom();
 		runner.invokeMaven(file, "", "dependency:purge-local-repository");
@@ -47,6 +59,11 @@ public class DependencyPurger {
 
 	private void purgeModelBuilder() {
 		new ModelBuilderManager(this.module.getProject(), safe(() -> configuration.graph().artifact().asLevel().model())).purge();
+	}
+
+	@NotNull
+	private File localRepository() {
+		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
 	private void purgeInterfaceBuilder() {

@@ -28,9 +28,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
-
 	static final String CLEAR = "##clear##";
-	static Project project;
+	private Project project;
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
 	private ConsoleView buildOutput;
@@ -38,7 +37,7 @@ public class OutputsToolWindow {
 	private Map<String, Consumer<String>> consumers = new HashMap<>();
 
 	public OutputsToolWindow(Project project) {
-		OutputsToolWindow.project = project;
+		this.project = project;
 		this.buildOutput = createBuildView();
 		subscribeBuildConsole(project);
 	}
@@ -85,9 +84,9 @@ public class OutputsToolWindow {
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new SyncLogAction(info, descriptor, consumers));
-		actionGroup.add(new StartAction(info, descriptor));
-		actionGroup.add(new DebugAction(info, descriptor));
+		actionGroup.add(new SyncLogAction(info, descriptor,  project, consumers));
+		actionGroup.add(new StartAction(info, descriptor,  project));
+		actionGroup.add(new DebugAction(info, descriptor,  project));
 		actionGroup.addAll(consoleView.createConsoleActions());
 		actionGroup.add(new CloseAction(DefaultRunExecutor.getRunExecutorInstance(), descriptor, project) {
 			@Override

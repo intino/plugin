@@ -37,16 +37,23 @@ public class JavaDependencyResolver {
 	private final List<Repository.Type> repositories;
 	private final LibraryManager moduleLibrariesManager;
 	private final Aether aether;
+	private final String updatePolicy;
 	private List<Dependency> dependencies;
 	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
-	public JavaDependencyResolver(@Nullable Module module, List<Repository.Type> repositories, List<Dependency> dependencies) {
+	public JavaDependencyResolver(@Nullable Module module, List<Repository.Type> repositories, String updatePolicy, List<Dependency> dependencies) {
 		this.moduleLibrariesManager = new LibraryManager(module);
 		this.module = module;
 		this.repositories = repositories;
+		this.updatePolicy = updatePolicy;
 		this.dependencies = dependencies;
-		this.aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		this.aether = new Aether(collectRemotes(), localRepository());
+	}
+
+	@NotNull
+	private File localRepository() {
+		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
 	public List<Library> resolve() {
@@ -179,14 +186,14 @@ public class JavaDependencyResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
 		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
 		return remotes;
 	}
 
 	private RemoteRepository repository(Repository.Type remote) {
 		final RemoteRepository repository = new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
-		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"));
+		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
 		return repository;
 	}
 

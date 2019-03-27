@@ -1,3 +1,3 @@
 public class Password {
-	public static final String PASSPHRASE = "b.8752";
+	public static final String PASSPHRASE = "ZZZZ";
 }

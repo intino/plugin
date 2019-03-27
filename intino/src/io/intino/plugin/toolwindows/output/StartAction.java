@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.alexandria.logger.Logger;
@@ -21,10 +22,10 @@ public class StartAction extends AnAction implements DumbAware {
 	private ProcessStatus status;
 	private RunContentDescriptor myContentDescriptor;
 
-	public StartAction(ProcessInfo info, RunContentDescriptor contentDescriptor) {
+	public StartAction(ProcessInfo info, RunContentDescriptor contentDescriptor, Project project) {
 		this.info = info;
 		myContentDescriptor = contentDescriptor;
-		cesarAccessor = new CesarAccessor(OutputsToolWindow.project);
+		cesarAccessor = new CesarAccessor(project);
 		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(Run);
@@ -46,8 +47,13 @@ public class StartAction extends AnAction implements DumbAware {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		e.getPresentation().setIcon(status.running() ? Suspend : Run);
-		e.getPresentation().setText(status.running() ? "Stop process" : "Run process");
-		e.getPresentation().setDescription(status.running() ? "Stop process" : "Run process");
+		if (status == null) status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		if (status == null) e.getPresentation().setVisible(false);
+		else {
+			e.getPresentation().setVisible(true);
+			e.getPresentation().setIcon(status.running() ? Suspend : Run);
+			e.getPresentation().setText(status.running() ? "Stop process" : "Run process");
+			e.getPresentation().setDescription(status.running() ? "Stop process" : "Run process");
+		}
 	}
 }

@@ -37,6 +37,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.application.ModalityState.defaultModalityState;
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class LanguageResolver {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
@@ -52,6 +53,40 @@ public class LanguageResolver {
 		this.repositories = repositories;
 		this.model = model;
 		this.version = version;
+	}
+
+	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
+		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
+		for (Module m : modules) {
+			final Configuration configuration = TaraUtil.configurationOf(m);
+			if (configuration == null) continue;
+			if (language.equalsIgnoreCase(configuration.artifactId())) return m;
+		}
+		return null;
+	}
+
+	public static String languageID(String language, String version) {
+		if (isMagritteLibrary(language)) return magritteID(version);
+		final File languageFile = LanguageManager.getLanguageFile(language, version);
+		if (!languageFile.exists()) return null;
+		else try {
+			Manifest manifest = new JarFile(languageFile).getManifest();
+			final Attributes tara = manifest.getAttributes("tara");
+			if (tara == null) return null;
+			return tara.getValue("framework");
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
+	}
+
+	@NotNull
+	private static String magritteID(String version) {
+		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
+	}
+
+	private static boolean isMagritteLibrary(String language) {
+		return Proteo.class.getSimpleName().equals(language) || Verso.class.getSimpleName().equals(language);
 	}
 
 	public List<Library> resolve() {
@@ -123,20 +158,10 @@ public class LanguageResolver {
 		return Collections.singletonMap(artifact, sourcesOf(artifact));
 	}
 
-	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
-		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
-		for (Module m : modules) {
-			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration == null) continue;
-			if (language.equalsIgnoreCase(configuration.artifactId())) return m;
-		}
-		return null;
-	}
-
 	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {
 		try {
 			if (languageId == null) return Collections.emptyMap();
-			return toMap(new Aether(collectRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE), DependencyScope.COMPILE);
+			return toMap(new Aether(frameworkRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE), DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyMap();
 		}
@@ -157,22 +182,6 @@ public class LanguageResolver {
 		return map;
 	}
 
-
-	public static String languageID(String language, String version) {
-		if (isMagritteLibrary(language)) return magritteID(version);
-		final File languageFile = LanguageManager.getLanguageFile(language, version);
-		if (!languageFile.exists()) return null;
-		else try {
-			Manifest manifest = new JarFile(languageFile).getManifest();
-			final Attributes tara = manifest.getAttributes("tara");
-			if (tara == null) return null;
-			return tara.getValue("framework");
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
-			return null;
-		}
-	}
-
 	private void importLanguage() {
 		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language(), version);
 	}
@@ -182,7 +191,16 @@ public class LanguageResolver {
 		List<RemoteRepository> remotes = new ArrayList<>();
 		remotes.addAll(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
-				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always")));
+				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		return remotes;
+	}
+
+	@NotNull
+	private List<RemoteRepository> frameworkRemotes() {
+		List<RemoteRepository> remotes = new ArrayList<>();
+		remotes.addAll(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
 
@@ -190,7 +208,7 @@ public class LanguageResolver {
 		if (remote.core$().variables().get("mavenID").get(0) == null) return null;
 		return new RemoteRepository(remote.mavenID(), "default", remote.url()).
 				setAuthentication(provideAuthentication(remote.mavenID())).
-				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy("always"));
+				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
@@ -199,14 +217,5 @@ public class LanguageResolver {
 			if (credential.serverId.equals(mavenId))
 				return new Authentication(credential.username, credential.password);
 		return null;
-	}
-
-	@NotNull
-	private static String magritteID(String version) {
-		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
-	}
-
-	private static boolean isMagritteLibrary(String language) {
-		return Proteo.class.getSimpleName().equals(language) || Verso.class.getSimpleName().equals(language);
 	}
 }
