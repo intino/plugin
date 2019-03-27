@@ -50,6 +50,7 @@ Concept:{1..1}:Named Artifact
 		var Repository.Type repository
 	Concept:{0..1} Package
 		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} mode
+		var boolean createPOMproject = false
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false

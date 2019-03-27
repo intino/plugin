@@ -10,11 +10,13 @@ import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.project.GulpExecutor;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.actions.utils.FileSystemUtils;
 import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -93,7 +95,7 @@ public class MavenRunner {
 		applyBuildFixes(module, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
 		else {
-			FileUtil.delete(pom);
+			if (!preservePOM()) FileUtil.delete(pom);
 			File reducedPom = new File(pom.getParentFile(), "dependency-reduced-pom.xml");
 			if (reducedPom.exists()) FileUtil.delete(reducedPom);
 			new MavenPostBuildActions(module).execute();
@@ -101,6 +103,10 @@ public class MavenRunner {
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
 		}
+	}
+
+	private boolean preservePOM() {
+		return ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact().package$().createPOMproject();
 	}
 
 	private void applyBuildFixes(Module module, FactoryPhase phase) {
@@ -124,12 +130,11 @@ public class MavenRunner {
 	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
 		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
 		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Collections.singletonList(phases[phases.length - 1]));
-
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
 		configure(request, mavenHome, mavenOpts);
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
-		log(invoker);
+		addLogger(invoker);
 		return invoker.execute(request);
 	}
 
@@ -146,7 +151,7 @@ public class MavenRunner {
 		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
 		if (mavenHome == null) return null;
 		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
-		log(invoker);
+		addLogger(invoker);
 		configure(request, mavenHome, "");
 		return invoker.execute(request);
 	}
@@ -160,7 +165,7 @@ public class MavenRunner {
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());
 			return destination.getAbsolutePath();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.getInstance(this.getClass()).warn(e);
 			return "";
 		}
 	}
@@ -171,7 +176,7 @@ public class MavenRunner {
 		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new IOException(output));
 	}
 
-	private void log(Invoker invoker) {
+	private void addLogger(Invoker invoker) {
 		invoker.setOutputHandler(handler);
 		invoker.setErrorHandler(handler);
 	}

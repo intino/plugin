@@ -31,6 +31,7 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,7 @@ public class WebDependencyResolver {
 		final BowerFileCreator creator = new BowerFileCreator(artifact, webArtifacts);
 		File bower = creator.createBowerFile(nodeDirectory.getParentFile());
 		if (bower == null) return;
+		preserveBower(bower);
 		File bowerrc = creator.createBowerrcFile(libComponentsDirectory, nodeDirectory.getParentFile());
 		File pom = createPomFile();
 		File packageJson = createPackageFile();
@@ -70,6 +72,13 @@ public class WebDependencyResolver {
 		bower.delete();
 		bowerrc.delete();
 		packageJson.delete();
+	}
+
+	private void preserveBower(File bower) {
+		try {
+			Files.copy(bower.toPath(), new File(rootDirectory, "bower.json").toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException ignored) {
+		}
 	}
 
 	private List<File> resolveArtifacts() {

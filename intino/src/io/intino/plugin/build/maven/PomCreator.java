@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,8 +51,8 @@ public class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
-	private Set<Integer> randomGeneration = new HashSet<>();
 	private final Mode packageType;
+	private Set<Integer> randomGeneration = new HashSet<>();
 
 	public PomCreator(Module module) {
 		this.module = module;
@@ -67,11 +68,15 @@ public class PomCreator {
 		Frame frame = new Frame();
 		fillMavenId(frame);
 		final String compilerOutputUrl = CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl();
-		frame.addSlot("buildDirectory", pathOf(compilerOutputUrl) + separator + "build" + separator);
-		frame.addSlot("outDirectory", pathOf(compilerOutputUrl) + separator + "production" + separator);
+		frame.addSlot("buildDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "build" + separator);
+		frame.addSlot("outDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "production" + separator);
 		addRepositories(frame);
 		writePom(pom, frame, ActivityPomTemplate.create());
 		return pom;
+	}
+
+	private String relativeToModulePath(String path) {
+		return Paths.get(moduleDirectory()).relativize(Paths.get(path)).toFile().getPath();
 	}
 
 	private File frameworkPom(File pom) {
@@ -92,7 +97,7 @@ public class PomCreator {
 
 	@NotNull
 	private File pomFile() {
-		return new File(moduleDirectory(), "pom2.xml");
+		return new File(moduleDirectory(), "pom.xml");
 	}
 
 	private String moduleDirectory() {
@@ -111,9 +116,9 @@ public class PomCreator {
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(frame));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
 		if (extension != null) {
-			frame.addSlot("outDirectory", outDirectory(extension));
-			frame.addSlot("testOutDirectory", testOutDirectory(extension));
-			frame.addSlot("buildDirectory", buildDirectory());
+			frame.addSlot("outDirectory", relativeToModulePath(outDirectory(extension)));
+			frame.addSlot("testOutDirectory", relativeToModulePath(testOutDirectory(extension)));
+			frame.addSlot("buildDirectory", relativeToModulePath(buildDirectory()) + "/");
 		}
 		if (pack != null) configureBuild(frame, configuration.graph().artifact().license(), pack);
 		addDependencies(frame);
@@ -181,9 +186,9 @@ public class PomCreator {
 
 	private void fillDirectories(Frame frame) {
 		frame.addSlot("sourceDirectory", srcDirectories(module));
-		frame.addSlot("resourceDirectory", resourceDirectories(module).toArray(new String[0]));
+		frame.addSlot("resourceDirectory", resourceDirectories(module).stream().map(this::relativeToModulePath).toArray(String[]::new));
 		final List<String> resTest = resourceTestDirectories(module);
-		frame.addSlot("resourceTestDirectory", resTest.toArray(new String[0]));
+		frame.addSlot("resourceTestDirectory", resTest.stream().map(this::relativeToModulePath).toArray(String[]::new));
 	}
 
 	@NotNull
