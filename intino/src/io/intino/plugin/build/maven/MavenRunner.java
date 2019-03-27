@@ -180,7 +180,7 @@ public class MavenRunner {
 	private void configure(InvocationRequest request, File mavenHome, String mavenOpts) {
 		final File mvn = new File(mavenHome, "bin" + File.separator + "mvn");
 		mvn.setExecutable(true);
-		request.setMavenOpts(mavenOpts);
+		if (!mavenOpts.isEmpty()) request.setMavenOpts(mavenOpts);
 		request.setShowErrors(true);
 		final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
 		if (sdk != null && sdk.getHomePath() != null) request.setJavaHome(new File(sdk.getHomePath()));
