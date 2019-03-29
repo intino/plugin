@@ -54,8 +54,8 @@ public class OutputsToolWindow {
 	}
 
 	private ConsoleViewContentType contentType(String line) {
-		if (line.trim().startsWith("[ERROR]")) return ConsoleViewContentType.LOG_ERROR_OUTPUT;
-		if (line.trim().startsWith("[WARNING]")) return ConsoleViewContentType.LOG_WARNING_OUTPUT;
+		if (line.trim().toUpperCase().startsWith("[ERROR")) return ConsoleViewContentType.LOG_ERROR_OUTPUT;
+		if (line.trim().toUpperCase().startsWith("[WARN")) return ConsoleViewContentType.LOG_WARNING_OUTPUT;
 		else return ConsoleViewContentType.NORMAL_OUTPUT;
 	}
 
@@ -84,9 +84,9 @@ public class OutputsToolWindow {
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new SyncLogAction(info, descriptor,  project, consumers));
-		actionGroup.add(new StartAction(info, descriptor,  project));
-		actionGroup.add(new DebugAction(info, descriptor,  project));
+		actionGroup.add(new SyncLogAction(info, descriptor, project, consumers));
+		actionGroup.add(new StartAction(info, descriptor, project));
+		actionGroup.add(new DebugAction(info, descriptor, project));
 		actionGroup.addAll(consoleView.createConsoleActions());
 		actionGroup.add(new CloseAction(DefaultRunExecutor.getRunExecutorInstance(), descriptor, project) {
 			@Override
@@ -138,14 +138,20 @@ public class OutputsToolWindow {
 		if (text.startsWith("[") && !(messages = toInl(text)).isEmpty())
 			for (Message message : messages) {
 				String level = levelFrom(message);
-				consoleView.print("\n\n" + compactLog(message), level.equalsIgnoreCase("error") ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT);
+				consoleView.print("\n\n" + compactLog(message), level(level.trim()));
 			}
 		else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
 	}
 
+	private ConsoleViewContentType level(String level) {
+		if (level.trim().toLowerCase().startsWith("error")) return ConsoleViewContentType.ERROR_OUTPUT;
+		if (level.trim().toLowerCase().startsWith("warn")) return ConsoleViewContentType.LOG_WARNING_OUTPUT;
+		else return ConsoleViewContentType.NORMAL_OUTPUT;
+	}
+
 	private String compactLog(Message message) {
-		String level = message.remove("level").toString();
-		return level.substring(level.indexOf("\n") + 1);
+		String compactedMessage = message.remove("level").toString();
+		return compactedMessage.substring(compactedMessage.indexOf("\n") + 1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -159,6 +165,7 @@ public class OutputsToolWindow {
 
 	private String levelFrom(Message message) {
 		String level = message.get("level");
-		return level == null ? "INFO" : level;
+		if (level != null) return level;
+		else return message.type();
 	}
 }
