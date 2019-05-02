@@ -1,28 +1,16 @@
 package io.intino.plugin.dependencyresolution.web;
 
-import org.siani.itrules.*;
-
-import java.util.Locale;
-
-import static org.siani.itrules.LineSeparator.*;
+import io.intino.itrules.RuleSet;
+import io.intino.itrules.Template;
 
 public class BowerTemplate extends Template {
 
-	protected BowerTemplate(Locale locale, LineSeparator separator) {
-		super(locale, separator);
-	}
-
-	public static Template create() {
-		return new BowerTemplate(Locale.ENGLISH, LF).define();
-	}
-
-	public Template define() {
-		add(
-			rule().add((condition("type", "bower"))).add(literal("{\n  \"name\": \"")).add(mark("artifactID", "lowercase")).add(literal("\",\n  \"version\": \"")).add(mark("version")).add(literal("\",\n  \"dependencies\": {\n  \t\t")).add(mark("dependency").multiple(",\n")).add(literal("\n\n  },\n  \"resolutions\": {\n\t\t")).add(mark("resolution").multiple(",\n")).add(literal("\n  }\n}")),
-			rule().add((condition("type", "artifact")), (condition("trigger", "dependency"))).add(literal("\"")).add(mark("name")).add(literal("\": ")).add(mark("url")),
-			rule().add((condition("trigger", "dependency"))).add(literal("\"")).add(mark("name")).add(literal("\": \"")).add(expression().add(mark("url")).add(literal("#"))).add(mark("version")).add(literal("\"")),
-			rule().add((condition("trigger", "resolution"))).add(literal("\"")).add(mark("name")).add(literal("\": \"")).add(mark("version")).add(literal("\""))
+	public RuleSet ruleSet() {
+		return new RuleSet().add(
+			rule().condition((type("bower"))).output(literal("{\n  \"name\": \"")).output(mark("artifactID", "lowercase")).output(literal("\",\n  \"version\": \"")).output(mark("version")).output(literal("\",\n  \"dependencies\": {\n  \t\t")).output(mark("dependency").multiple(",\n")).output(literal("\n\n  },\n  \"resolutions\": {\n\t\t")).output(mark("resolution").multiple(",\n")).output(literal("\n  }\n}")),
+			rule().condition((type("artifact")), (trigger("dependency"))).output(literal("\"")).output(mark("name")).output(literal("\": ")).output(mark("url")),
+			rule().condition((trigger("dependency"))).output(literal("\"")).output(mark("name")).output(literal("\": \"")).output(expression().output(mark("url")).output(literal("#"))).output(mark("version")).output(literal("\"")),
+			rule().condition((trigger("resolution"))).output(literal("\"")).output(mark("name")).output(literal("\": \"")).output(mark("version")).output(literal("\""))
 		);
-		return this;
 	}
 }

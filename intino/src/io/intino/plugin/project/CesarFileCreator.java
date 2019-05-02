@@ -52,7 +52,7 @@ public class CesarFileCreator {
 	}
 
 	private String textFrom(ProjectInfo project, CesarRestAccessor accessor) {
-		return CesarFileTemplate.create().format(new Frame("project").addSlot("name", project.name()).
+		return new CesarFileTemplate().render(new Frame("project").addSlot("name", project.name()).
 				addSlot("servers", project.serverInfos().size()).
 				addSlot("devices", project.deviceInfos().size()).
 				addSlot("server", toServersFrames(project.serverInfos(), accessor)).

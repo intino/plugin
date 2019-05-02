@@ -7,7 +7,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.WebImports.Resolution;
 import io.intino.legio.graph.Artifact.WebImports.WebComponent;
-import io.intino.plugin.dependencyresolution.WebDependencyResolver;
 import org.siani.itrules.model.Frame;
 
 import java.io.File;
@@ -23,7 +22,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class BowerFileCreator {
-	private static final Logger logger = Logger.getInstance(WebDependencyResolver.class.getName());
+	private static final Logger logger = Logger.getInstance(BowerFileCreator.class);
 	private final Artifact artifact;
 	private final List<WebComponent> webComponents;
 	private final List<Resolution> resolutions;
@@ -52,7 +51,7 @@ public class BowerFileCreator {
 			final Frame[] frames = resolutionFrameOf(bower);
 			if (frames != null) frame.addSlot("resolution", frames);
 		}
-		final File bowerFile = write(BowerTemplate.create().format(frame), new File(destination, "bower.json"));
+		final File bowerFile = write(new BowerTemplate().render(frame), new File(destination, "bower.json"));
 		try {
 			Files.copy(bowerFile.toPath(), new File(bowerFile.getParentFile(), ".bower.json").toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {

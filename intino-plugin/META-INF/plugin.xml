@@ -1,11 +1,14 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>3.6.4</version>
+    <version>3.7.0</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
-        All that maven and gradle should be. Simple, easy to use, nothing intrusive.
+        intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:
+        platform and product modeling, a layered architecture (including graphical user interface, rest services, persistence, event sourcing...) and continuous integration based on both source code and artifact repositories.
+        intino provides several Domain Specific Languages (dsl): proteo dsl for product modeling, meta dsl for platform modeling,
+        konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
     <depends>io.intino.tara</depends>
@@ -56,6 +59,17 @@
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.InterfaceToJavaImplementation"/>
         <consoleActionsPostProcessor
                 implementation="io.intino.plugin.toolwindows.output.ConsoleActionsProcessor"/>
+
+        <fileDocumentManagerListener
+                implementation="io.intino.plugin.actions.itrules.ItrFileDocumentManagerListener"/>
+        <fileTypeFactory implementation="io.intino.plugin.itrules.lang.file.ItrulesFileTypeFactory"/>
+        <lang.parserDefinition language="Itrules"
+                               implementationClass="io.intino.plugin.itrules.lang.parser.ItrulesParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Itrules"
+                                       implementationClass="io.intino.plugin.itrules.highlighting.ItrulesSyntaxHighlighterFactory"/>
+        <lang.braceMatcher language="Itrules"
+                           implementationClass="io.intino.plugin.itrules.highlighting.ItrulesBraceMatcher"/>
+        <treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
     </extensions>
 
     <actions>
@@ -100,11 +114,29 @@
                 text="Submit Tara Feedback" description="You can report a bug or suggestion of plugin">
             <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="TechnicalSupport"/>
         </action>
+
+        <action id="NewItrFile" class="io.intino.plugin.actions.itrules.CreateItrFileAction">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
+
+        <group id="ItrulesMenu" text="Itrules" description="Itrules Menu">
+            <action id="itrules.toClass" class="io.intino.plugin.actions.itrules.TemplateGeneration"
+                    text="Generate Java Template"
+                    description="Generates the corresponding Java representation of the template">
+                <keyboard-shortcut keymap="$default" first-keystroke="control shift G"/>
+                <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+                <add-to-group group-id="ToolsMenu" anchor="last"/>
+            </action>
+        </group>
     </actions>
 
     <application-components>
         <component>
             <implementation-class>io.intino.plugin.project.LegioAppComponent</implementation-class>
+        </component>
+
+        <component>
+            <implementation-class>io.intino.plugin.itrules.project.FileListener</implementation-class>
         </component>
     </application-components>
     <project-components>

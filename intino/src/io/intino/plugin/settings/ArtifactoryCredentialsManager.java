@@ -68,7 +68,7 @@ class ArtifactoryCredentialsManager {
 		List<Frame> credentialFrames = credentials.stream().
 				map(credential -> new Frame().addTypes("server").addSlot("name", credential.serverId).addSlot(USERNAME, credential.username).addSlot(PASSWORD, credential.password)).collect(Collectors.toList());
 		artifactory.addSlot("server", credentialFrames.toArray(new Frame[credentialFrames.size()]));
-		final String settings = ArtifactorySettingsTemplate.create().format(artifactory);
+		final String settings = new ArtifactorySettingsTemplate().render(artifactory);
 		write(settings);
 	}
 

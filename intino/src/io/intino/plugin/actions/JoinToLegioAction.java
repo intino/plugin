@@ -11,9 +11,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.TaraModuleType;
@@ -30,13 +30,13 @@ import org.siani.itrules.model.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.file.legio.LegioFileType.LEGIO_FILE;
 
 public class JoinToLegioAction extends AnAction implements DumbAware {
+	private static final com.intellij.openapi.diagnostic.Logger logger = com.intellij.openapi.diagnostic.Logger.getInstance(JoinToLegioAction.class);
 
 
 	@Override
@@ -118,12 +118,11 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		return name == null ? "" : name;
 	}
 
-	private Path write(File legioFile, Frame frame) {
+	private void write(File legioFile, Frame frame) {
 		try {
-			return Files.write(legioFile.toPath(), LegioFileTemplate.create().format(frame).getBytes());
+			Files.write(legioFile.toPath(), new LegioFileTemplate().render(frame).getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+			logger.error(e);
 		}
 	}
 

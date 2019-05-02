@@ -1,33 +1,21 @@
 package io.intino.plugin.project;
 
-import org.siani.itrules.*;
-
-import java.util.Locale;
-
-import static org.siani.itrules.LineSeparator.*;
+import io.intino.itrules.RuleSet;
+import io.intino.itrules.Template;
 
 public class CesarFileTemplate extends Template {
 
-	protected CesarFileTemplate(Locale locale, LineSeparator separator) {
-		super(locale, separator);
-	}
-
-	public static Template create() {
-		return new CesarFileTemplate(Locale.ENGLISH, LF).define();
-	}
-
-	public Template define() {
-		add(
-			rule().add((condition("type", "project"))).add(literal("dsl Cesar\n\nProject ")).add(mark("name")).add(literal("\n    ")).add(expression().add(literal("alias = ")).add(mark("alias")).add(literal("\n")).add(literal("    "))).add(literal("servers = ")).add(expression().add(mark("servers")).or(expression().add(literal("0")))).add(literal("\n    devices = ")).add(expression().add(mark("devices")).or(expression().add(literal("0")))).add(literal("\n    server-processes = ")).add(expression().add(mark("server-processes")).or(expression().add(literal("0")))).add(literal("\n    device-processes = ")).add(expression().add(mark("device-processes")).or(expression().add(literal("0")))).add(literal("\n    datalakes = ")).add(expression().add(mark("datalakes")).or(expression().add(literal("0")))).add(literal("\n    datamarts = ")).add(expression().add(mark("datamarts")).or(expression().add(literal("0")))).add(expression().add(literal("\n")).add(literal("\n")).add(literal("    has ")).add(mark("device", "nameValue").multiple("\n has "))).add(expression().add(literal("\n")).add(literal("\n")).add(literal("    has ")).add(mark("process", "nameValue").multiple("\n has "))).add(literal("\n\n    ")).add(mark("server").multiple("\n")).add(literal("\n\n    ")).add(mark("process").multiple("\n")),
-			rule().add((condition("trigger", "nameValue"))).add(mark("name")),
-			rule().add((condition("trigger", "server"))).add(literal("Server ")).add(mark("name")).add(literal("\n    id = \"")).add(mark("id")).add(literal("\"\n    status = ")).add(mark("status")).add(literal("\n    ")).add(expression().add(literal("architecture = \"")).add(mark("architecture")).add(literal("\""))).add(expression().add(literal("\n")).add(literal("    cores = ")).add(mark("cores"))).add(literal("\n    ")).add(expression().add(literal("os = \"")).add(mark("os")).add(literal("\""))).add(literal("\n    ")).add(expression().add(literal("jvm = \"")).add(mark("jvm")).add(literal("\""))).add(literal("\n\n    ")).add(expression().add(literal("UpTime(\"")).add(mark("boot")).add(literal("\")"))).add(literal("\n    ")).add(expression().add(literal("temperature = ")).add(mark("temperature")).add(literal("°"))).add(literal("\n    ")).add(expression().add(mark("serverCpu"))).add(literal("\n    ")).add(expression().add(mark("serverMemory"))).add(literal("\n    //Swap(size = 2.29GB, used = 1.65GB, free = 28%, pagination = 18faults/second)\n    ")).add(expression().add(mark("fileSystem"))).add(literal("\n\n    Network(ip = \"")).add(mark("ip")).add(literal("\")\n        inbound = 150 Mb/s\n        outbound = 1430 Mb/s\n        Ports\n            //Port(nginx, 80 443)\n            //Port(ness, \"0xFEED\")\n\n        Connections(44)\n            Client(\"205.234.11.204\", \"Canada\")\n            Client(\"203.13.121.205\", \"Mexico\")\n\n    Rule(\"CPU.usage > 30%\") as Warning\n    Rule(\"Physical-Memory.usage > 80%\") as Alert\n    Rule(\"Swap-Memory usage > 80%\") as Alert\n\n    //has hss.consul hss.cesar\n    //has hss.ness hss.nginx\n    //has hss.federation hss.dashboard")),
-			rule().add((condition("trigger", "serverCpu"))).add(literal("CPU(")).add(expression().add(literal("usage = ")).add(mark("usage")).add(literal("%"))).add(expression().add(literal(", processes = ")).add(mark("processes"))).add(expression().add(literal(", threads = ")).add(mark("threads"))).add(literal(")")),
-			rule().add((condition("trigger", "serverMemory"))).add(literal("Memory(size = ")).add(mark("size")).add(literal(" MB")).add(expression().add(literal(", used = ")).add(mark("used")).add(literal(" MB"))).add(expression().add(literal(", free = ")).add(mark("free")).add(literal(" %"))).add(literal(")")),
-			rule().add((condition("trigger", "fileSystem"))).add(literal("Filesystem(size = ")).add(mark("size")).add(literal(" MB")).add(expression().add(literal(", used = ")).add(mark("used")).add(literal(" %"))).add(literal(")")),
-			rule().add((condition("trigger", "process"))),
-			rule().add((condition("attribute", "true")), (condition("trigger", "status"))).add(literal("active")),
-			rule().add((condition("attribute", "false")), (condition("trigger", "status"))).add(literal("inactive"))
+	public RuleSet ruleSet() {
+		return new RuleSet().add(
+			rule().condition((type("project"))).output(literal("dsl Cesar\n\nProject ")).output(mark("name")).output(literal("\n    ")).output(expression().output(literal("alias = ")).output(mark("alias")).output(literal("\n")).output(literal("    "))).output(literal("servers = ")).output(expression().output(mark("servers"))).output(literal("\n    devices = ")).output(expression().output(mark("devices"))).output(literal("\n    server-processes = ")).output(expression().output(mark("server-processes"))).output(literal("\n    device-processes = ")).output(expression().output(mark("device-processes"))).output(literal("\n    datalakes = ")).output(expression().output(mark("datalakes"))).output(literal("\n    datamarts = ")).output(expression().output(mark("datamarts"))).output(expression().output(literal("\n")).output(literal("\n")).output(literal("    has ")).output(mark("device", "nameValue").multiple("\n has "))).output(expression().output(literal("\n")).output(literal("\n")).output(literal("    has ")).output(mark("process", "nameValue").multiple("\n has "))).output(literal("\n\n    ")).output(mark("server").multiple("\n")).output(literal("\n\n    ")).output(mark("process").multiple("\n")),
+			rule().condition((trigger("namevalue"))).output(mark("name")),
+			rule().condition((trigger("server"))).output(literal("Server ")).output(mark("name")).output(literal("\n    id = \"")).output(mark("id")).output(literal("\"\n    status = ")).output(mark("status")).output(literal("\n    ")).output(expression().output(literal("architecture = \"")).output(mark("architecture")).output(literal("\""))).output(expression().output(literal("\n")).output(literal("    cores = ")).output(mark("cores"))).output(literal("\n    ")).output(expression().output(literal("os = \"")).output(mark("os")).output(literal("\""))).output(literal("\n    ")).output(expression().output(literal("jvm = \"")).output(mark("jvm")).output(literal("\""))).output(literal("\n\n    ")).output(expression().output(literal("UpTime(\"")).output(mark("boot")).output(literal("\")"))).output(literal("\n    ")).output(expression().output(literal("temperature = ")).output(mark("temperature")).output(literal("°"))).output(literal("\n    ")).output(expression().output(mark("serverCpu"))).output(literal("\n    ")).output(expression().output(mark("serverMemory"))).output(literal("\n    //Swap(size = 2.29GB, used = 1.65GB, free = 28%, pagination = 18faults/second)\n    ")).output(expression().output(mark("fileSystem"))).output(literal("\n\n    Network(ip = \"")).output(mark("ip")).output(literal("\")\n        inbound = 150 Mb/s\n        outbound = 1430 Mb/s\n        Ports\n            //Port(nginx, 80 443)\n            //Port(ness, \"0xFEED\")\n\n        Connections(44)\n            Client(\"205.234.11.204\", \"Canada\")\n            Client(\"203.13.121.205\", \"Mexico\")\n\n    Rule(\"CPU.usage > 30%\") as Warning\n    Rule(\"Physical-Memory.usage > 80%\") as Alert\n    Rule(\"Swap-Memory usage > 80%\") as Alert\n\n    //has hss.consul hss.cesar\n    //has hss.ness hss.nginx\n    //has hss.federation hss.dashboard")),
+			rule().condition((trigger("servercpu"))).output(literal("CPU(")).output(expression().output(literal("usage = ")).output(mark("usage")).output(literal("%"))).output(expression().output(literal(", processes = ")).output(mark("processes"))).output(expression().output(literal(", threads = ")).output(mark("threads"))).output(literal(")")),
+			rule().condition((trigger("servermemory"))).output(literal("Memory(size = ")).output(mark("size")).output(literal(" MB")).output(expression().output(literal(", used = ")).output(mark("used")).output(literal(" MB"))).output(expression().output(literal(", free = ")).output(mark("free")).output(literal(" %"))).output(literal(")")),
+			rule().condition((trigger("filesystem"))).output(literal("Filesystem(size = ")).output(mark("size")).output(literal(" MB")).output(expression().output(literal(", used = ")).output(mark("used")).output(literal(" %"))).output(literal(")")),
+			rule().condition((trigger("process"))),
+			rule().condition((attribute("true")), (trigger("status"))).output(literal("active")),
+			rule().condition((attribute("false")), (trigger("status"))).output(literal("inactive"))
 		);
-		return this;
 	}
 }

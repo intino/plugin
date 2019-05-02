@@ -178,14 +178,14 @@ public class WebDependencyResolver {
 		File packageFile = new File(nodeDirectory.getParent(), "package.json");
 		packageFile.getParentFile().mkdirs();
 		if (packageFile.exists()) return packageFile;
-		write(Package_jsonTemplate.create().format(fill(new Frame().addTypes("package"))), packageFile);
+		write(new Package_jsonTemplate().render(fill(new Frame().addTypes("package"))), packageFile);
 		return packageFile;
 	}
 
 	private File createPomFile() {
 		Frame pom = new Frame().addTypes("pom");
 		if (!nodeInstalled()) pom.addSlot("node", "node");
-		return write(PomTemplate.create().format(fill(pom)), new File(rootDirectory, "pom.xml"));
+		return write(new PomTemplate().render(fill(pom)), new File(rootDirectory, "pom.xml"));
 	}
 
 	private Frame fill(Frame frame) {
