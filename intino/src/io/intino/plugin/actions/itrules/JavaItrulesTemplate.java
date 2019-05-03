@@ -42,7 +42,7 @@ public class JavaItrulesTemplate extends Template {
 						output(literal(".output(literal(")).output(mark("value", "string")).output(literal("))")),
 				rule().condition(type("output"), type("mark"), trigger("outputs")).
 						output(literal(".output(mark(")).output(mark("name", "string")).output(expression().output(literal(", ")).output(mark("formatters", "string").multiple(", "))).output(literal(")")).output(expression().output(literal(".multiple(")).output(mark("separator", "string")).output(literal(")"))).output(literal(")")),
-				rule().condition(type("output"), type("expression"), trigger("outputs")).output(literal(".output(expression()")).output(mark("outputs").multiple("")).output(expression().output(literal(".or(")).output(mark("or")).output(literal(")"))).output(literal(")")),
-				rule().condition(type("output"), type("expression"), trigger("or")).output(literal("expression()")).output(mark("outputs").multiple("")).output(expression().output(literal(".or(")).output(mark("or")).output(literal(")"))));
+				rule().condition(type("output"), type("expression"), trigger("outputs")).output(literal(".output(expression()")).output(mark("outputs").multiple("")).output(expression().output(literal(".next(")).output(mark("next")).output(literal(")"))).output(literal(")")),
+				rule().condition(type("output"), type("expression"), trigger("next")).output(literal("expression()")).output(mark("outputs").multiple("")).output(expression().output(literal(".next(")).output(mark("next")).output(literal(")"))));
 	}
 }
