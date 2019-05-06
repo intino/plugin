@@ -14,8 +14,8 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import io.intino.alexandria.inl.InlReader;
 import io.intino.alexandria.inl.Message;
+import io.intino.alexandria.inl.MessageReader;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import org.apache.commons.collections.IteratorUtils;
 import org.jetbrains.annotations.NotNull;
@@ -157,14 +157,14 @@ public class OutputsToolWindow {
 	@SuppressWarnings("unchecked")
 	private List<Message> toInl(String text) {
 		try {
-			return IteratorUtils.toList(new InlReader(new ByteArrayInputStream(text.getBytes())));
+			return IteratorUtils.toList(new MessageReader(new ByteArrayInputStream(text.getBytes())).iterator());
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}
 	}
 
 	private String levelFrom(Message message) {
-		String level = message.get("level");
+		String level = message.get("level").data();
 		if (level != null) return level;
 		else return message.type();
 	}

@@ -49,7 +49,7 @@ public class BitbucketDeployer {
 			post.setEntity(multipartEntityOf(resource()));
 			final RestAccessor.Response response = executeMethod(url, post);
 			System.out.println(response.content());
-		} catch (URISyntaxException | FileNotFoundException | RestfulFailure e) {
+		} catch (URISyntaxException | RestfulFailure e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -82,15 +82,20 @@ public class BitbucketDeployer {
 		return responseOf(response);
 	}
 
-	private void addContent(MultipartEntityBuilder builder, Resource resource) throws RestfulFailure {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.id(), new InputStreamBody(resource.data(), ContentType.create(resource.contentType()), resource.id())).build();
+	private void addContent(MultipartEntityBuilder builder, Resource resource) {
+		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(new ByteArrayInputStream(resource.data()), ContentType.create(resource.type()), resource.name())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
 		builder.addPart(part);
 	}
 
 	@NotNull
-	private Resource resource() throws FileNotFoundException {
-		return new Resource("files").data(new FileInputStream(jar));
+	private Resource resource() {
+		try {
+			return new Resource("files", new FileInputStream(jar));
+		} catch (IOException e) {
+			logger.error(e);
+			return null;
+		}
 	}
 
 	private URL url() {

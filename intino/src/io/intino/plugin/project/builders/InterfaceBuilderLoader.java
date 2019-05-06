@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.moandjiezana.toml.Toml;
 import io.intino.tara.Language;
 import io.intino.tara.plugin.lang.LanguageManager;
 
@@ -133,10 +132,7 @@ public class InterfaceBuilderLoader {
 		static Manifest load(ClassLoader classLoader) {
 			InputStream stream = classLoader.getResourceAsStream("manifest.json");
 			if (stream != null) return new Gson().fromJson(new InputStreamReader(stream), Manifest.class);
-			else {
-				stream = classLoader.getResourceAsStream(KONOS + ".toml");
-				return stream == null ? null : new Toml().read(stream).to(Manifest.class);
-			}
+			return null;
 		}
 
 		static class Action {
