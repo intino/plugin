@@ -21,10 +21,10 @@ class LegioFileCreator {
 	}
 
 	VirtualFile getOrCreate() {
-		final String legio = new LegioFileTemplate().render(new FrameBuilder("legio", "empty").add("name", module.getName()).toFrame());
+		FrameBuilder builder = new FrameBuilder("legio", "empty").add("name", module.getName());
 		final File destiny = new File(new File(module.getModuleFilePath()).getParent(), LegioFileType.LEGIO_FILE);
 		if (destiny.exists()) return findFileByIoFile(destiny, true);
-		return VfsUtil.findFileByIoFile(write(legio, destiny).toFile(), true);
+		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(builder.toFrame()), destiny).toFile(), true);
 	}
 
 	private Path write(String legio, File destiny) {

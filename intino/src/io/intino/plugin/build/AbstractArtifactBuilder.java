@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
+import io.intino.itrules.formatters.StringFormatters;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
@@ -35,7 +37,6 @@ import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static io.intino.plugin.project.Safe.safe;
 import static java.util.Collections.emptyList;
-import static org.siani.itrules.engine.formatters.StringFormatter.firstUpperCase;
 
 
 abstract class AbstractArtifactBuilder {
@@ -53,7 +54,7 @@ abstract class AbstractArtifactBuilder {
 
 	private void processLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
 		if (shouldDistributeLanguage(module, lifeCyclePhase)) {
-			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
+			updateProgressIndicator(indicator, message("language.action", StringFormatters.get(Locale.getDefault()).get("FirstLowerCase".toLowerCase()).format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			distributeLanguage(module);
 		}
 	}
@@ -70,7 +71,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void processFramework(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		updateProgressIndicator(indicator, message("framework.action", firstUpperCase().format(phase.gerund().toLowerCase()).toString()));
+		updateProgressIndicator(indicator, message("framework.action", StringFormatters.get(Locale.getDefault()).get("FirstUpperCase".toLowerCase()).format(phase.gerund().toLowerCase()).toString()));
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);

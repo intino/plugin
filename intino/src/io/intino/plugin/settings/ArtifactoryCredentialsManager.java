@@ -1,7 +1,8 @@
 package io.intino.plugin.settings;
 
 import com.intellij.openapi.diagnostic.Logger;
-import org.siani.itrules.model.Frame;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,7 +25,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.io.File.separator;
 
@@ -64,19 +64,17 @@ class ArtifactoryCredentialsManager {
 	}
 
 	private static void createSettingsFile(List<ArtifactoryCredential> credentials) {
-		Frame artifactory = new Frame().addTypes("artifactory");
-		List<Frame> credentialFrames = credentials.stream().
-				map(credential -> new Frame().addTypes("server").addSlot("name", credential.serverId).addSlot(USERNAME, credential.username).addSlot(PASSWORD, credential.password)).collect(Collectors.toList());
-		artifactory.addSlot("server", credentialFrames.toArray(new Frame[credentialFrames.size()]));
-		final String settings = new ArtifactorySettingsTemplate().render(artifactory);
-		write(settings);
+		FrameBuilder builder = new FrameBuilder("artifactory");
+		builder.add("server", credentials.stream().
+				map(credential -> new FrameBuilder("server").add("name", credential.serverId).add(USERNAME, credential.username).add(PASSWORD, credential.password).toFrame()).toArray(Frame[]::new));
+		write(new ArtifactorySettingsTemplate().render(builder));
 	}
 
 	private static void write(String settings) {
 		try {
 			Files.write(settingsFile().toPath(), settings.getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 

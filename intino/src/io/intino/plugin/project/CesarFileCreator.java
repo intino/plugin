@@ -12,8 +12,9 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.*;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.file.cesar.CesarFileType;
-import org.siani.itrules.model.Frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,38 +53,38 @@ public class CesarFileCreator {
 	}
 
 	private String textFrom(ProjectInfo project, CesarRestAccessor accessor) {
-		return new CesarFileTemplate().render(new Frame("project").addSlot("name", project.name()).
-				addSlot("servers", project.serverInfos().size()).
-				addSlot("devices", project.deviceInfos().size()).
-				addSlot("server", toServersFrames(project.serverInfos(), accessor)).
-				addSlot("device", toDevicesFrames(project.deviceInfos())).
-				addSlot("process", toSystemsFrames(project.processInfos())));
+		return new CesarFileTemplate().render(new FrameBuilder("project").add("name", project.name()).
+				add("servers", project.serverInfos().size()).
+				add("devices", project.deviceInfos().size()).
+				add("server", toServersFrames(project.serverInfos(), accessor)).
+				add("device", toDevicesFrames(project.deviceInfos())).
+				add("process", toSystemsFrames(project.processInfos())).toFrame());
 	}
 
 	private Frame[] toServersFrames(List<ServerInfo> serverInfos, CesarRestAccessor accessor) {
 		return serverInfos.stream().map(s -> {
-			final Frame frame = new Frame("server").
-					addSlot("name", s.id()).
-					addSlot("id", s.id()).
-					addSlot("status", s.active()).
-					addSlot("architecture", s.architecture()).
-					addSlot("cores", s.cores()).
-					addSlot("jvm", s.jvm()).
-					addSlot("os", s.os()).
-					addSlot("ip", s.ip());
-			fillStatusServer(frame, s, accessor);
-			return frame;
+			final FrameBuilder builder = new FrameBuilder("server").
+					add("name", s.id()).
+					add("id", s.id()).
+					add("status", s.active()).
+					add("architecture", s.architecture()).
+					add("cores", s.cores()).
+					add("jvm", s.jvm()).
+					add("os", s.os()).
+					add("ip", s.ip());
+			fillStatusServer(builder, s, accessor);
+			return builder.toFrame();
 		}).toArray(Frame[]::new);
 	}
 
-	private void fillStatusServer(Frame frame, ServerInfo server, CesarRestAccessor accessor) {
+	private void fillStatusServer(FrameBuilder builder, ServerInfo server, CesarRestAccessor accessor) {
 		try {
 			final ServerStatus status = accessor.getServerStatus(server.id());
 			if (status.bootTime() == null) return;
-			frame.addSlot("boot", status.bootTime());
-			frame.addSlot("serverCpu", new Frame().addSlot("usage", status.cpu()).addSlot("size", server.diskSize()));
-			frame.addSlot("serverMemory", new Frame().addSlot("used", status.memory()).addSlot("size", server.memorySize()));
-			frame.addSlot("fileSystem", new Frame().addSlot("size", server.diskSize()).addSlot("used", status.hdd()));
+			builder.add("boot", status.bootTime());
+			builder.add("serverCpu", new FrameBuilder().add("usage", status.cpu()).add("size", server.diskSize()).toFrame());
+			builder.add("serverMemory", new FrameBuilder().add("used", status.memory()).add("size", server.memorySize()).toFrame());
+			builder.add("fileSystem", new FrameBuilder().add("size", server.diskSize()).add("used", status.hdd()).toFrame());
 		} catch (BadRequest | Unknown badRequest) {
 			LOG.error(badRequest.getMessage());
 		}

@@ -22,12 +22,12 @@ import org.jetbrains.jps.model.java.JavaResourceRootType;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class GulpExecutor {
 	private static final Logger LOG = Logger.getInstance(GulpExecutor.class.getName());
@@ -73,8 +73,8 @@ public class GulpExecutor {
 			final File gulpPom = createGulpPom("dev");
 			if (gulpPom == null || gulp == null) return;
 			final File packageJson = createPackageFile();
-			Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(gulp.toPath(), new File(rootDirectory, gulp.getName()).toPath(), REPLACE_EXISTING);
+			Files.copy(packageJson.toPath(), new File(rootDirectory, packageJson.getName()).toPath(), REPLACE_EXISTING);
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

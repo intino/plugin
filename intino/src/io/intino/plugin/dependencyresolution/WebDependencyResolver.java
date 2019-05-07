@@ -10,6 +10,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
+import io.intino.itrules.FrameBuilder;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.WebImports.WebArtifact;
 import io.intino.legio.graph.Repository;
@@ -21,7 +22,6 @@ import io.intino.plugin.dependencyresolution.web.PomTemplate;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
-import org.siani.itrules.model.Frame;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 public class WebDependencyResolver {
 	private static final Logger LOG = Logger.getInstance(WebDependencyResolver.class.getName());
@@ -168,28 +170,25 @@ public class WebDependencyResolver {
 	}
 
 	private String filterBower(String output) {
-		String[] lines = output.split("\n");
-		StringBuilder result = new StringBuilder();
-		for (String line : lines) if (line.contains("bower")) result.append(line).append("\n");
-		return result.toString();
+		return stream(output.split("\n")).filter(line -> line.contains("bower")).map(line -> line + "\n").collect(joining());
 	}
 
 	private File createPackageFile() {
 		File packageFile = new File(nodeDirectory.getParent(), "package.json");
 		packageFile.getParentFile().mkdirs();
 		if (packageFile.exists()) return packageFile;
-		write(new Package_jsonTemplate().render(fill(new Frame().addTypes("package"))), packageFile);
+		write(new Package_jsonTemplate().render(fill(new FrameBuilder("package")).toFrame()), packageFile);
 		return packageFile;
 	}
 
 	private File createPomFile() {
-		Frame pom = new Frame().addTypes("pom");
-		if (!nodeInstalled()) pom.addSlot("node", "node");
-		return write(new PomTemplate().render(fill(pom)), new File(rootDirectory, "pom.xml"));
+		FrameBuilder builder = new FrameBuilder("pom");
+		if (!nodeInstalled()) builder.add("node", "node");
+		return write(new PomTemplate().render(fill(builder).toFrame()), new File(rootDirectory, "pom.xml"));
 	}
 
-	private Frame fill(Frame frame) {
-		return frame.addSlot("groupId", artifact.groupId()).addSlot("artifactId", artifact.name$()).addSlot("version", artifact.version());
+	private FrameBuilder fill(FrameBuilder builder) {
+		return builder.add("groupId", artifact.groupId()).add("artifactId", artifact.name$()).add("version", artifact.version());
 	}
 
 	private File write(String content, File destiny) {

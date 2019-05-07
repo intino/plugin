@@ -55,7 +55,7 @@
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>builder</artifactId>
-            <version>2.3.8</version>
+            <version>2.4.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.intino.tara</groupId>
@@ -71,13 +71,13 @@
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
-            <version>5.0.7</version>
+            <version>5.0.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.intino.alexandria</groupId>
             <artifactId>inl</artifactId>
-            <version>LATEST</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>
@@ -191,6 +191,7 @@
         <dependency>
             <groupId>io.intino.itrules</groupId>
             <artifactId>engine</artifactId>
+            <scope>provided</scope>
             <version>1.0.0</version>
         </dependency>
         <dependency>

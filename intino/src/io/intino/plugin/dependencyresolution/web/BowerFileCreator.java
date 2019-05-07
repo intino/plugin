@@ -4,10 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.diagnostic.Logger;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.WebImports.Resolution;
 import io.intino.legio.graph.Artifact.WebImports.WebComponent;
-import org.siani.itrules.model.Frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -40,36 +40,35 @@ public class BowerFileCreator {
 	}
 
 	public File createBowerFile(File destination) {
-		final Frame frame = fill(new Frame().addTypes("bower"));
-		for (WebComponent webComponent : webComponents) frame.addSlot("dependency", dependencyFrameOf(webComponent));
+		final FrameBuilder builder = fill(new FrameBuilder("bower"));
+		webComponents.forEach(webComponent -> builder.add("dependency", dependencyFrameOf(webComponent)));
 		for (JsonObject bower : bowers) {
 			final Frame[] frames = dependencyFrameOf(bower);
-			if (frames != null) frame.addSlot("dependency", frames);
+			if (frames != null) builder.add("dependency", frames);
 		}
-		for (Resolution resolution : resolutions) frame.addSlot("resolution", resolutionFrameOf(resolution));
+		for (Resolution resolution : resolutions) builder.add("resolution", resolutionFrameOf(resolution));
 		for (JsonObject bower : bowers) {
 			final Frame[] frames = resolutionFrameOf(bower);
-			if (frames != null) frame.addSlot("resolution", frames);
+			if (frames != null) builder.add("resolution", frames);
 		}
-		final File bowerFile = write(new BowerTemplate().render(frame), new File(destination, "bower.json"));
+		final File bowerFile = write(new BowerTemplate().render(builder), new File(destination, "bower.json"));
 		try {
 			Files.copy(bowerFile.toPath(), new File(bowerFile.getParentFile(), ".bower.json").toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
-		return isEmpty(frame) ? null : bowerFile;
+		return isEmpty(builder) ? null : bowerFile;
 	}
 
-	private boolean isEmpty(Frame frame) {
-		final List<String> slots = asList(frame.slots());
-		return (!slots.contains("dependency") && !slots.contains("resolution")) || (!frame.frames("dependency").hasNext() && !frame.frames("resolution").hasNext());
+	private boolean isEmpty(FrameBuilder builder) {
+		return !builder.contains("dependency") && !builder.contains("resolution");
 	}
 
 	private Frame dependencyFrameOf(WebComponent webComponent) {
-		final Frame dependency = new Frame().addSlot("name", webComponent.name$()).addSlot("version", webComponent.version());
+		final FrameBuilder frameBuilder = new FrameBuilder().add("name", webComponent.name$()).add("version", webComponent.version());
 		if (webComponent.url() != null && !webComponent.url().isEmpty())
-			dependency.addSlot("url", webComponent.url());
-		return dependency;
+			frameBuilder.add("url", webComponent.url());
+		return frameBuilder.toFrame();
 	}
 
 	private Frame[] dependencyFrameOf(JsonObject object) {
@@ -77,12 +76,12 @@ public class BowerFileCreator {
 		if (object.get("dependencies") == null) return null;
 		final JsonObject dependencies = object.get("dependencies").getAsJsonObject();
 		for (Map.Entry<String, JsonElement> entry : dependencies.entrySet())
-			frames.add(new Frame("artifact").addSlot("name", entry.getKey()).addSlot("url", entry.getValue().toString()));
+			frames.add(new FrameBuilder("artifact").add("name", entry.getKey()).add("url", entry.getValue().toString()).toFrame());
 		return frames.toArray(new Frame[0]);
 	}
 
 	private Frame resolutionFrameOf(Resolution resolution) {
-		return new Frame().addSlot("name", resolution.name()).addSlot("version", resolution.version());
+		return new FrameBuilder().add("name", resolution.name()).add("version", resolution.version()).toFrame();
 	}
 
 	private Frame[] resolutionFrameOf(JsonObject object) {
@@ -90,7 +89,7 @@ public class BowerFileCreator {
 		if (object.get("resolutions") == null) return null;
 		final JsonObject dependencies = object.get("resolutions").getAsJsonObject();
 		for (Map.Entry<String, JsonElement> entry : dependencies.entrySet())
-			frames.add(new Frame().addSlot("name", entry.getKey()).addSlot("version", entry.getValue().toString().replaceAll("\"", "")));
+			frames.add(new FrameBuilder().add("name", entry.getKey()).add("version", entry.getValue().toString().replaceAll("\"", "")).toFrame());
 		return frames.toArray(new Frame[0]);
 	}
 
@@ -98,8 +97,8 @@ public class BowerFileCreator {
 		return write("{\"directory\": \"" + libComponentsDirectory.getAbsolutePath().replace("\\", "/") + "\"}", new File(destination, ".bowerrc"));
 	}
 
-	private Frame fill(Frame frame) {
-		return frame.addSlot("groupId", artifact.groupId()).addSlot("artifactId", artifact.name$()).addSlot("version", artifact.version());
+	private FrameBuilder fill(FrameBuilder frame) {
+		return frame.add("groupId", artifact.groupId()).add("artifactId", artifact.name$()).add("version", artifact.version());
 	}
 
 	private JsonObject readBower(File file) {

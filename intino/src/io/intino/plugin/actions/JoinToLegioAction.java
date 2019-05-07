@@ -10,6 +10,8 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
@@ -25,7 +27,6 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.siani.itrules.model.Frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,36 +83,36 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 	}
 
 	private Frame newFrame(Module module) {
-		Frame frame = new Frame().addTypes("legio").addSlot("groupId", "org.example").
-				addSlot("artifactId", module.getName().toLowerCase()).addSlot("version", "1.0.0");
-		if (TaraModuleType.isTara(module)) frame.addSlot("isIntino", "");
-		return frame;
+		FrameBuilder builder = new FrameBuilder("legio").add("groupId", "org.example").
+				add("artifactId", module.getName().toLowerCase()).add("version", "1.0.0");
+		if (TaraModuleType.isTara(module)) builder.add("isIntino", "");
+		return builder.toFrame();
 	}
 
 	private Frame fromMavenFrame(Module module, MavenProject maven) {
 		MavenId mavenId = maven.getMavenId();
-		Frame frame = new Frame().addTypes("legio").addSlot("groupId", mavenId.getGroupId()).addSlot("artifactId", mavenId.getArtifactId()).addSlot("version", mavenId.getVersion());
+		FrameBuilder builder = new FrameBuilder("legio").add("groupId", mavenId.getGroupId()).add("artifactId", mavenId.getArtifactId()).add("version", mavenId.getVersion());
 		maven.getRemoteRepositories().stream().filter(r -> !r.getId().equals("central")).forEach(r ->
-				frame.addSlot("repository", new Frame().addTypes(r.getSnapshotsPolicy() != null ? "snapshot" : "release").addSlot("url", r.getUrl()).addSlot("id", r.getId())));
+				builder.add("repository", new FrameBuilder(r.getSnapshotsPolicy() != null ? "snapshot" : "release").add("url", r.getUrl()).add("id", r.getId())).toFrame());
 		for (MavenArtifactNode node : maven.getDependencyTree()) {
 			MavenArtifact artifact = node.getArtifact();
-			frame.addSlot("dependency", new Frame().addTypes("dependency").addSlot("type", artifact.getScope() == null ? "compile" : artifact.getScope().toLowerCase()).
-					addSlot("groupId", artifact.getGroupId()).
-					addSlot("artifactId", artifact.getArtifactId()).
-					addSlot("version", artifact.getVersion()));
+			builder.add("dependency", new FrameBuilder("dependency").add("type", artifact.getScope() == null ? "compile" : artifact.getScope().toLowerCase()).
+					add("groupId", artifact.getGroupId()).
+					add("artifactId", artifact.getArtifactId()).
+					add("version", artifact.getVersion()).toFrame());
 		}
 		if (TaraModuleType.isTara(module)) {
-			frame.addSlot("isIntino", "");
+			builder.add("isIntino", "");
 			Configuration conf = TaraUtil.configurationOf(module);
 			if (!conf.languages().isEmpty()) {
-				frame.addSlot("factory", new Frame().addTypes("factory").
-						addSlot("level", notNull(conf.level().name())).
-						addSlot("workingPackage", notNull(conf.workingPackage())).
-						addSlot("dsl", notNull(conf.languages().get(0).name())).
-						addSlot("dslVersion", conf.languages().get(0).version() == null ? "LATEST" : conf.languages().get(0).version()));
+				builder.add("factory", new FrameBuilder("factory").
+						add("level", notNull(conf.level().name())).
+						add("workingPackage", notNull(conf.workingPackage())).
+						add("dsl", notNull(conf.languages().get(0).name())).
+						add("dslVersion", conf.languages().get(0).version() == null ? "LATEST" : conf.languages().get(0).version()).toFrame());
 			}
 		}
-		return frame;
+		return builder.toFrame();
 	}
 
 	private String notNull(String name) {
