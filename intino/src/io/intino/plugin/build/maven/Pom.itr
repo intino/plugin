@@ -204,24 +204,24 @@ def type(pom)
 end
 
 def trigger(sourceDirectory)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 def trigger(testModuleDependency)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 def trigger(moduleDependency)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 
 def trigger(resourceDirectory)
-	<resource><directory>$value</directory></resource>
+	<resource><directory>$this</directory></resource>
 end
 
 def trigger(resourceTestDirectory)
-	<testResource><directory>$value</directory></testResource>
+	<testResource><directory>$this</directory></testResource>
 end
 
 def type(repository) type(Distribution) trigger(distribution)
@@ -243,7 +243,7 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-    <_$key>$value[##$description]</_$key>
+    <_$key>$this[##$description]</_$key>
 end
 
 def type(dependency) trigger(dependency)
@@ -251,8 +251,8 @@ def type(dependency) trigger(dependency)
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
 		<scope>$scope+lowercase</scope>
-		<version>$version</version>[
-        <exclusions>
+		<version>$version</version>
+        [<exclusions>
 		    $exclusion...[$NL]
         </exclusions>]
 	</dependency>
