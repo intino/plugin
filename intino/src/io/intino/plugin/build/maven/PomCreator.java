@@ -106,7 +106,7 @@ public class PomCreator {
 	}
 
 	private void fillMavenId(FrameBuilder builder) {
-		builder.type("pom").add("groupId", configuration.groupId()).add("artifactId", configuration.artifactId()).add("version", configuration.version());
+		builder.add("pom").add("groupId", configuration.groupId()).add("artifactId", configuration.artifactId()).add("version", configuration.version());
 	}
 
 	private void fillFramework(Artifact.Package pack, FrameBuilder builder) {
@@ -142,7 +142,7 @@ public class PomCreator {
 
 	private void addDependencies(FrameBuilder builder) {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(builder, module);
-		else builder.add("compile", "");
+		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
 		for (Dependency dependency : safeList(() -> configuration.graph().artifact().imports().dependencyList())) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
@@ -237,8 +237,8 @@ public class PomCreator {
 	}
 
 	private void configureBuild(FrameBuilder builder, Artifact.License license, Artifact.Package aPackage) {
-		if (aPackage.attachSources()) builder.add("attachSources", "");
-		if (aPackage.attachDoc()) builder.add("attachJavaDoc", "");
+		if (aPackage.attachSources()) builder.add("attachSources", " ");
+		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
 		if (aPackage.isMacOS()) builder.add("osx", osx(aPackage));
 		if (aPackage.isWindows()) builder.add("windows", windows(aPackage));
 		final Artifact.Package.Mode type = aPackage.mode();
@@ -248,7 +248,7 @@ public class PomCreator {
 			builder.add("copyDependencies", copyDependencies.toFrame());
 			if (aPackage.classpathPrefix() != null)
 				copyDependencies.add("classpathPrefix", aPackage.classpathPrefix());
-		} else builder.add("linkLibraries", "false").add("extractedLibraries", "");
+		} else builder.add("linkLibraries", "false").add("extractedLibraries", " ");
 		if (aPackage.isRunnable()) builder.add("mainClass", aPackage.asRunnable().mainClass());
 		configuration.graph().artifact().parameterList().forEach(parameter -> addParameter(builder, parameter));
 		if (aPackage.defaultJVMOptions() != null && !aPackage.defaultJVMOptions().isEmpty())
