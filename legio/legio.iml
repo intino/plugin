@@ -12,6 +12,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: io.intino.tara:magritte:2.2.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.9" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.13" level="project" />
   </component>
 </module>
