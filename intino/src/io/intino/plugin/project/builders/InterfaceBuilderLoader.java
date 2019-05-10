@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 public class InterfaceBuilderLoader {
-	private static final String KONOS = "konos";
 	private static final Logger LOG = Logger.getInstance(InterfaceBuilderLoader.class.getName());
 	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static Map<Project, String> versionsByProject = new HashMap<>();
@@ -106,7 +105,7 @@ public class InterfaceBuilderLoader {
 		try {
 			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -120,7 +119,7 @@ public class InterfaceBuilderLoader {
 		try {
 			return l.toURI().toURL();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}

@@ -152,7 +152,9 @@ public class GulpExecutor {
 
 	private String outDirectory(CompilerModuleExtension extension) {
 		try {
-			String url = extension.getCompilerOutputUrl().replace("file://", "").replace("file:", "");
+			String compilerOutputUrl = extension.getCompilerOutputUrl();
+			if (compilerOutputUrl == null) return "";
+			String url = compilerOutputUrl.replace("file://", "").replace("file:", "");
 			return new File(url).getCanonicalPath();
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
