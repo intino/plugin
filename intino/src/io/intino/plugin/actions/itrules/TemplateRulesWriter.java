@@ -62,12 +62,12 @@ public class TemplateRulesWriter {
 	private String name(Condition condition) {
 		if (condition instanceof NegatedCondition) condition = ((NegatedCondition) condition).condition();
 		String name = condition.getClass().getSimpleName().replace("Condition", "").toLowerCase();
-		return condition instanceof TypeCondition && ((TypeCondition) condition).types().length > 1 ? "Types" : name;
+		return condition instanceof TypeCondition && ((TypeCondition) condition).types().size() > 1 ? "Types" : name;
 	}
 
 	private void addOperator(Condition condition, FrameBuilderContext context) {
 		if ((condition instanceof NegatedCondition)) condition = ((NegatedCondition) condition).condition();
-		if (condition instanceof TypeCondition && ((TypeCondition) condition).types().length > 1)
+		if (condition instanceof TypeCondition && ((TypeCondition) condition).types().size() > 1)
 			context.add("operator", (((TypeCondition) condition).operator().name().toLowerCase()));
 	}
 
@@ -81,7 +81,7 @@ public class TemplateRulesWriter {
 		}
 		if (condition instanceof TriggerCondition)
 			return new FrameBuilder("trigger").add("value", ((TriggerCondition) condition).name()).toFrame();
-		return new FrameBuilder("type").add("value", ((TypeCondition) condition).types()).toFrame();
+		return new FrameBuilder("type").add("value", ((TypeCondition) condition).types().toArray(new String[0])).toFrame();
 	}
 
 	@NotNull

@@ -15,12 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TreeFileOpener {
-
-
+class TreeFileOpener {
 	private Project project;
 
-	public TreeFileOpener(Project project) {
+	TreeFileOpener(Project project) {
 		this.project = project;
 	}
 
@@ -49,7 +47,6 @@ public class TreeFileOpener {
 		} catch (IOException e) {
 			Logger.getInstance(this.getClass()).error(e);
 		}
-
 		return null;
 	}
 }
