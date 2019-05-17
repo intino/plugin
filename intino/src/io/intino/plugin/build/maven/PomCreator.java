@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,7 +78,9 @@ public class PomCreator {
 	}
 
 	private String relativeToModulePath(String path) {
-		return Paths.get(moduleDirectory()).relativize(Paths.get(path)).toFile().getPath();
+		Path other = Paths.get(path);
+		if (other == null) return moduleDirectory();
+		return Paths.get(moduleDirectory()).relativize(other).toFile().getPath();
 	}
 
 	private File frameworkPom(File pom) {
