@@ -83,7 +83,7 @@ public class BitbucketDeployer {
 	}
 
 	private void addContent(MultipartEntityBuilder builder, Resource resource) {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(new ByteArrayInputStream(resource.data()), ContentType.create(resource.type()), resource.name())).build();
+		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(resource.stream(), ContentType.create(resource.type()), resource.name())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
 		builder.addPart(part);
 	}

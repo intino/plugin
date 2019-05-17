@@ -55,7 +55,6 @@ public class TemplateGenerator extends Task.Modal {
 			error(this.module.getProject(), e.getMessage());
 			indicator.setText(e.getMessage());
 			indicator.cancel();
-
 		}
 	}
 

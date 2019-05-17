@@ -58,7 +58,7 @@ public class IntinoStoreComponent implements ProjectComponent {
 	private void doInit() {
 		inspectorPanel = new IntinoStoreToolWindow(project);
 		final ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(project);
-		myToolWindow = (ToolWindowEx) manager.registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.RIGHT, project, true);
+		myToolWindow = (ToolWindowEx) manager.registerToolWindow(ID_TOOL_WINDOW, false, ToolWindowAnchor.LEFT, project, false);
 		myToolWindow.setIcon(STASH_16);
 		final ContentFactory contentFactory = ServiceManager.getService(ContentFactory.class);
 		final Content content = contentFactory.createContent(inspectorPanel, "", false);
@@ -72,5 +72,4 @@ public class IntinoStoreComponent implements ProjectComponent {
 		unregisterToolWindow();
 		myToolWindow = null;
 	}
-
 }

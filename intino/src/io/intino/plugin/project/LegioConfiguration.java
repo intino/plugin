@@ -90,23 +90,6 @@ public class LegioConfiguration implements Configuration {
 		return module;
 	}
 
-	private void initConfiguration() {
-		File stashFile = stashFile();
-		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
-		if (graph == null && stashFile.exists()) stashFile.delete();
-		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
-		reloader.reloadInterfaceBuilder();
-		reloader.reloadLanguage();
-		reloader.reloadArtifactoriesMetaData();
-		if (graph != null && !graph.serverList().isEmpty()) {
-			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
-			if (info != null) new ProcessOutputLoader(module.getProject()).loadOutputs(info.processInfos());
-		}
-		if (ModuleTypeWithWebFeatures.isAvailable(module) && this.graph != null)
-			new GulpExecutor(this.module, graph.artifact()).startGulpDev();
-		if (graph != null && graph.artifact() != null) graph.artifact().save$();
-	}
-
 	public boolean isSuitable() {
 		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
 	}
@@ -215,6 +198,23 @@ public class LegioConfiguration implements Configuration {
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
 	}
 
+	private void initConfiguration() {
+		File stashFile = stashFile();
+		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
+		if (graph == null && stashFile.exists()) stashFile.delete();
+		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
+		reloader.reloadInterfaceBuilder();
+		reloader.reloadLanguage();
+		reloader.reloadArtifactoriesMetaData();
+		if (graph != null && !graph.serverList().isEmpty()) {
+			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
+			if (info != null) new ProcessOutputLoader(module.getProject()).loadOutputs(info.processInfos());
+		}
+		if (ModuleTypeWithWebFeatures.isAvailable(module) && this.graph != null)
+			new GulpExecutor(this.module, graph.artifact()).startGulpDev();
+		if (graph != null && graph.artifact() != null) graph.artifact().save$();
+	}
+
 	private Node findDependency(Node imports, String[] ids) {
 		return imports.components().stream().filter(node -> parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1])).findFirst().orElse(null);
 	}
@@ -294,6 +294,10 @@ public class LegioConfiguration implements Configuration {
 
 	public String version() {
 		return safe(() -> graph.artifact().version());
+	}
+
+	public List<RunConfiguration> runConfigurations() {
+		return safeList(() -> graph.runConfigurationList());
 	}
 
 	public void version(String version) {
@@ -426,32 +430,7 @@ public class LegioConfiguration implements Configuration {
 
 	@NotNull
 	private DeployConfiguration createDeployConfiguration(final Destination deployment) {
-		return new DeployConfiguration() {
-			public String name() {
-				return deployment.name$();
-			}
-
-			public boolean pro() {
-				return deployment.i$(Artifact.Deployment.Pro.class);
-			}
-
-			public List<Parameter> parameters() {
-				return deployment.runConfiguration().argumentList().stream().map(this::wrapParameter).collect(Collectors.toList()); //TODO merge with defaultValues
-			}
-
-			@NotNull
-			private Parameter wrapParameter(final Argument p) {
-				return new Parameter() {
-					public String name() {
-						return p.name();
-					}
-
-					public String value() {
-						return p.value();
-					}
-				};
-			}
-		};
+		return new LegioDeployConfiguration(deployment);
 	}
 
 	public String boxVersion() {
@@ -464,5 +443,42 @@ public class LegioConfiguration implements Configuration {
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
+	public static class LegioDeployConfiguration implements DeployConfiguration {
+		private final Destination deployment;
+
+		public LegioDeployConfiguration(Destination deployment) {
+			this.deployment = deployment;
+		}
+
+		public String name() {
+			return deployment.name$();
+		}
+
+		public boolean pro() {
+			return deployment.i$(Artifact.Deployment.Pro.class);
+		}
+
+		public RunConfiguration runConfiguration() {
+			return deployment.runConfiguration();
+		}
+
+		public List<Parameter> parameters() {
+			return deployment.runConfiguration().argumentList().stream().map(this::wrapParameter).collect(Collectors.toList()); //TODO merge with defaultValues
+		}
+
+		@NotNull
+		private Parameter wrapParameter(final Argument p) {
+			return new Parameter() {
+				public String name() {
+					return p.name();
+				}
+
+				public String value() {
+					return p.value();
+				}
+			};
+		}
 	}
 }
