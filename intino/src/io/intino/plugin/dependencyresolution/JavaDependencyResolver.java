@@ -130,7 +130,7 @@ public class JavaDependencyResolver {
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
-			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().toLowerCase().equals(configuration.artifactId().toLowerCase()))
+			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().toLowerCase().equals(configuration.artifactId().toLowerCase()) && d.version().equalsIgnoreCase(configuration.version()))
 				return m;
 		}
 		return null;

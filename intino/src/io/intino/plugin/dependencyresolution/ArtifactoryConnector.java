@@ -1,8 +1,8 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.dsl.Verso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -43,7 +43,7 @@ public class ArtifactoryConnector {
 
 	public List<String> dslVersions(String dsl) {
 		try {
-			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
+			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Meta.class.getSimpleName()))
 				return proteoVersions();
 			for (String repo : repositories.keySet()) {
 				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");

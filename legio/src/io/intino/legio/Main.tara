@@ -127,6 +127,7 @@ Facet Level on Artifact
 		var string version
 		var string sdk
 		var string effectiveVersion = "" is private
+		var string outLanguage = empty
 	sub Platform
 	sub Product
 	sub Solution

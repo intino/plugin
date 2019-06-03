@@ -7,7 +7,6 @@ import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.application.AbstractApplicationConfigurationProducer;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -18,12 +17,14 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
+import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
+import static com.intellij.openapi.util.Comparing.equal;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 
 public class IntinoConfigurationProducer extends AbstractApplicationConfigurationProducer<IntinoRunConfiguration> {
@@ -51,16 +52,18 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 	public boolean isConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
 		if (location == null) return false;
-		final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(location);
+		Configuration conf = TaraUtil.configurationOf(location);
+		if (!(conf instanceof LegioConfiguration)) return false;
+		final LegioConfiguration legio = (LegioConfiguration) conf;
 		final PsiClass aClass = getMainClass(legio, location);
-		if (aClass != null && Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
+		if (aClass != null && equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
 			final PsiMethod method = PsiTreeUtil.getParentOfType(location, PsiMethod.class, false);
 			if (method != null && TestFrameworks.getInstance().isTestMethod(method)) return false;
 			final Module configurationModule = configuration.getConfigurationModule().getModule();
-			if (Comparing.equal(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
+			if (equal(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
 				return true;
 			ApplicationConfiguration template = (ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
-			return Comparing.equal(template.getConfigurationModule().getModule(), configurationModule);
+			return equal(template.getConfigurationModule().getModule(), configurationModule);
 		}
 		return false;
 	}

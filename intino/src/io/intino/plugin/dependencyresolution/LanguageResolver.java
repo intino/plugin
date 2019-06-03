@@ -15,8 +15,8 @@ import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.dsl.Verso;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
@@ -86,7 +86,7 @@ public class LanguageResolver {
 	}
 
 	private static boolean isMagritteLibrary(String language) {
-		return Proteo.class.getSimpleName().equals(language) || Verso.class.getSimpleName().equals(language);
+		return Proteo.class.getSimpleName().equals(language) || Meta.class.getSimpleName().equals(language);
 	}
 
 	public List<Library> resolve() {
@@ -188,8 +188,7 @@ public class LanguageResolver {
 
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
-		List<RemoteRepository> remotes = new ArrayList<>();
-		remotes.addAll(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
@@ -197,8 +196,7 @@ public class LanguageResolver {
 
 	@NotNull
 	private List<RemoteRepository> frameworkRemotes() {
-		List<RemoteRepository> remotes = new ArrayList<>();
-		remotes.addAll(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;

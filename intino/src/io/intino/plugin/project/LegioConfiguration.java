@@ -24,8 +24,8 @@ import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.dsl.Verso;
 import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
@@ -366,7 +366,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private boolean isCoreLanguage(Model model) {
-		return model.language().equalsIgnoreCase(Proteo.class.getSimpleName()) || model.language().equalsIgnoreCase(Verso.class.getSimpleName());
+		return model.language().equalsIgnoreCase(Proteo.class.getSimpleName()) || model.language().equalsIgnoreCase(Meta.class.getSimpleName());
 	}
 
 	public Map<String, String> repositories() {

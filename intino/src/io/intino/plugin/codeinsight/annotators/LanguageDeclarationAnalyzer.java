@@ -9,8 +9,8 @@ import com.intellij.psi.PsiElement;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.Language;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.dsl.Verso;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
@@ -59,17 +59,17 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
 		final Configuration.Level languageLevel = languageLevel();
 		if ((languageLevel == null && configuration.level() != Platform) || (languageLevel != null && configuration.level() != null && configuration.level().compareLevelWith(languageLevel) != 1))
-			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Verso or Proteo" : languageLevel.name())));
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Meta or Proteo" : languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
-		else if ((language instanceof Verso || language instanceof Proteo) && !existMagritte(version))
+		else if ((language instanceof Meta || language instanceof Proteo) && !existMagritte(version))
 			results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("magritte.not.found")));
 	}
 
 	private Configuration.Level languageLevel() {
 		if (configuration.languages().isEmpty()) return null;
 		final String name = configuration.languages().get(0).name();
-		if (Verso.class.getSimpleName().equals(name)) return null;
+		if (Meta.class.getSimpleName().equals(name)) return null;
 		if (Proteo.class.getSimpleName().equals(name)) return Platform;
 		final Attributes attributes = configuration.languageParameters();
 		return Configuration.Level.valueOf(attributes.getValue("level"));
