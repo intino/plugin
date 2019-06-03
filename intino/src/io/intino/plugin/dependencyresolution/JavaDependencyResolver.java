@@ -126,8 +126,7 @@ public class JavaDependencyResolver {
 	}
 
 	private Module moduleOf(Dependency d) {
-		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> !m.equals(this.module)).collect(toList());
-		for (Module m : modules) {
+		for (Module m : Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(module -> !module.equals(this.module)).collect(toList())) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
 			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().toLowerCase().equals(configuration.artifactId().toLowerCase()) && d.version().equalsIgnoreCase(configuration.version()))

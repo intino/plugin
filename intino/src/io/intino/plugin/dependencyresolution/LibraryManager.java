@@ -27,76 +27,12 @@ import static java.util.stream.Collectors.toList;
 public class LibraryManager {
 
 	public static final String LEGIO = "Legio: ";
-	private Module module;
 	private final LibraryTable table;
+	private Module module;
 
 	public LibraryManager(Module module) {
 		this.module = module;
 		table = module != null ? LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject()) : null;
-	}
-
-	public Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
-		if (table == null) return Collections.emptyMap();
-		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
-		for (Artifact artifact : artifacts.keySet()) {
-			Library library = findLibrary(artifact);
-			if (library == null) library = registerLibrary(artifact, sources.get(artifact));
-			if (!scopeRegistered(artifacts, registered, artifact)) newScope(artifacts, registered, artifact);
-			registered.get(artifacts.get(artifact)).add(library);
-		}
-		return registered;
-	}
-
-	public void registerSources(Map<Artifact, Artifact> sources) {
-		if (table == null) return;
-		for (Artifact artifact : sources.keySet()) registerSources(artifact, sources.get(artifact));
-	}
-
-	List<Library> resolveAsModuleDependency(Module moduleDependency) {
-		if (table == null) return Collections.emptyList();
-		final ModuleRootManager manager = ModuleRootManager.getInstance(this.module);
-		final ModifiableRootModel modifiableModel = manager.getModifiableModel();
-		if (!manager.isDependsOn(moduleDependency)) {
-			modifiableModel.addModuleOrderEntry(moduleDependency);
-			modifiableModel.commit();
-		}
-		final List<Library> libraries = compileDependenciesOf(moduleDependency);
-		addToModule(libraries, COMPILE);
-		return libraries;
-	}
-
-	private boolean scopeRegistered(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
-		return registered.containsKey(artifacts.get(artifact));
-	}
-
-	private void newScope(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
-		registered.put(artifacts.get(artifact), new ArrayList<>());
-	}
-
-	void addToModule(List<Library> libraries, DependencyScope scope) {
-		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
-				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(toList());
-		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope) && shouldAddEntry(library, registered)).collect(toList());
-
-		toRegister.forEach(library -> {
-			final List<LibraryOrderEntry> toReplace = shouldReplace(library, registered);
-			if (!toReplace.isEmpty()) removeOlder(toReplace);
-			addDependency(module, library, scope, false);
-		});
-	}
-
-	private void removeOlder(List<LibraryOrderEntry> toReplace) {
-		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> ModuleRootManager.getInstance(module).getModifiableModel());
-		final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
-		removeLibraries(module, rootModel, table, toReplace);
-	}
-
-
-	private List<Library> compileDependenciesOf(Module module) {
-		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-		return Arrays.stream(model.getOrderEntries()).
-				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(COMPILE)).
-				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(toList());
 	}
 
 	public static void clean(Module module, List<Library> newLibraries) {
@@ -152,12 +88,16 @@ public class LibraryManager {
 
 	@NotNull
 	private static String versionOf(Library l) {
-		return requireNonNull(l.getName()).substring(l.getName().lastIndexOf(":") + 1);
+		int i = l.getName().lastIndexOf(":");
+		if (i < 0) return "";
+		return requireNonNull(l.getName()).substring(i + 1);
 	}
 
 	@NotNull
 	private static String nameOf(Library l) {
-		return requireNonNull(l.getName()).substring(0, l.getName().lastIndexOf(":"));
+		int endIndex = l.getName().lastIndexOf(":");
+		if (endIndex < 0) return l.getName();
+		return requireNonNull(l.getName()).substring(0, endIndex);
 	}
 
 	private static LibraryOrderEntry searchLibrary(List<LibraryOrderEntry> libraryOrderEntries, String name) {
@@ -203,6 +143,76 @@ public class LibraryManager {
 			if (orderEntry != null) return true;
 		}
 		return false;
+	}
+
+	public Map<DependencyScope, List<Library>> registerOrGetLibrary(Map<Artifact, DependencyScope> artifacts, Map<Artifact, Artifact> sources) {
+		if (table == null) return Collections.emptyMap();
+		Map<DependencyScope, List<Library>> registered = new LinkedHashMap<>();
+		for (Artifact artifact : artifacts.keySet()) {
+			Library library = findLibrary(artifact);
+			if (library == null) library = registerLibrary(artifact, sources.get(artifact));
+			if (!scopeRegistered(artifacts, registered, artifact)) newScope(artifacts, registered, artifact);
+			registered.get(artifacts.get(artifact)).add(library);
+		}
+		return registered;
+	}
+
+	public void registerSources(Map<Artifact, Artifact> sources) {
+		if (table == null) return;
+		for (Artifact artifact : sources.keySet()) registerSources(artifact, sources.get(artifact));
+	}
+
+	List<Library> resolveAsModuleDependency(Module moduleDependency) {
+		if (table == null) return Collections.emptyList();
+		final ModuleRootManager manager = ModuleRootManager.getInstance(this.module);
+		final ModifiableRootModel modifiableModel = manager.getModifiableModel();
+		if (!manager.isDependsOn(moduleDependency)) modifiableModel.addModuleOrderEntry(moduleDependency);
+		final List<Library> libraries = compileDependenciesOf(moduleDependency);
+		for (Module m : moduleDependenciesOf(moduleDependency))
+			if (!manager.isDependsOn(m)) modifiableModel.addModuleOrderEntry(m);
+		modifiableModel.commit();
+		addToModule(libraries, COMPILE);
+		return libraries;
+	}
+
+	private boolean scopeRegistered(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		return registered.containsKey(artifacts.get(artifact));
+	}
+
+	private void newScope(Map<Artifact, DependencyScope> artifacts, Map<DependencyScope, List<Library>> registered, Artifact artifact) {
+		registered.put(artifacts.get(artifact), new ArrayList<>());
+	}
+
+	void addToModule(List<Library> libraries, DependencyScope scope) {
+		final List<LibraryOrderEntry> registered = Arrays.stream(ModuleRootManager.getInstance(module).getOrderEntries()).
+				filter(e -> e instanceof LibraryOrderEntry).map(o -> (LibraryOrderEntry) o).collect(toList());
+		final List<Library> toRegister = libraries.stream().filter(library -> !isRegistered(registered, library, scope) && shouldAddEntry(library, registered)).collect(toList());
+
+		toRegister.forEach(library -> {
+			final List<LibraryOrderEntry> toReplace = shouldReplace(library, registered);
+			if (!toReplace.isEmpty()) removeOlder(toReplace);
+			addDependency(module, library, scope, false);
+		});
+	}
+
+	private void removeOlder(List<LibraryOrderEntry> toReplace) {
+		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> ModuleRootManager.getInstance(module).getModifiableModel());
+		final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTable(module.getProject());
+		removeLibraries(module, rootModel, table, toReplace);
+	}
+
+	private List<Library> compileDependenciesOf(Module module) {
+		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
+		return Arrays.stream(model.getOrderEntries()).
+				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(COMPILE)).
+				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(toList());
+	}
+
+	private List<Module> moduleDependenciesOf(Module moduleDependency) {
+		final ModifiableRootModel model = ModuleRootManager.getInstance(moduleDependency).getModifiableModel();
+		return Arrays.stream(model.getOrderEntries()).
+				filter(o -> o.isValid() && o instanceof ModuleOrderEntry).
+				map(o1 -> ((ModuleOrderEntry) o1).getModule()).collect(toList());
 	}
 
 	private Library findLibrary(Artifact artifact) {
