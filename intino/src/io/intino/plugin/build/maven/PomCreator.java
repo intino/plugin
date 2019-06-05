@@ -80,7 +80,7 @@ public class PomCreator {
 	private String relativeToModulePath(String path) {
 		Path other = Paths.get(path);
 		if (other == null) return moduleDirectory();
-		return Paths.get(moduleDirectory()).relativize(other).toFile().getPath();
+		return Paths.get(moduleDirectory()).toAbsolutePath().relativize(other.toAbsolutePath()).toFile().getPath();
 	}
 
 	private File frameworkPom(File pom) {
