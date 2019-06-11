@@ -253,7 +253,15 @@ public class LegioConfiguration implements Configuration {
 
 	private LegioGraph newGraphFromLegio() {
 		Stash legioStash = loadNewConfiguration();
-		return legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
+		LegioGraph legioGraph = legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
+		return customize(legioGraph);
+	}
+
+	private LegioGraph customize(LegioGraph legioGraph) {
+		if (legioGraph.artifact().isDatalake()) {
+
+		}
+		return legioGraph;
 	}
 
 	private Stash loadNewConfiguration() {
@@ -410,7 +418,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String outDSL() {
-		return safe(() -> graph.artifact().name$());
+		return safe(() -> graph.artifact().asLevel().model().outLanguage());
 	}
 
 	public String boxPackage() {

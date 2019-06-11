@@ -127,10 +127,13 @@ Facet Level on Artifact
 		var string version
 		var string sdk
 		var string effectiveVersion = "" is private
-		var string outLanguage = empty
+		var string outLanguage = 'self.graph().artifact().name$()'
 	sub Platform
 	sub Product
 	sub Solution
+
+Facet Datalake on Artifact
+	var string datalakeVersion
 
 Concept Parameter is component
 	var string name

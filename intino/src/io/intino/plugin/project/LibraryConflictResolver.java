@@ -61,7 +61,8 @@ public class LibraryConflictResolver {
 
 	@NotNull
 	private static String libraryName(String library) {
-		return library.substring(0, library.lastIndexOf(":"));
+		int endIndex = library.lastIndexOf(":");
+		return endIndex >= 0 ? library.substring(0, endIndex) : library;
 	}
 
 	private static Version versionOf(String library) {
@@ -82,16 +83,16 @@ public class LibraryConflictResolver {
 
 		private String version;
 
-		public final String get() {
-			return this.version;
-		}
-
 		public Version(String version) throws IntinoException {
 			if (version == null)
 				throw new IntinoException("Version can not be null");
 			if (!version.matches("[0-9]+(\\.[0-9]+)*"))
 				throw new IntinoException("Invalid version format: " + version);
 			this.version = version;
+		}
+
+		public final String get() {
+			return this.version;
 		}
 
 		@Override
@@ -127,20 +128,6 @@ public class LibraryConflictResolver {
 	}
 
 	public static class VersionRange {
-		public static class RangeValue {
-			private String value;
-			private boolean closed;
-
-			public RangeValue(String value, boolean closed) {
-				this.value = value.trim();
-				this.closed = closed;
-			}
-
-			public String toString() {
-				return this.value;
-			}
-		}
-
 		public static boolean isInRange(String value, List<RangeValue> range) {
 			int leftRelation = getRelationOrder(value, range.get(0), true);
 			if (leftRelation == 0) {
@@ -151,7 +138,6 @@ public class LibraryConflictResolver {
 				return getRelationOrder(value, range.get(1), false) <= 0;
 			}
 		}
-
 
 		private static int getRelationOrder(String value, RangeValue rangeValue, boolean isLeft) {
 			if (rangeValue.value.length() <= 0) {
@@ -185,6 +171,20 @@ public class LibraryConflictResolver {
 			String[] values = version.split(",");
 			if (values.length == 0) return Collections.emptyList();
 			return Arrays.asList(new RangeValue(values[0].trim().substring(1), values[0].trim().charAt(0) == '['), new RangeValue(values[1].trim().substring(0, values[1].length() - 1), values[1].trim().charAt(values[1].trim().length() - 1) == ']'));
+		}
+
+		public static class RangeValue {
+			private String value;
+			private boolean closed;
+
+			public RangeValue(String value, boolean closed) {
+				this.value = value.trim();
+				this.closed = closed;
+			}
+
+			public String toString() {
+				return this.value;
+			}
 		}
 	}
 }
