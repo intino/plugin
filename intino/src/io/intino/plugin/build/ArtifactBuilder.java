@@ -57,7 +57,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
 			if (configuration == null) return false;
-			File languageFile = LanguageManager.getLanguageFile(configuration.outDSL(), configuration.version());
+			File languageFile = LanguageManager.getLanguageFile(configuration.outLanguage(), configuration.version());
 			if (shouldDistributeLanguage(module, factoryPhase) && !languageFile.exists()) return false;
 		}
 		return true;
@@ -142,7 +142,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private String extractDSL(Module module) {
 		final Configuration conf = TaraUtil.configurationOf(module);
-		return conf == null ? "" : conf.outDSL();
+		return conf == null ? "" : conf.outLanguage();
 	}
 
 }

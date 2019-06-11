@@ -159,7 +159,7 @@ public class MavenRunner {
 	@NotNull
 	private String fileOfLanguage(Configuration conf) {
 		try {
-			final String originalFile = LanguageManager.getLanguageDirectory(conf.outDSL()) + "/" + conf.version() + "/" + conf.artifactId() + "-" + conf.version() + ".jar";
+			final String originalFile = LanguageManager.getLanguageDirectory(conf.outLanguage()) + "/" + conf.version() + "/" + conf.artifactId() + "-" + conf.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());

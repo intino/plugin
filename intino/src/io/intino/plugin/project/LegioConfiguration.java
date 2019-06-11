@@ -359,6 +359,16 @@ public class LegioConfiguration implements Configuration {
 		});
 	}
 
+	@Override
+	public String outLanguage() {
+		return safe(() -> graph.artifact().asLevel().model().outLanguage());
+	}
+
+	@Override
+	public String outLanguageVersion() {
+		return safe(() -> graph.artifact().version());
+	}
+
 	public Attributes languageParameters() {
 		final Model model = safe(() -> graph.artifact().asLevel().model());
 		if (model == null) return null;
@@ -415,10 +425,6 @@ public class LegioConfiguration implements Configuration {
 			repositories.putAll(types.stream().collect(toMap(Repository.Type::url, Repository.Type::mavenID)));
 		}
 		return repositories;
-	}
-
-	public String outDSL() {
-		return safe(() -> graph.artifact().asLevel().model().outLanguage());
 	}
 
 	public String boxPackage() {

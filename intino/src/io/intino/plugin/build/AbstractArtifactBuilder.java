@@ -170,7 +170,7 @@ abstract class AbstractArtifactBuilder {
 
 	@NotNull
 	private File dslFilePath(Configuration configuration) {
-		final String outDSL = configuration.outDSL();
+		final String outDSL = configuration.outLanguage();
 		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator +
 				configuration.version() + File.separator + outDSL + "-" + configuration.version() + JAR_EXTENSION);
 	}
