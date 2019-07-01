@@ -148,14 +148,18 @@ public class LibraryConflictResolver {
 				List<String> rangeValueTokens = new ArrayList(Arrays.asList(rangeValue.value.split("\\.")));
 				addZeroTokens(valueTokens, 3);
 				addZeroTokens(rangeValueTokens, 3);
-				for (int i = 0; i < 3; ++i) {
-					int x = Integer.parseInt(valueTokens.get(i));
-					int y = Integer.parseInt(rangeValueTokens.get(i));
-					if (x < y) return -1;
-					if (x > y) return 1;
+				try {
+					for (int i = 0; i < 3; ++i) {
+						int x = Integer.parseInt(valueTokens.get(i));
+						int y = Integer.parseInt(rangeValueTokens.get(i));
+						if (x < y) return -1;
+						if (x > y) return 1;
+					}
+					if (!rangeValue.closed) return isLeft ? -1 : 1;
+					else return 0;
+				} catch (NumberFormatException e) {
+					return 0;
 				}
-				if (!rangeValue.closed) return isLeft ? -1 : 1;
-				else return 0;
 			}
 		}
 

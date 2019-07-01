@@ -167,6 +167,7 @@ public class LegioConfiguration implements Configuration {
 			Node imports = artifactNode.components().stream().filter(c -> c.type().endsWith(Imports.class.getSimpleName())).findFirst().orElse(null);
 			if (imports == null) imports = createImports();
 			Node finalImports = imports;
+			if (finalImports == null) return;
 			ids.forEach(i -> {
 				final String[] split = i.split(":");
 				addCompileDependency((TaraNode) finalImports, split[0], split[1], split[2]);
@@ -258,9 +259,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private LegioGraph customize(LegioGraph legioGraph) {
-		if (legioGraph.artifact().isDatalake()) {
-
-		}
+		//TODO
 		return legioGraph;
 	}
 
