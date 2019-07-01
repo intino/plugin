@@ -25,16 +25,18 @@ public class InterfaceBuilderManager {
 	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class);
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public void reload(Project project, String version) {
+	public String reload(Project project, String version) {
 		if (InterfaceBuilderLoader.isLoaded(project, version)) {
 			logger.info("Konos " + version + " is already loaded");
-			return;
+			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
 		if (!artifacts.isEmpty()) {
-			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), version);
+			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), artifacts.get(0).getVersion());
 			logger.info("Konos " + version + " loaded successfully");
+			return artifacts.get(0).getVersion();
 		}
+		return version;
 	}
 
 	public void purge(String version) {

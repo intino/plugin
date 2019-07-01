@@ -42,7 +42,7 @@ public class ConfigurationReloader {
 
 	void reloadInterfaceBuilder() {
 		final Artifact.Box box = safe(() -> graph.artifact().box());
-		if (box != null) new InterfaceBuilderManager().reload(module.getProject(), box.version());
+		if (box != null) box.effectiveVersion(new InterfaceBuilderManager().reload(module.getProject(), box.version()));
 	}
 
 	void reloadRunConfigurations() {

@@ -447,7 +447,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public String boxVersion() {
-		return safe(() -> graph.artifact().box().version());
+		return safe(() -> graph.artifact().box().effectiveVersion().isEmpty() ? graph.artifact().box().version() : graph.artifact().box().effectiveVersion());
 	}
 
 	public PsiFile legioFile() {
