@@ -4,16 +4,12 @@ import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
-import com.intellij.openapi.roots.libraries.Library;
 import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.LegioGraph;
 import io.intino.legio.graph.Repository;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.legio.graph.level.LevelArtifact;
-import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
-import io.intino.plugin.dependencyresolution.LanguageResolver;
-import io.intino.plugin.dependencyresolution.LibraryManager;
-import io.intino.plugin.dependencyresolution.WebDependencyResolver;
+import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.run.IntinoRunConfiguration;
 import io.intino.tara.plugin.lang.LanguageManager;
@@ -24,18 +20,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.project.LegioConfiguration.parametersOf;
-import static io.intino.plugin.project.LibraryConflictResolver.libraryOf;
-import static io.intino.plugin.project.LibraryConflictResolver.mustAdd;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ConfigurationReloader {
+	private final DependencyAuditor lastReload;
 	private final LegioGraph graph;
 	private final String updatePolicy;
 	private Module module;
 
-	public ConfigurationReloader(Module module, LegioGraph graph, String updatePolicy) {
+	public ConfigurationReloader(Module module, DependencyAuditor lastReload, LegioGraph graph, String updatePolicy) {
 		this.module = module;
+		this.lastReload = lastReload;
 		this.graph = graph;
 		this.updatePolicy = updatePolicy;
 	}
@@ -60,23 +56,7 @@ public class ConfigurationReloader {
 	void reloadDependencies() {
 		if (graph == null || graph.artifact() == null) return;
 		resolveJavaDependencies();
-		if (ModuleTypeWithWebFeatures.isAvailable(module) && graph.artifact().webImports() != null)
-			new WebDependencyResolver(module, graph.artifact(), repositories()).resolve();
-	}
-
-	private void resolveJavaDependencies() {
-		if (safeList(() -> graph.artifact().imports().dependencyList()) == null) return;
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(module, repositories(), updatePolicy, safeList(() -> graph.artifact().imports().dependencyList()));
-		final List<Library> newLibraries = resolver.resolve();
-		final List<Library> languageLibraries = resolveLanguages();
-		for (Library languageLibrary : languageLibraries)
-			if (mustAdd(languageLibrary, newLibraries)) replace(newLibraries, languageLibrary);
-		LibraryManager.clean(module, newLibraries);
-	}
-
-	private void replace(List<Library> newLibraries, Library languageLibrary) {
-		newLibraries.remove(libraryOf(newLibraries, languageLibrary.getName()));
-		newLibraries.add(languageLibrary);
+		resolveWebDependencies();
 	}
 
 	void reloadLanguage() {
@@ -87,14 +67,27 @@ public class ConfigurationReloader {
 		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
 	}
 
-	private List<Library> resolveLanguages() {
-		List<Library> libraries = new ArrayList<>();
+	private void resolveJavaDependencies() {
+		DependencyCatalog dependencies = resolveLanguage();
+		if (safeList(() -> graph.artifact().imports().dependencyList()) != null)
+			dependencies.merge(new ImportsResolver(module, repositories(), lastReload, updatePolicy, graph.artifact().imports().dependencyList()).resolve());
+		new DependencyConflictResolver().resolve(dependencies);
+		new ProjectLibrariesManager(module.getProject()).register(dependencies);
+		new ModuleLibrariesManager(module).merge(dependencies);
+		new UnusedLibrariesInspection(module.getProject()).cleanUp();
+	}
+
+	private void resolveWebDependencies() {
+		if (ModuleTypeWithWebFeatures.isAvailable(module) && graph.artifact().webImports() != null)
+			new WebDependencyResolver(module, graph.artifact(), repositories()).resolve();
+	}
+
+	private DependencyCatalog resolveLanguage() {
 		LevelArtifact.Model model = safe(() -> graph.artifact().asLevel().model());
-		if (model == null) return libraries;
+		if (model == null) return new DependencyCatalog();
 		final String effectiveVersion = model.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? model.version() : effectiveVersion;
-		libraries.addAll(new LanguageResolver(module, repositories(), model, version).resolve());
-		return libraries;
+		return new LanguageResolver(module, repositories(), model, version).resolve();
 	}
 
 	private ApplicationConfiguration findRunConfiguration(String name) {
@@ -109,6 +102,4 @@ public class ConfigurationReloader {
 		safeList(graph::repositoryList).stream().map(Repository::typeList).forEach(repos::addAll);
 		return repos;
 	}
-
-
 }

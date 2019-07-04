@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.IntinoModuleType;
 import io.intino.tara.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
@@ -44,7 +44,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	@Override
 	public ModuleType getModuleType() {
-		return TaraModuleType.getModuleType();
+		return IntinoModuleType.getModuleType();
 	}
 
 	@Override
@@ -61,10 +61,14 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		res.mkdir();
 		final VirtualFile genVfile = VfsUtil.findFileByIoFile(gen, true);
 		final VirtualFile resVfile = VfsUtil.findFileByIoFile(res, true);
+		final VirtualFile intinoVfile = VfsUtil.findFileByIoFile(IntinoDirectory.of(rootModel.getProject()), true);
+		if (intinoVfile != null) contentEntry.addExcludeFolder(intinoVfile);
+		final VirtualFile ideaVDirectory = rootModel.getProject().getBaseDir().findChild(".idea");
+		if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
-		module.setOption(TaraModuleType.TARA_MODULE_OPTION_NAME, "true");
+		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, "true");
 		register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 	}
 

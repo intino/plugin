@@ -1,16 +1,11 @@
 package io.intino.plugin.dependencyresolution;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.DependencyScope;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
 import io.intino.legio.graph.Repository;
+import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
@@ -32,20 +27,19 @@ import java.util.*;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 
-public class JavaDependencyResolver {
+public class ImportsResolver {
 	private final Module module;
 	private final List<Repository.Type> repositories;
-	private final LibraryManager moduleLibrariesManager;
 	private final Aether aether;
+	private final DependencyAuditor auditor;
 	private final String updatePolicy;
 	private List<Dependency> dependencies;
-	private Map<Dependency, Map<Artifact, DependencyScope>> collectedArtifacts = new HashMap<>();
 
 
-	public JavaDependencyResolver(@Nullable Module module, List<Repository.Type> repositories, String updatePolicy, List<Dependency> dependencies) {
-		this.moduleLibrariesManager = new LibraryManager(module);
+	public ImportsResolver(@Nullable Module module, List<Repository.Type> repositories, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies) {
 		this.module = module;
 		this.repositories = repositories;
+		this.auditor = auditor;
 		this.updatePolicy = updatePolicy;
 		this.dependencies = dependencies;
 		this.aether = new Aether(collectRemotes(), localRepository());
@@ -56,60 +50,65 @@ public class JavaDependencyResolver {
 		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
-	public List<Library> resolve() {
-		if (module == null) return Collections.emptyList();
-		collectArtifacts();
-		final Application application = ApplicationManager.getApplication();
-		final Set<Library> libraries = new HashSet<>();
-		application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) this::processDependencies)), ModalityState.defaultModalityState());
-		return new ArrayList<>(libraries);
+	public DependencyCatalog resolve() {
+		if (module == null) return DependencyCatalog.EMPTY;
+		return processDependencies();
 	}
 
-	private void collectArtifacts() {
-		final DependencyLogger logger = DependencyLogger.instance();
-		for (Dependency dependency : dependencies)
-			if (moduleOf(dependency) == null) {
-				final Map<Artifact, DependencyScope> artifacts = collectArtifacts(dependency);
-				logger.add(dependency.identifier(), identifiersOf(artifacts));
-				collectedArtifacts.put(dependency, artifacts);
+	private DependencyCatalog processDependencies() {
+		DependencyCatalog catalog = new DependencyCatalog();
+		for (Dependency d : dependencies) {
+			String scope = d.getClass().getSimpleName();
+			if (auditor.isModified(d.core$())) {
+				Module moduleDependency = moduleOf(d);
+				if (moduleDependency != null) {
+					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
+					catalog.merge(newDeps);
+					auditor.put(d.identifier() + ":" + scope, newDeps.dependencies());
+				} else {
+					DependencyCatalog newDeps = processLibraryDependency(d);
+					catalog.merge(newDeps);
+					auditor.put(d.identifier() + ":" + scope, newDeps.dependencies());
+				}
+			} else {
+				List<DependencyCatalog.Dependency> dependencies = auditor.get(d.identifier() + ":" + scope);
+				if (dependencies != null) {
+					catalog.addAll(dependencies);
+					d.resolve(true);
+				} else invalidateAudition();
+
 			}
-	}
-
-	private List<String> identifiersOf(Map<Artifact, DependencyScope> artifacts) {
-		return artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + artifacts.get(a).getDisplayName()).collect(toList());
-	}
-
-	private List<Library> processDependencies() {
-		List<Library> newLibraries = new ArrayList<>();
-		for (Dependency d : dependencies)
-			if (isLibrary(d)) newLibraries.addAll(asLibrary(d));
-			else {
-				newLibraries.addAll(moduleLibrariesManager.resolveAsModuleDependency(moduleOf(d)));
-				d.effectiveVersion(d.version());
-				d.toModule(true);
-			}
-		return newLibraries;
-	}
-
-	private List<Library> asLibrary(Dependency d) {
-		final Map<Artifact, DependencyScope> artifacts = collectedArtifacts.get(d);
-		final Map<DependencyScope, List<Library>> resolved = moduleLibrariesManager.registerOrGetLibrary(artifacts, emptyMap());
-		if (!artifacts.isEmpty()) d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
-		else d.effectiveVersion("");
-		for (DependencyScope scope : resolved.keySet())
-			moduleLibrariesManager.addToModule(resolved.get(scope), scope);
-		d.artifacts().clear();
-		d.artifacts().addAll(artifacts.keySet().stream().map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion()).collect(toList()));
-		d.resolve(true);
-		return resolved.values().stream().flatMap(Collection::stream).collect(toList());
-	}
-
-	public Artifact sourcesOf(Artifact artifact) {
-		try {
-			return aether.resolve(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion()), JavaScopes.COMPILE).get(0);
-		} catch (DependencyResolutionException e) {
-			return null;
 		}
+		auditor.save();
+		return catalog;
+	}
+
+	private void invalidateAudition() {
+		auditor.invalidate();
+	}
+
+	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {
+		DependencyCatalog catalog = new DependencyCatalog();
+		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyTo(moduleDependency);
+		catalog.add(new DependencyCatalog.Dependency(d.identifier() + ":" + "COMPILE", moduleDependency.getName()));
+		catalog.merge(moduleDependenciesCatalog);
+		d.effectiveVersion(d.version());
+		d.toModule(true);
+		d.resolve(true);
+		return catalog;
+	}
+
+	private DependencyCatalog processLibraryDependency(Dependency d) {
+		final Map<Artifact, DependencyScope> artifacts = collectArtifacts(d);
+		if (artifacts.isEmpty()) {
+			d.effectiveVersion("");
+			return new DependencyCatalog();
+		}
+		DependencyCatalog catalog = new DependencyCatalog();
+		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + s.name(), a.getFile(), false)));
+		d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
+		d.resolve(true);
+		return catalog;
 	}
 
 	public Artifact sourcesOf(String groupId, String artifactId, String version) {
@@ -118,11 +117,6 @@ public class JavaDependencyResolver {
 		} catch (DependencyResolutionException e) {
 			return null;
 		}
-	}
-
-
-	private boolean isLibrary(Dependency d) {
-		return collectedArtifacts.containsKey(d);
 	}
 
 	private Module moduleOf(Dependency d) {
@@ -151,6 +145,15 @@ public class JavaDependencyResolver {
 		}
 	}
 
+	private DependencyScope scopeOf(Dependency dependency) {
+		return scope(dependency.getClass().getSimpleName());
+	}
+
+	@NotNull
+	private DependencyScope scope(String scope) {
+		return DependencyScope.valueOf(scope.toUpperCase());
+	}
+
 	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
 		final DefaultArtifact artifact = new DefaultArtifact(dependency.groupId(), dependency.artifactId(), "jar", dependency.version());
 		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope);
@@ -160,11 +163,6 @@ public class JavaDependencyResolver {
 	@NotNull
 	private ExclusionsDependencyFilter exclusionsOf(Dependency dependency) {
 		return new ExclusionsDependencyFilter(dependency.excludeList().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(toList()));
-	}
-
-	@NotNull
-	private DependencyScope scope(String scope) {
-		return DependencyScope.valueOf(scope.toUpperCase());
 	}
 
 	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, String scope) {
@@ -203,4 +201,5 @@ public class JavaDependencyResolver {
 				return new Authentication(credential.username, credential.password);
 		return null;
 	}
+
 }

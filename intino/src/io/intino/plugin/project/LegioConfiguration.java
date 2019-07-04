@@ -21,6 +21,7 @@ import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.legio.graph.level.LevelArtifact.Model;
+import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -59,10 +60,12 @@ public class LegioConfiguration implements Configuration {
 	private final Module module;
 	private VirtualFile legioFile;
 	private LegioGraph graph;
+	private DependencyAuditor dependencyAuditor;
 	private boolean reloading = false;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
+		this.dependencyAuditor = new DependencyAuditor(module);
 	}
 
 	public static String parametersOf(io.intino.legio.graph.RunConfiguration runConfiguration) {
@@ -107,7 +110,7 @@ public class LegioConfiguration implements Configuration {
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 LegioConfiguration.this.graph = newGraphFromLegio();
 //						 new DependencyPurger(module, LegioConfiguration.this).execute();
-						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+						 final ConfigurationReloader reloader = new ConfigurationReloader(module, dependencyAuditor, graph, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();
 						 if (graph != null && graph.artifact() != null) graph.artifact().save$();
@@ -131,7 +134,7 @@ public class LegioConfiguration implements Configuration {
 						 reloading = true;
 						 if (legioFile == null) legioFile = new LegioFileCreator(module).getOrCreate();
 						 LegioConfiguration.this.graph = newGraphFromLegio();
-						 final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
+						 final ConfigurationReloader reloader = new ConfigurationReloader(module, dependencyAuditor, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
 						 reloader.reloadInterfaceBuilder();
 						 reloader.reloadDependencies();
 						 reloader.reloadArtifactoriesMetaData();
@@ -203,7 +206,7 @@ public class LegioConfiguration implements Configuration {
 		File stashFile = stashFile();
 		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
 		if (graph == null && stashFile.exists()) stashFile.delete();
-		final ConfigurationReloader reloader = new ConfigurationReloader(module, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
+		final ConfigurationReloader reloader = new ConfigurationReloader(module, dependencyAuditor, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
 		reloader.reloadInterfaceBuilder();
 		reloader.reloadLanguage();
 		reloader.reloadArtifactoriesMetaData();
@@ -233,7 +236,7 @@ public class LegioConfiguration implements Configuration {
 		Node node = factory.createFullNode("Compile(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
 		node.type("Artifact.Imports.Compile");
 		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
-		PsiElement last = null;
+		PsiElement last;
 		if (imports.components().isEmpty()) {
 			imports.add(factory.createBodyNewLine(2));
 			last = imports;
@@ -253,17 +256,13 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private LegioGraph newGraphFromLegio() {
-		Stash legioStash = loadNewConfiguration();
-		LegioGraph legioGraph = legioStash == null ? null : GraphLoader.loadGraph(legioStash, stashFile());
-		return customize(legioGraph);
+		Stash stash = loadNewLegio();
+		if (stash == null) return null;
+		dependencyAuditor.stash(stash);
+		return GraphLoader.loadGraph(stash, stashFile());
 	}
 
-	private LegioGraph customize(LegioGraph legioGraph) {
-		//TODO
-		return legioGraph;
-	}
-
-	private Stash loadNewConfiguration() {
+	private Stash loadNewLegio() {
 		try {
 			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), System.out).build();
 		} catch (Exception e) {
@@ -451,14 +450,16 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public PsiFile legioFile() {
-		return PsiManager.getInstance(module.getProject()).findFile(legioFile);
+		Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed()) return PsiManager.getInstance(module.getProject()).findFile(legioFile);
+		return application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile));
 	}
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
 	}
 
-	public static class LegioDeployConfiguration implements DeployConfiguration {
+	public static class LegioDeployConfiguration implements Configuration.DeployConfiguration {
 		private final Destination deployment;
 
 		public LegioDeployConfiguration(Destination deployment) {

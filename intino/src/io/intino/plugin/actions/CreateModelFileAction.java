@@ -20,7 +20,7 @@ import io.intino.tara.plugin.lang.file.TaraFileType;
 import io.intino.tara.plugin.lang.psi.impl.TaraModelImpl;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.messages.MessageProvider;
-import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.IntinoModuleType;
 import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +39,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 	protected void buildDialog(Project project, PsiDirectory directory, CreateFileFromTemplateDialog.Builder builder) {
 		builder.setTitle(MessageProvider.message("new.model.dlg.prompt"));
 		final Module module = ModuleProvider.moduleOf(directory);
-		if (!TaraModuleType.isTara(module))
+		if (!IntinoModuleType.isIntino(module))
 			throw new IncorrectOperationException(MessageProvider.message("tara.file.error"));
 		final Configuration conf = TaraUtil.configurationOf(module);
 		if (isTest(directory, module)) builder.addKind(conf.outLanguage(), TaraIcons.MODEL_16, conf.outLanguage());
@@ -59,7 +59,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		if (!(data instanceof PsiFile || data instanceof PsiDirectory)) return false;
 		Module module = ModuleProvider.moduleOf(data);
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return super.isAvailable(dataContext) && TaraModuleType.isTara(module) && configuration != null && !configuration.languages().isEmpty();
+		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && configuration != null && !configuration.languages().isEmpty();
 	}
 
 	@Nullable

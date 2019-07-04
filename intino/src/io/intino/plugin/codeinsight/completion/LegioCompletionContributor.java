@@ -12,7 +12,7 @@ import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.IntinoModuleType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						final Module module = moduleOf(parameters.getOriginalFile());
-						if (!TaraModuleType.isTara(module)) return;
+						if (!IntinoModuleType.isIntino(module)) return;
 						final Node container = (Node) TaraPsiImplUtil.getContainerOf(parameters.getOriginalPosition());
 						if (container == null) return;
 						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
@@ -134,7 +134,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 
 	private void resolve(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet resultSet, String tag) {
 		final Module module = moduleOf(parameters.getOriginalFile());
-		if (!TaraModuleType.isTara(module)) return;
+		if (!IntinoModuleType.isIntino(module)) return;
 		final String[] values = PropertiesComponent.getInstance().getValues(tag);
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));

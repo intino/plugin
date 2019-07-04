@@ -18,7 +18,7 @@ import io.intino.plugin.project.LegioFileTemplate;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.TaraModuleType;
+import io.intino.tara.plugin.project.IntinoModuleType;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
@@ -85,7 +85,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 	private Frame newFrame(Module module) {
 		FrameBuilder builder = new FrameBuilder("legio").add("groupId", "org.example").
 				add("artifactId", module.getName().toLowerCase()).add("version", "1.0.0");
-		if (TaraModuleType.isTara(module)) builder.add("isIntino", "");
+		if (IntinoModuleType.isIntino(module)) builder.add("isIntino", "");
 		return builder.toFrame();
 	}
 
@@ -101,7 +101,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 					add("artifactId", artifact.getArtifactId()).
 					add("version", artifact.getVersion()).toFrame());
 		}
-		if (TaraModuleType.isTara(module)) {
+		if (IntinoModuleType.isIntino(module)) {
 			builder.add("isIntino", "");
 			Configuration conf = TaraUtil.configurationOf(module);
 			if (!conf.languages().isEmpty()) {

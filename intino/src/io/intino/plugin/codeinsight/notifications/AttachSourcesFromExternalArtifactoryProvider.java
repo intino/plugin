@@ -7,6 +7,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
@@ -14,8 +15,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.psi.PsiFile;
 import io.intino.legio.graph.Repository.Type;
-import io.intino.plugin.dependencyresolution.JavaDependencyResolver;
-import io.intino.plugin.dependencyresolution.LibraryManager;
+import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RepositoryPolicy;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 import java.util.*;
 
@@ -49,8 +48,6 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 			public ActionCallback perform(List<LibraryOrderEntry> orderEntries) {
 				List<LegioConfiguration> configurations = configurations(psiFile);
 				if (configurations.isEmpty()) return ActionCallback.REJECTED;
-
-
 				final ActionCallback resultWrapper = new ActionCallback();
 				List<Artifact> sources = resolveSources(orderEntries.get(0), configurations);
 				if (!sources.isEmpty() && sources.get(0) != null)
@@ -69,8 +66,8 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 				return;
 			}
 			for (LibraryOrderEntry orderEntry : orderEntries) {
-				Map<Artifact, Artifact> jar = Collections.singletonMap(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", artifact.getVersion()), artifact);
-				new LibraryManager(orderEntry.getOwnerModule()).registerSources(jar);
+				DependencyCatalog.Dependency dependency = new DependencyCatalog.Dependency(artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":COMPILE", artifact.getFile(), true);
+				new ProjectLibrariesManager(orderEntry.getOwnerModule().getProject()).registerSources(dependency);
 			}
 		});
 		resultWrapper.setDone();
@@ -87,12 +84,23 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 	@NotNull
 	private List<Artifact> resolveSources(LibraryOrderEntry entry, List<LegioConfiguration> configurations) {
-		final JavaDependencyResolver resolver = new JavaDependencyResolver(configurations.get(0).module(), repositoryTypes(configurations), RepositoryPolicy.UPDATE_POLICY_ALWAYS, Collections.emptyList());
+		Module module = configurations.get(0).module();
+		final ImportsResolver resolver = new ImportsResolver(module, repositoryTypes(configurations), new DependencyAuditor(module), RepositoryPolicy.UPDATE_POLICY_ALWAYS, Collections.emptyList());
 		List<Artifact> artifacts = new ArrayList<>();
-		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(LibraryManager.LEGIO, "");
+		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(IntinoLibrary.INTINO, "");
 		final String[] names = libraryName.split(":");
 		artifacts.add(resolver.sourcesOf(names[0], names[1], names[2]));
 		return artifacts;
+	}
+
+	private List<LegioConfiguration> configurations(PsiFile psiFile) {
+		Project project = psiFile.getProject();
+		List<LegioConfiguration> result = new ArrayList<>();
+		for (OrderEntry each : ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(psiFile.getVirtualFile())) {
+			Configuration configuration = TaraUtil.configurationOf(each.getOwnerModule());
+			if (configuration instanceof LegioConfiguration) result.add((LegioConfiguration) configuration);
+		}
+		return result;
 	}
 
 	private List<Type> repositoryTypes(List<LegioConfiguration> configurations) {
@@ -109,15 +117,5 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 	private boolean isInList(List<Type> types, Type type) {
 		return types.stream().anyMatch(added -> type.url().equals(added.url()));
-	}
-
-	private static List<LegioConfiguration> configurations(PsiFile psiFile) {
-		Project project = psiFile.getProject();
-		List<LegioConfiguration> result = new ArrayList<>();
-		for (OrderEntry each : ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(psiFile.getVirtualFile())) {
-			Configuration configuration = TaraUtil.configurationOf(each.getOwnerModule());
-			if (configuration instanceof LegioConfiguration) result.add((LegioConfiguration) configuration);
-		}
-		return result;
 	}
 }

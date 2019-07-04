@@ -3,10 +3,9 @@ def type(legio & empty)
 
 	Artifact(groupId = "org.example", version = "1.0.0") $name as Product
 		Model(language = "Proteo", version = "LATEST", sdk = "LATEST")
-    	Box(language = "Konos", version = "LATEST", sdk = "LATEST")
+    	Box(language = "Konos", version = "LATEST")
     	Imports
     		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
-
     	Package(mode = ModulesAndLibrariesLinkedByManifest)
 
     Repository(identifier = "intino-maven")

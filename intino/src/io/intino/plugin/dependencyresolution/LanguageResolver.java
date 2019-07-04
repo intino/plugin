@@ -1,16 +1,12 @@
 package io.intino.plugin.dependencyresolution;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.DependencyScope;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.util.Computable;
 import com.jcabi.aether.Aether;
 import io.intino.legio.graph.Repository;
 import io.intino.legio.graph.level.LevelArtifact;
+import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -36,7 +32,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-import static com.intellij.openapi.application.ModalityState.defaultModalityState;
+import static io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class LanguageResolver {
@@ -44,8 +40,8 @@ public class LanguageResolver {
 
 	private final Module module;
 	private final List<Repository.Type> repositories;
-	private final String version;
 	private final LevelArtifact.Model model;
+	private String version;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public LanguageResolver(Module module, List<Repository.Type> repositories, LevelArtifact.Model model, String version) {
@@ -89,90 +85,66 @@ public class LanguageResolver {
 		return Proteo.class.getSimpleName().equals(language) || Meta.class.getSimpleName().equals(language);
 	}
 
-	public List<Library> resolve() {
-		if (model == null) return Collections.emptyList();
+	public DependencyCatalog resolve() {
+		if (model == null) return new DependencyCatalog();
 		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
-		final List<Library> libraries = isMagritteLibrary(this.model.language()) ? magritte(version) : languageFramework();
+		final DependencyCatalog libraries = isMagritteLibrary(this.model.language()) ? magritte(version) : languageFramework();
 		new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 		return libraries;
 	}
 
-	private List<Library> magritte(String version) {
-		List<Library> libraries = new ArrayList<>();
-		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			libraries.addAll(application.runWriteAction((Computable<List<Library>>) () -> loadMagritteLibrary(version, libraries)));
-		else
-			application.invokeAndWait(() -> libraries.addAll(application.runWriteAction((Computable<List<Library>>) () ->
-					loadMagritteLibrary(version, libraries))), defaultModalityState());
-		return libraries;
-	}
-
-	private List<Library> loadMagritteLibrary(String version, List<Library> libraries) {
-		final LibraryManager manager = new LibraryManager(module);
+	private DependencyCatalog magritte(String version) {
+		DependencyCatalog catalog = new DependencyCatalog();
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(magritteID(version));
-		if (framework.isEmpty()) return libraries;
-		model.effectiveVersion(framework.keySet().iterator().next().getVersion());
-		final Map<DependencyScope, List<Library>> registeredLibraries = manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()));
-		libraries.addAll(flat(registeredLibraries));
-		manager.addToModule(libraries, DependencyScope.COMPILE);
-		return libraries;
+		if (framework.isEmpty()) return catalog;
+		Artifact mainArtifact = framework.keySet().iterator().next();
+		model.effectiveVersion(mainArtifact.getVersion());
+		framework.forEach((key, value) -> catalog.add(new Dependency(key.getGroupId() + ":" + key.getArtifactId() + ":" + key.getVersion() + ":" + value.name(), key.getFile())));
+		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
+		return catalog;
 	}
 
-	private List<Library> flat(Map<DependencyScope, List<Library>> registeredLibraries) {
-		return registeredLibraries.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+	private DependencyCatalog languageFramework() {
+		final Module dependency = moduleDependencyOf(this.module, model.language(), version);
+		return dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
 	}
 
-	private List<Library> languageFramework() {
-		final List<Library> libraries = new ArrayList<>();
-		final Module module = moduleDependencyOf(this.module, model.language(), version);
-		final Application app = ApplicationManager.getApplication();
-		if (app.isDispatchThread()) app.runWriteAction(() -> addExternalLibraries(libraries, module));
-		else
-			app.invokeAndWait(() -> app.runWriteAction(() -> addExternalLibraries(libraries, module)), defaultModalityState());
-		return libraries;
-	}
-
-	private void addExternalLibraries(List<Library> libraries, Module module) {
-		if (module == null) addExternalLibraries(libraries);
-		else addModuleDependency(module, libraries);
-	}
-
-	private void addModuleDependency(Module dependency, List<Library> libraries) {
-		libraries.addAll(new LibraryManager(this.module).resolveAsModuleDependency(dependency));
+	private DependencyCatalog resolveModuleLanguage(Module dependency) {
+		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency);
 		final Configuration configuration = TaraUtil.configurationOf(dependency);
 		if (configuration != null) model.effectiveVersion(configuration.version());
+		return catalog;
 	}
 
-	private void addExternalLibraries(List<Library> libraries) {
-		final LibraryManager manager = new LibraryManager(this.module);
-		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) importLanguage();
+	private DependencyCatalog resolveExternalLanguage() {
+		DependencyCatalog catalog = new DependencyCatalog();
+		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) version = importLanguage();
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageID(model.language(), version));
-		if (!framework.isEmpty())
-			libraries.addAll(flat(manager.registerOrGetLibrary(framework, sources(framework.keySet().iterator().next()))));
+		if (framework.isEmpty()) return catalog;
+		Artifact mainArtifact = framework.keySet().iterator().next();
+		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + scope.name(), a.getFile())));
+		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
 		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
-		manager.addToModule(libraries, DependencyScope.COMPILE);
-	}
-
-	private Map<Artifact, Artifact> sources(Artifact artifact) {
-		return Collections.singletonMap(artifact, sourcesOf(artifact));
+		return catalog;
 	}
 
 	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {
 		try {
 			if (languageId == null) return Collections.emptyMap();
-			return toMap(new Aether(frameworkRemotes(), localRepository).resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE), DependencyScope.COMPILE);
+			Aether aether = new Aether(frameworkRemotes(), localRepository);
+			List<Artifact> resolve = aether.resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
+			return toMap(resolve, DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyMap();
 		}
 	}
 
-	private Artifact sourcesOf(Artifact artifact) {
+	private boolean sourcesOf(Artifact artifact) {
 		try {
-			return new Aether(collectRemotes(), localRepository).
-					resolve(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion()), JavaScopes.COMPILE).get(0);
-		} catch (DependencyResolutionException e) {
-			return null;
+			DefaultArtifact root = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion());
+			return !new Aether(collectRemotes(), localRepository).resolve(root, JavaScopes.COMPILE).isEmpty();
+		} catch (DependencyResolutionException ignored) {
+			return false;
 		}
 	}
 
@@ -182,8 +154,8 @@ public class LanguageResolver {
 		return map;
 	}
 
-	private void importLanguage() {
-		new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language(), version);
+	private String importLanguage() {
+		return new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language(), version);
 	}
 
 	@NotNull
