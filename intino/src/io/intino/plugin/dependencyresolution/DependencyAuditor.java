@@ -1,9 +1,9 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import gherkin.deps.com.google.gson.Gson;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.tara.io.Node;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,10 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.of(module.getProject())) {
 			@Override
 			public Stash stashFrom(String path) {
-				return newStash(stash.language, dependencyNodesOf(stash.nodes));
+				List<Node> nodes = importsNode(artifactNode(stash)).nodes;
+				if (node(stash, "Model") != null) nodes.add(node(stash, "Model"));
+				if (node(stash, "Box") != null) nodes.add(node(stash, "Box"));
+				return newStash(stash.language, nodes);
 			}
 		}, module.getName());
 		this.storeAuditor.trace("");
@@ -55,11 +57,37 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 
 
 	private void customize(Stash stash) {
-		Node node = importsNode(stash.nodes.get(0));
+		customizeImports(stash);
+		customizeModel(stash);
+		customizeBox(stash);
+	}
+
+	private void customizeImports(Stash stash) {
+		Node node = importsNode(artifactNode(stash));
 		if (node == null) return;
 		node.name = node.name.replace(Predicate.nameOf(node.name), "") + "imports";
-		dependencyNodesOf(stash.nodes).forEach(n ->
+		node.nodes.forEach(n ->
 				n.name = node.name + "$" + valueOf("groupId", n.variables) + ":" + valueOf("artifactId", n.variables) + ":" + valueOf("version", n.variables) + ":" + scopeOf(n));
+	}
+
+	private void customizeModel(Stash stash) {
+		Node model = node(stash, "Model");
+		if (model == null) return;
+		model.name = artifactNode(stash).name + "$" + valueOf("language", model.variables) + ":" + valueOf("version", model.variables) + ":" + valueOf("sdk", model.variables);
+	}
+
+	private void customizeBox(Stash stash) {
+		Node box = node(stash, "Box");
+		if (box == null) return;
+		box.name = artifactNode(stash).name + "$" + valueOf("language", box.variables) + ":" + valueOf("version", box.variables);
+	}
+
+	private Node node(Stash stash, String facet) {
+		return artifactNode(stash).nodes.stream().filter(n -> n.facets.get(0).equals("Artifact$" + facet)).findFirst().orElse(null);
+	}
+
+	private Node artifactNode(Stash stash) {
+		return stash.nodes.get(0);
 	}
 
 	private String scopeOf(Node node) {
@@ -68,15 +96,6 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 
 	private Node importsNode(Node node) {
 		return node.nodes.stream().filter(n -> n.facets.contains("Artifact$Imports")).findFirst().orElse(null);
-	}
-
-	private List<Node> dependencyNodesOf(List<Node> nodes) {
-		List<Node> nodeList = new ArrayList<>();
-		for (Node node : nodes) {
-			if (!node.nodes.isEmpty()) nodeList.addAll(dependencyNodesOf(node.nodes));
-			if (node.facets.stream().anyMatch(f -> f.startsWith("Artifact$Imports$"))) nodeList.add(node);
-		}
-		return nodeList;
 	}
 
 	private String valueOf(String varName, List<Variable> variables) {

@@ -39,7 +39,7 @@ import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.legio.graph.Artifact.Package.Mode;
 import static io.intino.legio.graph.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.legio.graph.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
-import static io.intino.plugin.dependencyresolution.LanguageResolver.languageID;
+import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.io.File.separator;
@@ -178,7 +178,7 @@ public class PomCreator {
 				if (dependencies.add(d.identifier())) builder.add("dependency", createDependencyFrame(d));
 //			if (configuration.level() == null) continue;
 			for (Configuration.LanguageLibrary language : configuration.languages()) {
-				final String languageID = languageID(language.name(), language.version());
+				final String languageID = languageId(language.name(), language.version());
 				if (languageID == null || languageID.isEmpty()) return;
 				builder.add("dependency", createDependencyFrame(languageID.split(":")));
 			}
@@ -309,8 +309,8 @@ public class PomCreator {
 
 	private String findLanguageId(Configuration.LanguageLibrary language) {
 		if (packageType.equals(ModulesAndLibrariesLinkedByManifest))
-			return languageID(language.name(), language.version());
-		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageID(language.name(), language.version());
+			return languageId(language.name(), language.version());
+		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageId(language.name(), language.version());
 	}
 
 	private Frame createDependencyFrame(Dependency d) {

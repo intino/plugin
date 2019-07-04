@@ -39,13 +39,15 @@ public class LanguageResolver {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
 
 	private final Module module;
+	private final DependencyAuditor auditor;
 	private final List<Repository.Type> repositories;
 	private final LevelArtifact.Model model;
 	private String version;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public LanguageResolver(Module module, List<Repository.Type> repositories, LevelArtifact.Model model, String version) {
+	public LanguageResolver(Module module, DependencyAuditor auditor, LevelArtifact.Model model, String version, List<Repository.Type> repositories) {
 		this.module = module;
+		this.auditor = auditor;
 		this.repositories = repositories;
 		this.model = model;
 		this.version = version;
@@ -61,7 +63,7 @@ public class LanguageResolver {
 		return null;
 	}
 
-	public static String languageID(String language, String version) {
+	public static String languageId(String language, String version) {
 		if (isMagritteLibrary(language)) return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
@@ -88,25 +90,26 @@ public class LanguageResolver {
 	public DependencyCatalog resolve() {
 		if (model == null) return new DependencyCatalog();
 		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
-		final DependencyCatalog libraries = isMagritteLibrary(this.model.language()) ? magritte(version) : languageFramework();
+		final DependencyCatalog libraries = languageFramework();
 		new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 		return libraries;
 	}
 
-	private DependencyCatalog magritte(String version) {
-		DependencyCatalog catalog = new DependencyCatalog();
-		final Map<Artifact, DependencyScope> framework = findLanguageFramework(magritteID(version));
-		if (framework.isEmpty()) return catalog;
-		Artifact mainArtifact = framework.keySet().iterator().next();
-		model.effectiveVersion(mainArtifact.getVersion());
-		framework.forEach((key, value) -> catalog.add(new Dependency(key.getGroupId() + ":" + key.getArtifactId() + ":" + key.getVersion() + ":" + value.name(), key.getFile())));
-		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
-		return catalog;
-	}
-
 	private DependencyCatalog languageFramework() {
+		String languageId = languageId(model.language(), version) + ":Compile";
+		if (!auditor.isModified(model.core$())) {
+			List<Dependency> dependencies = auditor.get(languageId);
+			if (!dependencies.isEmpty()) {
+				DependencyCatalog catalog = new DependencyCatalog();
+				catalog.addAll(dependencies);
+				return catalog;
+			}
+
+		}
 		final Module dependency = moduleDependencyOf(this.module, model.language(), version);
-		return dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
+		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
+		auditor.put(languageId, catalog.dependencies());
+		return catalog;
 	}
 
 	private DependencyCatalog resolveModuleLanguage(Module dependency) {
@@ -119,13 +122,17 @@ public class LanguageResolver {
 	private DependencyCatalog resolveExternalLanguage() {
 		DependencyCatalog catalog = new DependencyCatalog();
 		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) version = importLanguage();
-		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageID(model.language(), version));
+		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language(), version));
 		if (framework.isEmpty()) return catalog;
+		resolveSources(catalog, framework);
+		return catalog;
+	}
+
+	private void resolveSources(DependencyCatalog catalog, Map<Artifact, DependencyScope> framework) {
 		Artifact mainArtifact = framework.keySet().iterator().next();
 		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + scope.name(), a.getFile())));
 		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
 		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
-		return catalog;
 	}
 
 	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {

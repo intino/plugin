@@ -1,5 +1,6 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -28,10 +29,11 @@ public class UnusedLibrariesInspection {
 		LibraryTable.ModifiableModel model = intinoLibrary.model();
 		List<Library> toRemove = intinoLibrary.libraries().stream().filter(library -> !isUsed(library)).collect(Collectors.toList());
 		if (!toRemove.isEmpty()) {
-			ApplicationManager.getApplication().runWriteAction(() -> {
+			Application application = ApplicationManager.getApplication();
+			application.invokeLater(() -> application.runWriteAction(() -> {
 				toRemove.forEach(model::removeLibrary);
 				model.commit();
-			});
+			}));
 		}
 	}
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 public class DependencyPurger {
 	private static final Logger LOG = Logger.getInstance(DependencyPurger.class.getName());
 
-
 	public void purgeDependency(String id) {
 		String[] split = id.split(":");
 		split[0] = split[0].replace(".", File.separator);

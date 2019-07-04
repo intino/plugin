@@ -30,27 +30,32 @@ public class ProjectLibrariesManager {
 
 	public void registerSources(Dependency dependency) {
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) {
-			Library library = table.findLibrary(dependency);
-			registerSources(dependency, library.getModifiableModel());
-		} else application.invokeLater(() -> application.runWriteAction(() -> {
-			Library library = table.findLibrary(dependency);
-			registerSources(dependency, library.getModifiableModel());
-		}));
+		if (application.isWriteAccessAllowed())
+			registerSources(dependency, table.findLibrary(dependency).getModifiableModel());
+		else
+			application.invokeLater(() -> application.runWriteAction(() -> registerSources(dependency, table.findLibrary(dependency).getModifiableModel())));
 
 	}
 
 	private void registerCatalog(DependencyCatalog catalog) {
-		catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerLibraryFor);
+		Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed())
+			application.runWriteAction(() -> {
+				catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
+				table.model().commit();
+			});
+		application.invokeLater(() -> application.runWriteAction(() -> {
+			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
+			table.model().commit();
+		}));
 	}
 
-	private void registerLibraryFor(Dependency dependency) {
+	private void registerClasses(Dependency dependency) {
 		final LibraryTable.ModifiableModel tableModel = table.model();
 		final Library.ModifiableModel libraryModel = tableModel.createLibrary(table.nameOf(dependency)).getModifiableModel();
 		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(dependency.jar), CLASSES);
 		registerSources(dependency, libraryModel);
 		libraryModel.commit();
-		tableModel.commit();
 	}
 
 	private void registerSources(Dependency dependency, Library.ModifiableModel libraryModel) {

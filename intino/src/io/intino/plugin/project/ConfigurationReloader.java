@@ -24,14 +24,14 @@ import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ConfigurationReloader {
-	private final DependencyAuditor lastReload;
+	private final DependencyAuditor auditor;
 	private final LegioGraph graph;
 	private final String updatePolicy;
 	private Module module;
 
-	public ConfigurationReloader(Module module, DependencyAuditor lastReload, LegioGraph graph, String updatePolicy) {
+	public ConfigurationReloader(Module module, DependencyAuditor auditor, LegioGraph graph, String updatePolicy) {
 		this.module = module;
-		this.lastReload = lastReload;
+		this.auditor = auditor;
 		this.graph = graph;
 		this.updatePolicy = updatePolicy;
 	}
@@ -70,7 +70,7 @@ public class ConfigurationReloader {
 	private void resolveJavaDependencies() {
 		DependencyCatalog dependencies = resolveLanguage();
 		if (safeList(() -> graph.artifact().imports().dependencyList()) != null)
-			dependencies.merge(new ImportsResolver(module, repositories(), lastReload, updatePolicy, graph.artifact().imports().dependencyList()).resolve());
+			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, graph.artifact().imports().dependencyList(), repositories()).resolve());
 		new DependencyConflictResolver().resolve(dependencies);
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);
@@ -87,7 +87,7 @@ public class ConfigurationReloader {
 		if (model == null) return new DependencyCatalog();
 		final String effectiveVersion = model.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? model.version() : effectiveVersion;
-		return new LanguageResolver(module, repositories(), model, version).resolve();
+		return new LanguageResolver(module, auditor, model, version, repositories()).resolve();
 	}
 
 	private ApplicationConfiguration findRunConfiguration(String name) {

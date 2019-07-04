@@ -36,7 +36,7 @@ public class ImportsResolver {
 	private List<Dependency> dependencies;
 
 
-	public ImportsResolver(@Nullable Module module, List<Repository.Type> repositories, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies) {
+	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies, List<Repository.Type> repositories) {
 		this.module = module;
 		this.repositories = repositories;
 		this.auditor = auditor;
