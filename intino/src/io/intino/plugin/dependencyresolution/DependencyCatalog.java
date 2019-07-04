@@ -77,6 +77,10 @@ public class DependencyCatalog {
 			return this;
 		}
 
+		public String identifier() {
+			return identifier;
+		}
+
 		@NotNull
 		public String mavenId() {
 			return identifier.substring(0, identifier.lastIndexOf(":"));

@@ -95,9 +95,8 @@ public class StoreInspectorView extends JPanel {
 
 	private void reloadTree() {
 		((DefaultMutableTreeNode) tree.getModel().getRoot()).removeAllChildren();
-		if (selectedDatalake == null && selectedDatamart == null) {
-			tree.setVisible(false);
-		} else {
+		if (selectedDatalake == null && selectedDatamart == null) tree.setVisible(false);
+		else {
 			renderRoots();
 			tree.setVisible(true);
 			tree.setRootVisible(true);

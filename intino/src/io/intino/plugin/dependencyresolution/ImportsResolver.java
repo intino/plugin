@@ -72,7 +72,7 @@ public class ImportsResolver {
 				}
 			} else {
 				List<DependencyCatalog.Dependency> dependencies = auditor.get(d.identifier() + ":" + scope);
-				if (dependencies != null) {
+				if (dependencies != null && !dependencies.isEmpty()) {
 					catalog.addAll(dependencies);
 					d.resolve(true);
 				} else invalidateAudition();

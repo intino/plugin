@@ -108,7 +108,7 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 		return new File(IntinoDirectory.of(module.getProject()), module.getName() + "_dependencies.json").toPath();
 	}
 
-	void invalidate() {
+	public void invalidate() {
 		auditionFile().delete();
 		resolutionsFile().toFile().delete();
 

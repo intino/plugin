@@ -20,7 +20,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="169d9" class="javax.swing.JTree" binding="dependencyTree" custom-create="true">
+          <component id="169d9" class="javax.swing.JTree" binding="tree" custom-create="true">
             <constraints/>
             <properties/>
           </component>

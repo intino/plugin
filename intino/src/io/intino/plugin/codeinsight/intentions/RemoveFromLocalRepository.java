@@ -8,11 +8,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.file.legio.LegioFileType;
-import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +36,7 @@ public class RemoveFromLocalRepository extends PsiElementBaseIntentionAction {
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 		Module module = ModuleProvider.moduleOf(element);
 		Node node = element instanceof Node ? (Node) element : TaraPsiImplUtil.getContainerNodeOf(element);
-		DependencyPurger purger = new DependencyPurger(module, (LegioConfiguration) TaraUtil.configurationOf(module));
+		DependencyPurger purger = new DependencyPurger();
 		List<Parameter> parameters = node.parameters();
 		purger.purgeDependency(parameter(parameters, 0).replace(".", ":") + ":" + parameter(parameters, 1) + ":" + parameter(parameters, 2));
 	}

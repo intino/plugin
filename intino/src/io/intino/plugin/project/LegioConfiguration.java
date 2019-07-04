@@ -219,61 +219,8 @@ public class LegioConfiguration implements Configuration {
 		if (graph != null && graph.artifact() != null) graph.artifact().save$();
 	}
 
-	private Node findDependency(Node imports, String[] ids) {
-		return imports.components().stream().filter(node -> parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1])).findFirst().orElse(null);
-	}
-
-	private String parameterValue(String parameterName, List<Parameter> parameters) {
-		return parameters.stream().filter(parameter -> parameter.name().equals(parameterName)).findFirst().map(parameter -> parameter.values().get(0).toString()).orElse("");
-	}
-
-	private Node createImports() {
-		return null;//TODO
-	}
-
-	private void addCompileDependency(TaraNode imports, String groupId, String artifactId, String version) {
-		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
-		Node node = factory.createFullNode("Compile(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
-		node.type("Artifact.Imports.Compile");
-		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
-		PsiElement last;
-		if (imports.components().isEmpty()) {
-			imports.add(factory.createBodyNewLine(2));
-			last = imports;
-		} else last = (PsiElement) imports.components().get(imports.components().size() - 1);
-		PsiElement separator = imports.addAfter(factory.createBodyNewLine(2), last);
-		imports.addAfter((PsiElement) node, separator);
-	}
-
-	private void addParameter(TaraNode artifactNode, String p) {
-		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
-		Node node = factory.createFullNode("Parameter(name = \"" + p + "\")");
-		node.type("Artifact.Parameter");
-		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
-		final PsiElement last = (PsiElement) artifactNode.components().get(artifactNode.components().size() - 1);
-		PsiElement separator = artifactNode.addAfter(factory.createBodyNewLine(), last);
-		artifactNode.addAfter((PsiElement) node, separator);
-	}
-
-	private LegioGraph newGraphFromLegio() {
-		Stash stash = loadNewLegio();
-		if (stash == null) return null;
-		dependencyAuditor.stash(stash);
-		return GraphLoader.loadGraph(stash, stashFile());
-	}
-
-	private Stash loadNewLegio() {
-		try {
-			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), System.out).build();
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-			return null;
-		}
-	}
-
-	@NotNull
-	private File stashFile() {
-		return new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+	public DependencyAuditor dependencyAuditor() {
+		return dependencyAuditor;
 	}
 
 	public List<Repository.Type> repositoryTypes() {
@@ -457,6 +404,63 @@ public class LegioConfiguration implements Configuration {
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
+	private Node findDependency(Node imports, String[] ids) {
+		return imports.components().stream().filter(node -> parameterValue("groupId", node.parameters()).equals(ids[0]) && parameterValue("artifactId", node.parameters()).equals(ids[1])).findFirst().orElse(null);
+	}
+
+	private String parameterValue(String parameterName, List<Parameter> parameters) {
+		return parameters.stream().filter(parameter -> parameter.name().equals(parameterName)).findFirst().map(parameter -> parameter.values().get(0).toString()).orElse("");
+	}
+
+	private Node createImports() {
+		return null;//TODO
+	}
+
+	private void addCompileDependency(TaraNode imports, String groupId, String artifactId, String version) {
+		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
+		Node node = factory.createFullNode("Compile(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
+		node.type("Artifact.Imports.Compile");
+		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		PsiElement last;
+		if (imports.components().isEmpty()) {
+			imports.add(factory.createBodyNewLine(2));
+			last = imports;
+		} else last = (PsiElement) imports.components().get(imports.components().size() - 1);
+		PsiElement separator = imports.addAfter(factory.createBodyNewLine(2), last);
+		imports.addAfter((PsiElement) node, separator);
+	}
+
+	private void addParameter(TaraNode artifactNode, String p) {
+		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
+		Node node = factory.createFullNode("Parameter(name = \"" + p + "\")");
+		node.type("Artifact.Parameter");
+		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		final PsiElement last = (PsiElement) artifactNode.components().get(artifactNode.components().size() - 1);
+		PsiElement separator = artifactNode.addAfter(factory.createBodyNewLine(), last);
+		artifactNode.addAfter((PsiElement) node, separator);
+	}
+
+	private LegioGraph newGraphFromLegio() {
+		Stash stash = loadNewLegio();
+		if (stash == null) return null;
+		dependencyAuditor.stash(stash);
+		return GraphLoader.loadGraph(stash, stashFile());
+	}
+
+	private Stash loadNewLegio() {
+		try {
+			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), System.out).build();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
+	}
+
+	@NotNull
+	private File stashFile() {
+		return new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
 	}
 
 	public static class LegioDeployConfiguration implements Configuration.DeployConfiguration {
