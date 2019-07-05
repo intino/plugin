@@ -34,6 +34,7 @@ public class ImportsResolver {
 	private final DependencyAuditor auditor;
 	private final String updatePolicy;
 	private List<Dependency> dependencies;
+	private boolean mustReload;
 
 	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies, List<Repository.Type> repositories) {
 		this.module = module;
@@ -42,6 +43,8 @@ public class ImportsResolver {
 		this.updatePolicy = updatePolicy;
 		this.dependencies = dependencies;
 		this.aether = new Aether(collectRemotes(), localRepository());
+		this.mustReload = false;
+
 	}
 
 	@NotNull
@@ -51,7 +54,8 @@ public class ImportsResolver {
 
 	public DependencyCatalog resolve() {
 		if (module == null) return DependencyCatalog.EMPTY;
-		return processDependencies();
+		DependencyCatalog dependencyCatalog = processDependencies();
+		return mustReload ? processDependencies() : dependencyCatalog;
 	}
 
 	private DependencyCatalog processDependencies() {
@@ -74,7 +78,10 @@ public class ImportsResolver {
 				if (dependencies != null && !dependencies.isEmpty() && existFiles(dependencies)) {
 					catalog.addAll(dependencies);
 					d.resolve(true);
-				} else auditor.invalidate(d.name$());
+				} else {
+					auditor.invalidate(d.name$());
+					mustReload = true;
+				}
 			}
 		}
 		cache.save();
