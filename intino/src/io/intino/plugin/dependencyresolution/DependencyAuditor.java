@@ -17,7 +17,7 @@ import static io.intino.tara.io.Helper.newStash;
 
 public class DependencyAuditor {
 
-	public static final String STASH_NAME = "model#";
+	private static final String STASH_NAME = "model#";
 	private transient final Module module;
 	private StoreAuditor storeAuditor;
 
@@ -31,7 +31,7 @@ public class DependencyAuditor {
 
 	public void stash(Stash stash) {
 		customize(stash);
-		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.of(module.getProject())) {
+		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.auditionsDirectory(module.getProject())) {
 			@Override
 			public Stash stashFrom(String path) {
 				List<Node> nodes = importsNode(artifactNode(stash)).nodes;
@@ -110,6 +110,6 @@ public class DependencyAuditor {
 
 	@NotNull
 	private File auditionFile() {
-		return new File(IntinoDirectory.of(module.getProject()), module.getName());
+		return new File(IntinoDirectory.auditionsDirectory(module.getProject()), module.getName());
 	}
 }

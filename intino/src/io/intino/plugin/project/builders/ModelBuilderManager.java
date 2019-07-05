@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
 import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
-import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.plugin.project.IntinoDirectory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -39,13 +39,6 @@ public class ModelBuilderManager {
 		this.model = model;
 	}
 
-	public void purge() {
-		try {
-			for (Artifact artifact : artifacts()) artifact.getFile().delete();
-		} catch (DependencyResolutionException ignored) {
-		}
-	}
-
 	public List<String> resolveBuilder() {
 		try {
 			final List<Artifact> resolve = artifacts();
@@ -70,10 +63,8 @@ public class ModelBuilderManager {
 		if (paths.isEmpty()) return;
 		final String home = System.getProperty("user.home");
 		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
-		final File miscDirectory = LanguageManager.getMiscDirectory(this.project);
-		final File file = new File(miscDirectory, "compiler.classpath");
 		try {
-			Files.write(file.toPath(), String.join(":", libraries).getBytes());
+			Files.write(new File(IntinoDirectory.of(project), "compiler.classpath").toPath(), String.join(":", libraries).getBytes());
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}

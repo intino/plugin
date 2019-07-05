@@ -465,7 +465,7 @@ public class LegioConfiguration implements Configuration {
 
 	@NotNull
 	private File stashFile() {
-		return new File(LanguageManager.getMiscDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+		return new File(IntinoDirectory.artifactsDirectory(module.getProject()).getPath(), module.getName() + ".conf");
 	}
 
 	public static class LegioDeployConfiguration implements Configuration.DeployConfiguration {
