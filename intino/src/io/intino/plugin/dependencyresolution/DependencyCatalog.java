@@ -10,31 +10,40 @@ public class DependencyCatalog {
 	private Set<Dependency> libraries;
 
 	public DependencyCatalog() {
-		libraries = new LinkedHashSet<>();
+		this.libraries = new LinkedHashSet<>();
 	}
 
-	public void addAll(Collection<Dependency> libraries) {
+	public DependencyCatalog(Collection<Dependency> libraries) {
+		this.libraries = new LinkedHashSet<>(libraries);
+	}
+
+	public DependencyCatalog addAll(Collection<Dependency> libraries) {
 		this.libraries.addAll(libraries);
+		return this;
 	}
 
-	public void add(Dependency dependency) {
+	public DependencyCatalog add(Dependency dependency) {
 		libraries.add(dependency);
+		return this;
 	}
 
-	public void remove(Dependency library) {
+	public DependencyCatalog remove(Dependency library) {
 		libraries.remove(library);
+		return this;
 	}
 
-	public void removeAll(Collection<Dependency> library) {
+	public DependencyCatalog removeAll(Collection<Dependency> library) {
 		libraries.removeAll(library);
+		return this;
 	}
 
 	public List<Dependency> dependencies() {
 		return new ArrayList<>(libraries);
 	}
 
-	public void merge(DependencyCatalog catalog) {
+	public DependencyCatalog merge(DependencyCatalog catalog) {
 		libraries.addAll(catalog.libraries);
+		return this;
 	}
 
 	public enum DependencyScope {

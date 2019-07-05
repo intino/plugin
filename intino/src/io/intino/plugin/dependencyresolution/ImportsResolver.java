@@ -35,7 +35,6 @@ public class ImportsResolver {
 	private final String updatePolicy;
 	private List<Dependency> dependencies;
 
-
 	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies, List<Repository.Type> repositories) {
 		this.module = module;
 		this.repositories = repositories;
@@ -56,35 +55,34 @@ public class ImportsResolver {
 	}
 
 	private DependencyCatalog processDependencies() {
+		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
-			String scope = d.getClass().getSimpleName();
 			if (auditor.isModified(d.core$())) {
 				Module moduleDependency = moduleOf(d);
 				if (moduleDependency != null) {
 					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
 					catalog.merge(newDeps);
-					auditor.put(d.identifier() + ":" + scope, newDeps.dependencies());
+					cache.put(d.identifier(), newDeps.dependencies());
 				} else {
 					DependencyCatalog newDeps = processLibraryDependency(d);
 					catalog.merge(newDeps);
-					auditor.put(d.identifier() + ":" + scope, newDeps.dependencies());
+					cache.put(d.identifier(), newDeps.dependencies());
 				}
 			} else {
-				List<DependencyCatalog.Dependency> dependencies = auditor.get(d.identifier() + ":" + scope);
-				if (dependencies != null && !dependencies.isEmpty()) {
+				List<DependencyCatalog.Dependency> dependencies = cache.get(d.identifier());
+				if (dependencies != null && !dependencies.isEmpty() && existFiles(dependencies)) {
 					catalog.addAll(dependencies);
 					d.resolve(true);
-				} else invalidateAudition();
-
+				} else auditor.invalidate(d.name$());
 			}
 		}
-		auditor.save();
+		cache.save();
 		return catalog;
 	}
 
-	private void invalidateAudition() {
-		auditor.invalidate();
+	private boolean existFiles(List<DependencyCatalog.Dependency> dependencies) {
+		return dependencies.stream().allMatch(d -> d.jar.exists());
 	}
 
 	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {

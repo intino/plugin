@@ -28,7 +28,6 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
-			((LegioConfiguration) configuration).dependencyAuditor().invalidate();
 			configuration.reload();
 			notifyReload(module);
 		}

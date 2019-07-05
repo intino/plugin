@@ -1,6 +1,7 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +18,7 @@ public class DependencyPurger {
 		if (!file.exists()) return;
 		try {
 			FileUtils.deleteDirectory(file);
+			LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file.getParentFile());
 		} catch (IOException e) {
 			LOG.error(e);
 		}

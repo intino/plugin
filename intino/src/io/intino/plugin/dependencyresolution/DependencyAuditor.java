@@ -1,10 +1,6 @@
 package io.intino.plugin.dependencyresolution;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.tara.io.Node;
 import io.intino.tara.io.Stash;
@@ -15,24 +11,18 @@ import io.intino.tara.magritte.utils.StoreAuditor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static io.intino.tara.io.Helper.newStash;
 
-public class DependencyAuditor extends HashMap<String, List<Dependency>> {
+public class DependencyAuditor {
 
+	public static final String STASH_NAME = "model#";
 	private transient final Module module;
 	private StoreAuditor storeAuditor;
 
 	public DependencyAuditor(Module module) {
 		this.module = module;
-		load();
 	}
 
 	boolean isModified(io.intino.tara.magritte.Node node) {
@@ -45,7 +35,7 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 			@Override
 			public Stash stashFrom(String path) {
 				List<Node> nodes = importsNode(artifactNode(stash)).nodes;
-				if (node(stash, "Model") != null) nodes.add(node(stash, "Model"));
+				if (node(stash, "Model") != null) nodes.add(node(stash, "Model", "Level"));
 				if (node(stash, "Box") != null) nodes.add(node(stash, "Box"));
 				return newStash(stash.language, nodes);
 			}
@@ -67,23 +57,27 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 		if (node == null) return;
 		node.name = node.name.replace(Predicate.nameOf(node.name), "") + "imports";
 		node.nodes.forEach(n ->
-				n.name = node.name + "$" + valueOf("groupId", n.variables) + ":" + valueOf("artifactId", n.variables) + ":" + valueOf("version", n.variables) + ":" + scopeOf(n));
+				n.name = STASH_NAME + valueOf("groupId", n.variables) + ":" + valueOf("artifactId", n.variables) + ":" + valueOf("version", n.variables) + ":" + scopeOf(n));
 	}
 
 	private void customizeModel(Stash stash) {
-		Node model = node(stash, "Model");
+		Node model = node(stash, "Model", "Level");
 		if (model == null) return;
-		model.name = artifactNode(stash).name + "$" + valueOf("language", model.variables) + ":" + valueOf("version", model.variables) + ":" + valueOf("sdk", model.variables);
+		model.name = STASH_NAME + valueOf("language", model.variables) + ":" + valueOf("version", model.variables) + ":" + valueOf("sdk", model.variables);
 	}
 
 	private void customizeBox(Stash stash) {
 		Node box = node(stash, "Box");
 		if (box == null) return;
-		box.name = artifactNode(stash).name + "$" + valueOf("language", box.variables) + ":" + valueOf("version", box.variables);
+		box.name = STASH_NAME + valueOf("language", box.variables) + ":" + valueOf("version", box.variables);
 	}
 
 	private Node node(Stash stash, String facet) {
 		return artifactNode(stash).nodes.stream().filter(n -> n.facets.get(0).equals("Artifact$" + facet)).findFirst().orElse(null);
+	}
+
+	private Node node(Stash stash, String name, String facet) {
+		return artifactNode(stash).nodes.stream().filter(n -> n.facets.get(0).equals(facet + "#Artifact$" + name)).findFirst().orElse(null);
 	}
 
 	private Node artifactNode(Stash stash) {
@@ -91,7 +85,7 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 	}
 
 	private String scopeOf(Node node) {
-		return node.facets.get(0).replace("Artifact$Imports$", "");
+		return node.facets.get(0).replace("Artifact$Imports$", "").toUpperCase();
 	}
 
 	private Node importsNode(Node node) {
@@ -102,35 +96,16 @@ public class DependencyAuditor extends HashMap<String, List<Dependency>> {
 		return (String) variables.stream().filter(v -> v.name.equals(varName)).findFirst().get().values.get(0);
 	}
 
-	private void load() {
-		try {
-			if (!resolutionsFile().toFile().exists()) return;
-			Gson gson = new Gson();
-			putAll(gson.fromJson(new String(Files.readAllBytes(resolutionsFile())), new TypeToken<Map<String, List<Dependency>>>() {
-			}.getType()));
-		} catch (Exception e) {
-			Logger.getInstance(this.getClass()).error(e);
-			resolutionsFile().toFile().delete();
-		}
-	}
-
-	void save() {
-		try {
-
-			Files.write(resolutionsFile(), new Gson().toJson(new HashMap<>(this)).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-		} catch (IOException e) {
-			Logger.getInstance(this.getClass()).error(e);
-		}
-	}
-
-	private Path resolutionsFile() {
-		return new File(IntinoDirectory.of(module.getProject()), module.getName() + "_dependencies.json").toPath();
-	}
 
 	public void invalidate() {
 		auditionFile().delete();
-		resolutionsFile().toFile().delete();
+	}
 
+	public void invalidate(String nodeName) {
+		if (storeAuditor != null) {
+			storeAuditor.removeTrack(STASH_NAME + nodeName);
+			storeAuditor.commit();
+		}
 	}
 
 	@NotNull

@@ -53,7 +53,8 @@ public class ProjectLibrariesManager {
 	private void registerClasses(Dependency dependency) {
 		final LibraryTable.ModifiableModel tableModel = table.model();
 		final Library.ModifiableModel libraryModel = tableModel.createLibrary(table.nameOf(dependency)).getModifiableModel();
-		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(dependency.jar), CLASSES);
+		File jar = new File(dependency.jar.getPath()).getAbsoluteFile();
+		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(jar), CLASSES);
 		registerSources(dependency, libraryModel);
 		libraryModel.commit();
 	}

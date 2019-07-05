@@ -96,19 +96,16 @@ public class LanguageResolver {
 	}
 
 	private DependencyCatalog languageFramework() {
-		String languageId = languageId(model.language(), version) + ":Compile";
+		ResolutionCache cache = ResolutionCache.instance(module.getProject());
+		String languageId = languageId(model.language(), version);
 		if (!auditor.isModified(model.core$())) {
-			List<Dependency> dependencies = auditor.get(languageId);
-			if (!dependencies.isEmpty()) {
-				DependencyCatalog catalog = new DependencyCatalog();
-				catalog.addAll(dependencies);
-				return catalog;
-			}
-
+			List<Dependency> dependencies = cache.get(languageId);
+			if (dependencies != null && !dependencies.isEmpty()) return new DependencyCatalog(dependencies);
 		}
 		final Module dependency = moduleDependencyOf(this.module, model.language(), version);
 		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
-		auditor.put(languageId, catalog.dependencies());
+		cache.put(languageId, catalog.dependencies());
+		cache.save();
 		return catalog;
 	}
 

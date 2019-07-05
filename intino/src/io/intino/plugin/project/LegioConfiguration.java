@@ -204,7 +204,12 @@ public class LegioConfiguration implements Configuration {
 
 	private void initConfiguration() {
 		File stashFile = stashFile();
-		this.graph = (!stashFile.exists()) ? newGraphFromLegio() : GraphLoader.loadGraph(StashDeserializer.stashFrom(stashFile), stashFile());
+		if (!stashFile.exists()) this.graph = newGraphFromLegio();
+		else {
+			Stash stash = StashDeserializer.stashFrom(stashFile);
+			dependencyAuditor.stash(stash);
+			this.graph = GraphLoader.loadGraph(stash, stashFile());
+		}
 		if (graph == null && stashFile.exists()) stashFile.delete();
 		final ConfigurationReloader reloader = new ConfigurationReloader(module, dependencyAuditor, graph, RepositoryPolicy.UPDATE_POLICY_DAILY);
 		reloader.reloadInterfaceBuilder();

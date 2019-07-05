@@ -111,6 +111,11 @@ public class BitbucketDeployer {
 		return new RestAccessor.Response() {
 
 			@Override
+			public int code() {
+				return response.getStatusLine().getStatusCode();
+			}
+
+			@Override
 			public String content() {
 				try {
 					if (response == null) return null;

@@ -7,12 +7,16 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
-import com.intellij.ui.treeStructure.Tree;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.treeStructure.SimpleTree;
+import com.intellij.util.containers.Convertor;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
+import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.actions.ReloadConfigurationAction;
-import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
+import io.intino.plugin.dependencyresolution.ResolutionCache;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -21,31 +25,28 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
-public class DependencyTreeView extends JPanel {
+public class DependencyTreeView extends SimpleToolWindowPanel {
 	private JPanel contentPane;
-	private JTree tree;
+	private SimpleTree tree;
+	private JScrollPane scrollPane;
 	private Project project;
 	private DefaultMutableTreeNode root;
-	private Map<Module, DependencyAuditor> dependencyAuditors;
-
 
 	DependencyTreeView(Project project) {
+		super(true);
 		this.project = project;
-		this.dependencyAuditors = new HashMap<>();
 		initProjectTree();
 	}
 
@@ -57,24 +58,21 @@ public class DependencyTreeView extends JPanel {
 		tree.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
-				TreePath library = tree.getPathForLocation(e.getX(), e.getY());
-				if (e.getButton() != 1) {
-					openContextualMenu(e, library);
-				}
-				if (selRow != -1) {
-					if (e.getClickCount() == 2) goToLibrary(library);
-				}
+				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+				if (e.getButton() != 1) openContextualMenu(e, path);
+				else if (selRow != -1 && e.getClickCount() == 2) goToLibrary(path);
 			}
 		});
 		tree.addTreeExpansionListener(new TreeExpansionListener() {
 			@Override
 			public void treeExpanded(TreeExpansionEvent event) {
+				ResolutionCache cache = ResolutionCache.instance(project);
 				final DefaultMutableTreeNode component = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
 				if (component.getUserObject() instanceof String) renderProject(component);
 				if (component.getUserObject() instanceof ModuleNode)
-					renderModule(component, moduleOf(((ModuleNode) component.getUserObject()).name));
+					renderModule(component, moduleOf(((ModuleNode) component.getUserObject()).name), cache);
 				else if (component.getUserObject() instanceof DependencyNode)
-					renderLibrary(component, ((DependencyNode) component.getUserObject()));
+					renderLibrary(component, ((DependencyNode) component.getUserObject()), cache);
 			}
 
 			@Override
@@ -85,6 +83,7 @@ public class DependencyTreeView extends JPanel {
 	}
 
 	private void openContextualMenu(MouseEvent e, TreePath treePath) {
+		if (treePath.getParentPath() == null) return;
 		Object userObject = ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
 		if (!(userObject instanceof DependencyNode)) return;
 		JBPopupMenu options = new JBPopupMenu("options");
@@ -92,13 +91,26 @@ public class DependencyTreeView extends JPanel {
 		jbMenuItem.setAction(new AbstractAction("Delete from Local Repository and Reload it") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String library = ((DependencyNode) userObject).label;
-				new DependencyPurger().purgeDependency(library.substring(0, library.lastIndexOf(" ")));
-				ApplicationManager.getApplication().invokeLater(() -> new ReloadConfigurationAction().execute((((DependencyNode) userObject).module)));
+				String mavenId = mavenId((DependencyNode) userObject);
+				ApplicationManager.getApplication().invokeLater(() -> invalidateAndReload(mavenId, ((DefaultMutableTreeNode) treePath.getLastPathComponent())));
 			}
 		});
 		options.add(jbMenuItem);
 		options.show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	private void invalidateAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
+		new DependencyPurger().purgeDependency(mavenId);
+		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
+		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();
+		Module module = dependencyNode.module;
+		((LegioConfiguration) TaraUtil.configurationOf(module)).dependencyAuditor().invalidate(dependencyNode.identifier());
+		new ReloadConfigurationAction().execute(module);
+	}
+
+	@NotNull
+	private String mavenId(DependencyNode userObject) {
+		return userObject.label.substring(0, userObject.label.lastIndexOf(" "));
 	}
 
 	private void goToLibrary(TreePath library) {
@@ -120,29 +132,40 @@ public class DependencyTreeView extends JPanel {
 		tree.updateUI();
 	}
 
-	private void renderModule(DefaultMutableTreeNode parent, Module module) {
+	private void renderModule(DefaultMutableTreeNode parent, Module module, ResolutionCache cache) {
 		parent.removeAllChildren();
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		DependencyAuditor auditor = new DependencyAuditor(module);
-		dependencyAuditors.put(module, auditor);
-		for (Dependency dependency : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList())) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, dependency.identifier() + ":" + dependency.getClass().getSimpleName(), labelIdentifier(auditor, dependency)));
+		renderModel(parent, module, cache, (LegioConfiguration) configuration);
+		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);
+		tree.updateUI();
+	}
+
+	private void renderModel(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+		LevelArtifact.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		if (model == null) return;
+		String languageId = languageId(model.language(), model.version());
+		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
+		if (dependencies != null && !dependencies.isEmpty()) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, languageId, labelIdentifier(cache, languageId)));
 			parent.add(node);
 			node.setAllowsChildren(true);
 			node.add(new DefaultMutableTreeNode(module));
 		}
-		tree.updateUI();
 	}
 
-	@NotNull
-	private String labelIdentifier(DependencyAuditor auditor, Dependency dependency) {
-		return auditor.get(dependency.identifier() + ":" + dependency.getClass().getSimpleName()).get(0).mavenId() + ":" + dependency.getClass().getSimpleName();
+	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+		for (Dependency dependency : safeList(() -> configuration.graph().artifact().imports().dependencyList())) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, dependency.identifier(), labelIdentifier(cache, dependency)));
+			parent.add(node);
+			node.setAllowsChildren(true);
+			node.add(new DefaultMutableTreeNode(module));
+		}
 	}
 
-	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary) {
+	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary, ResolutionCache cache) {
 		parent.removeAllChildren();
-		List<DependencyCatalog.Dependency> dependencies = dependencyAuditors.get(rootLibrary.module).get(rootLibrary.library);
+		List<DependencyCatalog.Dependency> dependencies = cache.get(rootLibrary.library);
 		if (dependencies != null) {
 			dependencies = dependencies.subList(1, dependencies.size());
 			for (DependencyCatalog.Dependency dep : dependencies) {
@@ -154,9 +177,26 @@ public class DependencyTreeView extends JPanel {
 		tree.updateUI();
 	}
 
+	@NotNull
+	private String labelIdentifier(ResolutionCache cache, Dependency dependency) {
+		List<DependencyCatalog.Dependency> dependencies = cache.get(dependency.identifier());
+		if (dependencies == null || dependencies.isEmpty()) return "";
+		return dependencies.get(0).mavenId() + ":" + dependency.getClass().getSimpleName();
+	}
+
+
+	@NotNull
+	private String labelIdentifier(ResolutionCache cache, String languageId) {
+		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
+		if (dependencies == null || dependencies.isEmpty()) return "";
+		return dependencies.get(0).mavenId() + ":model";
+	}
+
 	private void createUIComponents() {
 		root = new DefaultMutableTreeNode(project.getName(), true);
-		tree = new Tree(root);
+		tree = new SimpleTree(new DefaultTreeModel(root, true));
+		tree.getSelectionModel().setSelectionMode
+				(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		DefaultTreeCellRenderer renderer = new IntinoDependencyRenderer();
 		renderer.setLeafIcon(AllIcons.Modules.Library);
 		tree.setCellRenderer(renderer);
@@ -165,20 +205,17 @@ public class DependencyTreeView extends JPanel {
 		tree.setRootVisible(true);
 		tree.expandRow(0);
 		tree.setRootVisible(false);
+		scrollPane = ScrollPaneFactory.createScrollPane(tree);
 	}
 
 	private static class IntinoDependencyRenderer extends DefaultTreeCellRenderer {
 		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-			super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 			DefaultMutableTreeNode nodo = (DefaultMutableTreeNode) value;
-			if (tree.getModel().getRoot().equals(nodo)) {
-				setIcon(AllIcons.Modules.ModulesNode);
-			} else if (nodo.getUserObject() instanceof ModuleNode) {
-				setIcon(AllIcons.Modules.ModulesNode);
-			} else {
-				setIcon(AllIcons.Modules.Library);
-			}
+			if (tree.getModel().getRoot().equals(nodo)) setIcon(AllIcons.Modules.ModulesNode);
+			else if (nodo.getUserObject() instanceof ModuleNode) setIcon(AllIcons.Modules.ModulesNode);
+			else setIcon(AllIcons.Modules.Library);
 			return this;
 		}
 	}
@@ -186,26 +223,52 @@ public class DependencyTreeView extends JPanel {
 	private static class DependencyNode {
 		private final Module module;
 		private final String label;
+		private final String scope;
 		private String library;
 
 		DependencyNode(Module module, String library) {
-			this(module, library, label(library));
+			this(module, library, library);
 		}
 
 		DependencyNode(Module module, String library, String label) {
 			this.module = module;
 			this.library = library;
-			this.label = label(label);
+			this.label = label.isEmpty() ? library : customize(label);
+			this.scope = scope(this.label);
 		}
 
 		@NotNull
-		private static String label(String library) {
+		private static String customize(String library) {
 			return library.substring(0, library.lastIndexOf(":")) + " (" + library.substring(library.lastIndexOf(":") + 1).toLowerCase() + ")";
+		}
+
+		@NotNull
+		private static String scope(String library) {
+			return library.substring(library.lastIndexOf("(") + 1, library.lastIndexOf(")")).replace("MODEL", "COMPILE").toUpperCase();
 		}
 
 		@Override
 		public String toString() {
 			return label;
+		}
+
+		String identifier() {
+			return library + ":" + scope;
+		}
+	}
+
+	private static class TreePathStringConvertor implements Convertor<TreePath, String> {
+		@Override
+		public String convert(TreePath o) {
+			Object node = o.getLastPathComponent();
+			if (node instanceof DefaultMutableTreeNode) {
+				Object object = ((DefaultMutableTreeNode) node).getUserObject();
+				if (object instanceof String) return (String) object;
+				else if (object instanceof DependencyNode) return ((DependencyNode) object).label;
+				else if (object instanceof ModuleNode) return ((ModuleNode) object).name;
+				return "";
+			}
+			return "";
 		}
 	}
 
