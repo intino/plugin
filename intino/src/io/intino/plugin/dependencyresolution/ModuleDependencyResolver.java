@@ -40,7 +40,7 @@ class ModuleDependencyResolver {
 
 	@NotNull
 	private Dependency dependencyFrom(LegioConfiguration c) {
-		return new Dependency(c.groupId() + ":" + c.artifactId() + c.version() + ":" + COMPILE, c.module().getName());
+		return new Dependency(c.groupId() + ":" + c.artifactId() + ":" + c.version() + ":" + COMPILE, c.module().getName());
 	}
 
 	@NotNull
@@ -53,7 +53,10 @@ class ModuleDependencyResolver {
 	private List<Library> librariesOf(Module module) {
 		final ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
 		return Arrays.stream(model.getOrderEntries()).
-				filter(o -> o.isValid() && o instanceof LibraryOrderEntry && ((ExportableOrderEntry) o).getScope().equals(DependencyScope.COMPILE)).
+				filter(o -> o.isValid() && o instanceof LibraryOrderEntry &&
+						((ExportableOrderEntry) o).getScope().equals(DependencyScope.COMPILE) &&
+						((LibraryOrderEntry) o).getLibraryName() != null &&
+						((LibraryOrderEntry) o).getLibraryName().startsWith(INTINO)).
 				map(l -> ((LibraryOrderEntry) l).getLibrary()).collect(toList());
 	}
 

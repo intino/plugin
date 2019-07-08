@@ -11,6 +11,7 @@ import io.intino.tara.magritte.utils.StoreAuditor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.intino.tara.io.Helper.newStash;
@@ -34,7 +35,8 @@ public class DependencyAuditor {
 		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.auditionsDirectory(module.getProject())) {
 			@Override
 			public Stash stashFrom(String path) {
-				List<Node> nodes = importsNode(artifactNode(stash)).nodes;
+				Node importsNode = importsNode(artifactNode(stash));
+				List<Node> nodes = importsNode == null ? new ArrayList<>() : importsNode.nodes;
 				if (node(stash, "Model") != null) nodes.add(node(stash, "Model", "Level"));
 				if (node(stash, "Box") != null) nodes.add(node(stash, "Box"));
 				return newStash(stash.language, nodes);
@@ -44,7 +46,6 @@ public class DependencyAuditor {
 		this.storeAuditor.changeList();
 		this.storeAuditor.commit();
 	}
-
 
 	private void customize(Stash stash) {
 		customizeImports(stash);
@@ -96,12 +97,12 @@ public class DependencyAuditor {
 		return (String) variables.stream().filter(v -> v.name.equals(varName)).findFirst().get().values.get(0);
 	}
 
-
 	public void invalidate() {
 		auditionFile().delete();
 	}
 
 	public void invalidate(String nodeName) {
+		nodeName = nodeName.replace(STASH_NAME, "");
 		if (storeAuditor != null) {
 			storeAuditor.removeTrack(STASH_NAME + nodeName);
 			storeAuditor.commit();

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Hello World</title>
+	<link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/assets/diagram-js.css">
+	<link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/assets/bpmn-font/css/bpmn.css">
+	<script src="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/bpmn-modeler.development.js"></script>
+	<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+
+	<!-- example styles -->
+	<style>
+		html, body, #canvas {
+			height: 100%;
+			padding: 0;
+			margin: 0;
+		}
+
+		.diagram-note {
+			background-color: rgba(66, 180, 21, 0.7);
+			color: White;
+			border-radius: 5px;
+			font-family: Arial;
+			font-size: 12px;
+			padding: 5px;
+			min-height: 16px;
+			width: 50px;
+			text-align: center;
+		}
+
+		.needs-discussion:not(.djs-connection) .djs-visual > :nth-child(1) {
+			stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
+		}
+
+		#save-button {
+			position: fixed;
+			bottom: 20px;
+			left: 20px;
+		}
+	</style>
+</head>
+<body>
+<div id="canvas"></div>
+<div class="io-editing-tools" jswidget="editing-tools">
+	<ul class="io-control-list io-horizontal">
+		<li class="io-control">
+			<button title="Toggle keyboard shortcuts overlay"
+					jsaction="click:bio.showKeyboard">
+				<span class="icon-keyboard"> </span>
+			</button>
+		</li>
+		<li class="io-control">
+			<button title="Toggle Fullscreen"
+					jsaction="click:bio.toggleFullscreen">
+				<span class="icon-resize-full"> </span>
+			</button>
+		</li>
+	</ul>
+</div>
+
+<div class="io-zoom-controls">
+
+	<ul class="io-zoom-reset io-control io-control-list">
+		<li>
+			<button title="reset zoom" jsaction="click:bio.zoomReset">
+				<span class="icon-size-reset"></span>
+			</button>
+		</li>
+	</ul>
+
+	<ul class="io-zoom io-control io-control-list">
+		<li>
+			<button title="zoom in" jsaction="click:bio.zoomIn">
+				<span class="icon-plus"></span>
+			</button>
+		</li>
+		<li>
+			<hr/>
+		</li>
+		<li>
+			<button href title="zoom out" jsaction="click:bio.zoomOut">
+				<span class="icon-minus"></span>
+			</button>
+		</li>
+	</ul>
+</div>
+<button id="save-button">save</button>
+
+<script>
+    var diagramUrl = '$file';
+
+    var bpmnModeler = new BpmnJS({
+        container: '#canvas',
+        keyboard: {
+            bindTo: window
+        }
+    });
+
+    function exportDiagram() {
+
+        bpmnModeler.saveXML({format: true}, function (err, xml) {
+
+            if (err) {
+                return console.error('could not save BPMN 2.0 diagram', err);
+            }
+            alert('Diagram exported. Check the developer tools!');
+
+            console.log('DIAGRAM', xml);
+        });
+    }
+
+    function openDiagram(bpmnXML) {
+
+        // import diagram
+        bpmnModeler.importXML(bpmnXML, function (err) {
+
+            if (err) {
+                return console.error('could not import BPMN 2.0 diagram', err);
+            }
+
+            // access modeler components
+            var canvas = bpmnModeler.get('canvas');
+            // zoom to fit full viewport
+            canvas.zoom('fit-viewport');
+
+        });
+    }
+
+
+    // load external diagram file via AJAX and open it
+    $.get(diagramUrl, openDiagram, 'text');
+
+    // wire save button
+    $('#save-button').click(exportDiagram);
+    $('.bjs-powered-by').remove();
+</script>
+</body>
+</html>

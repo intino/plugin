@@ -19,6 +19,8 @@
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <codeInsight.lineMarkerProvider language="Tara"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
@@ -70,6 +72,7 @@
         <lang.braceMatcher language="Itrules"
                            implementationClass="io.intino.plugin.itrules.highlighting.ItrulesBraceMatcher"/>
         <treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
+        <!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
     </extensions>
 
     <actions>

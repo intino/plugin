@@ -79,7 +79,7 @@ public class ImportsResolver {
 					catalog.addAll(dependencies);
 					d.resolve(true);
 				} else {
-					auditor.invalidate(d.name$());
+					auditor.invalidate(d.core$().id());
 					mustReload = true;
 				}
 			}
@@ -89,7 +89,7 @@ public class ImportsResolver {
 	}
 
 	private boolean existFiles(List<DependencyCatalog.Dependency> dependencies) {
-		return dependencies.stream().allMatch(d -> d.jar.exists());
+		return dependencies.stream().allMatch(d -> d.jar != null && d.jar.exists());
 	}
 
 	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {
