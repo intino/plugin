@@ -14,7 +14,6 @@ public class IntinoDirectory {
 		return intino == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, ".intino")) : new File(intino.getPath());
 	}
 
-
 	public static File artifactsDirectory(Project project) {
 		VirtualFile baseDir = vfOf(project);
 		VirtualFile artifacts = baseDir.findChild("artifacts");
@@ -33,12 +32,9 @@ public class IntinoDirectory {
 		return intino == null ? createDirectory(baseDir, ".intino") : intino;
 	}
 
-
 	private static VirtualFile createDirectory(VirtualFile baseDir, String name) {
 		File file = new File(baseDir.getPath(), name);
 		file.mkdirs();
 		return VfsUtil.findFileByIoFile(file, true);
 	}
-
-
 }

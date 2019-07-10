@@ -38,7 +38,7 @@ public class DependencyAuditor {
 			@Override
 			public Stash stashFrom(String path) {
 				Node importsNode = importsNode(artifactNode(stash));
-				List<Node> nodes = importsNode == null ? new ArrayList<>() : importsNode.nodes;
+				List<Node> nodes = importsNode == null ? new ArrayList<>() : new ArrayList<>(importsNode.nodes);
 				if (node(stash, "Model") != null) nodes.add(node(stash, "Model", "Level"));
 				if (node(stash, "Box") != null) nodes.add(node(stash, "Box"));
 				return newStash(stash.language, nodes);
