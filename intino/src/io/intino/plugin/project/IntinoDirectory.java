@@ -8,10 +8,12 @@ import java.io.File;
 
 public class IntinoDirectory {
 
+	public static final String INTINO = ".intino";
+
 	public static File of(Project project) {
 		VirtualFile baseDir = project.getBaseDir();
-		VirtualFile intino = baseDir.findChild(".intino");
-		return intino == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, ".intino")) : new File(intino.getPath());
+		VirtualFile intino = baseDir.findChild(INTINO);
+		return intino == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, INTINO)) : new File(intino.getPath());
 	}
 
 	public static File artifactsDirectory(Project project) {
@@ -28,8 +30,8 @@ public class IntinoDirectory {
 
 	private static VirtualFile vfOf(Project project) {
 		VirtualFile baseDir = project.getBaseDir();
-		VirtualFile intino = baseDir.findChild(".intino");
-		return intino == null ? createDirectory(baseDir, ".intino") : intino;
+		VirtualFile intino = baseDir.findChild(INTINO);
+		return intino == null ? createDirectory(baseDir, INTINO) : intino;
 	}
 
 	private static VirtualFile createDirectory(VirtualFile baseDir, String name) {

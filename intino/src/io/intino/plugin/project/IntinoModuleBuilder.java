@@ -61,10 +61,14 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		res.mkdir();
 		final VirtualFile genVfile = VfsUtil.findFileByIoFile(gen, true);
 		final VirtualFile resVfile = VfsUtil.findFileByIoFile(res, true);
-		final VirtualFile intinoVfile = VfsUtil.findFileByIoFile(IntinoDirectory.of(rootModel.getProject()), true);
-		if (intinoVfile != null) contentEntry.addExcludeFolder(intinoVfile);
-		final VirtualFile ideaVDirectory = rootModel.getProject().getBaseDir().findChild(".idea");
-		if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
+		if (contentEntry.getFile().findChild(IntinoDirectory.INTINO) != null) {
+			final VirtualFile intinoVfile = VfsUtil.findFileByIoFile(IntinoDirectory.of(rootModel.getProject()), true);
+			if (intinoVfile != null) contentEntry.addExcludeFolder(intinoVfile);
+		}
+		if (contentEntry.getFile().findChild(".idea") != null) {
+			final VirtualFile ideaVDirectory = rootModel.getProject().getBaseDir().findChild(".idea");
+			if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
+		}
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
