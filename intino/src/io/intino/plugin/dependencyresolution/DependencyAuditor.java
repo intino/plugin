@@ -34,7 +34,7 @@ public class DependencyAuditor {
 	public void reload(Stash stash) {
 		this.stash = stash;
 		customize(stash);
-		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.auditionsDirectory(module.getProject())) {
+		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.auditDirectory(module.getProject())) {
 			@Override
 			public Stash stashFrom(String path) {
 				Node importsNode = importsNode(artifactNode(stash));
@@ -117,6 +117,6 @@ public class DependencyAuditor {
 
 	@NotNull
 	private File auditionFile() {
-		return new File(IntinoDirectory.auditionsDirectory(module.getProject()), module.getName());
+		return new File(IntinoDirectory.auditDirectory(module.getProject()), module.getName());
 	}
 }

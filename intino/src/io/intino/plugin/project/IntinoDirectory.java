@@ -21,10 +21,10 @@ public class IntinoDirectory {
 		return artifacts == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "artifacts")) : new File(artifacts.getPath());
 	}
 
-	public static File auditionsDirectory(Project project) {
+	public static File auditDirectory(Project project) {
 		VirtualFile baseDir = vfOf(project);
-		VirtualFile auditions = baseDir.findChild("auditions");
-		return auditions == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "auditions")) : new File(auditions.getPath());
+		VirtualFile audit = baseDir.findChild("audit");
+		return audit == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "audit")) : new File(audit.getPath());
 	}
 
 	private static VirtualFile vfOf(Project project) {
