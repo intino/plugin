@@ -100,7 +100,10 @@ public class LanguageResolver {
 		String languageId = languageId(model.language(), version);
 		if (!auditor.isModified(model.core$())) {
 			List<Dependency> dependencies = cache.get(languageId);
-			if (dependencies != null && !dependencies.isEmpty()) return new DependencyCatalog(dependencies);
+			if (dependencies != null && !dependencies.isEmpty()) {
+				model.effectiveVersion(dependencies.get(0).version);
+				return new DependencyCatalog(dependencies);
+			}
 		}
 		final Module dependency = moduleDependencyOf(this.module, model.language(), version);
 		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
@@ -120,6 +123,7 @@ public class LanguageResolver {
 		DependencyCatalog catalog = new DependencyCatalog();
 		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) version = importLanguage();
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language(), version));
+		model.effectiveVersion(version);
 		if (framework.isEmpty()) return catalog;
 		resolveSources(catalog, framework);
 		return catalog;

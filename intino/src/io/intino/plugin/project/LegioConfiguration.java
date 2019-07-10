@@ -323,7 +323,7 @@ public class LegioConfiguration implements Configuration {
 		final Model model = safe(() -> graph.artifact().asLevel().model());
 		if (model == null) return null;
 		if (isCoreLanguage(model)) return new Attributes();
-		final File languageFile = LanguageManager.getLanguageFile(model.language(), model.effectiveVersion());
+		final File languageFile = LanguageManager.getLanguageFile(model.language(), model.effectiveVersion().isEmpty() ? model.version() : model.effectiveVersion());
 		if (!languageFile.exists()) return null;
 		try {
 			Manifest manifest = new JarFile(languageFile).getManifest();
