@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8"/>
-	<title>Hello World</title>
+	<title>Intino Process Editor</title>
 	<link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/assets/diagram-js.css">
 	<link rel="stylesheet" href="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/assets/bpmn-font/css/bpmn.css">
 	<script src="https://unpkg.com/bpmn-js@4.1.0-beta.0/dist/bpmn-modeler.development.js"></script>
@@ -41,53 +41,19 @@
 </head>
 <body>
 <div id="canvas"></div>
-<div class="io-editing-tools" jswidget="editing-tools">
-	<ul class="io-control-list io-horizontal">
-		<li class="io-control">
-			<button title="Toggle keyboard shortcuts overlay"
-					jsaction="click:bio.showKeyboard">
-				<span class="icon-keyboard"> </span>
-			</button>
-		</li>
-		<li class="io-control">
-			<button title="Toggle Fullscreen"
-					jsaction="click:bio.toggleFullscreen">
-				<span class="icon-resize-full"> </span>
-			</button>
-		</li>
-	</ul>
-</div>
 
-<div class="io-zoom-controls">
-
-	<ul class="io-zoom-reset io-control io-control-list">
-		<li>
-			<button title="reset zoom" jsaction="click:bio.zoomReset">
-				<span class="icon-size-reset"></span>
-			</button>
-		</li>
-	</ul>
-
-	<ul class="io-zoom io-control io-control-list">
-		<li>
-			<button title="zoom in" jsaction="click:bio.zoomIn">
-				<span class="icon-plus"></span>
-			</button>
-		</li>
-		<li>
-			<hr/>
-		</li>
-		<li>
-			<button href title="zoom out" jsaction="click:bio.zoomOut">
-				<span class="icon-minus"></span>
-			</button>
-		</li>
-	</ul>
+<div class="intino toolbar">
+	<button id="reset-button">Reset</button>
+	<button id="zoom-in-button">Zoom In</button>
+	<button id="zoom-out-button">Zoom Out</button>
 </div>
 <button id="save-button">save</button>
 
 <script>
-    var diagramUrl = '$file';
+    var process = "$process";
+    var diagram = '$diagram';
+
+    if (diagram === "") diagram = defaultDiagram();
 
     var bpmnModeler = new BpmnJS({
         container: '#canvas',
@@ -96,41 +62,61 @@
         }
     });
 
-    function exportDiagram() {
-
-        bpmnModeler.saveXML({format: true}, function (err, xml) {
-
-            if (err) {
-                return console.error('could not save BPMN 2.0 diagram', err);
-            }
-            alert('Diagram exported. Check the developer tools!');
-
-            console.log('DIAGRAM', xml);
-        });
+    function defaultDiagram() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<bpmn:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" id=\"Definitions_1ep4nie\" targetNamespace=\"http://bpmn.io/schema/bpmn\" exporter=\"bpmn-js (https://demo.bpmn.io)\" exporterVersion=\"4.0.0\">\n" +
+            "  <bpmn:process id=\"Process_10wfcih\" isExecutable=\"false\">\n" +
+            "    <bpmn:startEvent id=\"StartEvent_0a8dcer\" />\n" +
+            "  </bpmn:process>\n" +
+            "  <bpmndi:BPMNDiagram id=\"BPMNDiagram_1\">\n" +
+            "    <bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"Process_10wfcih\">\n" +
+            "      <bpmndi:BPMNShape id=\"_BPMNShape_StartEvent_2\" bpmnElement=\"StartEvent_0a8dcer\">\n" +
+            "        <dc:Bounds x=\"152\" y=\"82\" width=\"36\" height=\"36\" />\n" +
+            "      </bpmndi:BPMNShape>\n" +
+            "    </bpmndi:BPMNPlane>\n" +
+            "  </bpmndi:BPMNDiagram>\n" +
+            "</bpmn:definitions>\n";
     }
 
     function openDiagram(bpmnXML) {
-
-        // import diagram
         bpmnModeler.importXML(bpmnXML, function (err) {
-
             if (err) {
                 return console.error('could not import BPMN 2.0 diagram', err);
             }
-
-            // access modeler components
             var canvas = bpmnModeler.get('canvas');
-            // zoom to fit full viewport
-            canvas.zoom('fit-viewport');
+            canvas.zoom('fit-viewport', true);
 
         });
     }
 
+    function exportDiagram() {
+        bpmnModeler.saveXML({format: true}, function (err, xml) {
+            if (err) {
+                console.error('could not save BPMN 2.0 diagram', err);
+                return;
+            }
+            $.post("/" + process, xml);
+        });
+    }
 
-    // load external diagram file via AJAX and open it
-    $.get(diagramUrl, openDiagram, 'text');
+    $(window).on('beforeunload', function () {
+        $.post("/" + process + "/closed");
+    });
 
-    // wire save button
+    $("#reset-button").click(function () {
+        modeler.get('canvas').zoom('fit-viewport', true);
+    });
+
+    $("#zoom-in-button").click(function () {
+        modeler.get('canvas').zoom(modeler.get('canvas').zoom() + 0.3, true);
+
+    });
+
+    $("#zoom-out-button").click(function () {
+        modeler.get('canvas').zoom(modeler.get('canvas').zoom() - 0.3, true);
+    });
+
+    openDiagram(diagram);
     $('#save-button').click(exportDiagram);
     $('.bjs-powered-by').remove();
 </script>

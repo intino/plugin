@@ -7,10 +7,10 @@ import com.intellij.codeInsight.daemon.impl.JavaLineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.LineMarkerNavigator;
 import com.intellij.codeInsight.daemon.impl.MarkerType;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -18,18 +18,14 @@ import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import org.apache.commons.io.IOUtils;
+import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,23 +39,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			InputStream stream = this.getClass().getResourceAsStream("/process_modeler.html");
-			if (stream == null) return;
-			if (DumbService.isDumb(element.getProject())) {
-				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to process editor is not possible during index update");
-				return;
-			}
-			try {
-				Node node = node(element);
-				VirtualFile resourcesRoot = TaraUtil.getResourcesRoot(element);
-				File file = new File(resourcesRoot.getPath(), node.name() + ".bpmn");
-				Path modelerFile = Files.createTempFile("process_modeler", ".html");
-				String modelerText = IOUtils.toString(stream, "UTF-8").replace("$file", file.getAbsolutePath());
-				Files.write(modelerFile, modelerText.getBytes(), StandardOpenOption.CREATE);
-				BrowserUtil.browse(modelerFile.toFile());
-			} catch (IOException ex) {
-				logger.error(ex);
-			}
+			browseProcess(element);
 		}
 	});
 
@@ -79,13 +59,6 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		} else return super.getLineMarkerInfo(element);
 	}
 
-
-	private PsiElement leafOf(@NotNull PsiElement element) {
-		PsiElement leaf = element;
-		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
-		return leaf;
-	}
-
 	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
 	}
 
@@ -99,6 +72,36 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	@Override
 	public Icon getIcon() {
 		return AllIcons.General.Inline_edit;
+	}
+
+	private void browseProcess(PsiElement element) {
+		InputStream stream = this.getClass().getResourceAsStream("/process_modeler.html");
+		if (stream == null) return;
+		if (DumbService.isDumb(element.getProject())) {
+			DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to process editor is not possible during index update");
+			return;
+		}
+		VirtualFile resourcesRoot = TaraUtil.getResourcesRoot(element);
+		updateWebServer(processId(element), new File(resourcesRoot.getPath(), node(element).name() + ".bpmn"));
+
+	}
+
+	private void updateWebServer(String processId, File file) {
+		WebModelingServer instance = WebModelingServer.instance();
+		instance.add(processId, file);
+		instance.open(processId);
+	}
+
+	private String processId(PsiElement node) {
+		Module module = ModuleProvider.moduleOf(node);
+		return module.getProject().getName() + "/" + module.getName() + "/" + node(node).name();
+	}
+
+
+	private PsiElement leafOf(@NotNull PsiElement element) {
+		PsiElement leaf = element;
+		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
+		return leaf;
 	}
 
 

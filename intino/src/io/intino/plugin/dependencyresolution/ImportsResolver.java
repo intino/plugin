@@ -55,7 +55,10 @@ public class ImportsResolver {
 	public DependencyCatalog resolve() {
 		if (module == null) return DependencyCatalog.EMPTY;
 		DependencyCatalog dependencyCatalog = processDependencies();
-		return mustReload ? processDependencies() : dependencyCatalog;
+		if (mustReload) {
+			auditor.reload();
+			return processDependencies();
+		} else return dependencyCatalog;
 	}
 
 	private DependencyCatalog processDependencies() {

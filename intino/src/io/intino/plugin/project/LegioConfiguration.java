@@ -207,7 +207,7 @@ public class LegioConfiguration implements Configuration {
 		if (!stashFile.exists()) this.graph = newGraphFromLegio();
 		else {
 			Stash stash = StashDeserializer.stashFrom(stashFile);
-			dependencyAuditor.stash(stash);
+			dependencyAuditor.reload(stash);
 			this.graph = GraphLoader.loadGraph(stash, stashFile());
 		}
 		if (graph == null && stashFile.exists()) stashFile.delete();
@@ -450,7 +450,7 @@ public class LegioConfiguration implements Configuration {
 	private LegioGraph newGraphFromLegio() {
 		Stash stash = loadNewLegio();
 		if (stash == null) return null;
-		dependencyAuditor.stash(stash);
+		dependencyAuditor.reload(stash);
 		return GraphLoader.loadGraph(stash, stashFile());
 	}
 

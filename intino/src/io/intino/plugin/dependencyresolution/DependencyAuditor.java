@@ -21,6 +21,7 @@ public class DependencyAuditor {
 	private static final String STASH_NAME = "model#";
 	private transient final Module module;
 	private StoreAuditor storeAuditor;
+	private Stash stash;
 
 	public DependencyAuditor(Module module) {
 		this.module = module;
@@ -30,7 +31,8 @@ public class DependencyAuditor {
 		return storeAuditor.isCreated(node);
 	}
 
-	public void stash(Stash stash) {
+	public void reload(Stash stash) {
+		this.stash = stash;
 		customize(stash);
 		this.storeAuditor = new StoreAuditor(new FileSystemStore(IntinoDirectory.auditionsDirectory(module.getProject())) {
 			@Override
@@ -45,6 +47,22 @@ public class DependencyAuditor {
 		this.storeAuditor.trace("");
 		this.storeAuditor.changeList();
 		this.storeAuditor.commit();
+	}
+
+	public void reload() {
+		reload(this.stash);
+	}
+
+	public void invalidate() {
+		auditionFile().delete();
+	}
+
+	public void invalidate(String nodeName) {
+		nodeName = nodeName.replace(STASH_NAME, "");
+		if (storeAuditor != null) {
+			storeAuditor.removeTrack(STASH_NAME + nodeName);
+			storeAuditor.commit();
+		}
 	}
 
 	private void customize(Stash stash) {
@@ -95,18 +113,6 @@ public class DependencyAuditor {
 
 	private String valueOf(String varName, List<Variable> variables) {
 		return (String) variables.stream().filter(v -> v.name.equals(varName)).findFirst().get().values.get(0);
-	}
-
-	public void invalidate() {
-		auditionFile().delete();
-	}
-
-	public void invalidate(String nodeName) {
-		nodeName = nodeName.replace(STASH_NAME, "");
-		if (storeAuditor != null) {
-			storeAuditor.removeTrack(STASH_NAME + nodeName);
-			storeAuditor.commit();
-		}
 	}
 
 	@NotNull

@@ -11,7 +11,6 @@ import java.util.List;
 
 public class IntinoLibrary {
 	public static final String INTINO = "Intino: ";
-	public static final String LEGIO = "Legio: ";
 	private final LibraryTable table;
 	private ModifiableModel modifiableModel;
 

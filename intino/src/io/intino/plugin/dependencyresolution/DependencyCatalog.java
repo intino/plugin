@@ -60,7 +60,6 @@ public class DependencyCatalog {
 		DependencyScope scope;
 		String moduleReference;
 
-
 		public Dependency(String identifier, String module) {
 			this(identifier, null, false);
 			toModule(module);
