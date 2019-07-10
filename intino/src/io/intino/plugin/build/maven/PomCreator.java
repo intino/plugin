@@ -77,12 +77,6 @@ public class PomCreator {
 		return pom;
 	}
 
-	private String relativeToModulePath(String path) {
-		Path other = Paths.get(path);
-		if (other == null) return moduleDirectory();
-		return Paths.get(moduleDirectory()).toAbsolutePath().relativize(other.toAbsolutePath()).toFile().getPath();
-	}
-
 	private File frameworkPom(File pom) {
 		Artifact.Package build = safe(() -> configuration.graph().artifact().package$());
 		FrameBuilder builder = new FrameBuilder();
@@ -141,6 +135,17 @@ public class PomCreator {
 
 	private String projectOutDirectory() {
 		return pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl());
+	}
+
+	private String relativeToModulePath(String path) {
+		Path other = Paths.get(path);
+		Path modulePath = Paths.get(moduleDirectory()).toAbsolutePath();
+		if (other == null) return path;
+		try {
+			return modulePath.relativize(other.toAbsolutePath()).toFile().getPath();
+		} catch (IllegalArgumentException e) {
+			return path;
+		}
 	}
 
 	private void addDependencies(FrameBuilder builder) {
@@ -300,6 +305,7 @@ public class PomCreator {
 	}
 
 	private String pathOf(String path) {
+		if (path.startsWith("file://")) return path.substring("file://".length());
 		try {
 			return new URL(path).getFile();
 		} catch (MalformedURLException e) {
