@@ -29,12 +29,11 @@ public class WebModelingServer {
 	private HttpServer server;
 	private String template;
 
-
 	private WebModelingServer() {
 		processes = new HashMap<>();
 		try {
 			template = IOUtils.toString(this.getClass().getResourceAsStream("/process_modeler.html"), "UTF-8");
-			server = createServer();
+			createServer();
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -45,43 +44,45 @@ public class WebModelingServer {
 		return instance = new WebModelingServer();
 	}
 
-	private HttpServer createServer() throws IOException {
-		return HttpServer.create(new InetSocketAddress(port), 0);
+	private void createServer() throws IOException {
+		server = HttpServer.create(new InetSocketAddress(port), 0);
+		server.createContext("/process", req -> {
+			if (req.getRequestMethod().equals("GET")) openDiagram(process(req), req);
+			if (req.getRequestMethod().equals("POST")) saveDiagram(process(req), req);
+		});
+		server.createContext("/process/closed", req -> remove(process(req)));
+		server.start();
 	}
 
-	public void add(String processId, File source) {
-		processes.put(processId, source);
-		restartServer();
+	private String process(HttpExchange req) {
+		String[] split = req.getRequestURI().toString().split("\\?");
+		return split[split.length - 1];
+	}
+
+	public void add(String process, File source) {
+		processes.put(process, source);
+
 	}
 
 	void open(String processId) {
 		try {
-			BrowserUtil.browse(new URL("http://localhost:" + port + "/" + processId));
+			BrowserUtil.browse(new URL("http://localhost:" + port + "/process?" + processId));
 		} catch (MalformedURLException e) {
 			logger.error(e);
 		}
 	}
 
-	private void restartServer() {
-		for (String process : processes.keySet()) {
-			server.createContext("/" + process, req -> {
-				if (req.getRequestMethod().equals("GET")) openDiagram(process, req);
-				else if (req.getRequestMethod().equals("POST")) saveDiagram(process, req);
-			});
-			server.createContext("/" + process + "/closed", req -> removeAndStop(process));
-		}
-		server.start();
+	private void remove(String process) {
+		processes.remove(process);
+		if (processes.isEmpty()) restartServer();
 	}
 
-	private void removeAndStop(String process) {
-		processes.remove(process);
-		if (processes.isEmpty()) {
-			server.stop(0);
-			try {
-				server = createServer();
-			} catch (IOException e) {
-				logger.error(e);
-			}
+	private void restartServer() {
+		server.stop(0);
+		try {
+			createServer();
+		} catch (IOException e) {
+			logger.error(e);
 		}
 	}
 
@@ -98,7 +99,8 @@ public class WebModelingServer {
 
 	private void openDiagram(String process, HttpExchange req) throws IOException {
 		File file = processes.get(process);
-		String html = template.replace("$diagram", new String(Files.readAllBytes(file.toPath())).replace("\n", "\\n")).replace("$process", process);
+		String diagram = file.exists() ? new String(Files.readAllBytes(file.toPath())).replace("\n", "\\n") : "";
+		String html = template.replace("$diagram", diagram).replace("$process", process);
 		req.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
 		req.sendResponseHeaders(200, html.getBytes().length);
 		OutputStream out = req.getResponseBody();

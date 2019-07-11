@@ -6,18 +6,16 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.impl.JavaLineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.LineMarkerNavigator;
 import com.intellij.codeInsight.daemon.impl.MarkerType;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +50,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
 		if (isProcessElement(element)) {
-			final Icon icon = AllIcons.General.Inline_edit;
+			final Icon icon = IntinoIcons.BOX_PROCESS;
 			final MarkerType type = markerType;
 			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, Pass.UPDATE_ALL, type.getTooltip(),
 					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
@@ -71,7 +69,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	@Nullable
 	@Override
 	public Icon getIcon() {
-		return AllIcons.General.Inline_edit;
+		return IntinoIcons.BOX_PROCESS;
 	}
 
 	private void browseProcess(PsiElement element) {
@@ -81,9 +79,14 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 			DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to process editor is not possible during index update");
 			return;
 		}
-		VirtualFile resourcesRoot = TaraUtil.getResourcesRoot(element);
-		updateWebServer(processId(element), new File(resourcesRoot.getPath(), node(element).name() + ".bpmn"));
+		updateWebServer(processId(element), new File(filePath(element)));
+	}
 
+	private String filePath(PsiElement element) {
+		Node node = node(element);
+		if (node == null) return "process.bpmn";
+		if (node.parameters().isEmpty()) return node.name();
+		return node.parameters().get(0).values().get(0).toString();
 	}
 
 	private void updateWebServer(String processId, File file) {
@@ -92,18 +95,16 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		instance.open(processId);
 	}
 
-	private String processId(PsiElement node) {
-		Module module = ModuleProvider.moduleOf(node);
-		return module.getProject().getName() + "/" + module.getName() + "/" + node(node).name();
+	private String processId(PsiElement element) {
+		Module module = ModuleProvider.moduleOf(element);
+		return module.getProject().getName() + "-" + module.getName() + "-" + node(element).name();
 	}
-
 
 	private PsiElement leafOf(@NotNull PsiElement element) {
 		PsiElement leaf = element;
 		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
 		return leaf;
 	}
-
 
 	private boolean isProcessElement(PsiElement e) {
 		Node node = node(e);

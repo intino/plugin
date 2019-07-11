@@ -47,8 +47,6 @@
 	<button id="zoom-in-button">Zoom In</button>
 	<button id="zoom-out-button">Zoom Out</button>
 </div>
-<button id="save-button">save</button>
-
 <script>
     var process = "$process";
     var diagram = '$diagram';
@@ -89,18 +87,19 @@
         });
     }
 
-    function exportDiagram() {
+    function saveDiagram() {
         bpmnModeler.saveXML({format: true}, function (err, xml) {
             if (err) {
                 console.error('could not save BPMN 2.0 diagram', err);
                 return;
             }
-            $.post("/" + process, xml);
+            $.post("/process?" + process, xml);
         });
     }
 
     $(window).on('beforeunload', function () {
-        $.post("/" + process + "/closed");
+        saveDiagram();
+        $.post("/process/closed?" + process);
     });
 
     $("#reset-button").click(function () {
@@ -117,7 +116,6 @@
     });
 
     openDiagram(diagram);
-    $('#save-button').click(exportDiagram);
     $('.bjs-powered-by').remove();
 </script>
 </body>

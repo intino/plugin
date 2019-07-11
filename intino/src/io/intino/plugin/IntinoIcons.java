@@ -15,6 +15,10 @@ public class IntinoIcons {
 		return IconUtil.scale(icon, null,0.5f);
 	}
 
+
+	public static final Icon BOX_PROCESS = RETINA ? scale(getIcon("/icons/box_process-32.png")) : getIcon("/icons/box_process-16.png");
+	;
+
 	public static final Icon INTINO_16 = RETINA ? scale(getIcon("/icons/intino/intino-32.png")) : getIcon("/icons/intino/intino-16.png");
 
 	public static final Icon INTINO_13 = RETINA ? scale(getIcon("/icons/intino/intino-26.png")) : getIcon("/icons/intino/intino-13.png");
