@@ -22,6 +22,7 @@ import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
+import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
@@ -158,8 +159,8 @@ public class LegioConfiguration implements Configuration {
 		});
 	}
 
-	public void addCompileDependencies(List<String> ids) {
-		if (ids.isEmpty()) return;
+	public void addDependency(DependencyScope scope, String id) {
+		if (id == null) return;
 		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
@@ -171,10 +172,8 @@ public class LegioConfiguration implements Configuration {
 			if (imports == null) imports = createImports();
 			Node finalImports = imports;
 			if (finalImports == null) return;
-			ids.forEach(i -> {
-				final String[] split = i.split(":");
-				addCompileDependency((TaraNode) finalImports, split[0], split[1], split[2]);
-			});
+			final String[] split = id.split(":");
+			addDependency((TaraNode) finalImports, scope, split[0], split[1], split[2]);
 		});
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
@@ -423,10 +422,10 @@ public class LegioConfiguration implements Configuration {
 		return null;//TODO
 	}
 
-	private void addCompileDependency(TaraNode imports, String groupId, String artifactId, String version) {
+	private void addDependency(TaraNode imports, DependencyScope type, String groupId, String artifactId, String version) {
 		TaraElementFactory factory = TaraElementFactory.getInstance(module.getProject());
-		Node node = factory.createFullNode("Compile(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
-		node.type("Artifact.Imports.Compile");
+		Node node = factory.createFullNode(type.label() + "(groupId = \"" + groupId + "\", artifactId = \"" + artifactId + "\", version = \"" + version + "\")");
+		node.type("Artifact.Imports." + type.label());
 		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
 		PsiElement last;
 		if (imports.components().isEmpty()) {

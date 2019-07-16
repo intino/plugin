@@ -85,7 +85,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 	@NotNull
 	private List<Artifact> resolveSources(LibraryOrderEntry entry, List<LegioConfiguration> configurations) {
 		Module module = configurations.get(0).module();
-		final ImportsResolver resolver = new ImportsResolver(module, new DependencyAuditor(module), RepositoryPolicy.UPDATE_POLICY_ALWAYS, Collections.emptyList(), repositoryTypes(configurations));
+		final ImportsResolver resolver = new ImportsResolver(module, new DependencyAuditor(module), RepositoryPolicy.UPDATE_POLICY_ALWAYS, repositoryTypes(configurations));
 		List<Artifact> artifacts = new ArrayList<>();
 		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(IntinoLibrary.INTINO, "");
 		final String[] names = libraryName.split(":");

@@ -34,7 +34,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
 		final Artifact.Imports.Dependency dependency = findDependencyNode();
-		if (dependency == null || !dependency.resolve()) {
+		if (dependency == null || !dependency.resolved()) {
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 		} else if (dependency.toModule() && !hasSameVersion(findModule(dependency), dependency.version()))
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.module.dependency.with.different.version")));

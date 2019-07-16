@@ -15,7 +15,7 @@ Concept:{1..1}:Named Artifact
 			var string version
 			var string effectiveVersion = "" is private
 			var boolean transitive = true
-			var boolean resolve = false is private
+			var boolean resolved = false is private
 			var boolean toModule = false is private
 			Concept Exclude
 				var string groupId
@@ -24,6 +24,12 @@ Concept:{1..1}:Named Artifact
 			sub Runtime
 			sub Provided
 			sub Test
+		Concept Web
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
+			var boolean resolved = false is private
 	Concept:{0..1} WebImports
 		var string webDirectory = "lib"
 		Concept Resolution

@@ -33,35 +33,45 @@ public class ImportsResolver {
 	private final Aether aether;
 	private final DependencyAuditor auditor;
 	private final String updatePolicy;
-	private List<Dependency> dependencies;
 	private boolean mustReload;
 
-	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Dependency> dependencies, List<Repository.Type> repositories) {
+	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository.Type> repositories) {
 		this.module = module;
 		this.repositories = repositories;
 		this.auditor = auditor;
 		this.updatePolicy = updatePolicy;
-		this.dependencies = dependencies;
 		this.aether = new Aether(collectRemotes(), localRepository());
 		this.mustReload = false;
-
 	}
 
-	@NotNull
-	private File localRepository() {
-		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-	}
-
-	public DependencyCatalog resolve() {
+	public DependencyCatalog resolve(List<Dependency> dependencies) {
 		if (module == null) return DependencyCatalog.EMPTY;
-		DependencyCatalog dependencyCatalog = processDependencies();
+		DependencyCatalog dependencyCatalog = processDependencies(dependencies);
 		if (mustReload) {
 			auditor.reload();
-			return processDependencies();
+			return processDependencies(dependencies);
 		} else return dependencyCatalog;
 	}
 
-	private DependencyCatalog processDependencies() {
+	public DependencyCatalog resolveWeb(List<io.intino.legio.graph.Artifact.Imports.Web> webs) {
+		DependencyCatalog catalog = new DependencyCatalog();
+		for (io.intino.legio.graph.Artifact.Imports.Web web : webs) {
+			Module moduleDependency = moduleOf(web.identifier());
+			catalog.merge(processModuleDependency(web.identifier(), moduleDependency));
+			web.resolved(true);
+		}
+		return catalog;
+	}
+
+	public Artifact sourcesOf(String groupId, String artifactId, String version) {
+		try {
+			return aether.resolve(new DefaultArtifact(groupId, artifactId, "sources", "jar", version), JavaScopes.COMPILE).get(0);
+		} catch (DependencyResolutionException e) {
+			return null;
+		}
+	}
+
+	private DependencyCatalog processDependencies(List<Dependency> dependencies) {
 		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
@@ -77,10 +87,10 @@ public class ImportsResolver {
 					cache.put(d.identifier(), newDeps.dependencies());
 				}
 			} else {
-				List<DependencyCatalog.Dependency> dependencies = cache.get(d.identifier());
-				if (dependencies != null && !dependencies.isEmpty() && existFiles(dependencies)) {
-					catalog.addAll(dependencies);
-					d.resolve(true);
+				List<DependencyCatalog.Dependency> deps = cache.get(d.identifier());
+				if (deps != null && !deps.isEmpty() && existFiles(deps)) {
+					catalog.addAll(deps);
+					d.resolved(true);
 				} else {
 					auditor.invalidate(d.core$().id());
 					mustReload = true;
@@ -96,13 +106,19 @@ public class ImportsResolver {
 	}
 
 	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {
-		DependencyCatalog catalog = new DependencyCatalog();
-		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyTo(moduleDependency);
-		catalog.add(new DependencyCatalog.Dependency(d.identifier() + ":" + "COMPILE", moduleDependency.getName()));
-		catalog.merge(moduleDependenciesCatalog);
+		DependencyCatalog catalog = processModuleDependency(d.identifier(), moduleDependency);
 		d.effectiveVersion(d.version());
 		d.toModule(true);
-		d.resolve(true);
+		d.resolved(true);
+		return catalog;
+	}
+
+	@NotNull
+	private DependencyCatalog processModuleDependency(String identifier, Module moduleDependency) {
+		DependencyCatalog catalog = new DependencyCatalog();
+		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyTo(moduleDependency);
+		catalog.add(new DependencyCatalog.Dependency(identifier + ":" + "COMPILE", moduleDependency.getName()));
+		catalog.merge(moduleDependenciesCatalog);
 		return catalog;
 	}
 
@@ -115,23 +131,20 @@ public class ImportsResolver {
 		DependencyCatalog catalog = new DependencyCatalog();
 		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + s.name(), a.getFile(), false)));
 		d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
-		d.resolve(true);
+		d.resolved(true);
 		return catalog;
 	}
 
-	public Artifact sourcesOf(String groupId, String artifactId, String version) {
-		try {
-			return aether.resolve(new DefaultArtifact(groupId, artifactId, "sources", "jar", version), JavaScopes.COMPILE).get(0);
-		} catch (DependencyResolutionException e) {
-			return null;
-		}
+	private Module moduleOf(Dependency d) {
+		return moduleOf(d.identifier());
 	}
 
-	private Module moduleOf(Dependency d) {
+	private Module moduleOf(String identifier) {
+		String[] names = identifier.split(":");
 		for (Module m : Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(module -> !module.equals(this.module)).collect(toList())) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
-			if (d.groupId().equals(configuration.groupId().toLowerCase()) && d.artifactId().toLowerCase().equals(configuration.artifactId().toLowerCase()) && d.version().equalsIgnoreCase(configuration.version()))
+			if (names[0].equals(configuration.groupId().toLowerCase()) && names[1].equals(configuration.artifactId().toLowerCase()) && names[2].equalsIgnoreCase(configuration.version()))
 				return m;
 		}
 		return null;
@@ -208,6 +221,11 @@ public class ImportsResolver {
 			if (credential.serverId.equals(mavenId))
 				return new Authentication(credential.username, credential.password);
 		return null;
+	}
+
+	@NotNull
+	private File localRepository() {
+		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
 }

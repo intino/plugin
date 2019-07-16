@@ -33,6 +33,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
+import static java.util.jar.Pack200.Packer.LATEST;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class LanguageResolver {
@@ -101,7 +102,7 @@ public class LanguageResolver {
 		if (!auditor.isModified(model.core$())) {
 			List<Dependency> dependencies = cache.get(languageId);
 			if (dependencies != null && !dependencies.isEmpty()) {
-				model.effectiveVersion(dependencies.get(0).version);
+				model.effectiveVersion(version.equalsIgnoreCase(LATEST) ? dependencies.get(0).version : version);
 				return new DependencyCatalog(dependencies);
 			}
 		}

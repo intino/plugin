@@ -70,7 +70,11 @@ public class ConfigurationReloader {
 	private void resolveJavaDependencies() {
 		DependencyCatalog dependencies = resolveLanguage();
 		if (!safeList(() -> graph.artifact().imports().dependencyList()).isEmpty())
-			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, graph.artifact().imports().dependencyList(), repositories()).resolve());
+			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories()).resolve(graph.artifact().imports().dependencyList()));
+		if (!safeList(() -> graph.artifact().imports().webList()).isEmpty()) {
+			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories()).resolveWeb(graph.artifact().imports().webList()));
+
+		}
 		new DependencyConflictResolver().resolve(dependencies);
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);

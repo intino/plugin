@@ -47,7 +47,11 @@ public class DependencyCatalog {
 	}
 
 	public enum DependencyScope {
-		COMPILE, TEST, RUNTIME, PROVIDED
+		COMPILE, TEST, RUNTIME, PROVIDED, WEB;
+
+		public String label() {
+			return name().substring(0, 1) + name().substring(1).toLowerCase();
+		}
 	}
 
 	public static class Dependency {
