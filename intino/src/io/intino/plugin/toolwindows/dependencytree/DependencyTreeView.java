@@ -100,6 +100,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void invalidateAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
+		ResolutionCache.instance(project).invalidate(mavenId);
 		new DependencyPurger().purgeDependency(mavenId);
 		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
 		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();

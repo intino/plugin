@@ -57,6 +57,7 @@ public class ImportsResolver {
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (io.intino.legio.graph.Artifact.Imports.Web web : webs) {
 			Module moduleDependency = moduleOf(web.identifier());
+			if (moduleDependency == null) continue;
 			catalog.merge(processModuleDependency(web.identifier(), moduleDependency));
 			web.resolved(true);
 		}
