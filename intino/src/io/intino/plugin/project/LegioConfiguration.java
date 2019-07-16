@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND;
+import static io.intino.legio.graph.Artifact.Imports.Dependency;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static io.intino.tara.compiler.shared.TaraBuildConstants.WORKING_PACKAGE;
@@ -160,7 +161,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void addDependency(DependencyScope scope, String id) {
-		if (id == null) return;
+		if (id == null || alreadyExists(scope, id)) return;
 		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
@@ -177,6 +178,14 @@ public class LegioConfiguration implements Configuration {
 		});
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+	}
+
+	private boolean alreadyExists(DependencyScope scope, String id) {
+		for (Dependency d : safeList(() -> graph.artifact().imports().dependencyList()))
+			if (d.identifier().equals(id) && scope.label().equals(d.getClass().getSimpleName())) return true;
+		for (Artifact.Imports.Web d : safeList(() -> graph.artifact().imports().webList()))
+			if (d.identifier().equals(id) && scope.label().equals(d.getClass().getSimpleName())) return true;
+		return false;
 	}
 
 	public void updateCompileDependencies(List<String> ids) {
