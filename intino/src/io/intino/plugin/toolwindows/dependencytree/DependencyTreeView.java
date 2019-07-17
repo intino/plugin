@@ -30,7 +30,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
@@ -100,13 +102,43 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void invalidateAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
-		ResolutionCache.instance(project).invalidate(mavenId);
+		List<String> deps = firstLevelDependenciesWith(mavenId);
+		ResolutionCache.invalidate(mavenId);
+		deps.forEach(ResolutionCache::invalidate);
 		new DependencyPurger().purgeDependency(mavenId);
 		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
 		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();
 		Module module = dependencyNode.module;
 		((LegioConfiguration) TaraUtil.configurationOf(module)).dependencyAuditor().invalidate(dependencyNode.identifier());
 		new ReloadConfigurationAction().execute(module);
+	}
+
+	private List<String> firstLevelDependenciesWith(String mavenId) {
+		List<String> selected = new ArrayList<>();
+		for (Object module : childrenOf(root)) {
+			for (Object lib : childrenOf((DefaultMutableTreeNode) module))
+				if (containsDependency((DefaultMutableTreeNode) lib, mavenId))
+					selected.add(((DependencyNode) ((DefaultMutableTreeNode) lib).getUserObject()).library);
+		}
+		return selected;
+	}
+
+	@NotNull
+	private ArrayList childrenOf(DefaultMutableTreeNode module) {
+		return Collections.list(module.children());
+	}
+
+	private boolean containsDependency(DefaultMutableTreeNode element, String mavenId) {
+		for (Object o : Collections.list(element.children())) {
+			if (!(((DefaultMutableTreeNode) o).getUserObject() instanceof DependencyNode)) continue;
+			if (mavenIdOf((DefaultMutableTreeNode) o).equals(mavenId)) return true;
+		}
+		return false;
+	}
+
+	private String mavenIdOf(DefaultMutableTreeNode o) {
+		String library = ((DependencyNode) o.getUserObject()).library;
+		return library.substring(0, library.lastIndexOf(":"));
 	}
 
 	@NotNull

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Dependency>> {
-	private static ResolutionCache cache = null;
+	private static Map<String, ResolutionCache> cache = new HashMap<>();
 	private File resolutionsFile;
 
 	private ResolutionCache(Project project) {
@@ -24,19 +24,17 @@ public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Depe
 	}
 
 	public static ResolutionCache instance(Project project) {
-		if (cache != null) return cache;
-		return cache = new ResolutionCache(project);
+		if (!cache.containsKey(project.getName())) cache.put(project.getName(), new ResolutionCache(project));
+		return cache.get(project.getName());
 	}
 
+	public static void invalidate(String dependency) {
+		for (ResolutionCache value : cache.values()) value.remove(dependency);
+	}
 
 	public void invalidate() {
 		resolutionsFile.delete();
 		clear();
-	}
-
-
-	public void invalidate(String dependency) {
-		remove(dependency);
 	}
 
 	private void load() {
