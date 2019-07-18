@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -161,7 +160,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void addDependency(DependencyScope scope, String id) {
-		if (id == null || alreadyExists(scope, id)) return;
+		if (id == null || id.isEmpty() || !id.contains(":") || alreadyExists(scope, id)) return;
 		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
@@ -227,8 +226,6 @@ public class LegioConfiguration implements Configuration {
 			ProjectInfo info = new CesarAccessor(this.module.getProject()).projectInfo();
 			if (info != null) new ProcessOutputLoader(module.getProject()).loadOutputs(info.processInfos());
 		}
-		if (ModuleTypeWithWebFeatures.isAvailable(module) && this.graph != null)
-			new GulpExecutor(this.module, graph.artifact()).startGulpDev();
 		if (graph != null && graph.artifact() != null) graph.artifact().save$();
 	}
 

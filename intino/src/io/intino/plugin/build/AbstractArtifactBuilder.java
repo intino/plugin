@@ -13,9 +13,8 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
-import io.intino.plugin.dependencyresolution.web.BowerFileCreator;
+import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.deploy.ArtifactDeployer;
-import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.LanguageManager;
@@ -35,6 +34,7 @@ import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
+import static io.intino.plugin.dependencyresolution.WebDependencyResolver.NodeModules;
 import static io.intino.plugin.project.Safe.safe;
 import static java.util.Collections.emptyList;
 
@@ -75,7 +75,7 @@ abstract class AbstractArtifactBuilder {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
-			compileWeb(phase, module);
+			buildWeb(module);
 			new MavenRunner(module).executeFramework(phase);
 			cleanWebOutputs(module);
 			bitbucket(phase, configuration);
@@ -105,7 +105,7 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
-		if (phase.ordinal() >= FactoryPhase.DISTRIBUTE.ordinal() && configuration.graph().artifact().distribution() != null && configuration.graph().artifact().distribution().onBitbucket() != null)
+		if (phase.ordinal() >= DISTRIBUTE.ordinal() && configuration.graph().artifact().distribution() != null && configuration.graph().artifact().distribution().onBitbucket() != null)
 			new BitbucketDeployer(configuration).execute();
 	}
 
@@ -122,18 +122,15 @@ abstract class AbstractArtifactBuilder {
 		return false;
 	}
 
-	private void compileWeb(FactoryPhase phase, Module module) {
+	private void buildWeb(Module module) {
 		if (!ModuleTypeWithWebFeatures.isAvailable(module)) return;
 		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact();
 		if (artifact == null) return;
-		if (!phase.equals(DISTRIBUTE) && !phase.equals(DEPLOY)) new GulpExecutor(module, artifact).startGulpDeploy();
-		else createDeployBower(module, artifact);
+		createPackageJson(module, artifact);
 	}
 
-	private void createDeployBower(Module module, Artifact artifact) {
-		final File destination = new File(new File(module.getModuleFilePath()).getParentFile(), "src" + File.separator + "widgets");
-		destination.mkdirs();
-		new BowerFileCreator(artifact).createBowerFile(destination);
+	private void createPackageJson(Module module, Artifact artifact) {
+		new PackageJsonCreator(artifact, ((LegioConfiguration) TaraUtil.configurationOf(module)).repositoryTypes(), new File(new File(module.getModuleFilePath()).getParentFile(), NodeModules)).createPackageFile(new File(module.getModuleFilePath()).getParentFile());
 	}
 
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {

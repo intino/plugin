@@ -35,7 +35,7 @@ Concept:{1..1}:Named Artifact
 		Concept Resolution
 			var string name
 			var string version
-		Concept:Named WebComponent
+		Concept WebComponent
 			var string url = ""
 			var string version
 		Concept:Named WebArtifact

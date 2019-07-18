@@ -2,14 +2,12 @@ package io.intino.plugin.build.maven;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.build.FactoryPhase;
-import io.intino.plugin.project.GulpExecutor;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
@@ -90,7 +88,7 @@ public class MavenRunner {
 	}
 
 	public void executeFramework(FactoryPhase phase) throws MavenInvocationException, IOException {
-		final File pom = new PomCreator(module).frameworkPom();
+		final File pom = new PomCreator(module).frameworkPom(phase);
 		final InvocationResult result = invokeMaven(pom, phase);
 		applyBuildFixes(module, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
@@ -99,7 +97,6 @@ public class MavenRunner {
 			File reducedPom = new File(pom.getParentFile(), "dependency-reduced-pom.xml");
 			if (reducedPom.exists()) FileUtil.delete(reducedPom);
 			new MavenPostBuildActions(module).execute();
-			if (ModuleTypeWithWebFeatures.isAvailable(module)) GulpExecutor.removeDeployBower(module);
 			if (result == null)
 				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
 		}

@@ -22,18 +22,15 @@ def type(pom)
 					<version>1.6</version>
 					<executions>
 					    $node
-						<execution>
-							<id>bower install</id>
-							<goals>
-								<goal>bower</goal>
-							</goals>
-							<configuration>
-								<workingDirectory>$${user.home}/</workingDirectory>
-							</configuration>
-						</execution>
+                        <execution>
+                            <id>npm install</id>
+                            <goals>
+                                <goal>npm</goal>
+                            </goals>
+                        </execution>
 					</executions>
 					<configuration>
-						<nodeVersion>v6.9.2</nodeVersion>
+						<nodeVersion>v11.2.0</nodeVersion>
 						<installDirectory>$${user.home}/</installDirectory>
 					</configuration>
 
@@ -43,22 +40,12 @@ def type(pom)
 	</project>
 end
 
-def attribute(node) trigger(node)
+def attribute(this:node) trigger(node)
     <execution>
         <id>install node and npm</id>
         <goals>
             <goal>install-node-and-npm</goal>
         </goals>
         <phase>generate-resources</phase>
-    </execution>
-    <execution>
-        <id>npm install</id>
-        <goals>
-            <goal>npm</goal>
-        </goals>
-        <configuration>
-            <workingDirectory>$${user.home}/</workingDirectory>
-            <installDirectory>$${user.home}/</installDirectory>
-        </configuration>
     </execution>
 end

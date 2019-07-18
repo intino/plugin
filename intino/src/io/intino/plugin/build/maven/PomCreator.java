@@ -17,6 +17,7 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
 import io.intino.legio.graph.Parameter;
 import io.intino.legio.graph.Repository;
+import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
@@ -49,31 +50,32 @@ import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
 
 
-public class PomCreator {
+class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private final Mode packageType;
 	private Set<Integer> randomGeneration = new HashSet<>();
 
-	public PomCreator(Module module) {
+	PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		packageType = safe(() -> configuration.graph().artifact().package$()) == null || configuration.graph().artifact() == null ? null : configuration.graph().artifact().package$().mode();
 	}
 
-	public File frameworkPom() {
-		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile()) : frameworkPom(pomFile());
+	File frameworkPom(FactoryPhase phase) {
+		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile());
 	}
 
-	private File webPom(File pom) {
+	private File webPom(File pom, FactoryPhase phase) {
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
 		final String compilerOutputUrl = CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl();
 		builder.add("buildDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "build" + separator);
 		builder.add("outDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "production" + separator);
+		builder.add("build", new FrameBuilder(phase.name().toLowerCase()).add("nodeInstalled", nodeInstalled()).toFrame());
 		addRepositories(builder);
-		writePom(pom, builder.toFrame(), new ActivityPomTemplate());
+		writePom(pom, builder.toFrame(), new UIAccessorPomTemplate());
 		return pom;
 	}
 
@@ -360,4 +362,9 @@ public class PomCreator {
 			LOG.error("Error creating pomFile to publish action: " + e.getMessage());
 		}
 	}
+
+	private boolean nodeInstalled() {
+		return new File(System.getProperty("user.home"), "/node/node").exists() || new File(System.getProperty("user.home"), "/node/node.exe").exists();
+	}
+
 }

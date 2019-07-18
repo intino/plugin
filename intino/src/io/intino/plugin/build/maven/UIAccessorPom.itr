@@ -21,6 +21,7 @@ def type(pom)
     		<outputDirectory>$outDirectory~$artifactId+lowercase</outputDirectory>
 			<directory>$buildDirectory~$artifactId+lowercase</directory>
     		<plugins>
+    		    $build
     			<plugin>
     				<groupId>org.codehaus.mojo</groupId>
     				<artifactId>build-helper-maven-plugin</artifactId>
@@ -28,14 +29,22 @@ def type(pom)
     				<executions>
     					<execution>
     						<id>add-source</id>
-    						<phase>generate-sources</phase>
+    						<phase>generate-resources</phase>
     						<goals>
-    							<goal>add-source</goal>
+    							<goal>add-resource</goal>
     						</goals>
     						<configuration>
-    							<sources>
-    								<source>./src/widgets/</source>
-    							</sources>
+    							<resources>
+                                    <resource>
+                                        <directory>./</directory>
+                                        <includes>
+                                            <include>package.json</include>
+                                            <include>src/**/*</include>
+                                            <include>gen/**/*</include>
+                                            <include>res/**/*</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
     						</configuration>
     					</execution>
     				</executions>
@@ -65,6 +74,29 @@ def type(pom)
     </project>
 end
 
+def type(package) trigger(build)
+    <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+            $nodeInstalled
+            <execution>
+                <id>npm install</id>
+                <goals>
+                    <goal>npm</goal>
+                </goals>
+                <configuration>
+                    <arguments>run-script build</arguments>
+                </configuration>
+            </execution>
+        </executions>
+        <configuration>
+            <nodeVersion>v11.2.0</nodeVersion>
+            <installDirectory>$${user.home}/</installDirectory>
+        </configuration>
+    </plugin>
+end
 
 def type(repository) type(Distribution) trigger(distribution)
 	<repository>
@@ -72,4 +104,17 @@ def type(repository) type(Distribution) trigger(distribution)
 		<name>$name</name>
 		<url>$url</url>
 	</repository>
+end
+
+def attribute(this:false) trigger(nodeInstalled)
+    <execution>
+        <id>install node and npm</id>
+        <goals>
+            <goal>install-node-and-npm</goal>
+        </goals>
+        <phase>generate-resources</phase>
+    </execution>
+end
+
+def trigger(nodeInstalled)
 end
