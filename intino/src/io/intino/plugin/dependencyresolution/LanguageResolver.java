@@ -59,7 +59,7 @@ public class LanguageResolver {
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
-			if (language.equalsIgnoreCase(configuration.artifactId())) return m;
+			if (language.equalsIgnoreCase(configuration.outLanguage())) return m;
 		}
 		return null;
 	}

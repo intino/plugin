@@ -89,23 +89,47 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		Object userObject = ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
 		if (!(userObject instanceof DependencyNode)) return;
 		JBPopupMenu options = new JBPopupMenu("options");
-		JBMenuItem jbMenuItem = new JBMenuItem("Delete from Local Repository and Reload it");
-		jbMenuItem.setAction(new AbstractAction("Delete from Local Repository and Reload it") {
+		JBMenuItem item1 = reloadAction(treePath, (DependencyNode) userObject);
+		JBMenuItem item2 = deleteAndReloadAction(treePath, (DependencyNode) userObject);
+		options.add(item1);
+		options.add(item2);
+		options.show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	private JBMenuItem reloadAction(TreePath treePath, DependencyNode userObject) {
+		JBMenuItem item = new JBMenuItem("Reload cache of this dependency");
+		item.setAction(new AbstractAction("Reload cache of this dependency") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String mavenId = mavenId((DependencyNode) userObject);
+				String mavenId = mavenId(userObject);
 				ApplicationManager.getApplication().invokeLater(() -> invalidateAndReload(mavenId, ((DefaultMutableTreeNode) treePath.getLastPathComponent())));
 			}
 		});
-		options.add(jbMenuItem);
-		options.show(e.getComponent(), e.getX(), e.getY());
+		return item;
+	}
+
+	@NotNull
+	private JBMenuItem deleteAndReloadAction(TreePath treePath, DependencyNode userObject) {
+		JBMenuItem item = new JBMenuItem("Delete from Local Repository and Reload it");
+		item.setAction(new AbstractAction("Delete from Local Repository and Reload it") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String mavenId = mavenId(userObject);
+				ApplicationManager.getApplication().invokeLater(() -> purgeAndReload(mavenId, ((DefaultMutableTreeNode) treePath.getLastPathComponent())));
+			}
+		});
+		return item;
+	}
+
+	private void purgeAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
+		new DependencyPurger().purgeDependency(mavenId);
+		invalidateAndReload(mavenId, treeNode);
 	}
 
 	private void invalidateAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
 		List<String> deps = firstLevelDependenciesWith(mavenId);
 		ResolutionCache.invalidate(mavenId);
 		deps.forEach(ResolutionCache::invalidate);
-		new DependencyPurger().purgeDependency(mavenId);
 		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
 		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();
 		Module module = dependencyNode.module;

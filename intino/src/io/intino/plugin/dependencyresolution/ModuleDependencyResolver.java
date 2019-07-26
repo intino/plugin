@@ -29,6 +29,7 @@ class ModuleDependencyResolver {
 
 	private DependencyCatalog resolveDependencies(Module dependency) {
 		DependencyCatalog catalog = new DependencyCatalog();
+		catalog.add(dependencyFrom((LegioConfiguration) TaraUtil.configurationOf(dependency)));
 		librariesOf(dependency).stream().filter(l -> l.getName() != null && l.getFiles(OrderRootType.CLASSES).length >= 1).forEach(l -> catalog.add(dependencyFrom(l)));
 		moduleDependenciesOf(dependency).stream().
 				map(TaraUtil::configurationOf).

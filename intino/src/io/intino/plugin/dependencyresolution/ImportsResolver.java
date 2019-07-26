@@ -58,7 +58,7 @@ public class ImportsResolver {
 		for (io.intino.legio.graph.Artifact.Imports.Web web : webs) {
 			Module moduleDependency = moduleOf(web.identifier());
 			if (moduleDependency == null) continue;
-			catalog.merge(processModuleDependency(web.identifier(), moduleDependency));
+			catalog.merge(processModuleDependency(moduleDependency));
 			web.resolved(true);
 		}
 		return catalog;
@@ -107,7 +107,7 @@ public class ImportsResolver {
 	}
 
 	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {
-		DependencyCatalog catalog = processModuleDependency(d.identifier(), moduleDependency);
+		DependencyCatalog catalog = processModuleDependency(moduleDependency);
 		d.effectiveVersion(d.version());
 		d.toModule(true);
 		d.resolved(true);
@@ -115,10 +115,9 @@ public class ImportsResolver {
 	}
 
 	@NotNull
-	private DependencyCatalog processModuleDependency(String identifier, Module moduleDependency) {
+	private DependencyCatalog processModuleDependency(Module moduleDependency) {
 		DependencyCatalog catalog = new DependencyCatalog();
 		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyTo(moduleDependency);
-		catalog.add(new DependencyCatalog.Dependency(identifier + ":" + "COMPILE", moduleDependency.getName()));
 		catalog.merge(moduleDependenciesCatalog);
 		return catalog;
 	}
