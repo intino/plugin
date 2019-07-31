@@ -32,10 +32,44 @@
 			stroke: rgba(66, 180, 21, 0.7) !important; /* color elements as red */
 		}
 
+		.intino.toolbar {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			margin-right: 20px;
+			margin-bottom: 20px;
+		}
+
 		#save-button {
 			position: fixed;
 			bottom: 20px;
 			left: 20px;
+		}
+
+		#reset-button, #zoom-in-button, #zoom-out-button {
+			background: #fafafa;
+		}
+
+		#zoom-in-button {
+			margin-bottom: -1px;
+		}
+
+		#reset-button {
+			padding: 2px 3px;
+			margin: 0 0 15px;
+		}
+
+		.reset, .zoom-in, .zoom-out {
+			cursor: pointer;
+			font-size: 22px;
+			line-height: 26px;
+			color: #555555;
+			width: 15px;
+			height: 25px;
+		}
+
+		.reset {
+			width: 23px;
 		}
 	</style>
 </head>
@@ -43,9 +77,21 @@
 <div id="canvas"></div>
 
 <div class="intino toolbar">
-	<button id="reset-button">Reset</button>
-	<button id="zoom-in-button">Zoom In</button>
-	<button id="zoom-out-button">Zoom Out</button>
+	<div>
+		<button id="reset-button"><img
+				src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiB3aWR0aD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0OHY0OGgtNDh6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEwIDMwaC00djhjMCAyLjIxIDEuNzkgNCA0IDRoOHYtNGgtOHYtOHptMC0yMGg4di00aC04Yy0yLjIxIDAtNCAxLjc5LTQgNHY4aDR2LTh6bTI4LTRoLTh2NGg4djhoNHYtOGMwLTIuMjEtMS43OS00LTQtNHptMCAzMmgtOHY0aDhjMi4yMSAwIDQtMS43OSA0LTR2LThoLTR2OHptLTE0LTIwYy0zLjMxIDAtNiAyLjY5LTYgNnMyLjY5IDYgNiA2IDYtMi42OSA2LTYtMi42OS02LTYtNnoiLz48L3N2Zz4="
+				class="reset"/></button>
+	</div>
+	<div>
+		<button id="zoom-in-button"><img
+				src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMyIDMyOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSIzMnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNMjgsMTRIMThWNGMwLTEuMTA0LTAuODk2LTItMi0ycy0yLDAuODk2LTIsMnYxMEg0Yy0xLjEwNCwwLTIsMC44OTYtMiwyczAuODk2LDIsMiwyaDEwdjEwYzAsMS4xMDQsMC44OTYsMiwyLDIgIHMyLTAuODk2LDItMlYxOGgxMGMxLjEwNCwwLDItMC44OTYsMi0yUzI5LjEwNCwxNCwyOCwxNHoiLz48L3N2Zz4="
+				class="zoom-in"/></button>
+	</div>
+	<div>
+		<button id="zoom-out-button"><img
+				src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iNTEycHgiIGlkPSJMYXllcl8xIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgd2lkdGg9IjUxMnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNNDE3LjQsMjI0SDk0LjZDNzcuNywyMjQsNjQsMjM4LjMsNjQsMjU2YzAsMTcuNywxMy43LDMyLDMwLjYsMzJoMzIyLjhjMTYuOSwwLDMwLjYtMTQuMywzMC42LTMyICBDNDQ4LDIzOC4zLDQzNC4zLDIyNCw0MTcuNCwyMjR6Ii8+PC9zdmc+"
+				class="zoom-out"/></button>
+	</div>
 </div>
 <script>
     var process = "$process";
@@ -103,16 +149,16 @@
     });
 
     $("#reset-button").click(function () {
-        modeler.get('canvas').zoom('fit-viewport', true);
+        bpmnModeler.get('canvas').zoom('fit-viewport', true);
     });
 
     $("#zoom-in-button").click(function () {
-        modeler.get('canvas').zoom(modeler.get('canvas').zoom() + 0.3, true);
+        bpmnModeler.get('canvas').zoom(bpmnModeler.get('canvas').zoom() + 0.3, true);
 
     });
 
     $("#zoom-out-button").click(function () {
-        modeler.get('canvas').zoom(modeler.get('canvas').zoom() - 0.3, true);
+        bpmnModeler.get('canvas').zoom(bpmnModeler.get('canvas').zoom() - 0.3, true);
     });
 
     openDiagram(diagram);
