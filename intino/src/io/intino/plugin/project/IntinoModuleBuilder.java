@@ -4,6 +4,7 @@ import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -66,8 +67,11 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 			if (intinoVfile != null) contentEntry.addExcludeFolder(intinoVfile);
 		}
 		if (contentEntry.getFile().findChild(".idea") != null) {
-			final VirtualFile ideaVDirectory = rootModel.getProject().getBaseDir().findChild(".idea");
-			if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
+			VirtualFile baseDirectory = ProjectUtil.guessProjectDir(rootModel.getProject());
+			if (baseDirectory != null) {
+				final VirtualFile ideaVDirectory = baseDirectory.findChild(".idea");
+				if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
+			}
 		}
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));

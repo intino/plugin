@@ -14,7 +14,7 @@ import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.project.CesarAccessor;
 
 import static com.intellij.icons.AllIcons.Actions.Suspend;
-import static com.intellij.icons.AllIcons.General.Run;
+import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 
 public class StartAction extends AnAction implements DumbAware {
 	private final CesarAccessor cesarAccessor;

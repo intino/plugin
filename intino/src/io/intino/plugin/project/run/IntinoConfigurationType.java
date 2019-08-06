@@ -39,7 +39,7 @@ public class IntinoConfigurationType extends ApplicationConfigurationType {
 		return new ConfigurationFactory[]{icf};
 	}
 
-	private class IntinoConfigurationFactory extends ConfigurationFactory {
+	public static class IntinoConfigurationFactory extends ConfigurationFactory {
 
 		IntinoConfigurationFactory(@NotNull ConfigurationType type) {
 			super(type);
@@ -48,7 +48,7 @@ public class IntinoConfigurationType extends ApplicationConfigurationType {
 		@NotNull
 		@Override
 		public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-			return new IntinoRunConfiguration("Intino Configuration", project, IntinoConfigurationType.this);
+			return new IntinoRunConfiguration("Intino Configuration", project, this);
 		}
 	}
 }

@@ -2,11 +2,16 @@ package io.intino.plugin.project.run;
 
 import com.intellij.codeInsight.TestFrameworks;
 import com.intellij.execution.JavaExecutionUtil;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.ConfigurationFromContext;
-import com.intellij.execution.application.AbstractApplicationConfigurationProducer;
+import com.intellij.execution.actions.ConfigurationFromContextImpl;
 import com.intellij.execution.application.ApplicationConfiguration;
+import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -23,19 +28,36 @@ import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.intellij.openapi.util.Comparing.equal;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 
-public class IntinoConfigurationProducer extends AbstractApplicationConfigurationProducer<IntinoRunConfiguration> {
+public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBase<ApplicationConfiguration> {
+	private static final Logger LOG = Logger.getInstance(IntinoConfigurationProducer.class);
 
-
-	public IntinoConfigurationProducer(IntinoConfigurationType configurationType) {
-		super(configurationType);
+	@Nullable
+	public ConfigurationFromContext createConfigurationFromContext(@NotNull ConfigurationContext context) {
+		final RunnerAndConfigurationSettings settings = cloneTemplateConfiguration(context);
+		Ref<PsiElement> ref = new Ref<>(context.getPsiLocation());
+		try {
+			if (!setupConfigurationFromContext((ApplicationConfiguration) settings.getConfiguration(), context, ref)) {
+				return null;
+			}
+		} catch (ClassCastException e) {
+			LOG.error(getConfigurationFactory() + " produced wrong type", e);
+			return null;
+		} catch (ProcessCanceledException e) {
+			throw e;
+		} catch (Throwable e) {
+			LOG.error(e);
+			return null;
+		}
+		return new ConfigurationFromContextImpl(this, settings, ref.get());
 	}
 
 	@Override
-	protected boolean setupConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context, Ref<PsiElement> sourceElement) {
+	protected boolean setupConfigurationFromContext(@NotNull ApplicationConfiguration configuration, @NotNull ConfigurationContext context, Ref<PsiElement> sourceElement) {
 		final PsiElement element = sourceElement.get();
 		final boolean isSuitable = element instanceof TaraNode && ((TaraNode) element).type().equals(RunConfiguration.class.getSimpleName());
 		if (isSuitable) {
@@ -49,7 +71,7 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		return isSuitable;
 	}
 
-	public boolean isConfigurationFromContext(IntinoRunConfiguration configuration, ConfigurationContext context) {
+	public boolean isConfigurationFromContext(@NotNull ApplicationConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
 		if (location == null) return false;
 		Configuration conf = TaraUtil.configurationOf(location);
@@ -66,6 +88,22 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 			return equal(template.getConfigurationModule().getModule(), configurationModule);
 		}
 		return false;
+	}
+
+	@Override
+	public boolean shouldReplace(@NotNull ConfigurationFromContext self, @NotNull ConfigurationFromContext other) {
+		return self.getSourceElement().equals(other.getSourceElement());
+	}
+
+	@Override
+	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
+		return super.isPreferredConfiguration(self, other);
+	}
+
+	@NotNull
+	@Override
+	public ConfigurationFactory getConfigurationFactory() {
+		return IntinoConfigurationType.getInstance().getConfigurationFactories()[0];
 	}
 
 	@NotNull
@@ -87,15 +125,5 @@ public class IntinoConfigurationProducer extends AbstractApplicationConfiguratio
 		if (safe == null || !safe.isRunnable()) return null;
 		final JavaPsiFacade facade = JavaPsiFacade.getInstance(runConfigurationNode.getProject());
 		return facade.findClass(safe.asRunnable().mainClass(), allScope(runConfigurationNode.getProject()));
-	}
-
-	@Override
-	public boolean shouldReplace(@NotNull ConfigurationFromContext self, @NotNull ConfigurationFromContext other) {
-		return self.getSourceElement().equals(other.getSourceElement());
-	}
-
-	@Override
-	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
-		return super.isPreferredConfiguration(self, other);
 	}
 }

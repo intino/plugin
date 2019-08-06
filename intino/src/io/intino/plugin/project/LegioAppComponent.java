@@ -1,10 +1,10 @@
 package io.intino.plugin.project;
 
-import org.jetbrains.annotations.NotNull;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.project.configuration.ConfigurationManager;
+import org.jetbrains.annotations.NotNull;
 
-public class LegioAppComponent implements com.intellij.openapi.components.ApplicationComponent {
+public class LegioAppComponent implements com.intellij.openapi.components.BaseComponent {
 	@Override
 	public void initComponent() {
 		LanguageManager.register(new tara.dsl.Legio());

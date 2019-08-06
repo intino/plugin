@@ -20,10 +20,8 @@ import javax.swing.*;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.intellij.icons.AllIcons.Ide.Macro.Recording_stop;
-
 class SyncLogAction extends AnAction implements DumbAware {
-	private final Icon LogIcon = AllIcons.Debugger.Console_log;
+	private final Icon LogIcon = AllIcons.Debugger.Console;
 	private final ProcessInfo info;
 	private final CesarAccessor cesarAccessor;
 	private final RunContentDescriptor myContentDescriptor;
@@ -58,7 +56,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		e.getPresentation().setIcon(inited ? Recording_stop : LogIcon);
+		e.getPresentation().setIcon(inited ? AllIcons.Actions.Suspend : LogIcon);
 	}
 
 	public void stop() {

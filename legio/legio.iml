@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module io.intino.tara.isTaraModule="true" org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="ExternalSystem" linkedProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" rootProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" />
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/../out/production/legio" />
     <output-test url="file://$MODULE_DIR$/../out/test/legio" />
     <content url="file://$MODULE_DIR$">
@@ -9,7 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="JBR11" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: io.intino.tara:magritte:2.2.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.tara:language:1.0.13" level="project" />

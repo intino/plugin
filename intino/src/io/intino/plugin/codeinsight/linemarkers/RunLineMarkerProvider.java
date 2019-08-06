@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.linemarkers;
 
-import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
 import com.intellij.execution.Executor;
@@ -27,8 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Collection;
-import java.util.List;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
@@ -58,13 +55,13 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	@NotNull
 	private LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
-		return new LineMarkerInfo<PsiElement>(leafOf(element), element.getTextRange(), info.icon, Pass.LINE_MARKERS,
+		return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), info.icon,
 				tooltipProvider, null,
 				GutterIconRenderer.Alignment.CENTER) {
 			@NotNull
 			@Override
 			public GutterIconRenderer createGutterRenderer() {
-				return new LineMarkerGutterIconRenderer<PsiElement>(this) {
+				return new LineMarkerGutterIconRenderer<>(this) {
 					@Override
 					public AnAction getClickAction() {
 						return null;
@@ -105,7 +102,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		return new Info(Run, element -> join(mapNotNull(actions, a -> getText(a, runnerClass)), "\n"), actions);
 	}
 
-	private static String getText(@NotNull AnAction action, @NotNull PsiElement element) {
+	private String getText(@NotNull AnAction action, @NotNull PsiElement element) {
 		DataContext parent = getContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
 		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
@@ -118,9 +115,6 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		if (configuration == null) return null;
 		return JavaPsiFacade.getInstance(module.getProject()).findClass(safe(() -> safe(() -> configuration.graph().artifact().package$()).asRunnable().mainClass()), GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
-	}
-
-	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
 	}
 
 	@NotNull

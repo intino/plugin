@@ -4,6 +4,7 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiDirectory;
@@ -16,8 +17,12 @@ import io.intino.plugin.itrules.lang.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
-public class FileListener implements com.intellij.openapi.components.ApplicationComponent {
+public class FileListener implements com.intellij.openapi.components.BaseComponent {
+	private static final Logger logger = Logger.getInstance(FileListener.class);
+
 	@Override
 	public void initComponent() {
 		VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
@@ -81,7 +86,12 @@ public class FileListener implements com.intellij.openapi.components.Application
 			}
 
 			private DataContext dataContext() {
-				return DataManager.getInstance().getDataContextFromFocus().getResult();
+				try {
+					return DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(10);
+				} catch (TimeoutException | ExecutionException e) {
+					logger.error(e);
+					return null;
+				}
 			}
 
 			@Override

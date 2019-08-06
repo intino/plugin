@@ -55,10 +55,6 @@ public class ItrulesParserDefinition implements ParserDefinition {
         return new ItrulesTemplateImpl(viewProvider);
     }
 
-    public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {
-        return SpaceRequirements.MAY;
-    }
-
     @NotNull
     public com.intellij.psi.PsiElement createElement(ASTNode node) {
         throw new AssertionError("Unknown element type: " + node.getElementType());

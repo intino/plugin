@@ -255,7 +255,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		tree.getSelectionModel().setSelectionMode
 				(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		DefaultTreeCellRenderer renderer = new IntinoDependencyRenderer();
-		renderer.setLeafIcon(AllIcons.Modules.Library);
+		renderer.setLeafIcon(AllIcons.Nodes.PpLib);
 		tree.setCellRenderer(renderer);
 		renderProject(root);
 		tree.setVisible(true);
@@ -270,9 +270,9 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 			DefaultMutableTreeNode nodo = (DefaultMutableTreeNode) value;
-			if (tree.getModel().getRoot().equals(nodo)) setIcon(AllIcons.Modules.ModulesNode);
-			else if (nodo.getUserObject() instanceof ModuleNode) setIcon(AllIcons.Modules.ModulesNode);
-			else setIcon(AllIcons.Modules.Library);
+			if (tree.getModel().getRoot().equals(nodo)) setIcon(AllIcons.Nodes.ModuleGroup);
+			else if (nodo.getUserObject() instanceof ModuleNode) setIcon(AllIcons.Nodes.ModuleGroup);
+			else setIcon(AllIcons.Nodes.PpLib);
 			return this;
 		}
 	}

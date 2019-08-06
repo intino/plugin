@@ -1,6 +1,7 @@
 package io.intino.plugin.build;
 
-import com.intellij.ide.SaveAndSyncHandlerImpl;
+import com.intellij.configurationStore.StoreReloadManager;
+import com.intellij.ide.SaveAndSyncHandler;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -17,7 +18,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.IntinoIcons;
@@ -114,13 +114,13 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private void saveAll() {
 		Application manager = ApplicationManager.getApplication();
 		if (manager.isWriteAccessAllowed()) FileDocumentManager.getInstance().saveAllDocuments();
-		ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+		StoreReloadManager.getInstance().blockReloadingProjectOnExternalChanges();
 	}
 
 	private void reloadProject() {
-		SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
+		SaveAndSyncHandler.getInstance().refreshOpenFiles();
 		VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
-		ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+		StoreReloadManager.getInstance().unblockReloadingProjectOnExternalChanges();
 	}
 
 	private void processSuccessMessages() {

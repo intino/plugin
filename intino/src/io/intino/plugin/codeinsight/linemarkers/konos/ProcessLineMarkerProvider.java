@@ -1,13 +1,10 @@
 package io.intino.plugin.codeinsight.linemarkers.konos;
 
-import com.intellij.codeHighlighting.Pass;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.impl.JavaLineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.LineMarkerNavigator;
 import com.intellij.codeInsight.daemon.impl.MarkerType;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
@@ -41,10 +38,6 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		}
 	});
 
-	@SuppressWarnings("NonDefaultConstructor")
-	public ProcessLineMarkerProvider(DaemonCodeAnalyzerSettings daemonSettings, EditorColorsManager colorsManager) {
-		super(daemonSettings, colorsManager);
-	}
 
 	@Override
 	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
@@ -52,7 +45,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		if (isProcessElement(element)) {
 			final Icon icon = IntinoIcons.BOX_PROCESS;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, Pass.UPDATE_ALL, type.getTooltip(),
+			return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
 					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
 		} else return super.getLineMarkerInfo(element);
 	}

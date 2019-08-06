@@ -10,6 +10,7 @@ import io.intino.tara.plugin.lang.LanguageManager;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -67,8 +68,8 @@ public class InterfaceBuilderLoader {
 
 	private static Language loadLanguage(ClassLoader classLoader) {
 		try {
-			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").getConstructors()[0].newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | InvocationTargetException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
 		}
@@ -103,8 +104,8 @@ public class InterfaceBuilderLoader {
 
 	private static AnAction loadAction(ClassLoader classLoader, Manifest.Action action) {
 		try {
-			return (AnAction) classLoader.loadClass(action.aClass).newInstance();
-		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+			return (AnAction) classLoader.loadClass(action.aClass).getDeclaredConstructors()[0].newInstance();
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
 		}

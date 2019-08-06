@@ -8,10 +8,12 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupStep;
@@ -37,7 +39,6 @@ import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPA
 import static io.intino.plugin.project.LegioConfiguration.parametersOf;
 import static io.intino.plugin.project.Safe.safeList;
 
-@SuppressWarnings("ComponentNotRegistered")
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
 	private Node runConfiguration;
@@ -122,11 +123,6 @@ public class IntinoRunContextAction extends RunContextAction {
 	public void update(final AnActionEvent event) {
 		super.update(event);
 
-	}
-
-	private void set(Presentation presentation, boolean b) {
-		presentation.setEnabled(b);
-		presentation.setVisible(b);
 	}
 
 	private Configuration configuration() {
