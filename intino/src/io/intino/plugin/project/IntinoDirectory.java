@@ -1,7 +1,6 @@
 package io.intino.plugin.project;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -12,7 +11,7 @@ public class IntinoDirectory {
 	public static final String INTINO = ".intino";
 
 	public static File of(Project project) {
-		VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
+		VirtualFile baseDir = VfsUtil.findFileByIoFile(new File(project.getBasePath()), true);
 		VirtualFile intino = baseDir.findChild(INTINO);
 		return intino == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, INTINO)) : new File(intino.getPath());
 	}
@@ -30,7 +29,7 @@ public class IntinoDirectory {
 	}
 
 	private static VirtualFile vfOf(Project project) {
-		VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
+		VirtualFile baseDir = VfsUtil.findFileByIoFile(new File(project.getBasePath()), true);
 		VirtualFile intino = baseDir.findChild(INTINO);
 		return intino == null ? createDirectory(baseDir, INTINO) : intino;
 	}
