@@ -1,5 +1,8 @@
 package io.intino.plugin.project;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -40,8 +43,10 @@ import io.intino.tara.plugin.lang.psi.impl.TaraNodeImpl;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RepositoryPolicy;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -453,15 +458,27 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	private LegioGraph newGraphFromLegio() {
-		Stash stash = loadNewLegio();
-		if (stash == null) return null;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Stash stash = loadNewLegio(new PrintStream(out));
+		if (stash == null) {
+			processCompilerOutput(out.toString());
+			return null;
+		}
 		dependencyAuditor.reload(stash);
 		return GraphLoader.loadGraph(stash, stashFile());
 	}
 
-	private Stash loadNewLegio() {
+	private void processCompilerOutput(String out) {
+		String[] lines = out.split("\n");
+		String prefix = "%%merror#%%#%%%#%%%%%%%%%#";
+		Arrays.stream(lines).filter(line -> line.startsWith(prefix)).
+				map(line -> line.replace(prefix, "").replace("#%%#%%%#%%%%%%%%%#", " ").replace("/%m", "")).
+				findFirst().ifPresent(message -> Bus.notify(new Notification("Tara Language", "Error parsing Intino configuration", message, NotificationType.ERROR), this.module.getProject()));
+	}
+
+	private Stash loadNewLegio(PrintStream printStream) {
 		try {
-			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), System.out).build();
+			return new StashBuilder(Collections.singletonMap(new File(legioFile.getPath()), legioFile.getCharset()), new tara.dsl.Legio(), module.getName(), printStream).build();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			return null;
