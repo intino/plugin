@@ -13,9 +13,9 @@
 
     <depends>io.intino.tara</depends>
     <depends>com.intellij.modules.java</depends>
-    <idea-version since-build="192"/>
-
+    <idea-version since-build="192.3645"/>
     <extensions defaultExtensionNs="com.intellij">
+        <httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
         <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
         <codeInsight.lineMarkerProvider language="Tara"
@@ -43,8 +43,7 @@
             <category>Remove version from local repository</category>
             <descriptionDirectoryName>RemoveFromLocalRepository</descriptionDirectoryName>
         </intentionAction>
-        <projectService serviceInterface="io.intino.plugin.settings.IntinoSettings"
-                        serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
+        <projectService serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
         <attachSourcesProvider
                 implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>

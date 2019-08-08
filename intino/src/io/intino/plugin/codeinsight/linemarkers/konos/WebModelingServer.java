@@ -2,15 +2,22 @@ package io.intino.plugin.codeinsight.linemarkers.konos;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.diagnostic.Logger;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.builtInWebServer.BuiltInServerOptions;
+import org.jetbrains.ide.RestService;
+import org.jetbrains.io.Responses;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -21,90 +28,99 @@ import java.util.Map;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-public class WebModelingServer {
+public class WebModelingServer extends RestService {
 	private static final Logger logger = Logger.getInstance(WebModelingServer.class);
-	private static WebModelingServer instance;
-	private final int port = 9999;
-	private Map<String, File> processes;
-	private HttpServer server;
-	private String template;
+	private static Map<String, File> processes = new HashMap<>();
+	private static String template;
 
-	private WebModelingServer() {
-		processes = new HashMap<>();
+	static {
 		try {
-			template = IOUtils.toString(this.getClass().getResourceAsStream("/process_modeler.html"), "UTF-8");
-			createServer();
+
+			template = IOUtils.toString(WebModelingServer.class.getResourceAsStream("/process_modeler.html"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			logger.error(e);
 		}
-	}
-
-	static WebModelingServer instance() {
-		if (instance != null) return instance;
-		return instance = new WebModelingServer();
-	}
-
-	private void createServer() throws IOException {
-		server = HttpServer.create(new InetSocketAddress(port), 0);
-		server.createContext("/process", req -> {
-			if (req.getRequestMethod().equals("GET")) openDiagram(process(req), req);
-			if (req.getRequestMethod().equals("POST")) saveDiagram(process(req), req);
-		});
-		server.createContext("/process/closed", req -> remove(process(req)));
-		server.start();
-	}
-
-	private String process(HttpExchange req) {
-		String[] split = req.getRequestURI().toString().split("\\?");
-		return split[split.length - 1];
-	}
-
-	public void add(String process, File source) {
-		processes.put(process, source);
 
 	}
 
-	void open(String processId) {
+	static void open(String processId, File file) {
 		try {
-			BrowserUtil.browse(new URL("http://localhost:" + port + "/process?" + processId));
+			BrowserUtil.browse(new URL("http://localhost:" + BuiltInServerOptions.getInstance().getEffectiveBuiltInServerPort() + "/process?process=" + processId + "&file=" + file.getAbsolutePath()));
 		} catch (MalformedURLException e) {
 			logger.error(e);
 		}
 	}
 
+	@NotNull
+	@Override
+	protected String getServiceName() {
+		return "process-modeler";
+	}
+
+	@Override
+	protected boolean isMethodSupported(@NotNull HttpMethod method) {
+		return method == HttpMethod.GET || method == HttpMethod.POST;
+	}
+
+	@Override
+	public boolean isSupported(@NotNull FullHttpRequest request) {
+		String path = path(request);
+		return path.equalsIgnoreCase("/process") || path.equalsIgnoreCase("/process/closed");
+	}
+
+	private String path(FullHttpRequest request) {
+		return request.uri().split("\\?")[0];
+	}
+
+	@Nullable
+	@Override
+	public String execute(@NotNull QueryStringDecoder decoder, @NotNull FullHttpRequest req, @NotNull ChannelHandlerContext context) throws IOException {
+
+		String process = process(decoder);
+		if (process == null) return null;
+		if (decoder.path().endsWith("/process")) {
+			if (!processes.containsKey(process) && file(decoder) != null) add(process, file(decoder));
+			if (req.method().name().equalsIgnoreCase("GET")) openDiagram(process, req, context);
+			else saveDiagram(process, req);
+		} else remove(process);
+		return null;
+	}
+
+	private File file(QueryStringDecoder decoder) {
+		if (!decoder.parameters().containsKey("file")) return null;
+		return new File(decoder.parameters().get("file").get(0));
+	}
+
+	private String process(QueryStringDecoder decoder) {
+		if (!decoder.parameters().containsKey("process")) return null;
+		return decoder.parameters().get("process").get(0);
+	}
+
+	public void add(String process, File source) {
+		processes.put(process, source);
+	}
+
 	private void remove(String process) {
 		processes.remove(process);
-		if (processes.isEmpty()) restartServer();
 	}
 
-	private void restartServer() {
-		server.stop(0);
-		try {
-			createServer();
-		} catch (IOException e) {
-			logger.error(e);
-		}
-	}
-
-	private void saveDiagram(String process, HttpExchange req) {
-		try {
-			InputStream requestBody = req.getRequestBody();
-			String xml = new String(IOUtils.readFully(requestBody, requestBody.available()), StandardCharsets.UTF_8);
-			File file = processes.get(process);
-			Files.write(file.toPath(), xml.getBytes(), CREATE, TRUNCATE_EXISTING);
-		} catch (IOException e) {
-			logger.error(e);
-		}
-	}
-
-	private void openDiagram(String process, HttpExchange req) throws IOException {
+	private void openDiagram(String process, FullHttpRequest req, ChannelHandlerContext context) throws IOException {
 		File file = processes.get(process);
 		String diagram = file.exists() ? new String(Files.readAllBytes(file.toPath())).replace("\n", "\\n") : "";
 		String html = template.replace("$diagram", diagram).replace("$process", process);
-		req.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
-		req.sendResponseHeaders(200, html.getBytes().length);
-		OutputStream out = req.getResponseBody();
-		out.write(html.getBytes());
-		out.close();
+		Responses.send(Responses.response("text/html", Unpooled.copiedBuffer(html, StandardCharsets.UTF_8)).setProtocolVersion(req.protocolVersion()).setStatus(HttpResponseStatus.OK), context.channel(), req);
+	}
+
+	private void saveDiagram(String process, FullHttpRequest req) {
+		try {
+			ByteBuf buf = req.content();
+			byte[] bytes = new byte[buf.readableBytes()];
+			buf.readBytes(bytes);
+			String xml = new String(bytes, StandardCharsets.UTF_8);
+			File file = processes.get(process);
+			if (file != null) Files.write(file.toPath(), xml.getBytes(), CREATE, TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			logger.error(e);
+		}
 	}
 }

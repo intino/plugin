@@ -83,9 +83,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	}
 
 	private void updateWebServer(String processId, File file) {
-		WebModelingServer instance = WebModelingServer.instance();
-		instance.add(processId, file);
-		instance.open(processId);
+		WebModelingServer.open(processId, file);
 	}
 
 	private String processId(PsiElement element) {
