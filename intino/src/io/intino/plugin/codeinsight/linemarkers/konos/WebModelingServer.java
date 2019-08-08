@@ -2,6 +2,7 @@ package io.intino.plugin.codeinsight.linemarkers.konos;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,6 +24,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -35,15 +37,13 @@ public class WebModelingServer extends RestService {
 
 	static {
 		try {
-
 			template = IOUtils.toString(WebModelingServer.class.getResourceAsStream("/process_modeler.html"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			logger.error(e);
 		}
-
 	}
 
-	static void open(String processId, File file) {
+	static void open(String processId, Module module, File file) {
 		try {
 			BrowserUtil.browse(new URL("http://localhost:" + BuiltInServerOptions.getInstance().getEffectiveBuiltInServerPort() + "/process?process=" + processId + "&file=" + file.getAbsolutePath()));
 		} catch (MalformedURLException e) {
@@ -55,6 +55,11 @@ public class WebModelingServer extends RestService {
 	@Override
 	protected String getServiceName() {
 		return "process-modeler";
+	}
+
+	@Override
+	protected boolean isHostTrusted(@NotNull FullHttpRequest request, @NotNull QueryStringDecoder urlDecoder) {
+		return true;
 	}
 
 	@Override
@@ -75,25 +80,28 @@ public class WebModelingServer extends RestService {
 	@Nullable
 	@Override
 	public String execute(@NotNull QueryStringDecoder decoder, @NotNull FullHttpRequest req, @NotNull ChannelHandlerContext context) throws IOException {
-
-		String process = process(decoder);
+		Map<String, List<String>> parameters = decoder.parameters();
+		String process = process(parameters);
 		if (process == null) return null;
 		if (decoder.path().endsWith("/process")) {
-			if (!processes.containsKey(process) && file(decoder) != null) add(process, file(decoder));
+			if (!processes.containsKey(process) && file(parameters) != null) add(process, file(parameters));
 			if (req.method().name().equalsIgnoreCase("GET")) openDiagram(process, req, context);
-			else saveDiagram(process, req);
+			else {
+				saveDiagram(process, req);
+//				reload()
+			}
 		} else remove(process);
 		return null;
 	}
 
-	private File file(QueryStringDecoder decoder) {
-		if (!decoder.parameters().containsKey("file")) return null;
-		return new File(decoder.parameters().get("file").get(0));
+	private File file(Map<String, List<String>> parameters) {
+		if (!parameters.containsKey("file")) return null;
+		return new File(parameters.get("file").get(0));
 	}
 
-	private String process(QueryStringDecoder decoder) {
-		if (!decoder.parameters().containsKey("process")) return null;
-		return decoder.parameters().get("process").get(0);
+	private String process(Map<String, List<String>> parameters) {
+		if (!parameters.containsKey("process")) return null;
+		return parameters.get("process").get(0);
 	}
 
 	public void add(String process, File source) {
@@ -118,7 +126,10 @@ public class WebModelingServer extends RestService {
 			buf.readBytes(bytes);
 			String xml = new String(bytes, StandardCharsets.UTF_8);
 			File file = processes.get(process);
-			if (file != null) Files.write(file.toPath(), xml.getBytes(), CREATE, TRUNCATE_EXISTING);
+			if (file != null) {
+				if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+				Files.write(file.toPath(), xml.getBytes(), CREATE, TRUNCATE_EXISTING);
+			}
 		} catch (IOException e) {
 			logger.error(e);
 		}

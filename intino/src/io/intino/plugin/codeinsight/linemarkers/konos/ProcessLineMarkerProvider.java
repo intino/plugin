@@ -72,7 +72,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 			DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to process editor is not possible during index update");
 			return;
 		}
-		updateWebServer(processId(element), new File(filePath(element)));
+		updateWebServer(processId(element), ModuleProvider.moduleOf(element), new File(filePath(element)));
 	}
 
 	private String filePath(PsiElement element) {
@@ -82,8 +82,8 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		return node.parameters().get(0).values().get(0).toString();
 	}
 
-	private void updateWebServer(String processId, File file) {
-		WebModelingServer.open(processId, file);
+	private void updateWebServer(String processId, Module module, File file) {
+		WebModelingServer.open(processId, module, file);
 	}
 
 	private String processId(PsiElement element) {
