@@ -102,10 +102,11 @@ public class IntinoFactoryView extends JPanel {
 		manager.saveAllDocuments();
 	}
 
-	private void exportAccessors() {
+	private void exportAccessors(int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
-		new ExportAction().execute(selectedModule());
+		boolean shift = (modifiers & SHIFT_MASK) != 0;
+		new ExportAction().execute(selectedModule(), shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE);
 	}
 
 	private FactoryPhase phaseOf(Operation operation, boolean shift) {
@@ -141,7 +142,7 @@ public class IntinoFactoryView extends JPanel {
 		((FactoryPanel) factoryContainerPanel).addActionListener(ImportPackages, e -> reload(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(BuildArtifact, e -> build());
 		((FactoryPanel) factoryContainerPanel).addActionListener(PackArtifact, e -> build(PackArtifact, e.getModifiers()));
-		((FactoryPanel) factoryContainerPanel).addActionListener(ExportAccessors, e -> exportAccessors());
+		((FactoryPanel) factoryContainerPanel).addActionListener(ExportAccessors, e -> exportAccessors(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(DistributeArtifact, e -> build(DistributeArtifact, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(DeployArtifact, e -> build(DeployArtifact, e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(Src, e -> navigate(Src, e.getModifiers()));
