@@ -17,6 +17,6 @@ public class RunConfigurationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isRunConfiguration(Node element) {
-		return element.simpleType().equals("RunConfiguration");
+		return element.type().equals("RunConfiguration");
 	}
 }

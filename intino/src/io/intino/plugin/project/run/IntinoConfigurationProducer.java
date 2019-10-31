@@ -25,7 +25,7 @@ import io.intino.plugin.project.Safe;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,7 +114,7 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 	private String name(PsiElement location) {
 		if (location instanceof TaraNode) return ((TaraNode) location).name();
 		else {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(location);
+			final Node node = TaraPsiUtil.getContainerNodeOf(location);
 			if (node == null) return null;
 			return node.name();
 		}

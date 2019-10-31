@@ -19,7 +19,7 @@ public class DuplicatedRepositoryAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isRepositoriesNode(Node element) {
-		return element.simpleType().equals("Repository") || element.simpleType().equals(repositories());
+		return element.type().equals("Repository") || element.type().equals(repositories());
 	}
 
 	private String repositories() {

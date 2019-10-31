@@ -5,7 +5,7 @@
 
     <groupId>io.intino.model</groupId>
     <artifactId>cesar</artifactId>
-    <version>1.0</version>
+    <version>1.1.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -78,23 +78,8 @@
         <dependency>
             <groupId>io.intino.tara</groupId>
             <artifactId>magritte</artifactId>
-            <version>2.1.8</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>language</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.intino.tara</groupId>
-            <artifactId>language</artifactId>
+            <version>3.0.0</version>
             <scope>provided</scope>
-            <version>1.0.8</version>
         </dependency>
     </dependencies>
 </project>

@@ -91,12 +91,12 @@ public class DependencyAuditor {
 		box.name = STASH_NAME + valueOf("language", box.variables) + ":" + valueOf("version", box.variables);
 	}
 
-	private Node node(Stash stash, String facet) {
-		return artifactNode(stash).nodes.stream().filter(n -> n.facets.get(0).equals("Artifact$" + facet)).findFirst().orElse(null);
+	private Node node(Stash stash, String layer) {
+		return artifactNode(stash).nodes.stream().filter(n -> n.layers.get(0).equals("Artifact$" + layer)).findFirst().orElse(null);
 	}
 
 	private Node node(Stash stash, String name, String facet) {
-		return artifactNode(stash).nodes.stream().filter(n -> n.facets.get(0).equals(facet + "#Artifact$" + name)).findFirst().orElse(null);
+		return artifactNode(stash).nodes.stream().filter(n -> n.layers.get(0).equals(facet + "#Artifact$" + name)).findFirst().orElse(null);
 	}
 
 	private Node artifactNode(Stash stash) {
@@ -104,11 +104,11 @@ public class DependencyAuditor {
 	}
 
 	private String scopeOf(Node node) {
-		return node.facets.get(0).replace("Artifact$Imports$", "").toUpperCase();
+		return node.layers.get(0).replace("Artifact$Imports$", "").toUpperCase();
 	}
 
 	private Node importsNode(Node node) {
-		return node.nodes.stream().filter(n -> n.facets.contains("Artifact$Imports")).findFirst().orElse(null);
+		return node.nodes.stream().filter(n -> n.layers.contains("Artifact$Imports")).findFirst().orElse(null);
 	}
 
 	private String valueOf(String varName, List<Variable> variables) {

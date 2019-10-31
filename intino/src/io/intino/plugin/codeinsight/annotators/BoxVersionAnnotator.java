@@ -9,7 +9,6 @@ import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class BoxVersionAnnotator extends TaraAnnotator {
-
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 		this.holder = holder;
@@ -18,6 +17,6 @@ public class BoxVersionAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isInterface(Node element) {
-		return element.simpleType().equals("Box") || element.simpleType().equals("Artifact.Box");
+		return element.type().equals("Box") || element.type().equals("Artifact.Box");
 	}
 }

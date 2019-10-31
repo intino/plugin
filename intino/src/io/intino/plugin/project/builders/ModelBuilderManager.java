@@ -6,7 +6,6 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
-import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.IntinoDirectory;
 import org.sonatype.aether.artifact.Artifact;
@@ -24,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.intino.legio.graph.Artifact.Level.Model;
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class ModelBuilderManager {

@@ -17,7 +17,7 @@ import io.intino.tara.lang.model.Node;
 import io.intino.tara.plugin.annotator.fix.WithLiveTemplateFix;
 import io.intino.tara.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public class AddArgumentFix extends WithLiveTemplateFix implements IntentionActi
 	private final List<String> requiredParameters;
 
 	public AddArgumentFix(PsiElement element, List<String> requiredParameters) {
-		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiImplUtil.getContainerOf(element);
+		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiUtil.getContainerOf(element);
 		this.requiredParameters = requiredParameters;
 	}
 
@@ -78,7 +78,7 @@ public class AddArgumentFix extends WithLiveTemplateFix implements IntentionActi
 	}
 
 	private Template createTemplate(PsiFile file) {
-		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(TaraPsiImplUtil.getIndentation((PsiElement) node) + 1));
+		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(TaraPsiUtil.getIndentation((PsiElement) node) + 1));
 		addComponents(template);
 		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
 		return template;

@@ -10,7 +10,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.IntinoModuleType;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 											   @NotNull CompletionResultSet resultSet) {
 						final Module module = moduleOf(parameters.getOriginalFile());
 						if (!IntinoModuleType.isIntino(module)) return;
-						final Node container = (Node) TaraPsiImplUtil.getContainerOf(parameters.getOriginalPosition());
+						final Node container = (Node) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
 						if (container == null) return;
 						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
 						if (name == null) return;
@@ -110,7 +110,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		final List<String> values = new ArtifactorySensor(((LegioConfiguration) configuration).repositoryTypes()).dependencyVersions(artifactFrom(TaraPsiImplUtil.getContainerNodeOf(parameters.getOriginalPosition())));
+		final List<String> values = new ArtifactorySensor(((LegioConfiguration) configuration).repositoryTypes()).dependencyVersions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);

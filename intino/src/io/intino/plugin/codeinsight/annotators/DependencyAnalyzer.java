@@ -67,7 +67,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	private Artifact.Imports.Dependency findDependencyNode() {
 		if (configuration == null) return null;
 		for (Artifact.Imports.Dependency d : safeList(() -> configuration.graph().artifact().imports().dependencyList()))
-			if (dependencyNode.simpleType().equals(d.core$().graph().concept(d.getClass()).id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), d))
+			if (dependencyNode.type().equals(d.core$().graph().concept(d.getClass()).id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), d))
 				return d;
 		return null;
 	}

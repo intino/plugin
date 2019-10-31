@@ -60,9 +60,8 @@ Concept Server
 
 Concept Rule
 	var string condition
-
-Facet Warning on Rule
-Facet Alert on Rule
+	Aspect Warning
+	Aspect Alert
 
 Concept Process
 	var Server server

@@ -24,7 +24,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
-import io.intino.legio.graph.level.LevelArtifact;
+import io.intino.legio.graph.Artifact.Level;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.ModelBuilderManager;
@@ -138,7 +138,7 @@ public class IntinoGenerationAction extends IntinoAction {
 
 
 	private List<String> taraCompilerClasspath(Module module, LegioConfiguration configuration) {
-		LevelArtifact.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		Level.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
 		if (model == null) return Collections.emptyList();
 		return new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 	}

@@ -12,7 +12,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.Convertor;
 import io.intino.legio.graph.Artifact.Imports.Dependency;
-import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
@@ -35,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.legio.graph.Artifact.Level;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -199,7 +199,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void renderModel(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
-		LevelArtifact.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		Level.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
 		if (model == null) return;
 		String languageId = languageId(model.language(), model.version());
 		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);

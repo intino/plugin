@@ -11,7 +11,6 @@ import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class DependencyAnnotator extends TaraAnnotator {
-
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 		this.holder = holder;
@@ -21,13 +20,13 @@ public class DependencyAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isDependencies(Node element) {
-		return element.simpleType().equals("Compile")
-				|| element.simpleType().equals("Test")
-				|| element.simpleType().equals("Provided")
-				|| element.simpleType().equals("Runtime")
-				|| element.simpleType().equals("Artifact.Imports.Compile")
-				|| element.simpleType().equals("Artifact.Imports.Test")
-				|| element.simpleType().equals("Artifact.Imports.Provided")
-				|| element.simpleType().equals("Artifact.Imports.Runtime");
+		return element.type().equals("Compile")
+				|| element.type().equals("Test")
+				|| element.type().equals("Provided")
+				|| element.type().equals("Runtime")
+				|| element.type().equals("Artifact.Imports.Compile")
+				|| element.type().equals("Artifact.Imports.Test")
+				|| element.type().equals("Artifact.Imports.Provided")
+				|| element.type().equals("Artifact.Imports.Runtime");
 	}
 }

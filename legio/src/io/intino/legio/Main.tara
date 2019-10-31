@@ -3,6 +3,17 @@ dsl Proteo
 Concept:{1..1}:Named Artifact
 	var string groupId
 	var string version
+	Aspect Level
+		Concept:{1..1} Model
+			var string language
+			var string version
+			var string sdk
+			var string effectiveVersion = "" is private
+			var string outLanguage = 'self.graph().artifact().name$()'
+		sub Platform
+		sub Product
+		sub Solution
+
 	Concept:{0..1} License
 		var string author
 		var word:{GPL BSD} type
@@ -65,6 +76,15 @@ Concept:{1..1}:Named Artifact
 		var string defaultJVMOptions = ""
 		Concept MavenPlugin
 			var string code
+		Aspect Runnable
+        	var string mainClass
+		Aspect MacOS with Runnable
+        	var string macIcon
+        	var string resourceDirectory = empty
+
+        Aspect Windows with Runnable
+        	var string windowsIcon
+
 	has Parameter
 	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
@@ -119,30 +139,6 @@ Concept Repository
 		sub Release
 		sub:{0..1} Snapshot
 		sub:{0..1} Language
-
-Facet Runnable on Artifact.Package
-	var string mainClass
-
-Facet MacOS on Artifact.Package with Runnable
-	var string macIcon
-	var string resourceDirectory = empty
-
-Facet Windows on Artifact.Package with Runnable
-	var string windowsIcon
-
-Facet Level on Artifact
-	Concept:{1..1} Model
-		var string language
-		var string version
-		var string sdk
-		var string effectiveVersion = "" is private
-		var string outLanguage = 'self.graph().artifact().name$()'
-	sub Platform
-	sub Product
-	sub Solution
-
-Facet Datalake on Artifact
-	var string datalakeVersion
 
 Concept Parameter is component
 	var string name

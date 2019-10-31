@@ -21,8 +21,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
+import io.intino.legio.graph.Artifact.Level.Model;
 import io.intino.legio.graph.Repository.Release;
-import io.intino.legio.graph.level.LevelArtifact.Model;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.file.legio.LegioFileType;
@@ -248,7 +248,7 @@ public class LegioConfiguration implements Configuration {
 		if (graph == null || graph.artifact() == null) return null;
 		final Artifact artifact = graph.artifact();
 		if (artifact == null) return null;
-		final String level = artifact.core$().conceptList().stream().filter(c -> c.id().contains("#")).map(c -> c.id().split("#")[0]).findFirst().orElse(null);
+		final String level = artifact.core$().conceptList().stream().filter(c -> c.id().contains("$")).map(c -> c.id().split("\\$")[1]).findFirst().orElse(null);
 		return level == null ? null : Level.valueOf(level);
 	}
 
@@ -304,7 +304,7 @@ public class LegioConfiguration implements Configuration {
 						(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
 				writeCommandAction(module.getProject(), legioFile()).run(() -> {
 					model.version(version);
-					final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("LevelArtifact.Model")).findFirst().orElse(null);
+					final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Level.Model")).findFirst().orElse(null);
 					if (model == null) return;
 					final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
 					versionParameter.substituteValues(Collections.singletonList(version));

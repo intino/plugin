@@ -4,8 +4,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.jcabi.aether.Aether;
+import io.intino.legio.graph.Artifact.Level;
 import io.intino.legio.graph.Repository;
-import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.settings.ArtifactoryCredential;
@@ -41,11 +41,11 @@ public class LanguageResolver {
 	private final Module module;
 	private final DependencyAuditor auditor;
 	private final List<Repository.Type> repositories;
-	private final LevelArtifact.Model model;
+	private final Level.Model model;
 	private String version;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public LanguageResolver(Module module, DependencyAuditor auditor, LevelArtifact.Model model, String version, List<Repository.Type> repositories) {
+	public LanguageResolver(Module module, DependencyAuditor auditor, Level.Model model, String version, List<Repository.Type> repositories) {
 		this.module = module;
 		this.auditor = auditor;
 		this.repositories = repositories;

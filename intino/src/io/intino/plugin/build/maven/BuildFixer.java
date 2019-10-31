@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.macos.artifact.MacOSPackage;
+import io.intino.legio.graph.Artifact.Package.MacOS;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
@@ -38,7 +38,7 @@ public class BuildFixer {
 		if (build != null && build.isMacOS()) {
 			File appFile = appFile();
 			if (appFile != null) {
-				final MacOSPackage macos = build.asMacOS();
+				final MacOS macos = build.asMacOS();
 				if (macos.resourceDirectory() != null && !macos.resourceDirectory().isEmpty())
 					copyResources(macos.resourceDirectory(), appFile);
 			}

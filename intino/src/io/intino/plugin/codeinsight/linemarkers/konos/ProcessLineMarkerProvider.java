@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,6 +104,6 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 
 	@Nullable
 	private Node node(PsiElement e) {
-		return e instanceof Node ? (Node) e : TaraPsiImplUtil.getContainerNodeOf(e);
+		return e instanceof Node ? (Node) e : TaraPsiUtil.getContainerNodeOf(e);
 	}
 }

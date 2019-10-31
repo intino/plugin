@@ -5,10 +5,10 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.Artifact.Level.Model;
 import io.intino.legio.graph.LegioGraph;
 import io.intino.legio.graph.Repository;
 import io.intino.legio.graph.RunConfiguration;
-import io.intino.legio.graph.level.LevelArtifact;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.run.IntinoRunConfiguration;
@@ -60,7 +60,7 @@ public class ConfigurationReloader {
 	}
 
 	void reloadLanguage() {
-		LevelArtifact.Model model = safe(() -> graph.artifact().asLevel().model());
+		Model model = safe(() -> graph.artifact().asLevel().model());
 		if (model == null) return;
 		final String effectiveVersion = model.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? model.version() : effectiveVersion;
@@ -87,7 +87,7 @@ public class ConfigurationReloader {
 	}
 
 	private DependencyCatalog resolveLanguage() {
-		LevelArtifact.Model model = safe(() -> graph.artifact().asLevel().model());
+		Model model = safe(() -> graph.artifact().asLevel().model());
 		if (model == null) return new DependencyCatalog();
 		final String effectiveVersion = model.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? model.version() : effectiveVersion;

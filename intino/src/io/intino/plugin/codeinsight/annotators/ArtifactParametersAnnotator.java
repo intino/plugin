@@ -17,6 +17,6 @@ public class ArtifactParametersAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isArtifact(Node element) {
-		return element.simpleType().equals("Artifact");
+		return element.type().equals("Artifact");
 	}
 }

@@ -9,7 +9,7 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.Box;
 import io.intino.legio.graph.Artifact.Imports.Compile;
 import io.intino.legio.graph.Artifact.Imports.Provided;
-import io.intino.legio.graph.level.LevelArtifact.Model;
+import io.intino.legio.graph.Artifact.Level.Model;
 import io.intino.tara.Checker;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
@@ -17,12 +17,12 @@ import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.tara.plugin.lang.TaraLanguage;
 import io.intino.tara.plugin.lang.psi.StringValue;
 import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nullable;
 import tara.dsl.Legio;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil.getContainerByType;
+import static io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 
 class LegioFilters {
 
@@ -43,7 +43,7 @@ class LegioFilters {
 	private static class InLanguageNameFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "language");
@@ -58,7 +58,7 @@ class LegioFilters {
 	private static class InLanguageVersionFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "version");
@@ -74,7 +74,7 @@ class LegioFilters {
 
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inBoxNode(node) && inParameter(context, "language");
@@ -94,7 +94,7 @@ class LegioFilters {
 
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inBoxNode(node) &&
@@ -115,7 +115,7 @@ class LegioFilters {
 
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "sdk");
@@ -130,7 +130,7 @@ class LegioFilters {
 	private static class InDependencyVersionFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inDependencyNode(node) && inParameter(context, "version");
