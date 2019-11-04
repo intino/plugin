@@ -51,7 +51,7 @@ public class InterfaceGenerationAction extends AnAction {
 	private boolean doExecute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return false;
-		final String version = configuration.boxVersion();
+		final String version = configuration.box().version();
 		if (version == null || version.isEmpty()) return false;
 		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
 		if (action == null) {

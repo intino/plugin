@@ -12,8 +12,8 @@ public class ExportAction {
 
 	public void execute(Module module, FactoryPhase factoryPhase) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration == null) return;
-		final String version = configuration.boxVersion();
+		if (configuration == null || configuration.box() == null) return;
+		final String version = configuration.box().version();
 		if (version == null || version.isEmpty()) return;
 		AnAction action = ActionManager.getInstance().getAction((factoryPhase.equals(FactoryPhase.INSTALL) ? "Install" : "Publish") + "Accessors" + version);
 		if (action != null) action.actionPerformed(createActionEvent());

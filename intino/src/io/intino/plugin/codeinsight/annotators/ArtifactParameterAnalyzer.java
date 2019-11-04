@@ -29,7 +29,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.languages().isEmpty()) return;
+		if (configuration == null || configuration.model() == null || configuration.model().language() == null) return;
 		if (name == null || name.isEmpty())
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("parameter.name.not.found")));
 		if (isDuplicated())

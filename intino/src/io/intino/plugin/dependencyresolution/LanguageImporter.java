@@ -38,7 +38,7 @@ public class LanguageImporter {
 		final String effectiveVersion = effectiveVersionOf(dsl, version, (LegioConfiguration) configuration);
 		final boolean done = downloadLanguage(dsl, effectiveVersion);
 		if (done) {
-			configuration.language(d -> d.name().equals(dsl)).version(effectiveVersion);
+			configuration.model().language().version(effectiveVersion);
 			reload(dsl, module.getProject());
 		}
 		return effectiveVersion;

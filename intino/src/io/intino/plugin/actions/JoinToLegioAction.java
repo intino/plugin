@@ -104,13 +104,12 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		if (IntinoModuleType.isIntino(module)) {
 			builder.add("isIntino", "");
 			Configuration conf = TaraUtil.configurationOf(module);
-			if (!conf.languages().isEmpty()) {
+			if (conf.model() != null)
 				builder.add("factory", new FrameBuilder("factory").
-						add("level", notNull(conf.level().name())).
+						add("level", notNull(conf.model().level().name())).
 						add("workingPackage", notNull(conf.workingPackage())).
-						add("dsl", notNull(conf.languages().get(0).name())).
-						add("dslVersion", conf.languages().get(0).version() == null ? "LATEST" : conf.languages().get(0).version()).toFrame());
-			}
+						add("dsl", notNull(conf.model().language().name())).
+						add("dslVersion", conf.model().language().version() == null ? "LATEST" : conf.model().language().version()).toFrame());
 		}
 		return builder.toFrame();
 	}

@@ -162,12 +162,12 @@ abstract class AbstractArtifactBuilder {
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
 		Configuration configuration = TaraUtil.configurationOf(module);
-		return configuration.level() != null && !Configuration.Level.Solution.equals(configuration.level()) && lifeCyclePhase.mavenActions().contains("deploy");
+		return configuration.model().level() != null && !configuration.model().level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull
 	private File dslFilePath(Configuration configuration) {
-		final String outDSL = configuration.outLanguage();
+		final String outDSL = configuration.model().outLanguage();
 		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator +
 				configuration.version() + File.separator + outDSL + "-" + configuration.version() + JAR_EXTENSION);
 	}

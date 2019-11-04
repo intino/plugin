@@ -42,10 +42,13 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		if (!IntinoModuleType.isIntino(module))
 			throw new IncorrectOperationException(MessageProvider.message("tara.file.error"));
 		final Configuration conf = TaraUtil.configurationOf(module);
-		if (isTest(directory, module)) builder.addKind(conf.outLanguage(), TaraIcons.MODEL_16, conf.outLanguage());
-		else for (Configuration.LanguageLibrary languageLibrary : conf.languages())
-			if (!languageLibrary.name().isEmpty())
-				builder.addKind(languageLibrary.name(), TaraIcons.MODEL_16, languageLibrary.name());
+		if (isTest(directory, module))
+			builder.addKind(conf.model().outLanguage(), TaraIcons.MODEL_16, conf.model().outLanguage());
+		else {
+			Configuration.Model.ModelLanguage language = conf.model().language();
+			if (!language.name().isEmpty())
+				builder.addKind(language.name(), TaraIcons.MODEL_16, language.name());
+		}
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		if (!(data instanceof PsiFile || data instanceof PsiDirectory)) return false;
 		Module module = ModuleProvider.moduleOf(data);
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && configuration != null && !configuration.languages().isEmpty();
+		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && configuration != null && configuration.model() != null && configuration.model().language() != null;
 	}
 
 	@Nullable

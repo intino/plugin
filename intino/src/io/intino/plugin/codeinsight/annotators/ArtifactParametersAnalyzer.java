@@ -3,8 +3,8 @@ package io.intino.plugin.codeinsight.annotators;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioLanguage;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Level;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
@@ -37,11 +37,11 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.languages().isEmpty()) return;
+		if (configuration == null || configuration.model().language() != null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Level.values()[configuration.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
+			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Configuration.Model.Level.values()[configuration.model().level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
 	}
 
 	private boolean isDeclared(String parameter) {
@@ -61,12 +61,10 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	private Map<String, String> collectLanguageParameters() {
 		Map<String, String> map = new LinkedHashMap<>();
-		for (Configuration.LanguageLibrary library : configuration.languages()) {
-			final File languageFile = LanguageManager.getLanguageFile(library.name(), library.effectiveVersion());
-			if (!languageFile.exists()) continue;
-			map.putAll(parameters(languageFile));
-		}
-		return map;
+		LegioLanguage language = configuration.model().language();
+		final File languageFile = LanguageManager.getLanguageFile(language.name(), language.effectiveVersion());
+		if (!languageFile.exists()) return map;
+		return parameters(languageFile);
 	}
 
 	private Map<String, String> parameters(File languageFile) {

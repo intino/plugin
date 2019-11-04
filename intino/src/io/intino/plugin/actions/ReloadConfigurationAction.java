@@ -7,8 +7,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.project.CesarAccessor;
-import io.intino.plugin.project.CesarFileCreator;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -20,7 +18,6 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 		if (project == null) return;
 		Module module = e.getData(LangDataKeys.MODULE);
 		if (module != null) execute(module);
-		else new CesarFileCreator(project).writeCesarConfiguration(new CesarAccessor(project).projectInfo());
 	}
 
 	@Override

@@ -21,21 +21,20 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
-import io.intino.legio.graph.Artifact.Level.Model;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.project.configuration.LegioBox;
+import io.intino.plugin.project.configuration.LegioDeployConfiguration;
+import io.intino.plugin.project.configuration.LegioModel;
 import io.intino.tara.StashBuilder;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
 import io.intino.tara.io.Stash;
 import io.intino.tara.io.StashDeserializer;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.plugin.codeinsight.languageinjection.imports.Imports;
-import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraElementFactory;
 import io.intino.tara.plugin.lang.psi.TaraModel;
 import io.intino.tara.plugin.lang.psi.TaraNode;
@@ -45,12 +44,8 @@ import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
@@ -58,7 +53,6 @@ import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BAC
 import static io.intino.legio.graph.Artifact.Imports.Dependency;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static io.intino.tara.compiler.shared.TaraBuildConstants.WORKING_PACKAGE;
 import static java.util.stream.Collectors.toMap;
 
 public class LegioConfiguration implements Configuration {
@@ -244,14 +238,6 @@ public class LegioConfiguration implements Configuration {
 		return repos;
 	}
 
-	public Level level() {
-		if (graph == null || graph.artifact() == null) return null;
-		final Artifact artifact = graph.artifact();
-		if (artifact == null) return null;
-		final String level = artifact.core$().conceptList().stream().filter(c -> c.id().contains("$")).map(c -> c.id().split("\\$")[1]).findFirst().orElse(null);
-		return level == null ? null : Level.valueOf(level);
-	}
-
 	public String artifactId() {
 		return safe(() -> graph.artifact().name$());
 	}
@@ -272,6 +258,16 @@ public class LegioConfiguration implements Configuration {
 		reload();//TODO
 	}
 
+	@Override
+	public LegioModel model() {
+		return new LegioModel(module, legioFile, graph.artifact().asLevel().model());
+	}
+
+	@Override
+	public LegioBox box() {
+		return new LegioBox(safe(() -> graph.artifact().box()));
+	}
+
 	public String workingPackage() {
 		return safe(() -> graph.artifact().code().targetPackage(),
 				(groupId() + "." + artifactId()).replace("-", "").replace("_", ""));
@@ -279,72 +275,6 @@ public class LegioConfiguration implements Configuration {
 
 	public String nativeLanguage() {
 		return "java";
-	}
-
-	public List<? extends LanguageLibrary> languages() {
-		Model model = safe(() -> graph.artifact().asLevel().model());
-		if (model == null) return Collections.emptyList();
-		return Collections.singletonList(new LanguageLibrary() {
-			public String name() {
-				return model.language();
-			}
-
-			public String version() {
-				return model.version();
-			}
-
-			public String effectiveVersion() {
-				return model.effectiveVersion();
-			}
-
-			public void version(String version) {
-				final Application application = ApplicationManager.getApplication();
-				TaraModel psiFile = !application.isReadAccessAllowed() ?
-						(TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(legioFile)) :
-						(TaraModel) PsiManager.getInstance(module.getProject()).findFile(legioFile);
-				writeCommandAction(module.getProject(), legioFile()).run(() -> {
-					model.version(version);
-					final Node model = psiFile.components().get(0).components().stream().filter(f -> f.type().equals("Level.Model")).findFirst().orElse(null);
-					if (model == null) return;
-					final Parameter versionParameter = model.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(null);
-					versionParameter.substituteValues(Collections.singletonList(version));
-				});
-//				reload();
-			}
-
-			public String generationPackage() {
-				Attributes attributes = languageParameters();
-				return attributes == null ? null : attributes.getValue(WORKING_PACKAGE.replace(".", "-"));
-			}
-		});
-	}
-
-	@Override
-	public String outLanguage() {
-		return safe(() -> graph.artifact().asLevel().model().outLanguage());
-	}
-
-	@Override
-	public String outLanguageVersion() {
-		return safe(() -> graph.artifact().version());
-	}
-
-	public Attributes languageParameters() {
-		final Model model = safe(() -> graph.artifact().asLevel().model());
-		if (model == null) return null;
-		if (isCoreLanguage(model)) return new Attributes();
-		final File languageFile = LanguageManager.getLanguageFile(model.language(), model.effectiveVersion().isEmpty() ? model.version() : model.effectiveVersion());
-		if (!languageFile.exists()) return null;
-		try {
-			Manifest manifest = new JarFile(languageFile).getManifest();
-			return manifest == null ? null : manifest.getAttributes("tara");
-		} catch (IOException e) {
-			return null;
-		}
-	}
-
-	private boolean isCoreLanguage(Model model) {
-		return model.language().equalsIgnoreCase(Proteo.class.getSimpleName()) || model.language().equalsIgnoreCase(Meta.class.getSimpleName());
 	}
 
 	public Map<String, String> repositories() {
@@ -387,15 +317,6 @@ public class LegioConfiguration implements Configuration {
 		return repositories;
 	}
 
-	public String boxPackage() {
-		return safe(() -> graph.artifact().box().targetPackage());
-	}
-
-	@Deprecated
-	public Model model() {
-		return safe(() -> graph.artifact().asLevel().model());
-	}
-
 	public List<DeployConfiguration> deployConfigurations() {
 		final List<Artifact.Deployment> deploys = safeList(() -> safe(() -> graph.artifact().deploymentList()));
 		if (deploys == null || deploys.isEmpty()) return Collections.emptyList();
@@ -405,10 +326,6 @@ public class LegioConfiguration implements Configuration {
 	@NotNull
 	private DeployConfiguration createDeployConfiguration(final Destination deployment) {
 		return new LegioDeployConfiguration(deployment);
-	}
-
-	public String boxVersion() {
-		return safe(() -> graph.artifact().box().effectiveVersion().isEmpty() ? graph.artifact().box().version() : graph.artifact().box().effectiveVersion());
 	}
 
 	public PsiFile legioFile() {
@@ -488,42 +405,5 @@ public class LegioConfiguration implements Configuration {
 	@NotNull
 	private File stashFile() {
 		return new File(IntinoDirectory.artifactsDirectory(module.getProject()).getPath(), module.getName() + ".conf");
-	}
-
-	public static class LegioDeployConfiguration implements Configuration.DeployConfiguration {
-		private final Destination deployment;
-
-		public LegioDeployConfiguration(Destination deployment) {
-			this.deployment = deployment;
-		}
-
-		public String name() {
-			return deployment.name$();
-		}
-
-		public boolean pro() {
-			return deployment.i$(Artifact.Deployment.Pro.class);
-		}
-
-		public RunConfiguration runConfiguration() {
-			return deployment.runConfiguration();
-		}
-
-		public List<Parameter> parameters() {
-			return deployment.runConfiguration().argumentList().stream().map(this::wrapParameter).collect(Collectors.toList()); //TODO merge with defaultValues
-		}
-
-		@NotNull
-		private Parameter wrapParameter(final Argument p) {
-			return new Parameter() {
-				public String name() {
-					return p.name();
-				}
-
-				public String value() {
-					return p.value();
-				}
-			};
-		}
 	}
 }

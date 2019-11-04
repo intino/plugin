@@ -5,6 +5,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.legio.graph.RunConfiguration;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioDeployConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.file.StashFileType;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
@@ -24,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.plugin.project.LegioConfiguration.LegioDeployConfiguration;
 import static io.intino.tara.compiler.shared.Configuration.DeployConfiguration;
 import static io.intino.tara.plugin.lang.TaraIcons.STASH_16;
 import static java.awt.event.ItemEvent.SELECTED;

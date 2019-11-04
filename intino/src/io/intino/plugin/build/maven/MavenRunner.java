@@ -75,7 +75,7 @@ public class MavenRunner {
 		request.setMavenOpts("-Durl=" + conf.distributionLanguageRepository().getKey() + " " +
 				"-DrepositoryId=" + conf.distributionLanguageRepository().getValue() + " " +
 				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + conf.outLanguage() + " " +
+				"-DartifactId=" + conf.model().outLanguage() + " " +
 				"-Dversion=" + conf.version() + " " +
 				"-Dfile=" + fileOfLanguage(conf));
 		final Properties properties = new Properties();
@@ -156,7 +156,7 @@ public class MavenRunner {
 	@NotNull
 	private String fileOfLanguage(Configuration conf) {
 		try {
-			final String originalFile = LanguageManager.getLanguageDirectory(conf.outLanguage()) + "/" + conf.version() + "/" + conf.outLanguage() + "-" + conf.version() + ".jar";
+			final String originalFile = LanguageManager.getLanguageDirectory(conf.model().outLanguage()) + "/" + conf.version() + "/" + conf.model().outLanguage() + "-" + conf.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());

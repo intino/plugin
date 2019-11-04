@@ -21,6 +21,7 @@ import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.Model.ModelLanguage;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JpsJavaSdkType;
@@ -171,8 +172,8 @@ class PomCreator {
 	}
 
 	private void addLevelDependency(FrameBuilder builder) {
-		if (configuration.level() == null) return;
-		for (Configuration.LanguageLibrary language : configuration.languages()) {
+		ModelLanguage language = configuration.model().language();
+		if (language != null) {
 			final String languageId = findLanguageId(language);
 			if (!languageId.isEmpty()) builder.add("dependency", createDependencyFrame(languageId.split(":")));
 		}
@@ -184,7 +185,8 @@ class PomCreator {
 			for (Dependency d : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList()))
 				if (dependencies.add(d.identifier())) builder.add("dependency", createDependencyFrame(d));
 //			if (configuration.level() == null) continue;
-			for (Configuration.LanguageLibrary language : configuration.languages()) {
+			ModelLanguage language = configuration.model().language();
+			if (language != null) {
 				final String languageID = languageId(language.name(), language.version());
 				if (languageID == null || languageID.isEmpty()) return;
 				builder.add("dependency", createDependencyFrame(languageID.split(":")));
@@ -315,7 +317,7 @@ class PomCreator {
 		}
 	}
 
-	private String findLanguageId(Configuration.LanguageLibrary language) {
+	private String findLanguageId(ModelLanguage language) {
 		if (packageType.equals(ModulesAndLibrariesLinkedByManifest))
 			return languageId(language.name(), language.version());
 		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageId(language.name(), language.version());

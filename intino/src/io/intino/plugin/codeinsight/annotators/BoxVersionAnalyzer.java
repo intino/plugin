@@ -54,8 +54,8 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 		for (Module m : instance.getModules()) {
 			if (m.equals(this.module)) continue;
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration != null) {
-				String version = configuration.boxVersion();
+			if (configuration != null && configuration.box() != null) {
+				String version = configuration.box().version();
 				if (version != null && !version.isEmpty()) versions.add(version);
 			}
 		}

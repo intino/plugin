@@ -8,7 +8,6 @@ public class LegioAppComponent implements com.intellij.openapi.components.BaseCo
 	@Override
 	public void initComponent() {
 		LanguageManager.register(new tara.dsl.Legio());
-		LanguageManager.register(new tara.dsl.Cesar());
 		ConfigurationManager.registerProvider(LegioConfiguration.class);
 	}
 

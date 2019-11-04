@@ -57,8 +57,8 @@ public class LanguageResolver {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration == null) continue;
-			if (language.equalsIgnoreCase(configuration.outLanguage())) return m;
+			if (configuration == null || configuration.model() == null) continue;
+			if (language.equalsIgnoreCase(configuration.model().outLanguage())) return m;
 		}
 		return null;
 	}

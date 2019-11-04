@@ -51,7 +51,6 @@
                 implementation="io.intino.plugin.project.ConfigurationListener"/>
         <!--        <fileType name="Konos" implementationClass="io.intino.plugin.file.konos.KonosFileType"/>-->
         <!--        <fileType name="Legio" implementationClass="io.intino.plugin.file.legio.LegioFileType"/>-->
-        <!--        <fileType name="Cesar" implementationClass="io.intino.plugin.file.cesar.CesarFileType"/>-->
         <!--        <fileType name="itrules" implementationClass="io.intino.plugin.itrules.lang.file.ItrulesFileType"/>-->
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
         <fileTypeFactory implementation="io.intino.plugin.itrules.lang.file.ItrulesFileTypeFactory"/>
