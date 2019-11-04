@@ -37,7 +37,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.model().language() != null) return;
+		if (configuration == null || configuration.model() == null || configuration.model().language() != null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())

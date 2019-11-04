@@ -260,12 +260,14 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public LegioModel model() {
+		if (graph.artifact().asLevel() == null) return null;
 		return new LegioModel(module, legioFile, graph.artifact().asLevel().model());
 	}
 
 	@Override
 	public LegioBox box() {
-		return new LegioBox(safe(() -> graph.artifact().box()));
+		Artifact.Box safe = safe(() -> graph.artifact().box());
+		return safe == null ? null : new LegioBox(safe);
 	}
 
 	public String workingPackage() {
