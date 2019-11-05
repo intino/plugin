@@ -301,7 +301,8 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 		@NotNull
 		private static String scope(String library) {
-			return library.substring(library.lastIndexOf("(") + 1, library.lastIndexOf(")")).replace("MODEL", "COMPILE").toUpperCase();
+			String l = library.contains("(") ? library.substring(library.lastIndexOf("(") + 1, library.lastIndexOf(")")) : library;
+			return l.replace("MODEL", "COMPILE").toUpperCase();
 		}
 
 		@Override

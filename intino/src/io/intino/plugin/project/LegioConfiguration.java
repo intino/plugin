@@ -260,7 +260,7 @@ public class LegioConfiguration implements Configuration {
 
 	@Override
 	public LegioModel model() {
-		if (graph.artifact().asLevel() == null) return null;
+		if (safe(() -> graph.artifact().asLevel()) == null) return null;
 		return new LegioModel(module, legioFile, graph.artifact().asLevel().model());
 	}
 

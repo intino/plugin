@@ -162,7 +162,7 @@ abstract class AbstractArtifactBuilder {
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
 		Configuration configuration = TaraUtil.configurationOf(module);
-		return configuration.model().level() != null && !configuration.model().level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
+		return configuration.model() != null && configuration.model().level() != null && !configuration.model().level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull

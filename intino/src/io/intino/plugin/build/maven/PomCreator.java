@@ -172,6 +172,7 @@ class PomCreator {
 	}
 
 	private void addLevelDependency(FrameBuilder builder) {
+		if (configuration.model() == null) return;
 		ModelLanguage language = configuration.model().language();
 		if (language != null) {
 			final String languageId = findLanguageId(language);
@@ -184,7 +185,7 @@ class PomCreator {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList()))
 				if (dependencies.add(d.identifier())) builder.add("dependency", createDependencyFrame(d));
-//			if (configuration.level() == null) continue;
+			if (configuration.model() == null) continue;
 			ModelLanguage language = configuration.model().language();
 			if (language != null) {
 				final String languageID = languageId(language.name(), language.version());
