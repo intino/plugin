@@ -6,6 +6,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.psi.PsiElement;
+import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.LegioLanguage;
 import io.intino.tara.Language;
@@ -20,7 +21,10 @@ import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.plugin.lang.LanguageManager;
 import io.intino.tara.plugin.lang.psi.TaraNode;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -58,7 +62,21 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 			return;
 		}
-		final Language language = LanguageManager.getLanguage(module.getProject(), languageName, version);
+		checkLanguage(languageName, version, LanguageManager.getLanguage(module.getProject(), languageName, version));
+		checkSdk(configuration.model().sdkVersion());
+	}
+
+	private void checkSdk(String sdkVersion) {
+		try {
+			String version = IOUtils.readLines(this.getClass().getResourceAsStream("/minimum_sdk.info"), Charset.defaultCharset()).get(0);
+			if (sdkVersion.compareTo(version) < 0)
+				results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("sdk.minimun.version", version)));
+		} catch (IOException e) {
+			Logger.error(e);
+		}
+	}
+
+	private void checkLanguage(String languageName, String version, Language language) {
 		final Configuration.Model.Level languageLevel = languageLevel();
 		if ((languageLevel == null && !configuration.model().level().isPlatform()) || (languageLevel != null && configuration.model().level() != null && configuration.model().level().compareLevelWith(languageLevel) != 1))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Meta or Proteo" : languageLevel.name())));

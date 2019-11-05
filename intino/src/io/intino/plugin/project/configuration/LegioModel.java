@@ -19,17 +19,21 @@ public class LegioModel implements Configuration.Model {
 
 	@Override
 	public LegioLanguage language() {
-		return model != null ? new LegioLanguage(module, legioFile, model) : null;
+		return new LegioLanguage(module, legioFile, model);
 	}
 
 	@Override
 	public String outLanguage() {
-		return model != null ? model.outLanguage() : null;
+		return model.outLanguage();
 	}
 
 	@Override
 	public String outLanguageVersion() {
-		return model != null ? model.core$().ownerAs(Artifact.class).version() : null;
+		return model.core$().ownerAs(Artifact.class).version();
+	}
+
+	public String sdkVersion() {
+		return model.sdk();
 	}
 
 	@Override
