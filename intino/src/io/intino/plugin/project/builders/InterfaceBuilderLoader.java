@@ -6,14 +6,17 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.intino.tara.Language;
 import io.intino.tara.plugin.lang.LanguageManager;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
@@ -25,8 +28,16 @@ public class InterfaceBuilderLoader {
 	private static final Logger LOG = Logger.getInstance(InterfaceBuilderLoader.class.getName());
 	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static Map<Project, String> versionsByProject = new HashMap<>();
+	public static String minimunVersion = "1.0.0";
 
 	private InterfaceBuilderLoader() {
+	}
+
+	static {
+		try {
+			minimunVersion = IOUtils.readLines(InterfaceBuilderLoader.class.getResourceAsStream("/minimum_box.info"), Charset.defaultCharset()).get(0);
+		} catch (IOException ignored) {
+		}
 	}
 
 	static boolean isLoaded(Project project, String version) {
@@ -43,6 +54,7 @@ public class InterfaceBuilderLoader {
 
 	static void load(Project module, File[] libraries, String version) {
 		try {
+			if (version.compareTo(minimunVersion) < 0) return;
 			if (isLoaded(module, version)) return;
 			final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(libraries);
 			if (classLoader == null) return;

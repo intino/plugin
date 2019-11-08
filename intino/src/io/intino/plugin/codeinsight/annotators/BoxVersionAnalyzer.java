@@ -36,11 +36,11 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 			else return;
 		}
 		final String version = parameter.values().get(0).toString();
-		if (!version.equals("LATEST") && !InterfaceBuilderLoader.exists(version))
+		if (version.compareTo(InterfaceBuilderLoader.minimunVersion) < 0)
+			results.put(((TaraNode) interfaceNode).getSignature(), new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.compatible", version)));
+		else if (!version.equals("LATEST") && !InterfaceBuilderLoader.exists(version))
 			results.put(((TaraNode) interfaceNode).getSignature(),
 					new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.found", version)));
-		else if (version.compareTo("7.0.0") < 0)
-			new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.compatible", version));
 		else if (boxVersionOfOtherModules().stream().anyMatch(s -> !s.equalsIgnoreCase(version)))
 			results.put(((TaraNode) interfaceNode).getSignature(),
 					new AnnotateAndFix(Level.WARNING, message("warn.interface.version.differ.in.project", version)));
