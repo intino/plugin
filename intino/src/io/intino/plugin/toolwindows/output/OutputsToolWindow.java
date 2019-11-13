@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
-	static final String CLEAR = "##clear##";
+	public static final String CLEAR = "##clear##";
 	private Project project;
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
@@ -49,6 +49,7 @@ public class OutputsToolWindow {
 				consoleWindow.show(null);
 				buildOutput.scrollTo(buildOutput.getContentSize());
 			}
+			if (line.equals(CLEAR)) buildOutput.clear();
 			buildOutput.print("\n" + line, contentType(line));
 		}));
 	}

@@ -1,0 +1,85 @@
+package io.intino.plugin;
+
+import io.intino.legio.graph.LegioGraph;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.List;
+
+public abstract class PluginLauncher {
+	protected LegioGraph moduleConfiguration;
+	protected ModuleStructure moduleStructure;
+	protected File moduleDirectory;
+	protected SystemProperties systemProperties;
+	protected PrintStream log;
+
+	public abstract void run();
+
+	public PluginLauncher moduleConfiguration(LegioGraph moduleConfiguration) {
+		this.moduleConfiguration = moduleConfiguration;
+		return this;
+	}
+
+	public PluginLauncher moduleDirectory(File moduleDirectory) {
+		this.moduleDirectory = moduleDirectory;
+		return this;
+	}
+
+	public PluginLauncher systemProperties(SystemProperties systemProperties) {
+		this.systemProperties = systemProperties;
+		return this;
+	}
+
+	public PluginLauncher moduleStructure(ModuleStructure moduleStructure) {
+		this.moduleStructure = moduleStructure;
+		return this;
+	}
+
+	public PluginLauncher log(PrintStream log) {
+		this.log = log;
+		return this;
+	}
+
+	protected LegioGraph configuration() {
+		return moduleConfiguration;
+	}
+
+	protected File moduleDirectory() {
+		return moduleDirectory;
+	}
+
+	protected SystemProperties systemProperties() {
+		return systemProperties;
+	}
+
+	protected ModuleStructure moduleStructure() {
+		return moduleStructure;
+	}
+
+	protected PrintStream log() {
+		return log;
+	}
+
+
+	public static class SystemProperties {
+		public File mavenHome;
+		public File javaHome;
+
+		public SystemProperties(File mavenHome, File javaHome) {
+			this.mavenHome = mavenHome;
+			this.javaHome = javaHome;
+		}
+	}
+
+	public static class ModuleStructure {
+		public List<File> sourceDirectories;
+		public List<File> resDirectories;
+		public File outDirectory;
+
+		public ModuleStructure(List<File> sourceDirectories, List<File> resDirectories, File outDirectory) {
+			this.sourceDirectories = sourceDirectories;
+			this.resDirectories = resDirectories;
+			this.outDirectory = outDirectory;
+		}
+	}
+}

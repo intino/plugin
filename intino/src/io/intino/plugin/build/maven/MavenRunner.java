@@ -136,7 +136,7 @@ public class MavenRunner {
 	}
 
 	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException {
-		return invokeMaven(pom, "", lifeCyclePhase.mavenActions().toArray(new String[lifeCyclePhase.mavenActions().size()]));
+		return invokeMaven(pom, "", lifeCyclePhase.mavenActions().toArray(new String[0]));
 	}
 
 	public String output() {

@@ -177,8 +177,8 @@ public class ImportsResolver {
 
 	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
 		final DefaultArtifact artifact = new DefaultArtifact(dependency.groupId(), dependency.artifactId(), "jar", dependency.version());
-		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope);
-		return aether.resolve(artifact, scope, exclusionsOf(dependency));
+		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope.toLowerCase());
+		return aether.resolve(artifact, scope.toLowerCase(), exclusionsOf(dependency));
 	}
 
 	@NotNull
@@ -189,7 +189,7 @@ public class ImportsResolver {
 	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, String scope) {
 		if (dependency.length != 3) return emptyMap();
 		try {
-			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope), scope(scope));
+			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope.toLowerCase()), scope(scope));
 		} catch (DependencyResolutionException e) {
 			return emptyMap();
 		}

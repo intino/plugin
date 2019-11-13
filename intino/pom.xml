@@ -206,5 +206,20 @@
             <scope>test</scope>
             <version>4.12</version>
         </dependency>
+        <dependency>
+            <groupId>io.intino</groupId>
+            <artifactId>plugin-interface</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.intino.legio</groupId>
+                    <artifactId>model</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>magritte</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 </project>

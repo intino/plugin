@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/intino/intino.iml" filepath="$PROJECT_DIR$/intino/intino.iml" group="plugin" />
       <module fileurl="file://$PROJECT_DIR$/intino-plugin/intino-plugin.iml" filepath="$PROJECT_DIR$/intino-plugin/intino-plugin.iml" group="plugin" />
       <module fileurl="file://$PROJECT_DIR$/legio/legio.iml" filepath="$PROJECT_DIR$/legio/legio.iml" group="model" />
+      <module fileurl="file://$PROJECT_DIR$/plugin-interface/plugin-interface.iml" filepath="$PROJECT_DIR$/plugin-interface/plugin-interface.iml" />
     </modules>
   </component>
 </project>

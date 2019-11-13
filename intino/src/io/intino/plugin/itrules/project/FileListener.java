@@ -65,7 +65,7 @@ public class FileListener implements com.intellij.openapi.components.BaseCompone
 				final PsiManager manager = PsiManager.getInstance(project);
 				final PsiJavaFile psiFile = (PsiJavaFile) manager.findFile(oldJavaTemplate);
 				final PsiDirectory destiny = manager.findDirectory(newParent);
-				ApplicationManager.getApplication().invokeLater(() -> {
+				ApplicationManager.getApplication().invokeAndWait(() -> {
 					JavaMoveClassesOrPackagesHandler handler = new JavaMoveClassesOrPackagesHandler();
 					handler.doMove(project, new PsiElement[]{psiFile}, handler.adjustTargetForMove(dataContext(), destiny), null);
 				});

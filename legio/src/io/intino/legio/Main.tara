@@ -76,6 +76,9 @@ Concept:{1..1}:Named Artifact
 		var string defaultJVMOptions = ""
 		Concept MavenPlugin
 			var string code
+		Concept IntinoPlugin
+			var string artifact
+			var string pluginClass
 		Aspect Runnable
         	var string mainClass
 		Aspect MacOS with Runnable

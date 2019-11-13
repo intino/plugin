@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
 import io.intino.itrules.formatters.StringFormatters;
 import io.intino.legio.graph.Artifact;
+import io.intino.legio.graph.Artifact.Package.IntinoPlugin;
 import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
@@ -36,6 +37,7 @@ import static io.intino.plugin.build.FactoryPhase.DEPLOY;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static io.intino.plugin.dependencyresolution.WebDependencyResolver.NodeModules;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.project.Safe.safeList;
 import static java.util.Collections.emptyList;
 
 
@@ -45,11 +47,21 @@ abstract class AbstractArtifactBuilder {
 	List<String> successMessages = new ArrayList<>();
 
 	void process(final Module module, FactoryPhase phase, ProgressIndicator indicator) {
+		processPackagePlugins(module, indicator);
+		if (!errorMessages.isEmpty()) return;
 		processLanguage(module, phase, indicator);
 		if (!errorMessages.isEmpty()) return;
 		processFramework(module, phase, indicator);
 		if (!errorMessages.isEmpty()) return;
 		if (deploy(module, phase, indicator)) successMessages.add("deployment Done");
+	}
+
+	private void processPackagePlugins(Module module, ProgressIndicator indicator) {
+		Configuration configuration = TaraUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) return;
+		List<IntinoPlugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).graph().artifact().package$().intinoPluginList());
+		intinoPlugins.forEach(plugin ->
+				new PluginExecutor(module, (LegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
 	}
 
 	private void processLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
