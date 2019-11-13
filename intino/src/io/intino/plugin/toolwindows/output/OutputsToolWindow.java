@@ -50,7 +50,7 @@ public class OutputsToolWindow {
 				buildOutput.scrollTo(buildOutput.getContentSize());
 			}
 			if (line.equals(CLEAR)) buildOutput.clear();
-			buildOutput.print("\n" + line, contentType(line));
+			else buildOutput.print("\n" + line, contentType(line));
 		}));
 	}
 

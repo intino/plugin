@@ -105,6 +105,7 @@ public class ModuleLibrariesManager {
 		} else if (e instanceof ModuleOrderEntry) {
 			Module module = ((ModuleOrderEntry) e).getModule();
 			Configuration configuration = TaraUtil.configurationOf(module);
+			if (configuration == null) return null;
 			return configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version() + ":" + COMPILE;
 		}
 		return null;
