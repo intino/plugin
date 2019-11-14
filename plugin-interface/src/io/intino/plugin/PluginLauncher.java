@@ -12,6 +12,7 @@ public abstract class PluginLauncher {
 	protected File moduleDirectory;
 	protected SystemProperties systemProperties;
 	protected PrintStream log;
+	protected Notifier notifier;
 
 	public abstract void run();
 
@@ -35,7 +36,7 @@ public abstract class PluginLauncher {
 		return this;
 	}
 
-	public PluginLauncher log(PrintStream log) {
+	public PluginLauncher logger(PrintStream log) {
 		this.log = log;
 		return this;
 	}
@@ -56,8 +57,12 @@ public abstract class PluginLauncher {
 		return moduleStructure;
 	}
 
-	protected PrintStream log() {
+	protected PrintStream logger() {
 		return log;
+	}
+
+	protected Notifier notifier() {
+		return notifier;
 	}
 
 
@@ -81,5 +86,11 @@ public abstract class PluginLauncher {
 			this.resDirectories = resDirectories;
 			this.outDirectory = outDirectory;
 		}
+	}
+
+	public interface Notifier {
+		public void notify(String text);
+
+		public void notifyError(String text);
 	}
 }

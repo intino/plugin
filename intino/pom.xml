@@ -212,6 +212,10 @@
             <version>1.0.0</version>
             <exclusions>
                 <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>language</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>io.intino.legio</groupId>
                     <artifactId>model</artifactId>
                 </exclusion>

@@ -99,7 +99,7 @@ public class PluginExecutor {
 			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
-					.log(logStream);
+					.logger(logStream);
 			launcher.run();
 		} catch (Throwable e) {
 			errorMessages.add("Error executing plugin.\n" + e.getMessage());
