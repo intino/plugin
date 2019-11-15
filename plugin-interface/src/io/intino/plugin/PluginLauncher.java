@@ -65,6 +65,11 @@ public abstract class PluginLauncher {
 		return notifier;
 	}
 
+	public PluginLauncher notifier(Notifier notifier) {
+		this.notifier = notifier;
+		return this;
+	}
+
 
 	public static class SystemProperties {
 		public File mavenHome;
