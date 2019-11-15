@@ -1,5 +1,8 @@
 package io.intino.plugin.build;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -13,6 +16,7 @@ import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jcabi.aether.Aether;
 import io.intino.legio.graph.Repository;
+import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderLoader;
@@ -47,8 +51,8 @@ import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 
 public class PluginExecutor {
-	private static final Logger LOG = Logger.getInstance(PluginExecutor.class);
 	public static final String END = "##end##";
+	private static final Logger LOG = Logger.getInstance(PluginExecutor.class);
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private final String artifact;
@@ -63,6 +67,19 @@ public class PluginExecutor {
 		this.pluginClass = pluginClass;
 		this.errorMessages = errorMessages;
 		this.indicator = indicator;
+	}
+
+	private static ClassLoader createClassLoader(File[] libraries) {
+		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
+				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), InterfaceBuilderLoader.class.getClassLoader()));
+	}
+
+	private static URL toURL(File l) {
+		try {
+			return l.toURI().toURL();
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 	public void execute() {
@@ -99,6 +116,17 @@ public class PluginExecutor {
 			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
+					.notifier(new PluginLauncher.Notifier() {
+						@Override
+						public void notify(String text) {
+							Bus.notify(new Notification("Intino", "Plugin execution", text, NotificationType.INFORMATION), module.getProject());
+						}
+
+						@Override
+						public void notifyError(String text) {
+							Bus.notify(new Notification("Intino", MessageProvider.message("error.occurred", "plugin execution"), text, NotificationType.ERROR), module.getProject());
+						}
+					})
 					.logger(logStream);
 			launcher.run();
 		} catch (Throwable e) {
@@ -140,12 +168,6 @@ public class PluginExecutor {
 		return new File(pathOf(Objects.requireNonNull(extension.getCompilerOutputUrl())));
 	}
 
-	private static ClassLoader createClassLoader(File[] libraries) {
-		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), InterfaceBuilderLoader.class.getClassLoader()));
-	}
-
-
 	private List<Artifact> resolve() throws DependencyResolutionException {
 		Aether aether = new Aether(collectRemotes(), localRepository());
 		String[] coords = this.artifact.split(":");
@@ -178,7 +200,6 @@ public class PluginExecutor {
 		return repos;
 	}
 
-
 	private void publish(String line) {
 		if (module.getProject().isDisposed()) return;
 		final MessageBus messageBus = module.getProject().getMessageBus();
@@ -207,14 +228,6 @@ public class PluginExecutor {
 
 	private List<File> resourceDirectories(Module module) {
 		return getInstance(module).getSourceRoots(RESOURCE).stream().map(virtualFile -> new File(virtualFile.getPath())).collect(Collectors.toList());
-	}
-
-	private static URL toURL(File l) {
-		try {
-			return l.toURI().toURL();
-		} catch (MalformedURLException e) {
-			return null;
-		}
 	}
 
 	private String pathOf(String path) {

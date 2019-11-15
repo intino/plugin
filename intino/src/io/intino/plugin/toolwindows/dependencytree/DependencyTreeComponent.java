@@ -74,10 +74,8 @@ public class DependencyTreeComponent implements ProjectComponent {
 	}
 
 	public interface ViewConstants {
-
 		String PLUGIN_NAME = "Intino";
 		String PROJECT_COMPONENT_NAME = "DependencyTree";
 		String ID_TOOL_WINDOW = "Intino Dependencies";
-
 	}
 }

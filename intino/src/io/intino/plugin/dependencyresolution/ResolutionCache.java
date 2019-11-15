@@ -29,7 +29,10 @@ public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Depe
 	}
 
 	public static void invalidate(String dependency) {
-		for (ResolutionCache value : cache.values()) value.remove(dependency);
+		for (ResolutionCache value : cache.values()) {
+			value.remove(dependency);
+			value.save();
+		}
 	}
 
 	public void invalidate() {
