@@ -54,24 +54,21 @@ public class PluginExecutor {
 	public static final String END = "##end##";
 	private static final Logger LOG = Logger.getInstance(PluginExecutor.class);
 	private final Module module;
+	private final FactoryPhase phase;
 	private final LegioConfiguration configuration;
 	private final String artifact;
 	private final String pluginClass;
 	private final List<String> errorMessages;
 	private final ProgressIndicator indicator;
 
-	public PluginExecutor(Module module, LegioConfiguration configuration, String artifact, String pluginClass, List<String> errorMessages, ProgressIndicator indicator) {
+	public PluginExecutor(Module module, FactoryPhase phase, LegioConfiguration configuration, String artifact, String pluginClass, List<String> errorMessages, ProgressIndicator indicator) {
 		this.module = module;
+		this.phase = phase;
 		this.configuration = configuration;
 		this.artifact = artifact;
 		this.pluginClass = pluginClass;
 		this.errorMessages = errorMessages;
 		this.indicator = indicator;
-	}
-
-	private static ClassLoader createClassLoader(File[] libraries) {
-		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), InterfaceBuilderLoader.class.getClassLoader()));
 	}
 
 	private static URL toURL(File l) {
@@ -86,13 +83,13 @@ public class PluginExecutor {
 		try {
 			indicator.setText("Running package plugins");
 			List<Artifact> artifacts = resolve();
-			instanceAndRun(artifacts);
+			instantiateAndRun(artifacts);
 		} catch (DependencyResolutionException e) {
 			errorMessages.add("Plugin artifact not found");
 		}
 	}
 
-	private void instanceAndRun(List<Artifact> artifacts) {
+	private void instantiateAndRun(List<Artifact> artifacts) {
 		PipedOutputStream out = new PipedOutputStream();
 		PrintStream logStream = new PrintStream(out);
 		ClassLoader classLoader = createClassLoader(artifacts.stream().map(Artifact::getFile).toArray(File[]::new));
@@ -116,6 +113,7 @@ public class PluginExecutor {
 			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
+					.invokedPhase(PluginLauncher.Phase.valueOf(phase.name()))
 					.notifier(new PluginLauncher.Notifier() {
 						@Override
 						public void notify(String text) {
@@ -237,5 +235,10 @@ public class PluginExecutor {
 		} catch (MalformedURLException e) {
 			return path;
 		}
+	}
+
+	private ClassLoader createClassLoader(File[] libraries) {
+		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
+				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), InterfaceBuilderLoader.class.getClassLoader()));
 	}
 }

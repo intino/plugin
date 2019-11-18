@@ -13,6 +13,7 @@ public abstract class PluginLauncher {
 	protected SystemProperties systemProperties;
 	protected PrintStream log;
 	protected Notifier notifier;
+	protected Phase invokedPhase;
 
 	public abstract void run();
 
@@ -38,6 +39,15 @@ public abstract class PluginLauncher {
 
 	public PluginLauncher logger(PrintStream log) {
 		this.log = log;
+		return this;
+	}
+
+	public Phase invokedPhase() {
+		return invokedPhase;
+	}
+
+	public PluginLauncher invokedPhase(Phase invokedPhase) {
+		this.invokedPhase = invokedPhase;
 		return this;
 	}
 
@@ -70,6 +80,15 @@ public abstract class PluginLauncher {
 		return this;
 	}
 
+	public enum Phase {
+		COMPILE, PACKAGE, INSTALL, DISTRIBUTE, DEPLOY
+	}
+
+	public interface Notifier {
+		public void notify(String text);
+
+		public void notifyError(String text);
+	}
 
 	public static class SystemProperties {
 		public File mavenHome;
@@ -91,11 +110,5 @@ public abstract class PluginLauncher {
 			this.resDirectories = resDirectories;
 			this.outDirectory = outDirectory;
 		}
-	}
-
-	public interface Notifier {
-		public void notify(String text);
-
-		public void notifyError(String text);
 	}
 }

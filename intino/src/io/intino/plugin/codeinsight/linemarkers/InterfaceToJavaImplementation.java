@@ -72,6 +72,7 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "box";
 		Configuration.Box box = conf.box();
+		if (box == null) return "box";
 		return conf.workingPackage() + (box.targetPackage().isEmpty() ? "" : "." + box.targetPackage());
 	}
 
