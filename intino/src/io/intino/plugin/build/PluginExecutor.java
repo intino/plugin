@@ -25,6 +25,7 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.plugin.toolwindows.output.OutputsToolWindow;
+import io.intino.tara.magritte.loaders.ClassFinder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.sonatype.aether.artifact.Artifact;
@@ -108,6 +109,7 @@ public class PluginExecutor {
 
 	private void executePlugin(PrintStream logStream, ClassLoader classLoader, ModuleRootManager manager) {
 		try {
+			ClassFinder.clear();
 			PluginLauncher launcher = (PluginLauncher) classLoader.loadClass(pluginClass).getConstructors()[0].newInstance();
 			launcher.moduleConfiguration(configuration.graph());
 			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
