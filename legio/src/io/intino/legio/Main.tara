@@ -13,7 +13,7 @@ Concept:{1..1}:Named Artifact
 		sub Platform
 		sub Product
 		sub Solution
-
+	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} License
 		var string author
 		var word:{GPL BSD} type
@@ -60,7 +60,6 @@ Concept:{1..1}:Named Artifact
 		var string sdk = empty
 		var string effectiveVersion = "" is private
 		var string targetPackage = "box"
-		Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} Code
 		var string targetPackage
 	Concept Exports
