@@ -3,15 +3,12 @@ package io.intino.plugin.itrules.project;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.refactoring.move.moveClassesOrPackages.JavaMoveClassesOrPackagesHandler;
 import com.intellij.refactoring.openapi.impl.JavaRenameRefactoringImpl;
 import io.intino.plugin.itrules.lang.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
@@ -65,10 +62,11 @@ public class FileListener implements com.intellij.openapi.components.BaseCompone
 				final PsiManager manager = PsiManager.getInstance(project);
 				final PsiJavaFile psiFile = (PsiJavaFile) manager.findFile(oldJavaTemplate);
 				final PsiDirectory destiny = manager.findDirectory(newParent);
-				ApplicationManager.getApplication().invokeAndWait(() -> {
-					JavaMoveClassesOrPackagesHandler handler = new JavaMoveClassesOrPackagesHandler();
-					handler.doMove(project, new PsiElement[]{psiFile}, handler.adjustTargetForMove(dataContext(), destiny), null);
-				});
+//				ApplicationManager.getApplication().invokeAndWait(() -> {
+//					JavaMoveClassesOrPackagesHandler handler = new JavaMoveClassesOrPackagesHandler();
+//					handler.doMove(project, new PsiElement[]{psiFile}, handler.adjustTargetForMove(dataContext(), destiny), null);
+//				});
+				//TODO Si se está moviendo un paquete que contiene la plantilla, esto hace petar.
 
 			}
 
