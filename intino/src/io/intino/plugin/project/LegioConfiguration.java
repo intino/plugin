@@ -23,7 +23,9 @@ import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.legio.graph.*;
 import io.intino.legio.graph.Repository.Release;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
+import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
+import io.intino.plugin.dependencyresolution.ResolutionCache;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.project.configuration.LegioBox;
 import io.intino.plugin.project.configuration.LegioDeployConfiguration;
@@ -95,6 +97,14 @@ public class LegioConfiguration implements Configuration {
 
 	public boolean isSuitable() {
 		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
+	}
+
+	public DependencyCatalog.Dependency dataHub() {
+		Artifact.DataHub safe = safe(() -> graph.artifact().dataHub());
+		if (safe == null) return null;
+		String id = safe.groupId() + ":" + safe.artifactId() + ":" + safe.version();
+		ResolutionCache instance = ResolutionCache.instance(module.getProject());
+		return !instance.containsKey(id) ? null : instance.get(id).get(0);
 	}
 
 	public void purgeAndReload() {

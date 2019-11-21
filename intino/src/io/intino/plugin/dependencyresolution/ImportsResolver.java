@@ -76,7 +76,7 @@ public class ImportsResolver {
 		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
-			if (auditor.isModified(d.core$())) {
+			if (auditor.isModified(d.core$()) || mustReload) {
 				Module moduleDependency = moduleOf(d);
 				if (moduleDependency != null) {
 					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);

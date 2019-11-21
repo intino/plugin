@@ -12,8 +12,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static io.intino.tara.io.Helper.newNode;
 import static io.intino.tara.io.Helper.newStash;
 
 public class DependencyAuditor {
@@ -72,11 +75,22 @@ public class DependencyAuditor {
 	}
 
 	private void customizeImports(Stash stash) {
-		Node node = importsNode(artifactNode(stash));
-		if (node == null) return;
-		node.name = node.name.replace(Predicate.nameOf(node.name), "") + "imports";
-		node.nodes.forEach(n ->
+		Node artifactNode = artifactNode(stash);
+		Node importsNode = importsNode(artifactNode);
+		Node dataHubNode = dataHubNode(artifactNode);
+		if (dataHubNode != null) updateDatahubDependency(artifactNode, importsNode, dataHubNode);
+		if (importsNode == null) return;
+		importsNode.name = importsNode.name.replace(Predicate.nameOf(importsNode.name), "") + "imports";
+		importsNode.nodes.forEach(n ->
 				n.name = STASH_NAME + valueOf("groupId", n.variables) + ":" + valueOf("artifactId", n.variables) + ":" + valueOf("version", n.variables) + ":" + scopeOf(n));
+	}
+
+	private void updateDatahubDependency(Node artifactNode, Node importsNode, Node dataHubNode) {
+		if (importsNode == null) {
+			importsNode = newNode("imports", Collections.singletonList("Artifact$Imports"), Collections.emptyList(), Collections.emptyList());
+			artifactNode.nodes.add(importsNode);
+		}
+		importsNode.nodes.add(newNode(STASH_NAME + "datahub", Arrays.asList("Artifact$Imports$Compile", "Artifact$Imports$Dependency"), dataHubNode.variables, Collections.emptyList()));
 	}
 
 	private void customizeModel(Stash stash) {
@@ -101,6 +115,10 @@ public class DependencyAuditor {
 
 	private Node artifactNode(Stash stash) {
 		return stash.nodes.get(0);
+	}
+
+	private Node dataHubNode(Node node) {
+		return node.nodes.stream().filter(n -> n.layers.contains("Artifact$DataHub")).findFirst().orElse(null);
 	}
 
 	private String scopeOf(Node node) {

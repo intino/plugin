@@ -69,10 +69,6 @@ public class ConfigurationReloader {
 
 	private void resolveJavaDependencies() {
 		DependencyCatalog dependencies = resolveLanguage();
-		if (safe(() -> graph.artifact().box().dataHub()) != null) {
-			Artifact.Box.DataHub dataHub = graph.artifact().box().dataHub();
-			graph.artifact().imports().create().compile(dataHub.groupId(), dataHub.artifactId(), dataHub.version());
-		}
 		if (!safeList(() -> graph.artifact().imports().dependencyList()).isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories()).resolve(graph.artifact().imports().dependencyList()));
 		if (!safeList(() -> graph.artifact().imports().webList()).isEmpty()) {
@@ -82,10 +78,6 @@ public class ConfigurationReloader {
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);
 		new UnusedLibrariesInspection(module.getProject()).cleanUp();
-	}
-
-	private DependencyCatalog resolveBoxDataHub() {
-		return null;
 	}
 
 	private void resolveWebDependencies() {

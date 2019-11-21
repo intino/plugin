@@ -31,23 +31,4 @@ public class LegioBox implements Configuration.Box {
 		return box.targetPackage();
 	}
 
-	@Override
-	public Configuration.DataHubLibrary datahubLibrary() {
-		return box.dataHub() == null ? null : new Configuration.DataHubLibrary() {
-			@Override
-			public String groupId() {
-				return box.dataHub().groupId();
-			}
-
-			@Override
-			public String artifactId() {
-				return box.dataHub().artifactId();
-			}
-
-			@Override
-			public String version() {
-				return box.dataHub().version();
-			}
-		};
-	}
 }

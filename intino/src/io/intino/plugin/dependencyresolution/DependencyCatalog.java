@@ -93,6 +93,14 @@ public class DependencyCatalog {
 			return identifier;
 		}
 
+		public File jar() {
+			return jar;
+		}
+
+		public DependencyScope scope() {
+			return scope;
+		}
+
 		@NotNull
 		public String mavenId() {
 			return identifier.substring(0, identifier.lastIndexOf(":"));
