@@ -167,6 +167,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	@NotNull
 	private String mavenId(DependencyNode userObject) {
+		if (!userObject.label.contains(" ")) return userObject.label;
 		return userObject.label.substring(0, userObject.label.lastIndexOf(" "));
 	}
 
@@ -301,7 +302,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 		@NotNull
 		private static String scope(String library) {
-			String l = library.contains("(") ? library.substring(library.lastIndexOf("(") + 1, library.lastIndexOf(")")) : library;
+			String l = library.contains("(") ? library.substring(library.lastIndexOf("(") + 1, library.contains(")") ? library.lastIndexOf(")") : library.length()) : library;
 			return l.replace("MODEL", "COMPILE").toUpperCase();
 		}
 

@@ -23,14 +23,15 @@ public class DependencyAnnotator extends TaraAnnotator {
 		}
 	}
 
-	private boolean isDependencies(Node element) {
-		return element.type().equals("Compile")
-				|| element.type().equals("Test")
-				|| element.type().equals("Provided")
-				|| element.type().equals("Runtime")
-				|| element.type().equals("Artifact.Imports.Compile")
-				|| element.type().equals("Artifact.Imports.Test")
-				|| element.type().equals("Artifact.Imports.Provided")
-				|| element.type().equals("Artifact.Imports.Runtime");
+	private boolean isDependencies(Node node) {
+		return node != null &&
+				("Compile".equals(node.type())
+						|| "Test".equals(node.type())
+						|| "Provided".equals(node.type())
+						|| "Runtime".equals(node.type())
+						|| "Artifact.Imports.Compile".equals(node.type())
+						|| "Artifact.Imports.Test".equals(node.type())
+						|| "Artifact.Imports.Provided".equals(node.type())
+						|| "Artifact.Imports.Runtime".equals(node.type()));
 	}
 }

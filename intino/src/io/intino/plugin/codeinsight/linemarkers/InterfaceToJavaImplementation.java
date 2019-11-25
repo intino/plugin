@@ -33,19 +33,7 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		if (destiny != null) addResult(element, result, destiny);
 	}
 
-	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {
-		NavigationGutterIconBuilder<PsiElement> builder =
-				NavigationGutterIconBuilder.create(ImplementedMethod).setTarget(destiny).setTooltipText("Navigate to the native code");
-		result.add(builder.createLineMarkerInfo(leafOf(element)));
-	}
-
-	private PsiElement leafOf(@NotNull PsiElement element) {
-		PsiElement leaf = element;
-		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
-		return leaf;
-	}
-
-	private static PsiElement resolveToJavaImplementation(Node node) {
+	private PsiElement resolveToJavaImplementation(Node node) {
 		final String type = simpleType(node);
 		String key = type + "#" + node.name();
 		if (node.name().isEmpty()) return null;
@@ -58,7 +46,13 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		return JavaHelper.getJavaHelper(((PsiElement) node).getProject()).findClass(boxPackage(module).toLowerCase() + "." + nodeMap.get(key));
 	}
 
-	private static String simpleType(Node node) {
+	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {
+		NavigationGutterIconBuilder<PsiElement> builder =
+				NavigationGutterIconBuilder.create(ImplementedMethod).setTarget(destiny).setTooltipText("Navigate to the native code");
+		result.add(builder.createLineMarkerInfo(leafOf(element)));
+	}
+
+	private String simpleType(Node node) {
 		String type = node.type();
 		if (type.contains(":")) type = type.substring(node.type().indexOf(":") + 1);
 		if (type.contains(".")) {
@@ -68,11 +62,17 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		return type;
 	}
 
-	private static String boxPackage(Module module) {
+	private PsiElement leafOf(@NotNull PsiElement element) {
+		PsiElement leaf = element;
+		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
+		return leaf;
+	}
+
+	private String boxPackage(Module module) {
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "box";
 		Configuration.Box box = conf.box();
-		if (box == null) return "box";
+		if (box == null || box.targetPackage() == null) return "box";
 		return conf.workingPackage() + (box.targetPackage().isEmpty() ? "" : "." + box.targetPackage());
 	}
 

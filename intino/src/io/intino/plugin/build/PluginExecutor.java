@@ -159,8 +159,7 @@ public class PluginExecutor {
 				}
 				publish(line);
 			}
-		} catch (IOException e) {
-			LOG.error(e);
+		} catch (IOException ignored) {
 		}
 	}
 

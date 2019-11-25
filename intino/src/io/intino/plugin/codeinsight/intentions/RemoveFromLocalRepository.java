@@ -48,14 +48,14 @@ public class RemoveFromLocalRepository extends PsiElementBaseIntentionAction {
 
 	private boolean isDependency(PsiElement element) {
 		Node node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
-		return node.type().equals("Compile")
-				|| node.type().equals("Test")
-				|| node.type().equals("Provided")
-				|| node.type().equals("Runtime")
-				|| node.type().equals("Artifact.Imports.Compile")
-				|| node.type().equals("Artifact.Imports.Test")
-				|| node.type().equals("Artifact.Imports.Provided")
-				|| node.type().equals("Artifact.Imports.Runtime");
+		return node != null && ("Compile".equals(node.type())
+				|| "Test".equals(node.type())
+				|| "Provided".equals(node.type())
+				|| "Runtime".equals(node.type())
+				|| "Artifact.Imports.Compile".equals(node.type())
+				|| "Artifact.Imports.Test".equals(node.type())
+				|| "Artifact.Imports.Provided".equals(node.type())
+				|| "Artifact.Imports.Runtime".equals(node.type()));
 	}
 
 	private String parameter(List<Parameter> parameters, int index) {
