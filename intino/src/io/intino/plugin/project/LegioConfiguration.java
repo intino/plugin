@@ -168,8 +168,8 @@ public class LegioConfiguration implements Configuration {
 		});
 	}
 
-	public void addDependency(DependencyScope scope, String id) {
-		if (id == null || id.isEmpty() || !id.contains(":") || alreadyExists(scope, id)) return;
+	public boolean addDependency(DependencyScope scope, String id) {
+		if (id == null || id.isEmpty() || !id.contains(":") || alreadyExists(scope, id)) return false;
 		final FileDocumentManager documentManager = FileDocumentManager.getInstance();
 		final Document document = Objects.requireNonNull(documentManager.getDocument(legioFile));
 		documentManager.saveDocument(document);
@@ -186,6 +186,7 @@ public class LegioConfiguration implements Configuration {
 		});
 		documentManager.saveDocument(document);
 		PsiDocumentManager.getInstance(module.getProject()).commitDocument(document);
+		return true;
 	}
 
 	private boolean alreadyExists(DependencyScope scope, String id) {
