@@ -326,7 +326,7 @@ class PomCreator {
 
 	private Frame createDependencyFrame(Dependency d) {
 		final FrameBuilder builder = new FrameBuilder("dependency").add("groupId", d.groupId()).
-				add("scope", d.core$().graph().concept(d.getClass()).name()).add("artifactId", d.artifactId().toLowerCase()).
+				add("scope", d.core$().graph().concept(d.getClass()).name()).add("artifactId", d.artifactId()).
 				add("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
 		if (!d.excludeList().isEmpty()) for (Dependency.Exclude exclude : d.excludeList())
 			builder.add("exclusion", new FrameBuilder("exclusion").add("groupId", exclude.groupId()).add("artifactId", exclude.artifactId()).toFrame());
