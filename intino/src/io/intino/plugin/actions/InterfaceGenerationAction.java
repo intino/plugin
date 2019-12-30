@@ -19,11 +19,13 @@ import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.plugin.project.module.ModuleProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
 import static com.intellij.openapi.actionSystem.LangDataKeys.MODULE;
 import static io.intino.plugin.DataContext.getContext;
 
@@ -33,8 +35,30 @@ public class InterfaceGenerationAction extends AnAction {
 	private Set<PsiFile> pendingFiles = new HashSet<>();
 
 	@Override
+	public void update(@NotNull AnActionEvent e) {
+		super.update(e);
+		final Project project = e.getProject();
+		if (!isConnected && project != null) {
+			final MessageBus messageBus = project.getMessageBus();
+			final String konosExtension = KonosFileType.instance().getDefaultExtension();
+			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
+				try {
+					final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
+					if (vFile == null || !konosExtension.equalsIgnoreCase(vFile.getExtension())) return;
+					pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
+				} catch (Throwable ignored) {
+				}
+			});
+			isConnected = true;
+		}
+		e.getPresentation().setVisible(true);
+	}
+
+	@Override
 	public void actionPerformed(AnActionEvent e) {
-		force(e.getData(MODULE));
+		PsiFile data = e.getData(PSI_FILE);
+		if (data != null && data.getName().equalsIgnoreCase(".archetype")) new ArchetypeGeneration().actionPerformed(e);
+		else force(e.getData(MODULE));
 	}
 
 	public boolean execute(Module module) {
@@ -75,25 +99,5 @@ public class InterfaceGenerationAction extends AnAction {
 		return new AnActionEvent(null, dataContext,
 				ActionPlaces.UNKNOWN, new Presentation(),
 				ActionManager.getInstance(), 0);
-	}
-
-	@Override
-	public void update(AnActionEvent e) {
-		super.update(e);
-		final Project project = e.getProject();
-		if (!isConnected && project != null) {
-			final MessageBus messageBus = project.getMessageBus();
-			final String konosExtension = KonosFileType.instance().getDefaultExtension();
-			messageBus.connect().subscribe(IntinoTopics.FILE_MODIFICATION, file -> {
-				try {
-					final VirtualFile vFile = VfsUtil.findFileByIoFile(new File(file), true);
-					if (vFile == null || !konosExtension.equalsIgnoreCase(vFile.getExtension())) return;
-					pendingFiles.add(PsiManager.getInstance(project).findFile(vFile));
-				} catch (Throwable t) {
-				}
-			});
-			isConnected = true;
-		}
-		e.getPresentation().setVisible(true);
 	}
 }

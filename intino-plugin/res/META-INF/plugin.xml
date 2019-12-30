@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
 
     <description><![CDATA[
@@ -87,20 +87,20 @@
         </action>
         <action id="IntinoGenerate"
                 class="io.intino.plugin.actions.IntinoGenerationAction"
-                text="Generate intino code"
-                description="generates all intino source code">
+                text="Generate Intino Code"
+                description="Generates all intino source code">
             <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
         <action id="InterfaceGeneration"
                 class="io.intino.plugin.actions.InterfaceGenerationAction"
-                text="Generate konos interface code"
-                description="generates interface intino source code">
+                text="Generate Konos Interface Code"
+                description="Generates interface intino source code">
             <keyboard-shortcut first-keystroke="control alt k" keymap="$default"/>
         </action>
         <action id="PurgeAndReloadConfigurationAction"
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
-                text="Purge and reload Legio Configuration"
+                text="Purge and Reload Legio Configuration"
                 description="Purge and reload configuration of project modules">
         </action>
         <action id="ReloadConfigurationAction"
@@ -125,7 +125,7 @@
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
         </action>
 
-        <group id="ItrulesMenu" text="Itrules" description="Itrules Menu">
+        <group id="ItrulesMenu" text="Itrules" description="Itrules menu">
             <action id="itrules.toClass" class="io.intino.plugin.actions.itrules.TemplateGeneration"
                     text="Generate Java Template"
                     description="Generates the corresponding Java representation of the template">
