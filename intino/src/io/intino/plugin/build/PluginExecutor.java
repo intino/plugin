@@ -129,6 +129,7 @@ public class PluginExecutor {
 					})
 					.logger(logStream);
 			launcher.run();
+			ClassFinder.clear();
 		} catch (Throwable e) {
 			if (e instanceof NullPointerException) e.printStackTrace();
 			errorMessages.add("Error executing plugin.\n" + e.getMessage());

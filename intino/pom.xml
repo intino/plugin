@@ -180,6 +180,25 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>io.intino</groupId>
+            <artifactId>plugin-interface</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>language</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.intino.legio</groupId>
+                    <artifactId>model</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.intino.tara</groupId>
+                    <artifactId>magritte</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.siani.itrules</groupId>
             <artifactId>itrules</artifactId>
             <version>1.9.3</version>
@@ -205,25 +224,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
             <version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>io.intino</groupId>
-            <artifactId>plugin-interface</artifactId>
-            <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>language</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.legio</groupId>
-                    <artifactId>model</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>magritte</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

@@ -143,7 +143,6 @@ class PomCreator {
 	private String relativeToModulePath(String path) {
 		Path other = Paths.get(path);
 		Path modulePath = Paths.get(moduleDirectory()).toAbsolutePath();
-		if (other == null) return path;
 		try {
 			return modulePath.relativize(other.toAbsolutePath()).toFile().getPath();
 		} catch (IllegalArgumentException e) {
@@ -160,7 +159,8 @@ class PomCreator {
 			if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
-		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addModuleTypeDependencies(builder, dependencies);
+		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest))
+			addDependantModuleLibraries(builder, dependencies);
 		addLevelDependency(builder);
 	}
 
@@ -180,11 +180,12 @@ class PomCreator {
 		}
 	}
 
-	private void addModuleTypeDependencies(FrameBuilder builder, Set<String> dependencies) {
+	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
 			for (Dependency d : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList()))
-				if (dependencies.add(d.identifier())) builder.add("dependency", createDependencyFrame(d));
+				if (!d.toModule() && dependencies.add(d.identifier()))
+					builder.add("dependency", createDependencyFrame(d));
 			if (configuration.model() == null) continue;
 			ModelLanguage language = configuration.model().language();
 			if (language != null) {

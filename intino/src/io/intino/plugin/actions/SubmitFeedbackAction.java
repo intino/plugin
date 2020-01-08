@@ -1,7 +1,7 @@
 package io.intino.plugin.actions;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -52,7 +52,7 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	}
 
 	private void sendReport(Project project, String reportTitle, String reportDescription, String type) {
-		IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginId.getId("io.intino.tara"));
+		IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId("io.intino.tara"));
 		final Properties properties = createErrorProperties(plugin, reportTitle, reportDescription, type);
 		final IntinoSettings settings = IntinoSettings.getSafeInstance(project);
 		PivotalLoggingEventSubmitter submitter = new PivotalLoggingEventSubmitter(properties, settings.trackerProjectId(), settings.trackerApiToken());

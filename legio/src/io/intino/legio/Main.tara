@@ -67,7 +67,7 @@ Concept:{1..1}:Named Artifact
 	Concept IntinoPlugin
 		var string artifact
 		var string pluginClass
-		var word:{PostCompilation PrePackage PostPackage PostDistribution} phase = PrePackage
+		var word:{Export PostCompilation PrePackage PostPackage PostDistribution} phase = PrePackage
 
 	Concept:{0..1} Package
 		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} mode

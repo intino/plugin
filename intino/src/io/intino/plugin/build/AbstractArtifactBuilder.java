@@ -59,7 +59,7 @@ abstract class AbstractArtifactBuilder {
 		Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		List<Artifact.IntinoPlugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).graph().artifact().intinoPluginList());
-		intinoPlugins.forEach(plugin ->
+		intinoPlugins.stream().filter(i -> i.phase() == Artifact.IntinoPlugin.Phase.PrePackage).forEach(plugin ->
 				new PluginExecutor(module, phase, (LegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
 	}
 
