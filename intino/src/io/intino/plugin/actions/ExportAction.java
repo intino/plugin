@@ -27,20 +27,7 @@ public class ExportAction {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return;
 		runBoxExports(factoryPhase, configuration);
-		runExportPlugins(module, (LegioConfiguration) configuration);
-	}
-
-	private void runExportPlugins(Module module, LegioConfiguration configuration) {
-		List<Artifact.IntinoPlugin> intinoPlugins = safeList(() -> configuration.graph().artifact().intinoPluginList());
-		intinoPlugins.stream().filter(i -> i.phase() == Artifact.IntinoPlugin.Phase.Export).forEach(plugin -> {
-			withTask(new Task.Backgroundable(module.getProject(), "Exports plugins of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-				@Override
-				public void run(@NotNull ProgressIndicator indicator) {
-					List<String> errorMessages = new ArrayList<>();
-					new PluginExecutor(module, FactoryPhase.DISTRIBUTE, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
-				}
-			});
-		});
+		runExportPlugins(module, factoryPhase, (LegioConfiguration) configuration);
 	}
 
 	private void runBoxExports(FactoryPhase factoryPhase, Configuration configuration) {
@@ -51,6 +38,19 @@ public class ExportAction {
 				if (action != null) action.actionPerformed(createActionEvent());
 			}
 		}
+	}
+
+	private void runExportPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration) {
+		List<Artifact.IntinoPlugin> intinoPlugins = safeList(() -> configuration.graph().artifact().intinoPluginList());
+		intinoPlugins.stream().filter(i -> i.phase() == Artifact.IntinoPlugin.Phase.Export).forEach(plugin -> {
+			withTask(new Task.Backgroundable(module.getProject(), "Exports plugins of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				@Override
+				public void run(@NotNull ProgressIndicator indicator) {
+					List<String> errorMessages = new ArrayList<>();
+					new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
+				}
+			});
+		});
 	}
 
 	private void withTask(Task.Backgroundable runnable) {
