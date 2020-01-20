@@ -1,9 +1,9 @@
 package io.intino.plugin.file.legio;
 
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.file.TaraFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.intino.tara.plugin.lang.file.TaraFileType;
 
 public class LegioFileType extends TaraFileType {
 	public static LegioFileType INSTANCE;

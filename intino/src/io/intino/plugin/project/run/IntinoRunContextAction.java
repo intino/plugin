@@ -22,10 +22,11 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -36,8 +37,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
-import static io.intino.plugin.project.LegioConfiguration.parametersOf;
-import static io.intino.plugin.project.Safe.safeList;
 
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
@@ -113,16 +112,10 @@ public class IntinoRunContextAction extends RunContextAction {
 	private String collectParameters() {
 		final LegioConfiguration configuration = (LegioConfiguration) configuration();
 		if (configuration == null) return "";
-		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = safeList(() -> configuration.graph().runConfigurationList());
-		for (io.intino.legio.graph.RunConfiguration legioConf : runConfigurations)
-			if (this.runConfiguration.name().equals(legioConf.name$())) return parametersOf(legioConf);
-		return runConfigurations.isEmpty() ? "" : parametersOf(runConfigurations.get(0));
-	}
-
-	@Override
-	public void update(final AnActionEvent event) {
-		super.update(event);
-
+		final List<Configuration.RunConfiguration> runConfigurations = configuration.runConfigurations();
+		for (Configuration.RunConfiguration rc : runConfigurations)
+			if (this.runConfiguration.name().equals(rc.name())) return ((LegioRunConfiguration) rc).argumentsChain();
+		return runConfigurations.isEmpty() ? "" : ((LegioRunConfiguration) runConfigurations.get(0)).argumentsChain();
 	}
 
 	private Configuration configuration() {

@@ -32,11 +32,20 @@ public class Safe {
 		}
 	}
 
+
 	public static <T> T safe(Wrapper<T> wrapper) {
 		try {
 			return wrapper.value();
 		} catch (Throwable e) {
 			return null;
+		}
+	}
+
+	public static <T> T safe(Wrapper<T> wrapper, T defaultValue) {
+		try {
+			return wrapper.value();
+		} catch (Throwable e) {
+			return defaultValue;
 		}
 	}
 

@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import io.intino.plugin.lang.LanguageManager;
 import io.intino.tara.Language;
-import io.intino.tara.plugin.lang.LanguageManager;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;

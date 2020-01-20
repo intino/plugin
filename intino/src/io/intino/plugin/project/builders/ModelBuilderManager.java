@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.IntinoDirectory;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Model;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.legio.graph.Artifact.Level.Model;
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class ModelBuilderManager {
@@ -41,8 +41,8 @@ public class ModelBuilderManager {
 
 	public List<String> resolveBuilder() {
 		try {
-			final List<Artifact> resolve = artifacts();
-			final List<String> paths = librariesOf(resolve);
+			final List<Artifact> artifacts = artifacts();
+			final List<String> paths = librariesOf(artifacts);
 			saveClassPath(paths);
 			return paths;
 		} catch (DependencyResolutionException e) {
@@ -56,7 +56,7 @@ public class ModelBuilderManager {
 		final List<RemoteRepository> repos = Arrays.asList(
 				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)),
 				new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + model.sdk()), JavaScopes.COMPILE);
+		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
 	}
 
 	private void saveClassPath(List<String> paths) {

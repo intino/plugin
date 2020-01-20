@@ -3,13 +3,15 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.jcabi.aether.Aether;
-import io.intino.legio.graph.Artifact.Imports.Dependency;
-import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioDependency;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency.Web;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
@@ -29,13 +31,13 @@ import static java.util.stream.Collectors.toList;
 
 public class ImportsResolver {
 	private final Module module;
-	private final List<Repository.Type> repositories;
+	private final List<Repository> repositories;
 	private final Aether aether;
 	private final DependencyAuditor auditor;
 	private final String updatePolicy;
 	private boolean mustReload;
 
-	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository.Type> repositories) {
+	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository> repositories) {
 		this.module = module;
 		this.repositories = repositories;
 		this.auditor = auditor;
@@ -53,9 +55,9 @@ public class ImportsResolver {
 		} else return dependencyCatalog;
 	}
 
-	public DependencyCatalog resolveWeb(List<io.intino.legio.graph.Artifact.Imports.Web> webs) {
+	public DependencyCatalog resolveWeb(List<Web> webs) {
 		DependencyCatalog catalog = new DependencyCatalog();
-		for (io.intino.legio.graph.Artifact.Imports.Web web : webs) {
+		for (Web web : webs) {
 			Module moduleDependency = moduleOf(web.identifier());
 			if (moduleDependency == null) continue;
 			catalog.merge(processModuleDependency(moduleDependency));
@@ -76,7 +78,7 @@ public class ImportsResolver {
 		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
-			if (auditor.isModified(d.core$()) || mustReload) {
+			if (auditor.isModified(((LegioDependency) d).node()) || mustReload) {
 				Module moduleDependency = moduleOf(d);
 				if (moduleDependency != null) {
 					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
@@ -93,7 +95,7 @@ public class ImportsResolver {
 					catalog.addAll(deps);
 					d.resolved(true);
 				} else {
-					auditor.invalidate(d.core$().id());
+					auditor.invalidate(((LegioDependency) d).node());
 					mustReload = true;
 				}
 			}
@@ -144,18 +146,18 @@ public class ImportsResolver {
 		for (Module m : Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(module -> !module.equals(this.module)).collect(toList())) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
 			if (configuration == null) continue;
-			if (names[0].equals(configuration.groupId().toLowerCase()) && names[1].equals(configuration.artifactId().toLowerCase()) && names[2].equalsIgnoreCase(configuration.version()))
+			if (names[0].equals(configuration.artifact().groupId().toLowerCase()) && names[1].equals(configuration.artifact().name().toLowerCase()) && names[2].equalsIgnoreCase(configuration.artifact().version()))
 				return m;
 		}
 		return null;
 	}
 
 	private Map<Artifact, DependencyScope> collectArtifacts(Dependency dependency) {
-		final String scope = dependency.getClass().getSimpleName().toLowerCase();
+		final DependencyScope scope = scopeOf(dependency);
 		try {
-			final Map<Artifact, DependencyScope> artifacts = toMap(resolve(dependency, scope), scope(scope));
-			if (scope.equalsIgnoreCase(JavaScopes.COMPILE)) {
-				final Map<Artifact, DependencyScope> m = toMap(resolve(dependency, JavaScopes.RUNTIME), DependencyScope.RUNTIME);
+			final Map<Artifact, DependencyScope> artifacts = toMap(resolve(dependency, scope), scope);
+			if (scope == DependencyScope.COMPILE) {
+				final Map<Artifact, DependencyScope> m = toMap(resolve(dependency, DependencyScope.RUNTIME), DependencyScope.RUNTIME);
 				for (Artifact artifact : m.keySet())
 					if (!artifacts.containsKey(artifact)) artifacts.put(artifact, m.get(artifact));
 			}
@@ -167,29 +169,24 @@ public class ImportsResolver {
 	}
 
 	private DependencyScope scopeOf(Dependency dependency) {
-		return scope(dependency.getClass().getSimpleName());
+		return DependencyScope.valueOf(dependency.getClass().getInterfaces()[0].getSimpleName().toUpperCase());
 	}
 
-	@NotNull
-	private DependencyScope scope(String scope) {
-		return DependencyScope.valueOf(scope.toUpperCase());
-	}
-
-	private List<Artifact> resolve(Dependency dependency, String scope) throws DependencyResolutionException {
+	private List<Artifact> resolve(Dependency dependency, DependencyScope scope) throws DependencyResolutionException {
 		final DefaultArtifact artifact = new DefaultArtifact(dependency.groupId(), dependency.artifactId(), "jar", dependency.version());
-		if (dependency.excludeList().isEmpty()) return aether.resolve(artifact, scope.toLowerCase());
-		return aether.resolve(artifact, scope.toLowerCase(), exclusionsOf(dependency));
+		if (dependency.excludes().isEmpty()) return aether.resolve(artifact, scope.name().toLowerCase());
+		return aether.resolve(artifact, scope.name().toLowerCase(), exclusionsOf(dependency));
 	}
 
 	@NotNull
 	private ExclusionsDependencyFilter exclusionsOf(Dependency dependency) {
-		return new ExclusionsDependencyFilter(dependency.excludeList().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(toList()));
+		return new ExclusionsDependencyFilter(dependency.excludes().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(toList()));
 	}
 
-	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, String scope) {
+	private Map<Artifact, DependencyScope> tryAsPom(Aether aether, String[] dependency, DependencyScope scope) {
 		if (dependency.length != 3) return emptyMap();
 		try {
-			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope.toLowerCase()), scope(scope));
+			return toMap(aether.resolve(new DefaultArtifact(dependency[0], dependency[1], "pom", dependency[2]), scope.name().toLowerCase()), scope);
 		} catch (DependencyResolutionException e) {
 			return emptyMap();
 		}
@@ -205,12 +202,12 @@ public class ImportsResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
-		remotes.addAll(repositories.stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
+		remotes.addAll(repositories.stream().filter(r -> r != null && !(r instanceof Repository.Language)).map(this::repository).collect(toList()));
 		return remotes;
 	}
 
-	private RemoteRepository repository(Repository.Type remote) {
-		final RemoteRepository repository = new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
+	private RemoteRepository repository(Repository remote) {
+		final RemoteRepository repository = new RemoteRepository(remote.identifier(), "default", remote.url()).setAuthentication(provideAuthentication(remote.identifier()));
 		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
 		return repository;
 	}

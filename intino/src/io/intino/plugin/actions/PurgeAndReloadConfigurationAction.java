@@ -7,9 +7,9 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 public class PurgeAndReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override
@@ -23,7 +23,7 @@ public class PurgeAndReloadConfigurationAction extends IntinoAction implements D
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration != null && configuration instanceof LegioConfiguration) {
+		if (configuration instanceof LegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
 			((LegioConfiguration) configuration).purgeAndReload();
 			notifyReload(module);

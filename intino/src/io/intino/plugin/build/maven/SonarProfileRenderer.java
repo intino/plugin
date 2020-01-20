@@ -1,14 +1,14 @@
 package io.intino.plugin.build.maven;
 
 import com.intellij.openapi.module.Module;
-import io.intino.legio.graph.Artifact;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,7 +37,7 @@ public class SonarProfileRenderer {
 
 	public SonarProfileRenderer(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		analytics = configuration.graph().artifact().qualityAnalytics();
+		analytics = configuration.artifact().qualityAnalytics();
 		loadDoc();
 	}
 

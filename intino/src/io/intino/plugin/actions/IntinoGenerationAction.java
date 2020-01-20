@@ -24,17 +24,16 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
-import io.intino.legio.graph.Artifact.Level;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.file.TaraFileType;
+import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
-import io.intino.tara.plugin.lang.file.TaraFileType;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.jps.cmdline.ClasspathBootstrap;
@@ -138,7 +137,7 @@ public class IntinoGenerationAction extends IntinoAction {
 
 
 	private List<String> taraCompilerClasspath(Module module, LegioConfiguration configuration) {
-		Level.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return Collections.emptyList();
 		return new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 	}

@@ -5,12 +5,12 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
+import io.intino.plugin.codeinsight.JavaHelper;
 import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.codeinsight.JavaHelper;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.icons.AllIcons.Gutter.ImplementedMethod;
-import static io.intino.tara.plugin.lang.psi.impl.TaraUtil.configurationOf;
+import static io.intino.plugin.lang.psi.impl.TaraUtil.configurationOf;
+import static io.intino.plugin.project.Safe.safe;
 
 public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider {
 
@@ -71,9 +72,9 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 	private String boxPackage(Module module) {
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "box";
-		Configuration.Box box = conf.box();
+		Configuration.Artifact.Box box = safe(() -> conf.artifact().box());
 		if (box == null || box.targetPackage() == null) return "box";
-		return conf.workingPackage() + (box.targetPackage().isEmpty() ? "" : "." + box.targetPackage());
+		return conf.artifact().code().generationPackage() + (box.targetPackage().isEmpty() ? "" : "." + box.targetPackage());
 	}
 
 	private boolean isInterfaceFile(PsiElement e) {

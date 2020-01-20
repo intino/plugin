@@ -5,20 +5,20 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.ProcessingContext;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.ArtifactorySensor;
+import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.IntinoModuleType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import static io.intino.plugin.project.ArtifactorySensor.*;
-import static io.intino.tara.plugin.project.module.ModuleProvider.moduleOf;
+import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 
 public class LegioCompletionContributor extends CompletionContributor {
@@ -110,7 +110,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		final List<String> values = new ArtifactorySensor(((LegioConfiguration) configuration).repositoryTypes()).dependencyVersions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
+		final List<String> values = new ArtifactorySensor(configuration.repositories()).dependencyVersions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);

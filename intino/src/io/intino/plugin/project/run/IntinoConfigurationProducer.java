@@ -18,20 +18,20 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.RunConfiguration;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.intellij.openapi.util.Comparing.equal;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
+import static io.intino.tara.compiler.shared.Configuration.Artifact;
 
 public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBase<ApplicationConfiguration> {
 	private static final Logger LOG = Logger.getInstance(IntinoConfigurationProducer.class);
@@ -41,9 +41,8 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 		final RunnerAndConfigurationSettings settings = cloneTemplateConfiguration(context);
 		Ref<PsiElement> ref = new Ref<>(context.getPsiLocation());
 		try {
-			if (!setupConfigurationFromContext((ApplicationConfiguration) settings.getConfiguration(), context, ref)) {
+			if (!setupConfigurationFromContext((ApplicationConfiguration) settings.getConfiguration(), context, ref))
 				return null;
-			}
 		} catch (ClassCastException e) {
 			LOG.error(getConfigurationFactory() + " produced wrong type", e);
 			return null;
@@ -107,8 +106,8 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 	}
 
 	@NotNull
-	private String configurationName(PsiElement location, LegioConfiguration legio) {
-		return legio.artifactId() + "-" + name(location);
+	private String configurationName(PsiElement location, LegioConfiguration conf) {
+		return conf.artifact().name() + "-" + name(location);
 	}
 
 	private String name(PsiElement location) {
@@ -121,9 +120,9 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 	}
 
 	private PsiClass getMainClass(LegioConfiguration legio, PsiElement runConfigurationNode) {
-		final Artifact.Package safe = Safe.safe(() -> legio.graph().artifact().package$());
+		final Artifact.Package safe = Safe.safe(() -> legio.artifact().packageConfiguration());
 		if (safe == null || !safe.isRunnable()) return null;
 		final JavaPsiFacade facade = JavaPsiFacade.getInstance(runConfigurationNode.getProject());
-		return facade.findClass(safe.asRunnable().mainClass(), allScope(runConfigurationNode.getProject()));
+		return facade.findClass(safe.mainClass(), allScope(runConfigurationNode.getProject()));
 	}
 }

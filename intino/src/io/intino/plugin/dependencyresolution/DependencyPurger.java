@@ -1,5 +1,7 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import org.apache.commons.io.FileUtils;
@@ -7,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+
+import static com.intellij.notification.NotificationType.ERROR;
 
 public class DependencyPurger {
 	private static final Logger LOG = Logger.getInstance(DependencyPurger.class.getName());
@@ -20,7 +24,7 @@ public class DependencyPurger {
 			FileUtils.deleteDirectory(file);
 			LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file.getParentFile());
 		} catch (IOException e) {
-			LOG.error(e);
+			Notifications.Bus.notify(new Notification("tara", "Dependency purge", "Imposible to remove dependency. Files are open", ERROR));
 		}
 	}
 

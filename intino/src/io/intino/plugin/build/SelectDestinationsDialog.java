@@ -6,9 +6,8 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.ui.StripeTable;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoIcons;
+import io.intino.tara.compiler.shared.Configuration.Deployment;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -22,14 +21,13 @@ import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
 public class SelectDestinationsDialog {
-	private static final Object[] ARTIFACTORY_FIELDS = {"Name", "Dev", "Pro"};
+	private static final Object[] DeploymentFields = {"Server", "Deployment"};
 	private JPanel deploymentsPanel;
 	private JBTable table;
-
 	private Window parent;
-	private final List<Artifact.Deployment> deployments;
+	private final List<Deployment> deployments;
 
-	public SelectDestinationsDialog(Window parent, List<Artifact.Deployment> deployments) {
+	public SelectDestinationsDialog(Window parent, List<Deployment> deployments) {
 		this.parent = parent;
 		this.deployments = deployments;
 		createUIComponents();
@@ -47,40 +45,35 @@ public class SelectDestinationsDialog {
 		return destinations[0];
 	}
 
-	private List<Destination> selectedDestinations() {
-		List<Destination> destinations = new ArrayList<>();
-		for (int i = 0; i < table.getModel().getRowCount(); i++) {
+	private List<Deployment> selectedDestinations() {
+		List<Deployment> destinations = new ArrayList<>();
+		for (int i = 0; i < table.getModel().getRowCount(); i++)
 			if ((boolean) table.getModel().getValueAt(i, 1))
-				destinations.add(findDestination(table.getModel().getValueAt(i, 0).toString(), false));
-			if ((boolean) table.getModel().getValueAt(i, 2))
-				destinations.add(findDestination(table.getModel().getValueAt(i, 0).toString(), true));
-		}
+				destinations.add(findDeployment(table.getModel().getValueAt(i, 0).toString()));
 		return destinations;
 	}
 
-	private Destination findDestination(String value, boolean pro) {
-		for (Artifact.Deployment deployment : deployments)
-			if (deployment.name$().equalsIgnoreCase(value)) return pro ? deployment.pro() : deployment.pre();
+	private Deployment findDeployment(String value) {
+		for (Deployment deployment : deployments)
+			if (deployment.server().name().equalsIgnoreCase(value)) return deployment;
 		return null;
 	}
 
 	private void createUIComponents() {
 		deploymentsPanel = new JPanel();
-		final DefaultTableModel tableModel = new DefaultTableModel(destinationsData(), ARTIFACTORY_FIELDS) {
+		final DefaultTableModel tableModel = new DefaultTableModel(destinationsData(), DeploymentFields) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return column != 0 && checkExist(this.getValueAt(row, 0).toString(), column);
 			}
 		};
-		tableModel.setColumnIdentifiers(ARTIFACTORY_FIELDS);
+		tableModel.setColumnIdentifiers(DeploymentFields);
 		table = newTable(tableModel);
-
 		table.setEnableAntialiasing(true);
 		table.getEmptyText().setText("No Deployments");
 		table.setAutoResizeMode(AUTO_RESIZE_LAST_COLUMN);
-		table.getColumn(ARTIFACTORY_FIELDS[0]).setPreferredWidth(150);
-		table.getColumn(ARTIFACTORY_FIELDS[2]);
-		table.getColumn(ARTIFACTORY_FIELDS[1]);
+		table.getColumn(DeploymentFields[0]).setPreferredWidth(150);
+		table.getColumn(DeploymentFields[1]);
 		deploymentsPanel = ToolbarDecorator.createDecorator(table).disableUpAction().disableDownAction().createPanel();
 		deploymentsPanel.setMinimumSize(new Dimension(400, 200));
 		table.setMinimumSize(new Dimension(400, 200));
@@ -89,11 +82,8 @@ public class SelectDestinationsDialog {
 	}
 
 	private boolean checkExist(String value, int column) {
-		for (Artifact.Deployment deployment : deployments)
-			if (deployment.name$().equalsIgnoreCase(value)) {
-				if (column == 1) return deployment.pre() != null;
-				return deployment.pro() != null;
-			}
+		for (Deployment deployment : deployments)
+			if (deployment.server().name().equalsIgnoreCase(value)) return true;
 		return false;
 	}
 
@@ -103,14 +93,8 @@ public class SelectDestinationsDialog {
 			private static final long serialVersionUID = 1L;
 
 			public Class getColumnClass(int column) {
-				switch (column) {
-					case 0:
-						return String.class;
-					case 1:
-						return Boolean.class;
-					default:
-						return Boolean.class;
-				}
+				if (column == 0) return String.class;
+				return Boolean.class;
 			}
 		};
 	}
@@ -118,7 +102,7 @@ public class SelectDestinationsDialog {
 	private Object[][] destinationsData() {
 		Object[][] objects = new Object[deployments.size()][3];
 		for (int i = 0; i < deployments.size(); i++)
-			objects[i] = new Object[]{deployments.get(i).name$(), deployments.get(i).pre() != null, deployments.get(i).pro() != null};
+			objects[i] = new Object[]{deployments.get(i).server().name(), false};
 		return objects;
 	}
 }

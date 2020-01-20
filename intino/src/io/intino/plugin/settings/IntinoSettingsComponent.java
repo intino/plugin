@@ -5,7 +5,7 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.LanguageManager;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

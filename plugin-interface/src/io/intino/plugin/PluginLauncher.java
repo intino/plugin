@@ -1,13 +1,13 @@
 package io.intino.plugin;
 
-import io.intino.legio.graph.LegioGraph;
+import io.intino.tara.compiler.shared.Configuration;
 
 import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
 public abstract class PluginLauncher {
-	protected LegioGraph moduleConfiguration;
+	protected Configuration moduleConfiguration;
 	protected ModuleStructure moduleStructure;
 	protected File moduleDirectory;
 	protected SystemProperties systemProperties;
@@ -17,7 +17,7 @@ public abstract class PluginLauncher {
 
 	public abstract void run();
 
-	public PluginLauncher moduleConfiguration(LegioGraph moduleConfiguration) {
+	public PluginLauncher moduleConfiguration(Configuration moduleConfiguration) {
 		this.moduleConfiguration = moduleConfiguration;
 		return this;
 	}
@@ -51,7 +51,7 @@ public abstract class PluginLauncher {
 		return this;
 	}
 
-	protected LegioGraph configuration() {
+	protected Configuration configuration() {
 		return moduleConfiguration;
 	}
 

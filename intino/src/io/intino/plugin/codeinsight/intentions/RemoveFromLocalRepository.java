@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

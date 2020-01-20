@@ -7,14 +7,14 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
+import io.intino.plugin.actions.utils.FileSystemUtils;
 import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.actions.utils.FileSystemUtils;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.Safe.safe;
 import static java.util.Arrays.asList;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
-	private static final Logger LOG = Logger.getInstance(MavenRunner.class);
 	private Module module;
 	private InvocationOutputHandler handler;
 	private String output = "";
@@ -69,15 +69,17 @@ public class MavenRunner {
 	}
 
 	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
-		if (conf.distributionLanguageRepository() == null)
+		Configuration.Repository languageRepository = safe(() -> conf.artifact().distribution().language());
+		if (languageRepository == null)
 			throw new IOException(message("none.distribution.language.repository"));
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
-		request.setMavenOpts("-Durl=" + conf.distributionLanguageRepository().getKey() + " " +
-				"-DrepositoryId=" + conf.distributionLanguageRepository().getValue() + " " +
+		Configuration.Artifact artifact = conf.artifact();
+		request.setMavenOpts("-Durl=" + languageRepository.url() + " " +
+				"-DrepositoryId=" + languageRepository.identifier() + " " +
 				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + conf.model().outLanguage() + " " +
-				"-Dversion=" + conf.version() + " " +
-				"-Dfile=" + fileOfLanguage(conf));
+				"-DartifactId=" + artifact.model().outLanguage() + " " +
+				"-Dversion=" + artifact.version() + " " +
+				"-Dfile=" + fileOfLanguage(artifact));
 		final Properties properties = new Properties();
 		request.setProperties(properties);
 		final InvocationResult result = invokeMaven(request);
@@ -103,7 +105,7 @@ public class MavenRunner {
 	}
 
 	private boolean preservePOM() {
-		return ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact().package$().createPOMproject();
+		return safe(() -> ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact().packageConfiguration().createPOMproject());
 	}
 
 	private void applyBuildFixes(Module module, FactoryPhase phase) {
@@ -154,9 +156,10 @@ public class MavenRunner {
 	}
 
 	@NotNull
-	private String fileOfLanguage(Configuration conf) {
+	private String fileOfLanguage(Configuration.Artifact artifact) {
 		try {
-			final String originalFile = LanguageManager.getLanguageDirectory(conf.model().outLanguage()) + "/" + conf.version() + "/" + conf.model().outLanguage() + "-" + conf.version() + ".jar";
+			Configuration.Artifact.Model model = artifact.model();
+			final String originalFile = LanguageManager.getLanguageDirectory(model.outLanguage()) + "/" + artifact.version() + "/" + model.outLanguage() + "-" + artifact.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());

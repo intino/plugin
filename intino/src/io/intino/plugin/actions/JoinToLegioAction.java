@@ -13,13 +13,13 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
+import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.IntinoModuleType;
-import io.intino.tara.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactNode;
@@ -104,12 +104,13 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		if (IntinoModuleType.isIntino(module)) {
 			builder.add("isIntino", "");
 			Configuration conf = TaraUtil.configurationOf(module);
-			if (conf.model() != null)
+			Configuration.Artifact.Model model = conf.artifact().model();
+			if (model != null)
 				builder.add("factory", new FrameBuilder("factory").
-						add("level", notNull(conf.model().level().name())).
-						add("workingPackage", notNull(conf.workingPackage())).
-						add("dsl", notNull(conf.model().language().name())).
-						add("dslVersion", conf.model().language().version() == null ? "LATEST" : conf.model().language().version()).toFrame());
+						add("level", notNull(model.level().name())).
+						add("workingPackage", notNull(conf.artifact().code().generationPackage())).
+						add("dsl", notNull(model.language().name())).
+						add("dslVersion", model.language().version() == null ? "LATEST" : model.language().version()).toFrame());
 		}
 		return builder.toFrame();
 	}

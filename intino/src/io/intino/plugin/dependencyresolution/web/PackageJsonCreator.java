@@ -9,9 +9,9 @@ import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Artifact.WebImports.WebArtifact;
-import io.intino.legio.graph.Repository;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
+import io.intino.tara.compiler.shared.Configuration.Artifact.WebArtifact;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -25,21 +25,19 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-
 public class PackageJsonCreator {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
 	private final Artifact artifact;
-	private final List<Repository.Type> repositories;
-	private final List<Artifact.WebImports.WebComponent> webComponents;
-	private final List<Artifact.WebImports.Resolution> resolutions;
+	private final List<Repository> repositories;
+	private final List<Artifact.WebComponent> webComponents;
+	private final List<Artifact.WebResolution> resolutions;
 	private final File nodeModulesDirectory;
 
-	public PackageJsonCreator(Artifact artifact, List<Repository.Type> repositories, File nodeModulesDirectory) {
+	public PackageJsonCreator(Artifact artifact, List<Repository> repositories, File nodeModulesDirectory) {
 		this.artifact = artifact;
 		this.repositories = repositories;
-		this.webComponents = artifact.webImports() == null ? emptyList() : artifact.webImports().webComponentList();
-		this.resolutions = artifact.webImports() == null ? emptyList() : artifact.webImports().resolutionList();
+		this.webComponents = artifact.webComponents();
+		this.resolutions = artifact.webResolutions();
 		this.nodeModulesDirectory = nodeModulesDirectory;
 	}
 
@@ -61,7 +59,7 @@ public class PackageJsonCreator {
 	@NotNull
 	private Map<String, String> collectDependencies(List<JsonObject> packages) {
 		Map<String, String> dependencies = new LinkedHashMap<>();
-		webComponents.forEach(c -> dependencies.putIfAbsent(c.url(), c.version()));
+		webComponents.forEach(c -> dependencies.putIfAbsent(c.name(), c.version()));
 		packages.forEach(p -> dependenciesFrom(p).forEach(dependencies::putIfAbsent));
 		return dependencies;
 	}
@@ -70,7 +68,7 @@ public class PackageJsonCreator {
 	private List<JsonObject> resolveArtifacts() {
 		List<JsonObject> manifests = new ArrayList<>();
 		Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
-		for (WebArtifact artifact : artifact.webImports().webArtifactList()) {
+		for (WebArtifact artifact : artifact.webArtifacts()) {
 			if (isOverriding(artifact)) continue;
 			final List<org.sonatype.aether.artifact.Artifact> artifacts = resolve(aether, artifact);
 			if (!artifacts.isEmpty()) {
@@ -78,7 +76,7 @@ public class PackageJsonCreator {
 				if (packageJson == null) continue;
 				JsonObject jsonObject = readPackageJson(packageJson);
 				if (jsonObject == null) continue;
-				jsonObject.addProperty("name", artifact.name$());
+				jsonObject.addProperty("name", artifact.artifactId());
 				manifests.add(jsonObject);
 				write(jsonObject.toString(), packageJson);
 			}
@@ -87,7 +85,7 @@ public class PackageJsonCreator {
 	}
 
 	private boolean isOverriding(WebArtifact artifact) {
-		final File file = new File(nodeModulesDirectory, artifact.name$() + File.separator + "package.json");
+		final File file = new File(nodeModulesDirectory, artifact.artifactId() + File.separator + "package.json");
 		if (!file.exists()) return false;
 		try {
 			JsonObject element = new JsonParser().parse(new String(Files.readAllBytes(file.toPath()))).getAsJsonObject();
@@ -99,7 +97,7 @@ public class PackageJsonCreator {
 
 	private File extractInNodeModulesDirectory(WebArtifact artifact, File jarFile) {
 		try {
-			final File outputDir = new File(nodeModulesDirectory, artifact.name$().toLowerCase());
+			final File outputDir = new File(nodeModulesDirectory, artifact.artifactId().toLowerCase());
 			ZipUtil.extract(jarFile, outputDir, null);
 			FileUtil.delete(new File(outputDir, "META-INF"));
 			return new File(outputDir, "package.json");
@@ -129,7 +127,7 @@ public class PackageJsonCreator {
 	}
 
 	private FrameBuilder baseFrame() {
-		return new FrameBuilder().add("groupId", artifact.groupId()).add("artifactId", artifact.name$()).add("version", artifact.version());
+		return new FrameBuilder().add("groupId", artifact.groupId()).add("artifactId", artifact.name()).add("version", artifact.version());
 	}
 
 	private Frame[] resolutionFrameFrom(JsonObject object) {
@@ -141,8 +139,8 @@ public class PackageJsonCreator {
 		return frames.toArray(new Frame[0]);
 	}
 
-	private Frame resolutionFrameFrom(Artifact.WebImports.Resolution resolution) {
-		return new FrameBuilder().add("name", resolution.name()).add("version", resolution.version()).toFrame();
+	private Frame resolutionFrameFrom(Artifact.WebResolution resolution) {
+		return new FrameBuilder().add("name", resolution.url()).add("version", resolution.version()).toFrame();
 	}
 
 
@@ -167,7 +165,7 @@ public class PackageJsonCreator {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY)));
-		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name$(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.identifier(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
 		return remotes;
 	}
 

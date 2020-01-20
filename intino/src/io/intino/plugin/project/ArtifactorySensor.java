@@ -1,12 +1,13 @@
 package io.intino.plugin.project;
 
 import com.intellij.ide.util.PropertiesComponent;
-import io.intino.legio.graph.Repository;
-import io.intino.legio.graph.Repository.Type;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArtifactorySensor {
@@ -19,7 +20,7 @@ public class ArtifactorySensor {
 	private final ArtifactoryConnector languageConnectors;
 	private final ArtifactoryConnector dependencyConnectors;
 
-	public ArtifactorySensor(List<Type> repositories) {
+	public ArtifactorySensor(List<Repository> repositories) {
 		this.languageConnectors = new ArtifactoryConnector(by(repositories, Repository.Language.class));
 		this.dependencyConnectors = new ArtifactoryConnector(by(repositories, Repository.Release.class, Repository.Snapshot.class));
 		this.properties = PropertiesComponent.getInstance();
@@ -63,11 +64,15 @@ public class ArtifactorySensor {
 	}
 
 	@SafeVarargs
-	private final Map<String, String> by(List<Type> types, Class<? extends Type>... repositories) {
+	private List<Repository> by(List<Repository> repositories, Class<? extends Repository>... types) {
 		try {
-			return new HashMap<>(types.stream().filter(t -> Arrays.stream(repositories).anyMatch(t::i$)).collect(Collectors.toMap(Type::url, Type::mavenID)));
+			repositories.stream().filter(r -> isType(r, types)).collect(Collectors.toList());
 		} catch (Throwable ignored) {
 		}
-		return new HashMap<>();
+		return new ArrayList<>();
+	}
+
+	private boolean isType(Repository r, Class<? extends Repository>[] types) {
+		return Arrays.stream(types).anyMatch(type -> type.isInstance(r));
 	}
 }

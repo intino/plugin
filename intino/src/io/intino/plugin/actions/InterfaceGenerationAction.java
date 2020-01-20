@@ -14,11 +14,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.messages.MessageBus;
 import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -75,7 +75,7 @@ public class InterfaceGenerationAction extends AnAction {
 	private boolean doExecute(Module module) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
 		if (configuration == null) return false;
-		final String version = configuration.box().version();
+		final String version = configuration.artifact().box().version();
 		if (version == null || version.isEmpty()) return false;
 		final AnAction action = ActionManager.getInstance().getAction("CreateKonosBox" + version);
 		if (action == null) {

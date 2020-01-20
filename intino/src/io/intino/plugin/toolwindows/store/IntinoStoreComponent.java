@@ -13,7 +13,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.tara.plugin.lang.TaraIcons.STASH_16;
+import static io.intino.plugin.IntinoIcons.STASH_16;
 
 public class IntinoStoreComponent implements ProjectComponent {
 

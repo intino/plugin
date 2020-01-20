@@ -11,11 +11,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.file.legio.LegioFileType;
-import org.jetbrains.annotations.NotNull;
+import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.project.configuration.ConfigurationManager;
+import org.jetbrains.annotations.NotNull;
 
-import static io.intino.tara.plugin.project.module.ModuleProvider.moduleOf;
+import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 public class ConfigurationListener implements FileDocumentManagerListener {
 

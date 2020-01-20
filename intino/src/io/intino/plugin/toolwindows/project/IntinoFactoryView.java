@@ -20,14 +20,14 @@ import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.build.ArtifactBuilder;
 import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.project.components.Element;
 import io.intino.plugin.toolwindows.project.components.FactoryPanel;
 import io.intino.plugin.toolwindows.project.components.Operation;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import javax.swing.*;
 import java.awt.*;

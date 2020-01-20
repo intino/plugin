@@ -53,9 +53,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.intino.legio</groupId>
-            <artifactId>model</artifactId>
-            <version>3.2.0</version>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>builder-constants</artifactId>
+            <version>3.0.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -3,8 +3,9 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,30 +14,27 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static io.intino.legio.graph.Artifact.Package.Mode;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode;
 import static java.io.File.separator;
 
 public class MavenPostBuildActions {
-
-	private final Module module;
 	private final LegioConfiguration configuration;
 	private final Mode packageType;
 	private final String compilerOutputUrl;
 	private final String buildDirectory;
 
 	public MavenPostBuildActions(Module module) {
-		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		this.packageType = safe(() -> configuration.graph().artifact().package$()) == null || configuration.graph().artifact() == null ? null : configuration.graph().artifact().package$().mode();
+		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
 		this.compilerOutputUrl = pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl());
 		this.buildDirectory = this.buildDirectory();
 	}
 
-
 	public void execute() {
 		try {
-			File origin = new File(this.buildDirectory, "original-" + configuration.artifactId() + "-" + configuration.version() + ".jar");
+			LegioArtifact artifact = configuration.artifact();
+			File origin = new File(this.buildDirectory, "original-" + artifact.name() + "-" + artifact.version() + ".jar");
 			if (origin.exists()) FileUtils.forceDelete(origin);
 			File sources = new File(this.buildDirectory, "generated-sources");
 			if (sources.exists()) FileUtils.deleteDirectory(sources);
@@ -55,7 +53,7 @@ public class MavenPostBuildActions {
 
 	@NotNull
 	private String buildDirectory() {
-		return compilerOutputUrl + separator + "build" + separator + configuration.artifactId();
+		return compilerOutputUrl + separator + "build" + separator + configuration.artifact().name();
 	}
 
 	private String pathOf(String path) {

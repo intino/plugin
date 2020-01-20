@@ -2,16 +2,17 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import io.intino.legio.graph.Artifact;
+import io.intino.plugin.annotator.TaraAnnotator;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.model.LegioDependency;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
-		final Artifact.Imports.Dependency dependency = findDependencyNode();
+		final Artifact.Dependency dependency = findDependencyNode();
 		if (dependency == null || !dependency.resolved()) {
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 		} else if (dependency.toModule() && !hasSameVersion(findModule(dependency), dependency.version()))
@@ -48,31 +49,28 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	private boolean hasSameVersion(Module module, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return configuration == null || version.equals(configuration.version()) || isRange(version) && versionIsUnderRange(configuration.version(), version);
+		return configuration == null || version.equals(configuration.artifact().version()) || isRange(version) && versionIsUnderRange(configuration.artifact().version(), version);
 	}
 
 	private boolean versionIsUnderRange(String moduleVersion, String version) {
 		return isInRange(moduleVersion, rangeValuesOf(version));
 	}
 
-	private Module findModule(Artifact.Imports.Dependency dependency) {
+	private Module findModule(Artifact.Dependency dependency) {
 		for (Module m : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration != null && configuration.groupId().equals(dependency.groupId()) && configuration.artifactId().equals(dependency.artifactId()))
+			if (configuration != null && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
 				return m;
 		}
 		return null;
 	}
 
-	private Artifact.Imports.Dependency findDependencyNode() {
+	private Artifact.Dependency findDependencyNode() {
 		if (configuration == null) return null;
-		for (Artifact.Imports.Dependency d : safeList(() -> configuration.graph().artifact().imports().dependencyList()))
-			if (dependencyNode.type().equals(d.core$().graph().concept(d.getClass()).id().replace("$", ".")) && equalParameters(dependencyNode.parameters(), d))
-				return d;
-		return null;
+		return safeList(() -> configuration.artifact().dependencies()).stream().filter(d -> dependencyNode.equals(((LegioDependency) d).node())).findFirst().orElse(null);
 	}
 
-	private boolean equalParameters(List<Parameter> parameters, Artifact.Imports.Dependency dependency) {
+	private boolean equalParameters(List<Parameter> parameters, Artifact.Dependency dependency) {
 		return groupId(parameters, dependency.groupId()) &&
 				artifactId(parameters, dependency.artifactId()) &&
 				version(parameters, dependency.version());

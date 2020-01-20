@@ -5,8 +5,7 @@ import com.jcabi.aether.Aether;
 import io.intino.alexandria.Resource;
 import io.intino.alexandria.restaccessor.RestAccessor;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
-import io.intino.legio.graph.Artifact.Distribution.OnBitbucket;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.tara.compiler.shared.Configuration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -32,12 +31,12 @@ import java.util.List;
 
 public class BitbucketDeployer {
 	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
-	private final OnBitbucket bitbucket;
+	private final Configuration.Distribution.BitBucketDistribution bitbucket;
 	private File jar;
 
-	public BitbucketDeployer(LegioConfiguration configuration) {
-		this.bitbucket = configuration.graph().artifact().distribution().onBitbucket();
-		this.jar = find(configuration.graph().artifact().groupId() + ":" + configuration.graph().artifact().name$() + ":" + configuration.graph().artifact().version());
+	public BitbucketDeployer(Configuration configuration) {
+		this.bitbucket = configuration.artifact().distribution().onBitbucket();
+		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name() + ":" + configuration.artifact().version());
 	}
 
 	public void execute() {

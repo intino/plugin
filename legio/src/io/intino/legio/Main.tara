@@ -93,7 +93,7 @@ Concept:{1..1}:Named Artifact
 	Concept:CheckLevel:{0..1} Distribution
 		var Repository.Release release
 		var Repository.Language language = empty
-		Concept:{0..1} onBitbucket
+		Concept:{0..1} OnBitbucket
 			var string owner
 			var string slugName
 
@@ -102,29 +102,23 @@ Concept:{1..1}:Named Artifact
 		Concept:{0..1} Authentication
 			var string token
 
-	Concept:Named:MustHaveDistribution Deployment
-		var string[] tags = empty
-		var function:Destinations destinations = @destinations is private
-		Concept:{0..1} Pre extends Destination
-		Concept:{0..1} Pro extends Destination
-
-Concept Destination is component
-	var Server server
-	var RunConfiguration runConfiguration
-	Concept:{0..1} BugTracking
-		var string[] slackUsers = empty
-	Concept:{0..1} Requirements
-		Concept:{0..1} HDD
-			var double:{GB} min
-		Concept:{0..1} Memory
-			var integer:{MB} min
-		Concept:{0..1} CPU
-			var integer cores
-		Concept:{0..1} JVM
-			var string version
-		Concept:{0..1} R
-			var string version
-			var string[] libraries
+	Concept:MustHaveDistribution Deployment
+		var Server server
+		var RunConfiguration runConfiguration
+		Concept:{0..1} BugTracking
+			var string[] slackUsers = empty
+		Concept:{0..1} Requirements
+			Concept:{0..1} HDD
+				var double:{GB} min
+			Concept:{0..1} Memory
+				var integer:{MB} min
+			Concept:{0..1} CPU
+				var integer cores
+			Concept:{0..1} JVM
+				var string version
+			Concept:{0..1} R
+				var string version
+				var string[] libraries
 
 Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
@@ -133,13 +127,12 @@ Concept:CheckDuplicatedArguments RunConfiguration
 	var function:FinalArguments finalArguments = @finalArguments is private
 
 Concept:Named Server
-
+	var word:{Dev Pre Pro} type
 
 Concept Repository
 	var string identifier
 	Concept Type
 		var string url
-		var string mavenID = 'return self.core$().ownerAs(Repository.class).identifier();' is reactive final
 		sub Release
 		sub:{0..1} Snapshot
 		sub:{0..1} Language

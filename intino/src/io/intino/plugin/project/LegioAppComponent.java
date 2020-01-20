@@ -1,7 +1,7 @@
 package io.intino.plugin.project;
 
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.project.configuration.ConfigurationManager;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 
 public class LegioAppComponent implements com.intellij.openapi.components.BaseComponent {

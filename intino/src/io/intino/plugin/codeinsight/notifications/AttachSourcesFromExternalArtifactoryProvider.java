@@ -14,11 +14,11 @@ import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.psi.PsiFile;
-import io.intino.legio.graph.Repository.Type;
 import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.sonatype.aether.artifact.Artifact;
@@ -85,7 +85,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 	@NotNull
 	private List<Artifact> resolveSources(LibraryOrderEntry entry, List<LegioConfiguration> configurations) {
 		Module module = configurations.get(0).module();
-		final ImportsResolver resolver = new ImportsResolver(module, new DependencyAuditor(module), RepositoryPolicy.UPDATE_POLICY_ALWAYS, repositoryTypes(configurations));
+		final ImportsResolver resolver = new ImportsResolver(module, new DependencyAuditor(module, configurations.get(0).legioFile()), RepositoryPolicy.UPDATE_POLICY_ALWAYS, repositoryTypes(configurations));
 		List<Artifact> artifacts = new ArrayList<>();
 		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(IntinoLibrary.INTINO, "");
 		final String[] names = libraryName.split(":");
@@ -103,19 +103,19 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		return result;
 	}
 
-	private List<Type> repositoryTypes(List<LegioConfiguration> configurations) {
-		List<Type> types = new ArrayList<>();
-		configurations.stream().map(LegioConfiguration::repositoryTypes).map(t -> filter(types, t)).forEach(types::addAll);
+	private List<Repository> repositoryTypes(List<LegioConfiguration> configurations) {
+		List<Repository> types = new ArrayList<>();
+		configurations.stream().map(LegioConfiguration::repositories).map(t -> filter(types, t)).forEach(types::addAll);
 		return types;
 	}
 
-	private List<Type> filter(List<Type> types, List<Type> toAdd) {
-		List<Type> filtered = new ArrayList<>();
-		for (Type type : toAdd) if (!isInList(types, type)) filtered.add(type);
+	private List<Repository> filter(List<Repository> types, List<Repository> toAdd) {
+		List<Repository> filtered = new ArrayList<>();
+		for (Repository type : toAdd) if (!isInList(types, type)) filtered.add(type);
 		return filtered;
 	}
 
-	private boolean isInList(List<Type> types, Type type) {
-		return types.stream().anyMatch(added -> type.url().equals(added.url()));
+	private boolean isInList(List<Repository> repositories, Repository repository) {
+		return repositories.stream().anyMatch(added -> repository.url().equals(added.url()));
 	}
 }

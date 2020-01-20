@@ -4,17 +4,18 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.jcabi.aether.Aether;
-import io.intino.legio.graph.Artifact.Level;
-import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.builders.ModelBuilderManager;
+import io.intino.plugin.project.configuration.model.LegioModel;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Model;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
@@ -40,12 +41,12 @@ public class LanguageResolver {
 
 	private final Module module;
 	private final DependencyAuditor auditor;
-	private final List<Repository.Type> repositories;
-	private final Level.Model model;
+	private final List<Repository> repositories;
+	private final Model model;
 	private String version;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public LanguageResolver(Module module, DependencyAuditor auditor, Level.Model model, String version, List<Repository.Type> repositories) {
+	public LanguageResolver(Module module, DependencyAuditor auditor, Model model, String version, List<Repository> repositories) {
 		this.module = module;
 		this.auditor = auditor;
 		this.repositories = repositories;
@@ -57,8 +58,8 @@ public class LanguageResolver {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration == null || configuration.model() == null) continue;
-			if (language.equalsIgnoreCase(configuration.model().outLanguage())) return m;
+			if (configuration == null || configuration.artifact().model() == null) continue;
+			if (language.equalsIgnoreCase(configuration.artifact().model().outLanguage())) return m;
 		}
 		return null;
 	}
@@ -89,7 +90,7 @@ public class LanguageResolver {
 
 	public DependencyCatalog resolve() {
 		if (model == null) return new DependencyCatalog();
-		LanguageManager.silentReload(this.module.getProject(), model.language(), version);
+		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
 		final DependencyCatalog libraries = languageFramework();
 		new ModelBuilderManager(module.getProject(), model).resolveBuilder();
 		return libraries;
@@ -97,15 +98,15 @@ public class LanguageResolver {
 
 	private DependencyCatalog languageFramework() {
 		ResolutionCache cache = ResolutionCache.instance(module.getProject());
-		String languageId = languageId(model.language(), version);
-		if (!auditor.isModified(model.core$())) {
+		String languageId = languageId(model.language().name(), version);
+		if (!auditor.isModified(((LegioModel) model).node())) {
 			List<Dependency> dependencies = cache.get(languageId);
 			if (dependencies != null && !dependencies.isEmpty()) {
-				model.effectiveVersion(version.equalsIgnoreCase("LATEST") ? dependencies.get(0).version : version);
+				model.language().effectiveVersion(version.equalsIgnoreCase("LATEST") ? dependencies.get(0).version : version);
 				return new DependencyCatalog(dependencies);
 			}
 		}
-		final Module dependency = moduleDependencyOf(this.module, model.language(), version);
+		final Module dependency = moduleDependencyOf(this.module, model.language().name(), version);
 		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
 		cache.put(languageId, catalog.dependencies());
 		cache.save();
@@ -115,15 +116,15 @@ public class LanguageResolver {
 	private DependencyCatalog resolveModuleLanguage(Module dependency) {
 		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency);
 		final Configuration configuration = TaraUtil.configurationOf(dependency);
-		if (configuration != null) model.effectiveVersion(configuration.version());
+		if (configuration != null) model.language().effectiveVersion(configuration.artifact().version());
 		return catalog;
 	}
 
 	private DependencyCatalog resolveExternalLanguage() {
 		DependencyCatalog catalog = new DependencyCatalog();
-		if (!LanguageManager.getLanguageFile(model.language(), version).exists()) version = importLanguage();
-		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language(), version));
-		model.effectiveVersion(version);
+		if (!LanguageManager.getLanguageFile(model.language().name(), version).exists()) version = importLanguage();
+		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language().name(), version));
+		model.language().effectiveVersion(version);
 		if (framework.isEmpty()) return catalog;
 		resolveSources(catalog, framework);
 		return catalog;
@@ -133,7 +134,7 @@ public class LanguageResolver {
 		Artifact mainArtifact = framework.keySet().iterator().next();
 		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + scope.name(), a.getFile())));
 		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
-		model.effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
+		model.language().effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
 	}
 
 	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {
@@ -163,12 +164,12 @@ public class LanguageResolver {
 	}
 
 	private String importLanguage() {
-		return new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language(), version);
+		return new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language().name(), version);
 	}
 
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
-		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		List<RemoteRepository> remotes = repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList());
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
@@ -176,16 +177,16 @@ public class LanguageResolver {
 
 	@NotNull
 	private List<RemoteRepository> frameworkRemotes() {
-		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		List<RemoteRepository> remotes = repositories.stream().filter(r -> !(r instanceof Repository.Language)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList());
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
 
-	private RemoteRepository remoteFrom(Repository.Type remote) {
-		if (remote.core$().variables().get("mavenID").get(0) == null) return null;
-		return new RemoteRepository(remote.mavenID(), "default", remote.url()).
-				setAuthentication(provideAuthentication(remote.mavenID())).
+	private RemoteRepository remoteFrom(Repository remote) {
+		if (remote.identifier() == null) return null;
+		return new RemoteRepository(remote.identifier(), "default", remote.url()).
+				setAuthentication(provideAuthentication(remote.identifier())).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
 	}
 

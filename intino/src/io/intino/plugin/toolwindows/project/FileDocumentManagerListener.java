@@ -10,9 +10,9 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.file.konos.KonosFileType;
-import io.intino.tara.plugin.lang.file.TaraFileType;
+import io.intino.plugin.lang.file.TaraFileType;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
 
 public class FileDocumentManagerListener implements com.intellij.openapi.fileEditor.FileDocumentManagerListener {

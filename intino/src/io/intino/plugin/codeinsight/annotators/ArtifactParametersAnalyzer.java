@@ -1,17 +1,17 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.project.configuration.LegioLanguage;
+import io.intino.plugin.project.configuration.model.LegioLanguage;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +37,12 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.model() == null || configuration.model().language() != null) return;
+		Configuration.Artifact.Model model = configuration.artifact().model();
+		if (model.language().name() == null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Configuration.Model.Level.values()[configuration.model().level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
+			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Configuration.Artifact.Model.Level.values()[model.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
 	}
 
 	private boolean isDeclared(String parameter) {
@@ -61,7 +62,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	private Map<String, String> collectLanguageParameters() {
 		Map<String, String> map = new LinkedHashMap<>();
-		LegioLanguage language = configuration.model().language();
+		LegioLanguage language = (LegioLanguage) configuration.artifact().model().language();
 		final File languageFile = LanguageManager.getLanguageFile(language.name(), language.effectiveVersion());
 		if (!languageFile.exists()) return map;
 		return parameters(languageFile);

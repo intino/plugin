@@ -1,8 +1,10 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>4.2.0</version>
+    <version>5.0.0</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.idea.maven</depends>
 
     <description><![CDATA[
         intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:
@@ -11,10 +13,178 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-    <depends>io.intino.tara</depends>
-    <depends>com.intellij.modules.java</depends>
     <idea-version since-build="192.3645"/>
     <extensions defaultExtensionNs="com.intellij">
+        <fileDocumentManagerListener
+                implementation="io.intino.plugin.codeinsight.languageinjection.TaraFileDocumentManagerListener"/>
+        <errorHandler implementation="io.intino.plugin.errorreporting.PluginErrorReportSubmitter"/>
+        <treeStructureProvider implementation="io.intino.plugin.project.view.TaraTreeStructureProvider"/>
+        <fileTemplateGroup implementation="io.intino.plugin.actions.utils.TaraTemplatesFactory"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraToNative"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.FacetApplyMarker"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.NodeFragments"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraOverriddenNode"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraFacetOverriddenNode"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraOverriddenVariable"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraMethodSeparatorProvider"/>
+        <codeInsight.lineMarkerProvider language="Tara"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraNativeImplementationToJava"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="io.intino.plugin.codeinsight.linemarkers.JavaNativeImplementationToTara"/>
+        <defaultLiveTemplatesProvider implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateProvider"/>
+        <liveTemplateContext implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext"/>
+
+        <gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>
+        <gotoSymbolContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoSymbolContributor"/>
+        <gotoRelatedProvider implementation="io.intino.plugin.codeinsight.TaraRelatedFilesProvider"/>
+        <problemFileHighlightFilter implementation="io.intino.plugin.codeinsight.TaraProblemFileHighlightFilter"/>
+        <compileServer.plugin classpath="jps-plugin.jar"/>
+        <fileEditorProvider implementation="io.intino.plugin.stash.StashEditorProvider"/>
+
+        <projectService serviceInterface="io.intino.plugin.lang.psi.TaraElementFactory"
+                        serviceImplementation="io.intino.plugin.lang.psi.impl.TaraElementFactoryImpl"/>
+        <projectService serviceInterface="io.intino.plugin.codeinsight.JavaHelper"
+                        serviceImplementation="io.intino.plugin.codeinsight.JavaHelper$Impl"/>
+
+        <projectStructureDetector implementation="io.intino.plugin.project.module.TaraProjectStructureDetector"/>
+        <lang.commenter language="Tara" implementationClass="io.intino.plugin.lang.TaraCommenter"/>
+        <languageInjector implementation="io.intino.plugin.codeinsight.languageinjection.TaraLanguageInjector"/>
+
+        <lang.documentationProvider language="Tara"
+                                    implementationClass="io.intino.plugin.documentation.TaraDocumentationProvider"/>
+        <lang.parserDefinition language="Tara"
+                               implementationClass="io.intino.plugin.lang.parser.TaraParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Tara"
+                                       implementationClass="io.intino.plugin.highlighting.TaraSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="io.intino.plugin.highlighting.TaraColorSettingPage"/>
+
+        <lang.braceMatcher language="Tara" implementationClass="io.intino.plugin.codeinsight.TaraBraceMatcher"/>
+        <quoteHandler fileType="Tara" className="io.intino.plugin.codeinsight.TaraQuoteHandler"/>
+
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.ReferenceAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.ResourceAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.NodeAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.DSLDeclarationAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.AnnotationsAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
+
+        <completion.contributor language="Tara"
+                                implementationClass="io.intino.plugin.codeinsight.completion.TaraNodeCompletionContributor"/>
+        <completion.contributor language="Tara"
+                                implementationClass="io.intino.plugin.codeinsight.completion.TaraVariableCompletionContributor"/>
+        <completion.contributor language="Tara"
+                                implementationClass="io.intino.plugin.codeinsight.completion.TaraAnnotationsCompletionContributor"/>
+        <lang.psiStructureViewFactory language="Tara"
+                                      implementationClass="io.intino.plugin.structureview.StructureViewFactory"/>
+
+        <nameSuggestionProvider implementation="io.intino.plugin.refactoring.TaraNameSuggestionProvider"/>
+        <lang.elementManipulator forClass="io.intino.plugin.lang.psi.TaraIdentifier"
+                                 implementationClass="io.intino.plugin.lang.psi.impl.IdentifierManipulator"/>
+        <lang.elementManipulator forClass="io.intino.plugin.lang.psi.Expression"
+                                 implementationClass="io.intino.plugin.lang.psi.TaraExpressionManipulator"/>
+        <lang.elementManipulator forClass="io.intino.plugin.lang.psi.TaraHeaderReference"
+                                 implementationClass="io.intino.plugin.lang.psi.impl.UseReferenceManipulator"/>
+        <codeInsight.parameterInfo language="Tara"
+                                   implementationClass="io.intino.plugin.codeinsight.parameterinfo.TaraParameterInfoHandler"/>
+        <lang.refactoringSupport language="Tara"
+                                 implementationClass="io.intino.plugin.refactoring.TaraRefactoringSupportProvider"/>
+        <renameHandler implementation="io.intino.plugin.refactoring.rename.RenameHandler"/>
+        <renamePsiElementProcessor implementation="io.intino.plugin.refactoring.rename.TaraRenamePsiElementProcessor"/>
+        <lang.findUsagesProvider language="Tara"
+                                 implementationClass="io.intino.plugin.lang.psi.resolve.TaraFindUsagesProvider"/>
+        <lang.foldingBuilder language="Tara" implementationClass="io.intino.plugin.codefolding.TaraFoldingBuilder"/>
+
+        <lang.importOptimizer language="Tara"
+                              implementationClass="io.intino.plugin.codeinsight.imports.TaraImportOptimizer"/>
+        <findUsagesHandlerFactory implementation="io.intino.plugin.findusage.TaraFindUsagesHandlerFactory" id="Tara"
+                                  order="last, before default"/>
+        <codeStyleSettingsProvider implementation="io.intino.plugin.formatter.TaraCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="io.intino.plugin.formatter.TaraLanguageCodeStyleSettingsProvider"/>
+
+        <!--<statementUpDownMover implementation="TaraNodeMover" id="node" order="before line"/>-->
+        <!--<psi.referenceContributor implementation="io.intino.plugin.model.psi.resolve.TaraReferenceContributor"/>-->
+        <!--<referenceImporter implementation="TaraReferenceImporter"/>-->
+        <!--<lang.formatter language="Tara" implementationClass="tara.intellij.formatter.TaraFormattingModelBuilder"/>-->
+
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.FromBodyToExplicitParameters</className>
+            <category>Move To parameters</category>
+            <descriptionDirectoryName>FromBodyToExplicitParameters</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.InlineToIndentConverter</className>
+            <category>Indent Operator</category>
+            <descriptionDirectoryName>InlineToIndentConverter</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.ConvertToMethodReference</className>
+            <category>Extract To Method Object</category>
+            <descriptionDirectoryName>ConvertToMethodReference</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.IndentToInlineConverter</className>
+            <category>Indent Operator</category>
+            <descriptionDirectoryName>IndentToInlineConverter</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.ImplicitToExplicitParameters</className>
+            <category>Parameter View Operator</category>
+            <descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.ExplicitToImplicitParameters</className>
+            <category>Parameter View Operator</category>
+            <descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.ToBodyParameters</className>
+            <category>Parameter View Operator</category>
+            <descriptionDirectoryName>ToBodyParameters</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.InlineToMultiline</className>
+            <category>String view operator</category>
+            <descriptionDirectoryName>InlineToMultiline</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.MultilineToInline</className>
+            <category>String view operator</category>
+            <descriptionDirectoryName>MultilineToInline</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.EditElementDocumentation</className>
+            <category>Set Documentation</category>
+            <descriptionDirectoryName>EditElementDocumentation</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.CreateI18Value</className>
+            <category>Create i18 value</category>
+            <descriptionDirectoryName>CreateI18Value</descriptionDirectoryName>
+        </intentionAction>
+        <intentionAction>
+            <className>io.intino.plugin.codeinsight.intentions.SyncNativeWithTara</className>
+            <category>Sync Native With Tara</category>
+            <descriptionDirectoryName>SyncNativeWithTara</descriptionDirectoryName>
+        </intentionAction>
+        <gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>
+        <gotoSymbolContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoSymbolContributor"/>
+        <spellchecker.support language="Tara"
+                              implementationClass="io.intino.plugin.codeinsight.spelling.TaraSpellcheckerStrategy"/>
+        <spellchecker.bundledDictionaryProvider
+                implementation="io.intino.plugin.codeinsight.spelling.TaraDictionaryProvider"/>
+        <extendWordSelectionHandler implementation="io.intino.plugin.lang.psi.TaraSelectionHandler"/>
+        <basicWordSelectionFilter implementation="io.intino.plugin.lang.psi.TaraBasicWordSelectionFilter"/>
+
+        <moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.IntinoModuleType"/>
         <httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
         <runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
         <configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
@@ -79,6 +249,8 @@
     </extensions>
 
     <actions>
+        <action id="NewPackage" class="io.intino.plugin.actions.CreatePackageAction" text="Package"
+                description="Create a new package" icon="AllIcons.Nodes.Package"/>
         <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
@@ -125,7 +297,7 @@
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
         </action>
 
-        <group id="ItrulesMenu" text="Itrules" description="Itrules menu">
+        <group id="ItrulesMenu" text="Itrules" description="Itrules Menu">
             <action id="itrules.toClass" class="io.intino.plugin.actions.itrules.TemplateGeneration"
                     text="Generate Java Template"
                     description="Generates the corresponding Java representation of the template">
@@ -138,14 +310,23 @@
 
     <application-components>
         <component>
+            <implementation-class>io.intino.plugin.project.FileListener</implementation-class>
+        </component>
+        <component>
             <implementation-class>io.intino.plugin.project.LegioAppComponent</implementation-class>
         </component>
-
         <component>
             <implementation-class>io.intino.plugin.itrules.project.FileListener</implementation-class>
         </component>
     </application-components>
     <project-components>
+        <component>
+            <implementation-class>io.intino.plugin.project.TaraCompilerListener</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.codeinsight.languageinjection.imports.ImportsSaverService
+            </implementation-class>
+        </component>
         <component>
             <implementation-class>io.intino.plugin.toolwindows.cesarbot.CesarBotWindowComponent</implementation-class>
         </component>
@@ -166,4 +347,9 @@
             </implementation-class>
         </component>
     </project-components>
+    <module-components>
+        <component>
+            <implementation-class>io.intino.plugin.project.TaraModuleListener</implementation-class>
+        </component>
+    </module-components>
 </idea-plugin>

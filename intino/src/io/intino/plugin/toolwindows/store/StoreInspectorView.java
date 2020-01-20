@@ -3,12 +3,11 @@ package io.intino.plugin.toolwindows.store;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import io.intino.legio.graph.RunConfiguration;
+import io.intino.plugin.lang.file.StashFileType;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.project.configuration.LegioDeployConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.file.StashFileType;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -25,8 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.tara.compiler.shared.Configuration.DeployConfiguration;
-import static io.intino.tara.plugin.lang.TaraIcons.STASH_16;
+import static io.intino.plugin.IntinoIcons.STASH_16;
+import static io.intino.plugin.project.Safe.safeList;
+import static io.intino.tara.compiler.shared.Configuration.Server.Type.Pre;
+import static io.intino.tara.compiler.shared.Configuration.Server.Type.Pro;
 import static java.awt.event.ItemEvent.SELECTED;
 
 public class StoreInspectorView extends JPanel {
@@ -134,7 +135,7 @@ public class StoreInspectorView extends JPanel {
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
 			Configuration conf = TaraUtil.configurationOf(module);
 			if (!(conf instanceof LegioConfiguration)) continue;
-			for (RunConfiguration runConfiguration : ((LegioConfiguration) conf).runConfigurations()) {
+			for (RunConfiguration runConfiguration : conf.runConfigurations()) {
 				Map<String, String> parameters = runConfiguration.finalArguments();
 				if (!parameters.containsKey("datalake") && !parameters.containsKey("datamart")) continue;
 				if (scope.equals("pre") && isPre(((LegioConfiguration) conf), runConfiguration))
@@ -158,11 +159,11 @@ public class StoreInspectorView extends JPanel {
 	private RunConfiguration findRunConfiguration(String conf) {
 		String[] split = conf.split(":");
 		Module module = Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> m.getName().equals(split[0].trim())).findFirst().orElse(null);
-		return ((LegioConfiguration) TaraUtil.configurationOf(module)).runConfigurations().stream().filter(r1 -> r1.name$().equals(split[1].trim())).findFirst().orElse(null);
+		return TaraUtil.configurationOf(module).runConfigurations().stream().filter(r1 -> r1.name().equals(split[1].trim())).findFirst().orElse(null);
 	}
 
 	private void add(List<String> configurations, Module module, RunConfiguration runConfiguration) {
-		configurations.add(module.getName() + ":" + runConfiguration.name$());
+		configurations.add(module.getName() + ":" + runConfiguration.name());
 	}
 
 	JPanel contentPane() {
@@ -170,11 +171,11 @@ public class StoreInspectorView extends JPanel {
 	}
 
 	private boolean isPro(LegioConfiguration conf, RunConfiguration runConfiguration) {
-		return conf.deployConfigurations().stream().filter(DeployConfiguration::pro).anyMatch((d -> ((LegioDeployConfiguration) d).runConfiguration().equals(runConfiguration)));
+		return safeList(() -> conf.artifact().deployments()).stream().filter(d -> d.server().type().equals(Pro)).anyMatch((d -> d.runConfiguration().equals(runConfiguration)));
 	}
 
 	private boolean isPre(LegioConfiguration conf, RunConfiguration runConfiguration) {
-		return conf.deployConfigurations().stream().filter(d -> !d.pro()).anyMatch((d -> ((LegioDeployConfiguration) d).runConfiguration().equals(runConfiguration)));
+		return safeList(() -> conf.artifact().deployments()).stream().filter(d -> d.server().type().equals(Pre)).anyMatch((d -> d.runConfiguration().equals(runConfiguration)));
 	}
 
 	private static class StoreTreeCellRenderer extends DefaultTreeCellRenderer {
@@ -190,7 +191,7 @@ public class StoreInspectorView extends JPanel {
 				} else if (node.getUserObject() instanceof Connection.File) {
 					if (((Connection.File) node.getUserObject()).isDirectory()) setIcon(getDefaultClosedIcon());
 					else {
-						if (node.isLeaf() && node.toString().endsWith(StashFileType.INSTANCE.getDefaultExtension()))
+						if (node.isLeaf() && node.toString().endsWith(StashFileType.instance().getDefaultExtension()))
 							setIcon(STASH_16);
 						else setIcon(getDefaultLeafIcon());
 					}

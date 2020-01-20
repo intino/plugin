@@ -23,17 +23,20 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private final Project project;
@@ -56,8 +59,9 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 	private boolean languageExists() {
 		for (Module module : modules) {
 			Configuration configuration = TaraUtil.configurationOf(module);
-			if (configuration == null || configuration.model() == null) return false;
-			File languageFile = LanguageManager.getLanguageFile(configuration.model().outLanguage(), configuration.version());
+			Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
+			if (model == null) return false;
+			File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
 			if (shouldDistributeLanguage(module, factoryPhase) && !languageFile.exists()) return false;
 		}
 		return true;
@@ -102,13 +106,13 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 		ConfirmationDialog dialog = new ConfirmationDialog(module.getProject(), MessageProvider.message("artifactory.overrides"), "Artifactory", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
 		dialog.setDoNotAskOption(null);
 		if (configuration == null) return false;
-		final String version = configuration.version();
+		final String version = configuration.artifact().version();
 		return version != null && (version.contains("-SNAPSHOT") || !exists(module, dsl, version) || !IntinoSettings.getSafeInstance(module.getProject()).overrides() || dialog.showAndGet());
 	}
 
 	private boolean exists(Module module, String dsl, String version) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		return new ArtifactoryConnector(configuration.languageRepositories()).dslVersions(dsl).contains(version);
+		return new ArtifactoryConnector(configuration.repositories().stream().filter(r -> r instanceof Repository.Language).collect(Collectors.toList())).dslVersions(dsl).contains(version);
 	}
 
 	private void saveAll() {
@@ -142,7 +146,7 @@ public class ArtifactBuilder extends AbstractArtifactBuilder {
 
 	private String extractDSL(Module module) {
 		final Configuration conf = TaraUtil.configurationOf(module);
-		return conf == null || conf.model() == null ? "" : conf.model().outLanguage();
+		return safe(() -> conf.artifact().model()) == null ? "" : conf.artifact().model().outLanguage();
 	}
 
 }

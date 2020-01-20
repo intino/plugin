@@ -12,6 +12,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Intino: junit:junit:4.13-rc-1" level="project" />
     <orderEntry type="library" scope="TEST" name="Intino: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="module" module-name="legio" />
+    <orderEntry type="library" name="Maven: io.intino.tara:builder-constants:3.0.0" level="project" />
   </component>
 </module>

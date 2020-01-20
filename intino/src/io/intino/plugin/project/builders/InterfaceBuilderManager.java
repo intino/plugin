@@ -3,6 +3,7 @@ package io.intino.plugin.project.builders;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
+import io.intino.plugin.project.IntinoDirectory;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -12,28 +13,33 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
+	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class);
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
-	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class);
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public String reload(Project project, String version) {
 		if (InterfaceBuilderLoader.isLoaded(project, version)) {
-			logger.info("Konos " + version + " is already loaded");
+			LOG.info("Konos " + version + " is already loaded");
 			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
+		final List<String> paths = librariesOf(artifacts);
+		saveClassPath(project, paths);
 		if (!artifacts.isEmpty()) {
 			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), artifacts.get(0).getVersion());
-			logger.info("Konos " + version + " loaded successfully");
+			LOG.info("Konos " + version + " loaded successfully");
 			return artifacts.get(0).getVersion();
 		}
 		return version;
@@ -72,4 +78,18 @@ public class InterfaceBuilderManager {
 		return remotes;
 	}
 
+	private List<String> librariesOf(List<Artifact> classpath) {
+		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
+	}
+
+	private void saveClassPath(Project project, List<String> paths) {
+		if (paths.isEmpty()) return;
+		final String home = System.getProperty("user.home");
+		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
+		try {
+			Files.write(new File(IntinoDirectory.of(project), "box_compiler.classpath").toPath(), String.join(":", libraries).getBytes());
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
+	}
 }

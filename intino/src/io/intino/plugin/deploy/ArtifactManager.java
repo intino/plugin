@@ -14,9 +14,10 @@ import io.intino.cesar.box.schemas.ServerInfo;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import javax.swing.*;
 import java.io.File;
@@ -117,7 +118,8 @@ public class ArtifactManager {
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
+			LegioArtifact artifact = configuration.artifact();
+			return new CesarRestAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
 		} catch (BadRequest | Unknown e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}

@@ -13,16 +13,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Artifact.Imports.Dependency;
-import io.intino.legio.graph.Parameter;
-import io.intino.legio.graph.Repository;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Model.ModelLanguage;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JpsJavaSdkType;
 
@@ -38,12 +38,11 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
-import static io.intino.legio.graph.Artifact.Package.Mode;
-import static io.intino.legio.graph.Artifact.Package.Mode.LibrariesLinkedByManifest;
-import static io.intino.legio.graph.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
+import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
+import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
@@ -61,7 +60,7 @@ class PomCreator {
 	PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
-		packageType = safe(() -> configuration.graph().artifact().package$()) == null || configuration.graph().artifact() == null ? null : configuration.graph().artifact().package$().mode();
+		packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
 	File frameworkPom(FactoryPhase phase) {
@@ -81,7 +80,7 @@ class PomCreator {
 	}
 
 	private File frameworkPom(File pom) {
-		Artifact.Package build = safe(() -> configuration.graph().artifact().package$());
+		Artifact.Package build = safe(() -> configuration.artifact().packageConfiguration());
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
 		final String[] languageLevel = {"1.8"};
@@ -106,7 +105,8 @@ class PomCreator {
 	}
 
 	private void fillMavenId(FrameBuilder builder) {
-		builder.add("pom").add("groupId", configuration.groupId()).add("artifactId", configuration.artifactId()).add("version", configuration.version());
+		LegioArtifact artifact = configuration.artifact();
+		builder.add("pom").add("groupId", artifact.groupId()).add("artifactId", artifact.name()).add("version", artifact.version());
 	}
 
 	private void fillFramework(Artifact.Package pack, FrameBuilder builder) {
@@ -118,7 +118,7 @@ class PomCreator {
 			builder.add("testOutDirectory", relativeToModulePath(testOutDirectory(extension)));
 			builder.add("buildDirectory", relativeToModulePath(buildDirectory()) + "/");
 		}
-		if (pack != null) configureBuild(builder, configuration.graph().artifact().license(), pack);
+		if (pack != null) configureBuild(builder, configuration.artifact().licence(), pack);
 		addDependencies(builder);
 		addRepositories(builder);
 	}
@@ -154,7 +154,7 @@ class PomCreator {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(builder, module);
 		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
-		for (Dependency dependency : safeList(() -> configuration.graph().artifact().imports().dependencyList())) {
+		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
@@ -165,15 +165,15 @@ class PomCreator {
 	}
 
 	private void addRepositories(FrameBuilder builder) {
-		configuration.repositoryTypes().stream().filter(r -> !r.i$(Repository.Language.class)).forEach(r ->
+		configuration.repositories().stream().filter(r -> !(r instanceof Repository.Language)).forEach(r ->
 				builder.add("repository", createRepositoryFrame(r)));
-		if (configuration.distributionReleaseRepository() != null)
-			builder.add("repository", createDistributionRepositoryFrame(configuration.distributionReleaseRepository(), "release"));
+		Repository releaseRepository = safe(() -> configuration.artifact().distribution().release());
+		if (releaseRepository != null)
+			builder.add("repository", createDistributionRepositoryFrame(releaseRepository, "release"));
 	}
 
 	private void addLevelDependency(FrameBuilder builder) {
-		if (configuration.model() == null) return;
-		ModelLanguage language = configuration.model().language();
+		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
 		if (language != null) {
 			final String languageId = findLanguageId(language);
 			if (!languageId.isEmpty()) builder.add("dependency", createDependencyFrame(languageId.split(":")));
@@ -183,11 +183,11 @@ class PomCreator {
 	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
-			for (Dependency d : safeList(() -> ((LegioConfiguration) configuration).graph().artifact().imports().dependencyList()))
-				if (!d.toModule() && dependencies.add(d.identifier()))
-					builder.add("dependency", createDependencyFrame(d));
-			if (configuration.model() == null) continue;
-			ModelLanguage language = configuration.model().language();
+			safeList(() -> configuration.artifact().dependencies()).stream().
+					filter(d -> !d.toModule() && dependencies.add(d.identifier())).
+					forEach(d -> builder.add("dependency", createDependencyFrame(d)));
+			if (safe(() -> configuration.artifact().model()) == null) continue;
+			Artifact.Model.Language language = configuration.artifact().model().language();
 			if (language != null) {
 				final String languageID = languageId(language.name(), language.version());
 				if (languageID == null || languageID.isEmpty()) return;
@@ -250,11 +250,13 @@ class PomCreator {
 		return list;
 	}
 
-	private void configureBuild(FrameBuilder builder, Artifact.License license, Artifact.Package aPackage) {
+	private void configureBuild(FrameBuilder builder, Artifact.Licence license, Artifact.Package aPackage) {
 		if (aPackage.attachSources()) builder.add("attachSources", " ");
 		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
-		if (aPackage.isMacOS()) builder.add("osx", osx(aPackage));
-		if (aPackage.isWindows()) builder.add("windows", windows(aPackage));
+		if (aPackage.isRunnable()) {
+			if (aPackage.macOsConfiguration() != null) builder.add("osx", osx(aPackage));
+			if (aPackage.windowsConfiguration() != null) builder.add("windows", windows(aPackage));
+		}
 		final Artifact.Package.Mode type = aPackage.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest)) {
 			builder.add("linkLibraries", "true");
@@ -263,8 +265,8 @@ class PomCreator {
 			if (aPackage.classpathPrefix() != null)
 				copyDependencies.add("classpathPrefix", aPackage.classpathPrefix());
 		} else builder.add("linkLibraries", "false").add("extractedLibraries", " ");
-		if (aPackage.isRunnable()) builder.add("mainClass", aPackage.asRunnable().mainClass());
-		configuration.graph().artifact().parameterList().forEach(parameter -> addParameter(builder, parameter));
+		if (aPackage.isRunnable()) builder.add("mainClass", aPackage.mainClass());
+		configuration.artifact().parameters().forEach(parameter -> addParameter(builder, parameter));
 		if (aPackage.defaultJVMOptions() != null && !aPackage.defaultJVMOptions().isEmpty())
 			addMVOptions(builder, aPackage.defaultJVMOptions());
 		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
@@ -276,26 +278,27 @@ class PomCreator {
 		frame.add("vmOptions", jvmOptions);
 	}
 
-	private void addParameter(FrameBuilder frame, Parameter parameter) {
+	private void addParameter(FrameBuilder frame, Configuration.Parameter parameter) {
 		final FrameBuilder pFrame = new FrameBuilder("parameter").add("key", parameter.name());
-		if (parameter.defaultValue() != null) pFrame.add("value", parameter.defaultValue());
+		if (parameter.value() != null) pFrame.add("value", parameter.value());
 		if (parameter.description() != null && !parameter.description().isEmpty())
 			pFrame.add("description", parameter.description());
 		frame.add("parameter", pFrame.toFrame());
 	}
 
 	private Frame osx(Artifact.Package build) {
-		final FrameBuilder builder = new FrameBuilder().add("mainClass", build.asRunnable().mainClass());
-		if (build.asMacOS().macIcon() != null && !build.asMacOS().macIcon().isEmpty())
-			builder.add("icon", build.asMacOS().macIcon());
+		final FrameBuilder builder = new FrameBuilder().add("mainClass", build.mainClass());
+		String icon = safe(() -> build.macOsConfiguration().icon());
+		if (icon != null && !icon.isEmpty())
+			builder.add("icon", icon);
 		return builder.toFrame();
 	}
 
 	private Frame windows(Artifact.Package build) {
-		final FrameBuilder builder = new FrameBuilder().add("mainClass", build.asRunnable().mainClass());
-		builder.add("icon", build.asWindows().windowsIcon());
-		final Artifact artifact = configuration.graph().artifact();
-		builder.add("name", artifact.name$()).add("out", buildDirectory()).add("version", artifact.version());
+		final FrameBuilder builder = new FrameBuilder().add("mainClass", build.mainClass());
+		builder.add("icon", build.windowsConfiguration().icon());
+		final Artifact artifact = configuration.artifact();
+		builder.add("name", artifact.name()).add("out", buildDirectory()).add("version", artifact.version());
 		builder.add("prefix", build.classpathPrefix() != null ? build.classpathPrefix() : "dependency");
 		return builder.toFrame();
 	}
@@ -319,7 +322,7 @@ class PomCreator {
 		}
 	}
 
-	private String findLanguageId(ModelLanguage language) {
+	private String findLanguageId(Artifact.Model.Language language) {
 		if (packageType.equals(ModulesAndLibrariesLinkedByManifest))
 			return languageId(language.name(), language.version());
 		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageId(language.name(), language.version());
@@ -327,9 +330,10 @@ class PomCreator {
 
 	private Frame createDependencyFrame(Dependency d) {
 		final FrameBuilder builder = new FrameBuilder("dependency").add("groupId", d.groupId()).
-				add("scope", d.core$().graph().concept(d.getClass()).name()).add("artifactId", d.artifactId()).
+				add("scope", d.scope()).
+				add("artifactId", d.artifactId()).
 				add("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
-		if (!d.excludeList().isEmpty()) for (Dependency.Exclude exclude : d.excludeList())
+		if (!d.excludes().isEmpty()) for (Dependency.Exclude exclude : d.excludes())
 			builder.add("exclusion", new FrameBuilder("exclusion").add("groupId", exclude.groupId()).add("artifactId", exclude.artifactId()).toFrame());
 		return builder.toFrame();
 	}
@@ -338,12 +342,12 @@ class PomCreator {
 		return new FrameBuilder("dependency").add("groupId", id[0].toLowerCase()).add("scope", "compile").add("artifactId", id[1].toLowerCase()).add("version", id[2]).toFrame();
 	}
 
-	private Frame createRepositoryFrame(Repository.Type repo) {
+	private Frame createRepositoryFrame(Repository repo) {
 		return new FrameBuilder("repository", repo.getClass().getSimpleName()).
-				add("name", repo.mavenID()).
+				add("name", repo.identifier()).
 				add("url", repo.url()).
 				add("random", generateRandom()).
-				add("type", repo.i$(Repository.Snapshot.class) ? "snapshot" : "release").toFrame();
+				add("type", (repo instanceof Repository.Snapshot) ? "snapshot" : "release").toFrame();
 	}
 
 	private int generateRandom() {
@@ -352,10 +356,10 @@ class PomCreator {
 		return random;
 	}
 
-	private Frame createDistributionRepositoryFrame(AbstractMap.SimpleEntry<String, String> repo, String type) {
+	private Frame createDistributionRepositoryFrame(Repository repo, String type) {
 		return new FrameBuilder("repository", "distribution", type).
-				add("url", repo.getKey()).
-				add("name", repo.getValue()).
+				add("url", repo.url()).
+				add("name", repo.identifier()).
 				add("type", "release").toFrame();
 	}
 

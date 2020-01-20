@@ -13,9 +13,9 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.actions.archetype.ArchetypeRenderer;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
@@ -30,7 +30,7 @@ public class ArchetypeGeneration {
 				for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {
 					if (WebModuleType.is(module, WebModuleTypeBase.getInstance())) continue;
 					Configuration configuration = TaraUtil.configurationOf(module);
-					if (configuration != null && configuration.box() != null)
+					if (configuration != null && configuration.artifact().box() != null)
 						new ArchetypeRenderer(module, (LegioConfiguration) configuration).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}
 			}

@@ -7,11 +7,12 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.jcabi.aether.Aether;
+import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
-import io.intino.tara.plugin.lang.LanguageManager;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -28,17 +29,19 @@ import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 public class LanguageImporter {
 	private final Configuration configuration;
 	private Module module;
+	private final List<Repository> repositories;
 
 	LanguageImporter(Module module, Configuration configuration) {
 		this.module = module;
 		this.configuration = configuration;
+		this.repositories = languageRepositories(configuration);
 	}
 
 	String importLanguage(String dsl, String version) {
 		final String effectiveVersion = effectiveVersionOf(dsl, version, (LegioConfiguration) configuration);
 		final boolean done = downloadLanguage(dsl, effectiveVersion);
 		if (done) {
-			configuration.model().language().version(effectiveVersion);
+			configuration.artifact().model().language().version(effectiveVersion);
 			reload(dsl, module.getProject());
 		}
 		return effectiveVersion;
@@ -60,7 +63,7 @@ public class LanguageImporter {
 
 	@NotNull
 	private List<RemoteRepository> repositories() {
-		return configuration.languageRepositories().entrySet().stream().map((e) -> new RemoteRepository(e.getValue(), "default", e.getKey())).collect(Collectors.toList());
+		return repositories.stream().map(r -> new RemoteRepository(r.identifier(), "default", r.url())).collect(Collectors.toList());
 	}
 
 	private void reload(String fileName, Project project) {
@@ -74,10 +77,15 @@ public class LanguageImporter {
 	private String effectiveVersionOf(String dsl, String version, LegioConfiguration configuration) {
 		if (version.equals(LATEST_VERSION)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			new ArtifactoryConnector(configuration.languageRepositories()).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(repositories).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
 			return versions.isEmpty() ? LATEST_VERSION : versions.get(versions.lastKey());
 		}
 		return version;
+	}
+
+	@NotNull
+	private List<Repository> languageRepositories(Configuration configuration) {
+		return configuration.repositories().stream().filter(r -> r instanceof Repository.Language).collect(Collectors.toList());
 	}
 
 	private Long indexOf(String version) {

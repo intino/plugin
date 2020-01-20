@@ -1,0 +1,14 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import io.intino.tara.lang.model.Node;
+import io.intino.tara.lang.model.rules.NodeRule;
+
+import java.util.List;
+
+public class ${NAME} implements NodeRule {
+
+
+	public boolean accept(Node node) {
+		return false;
+	}
+}

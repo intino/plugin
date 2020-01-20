@@ -18,11 +18,11 @@ import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
 
-import static io.intino.tara.plugin.lang.psi.impl.TaraUtil.getSourceRoots;
+import static io.intino.plugin.lang.psi.impl.TaraUtil.getSourceRoots;
 
 public class ArchetypeRenderer {
 	private static final Logger logger = Logger.getInstance(ArchetypeRenderer.class);
@@ -34,14 +34,14 @@ public class ArchetypeRenderer {
 	public ArchetypeRenderer(Module module, LegioConfiguration configuration) {
 		this.module = module;
 		this.configuration = configuration;
-		artifactId = configuration.artifactId();
+		this.artifactId = configuration.artifact().name();
 	}
 
 	public static void writeFrame(File packageFolder, String name, String text) {
 		try {
 			packageFolder.mkdirs();
 			File file = javaFile(packageFolder, name);
-			Files.write(file.toPath(), text.getBytes(Charset.forName("UTF-8")));
+			Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -62,9 +62,9 @@ public class ArchetypeRenderer {
 	public void render(File archetypeFile) {
 		ArchetypeGrammar.RootContext root = new ArchetypeParser(archetypeFile).parse();
 		FrameBuilder builder = new FrameBuilder("archetype");
-		builder.add("package", configuration.workingPackage()).add("artifact", artifactId);
+		builder.add("package", configuration.artifact().code().generationPackage()).add("artifact", artifactId);
 		builder.add("node", root.node().stream().map(this::frameOf).filter(Objects::nonNull).toArray(Frame[]::new));
-		writeFrame(new File(gen(), configuration.workingPackage().replace(".", File.separator)), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), template().render(builder.toFrame()));
+		writeFrame(new File(gen(), configuration.artifact().code().generationPackage().replace(".", File.separator)), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), template().render(builder.toFrame()));
 		refreshDirectory(gen());
 	}
 
@@ -80,7 +80,9 @@ public class ArchetypeRenderer {
 				add("name", node.declaration().IDENTIFIER().toString().replace(".", "_")).
 				add("artifact", artifactId);
 		if (isLeaf(node)) builder.add("leaf");
+		String parentIn = null;
 		if (isModuleSplit(node)) {
+			if (hasIn(node)) parentIn = node.declaration().LABEL(0).toString().replace("\"", "");
 			node = findNodeModule(node);
 			if (node == null) return null;
 		}
@@ -88,16 +90,20 @@ public class ArchetypeRenderer {
 			builder.add("parameter", node.declaration().parameters().parameter().stream().
 					map(p -> new FrameBuilder("parameter", type(p.type())).add("value", p.IDENTIFIER().toString()).toFrame()).
 					toArray(Frame[]::new));
-		if (node.declaration().IN() != null)
-			builder.add("filePath", node.declaration().LABEL(0).toString().replace("\"", ""));
-		else builder.add("filePath", node.declaration().IDENTIFIER().toString());
-		if (node.declaration().WITH() != null) {
+		if (hasIn(node))
+			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().LABEL(0).toString().replace("\"", ""));
+		else
+			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().IDENTIFIER().toString());
+		if (node.declaration().WITH() != null)
 			builder.add("list").add(type(node.declaration().type())).
 					add("with", node.declaration().LABEL(node.declaration().LABEL().size() - 1).toString());
-		}
 		if (node.body() != null && !node.body().node().isEmpty())
 			builder.add("node", node.body().node().stream().map(this::frameOf).toArray(Frame[]::new));
 		return builder.toFrame();
+	}
+
+	private boolean hasIn(ArchetypeGrammar.NodeContext node) {
+		return node.declaration().IN() != null;
 	}
 
 	private boolean isModuleSplit(ArchetypeGrammar.NodeContext node) {

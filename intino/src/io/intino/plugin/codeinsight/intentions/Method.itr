@@ -1,0 +1,91 @@
+def type(method & multiple)
+	public static java.util.List<$type> $name($scope self[, $parameter...[,]]) {
+		$body
+	}
+end
+
+def type(method)
+	public static $type+list $name($scope self[, $parameter...[,]]) {
+		$body
+	}
+end
+
+def attribute(value:instant) trigger(type)
+	java.time.Instant
+end
+
+def attribute(value:date) trigger(type)
+	Date
+end
+
+def attribute(value:time) trigger(type)
+	java.time.LocalTime
+end
+
+def attribute(value:Double) trigger(type)
+	double
+end
+
+def attribute(value:INTEGER) trigger(type)
+	int
+end
+
+def attribute(value:OBJECT) trigger(type)
+	Object
+end
+
+def attribute(value:RESOURCE) trigger(type)
+	java.net.URL
+end
+
+def attribute(value:resource) trigger(type)
+	java.net.URL
+end
+
+def attribute(value:string) trigger(type)
+	String
+end
+
+def attribute(value:boolean) trigger(type)
+	boolean
+end
+
+def attribute(value:int) trigger(list)
+	Integer
+end
+
+def attribute(value:instant) trigger(list)
+	java.time.Instant
+end
+
+def attribute(value:date) trigger(list)
+	Date
+end
+
+def attribute(value:time) trigger(list)
+	java.time.LocalTime
+end
+
+def attribute(value:double) trigger(list)
+	Double
+end
+
+def attribute(value:OBJECT) trigger(list)
+	Object
+end
+
+def attribute(value:boolean) trigger(list)
+	Boolean
+end
+
+def attribute(value:string) trigger(list)
+	String
+end
+
+def attribute(value:resource) trigger(list)
+	java.net.URL
+end
+
+def attribute(value:type) trigger(list)
+	Concept
+end

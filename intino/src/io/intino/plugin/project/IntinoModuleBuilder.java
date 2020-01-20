@@ -9,8 +9,7 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.project.IntinoModuleType;
-import io.intino.tara.plugin.project.configuration.MavenConfiguration;
+import io.intino.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.java.JpsJavaExtensionService;
@@ -18,7 +17,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 import javax.swing.*;
 import java.io.File;
 
-import static io.intino.tara.plugin.project.configuration.ConfigurationManager.*;
+import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 
 public class IntinoModuleBuilder extends JavaModuleBuilder {
 

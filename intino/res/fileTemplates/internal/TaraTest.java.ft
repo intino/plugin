@@ -1,0 +1,21 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import org.junit.Before;
+import org.junit.Test;
+import io.intino.tara.magritte.Graph;
+import ${WORKING_PACKAGE.toLowerCase()}.${GRAPH}Graph;
+
+public class ${NAME}Test {
+
+	private ${GRAPH}Graph graph;
+
+	@Before
+	public void setUp() {
+		Graph graph = new Graph().loadStashes("${NAME}").as(${GRAPH}Graph.class);
+	}
+
+	@Test
+	public void testModel() throws Exception {
+
+	}
+}

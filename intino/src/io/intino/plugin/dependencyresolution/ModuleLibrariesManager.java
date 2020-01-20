@@ -8,8 +8,8 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -106,7 +106,8 @@ public class ModuleLibrariesManager {
 			Module module = ((ModuleOrderEntry) e).getModule();
 			Configuration configuration = TaraUtil.configurationOf(module);
 			if (configuration == null) return null;
-			return configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version() + ":" + COMPILE;
+			Configuration.Artifact artifact = configuration.artifact();
+			return artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + COMPILE;
 		}
 		return null;
 	}

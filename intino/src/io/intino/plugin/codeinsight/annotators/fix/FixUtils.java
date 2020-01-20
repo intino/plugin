@@ -4,8 +4,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.tara.plugin.lang.psi.TaraElementFactory;
-import io.intino.tara.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraElementFactory;
+import io.intino.plugin.lang.psi.TaraNode;
 
 public class FixUtils {
 

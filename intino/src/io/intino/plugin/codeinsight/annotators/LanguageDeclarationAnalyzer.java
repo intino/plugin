@@ -7,20 +7,19 @@ import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.psi.PsiElement;
 import io.intino.alexandria.logger.Logger;
+import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.project.configuration.LegioLanguage;
+import io.intino.plugin.project.configuration.model.LegioLanguage;
 import io.intino.tara.Language;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Model.ModelLanguage;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Model;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.tara.compiler.shared.Configuration.Model.Level.Platform;
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
@@ -47,23 +46,22 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || modelNode == null || configuration.graph() == null) return;
+		if (configuration == null || modelNode == null) return;
 		final Parameter languageNameParameter = modelNode.parameters().stream().filter(p -> p.name().equals("language")).findFirst().orElse(null);
 		if (languageNameParameter == null) return;
 		final String languageName = languageNameParameter.values().get(0).toString();
 		if (languageName == null) return;
 		String version = version();
-		if ("LATEST".equals(version)) {
-			ModelLanguage language = configuration.model().language();
-			version = language != null ? language.effectiveVersion() : null;
-		}
+		Model.Language language = safe(() -> configuration.artifact().model().language());
+		if (language == null) return;
+		if ("LATEST".equals(version)) version = language.effectiveVersion();
 		if (version == null || version.isEmpty()) return;
-		if (configuration.model().language().parameters() == null) {
+		if (((LegioLanguage) language).parameters() == null) {
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 			return;
 		}
 		checkLanguage(languageName, version, LanguageManager.getLanguage(module.getProject(), languageName, version));
-		checkSdk(configuration.model().sdkVersion());
+		checkSdk(configuration.artifact().model().sdkVersion());
 	}
 
 	private void checkSdk(String sdkVersion) {
@@ -77,23 +75,24 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	}
 
 	private void checkLanguage(String languageName, String version, Language language) {
-		final Configuration.Model.Level languageLevel = languageLevel();
-		if ((languageLevel == null && !configuration.model().level().isPlatform()) || (languageLevel != null && configuration.model().level() != null && configuration.model().level().compareLevelWith(languageLevel) != 1))
-			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", languageLevel == null ? "Meta or Proteo" : languageLevel.name())));
+		Model model = configuration.artifact().model();
+		final Model.Level languageLevel = languageLevel(model);
+		if ((languageLevel == null && !model.level().isPlatform()) || (languageLevel != null && model.level() != null && model.level().compareLevelWith(model.level()) != 1))
+			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", model.level() == null ? "Meta or Proteo" : languageLevel.name())));
 		if (language == null && !LanguageManager.silentReload(module.getProject(), languageName, version))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 		else if ((language instanceof Meta || language instanceof Proteo) && !existMagritte(version))
 			results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("magritte.not.found")));
 	}
 
-	private Configuration.Model.Level languageLevel() {
-		LegioLanguage language = configuration.model().language();
+	private Model.Level languageLevel(Model model) {
+		LegioLanguage language = (LegioLanguage) model.language();
 		if (language == null) return null;
 		final String name = language.name();
 		if (Meta.class.getSimpleName().equals(name)) return null;
-		if (Proteo.class.getSimpleName().equals(name)) return Platform;
+		if (Proteo.class.getSimpleName().equals(name)) return Model.Level.Platform;
 		final Attributes attributes = language.parameters();
-		return Configuration.Model.Level.valueOf(attributes.getValue("level"));
+		return Model.Level.valueOf(attributes.getValue("level"));
 	}
 
 	private boolean existMagritte(String version) {

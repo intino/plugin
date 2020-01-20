@@ -7,12 +7,12 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import io.intino.itrules.FrameBuilder;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Repository;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
@@ -31,11 +31,11 @@ public class WebDependencyResolver {
 	private final Module module;
 	private final Artifact artifact;
 
-	private final List<Repository.Type> repositories;
+	private final List<Repository> repositories;
 	private final File rootDirectory;
 	private final File nodeModulesDirectory;
 
-	public WebDependencyResolver(Module module, Artifact artifact, List<Repository.Type> repositories) {
+	public WebDependencyResolver(Module module, Artifact artifact, List<Repository> repositories) {
 		this.module = module;
 		this.artifact = artifact;
 		this.repositories = repositories;
@@ -58,7 +58,7 @@ public class WebDependencyResolver {
 
 	private File createTempDirectory() {
 		try {
-			return Files.createTempDirectory(artifact.name$()).toFile();
+			return Files.createTempDirectory(artifact.name()).toFile();
 		} catch (IOException e) {
 			return null;
 		}
@@ -110,7 +110,7 @@ public class WebDependencyResolver {
 	}
 
 	private FrameBuilder baseFrame() {
-		return new FrameBuilder().add("groupId", artifact.groupId()).add("artifactId", artifact.name$()).add("version", artifact.version());
+		return new FrameBuilder().add("groupId", artifact.groupId()).add("artifactId", artifact.name()).add("version", artifact.version());
 	}
 
 	private File write(String content, File destiny) {

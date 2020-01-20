@@ -1,0 +1,65 @@
+def type(function)
+	package $generatedLanguage+lowerCase.natives;
+
+	$imports...[$NL]
+
+	class $name+FirstUpperCase implements[ $scope+lowercase.functions.? ]$rule+FirstUpperCase, io.intino.tara.magritte.Function {
+		$nativeContainer self;
+
+		@Override
+		$signature {
+			$return
+end
+
+def type(reactive)
+	package $generatedLanguage+lowerCase.natives;
+
+	$imports...[$NL]
+
+	class $name+FirstUpperCase implements io.intino.tara.magritte.Expression<$type+format> {
+		$nativeContainer self;
+
+		public $type+format value() {
+			$return
+
+end
+
+def type(list) trigger(format)
+	java.util.List<$value+javaType>
+end
+
+def trigger(format)
+	$value+javaType
+end
+
+def attribute(this:instant) trigger(javaType)
+	java.time.Instant
+end
+
+def attribute(this:Instant) trigger(javaType)
+	java.time.Instant
+end
+
+def attribute(this:Date) trigger(javaType)
+	Date
+end
+
+def attribute(this:date) trigger(javaType)
+	Date
+end
+
+def attribute(this:time) trigger(javaType)
+	java.time.LocalTime
+end
+
+def attribute(this:Time) trigger(javaType)
+	java.time.LocalTime
+end
+
+def attribute(this:Resource) trigger(javaType)
+	java.net.URL
+end
+
+def attribute(this:resource) trigger(javaType)
+	java.net.URL
+end

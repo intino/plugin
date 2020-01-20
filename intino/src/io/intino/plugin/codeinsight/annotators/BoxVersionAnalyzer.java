@@ -2,20 +2,21 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.builders.InterfaceBuilderLoader;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
-import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.Safe.safe;
 
 public class BoxVersionAnalyzer extends TaraAnalyzer {
 	private final Module module;
@@ -54,8 +55,9 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 		for (Module m : instance.getModules()) {
 			if (m.equals(this.module)) continue;
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration != null && configuration.box() != null) {
-				String version = configuration.box().version();
+			Configuration.Artifact.Box box = safe(() -> configuration.artifact().box());
+			if (box != null) {
+				String version = box.version();
 				if (version != null && !version.isEmpty()) versions.add(version);
 			}
 		}

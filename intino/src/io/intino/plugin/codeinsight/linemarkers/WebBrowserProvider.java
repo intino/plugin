@@ -4,7 +4,7 @@ import com.intellij.ide.browsers.OpenInBrowserRequest;
 import com.intellij.ide.browsers.WebBrowserUrlProvider;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Url;
-import io.intino.tara.plugin.lang.TaraLanguage;
+import io.intino.plugin.lang.TaraLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

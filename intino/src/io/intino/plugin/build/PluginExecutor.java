@@ -15,7 +15,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jcabi.aether.Aether;
-import io.intino.legio.graph.Repository;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
 import io.intino.plugin.project.LegioConfiguration;
@@ -25,7 +24,7 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import io.intino.plugin.toolwindows.output.OutputsToolWindow;
-import io.intino.tara.magritte.loaders.ClassFinder;
+import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.sonatype.aether.artifact.Artifact;
@@ -109,9 +108,8 @@ public class PluginExecutor {
 
 	private void executePlugin(PrintStream logStream, ClassLoader classLoader, ModuleRootManager manager) {
 		try {
-			ClassFinder.clear();
 			PluginLauncher launcher = (PluginLauncher) classLoader.loadClass(pluginClass).getConstructors()[0].newInstance();
-			launcher.moduleConfiguration(configuration.graph());
+			launcher.moduleConfiguration(configuration);
 			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
@@ -129,7 +127,6 @@ public class PluginExecutor {
 					})
 					.logger(logStream);
 			launcher.run();
-			ClassFinder.clear();
 		} catch (Throwable e) {
 			if (e instanceof NullPointerException) e.printStackTrace();
 			errorMessages.add("Error executing plugin.\n" + e.getMessage());
@@ -179,12 +176,12 @@ public class PluginExecutor {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS)));
-		remotes.addAll(repositories().stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
+		remotes.addAll(this.configuration.repositories().stream().filter(r -> r != null && !(r instanceof Repository.Language)).map(this::repository).collect(toList()));
 		return remotes;
 	}
 
-	private RemoteRepository repository(Repository.Type remote) {
-		final RemoteRepository repository = new RemoteRepository(remote.mavenID(), "default", remote.url()).setAuthentication(provideAuthentication(remote.mavenID()));
+	private RemoteRepository repository(Repository remote) {
+		final RemoteRepository repository = new RemoteRepository(remote.identifier(), "default", remote.url()).setAuthentication(provideAuthentication(remote.identifier()));
 		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS));
 		return repository;
 	}
@@ -192,13 +189,6 @@ public class PluginExecutor {
 	@NotNull
 	private File localRepository() {
 		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-	}
-
-	public List<Repository.Type> repositories() {
-		List<Repository.Type> repos = new ArrayList<>();
-		if (configuration == null || configuration.graph() == null) return Collections.emptyList();
-		configuration.graph().repositoryList().stream().map(Repository::typeList).forEach(repos::addAll);
-		return repos;
 	}
 
 	private void publish(String line) {

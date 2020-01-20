@@ -11,14 +11,14 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.Convertor;
-import io.intino.legio.graph.Artifact.Imports.Dependency;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.dependencyresolution.ResolutionCache;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.legio.graph.Artifact.Level;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -200,9 +199,10 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void renderModel(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
-		Level.Model model = safe(() -> configuration.graph().artifact().asLevel().model());
+		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return;
-		String languageId = languageId(model.language(), model.version());
+		Configuration.Artifact.Model.Language language = model.language();
+		String languageId = languageId(language.name(), language.version());
 		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
 		if (dependencies != null && !dependencies.isEmpty()) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, languageId, labelIdentifier(cache, languageId)));
@@ -213,7 +213,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
-		for (Dependency dependency : safeList(() -> configuration.graph().artifact().imports().dependencyList())) {
+		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, dependency.identifier(), labelIdentifier(cache, dependency)));
 			parent.add(node);
 			node.setAllowsChildren(true);

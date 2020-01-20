@@ -8,8 +8,8 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.Arrays;
 

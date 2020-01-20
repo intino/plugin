@@ -1,14 +1,19 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_RELEASES;
@@ -17,18 +22,43 @@ import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER
 public class ArtifactoryConnector {
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
-	private final Map<String, String> repositories;
+	private final List<Configuration.Repository> repositories;
 
-	public ArtifactoryConnector(Map<String, String> repositories) {
+	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
 		this.repositories = repositories;
-		this.repositories.put("https://repo.maven.apache.org/maven2/", "maven2");
+		this.repositories.add(mavenRepository());
+	}
+
+	@NotNull
+	private Configuration.Repository.Release mavenRepository() {
+		return new Configuration.Repository.Release() {
+			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
+			}
+
+			@Override
+			public String identifier() {
+				return "maven2";
+			}
+
+			@Override
+			public String url() {
+				return "https://repo.maven.apache.org/maven2/";
+			}
+		};
 	}
 
 	public List<String> languages() {
 		List<String> langs = new ArrayList<>();
 		try {
-			for (String repo : repositories.keySet()) {
-				URL url = new URL(repo + "/" + "tara/dsl" + "/");
+			for (Configuration.Repository repo : repositories) {
+				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/");
 				final String result = new String(read(connect(url)).toByteArray());
 				if (result.isEmpty()) continue;
 				langs.addAll(extractLanguages(result));
@@ -45,7 +75,7 @@ public class ArtifactoryConnector {
 		try {
 			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Meta.class.getSimpleName()))
 				return proteoVersions();
-			for (String repo : repositories.keySet()) {
+			for (Configuration.Repository repo : repositories) {
 				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
@@ -57,8 +87,8 @@ public class ArtifactoryConnector {
 
 	public List<String> versions(String artifact) {
 		try {
-			for (String repo : repositories.keySet()) {
-				URL url = new URL(repo + "/" + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml");
+			for (Configuration.Repository repo : repositories) {
+				URL url = new URL(repo.url() + "/" + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml");
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}

@@ -5,27 +5,24 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Artifact.Box;
-import io.intino.legio.graph.Artifact.Imports.Compile;
-import io.intino.legio.graph.Artifact.Imports.Provided;
-import io.intino.legio.graph.Artifact.Level.Model;
+import io.intino.plugin.lang.TaraLanguage;
+import io.intino.plugin.lang.psi.StringValue;
+import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.Checker;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Box;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
+import io.intino.tara.compiler.shared.Configuration.Artifact.Model;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
-import io.intino.tara.plugin.lang.TaraLanguage;
-import io.intino.tara.plugin.lang.psi.StringValue;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nullable;
 import tara.dsl.Legio;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static io.intino.tara.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 
 class LegioFilters {
-
 	static final PsiElementPattern.Capture<PsiElement> inModelLanguage = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InLanguageNameFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inLanguageVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
@@ -166,7 +163,7 @@ class LegioFilters {
 
 	private static boolean inDependencyNode(Node node) {
 		final String type = node.type().replace(":", "");
-		return is(type, Compile.class) || is(type, Artifact.Imports.Test.class) || is(type, Provided.class) || is(type, Artifact.Imports.Runtime.class);
+		return is(type, Dependency.Compile.class) || is(type, Dependency.Test.class) || is(type, Dependency.Provided.class) || is(type, Dependency.Runtime.class);
 	}
 
 	private static boolean is(String type, Class aClass) {

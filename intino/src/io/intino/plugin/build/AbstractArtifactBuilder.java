@@ -4,21 +4,20 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.wm.WindowManager;
 import io.intino.itrules.formatters.StringFormatters;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Destination;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.deploy.ArtifactDeployer;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.tara.compiler.shared.Configuration.Artifact;
+import io.intino.tara.compiler.shared.Configuration.Deployment;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +36,6 @@ import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static io.intino.plugin.dependencyresolution.WebDependencyResolver.NodeModules;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static java.util.Collections.emptyList;
 
 
 abstract class AbstractArtifactBuilder {
@@ -58,8 +56,8 @@ abstract class AbstractArtifactBuilder {
 	private void processPackagePlugins(Module module, FactoryPhase phase, ProgressIndicator indicator) {
 		Configuration configuration = TaraUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		List<Artifact.IntinoPlugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).graph().artifact().intinoPluginList());
-		intinoPlugins.stream().filter(i -> i.phase() == Artifact.IntinoPlugin.Phase.PrePackage).forEach(plugin ->
+		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).artifact().plugins());
+		intinoPlugins.stream().filter(i -> i.phase() == Artifact.Plugin.Phase.PrePackage).forEach(plugin ->
 				new PluginExecutor(module, phase, (LegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
 	}
 
@@ -116,15 +114,18 @@ abstract class AbstractArtifactBuilder {
 	}
 
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
-		if (phase.ordinal() >= DISTRIBUTE.ordinal() && configuration.graph().artifact().distribution() != null && configuration.graph().artifact().distribution().onBitbucket() != null)
-			new BitbucketDeployer(configuration).execute();
+		LegioArtifact artifact = configuration.artifact();
+		if (phase.ordinal() >= DISTRIBUTE.ordinal()) {
+			artifact.distribution();
+			if (artifact.distribution().onBitbucket() != null) new BitbucketDeployer(configuration).execute();
+		}
 	}
 
 	private boolean deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) {
 		if (phase.equals(DEPLOY)) {
 			updateProgressIndicator(indicator, message("publishing.artifact"));
 			try {
-				List<Destination> destinations = collectDestinations(module.getProject(), (LegioConfiguration) TaraUtil.configurationOf(module));
+				List<Deployment> destinations = collectDeployments((LegioConfiguration) TaraUtil.configurationOf(module));
 				return !destinations.isEmpty() && new ArtifactDeployer(module, destinations).execute();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
@@ -135,52 +136,42 @@ abstract class AbstractArtifactBuilder {
 
 	private void buildWeb(Module module) {
 		if (!ModuleTypeWithWebFeatures.isAvailable(module)) return;
-		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).graph().artifact();
-		if (artifact == null) return;
+		Artifact artifact = ((LegioConfiguration) TaraUtil.configurationOf(module)).artifact();
 		createPackageJson(module, artifact);
 	}
 
 	private void createPackageJson(Module module, Artifact artifact) {
-		new PackageJsonCreator(artifact, ((LegioConfiguration) TaraUtil.configurationOf(module)).repositoryTypes(), new File(new File(module.getModuleFilePath()).getParentFile(), NodeModules)).createPackageFile(new File(module.getModuleFilePath()).getParentFile());
+		new PackageJsonCreator(artifact, TaraUtil.configurationOf(module).repositories(), new File(new File(module.getModuleFilePath()).getParentFile(), NodeModules)).createPackageFile(new File(module.getModuleFilePath()).getParentFile());
 	}
 
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
-		if (safe(() -> ((LegioConfiguration) configuration).graph().artifact().package$()) == null)
+		if (safe(() -> ((LegioConfiguration) configuration).artifact().packageConfiguration()) == null)
 			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))
 			throw new IntinoException(message("distribution.repository.not.found"));
 	}
 
-	private List<Destination> collectDestinations(Project project, LegioConfiguration conf) {
-		final List<Artifact.Deployment> deployments = safe(() -> conf.graph().artifact().deploymentList());
-		if (deployments.size() > 1 || (!deployments.isEmpty() && deployments.get(0).destinations().size() > 1))
-			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
-		return deployments.isEmpty() ? emptyList() : destinationsOf(deployments.get(0));
-	}
-
-	private List<Destination> destinationsOf(Artifact.Deployment deployment) {
-		List<Destination> destinations = new ArrayList<>();
-		if (deployment.pre() != null) destinations.add(deployment.pre());
-		if (deployment.pro() != null) destinations.add(deployment.pro());
-		return destinations;
+	private List<Deployment> collectDeployments(LegioConfiguration conf) {
+		return safeList(() -> conf.artifact().deployments());
 	}
 
 	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {
-		return configuration.distributionReleaseRepository() == null && lifeCyclePhase.mavenActions().contains("deploy");
+		return safe(() -> configuration.artifact().distribution().release()) == null && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
 		Configuration configuration = TaraUtil.configurationOf(module);
-		return configuration.model() != null && configuration.model().level() != null && !configuration.model().level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
+		Artifact.Model model = safe(() -> configuration.artifact().model());
+		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	@NotNull
 	private File dslFilePath(Configuration configuration) {
-		final String outDSL = configuration.model().outLanguage();
+		final String outDSL = safe(() -> configuration.artifact().model().outLanguage());
 		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator +
-				configuration.version() + File.separator + outDSL + "-" + configuration.version() + JAR_EXTENSION);
+				configuration.artifact().version() + File.separator + outDSL + "-" + configuration.artifact().version() + JAR_EXTENSION);
 	}
 
 	private void updateProgressIndicator(ProgressIndicator progressIndicator, String message) {

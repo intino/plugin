@@ -1,14 +1,14 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.plugin.annotator.TaraAnnotator;
+import io.intino.plugin.annotator.fix.RemoveElementFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.fix.RemoveElementFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.model() == null || configuration.model().language() == null) return;
+		if (configuration.artifact().model().language() == null) return;
 		if (name == null || name.isEmpty())
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("parameter.name.not.found")));
 		if (isDuplicated())
@@ -45,7 +45,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	private boolean isDuplicated() {
 		if (name == null || name.isEmpty()) return false;
-		return (int) configuration.graph().artifact().parameterList().stream().filter(parameter -> parameter.name().equals(name)).count() > 1;
+		return (int) configuration.artifact().parameters().stream().filter(parameter -> name.equals(parameter.name())).count() > 1;
 	}
 
 	private String parameterName() {

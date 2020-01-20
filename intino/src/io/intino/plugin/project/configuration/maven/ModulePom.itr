@@ -1,0 +1,75 @@
+def type(pom)
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		<modelVersion>4.0.0</modelVersion>
+
+		<groupId>$project</groupId>
+		<artifactId>$name</artifactId>
+		<version>$version</version>
+
+		<properties>
+			<maven.compiler.source>1.8</maven.compiler.source>
+			<maven.compiler.target>1.8</maven.compiler.target>
+			<tara.platform.dsl>Proteo</tara.platform.dsl>
+			<tara.application.dsl></tara.application.dsl>
+			<tara.system.dsl></tara.system.dsl>
+			<tara.application.dsl.from.artifactory></tara.application.dsl.from.artifactory>
+			<tara.system.dsl.from.artifactory></tara.system.dsl.from.artifactory>
+			<tara.supported.languages>tara</tara.supported.languages>
+		</properties>
+
+		<build>
+			<outputDirectory>[$default?../]out/production/$name</outputDirectory>
+			<testOutputDirectory>[$default?../]out/test/$name</testOutputDirectory>
+			<directory>[$default?../]out/build/$name</directory>
+			<resources>
+				<resource>
+					<directory>$${basedir}/../.tara/refactors</directory>
+				</resource>
+			</resources>
+		</build>
+		<repositories>
+			<repository>
+				<id>siani-maven</id>
+				<name>siani-maven-releases</name>
+				<url>http://artifactory.siani.es/artifactory/libs-release</url>
+			</repository>
+		</repositories>
+
+		<distributionManagement>
+			<repository>
+				<id>siani-maven</id>
+				<name>siani-maven-releases</name>
+				<url>https://artifactory.siani.es/artifactory/libs-release-local</url>
+			</repository>
+		</distributionManagement>
+
+		<dependencies>
+			$magritte...[$NL]
+			$parentModule
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<scope>test</scope>
+				<version>LATEST</version>
+			</dependency>
+		</dependencies>
+	</project>
+end
+
+def type(parent) trigger(parentModule)
+    <dependency>
+        <groupId>$groupId</groupId>
+        <artifactId>$artifactId</artifactId>
+        <version>$version</version>
+    </dependency>
+end
+
+def type(magritte) trigger(magritte)
+    <dependency>
+        <groupId>io.intino.tara</groupId>
+        <artifactId>magritte</artifactId>
+        <version>LATEST</version>
+    </dependency>
+end

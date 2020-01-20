@@ -1,0 +1,18 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import io.intino.tara.lang.model.Metric;
+import java.util.List;
+
+public enum ${NAME} implements Metric<${TYPE}>{
+	;//Add metrics here;
+
+private Converter<${TYPE}>converter;
+
+	${NAME}(Converter<${TYPE}>converter){
+		this.converter = converter;
+	}
+
+public ${TYPE} value(${TYPE} value){
+		return converter.convert(value);
+	}
+}

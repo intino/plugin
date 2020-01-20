@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

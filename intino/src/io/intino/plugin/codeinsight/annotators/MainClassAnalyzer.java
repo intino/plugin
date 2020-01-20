@@ -4,11 +4,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import io.intino.plugin.annotator.TaraAnnotator;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
 import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
 
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.plugin.MessageProvider.message;

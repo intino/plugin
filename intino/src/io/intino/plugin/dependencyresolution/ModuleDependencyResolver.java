@@ -7,8 +7,9 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
+import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -41,7 +42,8 @@ class ModuleDependencyResolver {
 
 	@NotNull
 	private Dependency dependencyFrom(LegioConfiguration c) {
-		return new Dependency(c.groupId() + ":" + c.artifactId() + ":" + c.version() + ":" + COMPILE, c.module().getName());
+		LegioArtifact artifact = c.artifact();
+		return new Dependency(artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + COMPILE, c.module().getName());
 	}
 
 	@NotNull

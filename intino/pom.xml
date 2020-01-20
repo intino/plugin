@@ -54,37 +54,41 @@
     <dependencies>
         <dependency>
             <groupId>io.intino.tara</groupId>
-            <artifactId>magritte</artifactId>
-            <version>3.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>language</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>io</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>language</artifactId>
+            <version>[1.2.0, 2.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.alexandria</groupId>
+            <artifactId>message</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.tara</groupId>
-            <artifactId>builder</artifactId>
+            <artifactId>io</artifactId>
             <version>3.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>builder-constants</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>language</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.intino.tara</groupId>
-                    <artifactId>io</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>builder-constants</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.konos</groupId>
+            <artifactId>builder-constants</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.intino.alexandria</groupId>
+            <artifactId>zim</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>tara.dsl</groupId>
+            <artifactId>legio</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar
+            </systemPath>
         </dependency>
 
         <dependency>
@@ -92,19 +96,6 @@
             <artifactId>builder</artifactId>
             <version>7.0.0</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.intino.alexandria</groupId>
-            <artifactId>zim</artifactId>
-            <version>1.0.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tara.dsl</groupId>
-            <artifactId>legio</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -211,7 +202,6 @@
         <dependency>
             <groupId>io.intino.itrules</groupId>
             <artifactId>engine</artifactId>
-            <scope>provided</scope>
             <version>1.0.0</version>
         </dependency>
         <dependency>
