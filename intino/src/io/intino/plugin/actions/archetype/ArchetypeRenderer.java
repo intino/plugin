@@ -80,7 +80,9 @@ public class ArchetypeRenderer {
 				add("name", node.declaration().IDENTIFIER().toString().replace(".", "_")).
 				add("artifact", artifactId);
 		if (isLeaf(node)) builder.add("leaf");
+		String parentIn = null;
 		if (isModuleSplit(node)) {
+			if (hasIn(node)) parentIn = node.declaration().LABEL(0).toString().replace("\"", "");
 			node = findNodeModule(node);
 			if (node == null) return null;
 		}
@@ -88,16 +90,20 @@ public class ArchetypeRenderer {
 			builder.add("parameter", node.declaration().parameters().parameter().stream().
 					map(p -> new FrameBuilder("parameter", type(p.type())).add("value", p.IDENTIFIER().toString()).toFrame()).
 					toArray(Frame[]::new));
-		if (node.declaration().IN() != null)
-			builder.add("filePath", node.declaration().LABEL(0).toString().replace("\"", ""));
-		else builder.add("filePath", node.declaration().IDENTIFIER().toString());
-		if (node.declaration().WITH() != null) {
+		if (hasIn(node))
+			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().LABEL(0).toString().replace("\"", ""));
+		else
+			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().IDENTIFIER().toString());
+		if (node.declaration().WITH() != null)
 			builder.add("list").add(type(node.declaration().type())).
 					add("with", node.declaration().LABEL(node.declaration().LABEL().size() - 1).toString());
-		}
 		if (node.body() != null && !node.body().node().isEmpty())
 			builder.add("node", node.body().node().stream().map(this::frameOf).toArray(Frame[]::new));
 		return builder.toFrame();
+	}
+
+	private boolean hasIn(ArchetypeGrammar.NodeContext node) {
+		return node.declaration().IN() != null;
 	}
 
 	private boolean isModuleSplit(ArchetypeGrammar.NodeContext node) {
