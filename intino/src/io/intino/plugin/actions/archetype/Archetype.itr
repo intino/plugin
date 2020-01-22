@@ -46,7 +46,7 @@ def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
             filter(f-> [$with]$parameter+replace...[].matches(f.getName()))
-            map(f -> name + "/" + f.getName()).
+            map(f -> name + (!name.isEmpty() ? "/" : "") + f.getName()).
             .collect(java.util.stream.Collectors.toList());
 	}
 end
@@ -55,20 +55,20 @@ def type(node & leaf & list) attribute(parameter) trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
             filter(f-> f.getName().contains([$with]$parameter+replace...[])).
-            map(f -> name + "/" + f.getName()).
+            map(f -> name + (!name.isEmpty() ? "/" : "") + f.getName()).
             collect(java.util.stream.Collectors.toList());
 	}
 end
 
 def type(node & leaf) attribute(parameter) trigger(relativeGetter)
-	public File $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
-		return new File(root, "$filePath"[$parameter+replace...[]]);
+	public String $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+		return name + (!name.isEmpty() ? "/" : "") + "$filePath"[$parameter+replace...[]];
 	}
 end
 
 def type(node & leaf) trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase() {
-		return name + "/$filePath";
+		return name + (!name.isEmpty() ? "/" : "") + "$filePath";
 	}
 end
 
@@ -97,6 +97,12 @@ def type(node & leaf) trigger(getter)
 	}
 end
 
+def type(node) trigger(relativeGetter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name);
+	}
+end
+
 def type(node) trigger(getter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root);
@@ -111,7 +117,7 @@ def type(node) !type(leaf) trigger(relativeClass)
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent) {
 			this.root = new File(parent, "$filePath");
-			this.name = parent + "/$filePath";
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath";
 		}
 
 		public String root() {
