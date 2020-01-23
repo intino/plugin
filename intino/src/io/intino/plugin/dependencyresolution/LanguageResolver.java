@@ -169,7 +169,7 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
 		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
@@ -177,7 +177,7 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> frameworkRemotes() {
 		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}

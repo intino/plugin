@@ -18,6 +18,7 @@ import com.jcabi.aether.Aether;
 import io.intino.legio.graph.Repository;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderLoader;
 import io.intino.plugin.settings.ArtifactoryCredential;
@@ -178,7 +179,7 @@ public class PluginExecutor {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS)));
+		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS)));
 		remotes.addAll(repositories().stream().filter(r -> r != null && !r.i$(Repository.Language.class)).map(this::repository).collect(toList()));
 		return remotes;
 	}
