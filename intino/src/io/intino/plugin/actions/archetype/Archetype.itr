@@ -2,6 +2,7 @@ def type(archetype)
 	package $package;
 
 	import java.io.File;
+	import java.util.Collections;
 
 	public class Archetype {
     	private final File root;
