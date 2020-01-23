@@ -6,6 +6,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.IntinoDirectory;
 import org.sonatype.aether.artifact.Artifact;
@@ -27,12 +28,11 @@ import static io.intino.legio.graph.Artifact.Level.Model;
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class ModelBuilderManager {
-	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
 	public static final String TARA_BUILDER_REPOSITORY = "https://artifactory.intino.io/artifactory/releases";
-
-	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
 	private final Project project;
 	private final Model model;
+	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public ModelBuilderManager(Project project, Model model) {
 		this.project = project;
@@ -55,7 +55,7 @@ public class ModelBuilderManager {
 	private List<Artifact> artifacts() throws DependencyResolutionException {
 		final List<RemoteRepository> repos = Arrays.asList(
 				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)),
-				new RemoteRepository("maven-central", "default", "https://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+				new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + model.sdk()), JavaScopes.COMPILE);
 	}
 
