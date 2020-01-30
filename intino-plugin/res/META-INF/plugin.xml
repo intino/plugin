@@ -264,12 +264,6 @@
             <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
-        <action id="InterfaceGeneration"
-                class="io.intino.plugin.actions.InterfaceGenerationAction"
-                text="Generate Konos Interface Code"
-                description="Generates interface intino source code">
-            <keyboard-shortcut first-keystroke="control alt k" keymap="$default"/>
-        </action>
         <action id="PurgeAndReloadConfigurationAction"
                 class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
                 text="Purge and Reload Legio Configuration"
@@ -321,7 +315,10 @@
     </application-components>
     <project-components>
         <component>
-            <implementation-class>io.intino.plugin.project.TaraCompilerListener</implementation-class>
+            <implementation-class>io.intino.plugin.build.TaraCompilerListener</implementation-class>
+        </component>
+        <component>
+            <implementation-class>io.intino.plugin.build.KonosCompilerListener</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.codeinsight.languageinjection.imports.ImportsSaverService

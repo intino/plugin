@@ -21,6 +21,11 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String groupId = "";
 	public String artifactId = "";
 	public String version = "1.0.0";
+	public String languageGenerationPackage = "";
+	public String parameters = "";
+	public String parentInterface = "";
+	public String library = "";
+
 
 	@NotNull
 	@Override

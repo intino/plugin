@@ -9,6 +9,7 @@ import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.tara.compiler.shared.Configuration.Artifact;
 import io.intino.tara.compiler.shared.Configuration.Artifact.WebArtifact;
 import io.intino.tara.compiler.shared.Configuration.Repository;
@@ -165,7 +166,7 @@ public class PackageJsonCreator {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY)));
-		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.name$(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.identifier(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
 		return remotes;
 	}
 

@@ -28,21 +28,28 @@ public class InterfaceBuilderManager {
 	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class);
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static String minimunVersion = "8.0.0";
 
-	public String reload(Project project, String version) {
-		if (InterfaceBuilderLoader.isLoaded(project, version)) {
-			LOG.info("Konos " + version + " is already loaded");
+	public String download(Project project, String version) {
+		if (isDownloaded(version)) {
+			LOG.info("Konos " + version + " is already downloaded");
 			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
 		final List<String> paths = librariesOf(artifacts);
 		saveClassPath(project, paths);
-		if (!artifacts.isEmpty()) {
-			InterfaceBuilderLoader.load(project, artifacts.stream().map(this::pathOf).toArray(File[]::new), artifacts.get(0).getVersion());
-			LOG.info("Konos " + version + " loaded successfully");
-			return artifacts.get(0).getVersion();
-		}
+		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
 		return version;
+	}
+
+	public static boolean exists(String version) {
+		//TODO
+		return true;
+	}
+
+	private boolean isDownloaded(String version) {
+		//TODO
+		return false;
 	}
 
 	public void purge(String version) {
@@ -78,4 +85,18 @@ public class InterfaceBuilderManager {
 		return remotes;
 	}
 
+	private List<String> librariesOf(List<Artifact> classpath) {
+		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
+	}
+
+	private void saveClassPath(Project project, List<String> paths) {
+		if (paths.isEmpty()) return;
+		final String home = System.getProperty("user.home");
+		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
+		try {
+			Files.write(new File(IntinoDirectory.of(project), "box_compiler.classpath").toPath(), String.join(":", libraries).getBytes());
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
+	}
 }

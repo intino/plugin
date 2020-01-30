@@ -13,13 +13,14 @@ import org.apache.log4j.Level;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
+import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.OutputItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.ERROR;
 import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.WARNING;
 
@@ -28,7 +29,8 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 	private static final Logger LOG = Logger.getInstance(KonoscOSProcessHandler.class);
 
 	private final List<OutputItem> compiledItems = new ArrayList<>();
-	private final List<CompilerMessage> compilerMessages = new ArrayList<>();
+	private final List<BuildMessage> compilerMessages = new ArrayList<>();
+	private final List<String> postCompileActionMessages = new ArrayList<>();
 	private final StringBuilder stdErr = new StringBuilder();
 	private final Consumer<String> statusUpdater;
 	private final StringBuilder outputBuffer = new StringBuilder();
@@ -72,6 +74,9 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 			if (trimmed.startsWith(COMPILED_START)) {
 				outputBuffer.append(trimmed);
 				updateStatus("Finishing...");
+			} else if (trimmed.startsWith(MESSAGE_ACTION_START)) {
+				outputBuffer.append(text);
+				processActionMessage();
 			} else if (trimmed.startsWith(MESSAGES_START)) {
 				outputBuffer.append(text);
 				processMessage();
@@ -80,7 +85,18 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 				if (!trimmed.startsWith(COMPILED_START)) outputBuffer.append(trimmed);
 				processCompiledItems();
 			}
+			if (trimmed.startsWith(BUILD_END)) {
+				if (!postCompileActionMessages.isEmpty()) updateStatus("Updating source classes...");
+				outputBuffer.append(text);
+				compilerMessages.add(new CustomBuilderMessage(KONOSC, ACTION_MESSAGE, String.join(MESSAGE_ACTION_SEPARATOR, postCompileActionMessages)));
+			}
 		}
+	}
+
+	private void processActionMessage() {
+		if (outputBuffer.indexOf(MESSAGE_ACTION_END) == -1) return;
+		String text = handleOutputBuffer(MESSAGE_ACTION_START, MESSAGE_ACTION_END);
+		postCompileActionMessages.add(text);
 	}
 
 	private void processMessage() {
@@ -106,7 +122,7 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 				: category.equals(WARNING)
 				? BuildMessage.Kind.WARNING
 				: BuildMessage.Kind.INFO;
-		CompilerMessage compilerMessage = new CompilerMessage(TARAC, kind, message, url, -1, -1, -1, lineInt, columnInt);
+		CompilerMessage compilerMessage = new CompilerMessage(KONOSC, kind, message, url, -1, -1, -1, lineInt, columnInt);
 		if (LOG.isDebugEnabled()) LOG.debug("Message: " + compilerMessage);
 		compilerMessages.add(compilerMessage);
 	}
@@ -137,33 +153,33 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 		return compiledItems;
 	}
 
-	List<CompilerMessage> getCompilerMessages(String moduleName) {
-		List<CompilerMessage> messages = new ArrayList<>(compilerMessages);
+	List<BuildMessage> getCompilerMessages(String moduleName) {
+		List<BuildMessage> messages = new ArrayList<>(compilerMessages);
 		final StringBuilder unParsedBuffer = getStdErr();
 		if (unParsedBuffer.length() != 0) {
 			String msg = unParsedBuffer.toString();
-			if (msg.contains(KonosBuildConstants.NO_TARA)) {
+			if (msg.contains(KonosBuildConstants.NO_KONOS)) {
 				msg = "Cannot compile Konos files: no Konos library is defined for module '" + moduleName + "'";
-				messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.INFO, msg));
+				messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.INFO, msg));
 			}
 		}
 		final int exitValue = getProcess().exitValue();
 		if (exitValue != 0) {
-			for (CompilerMessage message : messages)
+			for (BuildMessage message : messages)
 				if (message.getKind() == BuildMessage.Kind.ERROR)
 					return messages;
-			messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.ERROR, "Internal Konosc error:" + exitValue));
+			messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.ERROR, "Internal Konosc error:" + exitValue));
 		}
 		return messages;
 	}
 
 	boolean shouldRetry() {
-		for (CompilerMessage message : compilerMessages) {
+		for (BuildMessage message : compilerMessages) {
 			if (message.getKind() == BuildMessage.Kind.ERROR) {
 //				LOG.debug("Error message: " + message);
 				return true;
 			}
-			if (message.getMessageText().contains(KonosBuildConstants.TARAC_STUB_GENERATION_FAILED)) {
+			if (message.getMessageText().contains(KonosBuildConstants.KONOSC_STUB_GENERATION_FAILED)) {
 				LOG.debug("Stub failed message: " + message);
 				return true;
 			}

@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.build;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.server.CustomBuilderMessageHandler;
@@ -40,7 +40,6 @@ import java.util.List;
 public class TaraCompilerListener implements ProjectComponent {
 	private static final Logger LOG = Logger.getInstance(TaraCompilerListener.class.getName());
 	private static final String TARA_PATTERN = "!?*.tara";
-	private static final String TABLE_PATTERN = "!?*.table";
 	private final Project project;
 
 	private MessageBusConnection messageBusConnection;
@@ -59,7 +58,6 @@ public class TaraCompilerListener implements ProjectComponent {
 	private void fillResourcePatterns(CompilerConfigurationImpl configuration) {
 		final List<String> patterns = Arrays.asList(configuration.getResourceFilePatterns());
 		if (!patterns.contains(TARA_PATTERN)) configuration.addResourceFilePattern(TARA_PATTERN);
-		if (!patterns.contains(TABLE_PATTERN)) configuration.addResourceFilePattern(TABLE_PATTERN);
 		configuration.convertPatterns();
 	}
 
@@ -74,11 +72,12 @@ public class TaraCompilerListener implements ProjectComponent {
 			if (TaraBuildConstants.TARAC.equals(builderId) && TaraBuildConstants.REFRESH_BUILDER_MESSAGE.equals(messageType)) {
 				final String[] parameters = messageText.split(TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR);
 				refreshLanguage(parameters[0]);
-				refreshOut(parameters[0], new File(parameters[parameters.length - 1]));
-				refreshDirectory(new File(new File(parameters[parameters.length - 1]).getParentFile(), "test-res"));
-				refreshDirectory(new File(new File(parameters[parameters.length - 1]).getParentFile(), "res"));
-				refreshDirectory(new File(new File(parameters[parameters.length - 1]).getParentFile(), "src"));
-				refreshDirectory(new File(new File(parameters[parameters.length - 1]).getParentFile(), "test"));
+				File directory = new File(parameters[parameters.length - 1]);
+				refreshOut(parameters[0], directory);
+				refreshDirectory(new File(directory.getParentFile(), "test-res"));
+				refreshDirectory(new File(directory.getParentFile(), "res"));
+				refreshDirectory(new File(directory.getParentFile(), "src"));
+				refreshDirectory(new File(directory.getParentFile(), "test"));
 			}
 		}
 

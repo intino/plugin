@@ -1,5 +1,6 @@
 package org.jetbrains.jps.intino.model.impl;
 
+import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.tara.compiler.shared.TaraBuildConstants;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.maven.model.JpsMavenExtensionService;
@@ -14,6 +15,8 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFACE;
 import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
@@ -48,10 +51,14 @@ class JpsConfigurationLoader {
 			conf.artifactId = parameters.get(ARTIFACT_ID);
 			conf.version = parameters.get(VERSION);
 			conf.language = parameters.get(LANGUAGE);
-			conf.outDsl = parameters.get(OUT_DSL);
-			conf.level = parameters.get(LEVEL);
 			conf.languageVersion = parameters.get(LANGUAGE_VERSION);
+			conf.level = parameters.get(LEVEL);
+			conf.outDsl = parameters.get(OUT_DSL);
 			conf.generationPackage = parameters.get(TaraBuildConstants.GENERATION_PACKAGE);
+			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
+			conf.parameters = parameters.getOrDefault(KonosBuildConstants.PARAMETERS, "");
+			conf.parentInterface = parameters.getOrDefault(PARENT_INTERFACE, "");
+			conf.library = parameters.getOrDefault(LIBRARY, "");
 		} catch (IOException ignored) {
 		}
 	}

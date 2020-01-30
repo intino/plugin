@@ -95,7 +95,7 @@ public class ImportsResolver {
 					catalog.addAll(deps);
 					d.resolved(true);
 				} else {
-					auditor.invalidate(d.core$().id());
+					auditor.invalidate(((LegioDependency) d).node());
 					mustReload = true;
 				}
 			}
@@ -169,7 +169,7 @@ public class ImportsResolver {
 	}
 
 	private DependencyScope scopeOf(Dependency dependency) {
-		return DependencyScope.valueOf(dependency.getClass().getInterfaces()[0].getSimpleName().toUpperCase());
+		return DependencyScope.valueOf(dependency.scope().toUpperCase());
 	}
 
 	private List<Artifact> resolve(Dependency dependency, DependencyScope scope) throws DependencyResolutionException {

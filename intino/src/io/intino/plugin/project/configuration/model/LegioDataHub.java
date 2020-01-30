@@ -9,4 +9,9 @@ public class LegioDataHub extends LegioDependency implements Configuration.Artif
 	public LegioDataHub(LegioArtifact artifact, DependencyAuditor auditor, TaraNode node) {
 		super(artifact, auditor, node);
 	}
+
+	@Override
+	public String scope() {
+		return "Compile";
+	}
 }

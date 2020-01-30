@@ -12,7 +12,6 @@ import org.jetbrains.jps.incremental.BuilderCategory;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ModuleBuildTarget;
 import org.jetbrains.jps.incremental.ProjectBuildException;
-import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.Directories;
 import org.jetbrains.jps.intino.compiler.IntinoBuilder;
 import org.jetbrains.jps.intino.model.JpsIntinoExtensionService;
@@ -30,8 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
-import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 import static org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode.*;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.serialization.JpsModelSerializationDataService.getBaseDirectory;
@@ -77,19 +75,14 @@ public class KonosBuilder extends IntinoBuilder {
 		if (conf == null || toCompile.isEmpty()) return NOTHING_DONE;
 		final String encoding = context.getProjectDescriptor().getEncodingConfiguration().getPreferredModuleChunkEncoding(chunk);
 		Map<String, String> paths = collectPaths(chunk, finalOutputs, context.getProjectDescriptor().getProject());
-		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, isMake(context), files(toCompile), encoding, chunk.containsTests(), paths);
+		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, files(toCompile), encoding, paths);
 		final KonoscOSProcessHandler handler = runner.runKonosCompiler(context);
 		processMessages(chunk, context, handler);
 		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return CHUNK_REBUILD_REQUIRED;
 		if (handler.shouldRetry()) return ABORT;
 		finish(context, chunk, outputConsumer, finalOutputs, handler.getSuccessfullyCompiled());
-		context.processMessage(new CustomBuilderMessage(TARAC, REFRESH_BUILDER_MESSAGE, chunk.getName() + REFRESH_BUILDER_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 		context.setDone(1);
 		return OK;
-	}
-
-	private boolean isMake(CompileContext context) {
-		return isCompileJavaIncrementally(context);
 	}
 
 	@Override
@@ -98,15 +91,18 @@ public class KonosBuilder extends IntinoBuilder {
 	}
 
 	private Map<String, String> collectPaths(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs, JpsProject project) {
+		File projectDirectory = getBaseDirectory(project);
 		final JpsModule module = chunk.getModules().iterator().next();
 		String finalOutput = FileUtil.toSystemDependentName(finalOutputs.get(chunk.representativeTarget()));
 		Map<String, String> map = new LinkedHashMap<>();
+		map.put(PROJECT_PATH, projectDirectory.getAbsolutePath());
+		map.put(MODULE_PATH, getBaseDirectory(module).getAbsolutePath());
+		map.put(RES_PATH, getResourcesDirectory(module).getPath());
+		getSourceRoots(module).stream().filter(f -> f.getFile().getName().equals("src")).findFirst().ifPresent(src -> map.put(SRC_PATH, src.getFile().getAbsolutePath()));
 		map.put(OUTPUTPATH, getGenDir(module));
 		map.put(FINAL_OUTPUTPATH, finalOutput);
-		map.put(RESOURCES, getResourcesDirectory(module).getPath());
-		File file = new File(getBaseDirectory(project), Directories.INTINO_DIRECTORY);
+		File file = new File(projectDirectory, Directories.INTINO_DIRECTORY);
 		if (file.exists()) map.put(INTINO_PROJECT_PATH, file.getAbsolutePath());
-		map.put(SRC_FILE, getSourceRoots(module).stream().map(root -> root.getFile().getAbsolutePath()).collect(Collectors.joining(";")));
 		return map;
 	}
 

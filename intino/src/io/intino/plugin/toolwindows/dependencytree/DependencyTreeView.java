@@ -37,6 +37,7 @@ import java.util.List;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
+import static java.util.Comparator.comparing;
 
 public class DependencyTreeView extends SimpleToolWindowPanel {
 	private JPanel contentPane;
@@ -180,7 +181,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	private void renderProject(DefaultMutableTreeNode parent) {
 		parent.removeAllChildren();
-		for (Module module : ModuleManager.getInstance(project).getModules()) {
+		for (Module module : Arrays.stream(ModuleManager.getInstance(project).getModules()).sorted(comparing(Module::getName)).toArray(Module[]::new)) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new ModuleNode(module.getName()));
 			parent.add(node);
 			node.setAllowsChildren(true);
@@ -195,6 +196,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		if (!(configuration instanceof LegioConfiguration)) return;
 		renderModel(parent, module, cache, (LegioConfiguration) configuration);
 		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);
+		renderDataHub(parent, module, cache, (LegioConfiguration) configuration);
 		tree.updateUI();
 	}
 
@@ -202,23 +204,30 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return;
 		Configuration.Artifact.Model.Language language = model.language();
+		if (language.name() == null) return;
 		String languageId = languageId(language.name(), language.version());
 		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
 		if (dependencies != null && !dependencies.isEmpty()) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, languageId, labelIdentifier(cache, languageId)));
-			parent.add(node);
-			node.setAllowsChildren(true);
-			node.add(new DefaultMutableTreeNode(module));
+			renderDependency(parent, module, languageId, labelIdentifier(cache, languageId));
 		}
 	}
 
 	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
 		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, dependency.identifier(), labelIdentifier(cache, dependency)));
-			parent.add(node);
-			node.setAllowsChildren(true);
-			node.add(new DefaultMutableTreeNode(module));
+			renderDependency(parent, module, dependency.identifier(), labelIdentifier(cache, dependency));
 		}
+	}
+
+	private void renderDataHub(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+		Dependency.DataHub safe = safe(() -> configuration.artifact().datahub());
+		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(cache, safe));
+	}
+
+	private void renderDependency(DefaultMutableTreeNode parent, Module module, String identifier, String label) {
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, identifier, label));
+		parent.add(node);
+		node.setAllowsChildren(true);
+		node.add(new DefaultMutableTreeNode(module));
 	}
 
 	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary, ResolutionCache cache) {
@@ -239,7 +248,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	private String labelIdentifier(ResolutionCache cache, Dependency dependency) {
 		List<DependencyCatalog.Dependency> dependencies = cache.get(dependency.identifier());
 		if (dependencies == null || dependencies.isEmpty()) return "";
-		return dependencies.get(0).mavenId() + ":" + dependency.getClass().getSimpleName();
+		return dependencies.get(0).mavenId() + ":" + dependency.getClass().getInterfaces()[0].getSimpleName();
 	}
 
 

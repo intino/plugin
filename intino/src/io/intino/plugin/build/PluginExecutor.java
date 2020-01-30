@@ -19,7 +19,6 @@ import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.project.builders.InterfaceBuilderLoader;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
@@ -233,6 +232,6 @@ public class PluginExecutor {
 
 	private ClassLoader createClassLoader(File[] libraries) {
 		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), InterfaceBuilderLoader.class.getClassLoader()));
+				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), PluginExecutor.class.getClassLoader()));
 	}
 }

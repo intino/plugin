@@ -1,12 +1,25 @@
 package io.intino.plugin.project.configuration.model;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.util.Computable;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import io.intino.alexandria.logger.Logger;
+import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
+import io.intino.plugin.dependencyresolution.LanguageResolver;
+import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraNodeImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
+import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
+import io.intino.tara.compiler.shared.Configuration.Parameter;
 import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,9 +29,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
+import static com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
+import static io.intino.plugin.actions.archetype.Formatters.firstUpperCase;
+import static io.intino.plugin.actions.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
+import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static java.util.Arrays.stream;
 
 public class LegioArtifact implements Configuration.Artifact {
+	public static final String EQ = "=";
 	private final LegioConfiguration root;
 	private final DependencyAuditor dependencyAuditor;
 	private final TaraNode node;
@@ -97,7 +118,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
 		return nodes.stream().
-				filter(d -> d.type().equals("Web")).
+				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
 				map(d -> new LegioWeb(this, dependencyAuditor, (TaraNode) d)).
 				collect(Collectors.toList());
 	}
@@ -149,12 +170,10 @@ public class LegioArtifact implements Configuration.Artifact {
 		return new Licence() {
 			Node licenceNode = TaraPsiUtil.componentOfType(node, "Licence");
 
-			@Override
 			public String author() {
 				return licenceNode == null ? null : parameterValue(node, "author");
 			}
 
-			@Override
 			public LicenceType type() {
 				if (licenceNode == null) return null;
 				else {
@@ -172,9 +191,22 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	@NotNull
-	public List<Configuration.Parameter> parameters() {
+	public List<Parameter> parameters() {
 		List<Node> nodes = TaraPsiUtil.componentsOfType(node, "Parameter");
 		return nodes.stream().map(p -> new LegioParameter(this, (TaraNode) p)).collect(Collectors.toList());
+	}
+
+	public void addDependencies(Dependency... dependencies) {
+		if (dependencies.length == 0) return;
+		Module module = ModuleProvider.moduleOf(node);
+		if (TaraPsiUtil.componentsOfType(node, "Imports").isEmpty()) createImportsNode();
+		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(dependencies).forEach(this::addDependency));
+	}
+
+	public void addParameters(String... parameters) {
+		if (parameters.length == 0) return;
+		Module module = ModuleProvider.moduleOf(node);
+		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(parameters).forEach(this::addParameter));
 	}
 
 	@Override
@@ -214,16 +246,92 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	public byte[] serialize() {
 		Model model = model();
-		String builder = "groupId=" + groupId() + "\n" +
-				"artifactId=" + name() + "\n" +
-				"version=" + version() + "\n" +
-				TaraBuildConstants.LANGUAGE + "=" + model.language().name() + "\n" +
-				TaraBuildConstants.LANGUAGE_VERSION + "=" + model.language().version() + "\n" +
-				"level=" + model.level().name() + "\n" +
-				TaraBuildConstants.OUT_DSL + "=" + model.outLanguage() + "\n" +
-				TaraBuildConstants.OUT_DSL_VERSION + "=" + model.outLanguageVersion() + "\n" +
-				TaraBuildConstants.GENERATION_PACKAGE + "=" + code().generationPackage() + "\n";
+		String parent = parent();
+		String builder = GROUP_ID + EQ + groupId() + "\n" +
+				ARTIFACT_ID + EQ + name() + "\n" +
+				VERSION + EQ + version() + "\n" +
+				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + "\n" : "") +
+				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + "\n" +
+				GENERATION_PACKAGE + EQ + code().generationPackage() + "\n";
+		if (model().language() != null) {
+			builder += LANGUAGE + EQ + model.language().name() + "\n" +
+					LANGUAGE_VERSION + EQ + model.language().version() + "\n" +
+					LEVEL + EQ + model.level().name() + "\n" +
+					OUT_DSL + EQ + model.outLanguage() + "\n" +
+					OUT_DSL_VERSION + EQ + model.outLanguageVersion() + "\n";
+			if (model.language().generationPackage() != null)
+				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
+		}
+		String identifier = datahub().identifier();
+		if (identifier != null) builder += LIBRARY + EQ + datahub().identifier();
 		return builder.getBytes();
+	}
+
+	private String parent() {
+		Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed()) return calculateParent();
+		return application.<String>runReadAction(this::calculateParent);
+	}
+
+	private String calculateParent() {
+		try {
+			if (node == null) return null;
+			Module module = ModuleProvider.moduleOf(node);
+			if (module == null) return null;
+			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
+			Model.Language language = model().language();
+			if (language == null || language.generationPackage() == null) return null;
+			final String workingPackage = language.generationPackage().replace(".graph", "");
+			String artifact = LanguageResolver.languageId(language.name(), language.effectiveVersion()).split(":")[1];
+			Application application = ApplicationManager.getApplication();
+			PsiClass aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, artifact), moduleWithDependenciesAndLibrariesScope(module)));
+			if (aClass == null)
+				aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, language.name()), moduleWithDependenciesAndLibrariesScope(module)));
+			if (aClass != null)
+				return workingPackage.toLowerCase() + ".box." + firstUpperCase(language.name());
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+		}
+		return null;
+	}
+
+	private String parentBoxName(String workingPackage, String artifact) {
+		return workingPackage + ".box." + firstUpperCase(snakeCaseToCamelCase(artifact)) + "Box";
+	}
+
+	private void addParameter(String p) {
+		TaraElementFactory factory = factory();
+		Node node = factory.createFullNode("Parameter(name = \"" + p + "\")");
+		node.type("Artifact.Parameter");
+		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		final PsiElement last = (PsiElement) this.node.components().get(this.node.components().size() - 1);
+		PsiElement separator = this.node.addAfter(factory.createBodyNewLine(), last);
+		this.node.addAfter((PsiElement) node, separator);
+	}
+
+	private void addDependency(Dependency dependency) {
+		TaraNode imports = (TaraNode) TaraPsiUtil.componentsOfType(node, "Imports").get(0);
+		TaraElementFactory factory = factory();
+		String type = dependency.getClass().getSimpleName();
+		Node node = factory.createFullNode(type + "(" + ")");
+		node.type("Artifact.Imports." + type);
+		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		final PsiElement last = (PsiElement) imports.components().get(imports.components().size() - 1);
+		PsiElement separator = imports.addAfter(factory.createBodyNewLine(), last);
+		imports.addAfter((PsiElement) node, separator);
+	}
+
+	private void createImportsNode() {
+		TaraElementFactory factory = factory();
+		Node node = factory.createFullNode("Imports");
+		node.type("Artifact.Imports");
+		final PsiElement last = (PsiElement) this.node.components().get(this.node.components().size() - 1);
+		PsiElement separator = this.node.addAfter(factory.createBodyNewLine(), last);
+		this.node.addAfter((PsiElement) node, separator);
+	}
+
+	private TaraElementFactory factory() {
+		return TaraElementFactory.getInstance(this.node.getProject());
 	}
 
 	private static class LegioWebComponent implements WebComponent {
@@ -308,7 +416,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 	}
 
-	private static class LegioParameter implements Configuration.Parameter {
+	private static class LegioParameter implements Parameter {
 		private final LegioArtifact artifact;
 		private final TaraNode node;
 		private String name;

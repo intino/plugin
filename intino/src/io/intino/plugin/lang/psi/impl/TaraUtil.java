@@ -396,4 +396,5 @@ public class TaraUtil {
 		if (application.isReadAccessAllowed()) return PsiTreeUtil.getChildrenOfType(file, TaraNode.class);
 		return application.<TaraNode[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraNode.class));
 	}
+
 }

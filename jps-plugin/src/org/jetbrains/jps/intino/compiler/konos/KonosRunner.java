@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Future;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 
 class KonosRunner {
 	private static final char NL = '\n';
@@ -27,10 +27,9 @@ class KonosRunner {
 	private static File argsFile;
 	private List<String> classpath;
 
-	KonosRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf, boolean isMake,
+	KonosRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf,
 				final Map<String, Boolean> sources,
 				final String encoding,
-				final boolean isTest,
 				Map<String, String> paths) throws IOException {
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
 		loadClassPath(paths.get(INTINO_PROJECT_PATH), moduleName);
@@ -61,18 +60,23 @@ class KonosRunner {
 		if (!conf.groupId.isEmpty()) writer.write(GROUP_ID + NL + conf.groupId + NL);
 		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
-		writer.write(GENERATION_PACKAGE + NL + (conf.generationPackage.isEmpty() ? conf.outDsl : conf.generationPackage) + NL);
+		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
+		if (!conf.parentInterface.isEmpty()) writer.write(PARENT_INTERFACE + NL + conf.parentInterface + NL);
+		if (!conf.library.isEmpty()) writer.write(LIBRARY + NL + conf.library + NL);
+		if (!conf.languageGenerationPackage.isEmpty())
+			writer.write(LANGUAGE_GENERATION_PACKAGE + NL + conf.languageGenerationPackage + NL);
+		writer.write(GENERATION_PACKAGE + NL + (conf.generationPackage.isEmpty() ? conf.outDsl : conf.generationPackage) + ".box" + NL);
 	}
 
 	private void writePaths(Map<String, String> paths, Writer writer) throws IOException {
 		writer.write(OUTPUTPATH + NL + paths.get(OUTPUTPATH) + NL);
 		writer.write(FINAL_OUTPUTPATH + NL + paths.get(FINAL_OUTPUTPATH) + NL);
-		writer.write(RESOURCES + NL + paths.get(RESOURCES) + NL);
+		writer.write(RES_PATH + NL + paths.get(RES_PATH) + NL);
 		if (paths.containsKey(INTINO_PROJECT_PATH))
 			writer.write(INTINO_PROJECT_PATH + NL + paths.get(INTINO_PROJECT_PATH) + NL);
-		writer.write(SRC_PATH + NL);
-		String[] srcFiles = paths.get(SRC_FILE).split(";");
-		for (String srcFile : srcFiles) writer.write(srcFile + NL);
+		writer.write(PROJECT_PATH + NL + paths.get(PROJECT_PATH) + NL);
+		writer.write(MODULE_PATH + NL + paths.get(MODULE_PATH) + NL);
+		writer.write(SRC_PATH + NL + paths.get(SRC_PATH) + NL);
 		writer.write(NL);
 	}
 

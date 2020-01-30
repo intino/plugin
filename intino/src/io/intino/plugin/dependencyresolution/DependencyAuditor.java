@@ -9,7 +9,6 @@ import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.module.ModuleProvider;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -71,9 +70,13 @@ public class DependencyAuditor {
 	private Map<Integer, DependencyItem> loadDependencyMap() {
 		Gson gson = new Gson();
 		try {
-			return gson.fromJson(new FileReader(auditionFile()), new TypeToken<Map<Integer, DependencyItem>>() {
-			}.getType());
-		} catch (FileNotFoundException e) {
+			File file = auditionFile();
+			if (auditionFile().exists()) {
+				return gson.fromJson(new FileReader(file), new TypeToken<Map<Integer, DependencyItem>>() {
+				}.getType());
+			}
+			return new HashMap<>();
+		} catch (Exception e) {
 			return new HashMap<>();
 		}
 	}

@@ -6,7 +6,7 @@ import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.plugin.project.builders.InterfaceBuilderLoader;
+import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Parameter;
@@ -37,9 +37,9 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 			else return;
 		}
 		final String version = parameter.values().get(0).toString();
-		if (version.compareTo(InterfaceBuilderLoader.minimunVersion) < 0)
+		if (version.compareTo(InterfaceBuilderManager.minimunVersion) < 0)
 			results.put(((TaraNode) interfaceNode).getSignature(), new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.compatible", version)));
-		else if (!version.equals("LATEST") && !InterfaceBuilderLoader.exists(version))
+		else if (!version.equals("LATEST") && !InterfaceBuilderManager.exists(version))
 			results.put(((TaraNode) interfaceNode).getSignature(),
 					new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.found", version)));
 		else if (boxVersionOfOtherModules().stream().anyMatch(s -> !s.equalsIgnoreCase(version)))

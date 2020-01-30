@@ -14,9 +14,9 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/intino</outputDirectory>
-        <testOutputDirectory>../out/test/intino</testOutputDirectory>
-        <directory>../out/build/intino</directory>
+        <outputDirectory>../out/production/intino-plugin</outputDirectory>
+        <testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
+        <directory>../out/build/intino-plugin</directory>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
@@ -74,8 +74,8 @@
         </dependency>
         <dependency>
             <groupId>io.intino.konos</groupId>
-            <artifactId>builder-constants</artifactId>
-            <version>3.0.0</version>
+            <artifactId>konos-builder-constants</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.intino.alexandria</groupId>
@@ -90,14 +90,6 @@
             <systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar
             </systemPath>
         </dependency>
-
-        <dependency>
-            <groupId>io.intino.konos</groupId>
-            <artifactId>builder</artifactId>
-            <version>7.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-aether</artifactId>

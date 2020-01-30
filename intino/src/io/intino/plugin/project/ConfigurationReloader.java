@@ -11,6 +11,7 @@ import io.intino.plugin.project.run.IntinoRunConfiguration;
 import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class ConfigurationReloader {
 	void reloadInterfaceBuilder() {
 		final Artifact.Box box = safe(artifact::box);
 		if (box != null && box.version() != null)
-			box.effectiveVersion(new InterfaceBuilderManager().reload(module.getProject(), box.version()));
+			box.effectiveVersion(new InterfaceBuilderManager().download(module.getProject(), box.version()));
 	}
 
 	void reloadRunConfigurations() {
@@ -75,7 +76,8 @@ public class ConfigurationReloader {
 
 	private void resolveJavaDependencies() {
 		DependencyCatalog dependencies = resolveLanguage();
-		List<Artifact.Dependency> artifactDependencies = artifact.dependencies();
+		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
+		artifactDependencies.add(artifact.datahub());
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).

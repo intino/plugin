@@ -134,7 +134,8 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	private PsiElement findAnchor(TaraAspectApply apply) {
 		if (!hasParameters(apply)) {
-			if (apply.getParameters().getParameters().isEmpty()) return apply.getParameters().getFirstChild();
+			if (apply.getParameters() != null && apply.getParameters().getParameters().isEmpty())
+				return apply.getParameters().getFirstChild();
 			final PsiElement emptyParameters = TaraElementFactory.getInstance(apply.getProject()).createEmptyParameters();
 			return apply.addAfter(emptyParameters, apply.getMetaIdentifier()).getFirstChild();
 		} else {
