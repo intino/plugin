@@ -95,7 +95,7 @@ public class ImportsResolver {
 					catalog.addAll(deps);
 					d.resolved(true);
 				} else {
-					auditor.invalidate(((LegioDependency) d).node());
+					auditor.invalidate(d.core$().id());
 					mustReload = true;
 				}
 			}

@@ -78,18 +78,4 @@ public class InterfaceBuilderManager {
 		return remotes;
 	}
 
-	private List<String> librariesOf(List<Artifact> classpath) {
-		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
-	}
-
-	private void saveClassPath(Project project, List<String> paths) {
-		if (paths.isEmpty()) return;
-		final String home = System.getProperty("user.home");
-		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
-		try {
-			Files.write(new File(IntinoDirectory.of(project), "box_compiler.classpath").toPath(), String.join(":", libraries).getBytes());
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
-		}
-	}
 }

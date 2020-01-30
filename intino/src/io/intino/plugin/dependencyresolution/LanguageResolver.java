@@ -41,12 +41,12 @@ public class LanguageResolver {
 
 	private final Module module;
 	private final DependencyAuditor auditor;
-	private final List<Repository> repositories;
-	private final Model model;
+	private final List<Repository.Type> repositories;
+	private final Level.Model model;
 	private String version;
 	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
-	public LanguageResolver(Module module, DependencyAuditor auditor, Model model, String version, List<Repository> repositories) {
+	public LanguageResolver(Module module, DependencyAuditor auditor, Level.Model model, String version, List<Repository.Type> repositories) {
 		this.module = module;
 		this.auditor = auditor;
 		this.repositories = repositories;
@@ -179,6 +179,8 @@ public class LanguageResolver {
 	private List<RemoteRepository> frameworkRemotes() {
 		List<RemoteRepository> remotes = repositories.stream().filter(r -> !(r instanceof Repository.Language)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList());
 		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+		List<RemoteRepository> remotes = new ArrayList<>(repositories.stream().filter(r -> !r.i$(Repository.Language.class)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList()));
+		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}

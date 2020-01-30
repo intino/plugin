@@ -20,6 +20,8 @@ import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_R
 import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
 
 public class ArtifactoryConnector {
+	public static final String MAVEN_URL = "https://repo1.maven.org/maven2/";
+
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
 	private final List<Configuration.Repository> repositories;

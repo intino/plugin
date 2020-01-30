@@ -2,6 +2,7 @@ def type(archetype)
 	package $package;
 
 	import java.io.File;
+	import java.util.Collections;
 
 	public class Archetype {
     	private final File root;
@@ -44,49 +45,56 @@ end
 
 def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
             filter(f-> [$with]$parameter+replace...[].matches(f.getName()))
-            map(f -> name + "/" + f.getName()).
+            map(f -> f.getName()).
             .collect(java.util.stream.Collectors.toList());
 	}
 end
 
-def type(node & leaf & list) attribute(parameter) trigger(relativeGetter)
-	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+def type(node & leaf & list) trigger(relativeGetter)
+	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
-            filter(f-> f.getName().contains([$with]$parameter+replace...[])).
-            map(f -> name + "/" + f.getName()).
+            filter(f-> f.getName().contains([$with][$parameter+replace...[]])).
+            map(f -> f.getName()).
             collect(java.util.stream.Collectors.toList());
 	}
 end
 
 def type(node & leaf) attribute(parameter) trigger(relativeGetter)
-	public File $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
-		return new File(root, "$filePath"[$parameter+replace...[]]);
+	public String $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+		return "$filePath"[$parameter+replace...[]];
 	}
 end
 
 def type(node & leaf) trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase() {
-		return name + "/$filePath";
+		return "$filePath";
 	}
 end
 
-
-def type(node & leaf & list & regex) attribute(parameter) trigger(getter)
-	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
-		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).filter(f-> [$with]$parameter+replace...[].matches(f.getName())).collect(java.util.stream.Collectors.toList());
+def type(node & leaf & list & regex) trigger(getter)
+	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
+		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
+		    filter(f-> [$with][$parameter+replace...[]].matches(f.getName())).
+		    collect(java.util.stream.Collectors.toList());
 	}
 end
 
-def type(node & leaf & list) attribute(parameter) trigger(getter)
-	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
-		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).filter(f-> f.getName().contains([$with]$parameter+replace...[])).collect(java.util.stream.Collectors.toList());
+def type(node & leaf & list) trigger(getter)
+	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
+		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
+            filter(f-> f.getName().contains([$with][$parameter+replace...[]])).
+            collect(java.util.stream.Collectors.toList());
 	}
 end
 
-def type(node & leaf) attribute(parameter) trigger(getter)
-	public File $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+def type(node & leaf) trigger(getter)
+	public File $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
 		return new File(root, "$filePath"[$parameter+replace...[]]);
 	}
 end
@@ -94,6 +102,12 @@ end
 def type(node & leaf) trigger(getter)
 	public File $name+snakeCaseToCamelCase+firstLowerCase() {
 		return new File(root, "$filePath");
+	}
+end
+
+def type(node) trigger(relativeGetter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name);
 	}
 end
 
@@ -111,7 +125,7 @@ def type(node) !type(leaf) trigger(relativeClass)
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent) {
 			this.root = new File(parent, "$filePath");
-			this.name = parent + "/$filePath";
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath";
 		}
 
 		public String root() {
