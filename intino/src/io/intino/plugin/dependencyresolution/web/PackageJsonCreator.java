@@ -13,6 +13,7 @@ import io.intino.legio.graph.Artifact;
 import io.intino.legio.graph.Artifact.WebImports.WebArtifact;
 import io.intino.legio.graph.Repository;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -52,6 +53,7 @@ public class PackageJsonCreator {
 	private FrameBuilder packageFrame() {
 		List<JsonObject> packages = resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
+		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fstEvent", "");
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
