@@ -90,7 +90,7 @@
         <dependency>
             <groupId>io.intino.konos</groupId>
             <artifactId>builder</artifactId>
-            <version>7.0.0</version>
+            <version>7.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

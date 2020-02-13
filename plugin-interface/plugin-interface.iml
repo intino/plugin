@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module io.intino.tara.isIntinoModule="true" org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
-    <output url="file://$MODULE_DIR$/../out/production/plugin-interface" />
-    <output-test url="file://$MODULE_DIR$/../out/test/plugin-interface" />
+    <output url="file://$MODULE_DIR$/../out/production/intino" />
+    <output-test url="file://$MODULE_DIR$/../out/test/intino" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
     </content>
     <orderEntry type="jdk" jdkName="11" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="TEST" name="Intino: junit:junit:4.13-rc-1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Intino: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="module" module-name="legio" />
   </component>
 </module>

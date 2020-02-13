@@ -104,7 +104,7 @@ public class LegioConfiguration implements Configuration {
 		if (safe == null) return null;
 		String id = safe.groupId() + ":" + safe.artifactId() + ":" + safe.version();
 		ResolutionCache instance = ResolutionCache.instance(module.getProject());
-		return !instance.containsKey(id) ? null : instance.get(id).get(0);
+		return !instance.containsKey(id) && !instance.get(id).isEmpty() ? null : instance.get(id).get(0);
 	}
 
 	public void purgeAndReload() {
