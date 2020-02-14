@@ -14,9 +14,9 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/plugin-interface</outputDirectory>
-        <testOutputDirectory>../out/test/plugin-interface</testOutputDirectory>
-        <directory>../out/build/plugin-interface</directory>
+        <outputDirectory>../out/production/intino</outputDirectory>
+        <testOutputDirectory>../out/test/intino</testOutputDirectory>
+        <directory>../out/build/intino</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
@@ -31,11 +31,6 @@
             <id>siani-maven</id>
             <name>siani-maven-releases</name>
             <url>http://artifactory.siani.es/artifactory/libs-release</url>
-        </repository>
-        <repository>
-            <id>siani-maven-snapshot</id>
-            <name>siani-maven-snapshot</name>
-            <url>http://artifactory.siani.es/artifactory/libs-snapshot</url>
         </repository>
         <repository>
             <id>intino-maven</id>

@@ -9,6 +9,7 @@ def type(archetype)
 
     	public Archetype(File root) {
     		this.root = root;
+    		root.mkdirs();
     	}
 
     	public File root() {
@@ -30,6 +31,7 @@ def type(archetype)
             public Relative(File root) {
                 this.name = "";
                 this.root = root;
+                root.mkdirs();
             }
 
             public String root() {
@@ -125,6 +127,7 @@ def type(node) !type(leaf) trigger(relativeClass)
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent) {
 			this.root = new File(parent, "$filePath");
+			root.mkdirs();
 			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath";
 		}
 
@@ -144,6 +147,7 @@ def type(node) !type(leaf) trigger(class)
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parent) {
 			this.root = new File(parent, "$filePath");
+			root.mkdirs();
 		}
 
 		public File root() {
