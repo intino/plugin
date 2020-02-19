@@ -64,7 +64,7 @@ public class ArchetypeRenderer {
 		FrameBuilder builder = new FrameBuilder("archetype");
 		builder.add("package", configuration.workingPackage()).add("artifact", artifactId);
 		builder.add("node", root.node().stream().map(this::frameOf).filter(Objects::nonNull).toArray(Frame[]::new));
-		writeFrame(new File(gen(), configuration.workingPackage().replace(".", File.separator)), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), template().render(builder.toFrame()));
+		writeFrame(new File(gen(), configuration.workingPackage().replace(".", "/")), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), template().render(builder.toFrame()));
 		refreshDirectory(gen());
 	}
 
@@ -91,9 +91,9 @@ public class ArchetypeRenderer {
 					map(p -> new FrameBuilder("parameter", type(p.type())).add("value", p.IDENTIFIER().toString()).toFrame()).
 					toArray(Frame[]::new));
 		if (hasIn(node))
-			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().LABEL(0).toString().replace("\"", ""));
+			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + node.declaration().LABEL(0).toString().replace("\"", ""));
 		else
-			builder.add("filePath", (parentIn != null ? parentIn + File.separator : "") + node.declaration().IDENTIFIER().toString());
+			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + node.declaration().IDENTIFIER().toString());
 		if (node.declaration().WITH() != null)
 			builder.add("list").add(type(node.declaration().type())).
 					add("with", node.declaration().LABEL(node.declaration().LABEL().size() - 1).toString());
