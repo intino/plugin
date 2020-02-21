@@ -42,9 +42,10 @@ public class IntinoModuleType extends JavaModuleType {
 	@NotNull
 	@Override
 	public String getDescription() {
-		return "Intino Module";
+		return "Intino module";
 	}
 
+	@NotNull
 	@Override
 	public Icon getNodeIcon(@Deprecated boolean isOpened) {
 		return IntinoIcons.MODEL_16;

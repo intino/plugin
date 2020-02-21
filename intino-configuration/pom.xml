@@ -26,4 +26,10 @@
             <url>https://artifactory.intino.io/artifactory/releases</url>
         </repository>
     </repositories>
+    <distributionManagement>
+        <repository>
+            <id>intino-maven</id>
+            <url>https://artifactory.intino.io/artifactory/release-builders</url>
+        </repository>
+    </distributionManagement>
 </project>
