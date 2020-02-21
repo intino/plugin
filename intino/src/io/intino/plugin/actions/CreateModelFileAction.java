@@ -12,6 +12,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
 import io.intino.plugin.actions.utils.TaraTemplatesFactory;
@@ -21,7 +22,6 @@ import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

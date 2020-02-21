@@ -7,11 +7,11 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import io.intino.Configuration;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

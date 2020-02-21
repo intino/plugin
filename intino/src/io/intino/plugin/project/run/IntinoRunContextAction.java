@@ -22,10 +22,10 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 

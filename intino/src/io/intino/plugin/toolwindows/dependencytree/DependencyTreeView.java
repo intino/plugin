@@ -11,14 +11,14 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.Convertor;
+import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dependency;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.dependencyresolution.ResolutionCache;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

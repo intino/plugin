@@ -2,10 +2,10 @@ package io.intino.plugin.build;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration;
 import io.intino.alexandria.Resource;
 import io.intino.alexandria.restaccessor.RestAccessor;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
-import io.intino.tara.compiler.shared.Configuration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;

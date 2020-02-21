@@ -7,12 +7,12 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Artifact.WebArtifact;
+import io.intino.Configuration.Repository;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import io.intino.tara.compiler.shared.Configuration.Artifact;
-import io.intino.tara.compiler.shared.Configuration.Artifact.WebArtifact;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -51,7 +51,7 @@ public class PackageJsonCreator {
 	private FrameBuilder packageFrame() {
 		List<JsonObject> packages = resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
-		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fstEvent", "");
+		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fstEvents", "");
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));

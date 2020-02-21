@@ -10,19 +10,21 @@ import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.Configuration;
+import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Artifact.Dependency;
+import io.intino.Configuration.Artifact.Package.Mode;
+import io.intino.Configuration.Repository;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Artifact;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JpsJavaSdkType;
 
@@ -38,11 +40,11 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
+import static io.intino.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
+import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
-import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
 import static java.io.File.separator;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
@@ -154,7 +156,7 @@ class PomCreator {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(builder, module);
 		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
-		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
+		for (Dependency dependency : collectDependencies()) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
@@ -164,12 +166,31 @@ class PomCreator {
 		addLevelDependency(builder);
 	}
 
+	@NotNull
+	private List<Dependency> collectDependencies() {
+		List<Dependency> deps = new ArrayList<>(safeList(() -> configuration.artifact().dependencies()));
+		Dependency.DataHub datahub = configuration.artifact().datahub();
+		if (datahub != null) deps.add(datahub);
+		return deps;
+	}
+
 	private void addRepositories(FrameBuilder builder) {
 		configuration.repositories().stream().filter(r -> !(r instanceof Repository.Language)).forEach(r ->
 				builder.add("repository", createRepositoryFrame(r)));
-		Repository releaseRepository = safe(() -> configuration.artifact().distribution().release());
+		Repository releaseRepository = repository();
 		if (releaseRepository != null)
 			builder.add("repository", createDistributionRepositoryFrame(releaseRepository, "release"));
+	}
+
+	private Configuration.Repository repository() {
+		try {
+			Version version = new Version(configuration.artifact().version());
+			if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot());
+			return safe(() -> configuration.artifact().distribution().release());
+		} catch (IntinoException e) {
+			LOG.error(e);
+			return null;
+		}
 	}
 
 	private void addLevelDependency(FrameBuilder builder) {

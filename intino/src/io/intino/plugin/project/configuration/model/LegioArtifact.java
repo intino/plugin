@@ -2,11 +2,13 @@ package io.intino.plugin.project.configuration.model;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.Computable;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
+import com.intellij.psi.*;
+import io.intino.Configuration;
+import io.intino.Configuration.Parameter;
 import io.intino.alexandria.logger.Logger;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
@@ -18,8 +20,6 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Parameter;
 import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +35,7 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
 import static io.intino.plugin.actions.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.actions.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
 import static java.util.Arrays.stream;
 
@@ -60,6 +61,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public String name() {
+		if (node == null) return null;
 		return name == null ? name = node.name() : name;
 	}
 
@@ -69,10 +71,22 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
-	public void version(String version) {
-		writeCommandAction(node.getProject(), node.getContainingFile()).run(() ->
-				node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().
-						ifPresent(p -> p.substituteValues(Collections.singletonList(version))));
+	public void version(String newVersion) {
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
+			io.intino.tara.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
+			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
+		});
+		ApplicationManager.getApplication().invokeAndWait(this::commitDocument);
+	}
+
+	private void commitDocument() {
+		PsiFile file = node.getContainingFile();
+		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
+		FileDocumentManager fileDocManager = FileDocumentManager.getInstance();
+		Document doc = documentManager.getDocument(file);
+		if (doc == null) return;
+		documentManager.commitDocument(doc);
+		fileDocManager.saveDocument(doc);
 	}
 
 	@Override
@@ -88,9 +102,10 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
-	@NotNull
 	public Dependency.DataHub datahub() {
-		return new LegioDataHub(this, dependencyAuditor, (TaraNode) TaraPsiUtil.componentOfType(node, "DataHub"));
+		Node dataHub = TaraPsiUtil.componentOfType(node, "DataHub");
+		if (dataHub == null) return null;
+		return new LegioDataHub(this, dependencyAuditor, (TaraNode) dataHub);
 	}
 
 	@Override
@@ -99,7 +114,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
 		List<Dependency> dependencies = new ArrayList<>();
-		for (Node dependency : nodes)
+		for (Node dependency : nodes) {
 			if (((TaraNode) dependency).simpleType().equals("Compile"))
 				dependencies.add(new LegioCompile(this, dependencyAuditor, (TaraNode) dependency));
 			else if (((TaraNode) dependency).simpleType().equals("Test"))
@@ -110,6 +125,7 @@ public class LegioArtifact implements Configuration.Artifact {
 				dependencies.add(new LegioProvided(this, dependencyAuditor, (TaraNode) dependency));
 			else if (((TaraNode) dependency).simpleType().equals("Web"))
 				dependencies.add(new LegioWeb(this, dependencyAuditor, (TaraNode) dependency));
+		}
 		return dependencies;
 	}
 
@@ -167,8 +183,9 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public Licence licence() {
-		return new Licence() {
-			Node licenceNode = TaraPsiUtil.componentOfType(node, "Licence");
+		final Node licence = TaraPsiUtil.componentOfType(node, "Licence");
+		return licence == null ? null : new Licence() {
+			Node licenceNode = licence;
 
 			public String author() {
 				return licenceNode == null ? null : parameterValue(node, "author");
@@ -198,14 +215,14 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	public void addDependencies(Dependency... dependencies) {
 		if (dependencies.length == 0) return;
-		Module module = ModuleProvider.moduleOf(node);
+		Module module = read(() -> ModuleProvider.moduleOf(node));
 		if (TaraPsiUtil.componentsOfType(node, "Imports").isEmpty()) createImportsNode();
 		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(dependencies).forEach(this::addDependency));
 	}
 
 	public void addParameters(String... parameters) {
 		if (parameters.length == 0) return;
-		Module module = ModuleProvider.moduleOf(node);
+		Module module = read(() -> ModuleProvider.moduleOf(node));
 		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(parameters).forEach(this::addParameter));
 	}
 
@@ -262,8 +279,8 @@ public class LegioArtifact implements Configuration.Artifact {
 			if (model.language().generationPackage() != null)
 				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
 		}
-		String identifier = datahub().identifier();
-		if (identifier != null) builder += LIBRARY + EQ + datahub().identifier();
+		Dependency.DataHub datahub = datahub();
+		if (datahub != null) builder += LIBRARY + EQ + datahub().identifier();
 		return builder.getBytes();
 	}
 
@@ -277,7 +294,6 @@ public class LegioArtifact implements Configuration.Artifact {
 		try {
 			if (node == null) return null;
 			Module module = ModuleProvider.moduleOf(node);
-			if (module == null) return null;
 			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
 			Model.Language language = model().language();
 			if (language == null || language.generationPackage() == null) return null;
@@ -309,15 +325,19 @@ public class LegioArtifact implements Configuration.Artifact {
 		this.node.addAfter((PsiElement) node, separator);
 	}
 
-	private void addDependency(Dependency dependency) {
+	private void addDependency(Dependency d) {
 		TaraNode imports = (TaraNode) TaraPsiUtil.componentsOfType(node, "Imports").get(0);
 		TaraElementFactory factory = factory();
-		String type = dependency.getClass().getSimpleName();
-		Node node = factory.createFullNode(type + "(" + ")");
+		String type = d.scope();
+		Node node = factory.createFullNode(type + "(groupId = \"" + d.groupId() + "\", artifactId = \"" + d.artifactId() + "\", version = \"" + d.version() + "\")");
 		node.type("Artifact.Imports." + type);
 		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
-		final PsiElement last = (PsiElement) imports.components().get(imports.components().size() - 1);
-		PsiElement separator = imports.addAfter(factory.createBodyNewLine(), last);
+		PsiElement last;
+		if (imports.components().isEmpty()) {
+			imports.add(factory.createBodyNewLine(2));
+			last = imports;
+		} else last = (PsiElement) imports.components().get(imports.components().size() - 1);
+		PsiElement separator = imports.addAfter(factory.createBodyNewLine(2), last);
 		imports.addAfter((PsiElement) node, separator);
 	}
 
@@ -389,7 +409,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 		@Override
 		public String version() {
-			return null;
+			return parameterValue(node, "version", 2);
 		}
 	}
 

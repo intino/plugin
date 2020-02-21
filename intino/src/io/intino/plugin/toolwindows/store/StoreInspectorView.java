@@ -3,11 +3,11 @@ package io.intino.plugin.toolwindows.store;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import io.intino.Configuration;
+import io.intino.Configuration.RunConfiguration;
 import io.intino.plugin.lang.file.StashFileType;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -24,10 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static io.intino.Configuration.Server.Type.Pre;
+import static io.intino.Configuration.Server.Type.Pro;
 import static io.intino.plugin.IntinoIcons.STASH_16;
 import static io.intino.plugin.project.Safe.safeList;
-import static io.intino.tara.compiler.shared.Configuration.Server.Type.Pre;
-import static io.intino.tara.compiler.shared.Configuration.Server.Type.Pro;
 import static java.awt.event.ItemEvent.SELECTED;
 
 public class StoreInspectorView extends JPanel {

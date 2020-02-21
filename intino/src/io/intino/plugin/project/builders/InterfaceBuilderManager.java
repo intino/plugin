@@ -1,7 +1,7 @@
 package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.module.Module;
 import com.jcabi.aether.Aether;
 import io.intino.plugin.project.IntinoDirectory;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
@@ -30,14 +31,14 @@ public class InterfaceBuilderManager {
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static String minimunVersion = "8.0.0";
 
-	public String download(Project project, String version) {
+	public String download(Module module, String version) {
 		if (isDownloaded(version)) {
 			LOG.info("Konos " + version + " is already downloaded");
 			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
 		final List<String> paths = librariesOf(artifacts);
-		saveClassPath(project, paths);
+		saveClassPath(module, paths);
 		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
 		return version;
 	}
@@ -81,7 +82,7 @@ public class InterfaceBuilderManager {
 		} catch (MalformedURLException ignored) {
 		}
 		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
 
@@ -89,12 +90,14 @@ public class InterfaceBuilderManager {
 		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
 	}
 
-	private void saveClassPath(Project project, List<String> paths) {
+	private void saveClassPath(Module module, List<String> paths) {
 		if (paths.isEmpty()) return;
 		final String home = System.getProperty("user.home");
 		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
 		try {
-			Files.write(new File(IntinoDirectory.of(project), "box_compiler.classpath").toPath(), String.join(":", libraries).getBytes());
+			File moduleBoxDirectory = new File(IntinoDirectory.boxDirectory(module.getProject()), module.getName());
+			moduleBoxDirectory.mkdirs();
+			Files.write(new File(moduleBoxDirectory, "compiler.classpath").toPath(), String.join(":", libraries).getBytes());
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}

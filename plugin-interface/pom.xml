@@ -48,9 +48,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.intino.tara</groupId>
-            <artifactId>builder-constants</artifactId>
-            <version>3.0.0</version>
+            <groupId>io.intino</groupId>
+            <artifactId>configuration</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -6,13 +6,13 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
+import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Repository;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
-import io.intino.tara.compiler.shared.Configuration.Artifact;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 

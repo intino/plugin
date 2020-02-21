@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static io.intino.Configuration.Artifact.Package.Mode;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.tara.compiler.shared.Configuration.Artifact.Package.Mode;
 import static java.io.File.separator;
 
 public class MavenPostBuildActions {

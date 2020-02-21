@@ -1,6 +1,6 @@
 package io.intino.plugin;
 
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.Configuration;
 
 import java.io.File;
 import java.io.PrintStream;

@@ -29,6 +29,7 @@ public class DependencyAuditor {
 	}
 
 	public boolean isModified(TaraNode node) {
+		if (node == null) return true;
 		int hashcode = node.getSignature().hashcode();
 		return !map.containsKey(hashcode);
 	}
@@ -72,8 +73,9 @@ public class DependencyAuditor {
 		try {
 			File file = auditionFile();
 			if (auditionFile().exists()) {
-				return gson.fromJson(new FileReader(file), new TypeToken<Map<Integer, DependencyItem>>() {
+				Map<Integer, DependencyItem> map = gson.fromJson(new FileReader(file), new TypeToken<Map<Integer, DependencyItem>>() {
 				}.getType());
+				return map == null ? new HashMap<>() : map;
 			}
 			return new HashMap<>();
 		} catch (Exception e) {

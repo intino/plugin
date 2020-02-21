@@ -133,7 +133,7 @@ public class MethodReferenceCreator {
 	private String getWordReturnType(Valued valued) {
 		final Rule rule = valued.rule();
 		if (rule instanceof CustomRule)
-			return ((CustomRule) rule).getExternalWordClass();
+			return ((CustomRule) rule).externalClass();
 		return valued.name();
 	}
 

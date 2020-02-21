@@ -36,10 +36,14 @@ import static io.intino.tara.lang.model.Primitive.*;
 
 class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAction {
 
-	private final Parametrized parametrized;
+	private Parametrized parametrized;
 
 	public AddRequiredParameterFix(PsiElement element) {
-		this.parametrized = element instanceof Node ? (Parametrized) element : (Parametrized) TaraPsiUtil.getContainerOf(element);
+		try {
+			this.parametrized = element instanceof Node ? (Parametrized) element : (Parametrized) TaraPsiUtil.getContainerOf(element);
+		} catch (Throwable e) {
+			this.parametrized = null;
+		}
 	}
 
 	@Nls
@@ -63,6 +67,7 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+		if (this.parametrized == null) return;
 		List<Constraint.Parameter> requires = findConstraints().stream().
 				filter(constraint -> constraint instanceof Constraint.Parameter && ((Constraint.Parameter) constraint).size().isRequired()).
 				map(constraint -> (Constraint.Parameter) constraint).collect(Collectors.toList());

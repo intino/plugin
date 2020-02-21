@@ -1,14 +1,17 @@
 package io.intino.plugin.build.postcompileactions;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElementFactory;
+import com.intellij.psi.PsiField;
 import io.intino.plugin.build.PostCompileAction;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+
+import static io.intino.plugin.build.PostCompileAction.FinishStatus.NothingDone;
 
 public class FieldCreationAction extends PostCompileAction {
 	private final File file;
@@ -19,10 +22,10 @@ public class FieldCreationAction extends PostCompileAction {
 
 
 	public FieldCreationAction(Module module, List<String> parameters) {
-		this(module, new File(parameters.get(0)), parameters.get(0), parameters.get(1), Boolean.parseBoolean(parameters.get(2)), parameters.get(3));
+		this(module, new File(parameters.get(0)), parameters.get(1), parameters.get(2), parameters.get(4), Boolean.parseBoolean(parameters.get(3)));
 	}
 
-	public FieldCreationAction(Module module, File file, String name, String type, boolean isStatic, String modifier) {
+	public FieldCreationAction(Module module, File file, String name, String modifier, String type, boolean isStatic) {
 		super(module);
 		this.file = file;
 		this.name = name;
@@ -32,19 +35,19 @@ public class FieldCreationAction extends PostCompileAction {
 	}
 
 	@Override
-	public void execute() {
-		VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
-		if (virtualFile == null) return;
-		PsiFile psiFile = PsiManager.getInstance(module.getProject()).findFile(virtualFile);
-		if (psiFile == null) return;
-		doUpdateFields((PsiClass) psiFile.getFirstChild());
+	public FinishStatus execute() {
+		PsiClass psiClass = findClass(this.file);
+		if (psiClass == null) return NothingDone;
+		doUpdateFields(psiClass);
+		return NothingDone;
 	}
-
 
 	private void doUpdateFields(PsiClass psiClass) {
 		PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(module.getProject());
-		if (Arrays.stream(psiClass.getAllFields()).noneMatch((f) -> name.equalsIgnoreCase(f.getName())))
-			psiClass.addAfter(this.createField(psiClass, elementFactory), psiClass.getLBrace().getNextSibling());
+		if (read(() -> Arrays.stream(psiClass.getAllFields()).noneMatch((f) -> name.equalsIgnoreCase(f.getName())))) {
+			PsiField field = read(() -> this.createField(psiClass, elementFactory));
+			write(() -> psiClass.addAfter(field, psiClass.getLBrace().getNextSibling()));
+		}
 	}
 
 	private PsiField createField(PsiClass psiClass, PsiElementFactory elementFactory) {

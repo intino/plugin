@@ -75,6 +75,10 @@ public class IntinoSettingsPanel {
 	}
 
 	private void createUIComponents() {
+		createTable();
+	}
+
+	private void createTable() {
 		final DefaultTableModel tableModel = new DefaultTableModel(ARTIFACTORY_FIELDS, 0);
 		tableModel.setColumnIdentifiers(ARTIFACTORY_FIELDS);
 		table = new StripeTable(tableModel);
@@ -101,7 +105,6 @@ public class IntinoSettingsPanel {
 	}
 
 	class PasswordCellRenderer extends DefaultTableCellRenderer {
-
 		private static final String ASTERISKS = "******";
 
 		@Override

@@ -1,12 +1,15 @@
 package io.intino.plugin.build.postcompileactions;
 
 import com.intellij.openapi.module.Module;
+import io.intino.Configuration;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import java.util.List;
+
+import static io.intino.plugin.build.PostCompileAction.FinishStatus.NothingDone;
+import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresReload;
 
 
 public class ConfigurationParameterCreationAction extends PostCompileAction {
@@ -22,9 +25,12 @@ public class ConfigurationParameterCreationAction extends PostCompileAction {
 	}
 
 	@Override
-	public void execute() {
+	public FinishStatus execute() {
 		Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration.artifact().parameters().stream().noneMatch(p -> p.name().equals(name)))
-			((LegioConfiguration) configuration.artifact()).artifact().addParameters(name);
+		if (configuration.artifact().parameters().stream().noneMatch(p -> p.name().equals(name))) {
+			((LegioArtifact) configuration.artifact()).addParameters(name);
+			return RequiresReload;
+		}
+		return NothingDone;
 	}
 }

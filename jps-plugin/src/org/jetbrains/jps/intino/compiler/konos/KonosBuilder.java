@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.BuilderCategory;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ModuleBuildTarget;
 import org.jetbrains.jps.incremental.ProjectBuildException;
+import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.Directories;
 import org.jetbrains.jps.intino.compiler.IntinoBuilder;
 import org.jetbrains.jps.intino.model.JpsIntinoExtensionService;
@@ -81,6 +82,7 @@ public class KonosBuilder extends IntinoBuilder {
 		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return CHUNK_REBUILD_REQUIRED;
 		if (handler.shouldRetry()) return ABORT;
 		finish(context, chunk, outputConsumer, finalOutputs, handler.getSuccessfullyCompiled());
+		context.processMessage(new CustomBuilderMessage(KONOSC, REFRESH_MESSAGE, chunk.getName() + REFRESH_BUILDER_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 		context.setDone(1);
 		return OK;
 	}

@@ -1,13 +1,12 @@
 package io.intino.plugin.build;
 
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.ui.StripeTable;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
+import io.intino.Configuration.Deployment;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.compiler.shared.Configuration.Deployment;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -35,8 +34,7 @@ public class SelectDestinationsDialog {
 
 	List showAndGet() {
 		final List[] destinations = new List[]{new ArrayList<>()};
-		final Application application = ApplicationManager.getApplication();
-		application.invokeAndWait(() -> {
+		ApplicationManager.getApplication().invokeAndWait(() -> {
 			String[] options = new String[]{"Cancel", "Accept"};
 			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations of deployment",
 					YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, IntinoIcons.INTINO_80, options, options[1]);
@@ -102,7 +100,7 @@ public class SelectDestinationsDialog {
 	private Object[][] destinationsData() {
 		Object[][] objects = new Object[deployments.size()][3];
 		for (int i = 0; i < deployments.size(); i++)
-			objects[i] = new Object[]{deployments.get(i).server().name(), false};
+			objects[i] = new Object[]{deployments.get(i).server().name() + " (" + deployments.get(i).server().type().name() + ")", false};
 		return objects;
 	}
 }

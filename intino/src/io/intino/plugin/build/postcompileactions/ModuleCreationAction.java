@@ -11,14 +11,14 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.Configuration;
+import io.intino.Configuration.Repository;
 import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -50,12 +50,14 @@ public class ModuleCreationAction extends PostCompileAction {
 	}
 
 	@Override
-	public void execute() {
-		Module m = webModule();
+	public FinishStatus execute() {
+		Module webPsiModule = webModule();
+		final boolean[] reload = {false};
 		Application application = ApplicationManager.getApplication();
 		application.invokeAndWait(() -> application.runWriteAction(() -> {
-			if (m != null) {
-				addWebDependency(TaraUtil.configurationOf(m));
+			if (webPsiModule != null) {
+				addWebDependency(TaraUtil.configurationOf(webPsiModule));
+				reload[0] = true;
 				return;
 			}
 			final ModuleManager manager = ModuleManager.getInstance(module.getProject());
@@ -74,6 +76,7 @@ public class ModuleCreationAction extends PostCompileAction {
 			}
 			if (created) addWebDependency(ConfigurationManager.register(webModule, newExternalProvider(webModule)));
 		}));
+		return reload[0] ? FinishStatus.RequiresReload : FinishStatus.NothingDone;
 	}
 
 	private boolean createConfigurationFile(File moduleRoot) throws IOException {
@@ -121,6 +124,11 @@ public class ModuleCreationAction extends PostCompileAction {
 			@Override
 			public String version() {
 				return webArtifact.version();
+			}
+
+			@Override
+			public void version(String newVersion) {
+
 			}
 
 			@Override

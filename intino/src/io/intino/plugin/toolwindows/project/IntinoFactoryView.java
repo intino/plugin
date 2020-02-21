@@ -14,11 +14,12 @@ import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
+import io.intino.Configuration;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.IntinoGenerationAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
-import io.intino.plugin.build.ArtifactBuilder;
+import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
@@ -26,7 +27,6 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.project.components.Element;
 import io.intino.plugin.toolwindows.project.components.FactoryPanel;
 import io.intino.plugin.toolwindows.project.components.Operation;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 
 import javax.swing.*;
@@ -35,9 +35,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.time.Instant;
-import java.util.Collections;
 
 import static io.intino.plugin.DataContext.getContext;
+import static io.intino.plugin.build.AbstractArtifactFactory.ProcessResult.Retry;
 import static io.intino.plugin.toolwindows.project.components.Element.*;
 import static io.intino.plugin.toolwindows.project.components.Mode.Darcula;
 import static io.intino.plugin.toolwindows.project.components.Mode.Light;
@@ -90,15 +90,19 @@ public class IntinoFactoryView extends JPanel {
 		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		Module module = selectedModule();
-		saveConfiguration(module);
-		if (module != null) new ArtifactBuilder(project, Collections.singletonList(module), phase).build();
-		else Notifications.Bus.notify(new Notification("Tara Language",
+		if (module != null) {
+			saveConfiguration(module);
+			ArtifactFactory artifactFactory = new ArtifactFactory(project, module, phase);
+			artifactFactory.build(result -> {
+				if (result.equals(Retry)) artifactFactory.build(null);
+			});
+		} else Notifications.Bus.notify(new Notification("Tara Language",
 				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
 	}
 
 	private void saveConfiguration(Module module) {
-		final FileDocumentManager manager = FileDocumentManager.getInstance();
 		if (module == null || ModuleTypeWithWebFeatures.isAvailable(module)) return;
+		final FileDocumentManager manager = FileDocumentManager.getInstance();
 		manager.saveAllDocuments();
 	}
 

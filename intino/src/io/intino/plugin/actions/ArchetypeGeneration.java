@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -10,17 +11,18 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiFile;
+import io.intino.Configuration;
 import io.intino.plugin.actions.archetype.ArchetypeRenderer;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
 
-public class ArchetypeGeneration {
+public class ArchetypeGeneration extends AnAction {
 	public void actionPerformed(AnActionEvent e) {
 		PsiFile data = e.getData(PSI_FILE);
 		if (data == null) return;
@@ -29,9 +31,9 @@ public class ArchetypeGeneration {
 			public void run(@NotNull ProgressIndicator progressIndicator) {
 				for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {
 					if (WebModuleType.is(module, WebModuleTypeBase.getInstance())) continue;
-					Configuration configuration = TaraUtil.configurationOf(module);
-					if (configuration != null && configuration.artifact().box() != null)
-						new ArchetypeRenderer(module, (LegioConfiguration) configuration).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
+					Configuration cnf = TaraUtil.configurationOf(module);
+					if (cnf != null && cnf.artifact().box() != null && cnf.artifact().packageConfiguration().isRunnable())
+						new ArchetypeRenderer(module, (LegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}
 			}
 		});
@@ -39,5 +41,15 @@ public class ArchetypeGeneration {
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
+	@Override
+	public void update(@NotNull AnActionEvent e) {
+		super.update(e);
+		final Project project = e.getProject();
+		PsiFile fileContext = e.getData(PSI_FILE);
+		boolean visible = project != null && fileContext != null && fileContext.getName().equalsIgnoreCase(".archetype");
+		e.getPresentation().setVisible(visible);
+		e.getPresentation().setEnabled(visible);
 	}
 }

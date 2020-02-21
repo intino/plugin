@@ -16,25 +16,25 @@ import com.intellij.refactoring.openapi.impl.JavaRenameRefactoringImpl;
 import com.intellij.spellchecker.SpellCheckerManager;
 import com.intellij.util.Function;
 import com.intellij.util.messages.MessageBusConnection;
+import io.intino.Configuration;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.MavenConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
 
 
-public class TaraModuleListener implements BaseComponent {
+public class IntinoModuleListener implements BaseComponent {
 
 	private final Project project;
 	private final ModuleListener listener;
 	private final MessageBusConnection connection;
 
-	public TaraModuleListener(Project project) {
+	public IntinoModuleListener(Project project) {
 		this.project = project;
 		connection = project.getMessageBus().connect();
 		listener = newModuleListener();
@@ -48,8 +48,8 @@ public class TaraModuleListener implements BaseComponent {
 		addDSLNameToDictionary();
 		for (Module module : ModuleManager.getInstance(project).getModules())
 			if (!module.isLoaded() || !project.isInitialized())
-				StartupManager.getInstance(project).registerPostStartupActivity(() -> registerTaraModule(module));
-			else registerTaraModule(module);
+				StartupManager.getInstance(project).registerPostStartupActivity(() -> registerIntinoModule(module));
+			else registerIntinoModule(module);
 	}
 
 	private void addDSLNameToDictionary() {
@@ -77,7 +77,7 @@ public class TaraModuleListener implements BaseComponent {
 		return new ModuleListener() {
 			@Override
 			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
-				registerTaraModule(module);
+				registerIntinoModule(module);
 			}
 
 			@Override
@@ -106,7 +106,7 @@ public class TaraModuleListener implements BaseComponent {
 		};
 	}
 
-	private void registerTaraModule(@NotNull Module module) {
+	private void registerIntinoModule(@NotNull Module module) {
 		if (ConfigurationManager.configurationOf(module) != null) return;
 		Configuration configuration = ConfigurationManager.newSuitableProvider(module);
 		if (configuration != null) ConfigurationManager.register(module, configuration);

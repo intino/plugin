@@ -1,15 +1,14 @@
 package io.intino.plugin.build.postcompileactions;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+
+import static java.util.Collections.emptyList;
 
 public class MethodCreationAction extends io.intino.plugin.build.PostCompileAction {
 	private final String name;
@@ -20,7 +19,12 @@ public class MethodCreationAction extends io.intino.plugin.build.PostCompileActi
 	private PsiClass psiClass;
 
 	public MethodCreationAction(Module module, List<String> parameters) {
-		this(module, new File(parameters.get(0)), parameters.get(1), Boolean.parseBoolean(parameters.get(2)), List.of(parameters.get(3).split(";")), parameters.get(4), List.of(parameters.get(5).split(";")));
+		this(module, new File(parameters.get(0)),
+				parameters.get(1),
+				Boolean.parseBoolean(parameters.get(2)),
+				parameters.get(3).isEmpty() ? emptyList() : List.of(parameters.get(3).split(";")),
+				parameters.get(4),
+				parameters.size() > 5 ? List.of(parameters.get(5).split(";")) : emptyList());
 	}
 
 	public MethodCreationAction(Module module, File file, String name, boolean isStatic, List<String> parameters, String returnType, List<String> exceptions) {
@@ -30,50 +34,56 @@ public class MethodCreationAction extends io.intino.plugin.build.PostCompileActi
 		this.parameters = parameters;
 		this.returnType = returnType;
 		this.exceptions = exceptions;
-		VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
-		if (virtualFile == null) return;
-		PsiFile psiFile = PsiManager.getInstance(module.getProject()).findFile(virtualFile);
-		if (psiFile == null) return;
-		psiClass = (PsiClass) psiFile.getFirstChild();
+		this.psiClass = findClass(file);
 	}
 
 	@Override
-	public void execute() {
-		if (psiClass == null) return;
-		if (psiClass.getMethods().length > 0) {
-			PsiMethod method = findMethod(psiClass);
-			if (method == null) {
-				createMethod();
-			} else {
-				this.updateExceptions(method);
-				this.updateReturnType(method);
-			}
+	public FinishStatus execute() {
+		if (psiClass == null) return FinishStatus.NothingDone;
+		PsiMethod method = findMethod(psiClass);
+		if (method == null) createMethod();
+		else {
+			this.updateExceptions(method);
+			this.updateReturnType(method);
 		}
+		return FinishStatus.NothingDone;
 	}
 
 	private void createMethod() {
-		PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(module.getProject());
-		elementFactory.createMethodFromText(methodText(), psiClass);
+		PsiElementFactory factory = JavaPsiFacade.getElementFactory(module.getProject());
+		PsiMethod method = read(() -> factory.createMethodFromText(methodText(), psiClass));
+		write(() -> psiClass.addAfter(method, anchor(psiClass)));
+	}
+
+	private PsiElement anchor(PsiClass psiClass) {
+		if (psiClass.getMethods().length == 0) {
+			PsiField[] fields = psiClass.getFields();
+			if (fields.length > 0) return fields[fields.length - 1].getNextSibling();
+			return psiClass.getLBrace();
+		}
+		return psiClass.getMethods()[psiClass.getMethods().length - 1];
 	}
 
 	private String methodText() {
-		return "public " + (isStatic ? "static " : "") + returnType + " " + name + "(" + String.join(", ", parameters) + ") " + exceptions() + "{\n\n}";
+		return "public " + (isStatic ? "static " : "") + returnType + " " + name + "(" + String.join(", ", parameters) + ") " + exceptions() + "{" +
+				"\n" +
+				(returnType.equals("void") ? "" : "return null;") + "\n" +
+				"}";
 	}
 
 	private String exceptions() {
 		return this.exceptions.isEmpty() ? "" : String.join(", ", exceptions) + " ";
 	}
 
-
 	private PsiMethod findMethod(PsiClass psiClass) {
-		return Arrays.stream(psiClass.getMethods()).filter(method -> method.getName().equals(name)).findFirst().orElse(null);
+		return read(() -> Arrays.stream(psiClass.getMethods()).filter(method -> method.getName().equals(name)).findFirst().orElse(null));
 	}
 
 	private void updateExceptions(PsiMethod psiMethod) {
 		final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(module.getProject());
 		exceptions.stream().
-				filter(exception -> !hasException(psiMethod.getThrowsList().getReferenceElements(), exception)).
-				forEach(exception -> psiMethod.getThrowsList().add(elementFactory.createReferenceFromText(exception, psiMethod)));
+				filter(exception -> !hasException(read(() -> psiMethod.getThrowsList().getReferenceElements()), exception)).
+				forEach(exception -> write(() -> psiMethod.getThrowsList().add(elementFactory.createReferenceFromText(exception, psiMethod))));
 	}
 
 	private boolean hasException(PsiJavaCodeReferenceElement[] referenceElements, String exception) {
@@ -83,15 +93,17 @@ public class MethodCreationAction extends io.intino.plugin.build.PostCompileActi
 	}
 
 	private void updateReturnType(PsiMethod psiMethod) {
-		if (Objects.requireNonNull(psiMethod.getReturnType()).equalsToText(this.returnType)) return;
-		PsiTypeElement returnType = createReturnType(psiMethod);
-		psiMethod.getReturnTypeElement().replace(returnType);
+		if (read(() -> psiMethod.getReturnType().equalsToText(this.returnType))) return;
+		PsiTypeElement returnType = read(() -> psiMethod.getReturnTypeElement());
+		PsiTypeElement newReturnType = read(() -> createReturnType(psiMethod));
+		write(() -> returnType.replace(newReturnType));
+
 	}
 
 	@NotNull
 	private PsiTypeElement createReturnType(PsiMethod psiMethod) {
 		PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(module.getProject());
-		return elementFactory.createTypeElement(elementFactory.createTypeFromText(this.returnType, psiMethod));
+		return read(() -> elementFactory.createTypeElement(elementFactory.createTypeFromText(this.returnType, psiMethod)));
 	}
 
 }

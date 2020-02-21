@@ -1,7 +1,7 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.Configuration;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +127,7 @@ public class ArtifactoryConnector {
 		}
 	}
 
-	public List<String> generationVersions() {
+	public List<String> modelBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/tara/builder/maven-metadata.xml");
 			return extractVersions(new String(read(connect(url)).toByteArray()));
@@ -153,13 +153,11 @@ public class ArtifactoryConnector {
 	private ByteArrayOutputStream read(InputStream stream) throws Throwable {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if (stream == null) return baos;
-		try {
+		try (stream) {
 			byte[] byteChunk = new byte[4096];
 			int n;
 			while ((n = stream.read(byteChunk)) > 0)
 				baos.write(byteChunk, 0, n);
-		} finally {
-			stream.close();
 		}
 		return baos;
 	}

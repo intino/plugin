@@ -1,7 +1,8 @@
 package io.intino.plugin.project.configuration.model;
 
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.Primitive;
 
@@ -18,14 +19,21 @@ public class LegioDistribution implements Configuration.Distribution {
 
 	@Override
 	public Configuration.Repository release() {
-		Primitive.Reference release = referenceParameterValue(node, "release", 0);
+		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "release", 0));
 		if (release == null) return null;
 		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraNode) release.reference());
 	}
 
 	@Override
+	public Configuration.Repository snapshot() {
+		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "snapshot", 1));
+		if (release == null) return null;
+		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) release.reference());
+	}
+
+	@Override
 	public Configuration.Repository language() {
-		Primitive.Reference release = referenceParameterValue(node, "language", 1);
+		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "language", 2));
 		if (release == null) return null;
 		return new LegioRepository.LegioLanguageRepository(artifact.root(), (TaraNode) release.reference());
 	}

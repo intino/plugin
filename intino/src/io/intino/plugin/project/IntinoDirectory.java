@@ -28,6 +28,12 @@ public class IntinoDirectory {
 		return audit == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "audit")) : new File(audit.getPath());
 	}
 
+	public static File boxDirectory(Project project) {
+		VirtualFile baseDir = vfOf(project);
+		VirtualFile box = baseDir.findChild("box");
+		return box == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "box")) : new File(box.getPath());
+	}
+
 	private static VirtualFile vfOf(Project project) {
 		VirtualFile baseDir = VfsUtil.findFileByIoFile(new File(project.getBasePath()), true);
 		VirtualFile intino = baseDir.findChild(INTINO);

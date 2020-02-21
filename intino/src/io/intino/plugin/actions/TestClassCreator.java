@@ -7,10 +7,10 @@ import com.intellij.psi.JavaDirectoryService;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
+import io.intino.Configuration;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.Language;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.ProteoConstants;
 
 import java.util.HashMap;

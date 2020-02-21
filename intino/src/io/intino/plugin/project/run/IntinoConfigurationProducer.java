@@ -18,20 +18,20 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.intino.Configuration;
+import io.intino.Configuration.RunConfiguration;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.intellij.openapi.util.Comparing.equal;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
-import static io.intino.tara.compiler.shared.Configuration.Artifact;
+import static io.intino.Configuration.Artifact;
 
 public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBase<ApplicationConfiguration> {
 	private static final Logger LOG = Logger.getInstance(IntinoConfigurationProducer.class);

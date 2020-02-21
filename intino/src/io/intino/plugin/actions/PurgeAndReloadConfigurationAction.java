@@ -6,10 +6,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 
 public class PurgeAndReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override

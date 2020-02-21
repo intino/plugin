@@ -5,6 +5,7 @@
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.idea.maven</depends>
+    <depends>Git4Idea</depends>
 
     <description><![CDATA[
         intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:
@@ -122,32 +123,32 @@
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.InlineToIndentConverter</className>
-            <category>Indent Operator</category>
+            <category>Indent operator</category>
             <descriptionDirectoryName>InlineToIndentConverter</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.ConvertToMethodReference</className>
-            <category>Extract To Method Object</category>
+            <category>Extract To method object</category>
             <descriptionDirectoryName>ConvertToMethodReference</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.IndentToInlineConverter</className>
-            <category>Indent Operator</category>
+            <category>Indent operator</category>
             <descriptionDirectoryName>IndentToInlineConverter</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.ImplicitToExplicitParameters</className>
-            <category>Parameter View Operator</category>
+            <category>Parameter view operator</category>
             <descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.ExplicitToImplicitParameters</className>
-            <category>Parameter View Operator</category>
+            <category>Parameter view operator</category>
             <descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.ToBodyParameters</className>
-            <category>Parameter View Operator</category>
+            <category>Parameter view operator</category>
             <descriptionDirectoryName>ToBodyParameters</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
@@ -162,7 +163,7 @@
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.EditElementDocumentation</className>
-            <category>Set Documentation</category>
+            <category>Set documentation</category>
             <descriptionDirectoryName>EditElementDocumentation</descriptionDirectoryName>
         </intentionAction>
         <intentionAction>
@@ -172,7 +173,7 @@
         </intentionAction>
         <intentionAction>
             <className>io.intino.plugin.codeinsight.intentions.SyncNativeWithTara</className>
-            <category>Sync Native With Tara</category>
+            <category>Sync native With tara</category>
             <descriptionDirectoryName>SyncNativeWithTara</descriptionDirectoryName>
         </intentionAction>
         <gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>
@@ -269,6 +270,14 @@
                 text="Purge and Reload Legio Configuration"
                 description="Purge and reload configuration of project modules">
         </action>
+        <action id="UpdateVersionPropagationAction"
+                class="io.intino.plugin.actions.UpdateVersionPropagationAction"
+                text="Update Versions of Module Dependencies"
+                description="Update versions module dependencies">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt K"/>
+            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="TechnicalSupport"/>
+
+        </action>
         <action id="ReloadConfigurationAction"
                 class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
                 description="Reload configuration of project modules">
@@ -281,6 +290,14 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
 
+        <action id="ArchetypeGeneration"
+                class="io.intino.plugin.actions.ArchetypeGeneration"
+                text="Generates Archetype Code"
+                description="Generates archetype">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control alt k" keymap="$default"/>
+        </action>
+
         <action id="io.intino.plugin.actions.SubmitFeedbackAction"
                 class="io.intino.plugin.actions.SubmitFeedbackAction"
                 text="Submit Tara Feedback" description="You can report a bug or suggestion of plugin">
@@ -291,7 +308,7 @@
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
         </action>
 
-        <group id="ItrulesMenu" text="Itrules" description="Itrules Menu">
+        <group id="ItrulesMenu" text="Itrules" description="Itrules menu">
             <action id="itrules.toClass" class="io.intino.plugin.actions.itrules.TemplateGeneration"
                     text="Generate Java Template"
                     description="Generates the corresponding Java representation of the template">
@@ -346,7 +363,7 @@
     </project-components>
     <module-components>
         <component>
-            <implementation-class>io.intino.plugin.project.TaraModuleListener</implementation-class>
+            <implementation-class>io.intino.plugin.project.IntinoModuleListener</implementation-class>
         </component>
     </module-components>
 </idea-plugin>

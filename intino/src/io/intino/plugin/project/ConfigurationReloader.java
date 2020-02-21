@@ -4,21 +4,21 @@ import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
+import io.intino.Configuration;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import io.intino.plugin.project.run.IntinoRunConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.intino.Configuration.Artifact;
+import static io.intino.Configuration.RunConfiguration;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static io.intino.tara.compiler.shared.Configuration.Artifact;
-import static io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 
 public class ConfigurationReloader {
 	private final DependencyAuditor auditor;
@@ -42,7 +42,7 @@ public class ConfigurationReloader {
 	void reloadInterfaceBuilder() {
 		final Artifact.Box box = safe(artifact::box);
 		if (box != null && box.version() != null)
-			box.effectiveVersion(new InterfaceBuilderManager().download(module.getProject(), box.version()));
+			box.effectiveVersion(new InterfaceBuilderManager().download(module, box.version()));
 	}
 
 	void reloadRunConfigurations() {
@@ -77,7 +77,8 @@ public class ConfigurationReloader {
 	private void resolveJavaDependencies() {
 		DependencyCatalog dependencies = resolveLanguage();
 		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
-		artifactDependencies.add(artifact.datahub());
+		Artifact.Dependency.DataHub datahub = artifact.datahub();
+		if (datahub != null) artifactDependencies.add(datahub);
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).

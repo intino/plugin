@@ -7,14 +7,16 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
+import io.intino.Configuration;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.utils.FileSystemUtils;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
-import io.intino.tara.compiler.shared.Configuration;
 import org.apache.maven.shared.invoker.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -68,10 +70,9 @@ public class MavenRunner {
 		connect.disconnect();
 	}
 
-	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException {
-		Configuration.Repository languageRepository = safe(() -> conf.artifact().distribution().language());
-		if (languageRepository == null)
-			throw new IOException(message("none.distribution.language.repository"));
+	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException, IntinoException {
+		Configuration.Repository languageRepository = repository(conf);
+		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
 		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
 		Configuration.Artifact artifact = conf.artifact();
 		request.setMavenOpts("-Durl=" + languageRepository.url() + " " +
@@ -89,18 +90,24 @@ public class MavenRunner {
 			throw new IOException(message("error.publishing.language", FactoryPhase.DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	public void executeFramework(FactoryPhase phase) throws MavenInvocationException, IOException {
+	private Configuration.Repository repository(Configuration configuration) throws IntinoException {
+		Version version = new Version(configuration.artifact().version());
+		if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot());
+		return safe(() -> configuration.artifact().distribution().release());
+	}
+
+	public void executeArtifact(FactoryPhase phase) throws MavenInvocationException, IOException {
 		final File pom = new PomCreator(module).frameworkPom(phase);
 		final InvocationResult result = invokeMaven(pom, phase);
 		applyBuildFixes(module, phase);
-		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.framework", phase);
+		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.artifact", phase);
 		else {
 			if (!preservePOM()) FileUtil.delete(pom);
 			File reducedPom = new File(pom.getParentFile(), "dependency-reduced-pom.xml");
 			if (reducedPom.exists()) FileUtil.delete(reducedPom);
 			new MavenPostBuildActions(module).execute();
 			if (result == null)
-				throw new IOException(message("error.publishing.framework", phase.name().toLowerCase(), "Maven HOME not found"));
+				throw new IOException(message("error.publishing.artifact", phase.name().toLowerCase(), "Maven HOME not found"));
 		}
 	}
 

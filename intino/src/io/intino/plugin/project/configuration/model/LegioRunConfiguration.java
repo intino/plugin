@@ -1,7 +1,7 @@
 package io.intino.plugin.project.configuration.model;
 
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 
 import java.util.List;

@@ -3,15 +3,15 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dependency;
+import io.intino.Configuration.Artifact.Dependency.Web;
+import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.configuration.model.LegioDependency;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Dependency.Web;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
@@ -26,6 +26,7 @@ import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
 import java.io.File;
 import java.util.*;
 
+import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 
@@ -84,7 +85,7 @@ public class ImportsResolver {
 					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
 					catalog.merge(newDeps);
 					cache.put(d.identifier(), newDeps.dependencies());
-				} else {
+				} else if (!(d instanceof Web)) {//TODO
 					DependencyCatalog newDeps = processLibraryDependency(d);
 					catalog.merge(newDeps);
 					cache.put(d.identifier(), newDeps.dependencies());
@@ -201,7 +202,7 @@ public class ImportsResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
+		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
 		remotes.addAll(repositories.stream().filter(r -> r != null && !(r instanceof Repository.Language)).map(this::repository).collect(toList()));
 		return remotes;
 	}

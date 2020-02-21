@@ -78,8 +78,7 @@ public class StashEditorProvider implements FileEditorProvider, DumbAware {
 		@Override
 		public JComponent getComponent() {
 			final JBPanel panel = new JBPanel();
-			JLabel label = new JLabel(
-					"File " + myFile.getPath() + " is too large for " + ApplicationNamesInfo.getInstance().getFullProductName() + " editor");
+			JLabel label = new JLabel("File " + myFile.getPath() + " is too large for " + ApplicationNamesInfo.getInstance().getFullProductName() + " editor");
 			label.setHorizontalAlignment(SwingConstants.CENTER);
 			JButton button = new JButton("Convert to Tara");
 			button.addActionListener(e -> ApplicationManager.getApplication().runWriteAction(() -> {

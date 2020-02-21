@@ -85,7 +85,7 @@ public class PsiCustomWordRule implements VariableRule<Object>, CustomRule {
 	}
 
 	@Override
-	public String getExternalWordClass() {
+	public String externalClass() {
 		return psiClass.getQualifiedName();
 	}
 }

@@ -7,10 +7,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration;
+import io.intino.Configuration.Repository;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +41,7 @@ public class LanguageImporter {
 		final String effectiveVersion = effectiveVersionOf(dsl, version, (LegioConfiguration) configuration);
 		final boolean done = downloadLanguage(dsl, effectiveVersion);
 		if (done) {
-			configuration.artifact().model().language().version(effectiveVersion);
+			configuration.artifact().model().language().effectiveVersion(effectiveVersion);
 			reload(dsl, module.getProject());
 		}
 		return effectiveVersion;

@@ -2,11 +2,11 @@ package io.intino.plugin.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.Annotations;
 import io.intino.plugin.lang.psi.Flags;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
-import io.intino.tara.compiler.shared.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 public class AnnotationsAnnotator extends TaraAnnotator {

@@ -1,8 +1,8 @@
 package io.intino.plugin.project;
 
 import com.intellij.ide.util.PropertiesComponent;
+import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class ArtifactorySensor {
 	}
 
 	private void generationVersions() {
-		final List<String> versions = languageConnectors.generationVersions();
+		final List<String> versions = languageConnectors.modelBuilderVersions();
 		if (!versions.isEmpty()) properties.setValues(GENERATION_TAG, versions.toArray(new String[0]));
 	}
 

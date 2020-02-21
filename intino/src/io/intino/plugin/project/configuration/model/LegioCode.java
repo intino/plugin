@@ -1,7 +1,7 @@
 package io.intino.plugin.project.configuration.model;
 
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.tara.compiler.shared.Configuration;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 

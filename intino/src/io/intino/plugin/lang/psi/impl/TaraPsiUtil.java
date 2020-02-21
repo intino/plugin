@@ -1,7 +1,10 @@
 package io.intino.plugin.lang.psi.impl;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import io.intino.plugin.lang.psi.*;
@@ -111,9 +114,14 @@ public class TaraPsiUtil {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null && !parameter.values().isEmpty() ?
-				(Reference) parameter.values().get(0) :
-				(parameters.size() > position ? (Reference) parameters.get(position).values().get(0) : null);
+		if (parameter != null && !parameter.values().isEmpty()) {
+			return (Reference) parameter.values().get(0);
+		}
+		if (parameters.size() > position) {
+			parameters.get(position).type(Primitive.REFERENCE);
+			return (Reference) parameters.get(position).values().get(0);
+		}
+		return null;
 	}
 
 
@@ -121,6 +129,12 @@ public class TaraPsiUtil {
 		if (node == null) return Collections.emptyList();
 		Parameter parameter = node.parameters().stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null ? parameter.values().stream().map(Object::toString).collect(Collectors.toList()) : Collections.emptyList();
+	}
+
+	public static <T> T read(Computable<T> t) {
+		Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed()) return t.compute();
+		return application.runReadAction(t);
 	}
 
 	private static void bodyComponents(TaraNode node, List<Node> components) {

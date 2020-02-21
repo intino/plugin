@@ -2,6 +2,10 @@ package io.intino.plugin.deploy;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
+import io.intino.Configuration;
+import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Deployment;
+import io.intino.Configuration.RunConfiguration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Forbidden;
 import io.intino.alexandria.exceptions.Unknown;
@@ -14,10 +18,6 @@ import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Artifact;
-import io.intino.tara.compiler.shared.Configuration.Deployment;
-import io.intino.tara.compiler.shared.Configuration.RunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

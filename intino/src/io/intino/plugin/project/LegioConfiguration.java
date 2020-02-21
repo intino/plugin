@@ -5,6 +5,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleType;
+import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -14,6 +16,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import io.intino.Configuration;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -24,7 +27,6 @@ import io.intino.plugin.project.configuration.model.LegioRepository;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import io.intino.plugin.project.configuration.model.LegioServer;
 import io.intino.tara.Resolver;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.lang.model.Node;
 import io.intino.tara.lang.model.NodeContainer;
 import org.jetbrains.annotations.NotNull;
@@ -60,12 +62,21 @@ public class LegioConfiguration implements Configuration {
 		this.vFile = new LegioFileCreator(module).getOrCreate();
 		this.legioFile = legioFile();
 		this.dependencyAuditor = new DependencyAuditor(module, legioFile);
-		legioFile.components().forEach(resolver::resolve);
-		final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
-		reloader.reloadInterfaceBuilder();
-		reloader.reloadLanguage();
-		reloader.reloadArtifactoriesMetaData();
-		inited = true;
+		try {
+			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				@Override
+				public void run(@NotNull ProgressIndicator indicator) {
+					legioFile.components().forEach(resolver::resolve);
+					final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
+					reloader.reloadInterfaceBuilder();
+					reloader.reloadLanguage();
+					reloader.reloadArtifactoriesMetaData();
+					inited = true;
+				}
+			});
+		} catch (Throwable e) {
+
+		}
 		return this;
 	}
 
@@ -77,28 +88,40 @@ public class LegioConfiguration implements Configuration {
 		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
 	}
 
-	public void reload() {
-		if (reloading) return;
-		reloading = true;
+	public void refresh() {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+	}
+
+	public void reload() {
+		if (reloading) return;
+		reloading = true;
+		refresh();
 		if (module.isDisposed() || module.getProject().isDisposed()) return;
-		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-					 @Override
-					 public void run(@NotNull ProgressIndicator indicator) {
-						 reloading = true;
-						 if (legioFile == null) legioFile = legioFile();
-						 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
-						 reloader.reloadInterfaceBuilder();
-						 reloader.reloadDependencies();
-						 reloader.reloadArtifactoriesMetaData();
-						 reloader.reloadRunConfigurations();
-						 save();
-						 reloading = false;
+		try {
+			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+						 @Override
+						 public void run(@NotNull ProgressIndicator indicator) {
+							 try {
+								 reloading = true;
+								 if (legioFile == null) legioFile = legioFile();
+								 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
+								 reloader.reloadInterfaceBuilder();
+								 reloader.reloadDependencies();
+								 reloader.reloadArtifactoriesMetaData();
+								 reloader.reloadRunConfigurations();
+								 save();
+								 reloading = false;
+							 } catch (Throwable e) {
+								 LOG.error(e);
+							 }
+						 }
 					 }
-				 }
-		);
+			);
+		} catch (Throwable e) {
+			LOG.error(e);
+		}
 		reloading = false;
 	}
 
@@ -113,18 +136,18 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-					 @Override
-					 public void run(@NotNull ProgressIndicator indicator) {
-						 reloading = true;
-						 if (legioFile == null) legioFile = legioFile();
-						 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_ALWAYS);
-						 reloader.reloadInterfaceBuilder();
-						 reloader.reloadDependencies();
-						 save();
-						 reloading = false;
-					 }
-				 }
+		ProgressManager.getInstance().run(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+											  @Override
+											  public void run(@NotNull ProgressIndicator indicator) {
+												  reloading = true;
+												  if (legioFile == null) legioFile = legioFile();
+												  final ConfigurationReloader reloader = reloader(UPDATE_POLICY_ALWAYS);
+												  reloader.reloadInterfaceBuilder();
+												  reloader.reloadDependencies();
+												  save();
+												  reloading = false;
+											  }
+										  }
 		);
 		reloading = false;
 	}
@@ -174,10 +197,6 @@ public class LegioConfiguration implements Configuration {
 		return (TaraModel) application.runReadAction((Computable<PsiFile>) () -> PsiManager.getInstance(module.getProject()).findFile(vFile));
 	}
 
-	public TaraModel getLegioFile() {
-		return legioFile;
-	}
-
 	public boolean inited() {
 		return inited;
 	}
@@ -190,8 +209,9 @@ public class LegioConfiguration implements Configuration {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
 	}
 
-	private void save() {
+	public void save() {
 		LegioArtifact artifact = artifact();
+		if (module == null || ModuleType.get(module) instanceof WebModuleType) return;
 		if (artifact.model().language() != null) try {
 			Files.write(confFile().toPath(), artifact.serialize());
 		} catch (IOException e) {

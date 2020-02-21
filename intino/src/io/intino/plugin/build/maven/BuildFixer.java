@@ -4,9 +4,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
+import io.intino.Configuration.Artifact.Package.MacOs;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Package.MacOs;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.intellij.openapi.util.io.FileUtil.copyDir;
+import static io.intino.Configuration.Artifact;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.tara.compiler.shared.Configuration.Artifact;
 
 public class BuildFixer {
 	private static final Logger LOG = Logger.getInstance(BuildFixer.class);

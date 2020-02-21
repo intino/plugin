@@ -11,11 +11,11 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import io.intino.Configuration;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.tara.Language;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.dsl.ProteoConstants.META;
 import static io.intino.tara.dsl.ProteoConstants.PROTEO;
 
@@ -55,7 +56,9 @@ public class LanguageManager {
 			final Configuration configuration = TaraUtil.configurationOf(file);
 			final String dslName = ((TaraModel) file).dsl();
 			if (dslName == null) return null;
-			final String version = configuration.artifact().model().language().version() == null ? LATEST : configuration.artifact().model().language().version();
+			String v = safe(() -> configuration.artifact().model().language().version());
+			final String version = v == null ? LATEST : safe(() -> configuration.artifact().model().language().version());
+			if (version == null) return null;
 			return getLanguage(file.getProject(), dslName, version);
 		} else return null;
 	}

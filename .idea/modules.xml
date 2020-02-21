@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/intino/intino.iml" filepath="$PROJECT_DIR$/intino/intino.iml" group="plugin" />
+      <module fileurl="file://$PROJECT_DIR$/intino-configuration/intino-configuration.iml" filepath="$PROJECT_DIR$/intino-configuration/intino-configuration.iml" />
       <module fileurl="file://$PROJECT_DIR$/intino-plugin/intino-plugin.iml" filepath="$PROJECT_DIR$/intino-plugin/intino-plugin.iml" group="plugin" />
       <module fileurl="file://$PROJECT_DIR$/jps-plugin/jps-plugin.iml" filepath="$PROJECT_DIR$/jps-plugin/jps-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/legio/legio.iml" filepath="$PROJECT_DIR$/legio/legio.iml" group="model" />

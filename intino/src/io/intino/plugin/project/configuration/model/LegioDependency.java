@@ -1,19 +1,27 @@
 package io.intino.plugin.project.configuration.model;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import io.intino.Configuration;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.tara.lang.model.Parameter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioDependency implements Configuration.Artifact.Dependency {
 	private final LegioArtifact artifact;
 	private final DependencyAuditor auditor;
-	private final TaraNode node;
+	private TaraNode node;
 
 	public LegioDependency(LegioArtifact artifact, DependencyAuditor auditor, TaraNode node) {
 		this.artifact = artifact;
@@ -34,6 +42,15 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 	@Override
 	public String version() {
 		return parameterValue(node, "version", 2);
+	}
+
+	@Override
+	public void version(String newVersion) {
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
+			Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(2));
+			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
+		});
+		ApplicationManager.getApplication().invokeAndWait(this::commitDocument);
 	}
 
 	@Override
@@ -85,6 +102,16 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 
 	public TaraNode node() {
 		return node;
+	}
+
+	private void commitDocument() {
+		PsiFile file = node.getContainingFile();
+		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
+		FileDocumentManager fileDocManager = FileDocumentManager.getInstance();
+		Document doc = documentManager.getDocument(file);
+		if (doc == null) return;
+		documentManager.commitDocument(doc);
+		fileDocManager.saveDocument(doc);
 	}
 
 	public static class LegioExclude implements Exclude {

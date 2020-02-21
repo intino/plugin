@@ -1,9 +1,9 @@
 package io.intino.plugin.project.configuration.model;
 
+import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
 
 public class LegioServer implements Configuration.Server {
 	private final LegioConfiguration configuration;

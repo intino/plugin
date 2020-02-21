@@ -4,6 +4,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Model;
+import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
@@ -11,9 +14,6 @@ import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioModel;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Artifact.Model;
-import io.intino.tara.compiler.shared.Configuration.Repository;
 import io.intino.tara.dsl.Meta;
 import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +33,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
@@ -170,7 +171,7 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> collectRemotes() {
 		List<RemoteRepository> remotes = repositories.stream().map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList());
-		remotes.add(new RemoteRepository("maven-central", "default", "http://repo1.maven.org/maven2/").
+		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}
@@ -178,7 +179,7 @@ public class LanguageResolver {
 	@NotNull
 	private List<RemoteRepository> frameworkRemotes() {
 		List<RemoteRepository> remotes = repositories.stream().filter(r -> !(r instanceof Repository.Language)).map(this::remoteFrom).filter(Objects::nonNull).collect(Collectors.toList());
-		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).
+		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).
 				setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		return remotes;
 	}

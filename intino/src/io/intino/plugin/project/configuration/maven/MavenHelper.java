@@ -2,9 +2,9 @@ package io.intino.plugin.project.configuration.maven;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import io.intino.Configuration;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.compiler.shared.Configuration;
 import io.intino.tara.dsl.Proteo;
 import io.intino.tara.dsl.ProteoConstants;
 import org.jetbrains.annotations.NotNull;

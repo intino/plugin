@@ -1,7 +1,7 @@
 package io.intino.plugin.project.configuration;
 
 import com.intellij.openapi.module.Module;
-import io.intino.tara.compiler.shared.Configuration;
+import io.intino.Configuration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;

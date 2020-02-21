@@ -16,8 +16,10 @@ import org.jetbrains.jps.incremental.messages.CompilerMessage;
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.OutputItem;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
@@ -35,8 +37,8 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 	private final Consumer<String> statusUpdater;
 	private final StringBuilder outputBuffer = new StringBuilder();
 
-	KonoscOSProcessHandler(Process process, Consumer<String> statusUpdater) {
-		super(process, null, null);
+	KonoscOSProcessHandler(Process process, String commandLine, Consumer<String> statusUpdater) {
+		super(process, commandLine, StandardCharsets.UTF_8);
 		LOG.setLevel(Level.ALL);
 		this.statusUpdater = statusUpdater;
 	}
@@ -71,32 +73,22 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 			return;
 		}
 		if (StringUtil.isNotEmpty(text)) {
-			if (trimmed.startsWith(COMPILED_START)) {
-				outputBuffer.append(trimmed);
-				updateStatus("Finishing...");
-			} else if (trimmed.startsWith(MESSAGE_ACTION_START)) {
-				outputBuffer.append(text);
-				processActionMessage();
-			} else if (trimmed.startsWith(MESSAGES_START)) {
-				outputBuffer.append(text);
-				processMessage();
-			}
-			if (trimmed.endsWith(COMPILED_END)) {
-				if (!trimmed.startsWith(COMPILED_START)) outputBuffer.append(trimmed);
-				processCompiledItems();
-			}
+			outputBuffer.append(trimmed);
+			if (trimmed.startsWith(COMPILED_START)) updateStatus("Finishing...");
+			else if (trimmed.startsWith(MESSAGES_START)) processMessage();
+			if (trimmed.endsWith(COMPILED_END)) processCompiledItems();
 			if (trimmed.startsWith(BUILD_END)) {
 				if (!postCompileActionMessages.isEmpty()) updateStatus("Updating source classes...");
-				outputBuffer.append(text);
+				collectPostCompileActionMessages();
 				compilerMessages.add(new CustomBuilderMessage(KONOSC, ACTION_MESSAGE, String.join(MESSAGE_ACTION_SEPARATOR, postCompileActionMessages)));
 			}
 		}
 	}
 
-	private void processActionMessage() {
-		if (outputBuffer.indexOf(MESSAGE_ACTION_END) == -1) return;
-		String text = handleOutputBuffer(MESSAGE_ACTION_START, MESSAGE_ACTION_END);
-		postCompileActionMessages.add(text);
+	private void collectPostCompileActionMessages() {
+		String substring = outputBuffer.substring(outputBuffer.indexOf(START_ACTIONS_MESSAGE), outputBuffer.indexOf(END_ACTIONS_MESSAGE));
+		String[] messages = substring.replace(START_ACTIONS_MESSAGE, "").split(END_ACTIONS_MESSAGE);
+		Collections.addAll(postCompileActionMessages, messages);
 	}
 
 	private void processMessage() {

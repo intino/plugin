@@ -24,6 +24,7 @@ class KonosRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(KonosRunner.class.getName());
 	private static final int COMPILER_MEMORY = 600;
+	private static final String MINIMUM_VERSION = "8.0.0";
 	private static File argsFile;
 	private List<String> classpath;
 
@@ -48,11 +49,17 @@ class KonosRunner {
 	}
 
 	private void loadClassPath(String intinoDirectory, String moduleName) throws IOException {
-		final File classPathFile = new File(intinoDirectory, "box_compiler.classpath");
+		final File classPathFile = new File(new File(intinoDirectory, "box" + File.separator + moduleName), "compiler.classpath");
 		if (!classPathFile.exists()) new File(intinoDirectory, moduleName);
 		if (!classPathFile.exists())
 			throw new IOException("Unable to find builder classpath. Please reload configuration");
 		this.classpath = Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).replace("$HOME", System.getProperty("user.home")).split(":"));
+		if (versionOf(new File(classpath.get(0))).compareTo(MINIMUM_VERSION) < 0)
+			throw new IOException("Version of Builder in " + moduleName + " is incompatible with this plugin version. Minimum version: " + MINIMUM_VERSION);
+	}
+
+	private String versionOf(File file) {
+		return file.getParentFile().getName();
 	}
 
 	private void fillConfiguration(JpsModuleConfiguration conf, Writer writer) throws IOException {
@@ -81,7 +88,6 @@ class KonosRunner {
 	}
 
 	KonoscOSProcessHandler runKonosCompiler(final CompileContext context) throws IOException {
-		LOG.info("Konosc classpath: " + String.join("\n", classpath));
 		List<String> programParams = List.of(argsFile.getPath());
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
@@ -89,7 +95,7 @@ class KonosRunner {
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
 				getJavaExecutable(), "io.intino.konos.KonoscRunner", Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
-		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
+		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, String.join(" ", cmd), statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
 			@Override
 			protected Future<?> executeOnPooledThread(@NotNull Runnable task) {
 				return SharedThreadPool.getInstance().executeOnPooledThread(task);
