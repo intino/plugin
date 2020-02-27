@@ -20,8 +20,8 @@ public class TaraNativeImplementationToJava extends RelatedItemLineMarkerProvide
 		if (!(element instanceof Valued)) return;
 		Valued valued = (Valued) element;
 		if (!isAvailable(valued)) return;
-		PsiElement destiny = ReferenceManager.resolveTaraNativeImplementationToJava(valued);
-		if (destiny != null) addResult(leafOf(element), result, destiny);
+		PsiElement destination = ReferenceManager.resolveTaraNativeImplementationToJava(valued);
+		if (destination != null) addResult(leafOf(element), result, destination);
 	}
 
 	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {

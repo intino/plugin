@@ -3,13 +3,13 @@ package io.intino.plugin.annotator.fix;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
@@ -48,34 +48,56 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 		final PsiFile file = element.getContainingFile();
-		VirtualFile srcDirectory = getSrcDirectory(TaraUtil.getSourceRoots(file));
-		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), srcDirectory);
-		PsiClass aClass = createRuleClass(file, srcPsiDirectory);
+		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getSrcDirectory(TaraUtil.getSourceRoots(file)));
+		PsiDirectoryImpl genPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getGenDirectory(TaraUtil.getSourceRoots(file)));
+		PsiClass aClass = createRuleClass(file, srcPsiDirectory, genPsiDirectory);
 		if (aClass != null) aClass.navigate(true);
 	}
 
-	private PsiClass createRuleClass(PsiFile file, PsiDirectoryImpl srcPsiDirectory) {
+	private PsiClass createRuleClass(PsiFile file, PsiDirectoryImpl srcPsiDirectory, PsiDirectoryImpl genPsiDirectory) {
 		PsiClass aClass;
-		PsiDirectory destiny = findDestination(file, srcPsiDirectory, graphPackage);
-		aClass = createClass(destiny, format(node.name()));
+		PsiDirectory srcDestination = findDestination(file, srcPsiDirectory, graphPackage);
+		PsiDirectory genDestination = findDestination(file, genPsiDirectory, graphPackage);
+		aClass = createClass(srcDestination, genDestination, format(node.name()));
 		return aClass;
 	}
 
-	private PsiClass createClass(PsiDirectory destiny, String className) {
-		PsiFile file = destiny.findFile(className + ".java");
+	private PsiClass createClass(PsiDirectory srcDestination, PsiDirectory genDestination, String className) {
+		PsiFile file = srcDestination.findFile(className + ".java");
 		if (file != null) return null;
-		PsiFile element = PsiFileFactory.getInstance(node.getProject()).createFileFromText(className, JavaFileType.INSTANCE, content());
-		return (PsiClass) destiny.add(element);
+		PsiFile srcClass = createSrcClass(className);
+		PsiFile genClass = createGenClass(className);
+		srcClass = (PsiFile) srcDestination.add(srcClass);
+		genDestination.add(genClass);
+		return ((PsiJavaFile) srcClass).getClasses()[0];
 	}
 
-	private String content() {
-		return new DecorableTemplate().render(createFrame(this.node));
+	private PsiFile createGenClass(String className) {
+		return PsiFileFactory.getInstance(node.getProject()).createFileFromText("Abstract" + className + ".java", JavaFileType.INSTANCE, genContent());
 	}
 
-	private Frame createFrame(TaraNode node) {
-		FrameBuilder builder = new FrameBuilder("node").add("package", validName(graphPackage)).add("name", validName(node.name()));
+	@NotNull
+	private PsiFile createSrcClass(String className) {
+		return PsiFileFactory.getInstance(node.getProject()).createFileFromText(className + ".java", JavaFileType.INSTANCE, srcContent());
+	}
+
+	private String srcContent() {
+		return new DecorableTemplate().render(createFrame(this.node, false));
+	}
+
+	private String genContent() {
+		return new DecorableTemplate().render(createFrame(this.node, true));
+	}
+
+	private Frame createFrame(TaraNode node, boolean gen) {
+		return new FrameBuilder("decorable").add("package", validName(graphPackage)).add(gen ? "nodeGen" : "node", createNodeFrame(node, gen)).toFrame();
+	}
+
+	private Frame createNodeFrame(TaraNode node, boolean gen) {
+		FrameBuilder builder = new FrameBuilder(gen ? "nodeGen" : "node").add("name", validName(node.name()));
+		if (!(node.container() instanceof NodeRoot)) builder.add("inner", "static");
 		if (node.isAbstract()) builder.add("abstract", "abstract");
-		builder.add("node", node.components().stream().map(c -> createFrame(node)).toArray(Frame[]::new));
+		builder.add(gen ? "nodeGen" : "node", node.components().stream().map(c -> createNodeFrame((TaraNode) c, gen)).toArray(Frame[]::new));
 		return builder.toFrame();
 	}
 

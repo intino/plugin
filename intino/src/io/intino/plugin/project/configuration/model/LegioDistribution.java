@@ -25,17 +25,17 @@ public class LegioDistribution implements Configuration.Distribution {
 	}
 
 	@Override
-	public Configuration.Repository snapshot() {
-		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "snapshot", 1));
+	public Configuration.Repository language() {
+		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "language", 1));
 		if (release == null) return null;
-		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) release.reference());
+		return new LegioRepository.LegioLanguageRepository(artifact.root(), (TaraNode) release.reference());
 	}
 
 	@Override
-	public Configuration.Repository language() {
-		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "language", 2));
+	public Configuration.Repository snapshot() {
+		Primitive.Reference release = TaraPsiUtil.read(() -> referenceParameterValue(node, "snapshot", 2));
 		if (release == null) return null;
-		return new LegioRepository.LegioLanguageRepository(artifact.root(), (TaraNode) release.reference());
+		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) release.reference());
 	}
 
 	@Override

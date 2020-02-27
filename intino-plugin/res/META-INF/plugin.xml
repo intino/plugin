@@ -70,6 +70,7 @@
         <quoteHandler fileType="Tara" className="io.intino.plugin.codeinsight.TaraQuoteHandler"/>
 
         <annotator language="Tara" implementationClass="io.intino.plugin.annotator.ReferenceAnnotator"/>
+        <annotator language="Tara" implementationClass="io.intino.plugin.annotator.DecorableAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotator.ResourceAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotator.NodeAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.annotator.DSLDeclarationAnnotator"/>

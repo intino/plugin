@@ -30,10 +30,18 @@ public class ProjectLibrariesManager {
 
 	public void registerSources(Dependency dependency) {
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			registerSources(dependency, table.findLibrary(dependency).getModifiableModel());
-		else
-			application.invokeLater(() -> application.runWriteAction(() -> registerSources(dependency, table.findLibrary(dependency).getModifiableModel())));
+		if (application.isWriteAccessAllowed()) {
+			Library.ModifiableModel model = table.findLibrary(dependency).getModifiableModel();
+			registerSources(dependency, model);
+			model.commit();
+
+		} else {
+			application.invokeLater(() -> application.runWriteAction(() -> {
+				Library.ModifiableModel model = table.findLibrary(dependency).getModifiableModel();
+				registerSources(dependency, model);
+				model.commit();
+			}));
+		}
 
 	}
 
@@ -65,6 +73,6 @@ public class ProjectLibrariesManager {
 	}
 
 	private File sourcesFile(Dependency dependency) {
-		return new File(dependency.jar.getAbsolutePath().replace(".jar", "-sources.jar"));
+		return dependency.jar.getName().endsWith("-sources.jar") ? dependency.jar : new File(dependency.jar.getAbsolutePath().replace(".jar", "-sources.jar"));
 	}
 }

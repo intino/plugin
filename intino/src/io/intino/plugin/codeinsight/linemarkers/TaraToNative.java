@@ -10,6 +10,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.lang.psi.Rule;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +31,13 @@ public class TaraToNative extends JavaLineMarkerProvider {
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!(element instanceof Rule)) return;
+			Rule rule = TaraPsiUtil.getContainerByType(element, Rule.class);
+			if (rule == null) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to implementation classes is not possible during index update");
 				return;
 			}
-			NavigatablePsiElement reference = (NavigatablePsiElement) ReferenceManager.resolveRule((Rule) element);
+			NavigatablePsiElement reference = (NavigatablePsiElement) ReferenceManager.resolveRule(rule);
 			if (reference == null) return;
 			String title = DaemonBundle.message("navigation.title.overrider.method", element.getText(), 1);
 			MethodCellRenderer renderer = new MethodCellRenderer(false);
@@ -51,7 +53,7 @@ public class TaraToNative extends JavaLineMarkerProvider {
 		Rule rule = (Rule) element;
 		PsiElement reference = ReferenceManager.resolveRule(rule);
 		if (reference != null) {
-			final Icon icon = AllIcons.Gutter.ImplementingMethod;
+			final Icon icon = AllIcons.Gutter.ImplementedMethod;
 			final MarkerType type = markerType;
 			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
 					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);

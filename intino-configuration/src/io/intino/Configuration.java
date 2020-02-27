@@ -303,9 +303,9 @@ public interface Configuration {
 	interface Distribution {
 		Repository release();
 
-		Repository snapshot();
-
 		Repository language();
+
+		Repository snapshot();
 
 		BitBucketDistribution onBitbucket();
 

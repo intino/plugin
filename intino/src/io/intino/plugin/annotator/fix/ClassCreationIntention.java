@@ -9,13 +9,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import io.intino.plugin.errorreporting.TaraRuntimeException;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public abstract class ClassCreationIntention extends PsiElementBaseIntentionAction {
 
 	private static final String SRC = "src";
+	private static final String GEN = "gen";
 	protected static final String DOT = ".";
 	protected static final String SLASH = "/";
 
@@ -31,8 +30,7 @@ public abstract class ClassCreationIntention extends PsiElementBaseIntentionActi
 		final PsiDirectory[] destiny = new PsiDirectory[1];
 		WriteCommandAction.writeCommandAction(file.getProject(), file).run(() -> {
 			destiny[0] = srcDirectory;
-			List<String> split = Arrays.asList(destinyName.split("\\."));
-			for (String subDirName : split) {
+			for (String subDirName : destinyName.split("\\.")) {
 				if (destiny[0] == null) break;
 				destiny[0] = destiny[0].findSubdirectory(subDirName) == null ?
 						DirectoryUtil.createSubdirectories(subDirName, destiny[0], ".") :
@@ -46,6 +44,12 @@ public abstract class ClassCreationIntention extends PsiElementBaseIntentionActi
 		for (VirtualFile file : virtualFiles)
 			if (file.isDirectory() && SRC.equals(file.getName())) return file;
 		throw new TaraRuntimeException("src directory not found");
+	}
+
+	VirtualFile getGenDirectory(Collection<VirtualFile> virtualFiles) {
+		for (VirtualFile file : virtualFiles)
+			if (file.isDirectory() && GEN.equals(file.getName())) return file;
+		throw new TaraRuntimeException("gen directory not found");
 	}
 
 }

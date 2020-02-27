@@ -8,11 +8,13 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.ActionCallback;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
@@ -49,13 +51,21 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 				List<LegioConfiguration> configurations = configurations(psiFile);
 				if (configurations.isEmpty()) return ActionCallback.REJECTED;
 				final ActionCallback resultWrapper = new ActionCallback();
-				List<Artifact> sources = resolveSources(orderEntries.get(0), configurations);
+				List<Artifact> sources = resolveSources(orderEntries, configurations, psiFile);
 				if (!sources.isEmpty() && sources.get(0) != null)
 					attachSources(orderEntries, resultWrapper, sources.get(0), psiFile);
 				else notifyNotFound(resultWrapper, psiFile);
 				return resultWrapper;
 			}
 		});
+	}
+
+	private List<Artifact> resolveSources(List<LibraryOrderEntry> orderEntries, List<LegioConfiguration> configurations, PsiFile psiFile) {
+		try {
+			return ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<List<Artifact>, Exception>) () -> resolveSources(orderEntries.get(0), configurations)), "Downloading Sources", false, psiFile.getProject());
+		} catch (Exception e) {
+			return Collections.emptyList();
+		}
 	}
 
 	private void attachSources(List<LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact artifact, PsiFile psiFile) {

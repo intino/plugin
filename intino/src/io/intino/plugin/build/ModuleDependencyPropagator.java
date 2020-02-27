@@ -1,8 +1,14 @@
 package io.intino.plugin.build;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.ThrowableComputable;
 import io.intino.Configuration;
 import io.intino.plugin.actions.dialog.UpdateVersionDialog;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
@@ -38,12 +44,21 @@ public class ModuleDependencyPropagator {
 
 	private Map<String, String> askForNewVersions() {
 		final Map<String, String>[] response = new Map[]{new HashMap<>()};
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), loadLibraryUpdates());
-			dialog.show();
-			if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) response[0] = dialog.newVersions();
-			else response[0] = Collections.emptyMap();
-		});
+		Application application = ApplicationManager.getApplication();
+		try {
+			Map<String, List<String>> libraries = ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<Map<String, List<String>>, Exception>) this::loadLibraryUpdates), "Calculating Updates", true, this.module.getProject());
+			if (libraries.values().stream().noneMatch(v -> v.size() > 1)) {
+				Notifications.Bus.notify(new Notification("Tara Language", "Dependency update", "You are already updated", NotificationType.INFORMATION));
+				return Collections.emptyMap();
+			}
+			application.invokeAndWait(() -> {
+				UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+				dialog.show();
+				if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) response[0] = dialog.newVersions();
+				else response[0] = Collections.emptyMap();
+			});
+		} catch (Exception ignored) {
+		}
 		return response[0];
 	}
 

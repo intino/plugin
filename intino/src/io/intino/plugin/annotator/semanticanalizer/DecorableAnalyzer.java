@@ -3,7 +3,6 @@ package io.intino.plugin.annotator.semanticanalizer;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.annotator.TaraAnnotator;
@@ -35,9 +34,9 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (node.isAnonymous()) return;
 		if (!node.is(Tag.Decorable)) return;
-		PsiClass aClass = JavaPsiFacade.getInstance(node.getProject()).findClass(graphPackage + format(node.name()), moduleScope(ModuleProvider.moduleOf(node)));
+		PsiClass aClass = JavaPsiFacade.getInstance(node.getProject()).findClass(graphPackage + "." + format(node.name()), moduleScope(ModuleProvider.moduleOf(node)));
 		if (aClass == null) {
-			results.put(node, new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
+			results.put(node.getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
 			return;
 		}
 		checkTree(aClass, node);
@@ -49,7 +48,7 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 			String name = format(component.name());
 			PsiClass inner = Arrays.stream(aClass.getInnerClasses()).filter(cl -> Objects.equals(cl.getName(), name)).findFirst().orElse(null);
 			if (inner == null) {
-				results.put((PsiElement) component, new TaraAnnotator.AnnotateAndFix(WARNING, MessageProvider.message("error.link.to.decorable"), collectFixes()));
+				results.put(((TaraNode) component).getSignature(), new TaraAnnotator.AnnotateAndFix(WARNING, MessageProvider.message("error.link.to.decorable"), collectFixes()));
 				return;
 			}
 			checkTree(inner, component);

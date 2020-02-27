@@ -25,7 +25,6 @@ public class UpdateVersionDialog extends DialogWrapper {
 	private JBTable table;
 	private Map<String, String> currentSelected;
 
-
 	public UpdateVersionDialog(Project project, Map<String, List<String>> libraries) {
 		super(project, false);
 		super.setTitle("Update Versions");

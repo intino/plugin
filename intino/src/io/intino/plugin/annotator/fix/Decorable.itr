@@ -1,12 +1,28 @@
 def trigger(node)
+	public [$inner] [$abstract] class $name+FirstUpperCase extends Abstract$name+FirstUpperCase {
+
+		public $name+FirstUpperCase(io.intino.magritte.framework.Node node) {
+			super(node);
+		}
+
+		$node...[$NL$NL]
+	}
+end
+
+def trigger(nodeGen)
+	public [$inner] abstract class Abstract$name+FirstUpperCase extends io.intino.magritte.framework.Layer {
+
+		public Abstract$name+FirstUpperCase(io.intino.magritte.framework.Node node) {
+			super(node);
+		}
+
+		$nodeGen...[$NL$NL]
+	}
+end
+
+def type(decorable)
 	package $package+lowercase[.$container+lowercase];
 
-    	public [$abstract] class $name+FirstUpperCase extends Abstract$name+FirstUpperCase {
-
-    		public $name+FirstUpperCase(io.intino.magritte.framework.Node node) {
-    			super(node);
-    		}
-    	}
-    	$node...[$NL$NL]
-	
+    $node
+    $nodeGen
 end
