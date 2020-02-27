@@ -4,10 +4,10 @@ import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.EmptyNode;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Primitive;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.EmptyNode;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Primitive;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.tara.lang.model.Primitive.*;
+import static io.intino.magritte.lang.model.Primitive.*;
 import static java.util.stream.Collectors.toList;
 
 public interface Value extends Navigatable, Iconable, TaraPsiElement {

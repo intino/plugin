@@ -7,6 +7,15 @@ import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.FrameBuilderContext;
+import io.intino.magritte.Language;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
+import io.intino.magritte.lang.model.*;
+import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
+import io.intino.magritte.lang.model.rules.variable.NativeReferenceRule;
+import io.intino.magritte.lang.model.rules.variable.NativeRule;
+import io.intino.magritte.lang.model.rules.variable.NativeWordRule;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter;
 import io.intino.plugin.codeinsight.languageinjection.helpers.TemplateTags;
@@ -16,28 +25,19 @@ import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Language;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
-import io.intino.tara.lang.model.*;
-import io.intino.tara.lang.model.rules.variable.NativeObjectRule;
-import io.intino.tara.lang.model.rules.variable.NativeReferenceRule;
-import io.intino.tara.lang.model.rules.variable.NativeRule;
-import io.intino.tara.lang.model.rules.variable.NativeWordRule;
-import io.intino.tara.lang.semantics.Constraint;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.intino.magritte.lang.model.Primitive.*;
+import static io.intino.magritte.lang.model.Tag.Feature;
+import static io.intino.magritte.lang.model.Tag.Instance;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.cleanQn;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qn;
 import static io.intino.plugin.lang.psi.resolve.ReferenceManager.resolveRule;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.tara.lang.model.Primitive.*;
-import static io.intino.tara.lang.model.Tag.Feature;
-import static io.intino.tara.lang.model.Tag.Instance;
 import static java.util.Collections.emptySet;
 
 @SuppressWarnings("Duplicates")

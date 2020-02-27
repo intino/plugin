@@ -1,5 +1,8 @@
 package io.intino.plugin.actions;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
@@ -8,6 +11,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import io.intino.Configuration;
+import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
@@ -22,11 +26,15 @@ import static io.intino.plugin.project.Safe.safeList;
 
 public class ExportAction {
 
-	public void execute(Module module, FactoryPhase factoryPhase) {
+	public void execute(Module module, FactoryPhase phase) {
 		final Configuration configuration = TaraUtil.configurationOf(module);
-		if (configuration == null) return;
-		runBoxExports(factoryPhase, configuration);
-		runExportPlugins(module, factoryPhase, (LegioConfiguration) configuration);
+		if (configuration == null) {
+			Notifications.Bus.notify(new Notification("Tara Language",
+					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
+			return;
+		}
+		runBoxExports(phase, configuration);
+		runExportPlugins(module, phase, (LegioConfiguration) configuration);
 	}
 
 	private void runBoxExports(FactoryPhase factoryPhase, Configuration configuration) {
@@ -48,6 +56,8 @@ public class ExportAction {
 				public void run(@NotNull ProgressIndicator indicator) {
 					List<String> errorMessages = new ArrayList<>();
 					new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
+					if (!errorMessages.isEmpty())
+						Notifications.Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
 				}
 			});
 		});

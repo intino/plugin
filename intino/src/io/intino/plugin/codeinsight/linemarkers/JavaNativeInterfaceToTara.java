@@ -7,13 +7,13 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraRule;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

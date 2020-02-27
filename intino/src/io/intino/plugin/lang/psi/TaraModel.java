@@ -3,8 +3,8 @@ package io.intino.plugin.lang.psi;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeRoot;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

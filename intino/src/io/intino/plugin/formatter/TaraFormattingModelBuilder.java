@@ -6,9 +6,9 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import io.intino.magritte.lang.model.NodeContainer;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.NodeContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -4,10 +4,10 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraParameter;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

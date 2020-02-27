@@ -5,9 +5,9 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveResult;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

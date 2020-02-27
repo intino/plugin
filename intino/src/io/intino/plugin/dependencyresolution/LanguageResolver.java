@@ -7,6 +7,9 @@ import com.jcabi.aether.Aether;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Model;
 import io.intino.Configuration.Repository;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
+import io.intino.magritte.dsl.Tara;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
@@ -14,8 +17,6 @@ import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioModel;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.Authentication;
@@ -82,7 +83,7 @@ public class LanguageResolver {
 
 	@NotNull
 	private static String magritteID(String version) {
-		return Proteo.GROUP_ID + ":" + Proteo.ARTIFACT_ID + ":" + version;
+		return Tara.GROUP_ID + ":" + Tara.ARTIFACT_ID + ":" + version;
 	}
 
 	private static boolean isMagritteLibrary(String language) {

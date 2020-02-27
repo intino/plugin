@@ -1,17 +1,17 @@
 package io.intino.plugin.annotator.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.Checker;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticException;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraNodeReference;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.errorcollector.SemanticException;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class NodeReferenceAnalyzer extends TaraAnalyzer {
 	private final TaraNodeReference nodeReference;

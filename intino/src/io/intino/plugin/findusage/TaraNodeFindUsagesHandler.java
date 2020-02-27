@@ -5,11 +5,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

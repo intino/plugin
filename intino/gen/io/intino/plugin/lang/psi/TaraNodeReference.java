@@ -2,7 +2,7 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.pom.Navigatable;
-import io.intino.tara.lang.model.Node;
+import io.intino.magritte.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

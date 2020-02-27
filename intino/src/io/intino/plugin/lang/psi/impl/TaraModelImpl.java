@@ -14,13 +14,13 @@ import com.intellij.psi.impl.source.tree.ChangeUtil;
 import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.Language;
+import io.intino.magritte.Resolver;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Rule;
+import io.intino.magritte.lang.model.rules.Size;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.Language;
-import io.intino.tara.Resolver;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Rule;
-import io.intino.tara.lang.model.rules.Size;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

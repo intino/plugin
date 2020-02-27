@@ -3,11 +3,11 @@ package io.intino.plugin.findusage;
 import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.find.findUsages.FindUsagesHandlerFactory;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.Signature;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -3,9 +3,9 @@ package io.intino.plugin.codeinsight.intentions;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Parameters;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

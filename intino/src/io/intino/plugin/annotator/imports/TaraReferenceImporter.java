@@ -1,10 +1,10 @@
 package io.intino.plugin.annotator.imports;
 
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.IdentifierReference;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

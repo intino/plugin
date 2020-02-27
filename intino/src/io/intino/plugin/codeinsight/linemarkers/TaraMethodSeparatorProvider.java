@@ -5,9 +5,9 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.LineMarkersPass;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

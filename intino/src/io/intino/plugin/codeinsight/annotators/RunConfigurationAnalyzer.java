@@ -2,15 +2,15 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddArgumentFix;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

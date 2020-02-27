@@ -9,15 +9,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeContainer;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.documentation.TaraDocumentationProvider;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeContainer;
-import io.intino.tara.lang.model.Variable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

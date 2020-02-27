@@ -5,10 +5,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.lang.psi.TaraParameter;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Parameter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

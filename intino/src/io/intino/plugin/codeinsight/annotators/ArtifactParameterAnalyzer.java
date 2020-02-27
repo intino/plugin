@@ -1,19 +1,20 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.RemoveElementFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
 
 import java.util.List;
 
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 	private final Node parameterNode;
@@ -29,7 +30,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration.artifact().model().language() == null) return;
+		if (safe(() -> configuration.artifact().model().language()) == null) return;
 		if (name == null || name.isEmpty())
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("parameter.name.not.found")));
 		if (isDuplicated())
@@ -49,7 +50,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 	}
 
 	private String parameterName() {
-		final List<io.intino.tara.lang.model.Parameter> parameters = parameterNode.parameters();
+		final List<io.intino.magritte.lang.model.Parameter> parameters = parameterNode.parameters();
 		for (Parameter parameter : parameters)
 			if (parameter.name().equals("name")) return parameter.values().get(0).toString();
 		return null;

@@ -6,12 +6,12 @@ import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraStringValue;
 import io.intino.plugin.lang.psi.TaraValue;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

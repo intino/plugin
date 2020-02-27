@@ -11,6 +11,7 @@ import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.alexandria.logger.Logger;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.TaraElementFactory;
@@ -20,8 +21,8 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,11 +33,11 @@ import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction
 import static com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 import static io.intino.plugin.actions.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.actions.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
 import static java.util.Arrays.stream;
 
 public class LegioArtifact implements Configuration.Artifact {
@@ -73,7 +74,7 @@ public class LegioArtifact implements Configuration.Artifact {
 	@Override
 	public void version(String newVersion) {
 		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
-			io.intino.tara.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
+			io.intino.magritte.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
 			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
 		});
 		ApplicationManager.getApplication().invokeAndWait(this::commitDocument);
@@ -96,9 +97,10 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
-	@NotNull
+	@Nullable
 	public Model model() {
-		return new LegioModel(this, (TaraNode) TaraPsiUtil.componentOfType(node, "Model"));
+		TaraNode model = (TaraNode) TaraPsiUtil.componentOfType(node, "Model");
+		return model == null ? null : new LegioModel(this, model);
 	}
 
 	@Override
@@ -171,7 +173,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public List<Plugin> plugins() {
-		List<Node> plugins = TaraPsiUtil.componentsOfType(node, "Plugin");
+		List<Node> plugins = TaraPsiUtil.componentsOfType(node, "IntinoPlugin");
 		return plugins.stream().map(p -> new LegioPlugin((TaraNode) p)).collect(Collectors.toList());
 	}
 
@@ -273,9 +275,9 @@ public class LegioArtifact implements Configuration.Artifact {
 		if (model().language() != null) {
 			builder += LANGUAGE + EQ + model.language().name() + "\n" +
 					LANGUAGE_VERSION + EQ + model.language().version() + "\n" +
-					LEVEL + EQ + model.level().name() + "\n" +
 					OUT_DSL + EQ + model.outLanguage() + "\n" +
 					OUT_DSL_VERSION + EQ + model.outLanguageVersion() + "\n";
+			if (model().level() != null) builder += LEVEL + EQ + model.level().name() + "\n";
 			if (model.language().generationPackage() != null)
 				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
 		}
@@ -306,7 +308,8 @@ public class LegioArtifact implements Configuration.Artifact {
 			if (aClass != null)
 				return workingPackage.toLowerCase() + ".box." + firstUpperCase(language.name());
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			if (e instanceof NullPointerException) e.printStackTrace();
+			else Logger.error(e.getMessage());
 		}
 		return null;
 	}
@@ -395,6 +398,11 @@ public class LegioArtifact implements Configuration.Artifact {
 
 		LegioWebArtifact(TaraNode node) {
 			this.node = node;
+		}
+
+		@Override
+		public String name() {
+			return node.name();
 		}
 
 		@Override

@@ -12,6 +12,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Parametrized;
+import io.intino.magritte.lang.semantics.Constraint;
+import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraElementFactory;
@@ -19,11 +24,6 @@ import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Parametrized;
-import io.intino.tara.lang.semantics.Constraint;
-import io.intino.tara.lang.semantics.constraints.parameter.ReferenceParameter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.tara.lang.model.Primitive.*;
+import static io.intino.magritte.lang.model.Primitive.*;
 
 class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAction {
 

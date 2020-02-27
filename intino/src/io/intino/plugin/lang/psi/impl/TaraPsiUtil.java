@@ -7,9 +7,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
+import io.intino.magritte.lang.model.*;
+import io.intino.magritte.lang.model.Primitive.Reference;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.*;
-import io.intino.tara.lang.model.Primitive.Reference;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

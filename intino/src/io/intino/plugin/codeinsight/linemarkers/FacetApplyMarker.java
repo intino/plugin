@@ -10,12 +10,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.refactoring.ui.ClassCellRenderer;
 import io.intino.itrules.formatters.StringFormatters.PluralInflector;
 import io.intino.itrules.formatters.inflectors.EnglishPluralInflector;
+import io.intino.magritte.lang.model.Aspect;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Aspect;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

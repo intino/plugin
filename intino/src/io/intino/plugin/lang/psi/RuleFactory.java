@@ -1,12 +1,12 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Tag;
+import io.intino.magritte.lang.model.rules.variable.*;
 import io.intino.plugin.lang.psi.impl.PsiCustomWordRule;
 import io.intino.plugin.lang.psi.impl.TaraIdentifierImpl;
 import io.intino.plugin.lang.psi.impl.TaraMetricImpl;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Tag;
-import io.intino.tara.lang.model.rules.variable.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

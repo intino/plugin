@@ -1,10 +1,10 @@
 package io.intino.plugin.stash;
 
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.tara.io.Concept;
-import io.intino.tara.io.Node;
-import io.intino.tara.io.Stash;
-import io.intino.tara.io.Variable;
+import io.intino.magritte.io.Concept;
+import io.intino.magritte.io.Node;
+import io.intino.magritte.io.Stash;
+import io.intino.magritte.io.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static io.intino.tara.io.StashDeserializer.stashFrom;
+import static io.intino.magritte.io.StashDeserializer.stashFrom;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 

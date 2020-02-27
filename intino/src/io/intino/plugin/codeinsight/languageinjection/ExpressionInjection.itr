@@ -3,7 +3,7 @@ def type(function)
 
 	$imports...[$NL]
 
-	class $name+FirstUpperCase implements[ $scope+lowercase.functions.? ]$rule+FirstUpperCase, io.intino.tara.magritte.Function {
+	class $name+FirstUpperCase implements[ $scope+lowercase.functions.? ]$rule+FirstUpperCase, io.intino.magritte.framework.Function {
 		$nativeContainer self;
 
 		@Override
@@ -16,7 +16,7 @@ def type(reactive)
 
 	$imports...[$NL]
 
-	class $name+FirstUpperCase implements io.intino.tara.magritte.Expression<$type+format> {
+	class $name+FirstUpperCase implements io.intino.magritte.framework.Expression<$type+format> {
 		$nativeContainer self;
 
 		public $type+format value() {

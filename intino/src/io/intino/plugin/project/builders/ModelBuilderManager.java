@@ -57,7 +57,7 @@ public class ModelBuilderManager {
 		final List<RemoteRepository> repos = Arrays.asList(
 				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)),
 				new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.tara:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
+		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
 	}
 
 	private void saveClassPath(List<String> paths) {

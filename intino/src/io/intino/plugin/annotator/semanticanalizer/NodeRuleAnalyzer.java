@@ -5,6 +5,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.dsl.ProteoConstants;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Tag;
+import io.intino.magritte.lang.model.rules.custom.Url;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.CreateNodeRuleClassIntention;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
@@ -14,14 +18,10 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.dsl.ProteoConstants;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Tag;
-import io.intino.tara.lang.model.rules.custom.Url;
 
 import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.highlighting.TaraSyntaxHighlighter.UNRESOLVED_ACCESS;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class NodeRuleAnalyzer extends TaraAnalyzer {
 
@@ -33,7 +33,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 	public NodeRuleAnalyzer(TaraRuleContainer ruleContainer) {
 		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Node.class);
 		this.rule = ruleContainer.getRule();
-		rulesPackage = TaraUtil.graphPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
+		this.rulesPackage = TaraUtil.graphPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@Override

@@ -5,16 +5,16 @@ import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
+import io.intino.magritte.Checker;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
+import static io.intino.magritte.lang.model.Tag.Instance;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerNodeOf;
-import static io.intino.tara.lang.model.Tag.Instance;
 
 class BodyCompletionProvider extends CompletionProvider<CompletionParameters> {
 

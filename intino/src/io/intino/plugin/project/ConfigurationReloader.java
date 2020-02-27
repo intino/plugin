@@ -103,8 +103,8 @@ public class ConfigurationReloader {
 	}
 
 	private DependencyCatalog resolveLanguage() {
+		if (model == null) return new DependencyCatalog();
 		Artifact.Model.Language language = model.language();
-		if (language.name() == null) return new DependencyCatalog();
 		final String effectiveVersion = language.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
 		return new LanguageResolver(module, auditor, model, version, repositories).resolve();

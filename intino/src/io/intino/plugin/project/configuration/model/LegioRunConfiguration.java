@@ -1,8 +1,8 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Node;
 
 import java.util.List;
 import java.util.Map;

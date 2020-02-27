@@ -12,12 +12,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.Configuration;
+import io.intino.magritte.Language;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Language;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +28,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.intino.magritte.dsl.ProteoConstants.META;
+import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.tara.dsl.ProteoConstants.META;
-import static io.intino.tara.dsl.ProteoConstants.PROTEO;
 
 public class LanguageManager {
 	public static final String DSL = "dsl";

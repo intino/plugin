@@ -20,10 +20,9 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFA
 import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
+	private static String TARA = "tara.";
 	private final JpsModule module;
 	private final CompileContext context;
-
-	private static String TARA = "tara.";
 
 	JpsConfigurationLoader(JpsModule module, CompileContext context) {
 		this.module = module;
@@ -45,8 +44,11 @@ class JpsConfigurationLoader {
 
 	private void fillFromTara(JpsModuleConfiguration conf, File confFile) {
 		try {
-			Map<String, String> parameters = Files.readAllLines(confFile.toPath()).stream().
-					collect(Collectors.toMap(s -> s.split("=")[0], s -> s.split("=")[1]));
+			Map<String, String> parameters = Files.readAllLines(confFile.toPath()).stream().filter(l -> l.contains("=")).
+					collect(Collectors.toMap(s -> s.split("=")[0], s -> {
+						String[] split = s.split("=");
+						return split.length > 1 ? split[1] : "";
+					}));
 			conf.groupId = parameters.get(GROUP_ID);
 			conf.artifactId = parameters.get(ARTIFACT_ID);
 			conf.version = parameters.get(VERSION);
@@ -70,7 +72,7 @@ class JpsConfigurationLoader {
 		conf.artifactId = pom.id.artifactId;
 		conf.version = pom.id.version;
 		conf.level = props.getOrDefault(TARA + LEVEL, "");
-		conf.language = props.getOrDefault(TARA + LANGUAGE, "") + ":" + props.getOrDefault(TARA + LANGUAGE_VERSION, "");
+		conf.language = props.getOrDefault(TARA + LANGUAGE, "");
 		conf.languageVersion = props.getOrDefault(TARA + LANGUAGE_VERSION, "");
 		conf.outDsl = props.getOrDefault(TARA + OUT_DSL, "");
 		conf.generationPackage = props.getOrDefault(TARA + GENERATION_PACKAGE, props.getOrDefault(TARA + OUT_DSL, ""));

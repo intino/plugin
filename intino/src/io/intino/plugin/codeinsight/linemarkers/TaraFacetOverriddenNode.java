@@ -9,10 +9,10 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Aspect;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Aspect;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

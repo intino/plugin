@@ -3,16 +3,16 @@ package io.intino.plugin.codeinsight.languageinjection;
 import com.intellij.openapi.module.Module;
 import io.intino.itrules.Adapter;
 import io.intino.itrules.FrameBuilderContext;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.TaraVarInit;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.semantics.Constraint;
 
-import static io.intino.tara.lang.model.Primitive.FUNCTION;
+import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 
 class NativeParameterAdapter implements Adapter<Parameter> {
 

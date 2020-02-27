@@ -4,14 +4,14 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.NodeContainer;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Parametrized;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Body;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraVarInit;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.NodeContainer;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Parametrized;
-import io.intino.tara.lang.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;

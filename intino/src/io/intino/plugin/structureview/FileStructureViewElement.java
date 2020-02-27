@@ -3,8 +3,8 @@ package io.intino.plugin.structureview;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import com.intellij.navigation.ItemPresentation;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

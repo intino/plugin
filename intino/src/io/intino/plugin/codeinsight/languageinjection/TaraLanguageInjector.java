@@ -9,38 +9,38 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
+import io.intino.magritte.Checker;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Tag;
+import io.intino.magritte.lang.model.Variable;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Tag;
-import io.intino.tara.lang.model.Variable;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
+import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
-import static io.intino.tara.lang.model.Primitive.FUNCTION;
 
 public class TaraLanguageInjector implements LanguageInjector {
 
 
 	private static String defaultPrefix() {
 		return "package org.sample;\n" +
-				"public class Loading implements io.intino.tara.magritte.Function {" +
+				"public class Loading implements io.intino.magritte.framework.Function {" +
 				"\tContainer $;" +
 				"public void sample() {";
 	}
 
 	private static String suffix() {
 		return "\n\t}\n\n" +
-				"\tpublic void self(io.intino.tara.magritte.Layer context) {\n" +
+				"\tpublic void self(io.intino.magritte.framework.Layer context) {\n" +
 				"\t}\n" +
 				"\n" +
-				"\tpublic Class<? extends io.intino.tara.magritte.Layer> selfClass() {\n" +
+				"\tpublic Class<? extends io.intino.magritte.framework.Layer> selfClass() {\n" +
 				"\t\treturn null;\n" +
 				"\t}\n" +
 				"}";
@@ -61,7 +61,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 	private void resolve(PsiLanguageInjectionHost host) {
 		final Node node = TaraPsiUtil.getContainerNodeOf(host);
 		if (node != null) try {
-			final io.intino.tara.Language language = TaraUtil.getLanguage(host);
+			final io.intino.magritte.Language language = TaraUtil.getLanguage(host);
 			if (language != null) new Checker(language).check(node.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
@@ -84,7 +84,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 
 	private String createPrefix(Expression expression) {
 		resolve(expression);
-		final io.intino.tara.Language language = TaraUtil.getLanguage(expression.getOriginalElement().getContainingFile());
+		final io.intino.magritte.Language language = TaraUtil.getLanguage(expression.getOriginalElement().getContainingFile());
 		final Module module = moduleOf(expression);
 		if (language == null || module == null) return "";
 		Template template = new ExpressionInjectionTemplate();
@@ -92,7 +92,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 		return prefix.isEmpty() ? defaultPrefix() : prefix;
 	}
 
-	private Frame buildFrame(Expression expression, io.intino.tara.Language language, Module module) {
+	private Frame buildFrame(Expression expression, io.intino.magritte.Language language, Module module) {
 		Valued valued = getContainerByType(expression, Valued.class);
 		if (valued == null) return null;
 		String workingPackage = TaraUtil.graphPackage(expression).isEmpty() ? module.getName() : TaraUtil.graphPackage(expression);

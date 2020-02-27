@@ -2,6 +2,7 @@ package io.intino.plugin.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.annotator.semanticanalizer.HeaderReferenceAnalyzer;
 import io.intino.plugin.annotator.semanticanalizer.ReferenceAnalyzer;
 import io.intino.plugin.lang.psi.HeaderReference;
@@ -9,10 +10,9 @@ import io.intino.plugin.lang.psi.IdentifierReference;
 import io.intino.plugin.lang.psi.Rule;
 import io.intino.plugin.lang.psi.TaraMethodReference;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.tara.lang.model.Primitive.*;
+import static io.intino.magritte.lang.model.Primitive.*;
 
 public class ReferenceAnnotator extends TaraAnnotator {
 

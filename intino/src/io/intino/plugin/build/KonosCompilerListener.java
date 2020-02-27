@@ -10,9 +10,9 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
+import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import io.intino.plugin.build.postcompileactions.PostCompileActionFactory;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
 
 import java.io.File;
 import java.util.Arrays;

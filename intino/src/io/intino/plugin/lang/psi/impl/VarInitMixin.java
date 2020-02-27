@@ -4,10 +4,10 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import io.intino.magritte.lang.model.*;
+import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.*;
-import io.intino.tara.lang.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.tara.lang.model.Primitive.EMPTY;
-import static io.intino.tara.lang.model.Primitive.REFERENCE;
+import static io.intino.magritte.lang.model.Primitive.EMPTY;
+import static io.intino.magritte.lang.model.Primitive.REFERENCE;
 
 public class VarInitMixin extends ASTWrapperPsiElement {
 

@@ -1,5 +1,6 @@
 package io.intino.plugin.annotator.fix;
 
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -7,43 +8,36 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Rule;
-import io.intino.magritte.lang.model.Variable;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraRule;
-import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
+import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.javaValidName;
 
-public class CreateMetricClassIntention extends ClassCreationIntention {
+public class SyncDecorableClassIntention extends ClassCreationIntention {
+	private final TaraNode node;
+	private final String graphPackage;
 
-	private static final String RULES_PACKAGE = ".rules";
-	private final Rule rule;
-	private String rulesPath;
-	private final Variable variable;
-
-	public CreateMetricClassIntention(Rule rule) {
-		this.rule = rule;
-		this.variable = TaraPsiUtil.getContainerByType((TaraRule) rule, Variable.class);
-		if (variable != null)
-			this.rulesPath = TaraUtil.graphPackage((PsiElement) variable).toLowerCase() + RULES_PACKAGE;
+	public SyncDecorableClassIntention(TaraNode node, String graphPackage) {
+		this.node = node;
+		this.graphPackage = graphPackage;
 	}
 
 	@NotNull
 	@Override
 	public String getText() {
-		return "Create metric class " + Format.javaValidName().format(((TaraRule) rule).getText());
+		return "Sync decorable class " + Format.javaValidName().format(node.name());
 	}
 
 	@NotNull
 	@Override
 	public String getFamilyName() {
-		return "Create metric class";
+		return "Sync decorable class";
 	}
 
 	@Override
@@ -62,24 +56,37 @@ public class CreateMetricClassIntention extends ClassCreationIntention {
 
 	private PsiClass createRuleClass(PsiFile file, PsiDirectoryImpl srcPsiDirectory) {
 		PsiClass aClass;
-		PsiDirectory destiny = findDestination(file, srcPsiDirectory, rulesPath);
-		aClass = createClass(destiny, ((TaraRule) rule).getText());
+		PsiDirectory destiny = findDestination(file, srcPsiDirectory, graphPackage);
+		aClass = createClass(destiny, format(node.name()));
 		return aClass;
 	}
 
 	private PsiClass createClass(PsiDirectory destiny, String className) {
 		PsiFile file = destiny.findFile(className + ".java");
 		if (file != null) return null;
-		Map<String, String> additionalProperties = new HashMap<>();
-		additionalProperties.put("TYPE", getRuleType());
-		return JavaDirectoryService.getInstance().createClass(destiny, className, "MetricClass", true, additionalProperties);
+		PsiFile element = PsiFileFactory.getInstance(node.getProject()).createFileFromText(className, JavaFileType.INSTANCE, content());
+		return (PsiClass) destiny.add(element);
 	}
 
-	private String getRuleType() {
-		if (variable.type().equals(Primitive.WORD)) return "Enum";
-		if (variable.type().equals(Primitive.RESOURCE)) return "java.io.File";
-		return variable.type().javaName();
+	private String content() {
+		return new DecorableTemplate().render(createFrame(this.node));
 	}
+
+	private Frame createFrame(TaraNode node) {
+		FrameBuilder builder = new FrameBuilder("node").add("package", validName(graphPackage)).add("name", validName(node.name()));
+		if (node.isAbstract()) builder.add("abstract", "abstract");
+		builder.add("node", node.components().stream().map(c -> createFrame(node)).toArray(Frame[]::new));
+		return builder.toFrame();
+	}
+
+	private String format(String name) {
+		return firstUpperCase().format(validName(name)).toString();
+	}
+
+	private String validName(String name) {
+		return javaValidName().format(name).toString();
+	}
+
 
 	@Override
 	public boolean startInWriteAction() {

@@ -3,9 +3,9 @@ package io.intino.plugin.codefolding;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.*;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

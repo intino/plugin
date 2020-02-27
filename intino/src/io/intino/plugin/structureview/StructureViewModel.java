@@ -4,8 +4,8 @@ import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.structureView.TextEditorBasedStructureViewModel;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import com.intellij.psi.PsiFile;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 class StructureViewModel extends TextEditorBasedStructureViewModel implements com.intellij.ide.structureView.StructureViewModel.ElementInfoProvider {

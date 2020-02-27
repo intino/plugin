@@ -2,8 +2,8 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.intino.Configuration;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;

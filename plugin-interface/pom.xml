@@ -6,7 +6,7 @@
     <groupId>io.intino</groupId>
     <artifactId>plugin-interface</artifactId>
     <name>plugin-interface</name>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -14,9 +14,9 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/intino</outputDirectory>
-        <testOutputDirectory>../out/test/intino</testOutputDirectory>
-        <directory>../out/build/intino</directory>
+        <outputDirectory>../out/production/intino-plugin</outputDirectory>
+        <testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
+        <directory>../out/build/intino-plugin</directory>
         <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>

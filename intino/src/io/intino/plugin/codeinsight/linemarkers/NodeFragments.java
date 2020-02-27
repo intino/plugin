@@ -11,9 +11,9 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeContainer;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeContainer;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

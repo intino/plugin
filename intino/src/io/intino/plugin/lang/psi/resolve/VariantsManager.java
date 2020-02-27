@@ -1,18 +1,18 @@
 package io.intino.plugin.lang.psi.resolve;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.Checker;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Tag;
+import io.intino.magritte.lang.model.rules.variable.ReferenceRule;
+import io.intino.magritte.lang.semantics.Constraint;
+import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Tag;
-import io.intino.tara.lang.model.rules.variable.ReferenceRule;
-import io.intino.tara.lang.semantics.Constraint;
-import io.intino.tara.lang.semantics.constraints.parameter.ReferenceParameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -63,15 +63,15 @@ class VariantsManager {
 		return ((ReferenceRule) constraint.rule()).allowedReferences();
 	}
 
-	private Constraint.Parameter searchInFacets(List<io.intino.tara.lang.model.Aspect> aspects, List<Constraint> constraints, Parameter parameter) {
+	private Constraint.Parameter searchInFacets(List<io.intino.magritte.lang.model.Aspect> aspects, List<Constraint> constraints, Parameter parameter) {
 		for (Constraint c : constraints)
 			if (c instanceof Constraint.Aspect && facetOf((Constraint.Aspect) c, aspects) != null)
 				return findParameter(((Constraint.Aspect) c).constraints(), parameter);
 		return null;
 	}
 
-	private io.intino.tara.lang.model.Aspect facetOf(Constraint.Aspect c, List<io.intino.tara.lang.model.Aspect> aspects) {
-		for (io.intino.tara.lang.model.Aspect aspect : aspects)
+	private io.intino.magritte.lang.model.Aspect facetOf(Constraint.Aspect c, List<io.intino.magritte.lang.model.Aspect> aspects) {
+		for (io.intino.magritte.lang.model.Aspect aspect : aspects)
 			if (aspect.type().equals(c.type())) return aspect;
 		return null;
 	}

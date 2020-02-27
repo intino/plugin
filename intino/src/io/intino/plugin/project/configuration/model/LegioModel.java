@@ -1,9 +1,9 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Aspect;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Aspect;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

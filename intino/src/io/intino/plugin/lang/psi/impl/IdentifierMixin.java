@@ -6,20 +6,20 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.resolve.*;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
-import io.intino.tara.lang.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static io.intino.tara.lang.model.Primitive.REFERENCE;
-import static io.intino.tara.lang.model.Primitive.WORD;
+import static io.intino.magritte.lang.model.Primitive.REFERENCE;
+import static io.intino.magritte.lang.model.Primitive.WORD;
 
 public class IdentifierMixin extends ASTWrapperPsiElement {
 

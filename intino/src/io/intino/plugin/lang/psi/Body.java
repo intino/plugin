@@ -1,9 +1,9 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.psi.PsiElement;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Variable;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

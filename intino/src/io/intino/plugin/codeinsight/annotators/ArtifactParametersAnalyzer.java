@@ -2,6 +2,8 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
@@ -10,8 +12,6 @@ import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioLanguage;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +23,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 	private final Node artifactNode;
@@ -38,7 +38,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		Configuration.Artifact.Model model = configuration.artifact().model();
-		if (model.language().name() == null) return;
+		if (model == null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())

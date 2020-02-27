@@ -5,18 +5,18 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Tag;
+import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Tag;
-import io.intino.tara.lang.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.tara.lang.model.Primitive.REFERENCE;
+import static io.intino.magritte.lang.model.Primitive.REFERENCE;
 
 public class ParameterMixin extends ASTWrapperPsiElement {
 

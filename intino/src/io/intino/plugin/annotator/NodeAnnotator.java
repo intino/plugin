@@ -4,6 +4,8 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.annotator.semanticanalizer.ModelAnalyzer;
 import io.intino.plugin.annotator.semanticanalizer.NodeAnalyzer;
 import io.intino.plugin.annotator.semanticanalizer.NodeReferenceAnalyzer;
@@ -12,8 +14,6 @@ import io.intino.plugin.lang.psi.TaraIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraNodeReference;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Tag;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

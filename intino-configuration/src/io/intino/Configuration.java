@@ -231,6 +231,8 @@ public interface Configuration {
 		}
 
 		interface WebArtifact {
+			String name();
+
 			default String identifier() {
 				return groupId() + ":" + artifactId() + ":" + version();
 			}

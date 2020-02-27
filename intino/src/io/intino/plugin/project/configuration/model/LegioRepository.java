@@ -1,9 +1,9 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.lang.model.Node;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 

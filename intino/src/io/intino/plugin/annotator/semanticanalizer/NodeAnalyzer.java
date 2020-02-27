@@ -1,19 +1,19 @@
 package io.intino.plugin.annotator.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.Checker;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Aspect;
+import io.intino.magritte.lang.model.Element;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeRoot;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticException;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Aspect;
-import io.intino.tara.lang.model.Element;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeRoot;
-import io.intino.tara.lang.semantics.errorcollector.SemanticException;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 
 import java.util.ArrayList;
 import java.util.Collections;

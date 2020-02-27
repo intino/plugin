@@ -13,11 +13,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.annotator.fix.WithLiveTemplateFix;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

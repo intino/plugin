@@ -2,9 +2,9 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.file.legio.LegioFileType;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 public class ArtifactParameterAnnotator extends TaraAnnotator {

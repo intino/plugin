@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.IntinoGenerationAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
@@ -27,7 +28,6 @@ import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.project.components.Element;
 import io.intino.plugin.toolwindows.project.components.FactoryPanel;
 import io.intino.plugin.toolwindows.project.components.Operation;
-import io.intino.tara.lang.model.Node;
 
 import javax.swing.*;
 import java.awt.*;

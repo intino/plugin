@@ -1,0 +1,12 @@
+def trigger(node)
+	package $package+lowercase[.$container+lowercase];
+
+    	public [$abstract] class $name+FirstUpperCase extends Abstract$name+FirstUpperCase {
+
+    		public $name+FirstUpperCase(io.intino.magritte.framework.Node node) {
+    			super(node);
+    		}
+    	}
+    	$node...[$NL$NL]
+	
+end

@@ -6,13 +6,13 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

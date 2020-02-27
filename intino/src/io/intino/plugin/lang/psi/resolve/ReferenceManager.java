@@ -8,6 +8,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPackage;
+import io.intino.magritte.lang.model.*;
 import io.intino.plugin.codeinsight.JavaHelper;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.Rule;
@@ -16,7 +17,6 @@ import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -7,11 +7,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.Constraint;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,11 +72,11 @@ class AddRequiredAspectFix implements IntentionAction {
 	}
 
 	private List<String> facetTypes(Node node) {
-		return node.appliedAspects().stream().map(io.intino.tara.lang.model.Aspect::type).collect(Collectors.toList());
+		return node.appliedAspects().stream().map(io.intino.magritte.lang.model.Aspect::type).collect(Collectors.toList());
 	}
 
 	private void filterPresentFacets(List<Constraint.Aspect> requires) {
-		for (io.intino.tara.lang.model.Aspect aspect : node.appliedAspects()) {
+		for (io.intino.magritte.lang.model.Aspect aspect : node.appliedAspects()) {
 			Constraint.Aspect require = findInConstraints(requires, aspect.type());
 			if (require != null) requires.remove(require);
 		}

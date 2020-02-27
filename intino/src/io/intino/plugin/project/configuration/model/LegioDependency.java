@@ -6,10 +6,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Parameter;
 
 import java.util.Collections;
 import java.util.List;

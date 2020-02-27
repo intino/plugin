@@ -13,8 +13,8 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.tara.io.Stash;
-import io.intino.tara.io.StashSerializer;
+import io.intino.magritte.io.Stash;
+import io.intino.magritte.io.StashSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

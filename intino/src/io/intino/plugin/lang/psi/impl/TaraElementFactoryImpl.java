@@ -6,12 +6,12 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.*;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
 
 import java.util.Collection;
 import java.util.List;

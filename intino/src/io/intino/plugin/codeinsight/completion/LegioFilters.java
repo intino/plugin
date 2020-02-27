@@ -8,14 +8,14 @@ import com.intellij.psi.filters.position.FilterPattern;
 import io.intino.Configuration.Artifact.Box;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Artifact.Model;
+import io.intino.magritte.Checker;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.StringValue;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.Nullable;
 import tara.dsl.Legio;
 

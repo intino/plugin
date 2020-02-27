@@ -1,9 +1,9 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.psi.PsiInvalidElementAccessException;
+import io.intino.magritte.lang.model.Aspect;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.tara.lang.model.Aspect;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

@@ -1,7 +1,4 @@
-package io.intino.legio;
-
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.LegioGraph;
+package io.intino.legio.graph;
 
 import java.util.HashMap;
 import java.util.Map;

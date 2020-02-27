@@ -4,13 +4,13 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Parameters;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;

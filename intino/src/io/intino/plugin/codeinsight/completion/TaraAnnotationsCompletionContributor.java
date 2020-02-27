@@ -9,12 +9,12 @@ import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Flags;
+import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.IntinoModuleType;
-import io.intino.tara.lang.model.Flags;
-import io.intino.tara.lang.model.Tag;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;

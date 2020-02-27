@@ -27,9 +27,9 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
+import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
 
 import java.io.File;
 import java.util.ArrayList;

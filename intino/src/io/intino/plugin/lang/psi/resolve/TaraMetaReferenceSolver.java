@@ -5,13 +5,13 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.Documentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

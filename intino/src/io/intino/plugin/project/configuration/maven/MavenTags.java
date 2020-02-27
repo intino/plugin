@@ -15,10 +15,11 @@ public interface MavenTags {
 
 	String LEVEL = "tara.level";
 
-	String DSL = "tara.dsl";
-	String DSL_VERSION = "tara.dsl.version";
-	String OUT_DSL = "tara.out.dsl";
-	String WORKING_PACKAGE = "tara.working.package";
+	String DSL = "tara.language";
+	String DSL_VERSION = "tara.language.version";
+	String OUT_DSL = "tara.out.language";
 	String INTERFACE_VERSION = "tara.interface.version";
 	String INTERFACE_NAME = "tara.interface.name";
+	String GENERATION_PACKAGE = "tara.generation.package";
+	String OUT_DSL_VERSION = "tara.out.dsl.version";
 }

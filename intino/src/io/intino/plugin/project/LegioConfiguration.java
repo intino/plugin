@@ -17,6 +17,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.Configuration;
+import io.intino.magritte.Resolver;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeContainer;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -26,9 +29,6 @@ import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.project.configuration.model.LegioRepository;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import io.intino.plugin.project.configuration.model.LegioServer;
-import io.intino.tara.Resolver;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeContainer;
 import org.jetbrains.annotations.NotNull;
 import tara.dsl.Legio;
 
@@ -212,7 +212,7 @@ public class LegioConfiguration implements Configuration {
 	public void save() {
 		LegioArtifact artifact = artifact();
 		if (module == null || ModuleType.get(module) instanceof WebModuleType) return;
-		if (artifact.model().language() != null) try {
+		if (artifact.model() != null) try {
 			Files.write(confFile().toPath(), artifact.serialize());
 		} catch (IOException e) {
 			LOG.error(e);

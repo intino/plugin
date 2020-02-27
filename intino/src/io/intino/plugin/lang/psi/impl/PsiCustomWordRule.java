@@ -3,10 +3,10 @@ package io.intino.plugin.lang.psi.impl;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import io.intino.magritte.lang.model.rules.CustomRule;
+import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.rules.CustomRule;
-import io.intino.tara.lang.model.rules.variable.VariableRule;
 
 import java.io.File;
 import java.util.ArrayList;

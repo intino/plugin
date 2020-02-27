@@ -5,14 +5,14 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.rules.NodeRule;
 import io.intino.plugin.lang.psi.Parameters;
 import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.TaraParameters;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.rules.NodeRule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

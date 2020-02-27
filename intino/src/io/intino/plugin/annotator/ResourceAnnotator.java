@@ -3,19 +3,19 @@ package io.intino.plugin.annotator;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.psi.TaraStringValue;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.WARNING;
 import static io.intino.plugin.messages.MessageProvider.message;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.WARNING;
 import static java.util.Collections.emptyList;
 
 public class ResourceAnnotator extends TaraAnnotator {

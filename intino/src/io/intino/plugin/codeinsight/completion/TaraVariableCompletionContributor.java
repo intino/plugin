@@ -7,6 +7,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.util.ProcessingContext;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
+import io.intino.magritte.lang.model.rules.Suggestion;
+import io.intino.magritte.lang.model.rules.variable.WordRule;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.StringValue;
 import io.intino.plugin.lang.psi.TaraTypes;
@@ -14,17 +20,11 @@ import io.intino.plugin.lang.psi.TaraVariableType;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.PsiCustomWordRule;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
-import io.intino.tara.lang.model.rules.Suggestion;
-import io.intino.tara.lang.model.rules.variable.WordRule;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static io.intino.tara.lang.model.Primitive.*;
+import static io.intino.magritte.lang.model.Primitive.*;
 
 
 public class TaraVariableCompletionContributor extends CompletionContributor {

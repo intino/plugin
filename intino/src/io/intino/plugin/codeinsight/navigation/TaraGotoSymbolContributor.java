@@ -4,8 +4,8 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
 import org.intellij.plugins.relaxNG.GotoSymbolContributor;
 import org.jetbrains.annotations.NotNull;
 

@@ -3,10 +3,10 @@ package io.intino.plugin.lang.psi;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.model.Primitive;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.model.Primitive;
 
 import java.util.List;
 import java.util.Map;

@@ -1,12 +1,12 @@
 package io.intino.plugin.codeinsight.languageinjection.helpers;
 
+import io.intino.magritte.Checker;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.Checker;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.qualifiedName;
 

@@ -5,11 +5,11 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.NodeRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

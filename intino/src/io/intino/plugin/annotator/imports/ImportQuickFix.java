@@ -5,8 +5,8 @@ import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.structuralsearch.plugin.util.SmartPsiPointer;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

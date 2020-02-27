@@ -6,11 +6,11 @@ import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.JavaHelper;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

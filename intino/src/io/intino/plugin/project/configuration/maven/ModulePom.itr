@@ -68,8 +68,8 @@ end
 
 def type(magritte) trigger(magritte)
     <dependency>
-        <groupId>io.intino.tara</groupId>
-        <artifactId>magritte</artifactId>
+        <groupId>io.intino.magritte</groupId>
+        <artifactId>framework</artifactId>
         <version>LATEST</version>
     </dependency>
 end

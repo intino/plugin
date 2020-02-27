@@ -6,9 +6,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraBody;
 import io.intino.plugin.lang.psi.TaraNodeReference;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

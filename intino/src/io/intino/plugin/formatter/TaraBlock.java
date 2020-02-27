@@ -8,9 +8,9 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraBody;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.tara.lang.model.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

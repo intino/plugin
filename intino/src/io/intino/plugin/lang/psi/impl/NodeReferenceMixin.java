@@ -2,10 +2,10 @@ package io.intino.plugin.lang.psi.impl;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
+import io.intino.magritte.lang.model.Rule;
+import io.intino.magritte.lang.model.*;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
-import io.intino.tara.lang.model.Rule;
-import io.intino.tara.lang.model.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

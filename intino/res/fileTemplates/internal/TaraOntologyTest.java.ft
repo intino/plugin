@@ -2,7 +2,7 @@
 
 import org.junit.Before;
 import org.junit.Test;
-import io.intino.tara.magritte.Graph;
+import io.intino.magritte.framework.Graph;
 import ${WORKING_PACKAGE.toLowerCase()}.${APPLICATION}Application;
 
 public class ${NAME}Test {

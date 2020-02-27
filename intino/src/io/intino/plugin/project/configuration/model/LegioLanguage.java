@@ -1,10 +1,10 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.tara.dsl.Meta;
-import io.intino.tara.dsl.Proteo;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
-import static io.intino.tara.compiler.shared.TaraBuildConstants.GENERATION_PACKAGE;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.GENERATION_PACKAGE;
 
 public class LegioLanguage implements Configuration.Artifact.Model.Language {
 	private final LegioModel model;

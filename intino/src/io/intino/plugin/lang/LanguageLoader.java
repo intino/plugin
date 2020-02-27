@@ -1,8 +1,8 @@
 package io.intino.plugin.lang;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.intino.magritte.Language;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
-import io.intino.tara.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

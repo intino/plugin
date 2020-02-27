@@ -5,6 +5,9 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
+import io.intino.magritte.lang.model.rules.custom.Url;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.CreateMetricClassIntention;
 import io.intino.plugin.annotator.fix.CreateVariableRuleClassIntention;
@@ -18,12 +21,9 @@ import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
-import io.intino.tara.lang.model.rules.custom.Url;
 
 import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class VariableRuleClassAnalyzer extends TaraAnalyzer {
 

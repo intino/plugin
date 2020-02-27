@@ -51,7 +51,7 @@ public class PackageJsonCreator {
 	private FrameBuilder packageFrame() {
 		List<JsonObject> packages = resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
-		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fstEvents", "");
+		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fsevents", "");
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
@@ -100,7 +100,7 @@ public class PackageJsonCreator {
 
 	private File extractInNodeModulesDirectory(WebArtifact artifact, File jarFile) {
 		try {
-			final File outputDir = new File(nodeModulesDirectory, artifact.artifactId().toLowerCase());
+			final File outputDir = new File(nodeModulesDirectory, artifact.name().toLowerCase());
 			ZipUtil.extract(jarFile, outputDir, null);
 			FileUtil.delete(new File(outputDir, "META-INF"));
 			return new File(outputDir, "package.json");

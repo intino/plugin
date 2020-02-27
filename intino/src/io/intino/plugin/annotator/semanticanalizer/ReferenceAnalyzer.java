@@ -13,6 +13,10 @@ import com.intellij.psi.ExternallyAnnotated;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Primitive;
+import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.fix.CreateClassFromMethodReferenceFix;
 import io.intino.plugin.annotator.fix.CreateMetricClassIntention;
@@ -30,10 +34,6 @@ import io.intino.plugin.lang.psi.resolve.MethodReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.OutDefinedReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.TaraNodeReferenceSolver;
 import io.intino.plugin.messages.MessageProvider;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Primitive;
-import io.intino.tara.lang.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,8 +41,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.INSTANCE;
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.INSTANCE;
 import static java.util.Collections.singletonList;
 
 public class ReferenceAnalyzer extends TaraAnalyzer {

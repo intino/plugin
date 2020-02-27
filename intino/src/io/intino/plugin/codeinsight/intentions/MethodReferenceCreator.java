@@ -3,6 +3,15 @@ package io.intino.plugin.codeinsight.intentions;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
 import io.intino.itrules.FrameBuilder;
+import io.intino.magritte.Checker;
+import io.intino.magritte.Language;
+import io.intino.magritte.lang.model.*;
+import io.intino.magritte.lang.model.rules.CustomRule;
+import io.intino.magritte.lang.model.rules.Size;
+import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
+import io.intino.magritte.lang.model.rules.variable.NativeRule;
+import io.intino.magritte.lang.semantics.Constraint;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.codeinsight.languageinjection.helpers.NativeExtractor;
 import io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter;
@@ -16,25 +25,16 @@ import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
-import io.intino.tara.Checker;
-import io.intino.tara.Language;
-import io.intino.tara.lang.model.*;
-import io.intino.tara.lang.model.rules.CustomRule;
-import io.intino.tara.lang.model.rules.Size;
-import io.intino.tara.lang.model.rules.variable.NativeObjectRule;
-import io.intino.tara.lang.model.rules.variable.NativeRule;
-import io.intino.tara.lang.semantics.Constraint;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
 
 import java.util.*;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension;
 import static com.intellij.pom.java.LanguageLevel.JDK_1_8;
 import static com.intellij.psi.search.GlobalSearchScope.*;
+import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 import static io.intino.plugin.codeinsight.languageinjection.NativeFormatter.buildContainerPath;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.cleanQn;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qnOf;
-import static io.intino.tara.lang.model.Primitive.FUNCTION;
 
 public class MethodReferenceCreator {
 	private final Valued valued;
@@ -121,7 +121,7 @@ public class MethodReferenceCreator {
 			if (node != null) new Checker(TaraUtil.getLanguage(valued)).check(node.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
-		if (valued.flags().contains(Tag.Concept)) return "io.intino.tara.magritte.Concept";
+		if (valued.flags().contains(Tag.Concept)) return "io.intino.magritte.framework.Concept";
 		if (FUNCTION.equals(valued.type()) && valued.rule() instanceof NativeRule)
 			return getFunctionReturnType().getPresentableText();
 		else if (Primitive.OBJECT.equals(valued.type())) return getObjectReturnType();
