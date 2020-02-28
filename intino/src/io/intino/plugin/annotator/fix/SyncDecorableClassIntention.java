@@ -9,6 +9,7 @@ import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -50,26 +51,55 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 		final PsiFile file = element.getContainingFile();
 		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getSrcDirectory(TaraUtil.getSourceRoots(file)));
 		PsiDirectoryImpl genPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getGenDirectory(TaraUtil.getSourceRoots(file)));
-		PsiClass aClass = createRuleClass(file, srcPsiDirectory, genPsiDirectory);
+		PsiClass aClass = createDecorableClass(file, srcPsiDirectory, genPsiDirectory);
 		if (aClass != null) aClass.navigate(true);
 	}
 
-	private PsiClass createRuleClass(PsiFile file, PsiDirectoryImpl srcPsiDirectory, PsiDirectoryImpl genPsiDirectory) {
+	private PsiClass createDecorableClass(PsiFile file, PsiDirectoryImpl srcPsiDirectory, PsiDirectoryImpl genPsiDirectory) {
 		PsiClass aClass;
 		PsiDirectory srcDestination = findDestination(file, srcPsiDirectory, graphPackage);
 		PsiDirectory genDestination = findDestination(file, genPsiDirectory, graphPackage);
-		aClass = createClass(srcDestination, genDestination, format(node.name()));
+		aClass = syncClass(srcDestination, genDestination, format(node.name()));
 		return aClass;
 	}
 
-	private PsiClass createClass(PsiDirectory srcDestination, PsiDirectory genDestination, String className) {
-		PsiFile file = srcDestination.findFile(className + ".java");
-		if (file != null) return null;
-		PsiFile srcClass = createSrcClass(className);
-		PsiFile genClass = createGenClass(className);
-		srcClass = (PsiFile) srcDestination.add(srcClass);
-		genDestination.add(genClass);
-		return ((PsiJavaFile) srcClass).getClasses()[0];
+	private PsiClass syncClass(PsiDirectory srcDestination, PsiDirectory genDestination, String className) {
+		PsiFile srcFile = srcDestination.findFile(className + ".java");
+		boolean existSrc = srcFile != null;
+		PsiFile genFile = genDestination.findFile("Abstract" + className + ".java");
+		boolean existGen = genFile != null;
+		if (!existSrc) srcFile = (PsiFile) srcDestination.add(createSrcClass(className));
+		if (!existGen) genFile = (PsiFile) genDestination.add(createGenClass(className));
+		if (existSrc) return syncSubClasses(srcFile, genFile);
+		return ((PsiJavaFile) srcFile).getClasses()[0];
+	}
+
+	private PsiClass syncSubClasses(PsiFile srcFile, PsiFile genFile) {
+		PsiClass srcClass = ((PsiJavaFile) srcFile).getClasses()[0];
+		PsiClass genClass = ((PsiJavaFile) genFile).getClasses()[0];
+		syncSubClasses(srcClass, genClass, this.node);
+		return srcClass;
+	}
+
+	private void syncSubClasses(PsiClass srcClass, PsiClass genClass, TaraNode node) {
+		for (Node component : node.components()) {
+			if (component.isReference()) continue;
+			PsiClass innerGenClass = genClass.findInnerClassByName("Abstract" + validName(component.name()), false);
+			PsiClass innerSrcClass = srcClass.findInnerClassByName(validName(component.name()), false);
+			if (innerGenClass == null) createTree(genClass, component, true);
+			if (innerSrcClass == null) createTree(srcClass, component, false);
+			else syncSubClasses(innerSrcClass, innerGenClass, (TaraNode) component);
+		}
+	}
+
+	private void createTree(PsiClass context, Node component, boolean isGen) {
+		final JavaPsiFacade facade = JavaPsiFacade.getInstance(context.getProject());
+		final PsiClass psiClass = facade.getElementFactory().createClassFromText(buildClass((TaraNode) component, isGen), context).getInnerClasses()[0];
+		context.add(psiClass);
+	}
+
+	private String buildClass(TaraNode component, boolean isGen) {
+		return new DecorableTemplate().render(createNodeFrame(component, isGen));
 	}
 
 	private PsiFile createGenClass(String className) {
@@ -97,7 +127,7 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 		FrameBuilder builder = new FrameBuilder(gen ? "nodeGen" : "node").add("name", validName(node.name()));
 		if (!(node.container() instanceof NodeRoot)) builder.add("inner", "static");
 		if (node.isAbstract()) builder.add("abstract", "abstract");
-		builder.add(gen ? "nodeGen" : "node", node.components().stream().map(c -> createNodeFrame((TaraNode) c, gen)).toArray(Frame[]::new));
+		builder.add(gen ? "nodeGen" : "node", node.components().stream().filter(c -> !c.isReference()).map(c -> createNodeFrame((TaraNode) c, gen)).toArray(Frame[]::new));
 		return builder.toFrame();
 	}
 

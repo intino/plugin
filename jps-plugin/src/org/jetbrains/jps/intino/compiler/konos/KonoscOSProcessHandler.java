@@ -125,9 +125,7 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 		final List<String> list = splitAndTrim(compiled);
 		String outputFile = list.get(0);
 		String sourceFile = list.get(1);
-
 		OutputItem item = new OutputItem(outputFile, sourceFile);
-		LOG.info("Output: " + item);
 		compiledItems.add(item);
 	}
 

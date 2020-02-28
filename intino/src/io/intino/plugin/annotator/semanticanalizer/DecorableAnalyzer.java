@@ -17,7 +17,6 @@ import java.util.Objects;
 
 import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.WARNING;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.javaValidName;
 
@@ -45,10 +44,11 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 	private void checkTree(PsiClass aClass, Node node) {
 		if (!results.isEmpty()) return;
 		for (Node component : node.components()) {
+			if (component.isReference()) continue;
 			String name = format(component.name());
 			PsiClass inner = Arrays.stream(aClass.getInnerClasses()).filter(cl -> Objects.equals(cl.getName(), name)).findFirst().orElse(null);
 			if (inner == null) {
-				results.put(((TaraNode) component).getSignature(), new TaraAnnotator.AnnotateAndFix(WARNING, MessageProvider.message("error.link.to.decorable"), collectFixes()));
+				results.put(((TaraNode) component).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
 				return;
 			}
 			checkTree(inner, component);
