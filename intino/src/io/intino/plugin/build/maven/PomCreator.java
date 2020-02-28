@@ -168,7 +168,7 @@ class PomCreator {
 
 	@NotNull
 	private List<Dependency> collectDependencies() {
-		List<Dependency> deps = new ArrayList<>(safeList(() -> configuration.artifact().dependencies()));
+		List<Dependency> deps = new ArrayList<>(safeList(() -> configuration.artifact().dependencies())).stream().filter(d -> !(d instanceof Dependency.Web)).collect(Collectors.toList());
 		Dependency.DataHub datahub = configuration.artifact().datahub();
 		if (datahub != null) deps.add(datahub);
 		return deps;

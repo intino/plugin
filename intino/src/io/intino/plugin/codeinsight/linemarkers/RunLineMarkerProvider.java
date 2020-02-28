@@ -113,7 +113,9 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private PsiClass findRunnerClass(Module module) {
 		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		if (configuration == null) return null;
-		return JavaPsiFacade.getInstance(module.getProject()).findClass(configuration.artifact().packageConfiguration().mainClass(), GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+		String qualifiedName = configuration.artifact().packageConfiguration().mainClass();
+		if (qualifiedName == null) return null;
+		return JavaPsiFacade.getInstance(module.getProject()).findClass(qualifiedName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
 	}
 
 	@NotNull

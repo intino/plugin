@@ -44,7 +44,8 @@ public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Depe
 		try {
 			if (!resolutionsFile.exists()) return;
 			Gson gson = new Gson();
-			Map<? extends String, ? extends List<DependencyCatalog.Dependency>> map = gson.fromJson(new String(Files.readAllBytes(resolutionsFile.toPath())), new TypeToken<Map<String, List<DependencyCatalog.Dependency>>>() {
+			String json = new String(Files.readAllBytes(resolutionsFile.toPath()));
+			Map<? extends String, ? extends List<DependencyCatalog.Dependency>> map = gson.fromJson(json, new TypeToken<Map<String, List<DependencyCatalog.Dependency>>>() {
 			}.getType());
 			if (map != null) putAll(map);
 		} catch (Exception e) {

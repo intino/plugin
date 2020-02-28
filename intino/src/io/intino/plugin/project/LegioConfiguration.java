@@ -46,12 +46,12 @@ import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY
 public class LegioConfiguration implements Configuration {
 	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());
 	private final Module module;
+	private final Resolver resolver;
 	private TaraModel legioFile;
 	private VirtualFile vFile;
 	private boolean reloading = false;
 	private boolean inited = false;
 	private DependencyAuditor dependencyAuditor;
-	private final Resolver resolver;
 
 	public LegioConfiguration(Module module) {
 		this.module = module;
@@ -212,7 +212,7 @@ public class LegioConfiguration implements Configuration {
 	public void save() {
 		LegioArtifact artifact = artifact();
 		if (module == null || ModuleType.get(module) instanceof WebModuleType) return;
-		if (artifact.model() != null) try {
+		if (artifact.model() != null || artifact.box() != null) try {
 			Files.write(confFile().toPath(), artifact.serialize());
 		} catch (IOException e) {
 			LOG.error(e);

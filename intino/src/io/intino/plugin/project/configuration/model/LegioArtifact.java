@@ -265,19 +265,19 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	public byte[] serialize() {
 		Model model = model();
-		String parent = parent();
+		String parent = parent(model);
 		String builder = GROUP_ID + EQ + groupId() + "\n" +
 				ARTIFACT_ID + EQ + name() + "\n" +
 				VERSION + EQ + version() + "\n" +
 				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + "\n" : "") +
 				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + "\n" +
 				GENERATION_PACKAGE + EQ + code().generationPackage() + "\n";
-		if (model().language() != null) {
+		if (model != null) {
 			builder += LANGUAGE + EQ + model.language().name() + "\n" +
 					LANGUAGE_VERSION + EQ + model.language().version() + "\n" +
 					OUT_DSL + EQ + model.outLanguage() + "\n" +
 					OUT_DSL_VERSION + EQ + model.outLanguageVersion() + "\n";
-			if (model().level() != null) builder += LEVEL + EQ + model.level().name() + "\n";
+			if (model.level() != null) builder += LEVEL + EQ + model.level().name() + "\n";
 			if (model.language().generationPackage() != null)
 				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
 		}
@@ -286,18 +286,18 @@ public class LegioArtifact implements Configuration.Artifact {
 		return builder.getBytes();
 	}
 
-	private String parent() {
+	private String parent(Model model) {
 		Application application = ApplicationManager.getApplication();
-		if (application.isReadAccessAllowed()) return calculateParent();
-		return application.<String>runReadAction(this::calculateParent);
+		if (application.isReadAccessAllowed()) return calculateParent(model);
+		return application.<String>runReadAction(() -> calculateParent(model));
 	}
 
-	private String calculateParent() {
+	private String calculateParent(Model model) {
 		try {
-			if (node == null) return null;
+			if (node == null || model == null) return null;
 			Module module = ModuleProvider.moduleOf(node);
 			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
-			Model.Language language = model().language();
+			Model.Language language = model.language();
 			if (language == null || language.generationPackage() == null) return null;
 			final String workingPackage = language.generationPackage().replace(".graph", "");
 			String artifact = LanguageResolver.languageId(language.name(), language.effectiveVersion()).split(":")[1];

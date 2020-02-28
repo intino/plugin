@@ -34,6 +34,7 @@ class JpsConfigurationLoader {
 		File confFile = new File(JpsModelSerializationDataService.getBaseDirectory(module.getProject()), ".intino/artifacts/" + module.getName() + ".conf");
 		if (confFile.exists()) {
 			fillFromTara(conf, confFile);
+			return conf;
 		}
 		final MavenProjectConfiguration maven = JpsMavenExtensionService.getInstance().getMavenProjectConfiguration(context.getProjectDescriptor().dataManager.getDataPaths());
 		if (maven == null) return conf;
@@ -49,13 +50,13 @@ class JpsConfigurationLoader {
 						String[] split = s.split("=");
 						return split.length > 1 ? split[1] : "";
 					}));
-			conf.groupId = parameters.get(GROUP_ID);
-			conf.artifactId = parameters.get(ARTIFACT_ID);
+			conf.groupId = parameters.getOrDefault(GROUP_ID, "");
+			conf.artifactId = parameters.getOrDefault(ARTIFACT_ID, "");
 			conf.version = parameters.get(VERSION);
-			conf.language = parameters.get(LANGUAGE);
-			conf.languageVersion = parameters.get(LANGUAGE_VERSION);
-			conf.level = parameters.get(LEVEL);
-			conf.outDsl = parameters.get(OUT_DSL);
+			conf.language = parameters.getOrDefault(LANGUAGE, "");
+			conf.languageVersion = parameters.getOrDefault(LANGUAGE_VERSION, "");
+			conf.level = parameters.getOrDefault(LEVEL, "");
+			conf.outDsl = parameters.getOrDefault(OUT_DSL, "");
 			conf.generationPackage = parameters.get(TaraBuildConstants.GENERATION_PACKAGE);
 			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
 			conf.parameters = parameters.getOrDefault(KonosBuildConstants.PARAMETERS, "");
