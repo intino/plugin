@@ -17,9 +17,9 @@ import com.intellij.util.ui.UIUtil;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.actions.ExportAction;
-import io.intino.plugin.actions.IntinoGenerationAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
+import io.intino.plugin.actions.box.BoxElementsGenerationAction;
 import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -71,9 +71,7 @@ public class IntinoFactoryView extends JPanel {
 	private void generateCode(int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
-		final IntinoGenerationAction action = new IntinoGenerationAction();
-		if ((modifiers & ActionEvent.SHIFT_MASK) != 0) action.force(selectedModule());
-		else action.execute(selectedModule());
+		new BoxElementsGenerationAction().execute(selectedModule());
 	}
 
 	private void build() {

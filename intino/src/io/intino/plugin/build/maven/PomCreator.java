@@ -204,8 +204,9 @@ class PomCreator {
 	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
+			if (configuration instanceof LegioConfiguration) ((LegioConfiguration) configuration).reloadDependencies();
 			safeList(() -> configuration.artifact().dependencies()).stream().
-					filter(d -> !d.toModule() && dependencies.add(d.identifier())).
+					filter(d -> (!d.toModule()) && dependencies.add(d.identifier())).
 					forEach(d -> builder.add("dependency", createDependencyFrame(d)));
 			if (safe(() -> configuration.artifact().model()) == null) continue;
 			Artifact.Model.Language language = configuration.artifact().model().language();

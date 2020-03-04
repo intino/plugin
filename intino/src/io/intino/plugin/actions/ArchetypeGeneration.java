@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
@@ -12,6 +13,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
@@ -35,8 +37,15 @@ public class ArchetypeGeneration extends AnAction {
 					if (cnf != null && cnf.artifact().box() != null && cnf.artifact().packageConfiguration().isRunnable())
 						new ArchetypeRenderer(module, (LegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}
+				notifySuccess(e.getProject());
 			}
 		});
+	}
+
+	private void notifySuccess(Project project) {
+		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
+		if (balloon != null)
+			balloon.createNotification("Archetype reloaded", MessageType.INFO).setImportant(false).notify(project);
 	}
 
 	private void withTask(Task.Backgroundable runnable) {

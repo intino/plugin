@@ -97,7 +97,7 @@ public class TaraPsiUtil {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null ? clean(parameter.values().get(0).toString()) : (parameters.size() > position ? clean(parameters.get(position).values().get(0).toString()) : null);
+		return parameter != null ? clean(read(() -> parameter.values().get(0).toString())) : (parameters.size() > position ? clean(read(() -> parameters.get(position).values().get(0).toString())) : null);
 	}
 
 	private static String clean(String string) {

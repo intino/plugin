@@ -125,6 +125,10 @@ public class LegioConfiguration implements Configuration {
 		reloading = false;
 	}
 
+	public void reloadDependencies() {
+		reloader(UPDATE_POLICY_ALWAYS).reloadDependencies();
+	}
+
 	@NotNull
 	private ConfigurationReloader reloader(String updatePolicyDaily) {
 		return new ConfigurationReloader(module, dependencyAuditor, LegioConfiguration.this, updatePolicyDaily);

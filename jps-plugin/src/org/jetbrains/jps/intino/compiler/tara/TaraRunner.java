@@ -85,15 +85,15 @@ class TaraRunner {
 	}
 
 	TaracOSProcessHandler runTaraCompiler(final CompileContext context) throws IOException {
-		LOG.info("Tarac classpath: " + String.join("\n", classpath));
 		List<String> programParams = ContainerUtilRt.newArrayList(argsFile.getPath());
 		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : ContainerUtilRt.newArrayList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED");
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
-		vmParams.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
+		String encoding = System.getProperty("file.encoding");
+		vmParams.add("-Dfile.encoding=" + encoding);
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
 				getJavaExecutable(), "io.intino.magritte.TaracRunner", Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
-		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
+		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, String.join(" ", cmd), encoding, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
 			@Override
 			protected Future<?> executeOnPooledThread(@NotNull Runnable task) {
 				return SharedThreadPool.getInstance().executeOnPooledThread(task);

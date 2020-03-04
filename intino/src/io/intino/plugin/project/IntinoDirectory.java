@@ -1,5 +1,6 @@
 package io.intino.plugin.project;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -32,6 +33,13 @@ public class IntinoDirectory {
 		VirtualFile baseDir = vfOf(project);
 		VirtualFile box = baseDir.findChild("box");
 		return box == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "box")) : new File(box.getPath());
+	}
+
+	public static File boxDirectory(Module module) {
+		File file = boxDirectory(module.getProject());
+		File moduleBox = new File(file, module.getName());
+		moduleBox.mkdirs();
+		return moduleBox;
 	}
 
 	private static VirtualFile vfOf(Project project) {

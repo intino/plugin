@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 	private final Node artifactNode;
@@ -37,7 +38,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		Configuration.Artifact.Model model = configuration.artifact().model();
+		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));

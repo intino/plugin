@@ -260,10 +260,10 @@
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
         <action id="IntinoGenerate"
-                class="io.intino.plugin.actions.IntinoGenerationAction"
-                text="Generate Intino Code"
-                description="Generates all intino source code">
-            <keyboard-shortcut first-keystroke="control alt G" keymap="$default"/>
+                class="io.intino.plugin.actions.box.BoxElementsGenerationAction"
+                text="Generate Web Elements Code"
+                description="Generates web elements code">
+            <keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>
             <add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
         </action>
         <action id="PurgeAndReloadConfigurationAction"
@@ -275,7 +275,7 @@
                 class="io.intino.plugin.actions.UpdateVersionPropagationAction"
                 text="Update Versions of Module Dependencies"
                 description="Update versions module dependencies">
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt K"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
             <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="TechnicalSupport"/>
 
         </action>

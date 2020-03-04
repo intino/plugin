@@ -1,5 +1,6 @@
 package io.intino.plugin.settings;
 
+import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -10,6 +11,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class IntinoSettingsComponent implements ProjectComponent, Configurable {
@@ -27,6 +30,11 @@ public class IntinoSettingsComponent implements ProjectComponent, Configurable {
 	}
 
 	public void projectOpened() {
+		CompilerConfigurationImpl instance = (CompilerConfigurationImpl) CompilerConfigurationImpl.getInstance(project);
+		List<String> resourceFilePatterns = Arrays.asList(instance.getResourceFilePatterns());
+		if (!resourceFilePatterns.contains("!?*.tara")) instance.addResourceFilePattern("!?*.tara");
+		if (!resourceFilePatterns.contains("!?*.itr")) instance.addResourceFilePattern("!?*.itr");
+		if (!resourceFilePatterns.contains("!?*.konos")) instance.addResourceFilePattern("!?*.konos");
 	}
 
 	public void projectClosed() {

@@ -41,13 +41,24 @@ import java.util.stream.Collectors;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.plugin.build.FactoryPhase.DEPLOY;
-import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
+import static io.intino.plugin.build.FactoryPhase.*;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public abstract class AbstractArtifactFactory {
 	private static final String JAR_EXTENSION = ".jar";
+	private static VcsShowConfirmationOption STATIC_SHOW_CONFIRMATION = new VcsShowConfirmationOption() {
+		public VcsShowConfirmationOption.Value getValue() {
+			return VcsShowConfirmationOption.Value.SHOW_CONFIRMATION;
+		}
+
+		public void setValue(VcsShowConfirmationOption.Value value) {
+		}
+
+		public boolean isPersistent() {
+			return true;
+		}
+	};
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 
@@ -85,13 +96,14 @@ public abstract class AbstractArtifactFactory {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
 		LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
-		if (version.isSnapshot()) buildElements(module, phase, indicator);
+		if (version.isSnapshot()) buildModule(module, phase, indicator);
 		else {
-			if (!isCommittedToMaster(module)) {
+			if (phase.ordinal() >= DISTRIBUTE.ordinal() && !isCommittedToMaster(module)) {
 				errorMessages.add("To distribute Git repository must be on master and tagged with the version of the artifact");
 				return ProcessResult.NothingDone;
 			} else {
-				if (!isDistributed(configuration.artifact())) buildElements(module, phase, indicator);
+				if (phase.ordinal() < INSTALL.ordinal() || !isDistributed(configuration.artifact()))
+					buildModule(module, phase, indicator);
 				else if (askForSnapshotBuild(module)) {
 					configuration.artifact().version(version.nextSnapshot().get());
 					configuration.save();
@@ -104,7 +116,7 @@ public abstract class AbstractArtifactFactory {
 		return ProcessResult.Done;
 	}
 
-	private void buildElements(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
+	private void buildModule(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
 		buildLanguage(module, phase, indicator);
 		buildArtifact(module, phase, indicator);
 	}
@@ -206,7 +218,6 @@ public abstract class AbstractArtifactFactory {
 		return response.get();
 	}
 
-
 	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
@@ -260,19 +271,6 @@ public abstract class AbstractArtifactFactory {
 			progressIndicator.setIndeterminate(true);
 		}
 	}
-
-	private static VcsShowConfirmationOption STATIC_SHOW_CONFIRMATION = new VcsShowConfirmationOption() {
-		public VcsShowConfirmationOption.Value getValue() {
-			return VcsShowConfirmationOption.Value.SHOW_CONFIRMATION;
-		}
-
-		public void setValue(VcsShowConfirmationOption.Value value) {
-		}
-
-		public boolean isPersistent() {
-			return true;
-		}
-	};
 
 
 	public enum ProcessResult {

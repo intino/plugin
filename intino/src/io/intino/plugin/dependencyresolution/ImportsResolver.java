@@ -9,6 +9,7 @@ import io.intino.Configuration.Artifact.Dependency.Web;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -146,8 +147,9 @@ public class ImportsResolver {
 		String[] names = identifier.split(":");
 		for (Module m : Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(module -> !module.equals(this.module)).collect(toList())) {
 			final Configuration configuration = TaraUtil.configurationOf(m);
-			if (configuration == null) continue;
-			if (names[0].equals(configuration.artifact().groupId().toLowerCase()) && names[1].equals(configuration.artifact().name().toLowerCase()) && names[2].equalsIgnoreCase(configuration.artifact().version()))
+			if (!(configuration instanceof LegioConfiguration)) continue;
+			Configuration.Artifact artifact = configuration.artifact();
+			if (names[0].equals(artifact.groupId().toLowerCase()) && names[1].equals(artifact.name().toLowerCase()) && names[2].equalsIgnoreCase(artifact.version()))
 				return m;
 		}
 		return null;

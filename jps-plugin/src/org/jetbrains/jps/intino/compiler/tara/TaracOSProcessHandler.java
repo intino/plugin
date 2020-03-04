@@ -14,6 +14,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
 import org.jetbrains.jps.intino.compiler.OutputItem;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +33,8 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 	private final Consumer<String> statusUpdater;
 	private final StringBuilder outputBuffer = new StringBuilder();
 
-	TaracOSProcessHandler(Process process, Consumer<String> statusUpdater) {
-		super(process, null, null);
+	TaracOSProcessHandler(Process process, String cmd, String charset, Consumer<String> statusUpdater) {
+		super(process, cmd, Charset.forName(charset));
 		LOG.setLevel(Level.ALL);
 		this.statusUpdater = statusUpdater;
 	}

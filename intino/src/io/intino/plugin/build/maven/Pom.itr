@@ -360,6 +360,7 @@ def trigger(copyDependencies)
                 </goals>
                 <configuration>[
                     <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+                    <useBaseVersion>false</useBaseVersion>
                     <includeScope>runtime</includeScope>
                     <overWriteReleases>false</overWriteReleases>
                     <overWriteSnapshots>false</overWriteSnapshots>

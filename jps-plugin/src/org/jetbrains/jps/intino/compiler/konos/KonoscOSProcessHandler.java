@@ -132,8 +132,7 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 	private String handleOutputBuffer(String startMarker, String endMarker) {
 		final int start = outputBuffer.indexOf(startMarker);
 		final int end = outputBuffer.indexOf(endMarker);
-		if (start > end)
-			throw new AssertionError("Malformed Konosc output: " + outputBuffer.toString());
+		if (start > end) throw new AssertionError("Malformed Konosc output: " + outputBuffer.toString());
 		String text = outputBuffer.substring(start + startMarker.length(), end);
 		outputBuffer.delete(start, end + endMarker.length());
 		return text.trim();

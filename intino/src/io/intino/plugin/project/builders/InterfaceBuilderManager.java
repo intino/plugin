@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,9 +98,14 @@ public class InterfaceBuilderManager {
 		try {
 			File moduleBoxDirectory = new File(IntinoDirectory.boxDirectory(module.getProject()), module.getName());
 			moduleBoxDirectory.mkdirs();
-			Files.write(new File(moduleBoxDirectory, "compiler.classpath").toPath(), String.join(":", libraries).getBytes());
+			Files.write(classpathFile(moduleBoxDirectory), String.join(":", libraries).getBytes());
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
+	}
+
+	@NotNull
+	public static Path classpathFile(File moduleBoxDirectory) {
+		return new File(moduleBoxDirectory, "compiler.classpath").toPath();
 	}
 }

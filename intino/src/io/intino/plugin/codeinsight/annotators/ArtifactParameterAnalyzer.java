@@ -14,7 +14,6 @@ import java.util.List;
 
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 	private final Node parameterNode;
@@ -25,19 +24,16 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 		this.parameterNode = node;
 		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) parameterNode);
 		this.name = parameterName();
-
 	}
 
 	@Override
 	public void analyze() {
-		if (safe(() -> configuration.artifact().model().language()) == null) return;
 		if (name == null || name.isEmpty())
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("parameter.name.not.found")));
 		if (isDuplicated())
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("duplicated.parameter"), new RemoveElementFix((PsiElement) parameterNode)));
 		if (contains("."))
 			results.put(((TaraNode) parameterNode).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, message("dot.not.allowed.parameter"), new RemoveElementFix((PsiElement) parameterNode)));
-
 	}
 
 	private boolean contains(String value) {
