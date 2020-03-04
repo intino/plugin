@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.PostCompileAction;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +31,7 @@ public class ConfigurationDependencyCreationAction extends PostCompileAction {
 
 	@Override
 	public FinishStatus execute() {
-		Configuration configuration = TaraUtil.configurationOf(module);
+		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration == null) return FinishStatus.NothingDone;
 		Configuration.Artifact.Dependency dep = configuration.artifact().dependencies().stream().filter(d -> d.groupId().equals(groupId) && d.artifactId().equals(artifactId)).findFirst().orElse(null);
 		if (dep == null) {

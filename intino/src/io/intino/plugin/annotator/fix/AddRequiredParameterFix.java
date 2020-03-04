@@ -22,8 +22,8 @@ import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +79,7 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	private List<Constraint> findConstraints() {
 		final Node node = (Node) this.parametrized;
-		final List<Constraint> constraintsOf = new ArrayList<>(TaraUtil.getConstraintsOf(node));
+		final List<Constraint> constraintsOf = new ArrayList<>(IntinoUtil.getConstraintsOf(node));
 		List<Constraint> aspectConstraints = new ArrayList<>();
 		final List<String> aspects = aspectTypes(node);
 		for (Constraint c : constraintsOf) {

@@ -3,7 +3,7 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +25,7 @@ public class MavenPostBuildActions {
 	private final String buildDirectory;
 
 	public MavenPostBuildActions(Module module) {
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
 		this.compilerOutputUrl = pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl());
 		this.buildDirectory = this.buildDirectory();

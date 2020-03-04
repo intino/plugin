@@ -9,8 +9,8 @@ import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Parameters;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -20,7 +20,7 @@ public class ExplicitToImplicitParameters extends ParametersIntentionAction {
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-		final List<Constraint> constraints = TaraUtil.getConstraintsOf(TaraPsiUtil.getContainerNodeOf(element));
+		final List<Constraint> constraints = IntinoUtil.getConstraintsOf(TaraPsiUtil.getContainerNodeOf(element));
 		if (constraints == null) return;
 		Parameters parameters = getParametersScope(element);
 		Map<Integer, String> implicit = extractParametersData(parameters, constraints);
@@ -39,7 +39,7 @@ public class ExplicitToImplicitParameters extends ParametersIntentionAction {
 	@SuppressWarnings("ConstantConditions")
 	private Map<Integer, String> extractParametersData(Parameters parameters, List<Constraint> constraints) {
 		Map<Integer, String> result = new HashMap<>();
-		final List<Constraint.Parameter> parameterConstraints = filterParameterConstraints(parameters.isInFacet() != null ? TaraUtil.getConstraintsOf(parameters.isInFacet()) : constraints);
+		final List<Constraint.Parameter> parameterConstraints = filterParameterConstraints(parameters.isInFacet() != null ? IntinoUtil.getConstraintsOf(parameters.isInFacet()) : constraints);
 		for (Parameter parameter : parameters.getParameters()) {
 			final Constraint.Parameter constraint = findCorrespondingAllow(parameterConstraints, parameter.name());
 			if (constraint != null) result.put(constraint.position(), ((Valued) parameter).getValue().getText());

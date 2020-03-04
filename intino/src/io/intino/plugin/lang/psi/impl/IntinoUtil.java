@@ -34,10 +34,10 @@ import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 
-public class TaraUtil {
+public class IntinoUtil {
 	private static final String FUNCTIONS = "functions";
 
-	private TaraUtil() {
+	private IntinoUtil() {
 	}
 
 	public static List<Node> findRootNode(PsiElement element, String identifier) {

@@ -16,7 +16,7 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.lang.psi.impl.TaraUtil.configurationOf;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 
 public class ModuleDependencyPropagator {
 	private final Module module;

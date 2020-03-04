@@ -2,7 +2,11 @@ package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
+import io.intino.magritte.Language;
+import io.intino.magritte.dsl.Tara;
+import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
@@ -14,44 +18,82 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
-	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class);
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
+	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class);
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static String minimunVersion = "8.0.0";
-
-	public String download(Module module, String version) {
-		if (isDownloaded(version)) {
-			LOG.info("Konos " + version + " is already downloaded");
-			return version;
-		}
-		List<Artifact> artifacts = konosLibrary(version);
-		final List<String> paths = librariesOf(artifacts);
-		saveClassPath(module, paths);
-		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
-		return version;
-	}
+	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
+	private static Map<Project, String> versionsByProject = new HashMap<>();
 
 	public static boolean exists(String version) {
 		//TODO
 		return true;
 	}
 
+	@NotNull
+	public static Path classpathFile(File moduleBoxDirectory) {
+		return new File(moduleBoxDirectory, "compiler.classpath").toPath();
+	}
+
+	public String load(Module module, String version) {
+		if (isDownloaded(version)) {
+			LOG.info("Konos " + version + " is already downloaded");
+			return version;
+		}
+		List<Artifact> artifacts = konosLibrary(version);
+		saveClassPath(module, librariesOf(artifacts));
+		loadLanguage(List.of(artifacts.get(0).getFile()), module, version);
+		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
+		return version;
+	}
+
+	private File languageLibrary(List<Artifact> artifacts) {
+		Artifact language = artifacts.stream().filter(a -> a.getGroupId().equals(Tara.GROUP_ID) && a.getArtifactId().equals("language")).findFirst().orElse(null);
+		return language == null ? null : language.getFile();
+	}
+
+	private void loadLanguage(List<File> builderLibrary, Module module, String version) {
+		if (version.compareTo(minimunVersion) < 0) return;
+		if (isLoaded(module.getProject(), version)) return;
+		final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(builderLibrary);
+		Language language = loadLanguage(classLoader);
+		if (language != null) LanguageManager.registerAuxiliar(module.getProject(), language);
+	}
+
+	private boolean isLoaded(Project project, String version) {
+		return version != null && version.equalsIgnoreCase(versionsByProject.get(project)) && areClassesLoaded(version);
+	}
+
+	private boolean areClassesLoaded(String version) {
+		return loadedVersions.containsKey(version);
+	}
+
+	private Language loadLanguage(ClassLoader classLoader) {
+		try {
+			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").getConstructors()[0].newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | InvocationTargetException e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
+	}
+
 	private boolean isDownloaded(String version) {
-		//TODO
-		return false;
+		return versionsByProject.containsValue(version);
 	}
 
 	public void purge(String version) {
@@ -104,8 +146,18 @@ public class InterfaceBuilderManager {
 		}
 	}
 
-	@NotNull
-	public static Path classpathFile(File moduleBoxDirectory) {
-		return new File(moduleBoxDirectory, "compiler.classpath").toPath();
+
+	private URL toURL(File l) {
+		try {
+			return l.toURI().toURL();
+		} catch (MalformedURLException e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
+	}
+
+	private ClassLoader createClassLoader(List<File> libraries) {
+		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
+				new URLClassLoader(libraries.stream().filter(Objects::nonNull).map(this::toURL).toArray(URL[]::new), Tara.class.getClassLoader()));
 	}
 }

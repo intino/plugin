@@ -1,5 +1,8 @@
 package io.intino.plugin.actions.archetype;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -12,6 +15,7 @@ import com.intellij.testFramework.PsiTestUtil;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
@@ -22,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
 
-import static io.intino.plugin.lang.psi.impl.TaraUtil.getSourceRoots;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.getSourceRoots;
 
 public class ArchetypeRenderer {
 	private static final Logger logger = Logger.getInstance(ArchetypeRenderer.class);
@@ -60,7 +64,13 @@ public class ArchetypeRenderer {
 	}
 
 	public void render(File archetypeFile) {
-		ArchetypeGrammar.RootContext root = new ArchetypeParser(archetypeFile).parse();
+		ArchetypeGrammar.RootContext root;
+		try {
+			root = new ArchetypeParser(archetypeFile).parse();
+		} catch (IntinoException e) {
+			error(e);
+			return;
+		}
 		FrameBuilder builder = new FrameBuilder("archetype");
 		builder.add("package", configuration.artifact().code().generationPackage()).add("artifact", artifactId);
 		builder.add("node", root.node().stream().map(this::frameOf).filter(Objects::nonNull).toArray(Frame[]::new));
@@ -166,6 +176,10 @@ public class ArchetypeRenderer {
 		if (genDirectory == null) return null;
 		PsiTestUtil.addSourceRoot(module, genDirectory, JavaSourceRootType.SOURCE);
 		return new File(genDirectory.getPath());
+	}
+
+	private void error(Exception e) {
+		Notifications.Bus.notify(new Notification("Tara Language", "Error parsing archetype.", e.getMessage(), NotificationType.ERROR));
 	}
 
 }

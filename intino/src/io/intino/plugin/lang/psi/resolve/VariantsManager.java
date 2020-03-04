@@ -11,8 +11,8 @@ import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParamete
 import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -53,7 +53,7 @@ class VariantsManager {
 	private List<String> filterTypes(PsiElement element) {
 		final Node node = TaraPsiUtil.getContainerNodeOf(element);
 		check(node);
-		final List<Constraint> constraints = TaraUtil.getConstraintsOf(node);
+		final List<Constraint> constraints = IntinoUtil.getConstraintsOf(node);
 		final Parameter parameter = TaraPsiUtil.getContainerByType(element, Parameter.class);
 		if (constraints == null || parameter == null || parameter.name() == null) return emptyList();
 		Constraint.Parameter constraint = findParameter(constraints, parameter);
@@ -150,7 +150,7 @@ class VariantsManager {
 	}
 
 	private void addMainConcepts(TaraModel model) {
-		TaraUtil.getAllNodesOfFile(model).stream().
+		IntinoUtil.getAllNodesOfFile(model).stream().
 				filter(node -> !variants.contains(node) && !node.is(Tag.Component) && !node.is(Tag.Feature)).
 				forEach(node -> resolvePathFor(node, context));
 	}

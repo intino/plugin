@@ -129,7 +129,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	public Node resolve() {
-		Language language = TaraUtil.getLanguage(this.getOriginalElement());
+		Language language = IntinoUtil.getLanguage(this.getOriginalElement());
 		if (language == null) return (Node) this;
 		new Resolver(language).resolve((Node) this);
 		return (Node) this;
@@ -142,7 +142,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	public List<Node> components() {
-		return unmodifiableList(TaraUtil.getComponentsOf((Node) this));
+		return unmodifiableList(IntinoUtil.getComponentsOf((Node) this));
 	}
 
 	public List<Rule> rulesOf(Node component) {
@@ -269,7 +269,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	public boolean isTerminal() {
-		Configuration.Artifact.Model.Level level = TaraUtil.level(this);
+		Configuration.Artifact.Model.Level level = IntinoUtil.level(this);
 		return is(Terminal) || (level != null && level.isProduct());
 	}
 

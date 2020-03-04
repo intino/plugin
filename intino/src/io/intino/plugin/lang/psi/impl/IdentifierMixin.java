@@ -94,7 +94,7 @@ public class IdentifierMixin extends ASTWrapperPsiElement {
 	}
 
 	private PsiReference createResolverForParameter(Parameter parameter) {
-		Constraint.Parameter constraint = TaraUtil.parameterConstraintOf(parameter);
+		Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(parameter);
 		if (constraint == null) return null;
 		if (constraint.type().equals(REFERENCE))
 			return new TaraNodeReferenceSolver(this, getRange());

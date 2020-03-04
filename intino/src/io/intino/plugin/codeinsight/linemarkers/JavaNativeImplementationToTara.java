@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +45,6 @@ public class JavaNativeImplementationToTara extends RelatedItemLineMarkerProvide
 	}
 
 	private String outPackage(@NotNull PsiElement element) {
-		return TaraUtil.graphPackage(element).isEmpty() ? ModuleProvider.moduleOf(element).getName() : TaraUtil.graphPackage(element);
+		return IntinoUtil.graphPackage(element).isEmpty() ? ModuleProvider.moduleOf(element).getName() : IntinoUtil.graphPackage(element);
 	}
 }

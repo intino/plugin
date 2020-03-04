@@ -61,7 +61,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 	}
 
 	public String scope() {
-		final Configuration conf = TaraUtil.configurationOf(this);
+		final Configuration conf = IntinoUtil.configurationOf(this);
 		return conf != null ? conf.artifact().model().outLanguage() : "";
 	}
 
@@ -112,7 +112,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 	}
 
 	public boolean isOverriden() {
-		return TaraUtil.getOverriddenVariable((Variable) this) != null;
+		return IntinoUtil.getOverriddenVariable((Variable) this) != null;
 	}
 
 	public List<Tag> flags() {

@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import io.intino.Configuration;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -104,7 +104,7 @@ public class ModuleLibrariesManager {
 			return name + ":" + ((LibraryOrderEntry) e).getScope().name();
 		} else if (e instanceof ModuleOrderEntry) {
 			Module module = ((ModuleOrderEntry) e).getModule();
-			Configuration configuration = TaraUtil.configurationOf(module);
+			Configuration configuration = IntinoUtil.configurationOf(module);
 			if (configuration == null) return null;
 			Configuration.Artifact artifact = configuration.artifact();
 			return artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + COMPILE;

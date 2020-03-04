@@ -27,7 +27,7 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.IntinoAction;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
+import static io.intino.plugin.project.Safe.safe;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class BoxElementsGenerationAction extends IntinoAction {
@@ -46,9 +47,13 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	public void update(AnActionEvent e) {
 		super.update(e);
 		final Project project = e.getProject();
-		boolean visible = project != null && e.getData(LangDataKeys.MODULE) != null;
-		e.getPresentation().setVisible(visible);
-		e.getPresentation().setEnabled(visible);
+		Module module = e.getData(LangDataKeys.MODULE);
+		boolean enable = project != null && module != null;
+		Configuration configuration = IntinoUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) enable = false;
+		else if (safe(() -> configuration.artifact().box()) == null) enable = false;
+		e.getPresentation().setVisible(enable);
+		e.getPresentation().setEnabled(enable);
 		e.getPresentation().setIcon(IntinoIcons.GENARATION_16);
 		e.getPresentation().setText("Generate Web Elements Code");
 	}
@@ -60,7 +65,7 @@ public class BoxElementsGenerationAction extends IntinoAction {
 
 	@Override
 	public void execute(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading box elements", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
@@ -96,8 +101,8 @@ public class BoxElementsGenerationAction extends IntinoAction {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put(PROJECT_PATH, projectDirectory.getAbsolutePath());
 		map.put(MODULE_PATH, new File(module.getModuleFilePath()).getParent());
-		map.put(RES_PATH, TaraUtil.getResourcesRoot(module, false).getPath());
-		List<VirtualFile> sourceRoots = TaraUtil.getSourceRoots(module);
+		map.put(RES_PATH, IntinoUtil.getResourcesRoot(module, false).getPath());
+		List<VirtualFile> sourceRoots = IntinoUtil.getSourceRoots(module);
 		sourceRoots.stream().filter(f -> new File(f.getPath()).getName().equals("src")).findFirst().ifPresent(src -> map.put(SRC_PATH, src.getPath()));
 		sourceRoots.stream().filter(f -> new File(f.getPath()).getName().equals("gen")).findFirst().ifPresent(src -> map.put(OUTPUTPATH, src.getPath()));
 		map.put(FINAL_OUTPUTPATH, CompilerModuleExtension.getInstance(module).getCompilerOutputUrl().replace("file://", ""));

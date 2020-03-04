@@ -29,7 +29,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class TaraCompilerListener implements ProjectComponent {
 
 		private void refreshLanguage(String moduleName) {
 			Module module = ApplicationManager.getApplication().runReadAction((Computable<Module>) () -> ModuleManager.getInstance(project).findModuleByName(moduleName));
-			final Configuration configuration = TaraUtil.configurationOf(module);
+			final Configuration configuration = IntinoUtil.configurationOf(module);
 			if (configuration != null && configuration.artifact().model() != null) {
 				LanguageManager.reloadLanguage(project, configuration.artifact().model().outLanguage(), configuration.artifact().model().outLanguageVersion());
 			}

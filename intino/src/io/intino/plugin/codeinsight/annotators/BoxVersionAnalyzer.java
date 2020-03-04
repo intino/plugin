@@ -9,7 +9,7 @@ import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Lev
 import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 		if (instance == null) return versions;
 		for (Module m : instance.getModules()) {
 			if (m.equals(this.module)) continue;
-			final Configuration configuration = TaraUtil.configurationOf(m);
+			final Configuration configuration = IntinoUtil.configurationOf(m);
 			Configuration.Artifact.Box box = safe(() -> configuration.artifact().box());
 			if (box != null) {
 				String version = box.version();

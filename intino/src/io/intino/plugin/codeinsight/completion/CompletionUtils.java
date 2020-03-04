@@ -16,8 +16,8 @@ import io.intino.magritte.lang.model.rules.Size;
 import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,9 +27,9 @@ import java.util.Set;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
 import static com.intellij.openapi.util.io.FileUtil.getNameWithoutExtension;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.aspectParameterConstraintsOf;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.parameterConstraintsOf;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerNodeOf;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.aspectParameterConstraintsOf;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.parameterConstraintsOf;
 import static java.util.stream.Collectors.toList;
 
 public class CompletionUtils {
@@ -41,7 +41,7 @@ public class CompletionUtils {
 	CompletionUtils(CompletionParameters parameters, CompletionResultSet resultSet) {
 		this.parameters = parameters;
 		this.resultSet = resultSet;
-		language = TaraUtil.getLanguage(parameters.getOriginalFile());
+		language = IntinoUtil.getLanguage(parameters.getOriginalFile());
 
 	}
 

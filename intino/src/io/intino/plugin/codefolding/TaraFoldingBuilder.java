@@ -10,8 +10,8 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraStringValue;
 import io.intino.plugin.lang.psi.TaraValue;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class TaraFoldingBuilder extends CustomFoldingBuilder {
 											@NotNull PsiElement root,
 											@NotNull Document document,
 											boolean quick) {
-		for (final Node node : TaraUtil.getAllNodesOfFile((TaraModelImpl) root)) {
+		for (final Node node : IntinoUtil.getAllNodesOfFile((TaraModelImpl) root)) {
 			processNode(descriptors, node);
 			processStrings(descriptors, node);
 		}

@@ -10,7 +10,7 @@ import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Lev
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency;
 
@@ -48,7 +48,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	}
 
 	private boolean hasSameVersion(Module module, String version) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		return configuration == null || version.equals(configuration.artifact().version()) || isRange(version) && versionIsUnderRange(configuration.artifact().version(), version);
 	}
 
@@ -58,7 +58,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 
 	private Module findModule(Artifact.Dependency dependency) {
 		for (Module m : ModuleRootManager.getInstance(module).getDependencies()) {
-			final Configuration configuration = TaraUtil.configurationOf(m);
+			final Configuration configuration = IntinoUtil.configurationOf(m);
 			if (configuration != null && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
 				return m;
 		}

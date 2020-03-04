@@ -14,7 +14,7 @@ import io.intino.magritte.lang.model.Variable;
 import io.intino.magritte.lang.model.rules.variable.NativeRule;
 import io.intino.plugin.annotator.fix.ClassCreationIntention;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.module.ModuleProvider;
@@ -30,10 +30,10 @@ public class CreateFunctionInterfaceIntention extends ClassCreationIntention {
 
 	public CreateFunctionInterfaceIntention(Variable variable) {
 		this.variable = variable;
-		final VirtualFile srcRoot = TaraUtil.getSrcRoot(ModuleProvider.moduleOf((PsiElement) variable));
+		final VirtualFile srcRoot = IntinoUtil.getSrcRoot(ModuleProvider.moduleOf((PsiElement) variable));
 		this.srcDirectory = srcRoot == null ? null : new PsiDirectoryImpl((com.intellij.psi.impl.PsiManagerImpl) ((PsiElement) variable).getManager(), srcRoot);
 		this.module = ModuleProvider.moduleOf((PsiElement) variable);
-		this.destiny = TaraUtil.findFunctionsDirectory(module, TaraUtil.graphPackage(((PsiElement) variable).getContainingFile()));
+		this.destiny = IntinoUtil.findFunctionsDirectory(module, IntinoUtil.graphPackage(((PsiElement) variable).getContainingFile()));
 	}
 
 	@Nls

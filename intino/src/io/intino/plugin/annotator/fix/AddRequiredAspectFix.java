@@ -10,8 +10,8 @@ import com.intellij.util.IncorrectOperationException;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +61,7 @@ class AddRequiredAspectFix implements IntentionAction {
 	}
 
 	private List<Constraint> findConstraints() {
-		final List<Constraint> constraintsOf = new ArrayList<>(Objects.requireNonNull(TaraUtil.getConstraintsOf(node)));
+		final List<Constraint> constraintsOf = new ArrayList<>(Objects.requireNonNull(IntinoUtil.getConstraintsOf(node)));
 		List<Constraint> facetConstraints = new ArrayList<>();
 		final List<String> facets = facetTypes(node);
 		constraintsOf.stream().

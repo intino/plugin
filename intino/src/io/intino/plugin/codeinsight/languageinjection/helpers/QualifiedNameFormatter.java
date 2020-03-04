@@ -5,8 +5,8 @@ import io.intino.magritte.Language;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.qualifiedName;
 
@@ -35,7 +35,7 @@ public class QualifiedNameFormatter {
 	private static void resolve(Valued valued) {
 		final Node node = TaraPsiUtil.getContainerNodeOf(valued);
 		if (node != null) try {
-			final Language language = TaraUtil.getLanguage(valued);
+			final Language language = IntinoUtil.getLanguage(valued);
 			if (language != null) new Checker(language).check(node.resolve());
 		} catch (SemanticFatalException ignored) {
 		}

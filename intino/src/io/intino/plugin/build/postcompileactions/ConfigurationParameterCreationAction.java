@@ -3,7 +3,7 @@ package io.intino.plugin.build.postcompileactions;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
 import io.intino.plugin.build.PostCompileAction;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class ConfigurationParameterCreationAction extends PostCompileAction {
 
 	@Override
 	public FinishStatus execute() {
-		Configuration configuration = TaraUtil.configurationOf(module);
+		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration.artifact().parameters().stream().noneMatch(p -> p.name().equals(name))) {
 			((LegioArtifact) configuration.artifact()).addParameters(name);
 			return RequiresReload;

@@ -22,8 +22,8 @@ import io.intino.Configuration;
 import io.intino.Configuration.RunConfiguration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 		final PsiElement element = sourceElement.get();
 		final boolean isSuitable = element instanceof TaraNode && ((TaraNode) element).type().equals(RunConfiguration.class.getSimpleName());
 		if (isSuitable) {
-			final LegioConfiguration legio = (LegioConfiguration) TaraUtil.configurationOf(element);
+			final LegioConfiguration legio = (LegioConfiguration) IntinoUtil.configurationOf(element);
 			final PsiClass mainClass = getMainClass(legio, element);
 			if (mainClass == null) return false;
 			configuration.setName(configurationName(element, legio).toLowerCase());
@@ -73,7 +73,7 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 	public boolean isConfigurationFromContext(@NotNull ApplicationConfiguration configuration, ConfigurationContext context) {
 		final PsiElement location = context.getPsiLocation();
 		if (location == null) return false;
-		Configuration conf = TaraUtil.configurationOf(location);
+		Configuration conf = IntinoUtil.configurationOf(location);
 		if (!(conf instanceof LegioConfiguration)) return false;
 		final LegioConfiguration legio = (LegioConfiguration) conf;
 		final PsiClass aClass = getMainClass(legio, location);

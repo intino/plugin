@@ -28,8 +28,8 @@ import io.intino.plugin.annotator.imports.TaraReferenceImporter;
 import io.intino.plugin.codeinsight.languageinjection.CreateFunctionInterfaceIntention;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.lang.psi.resolve.MethodReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.OutDefinedReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.TaraNodeReferenceSolver;
@@ -69,12 +69,12 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 	}
 
 	private boolean isConceptReference() {
-		final Language language = TaraUtil.getLanguage(reference);
+		final Language language = IntinoUtil.getLanguage(reference);
 		return language != null && language.types(reference.getText()) != null;
 	}
 
 	private boolean isInstanceReference() {
-		final Language language = TaraUtil.getLanguage(reference);
+		final Language language = IntinoUtil.getLanguage(reference);
 		return language != null && language.instances().keySet().contains(reference.getText());
 	}
 

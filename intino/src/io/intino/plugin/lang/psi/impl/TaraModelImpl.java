@@ -96,7 +96,7 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 	@NotNull
 	@Override
 	public List<Node> components() {
-		return TaraUtil.getMainNodesOfFile(this);
+		return IntinoUtil.getMainNodesOfFile(this);
 	}
 
 	public Node addNode(String identifier) {
@@ -246,12 +246,12 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 
 	@Override
 	public Language language() {
-		return TaraUtil.getLanguage(this.getOriginalElement());
+		return IntinoUtil.getLanguage(this.getOriginalElement());
 	}
 
 	@NotNull
 	public Node resolve() {
-		Language language = TaraUtil.getLanguage(this.getOriginalElement());
+		Language language = IntinoUtil.getLanguage(this.getOriginalElement());
 		if (language == null) return this;
 		new Resolver(language).resolve(this);
 		return this;

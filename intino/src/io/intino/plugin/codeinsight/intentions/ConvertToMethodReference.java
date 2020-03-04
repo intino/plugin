@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qnOf;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.importsFile;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerNodeOf;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.importsFile;
 
 public class ConvertToMethodReference extends ClassCreationIntention {
 

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.Configuration.RunConfiguration;
 import io.intino.plugin.lang.file.StashFileType;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 
 import javax.swing.*;
@@ -133,7 +133,7 @@ public class StoreInspectorView extends JPanel {
 	private List<String> runConfigurationsFrom(String scope) {
 		List<String> configurations = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			Configuration conf = TaraUtil.configurationOf(module);
+			Configuration conf = IntinoUtil.configurationOf(module);
 			if (!(conf instanceof LegioConfiguration)) continue;
 			for (RunConfiguration runConfiguration : conf.runConfigurations()) {
 				Map<String, String> parameters = runConfiguration.finalArguments();
@@ -159,7 +159,7 @@ public class StoreInspectorView extends JPanel {
 	private RunConfiguration findRunConfiguration(String conf) {
 		String[] split = conf.split(":");
 		Module module = Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> m.getName().equals(split[0].trim())).findFirst().orElse(null);
-		return TaraUtil.configurationOf(module).runConfigurations().stream().filter(r1 -> r1.name().equals(split[1].trim())).findFirst().orElse(null);
+		return IntinoUtil.configurationOf(module).runConfigurations().stream().filter(r1 -> r1.name().equals(split[1].trim())).findFirst().orElse(null);
 	}
 
 	private void add(List<String> configurations, Module module, RunConfiguration runConfiguration) {

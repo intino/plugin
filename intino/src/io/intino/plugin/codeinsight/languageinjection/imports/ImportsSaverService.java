@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qnOf;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.importsFile;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.importsFile;
 
 public class ImportsSaverService implements ProjectComponent {
 

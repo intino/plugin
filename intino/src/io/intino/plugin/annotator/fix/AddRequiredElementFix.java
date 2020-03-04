@@ -18,8 +18,8 @@ import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +69,7 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 	}
 
 	private List<Constraint> findConstraints() {
-		return TaraUtil.getConstraintsOf(node);
+		return IntinoUtil.getConstraintsOf(node);
 	}
 
 	private void filterPresentElements(List<Constraint.Component> requires) {

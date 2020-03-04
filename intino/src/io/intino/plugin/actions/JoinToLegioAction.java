@@ -14,7 +14,7 @@ import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileTemplate;
@@ -103,7 +103,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		}
 		if (IntinoModuleType.isIntino(module)) {
 			builder.add("isIntino", "");
-			Configuration conf = TaraUtil.configurationOf(module);
+			Configuration conf = IntinoUtil.configurationOf(module);
 			Configuration.Artifact.Model model = conf.artifact().model();
 			if (model != null)
 				builder.add("factory", new FrameBuilder("factory").

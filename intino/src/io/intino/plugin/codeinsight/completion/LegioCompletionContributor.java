@@ -8,8 +8,8 @@ import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Parameter;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
@@ -108,7 +108,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 
 	private void resolveDependency(CompletionParameters parameters, CompletionResultSet resultSet) {
 		final Module module = moduleOf(parameters.getOriginalFile());
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		final List<String> values = new ArtifactorySensor(configuration.repositories()).dependencyVersions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;

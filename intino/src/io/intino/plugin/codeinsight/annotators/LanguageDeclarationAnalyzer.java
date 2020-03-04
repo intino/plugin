@@ -17,7 +17,7 @@ import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioLanguage;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +41,7 @@ class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	LanguageDeclarationAnalyzer(Node node, Module module) {
 		this.modelNode = node;
 		this.module = module;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 	}
 
 	@Override

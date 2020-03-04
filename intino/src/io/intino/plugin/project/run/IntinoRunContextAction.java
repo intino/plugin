@@ -24,7 +24,7 @@ import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -119,7 +119,7 @@ public class IntinoRunContextAction extends RunContextAction {
 	}
 
 	private Configuration configuration() {
-		return TaraUtil.configurationOf((PsiElement) runConfiguration);
+		return IntinoUtil.configurationOf((PsiElement) runConfiguration);
 	}
 
 	private ConfigurationContext createContext(@NotNull PsiElement runConfiguration) {

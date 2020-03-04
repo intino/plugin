@@ -16,8 +16,8 @@ import io.intino.magritte.lang.model.Rule;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraRule;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 	public CreateNodeRuleClassIntention(Rule rule) {
 		this.rule = rule;
 		this.node = TaraPsiUtil.getContainerByType((TaraRule) rule, Node.class);
-		if (node != null) this.rulesPath = TaraUtil.graphPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
+		if (node != null) this.rulesPath = IntinoUtil.graphPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@NotNull
@@ -58,7 +58,7 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 		final PsiFile file = element.getContainingFile();
-		VirtualFile srcDirectory = getSrcDirectory(TaraUtil.getSourceRoots(file));
+		VirtualFile srcDirectory = getSrcDirectory(IntinoUtil.getSourceRoots(file));
 		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), srcDirectory);
 		PsiClass aClass = createRuleClass(file, srcPsiDirectory);
 		if (aClass != null) aClass.navigate(true);

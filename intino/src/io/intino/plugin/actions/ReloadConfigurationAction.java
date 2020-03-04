@@ -8,7 +8,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 
 public class ReloadConfigurationAction extends IntinoAction implements DumbAware {
@@ -22,7 +22,7 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 
 	@Override
 	public void execute(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
 			configuration.reload();

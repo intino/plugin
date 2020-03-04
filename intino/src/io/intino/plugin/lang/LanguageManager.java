@@ -17,7 +17,7 @@ import io.intino.magritte.dsl.Meta;
 import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,7 @@ public class LanguageManager {
 	@Nullable
 	public static Language getLanguage(@NotNull PsiFile file) {
 		if (file.getFileType() instanceof TaraFileType) {
-			final Configuration configuration = TaraUtil.configurationOf(file);
+			final Configuration configuration = IntinoUtil.configurationOf(file);
 			final String dslName = ((TaraModel) file).dsl();
 			if (dslName == null) return null;
 			String v = safe(() -> configuration.artifact().model().language().version());

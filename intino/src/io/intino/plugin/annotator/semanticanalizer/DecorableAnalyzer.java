@@ -8,7 +8,7 @@ import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.SyncDecorableClassIntention;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.module.ModuleProvider;
 
@@ -26,7 +26,7 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 
 	public DecorableAnalyzer(TaraNode node) {
 		this.node = node;
-		graphPackage = TaraUtil.graphPackage(node).toLowerCase();
+		graphPackage = IntinoUtil.graphPackage(node).toLowerCase();
 	}
 
 	@Override

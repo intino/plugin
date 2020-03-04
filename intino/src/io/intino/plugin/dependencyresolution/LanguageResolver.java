@@ -12,7 +12,7 @@ import io.intino.magritte.dsl.Proteo;
 import io.intino.magritte.dsl.Tara;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioModel;
 import io.intino.plugin.settings.ArtifactoryCredential;
@@ -59,7 +59,7 @@ public class LanguageResolver {
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
-			final Configuration configuration = TaraUtil.configurationOf(m);
+			final Configuration configuration = IntinoUtil.configurationOf(m);
 			if (configuration == null || configuration.artifact().model() == null) continue;
 			if (language.equalsIgnoreCase(configuration.artifact().model().outLanguage())) return m;
 		}
@@ -117,7 +117,7 @@ public class LanguageResolver {
 
 	private DependencyCatalog resolveModuleLanguage(Module dependency) {
 		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency);
-		final Configuration configuration = TaraUtil.configurationOf(dependency);
+		final Configuration configuration = IntinoUtil.configurationOf(dependency);
 		if (configuration != null) model.language().effectiveVersion(configuration.artifact().version());
 		return catalog;
 	}
@@ -166,7 +166,7 @@ public class LanguageResolver {
 	}
 
 	private String importLanguage() {
-		return new LanguageImporter(module, TaraUtil.configurationOf(module)).importLanguage(model.language().name(), version);
+		return new LanguageImporter(module, IntinoUtil.configurationOf(module)).importLanguage(model.language().name(), version);
 	}
 
 	@NotNull

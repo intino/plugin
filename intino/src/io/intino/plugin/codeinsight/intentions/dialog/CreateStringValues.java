@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.getResourcesRoot;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.graphPackage;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.getResourcesRoot;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.graphPackage;
 
 public class CreateStringValues extends JDialog {
 	private static final String PROPERTIES = ".properties";

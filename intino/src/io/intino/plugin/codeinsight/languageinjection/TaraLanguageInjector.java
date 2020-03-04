@@ -17,8 +17,8 @@ import io.intino.magritte.lang.model.Variable;
 import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.magritte.lang.model.Primitive.FUNCTION;
@@ -61,7 +61,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 	private void resolve(PsiLanguageInjectionHost host) {
 		final Node node = TaraPsiUtil.getContainerNodeOf(host);
 		if (node != null) try {
-			final io.intino.magritte.Language language = TaraUtil.getLanguage(host);
+			final io.intino.magritte.Language language = IntinoUtil.getLanguage(host);
 			if (language != null) new Checker(language).check(node.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
@@ -84,7 +84,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 
 	private String createPrefix(Expression expression) {
 		resolve(expression);
-		final io.intino.magritte.Language language = TaraUtil.getLanguage(expression.getOriginalElement().getContainingFile());
+		final io.intino.magritte.Language language = IntinoUtil.getLanguage(expression.getOriginalElement().getContainingFile());
 		final Module module = moduleOf(expression);
 		if (language == null || module == null) return "";
 		Template template = new ExpressionInjectionTemplate();
@@ -95,7 +95,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 	private Frame buildFrame(Expression expression, io.intino.magritte.Language language, Module module) {
 		Valued valued = getContainerByType(expression, Valued.class);
 		if (valued == null) return null;
-		String workingPackage = TaraUtil.graphPackage(expression).isEmpty() ? module.getName() : TaraUtil.graphPackage(expression);
+		String workingPackage = IntinoUtil.graphPackage(expression).isEmpty() ? module.getName() : IntinoUtil.graphPackage(expression);
 		FrameBuilder builder = new FrameBuilder()
 				.put(Parameter.class, new NativeParameterAdapter(module, workingPackage, language))
 				.put(Variable.class, new NativeVariableAdapter(module, workingPackage, language))

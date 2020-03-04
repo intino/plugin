@@ -19,7 +19,7 @@ import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -107,7 +107,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		Project project = psiFile.getProject();
 		List<LegioConfiguration> result = new ArrayList<>();
 		for (OrderEntry each : ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(psiFile.getVirtualFile())) {
-			Configuration configuration = TaraUtil.configurationOf(each.getOwnerModule());
+			Configuration configuration = IntinoUtil.configurationOf(each.getOwnerModule());
 			if (configuration instanceof LegioConfiguration) result.add((LegioConfiguration) configuration);
 		}
 		return result;

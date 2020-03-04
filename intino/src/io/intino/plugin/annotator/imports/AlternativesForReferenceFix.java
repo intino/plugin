@@ -9,7 +9,7 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class AlternativesForReferenceFix implements IntentionAction {
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-		final List<Node> candidates = TaraUtil.getAllNodesOfFile((TaraModel) file).stream().
+		final List<Node> candidates = IntinoUtil.getAllNodesOfFile((TaraModel) file).stream().
 				filter(c -> element.getText().equals(c.name()) && !c.isAnonymous() && !isInAnonymous(c)).
 				collect(Collectors.toList());
 	}

@@ -14,7 +14,7 @@ import io.intino.Configuration;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,7 @@ import static io.intino.plugin.project.Safe.safeList;
 public class ExportAction {
 
 	public void execute(Module module, FactoryPhase phase) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration == null) {
 			Notifications.Bus.notify(new Notification("Tara Language",
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));

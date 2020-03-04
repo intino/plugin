@@ -10,7 +10,7 @@ import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.TaraVarInit;
 import io.intino.plugin.lang.psi.Valued;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 
@@ -27,7 +27,7 @@ class NativeParameterAdapter implements Adapter<Parameter> {
 		if (source.type() == null) return;
 		context.add(source.type().getName());
 		source.flags().stream().map(tag -> tag.name().toLowerCase()).forEach(context::add);
-		final Constraint.Parameter constraint = TaraUtil.parameterConstraintOf(source);
+		final Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(source);
 		if (constraint != null)
 			constraint.flags().stream().map(tag -> tag.name().toLowerCase()).forEach(context::add);
 		createFrame(context, source);

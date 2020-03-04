@@ -13,8 +13,8 @@ import io.intino.magritte.lang.model.rules.variable.ReferenceRule;
 import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +96,7 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 
 	@Override
 	public void showParameterInfo(@NotNull Parameters parameters, @NotNull CreateParameterInfoContext context) {
-		Language language = TaraUtil.getLanguage(parameters);
+		Language language = IntinoUtil.getLanguage(parameters);
 		if (language == null) return;
 		List<Constraint> constraints = language.constraints(TaraPsiUtil.getContainerNodeOf(parameters).resolve().type());
 		if (constraints == null) return;

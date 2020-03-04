@@ -1,6 +1,7 @@
 package io.intino.plugin.actions.archetype;
 
 import org.antlr.v4.runtime.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 
@@ -43,20 +44,26 @@ public class ArchetypeErrorStrategy implements ANTLRErrorStrategy {
 
 	@Override
 	public void reportError(Parser recognizer, RecognitionException e) {
-		printParameters(recognizer);
-		throw new InputMismatchException(recognizer);
+		throw new RuntimeException(printParameters(recognizer));
 	}
 
-	private void printParameters(Parser recognizer) {
+	private String printParameters(Parser recognizer) {
 		Token token = recognizer.getCurrentToken();
-		if (currentError == token) return;
+		if (currentError == token) return "";
 		else currentError = token;
 		String[] nameList = recognizer.getTokenNames();
-		System.out.println("Line: " + token.getLine() + "\n" +
+		String message = message(recognizer, token, nameList);
+		System.out.println(message);
+		return message;
+	}
+
+	@NotNull
+	private String message(Parser recognizer, Token token, String[] nameList) {
+		return "Line: " + token.getLine() + "\n" +
 				"Column: " + token.getCharPositionInLine() + "\n" +
 				"Text Length: " + token.getText().length() + "\n" +
 				(token.getType() > 0 ? "Token type: " + nameList[token.getType()] + "\n" : "") +
 				"Expected tokens: " + recognizer.getExpectedTokens().toString(recognizer.getVocabulary()) + "\n" +
-				"Text: " + token.getText().replace("\n", "\\n"));
+				"Text: " + token.getText().replace("\n", "\\n");
 	}
 }

@@ -13,7 +13,7 @@ import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.errorreporting.TaraRuntimeException;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ModelAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		try {
-			Language language = TaraUtil.getLanguage(model);
+			Language language = IntinoUtil.getLanguage(model);
 			if (language == null) return;
 			new Checker(language).check(model);
 		} catch (SemanticFatalException fatal) {

@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.icons.AllIcons.Gutter.ImplementedMethod;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.configurationOf;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 import static io.intino.plugin.project.Safe.safe;
 
 public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider {

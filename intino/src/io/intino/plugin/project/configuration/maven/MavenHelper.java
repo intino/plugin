@@ -6,7 +6,7 @@ import io.intino.Configuration;
 import io.intino.magritte.dsl.Proteo;
 import io.intino.magritte.dsl.ProteoConstants;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -274,7 +274,7 @@ public class MavenHelper implements MavenTags {
 
 	private Module parentModule(Module module, String dsl) {
 		for (Module aModule : ModuleManager.getInstance(module.getProject()).getModules()) {
-			final Configuration conf = TaraUtil.configurationOf(aModule);
+			final Configuration conf = IntinoUtil.configurationOf(aModule);
 			if (conf != null && (dsl.equals(conf.artifact().model().outLanguage())))
 				return aModule;
 		}

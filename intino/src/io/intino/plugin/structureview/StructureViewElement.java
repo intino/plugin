@@ -5,7 +5,7 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.navigation.ItemPresentation;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -44,7 +44,7 @@ class StructureViewElement implements StructureViewTreeElement {
 	@Override
 	public TreeElement[] getChildren() {
 		if (node != null) {
-			Collection<Node> nodes = TaraUtil.getComponentsOf(node);
+			Collection<Node> nodes = IntinoUtil.getComponentsOf(node);
 			if (!nodes.isEmpty()) {
 				List<TreeElement> treeElements = new ArrayList<>(nodes.size());
 				treeElements.addAll(nodes.stream().filter(n -> !n.isReference()).map(StructureViewElement::new).collect(Collectors.toList()));

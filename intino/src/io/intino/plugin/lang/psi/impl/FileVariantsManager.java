@@ -20,6 +20,6 @@ public class FileVariantsManager {
 
 	public void resolveVariants() {
 		final PsiFile file = myElement.getContainingFile().getOriginalFile();
-		variants.addAll(TaraUtil.getFilesOfModuleByFileType(ModuleProvider.moduleOf(file), file.getFileType()).stream().collect(Collectors.toList()));
+		variants.addAll(IntinoUtil.getFilesOfModuleByFileType(ModuleProvider.moduleOf(file), file.getFileType()).stream().collect(Collectors.toList()));
 	}
 }

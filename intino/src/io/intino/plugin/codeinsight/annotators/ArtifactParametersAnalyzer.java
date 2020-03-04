@@ -9,7 +9,7 @@ import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioLanguage;
 
@@ -33,7 +33,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	ArtifactParametersAnalyzer(Node node) {
 		this.artifactNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) artifactNode);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf((PsiElement) artifactNode);
 	}
 
 	@Override

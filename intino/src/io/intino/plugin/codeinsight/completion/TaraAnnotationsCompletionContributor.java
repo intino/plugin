@@ -13,7 +13,7 @@ import io.intino.magritte.lang.model.Flags;
 import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.TaraLanguage;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoModuleType;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +55,7 @@ public class TaraAnnotationsCompletionContributor extends CompletionContributor 
 											   @NotNull CompletionResultSet resultSet) {
 						final Module module = moduleOf(parameters.getOriginalFile());
 						if (!IntinoModuleType.isIntino(module)) return;
-						final Configuration.Artifact.Model.Level level = safe(() -> TaraUtil.configurationOf(module).artifact().model().level());
+						final Configuration.Artifact.Model.Level level = safe(() -> IntinoUtil.configurationOf(module).artifact().model().level());
 						if (level == null || level.isSolution() || level.isProduct()) return;
 						addTags(parameters, resultSet);
 					}

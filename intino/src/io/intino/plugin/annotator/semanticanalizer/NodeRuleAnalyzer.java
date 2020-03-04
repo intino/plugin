@@ -14,8 +14,8 @@ import io.intino.plugin.annotator.fix.CreateNodeRuleClassIntention;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.Rule;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.module.ModuleProvider;
 
@@ -33,7 +33,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 	public NodeRuleAnalyzer(TaraRuleContainer ruleContainer) {
 		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Node.class);
 		this.rule = ruleContainer.getRule();
-		this.rulesPackage = TaraUtil.graphPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
+		this.rulesPackage = IntinoUtil.graphPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@Override

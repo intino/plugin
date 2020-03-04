@@ -9,7 +9,7 @@ import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddArgumentFix;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +24,7 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 
 	RunConfigurationAnalyzer(Node node) {
 		this.runConfigurationNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) runConfigurationNode);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf((PsiElement) runConfigurationNode);
 	}
 
 	@Override

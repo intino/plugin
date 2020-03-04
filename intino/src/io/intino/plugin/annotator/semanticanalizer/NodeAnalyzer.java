@@ -13,7 +13,7 @@ import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class NodeAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		try {
-			Language language = TaraUtil.getLanguage((PsiElement) node);
+			Language language = IntinoUtil.getLanguage((PsiElement) node);
 			if (language == null) return;
 			new Checker(language).check(node);
 		} catch (SemanticFatalException fatal) {

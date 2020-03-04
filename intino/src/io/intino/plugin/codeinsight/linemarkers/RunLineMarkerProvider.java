@@ -18,7 +18,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.plugin.project.run.IntinoRunContextAction;
@@ -111,7 +111,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	}
 
 	private PsiClass findRunnerClass(Module module) {
-		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		if (configuration == null) return null;
 		String qualifiedName = configuration.artifact().packageConfiguration().mainClass();
 		if (qualifiedName == null) return null;

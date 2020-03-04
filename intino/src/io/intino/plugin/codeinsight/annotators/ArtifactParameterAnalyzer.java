@@ -7,13 +7,14 @@ import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.RemoveElementFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 
 import java.util.List;
 
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.project.Safe.safeList;
 
 public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 	private final Node parameterNode;
@@ -22,7 +23,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	public ArtifactParameterAnalyzer(Node node) {
 		this.parameterNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) parameterNode);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf((PsiElement) parameterNode);
 		this.name = parameterName();
 	}
 
@@ -42,7 +43,7 @@ public class ArtifactParameterAnalyzer extends TaraAnalyzer {
 
 	private boolean isDuplicated() {
 		if (name == null || name.isEmpty()) return false;
-		return (int) configuration.artifact().parameters().stream().filter(parameter -> name.equals(parameter.name())).count() > 1;
+		return (int) safeList(() -> configuration.artifact().parameters()).stream().filter(parameter -> name.equals(parameter.name())).count() > 1;
 	}
 
 	private String parameterName() {

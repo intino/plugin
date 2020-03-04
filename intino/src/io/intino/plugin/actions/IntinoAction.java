@@ -8,7 +8,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 
 import java.util.Arrays;
@@ -34,6 +34,6 @@ public abstract class IntinoAction extends AnAction {
 
 	private boolean hasLegioModules(Project project) {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).
-				anyMatch(module -> TaraUtil.configurationOf(module) instanceof LegioConfiguration);
+				anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration);
 	}
 }

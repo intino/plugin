@@ -14,7 +14,7 @@ import io.intino.cesar.box.schemas.ServerInfo;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
@@ -43,7 +43,7 @@ public class ArtifactManager {
 
 	public void start() {
 		try {
-			final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+			final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 			final ProcessInfo system = getProcess(configuration);
 			final int proxyPort = nextProxyPort();
 			Channel channel;

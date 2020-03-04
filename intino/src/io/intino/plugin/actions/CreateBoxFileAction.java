@@ -19,8 +19,8 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
 import io.intino.plugin.actions.utils.TaraTemplatesFactory;
 import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +91,7 @@ public class CreateBoxFileAction extends JavaCreateTemplateInPackageAction<TaraM
 	public void update(AnActionEvent e) {
 		e.getPresentation().setIcon(IntinoIcons.KONOS_16);
 		final Module module = e.getData(LangDataKeys.MODULE);
-		final Configuration configuration = module == null ? null : TaraUtil.configurationOf(module);
+		final Configuration configuration = module == null ? null : IntinoUtil.configurationOf(module);
 		boolean enabled = configuration != null && configuration.artifact().box().version() != null;
 		e.getPresentation().setVisible(enabled);
 		e.getPresentation().setEnabled(enabled);

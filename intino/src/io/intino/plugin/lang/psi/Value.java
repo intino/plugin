@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 import io.intino.magritte.lang.model.EmptyNode;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Primitive;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -43,7 +43,7 @@ public interface Value extends Navigatable, Iconable, TaraPsiElement {
 	}
 
 	static Serializable asResource(PsiElement scope, Object o) {
-		final VirtualFile resourcesRoot = TaraUtil.getResourcesRoot(scope);
+		final VirtualFile resourcesRoot = IntinoUtil.getResourcesRoot(scope);
 		return o instanceof EmptyNode ?
 				null :
 				resourcesRoot == null ?

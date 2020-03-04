@@ -6,7 +6,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.module.ModuleProvider;
 
 import java.io.File;
 import java.io.FileReader;
@@ -101,18 +100,18 @@ public class DependencyAuditor {
 	}
 
 	private File auditionFile() {
-		return new File(IntinoDirectory.auditDirectory(legioFile.getProject()), ModuleProvider.moduleOf(legioFile).getName());
+		return new File(IntinoDirectory.auditDirectory(module.getProject()), module.getName());
 	}
 
 	private static class DependencyItem {
-
-		public DependencyItem(String identifier) {
-			this.identifier = identifier;
-		}
 
 		public String identifier;
 		boolean resolved = false;
 		boolean toModule = false;
 		String effectiveVersion = "";
+
+		public DependencyItem(String identifier) {
+			this.identifier = identifier;
+		}
 	}
 }

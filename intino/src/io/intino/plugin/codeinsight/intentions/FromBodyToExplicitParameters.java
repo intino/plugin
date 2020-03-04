@@ -11,7 +11,7 @@ import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Body;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.TaraVarInit;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
@@ -39,7 +39,7 @@ public class FromBodyToExplicitParameters extends ParametersIntentionAction {
 	}
 
 	private int getPosition(Parameter parameter) {
-		final Constraint.Parameter correspondingConstraint = TaraUtil.parameterConstraintOf(parameter);
+		final Constraint.Parameter correspondingConstraint = IntinoUtil.parameterConstraintOf(parameter);
 		return correspondingConstraint == null ? 0 : correspondingConstraint.position();
 	}
 

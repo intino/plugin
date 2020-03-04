@@ -9,7 +9,7 @@ import io.intino.magritte.Checker;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.MetaIdentifier;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
@@ -38,7 +38,7 @@ class BodyCompletionProvider extends CompletionProvider<CompletionParameters> {
 	}
 
 	private Node check(PsiElement node) {
-		Checker checker = new Checker(TaraUtil.getLanguage(node));
+		Checker checker = new Checker(IntinoUtil.getLanguage(node));
 		final Node container = getContainerNodeOf(node);
 		if (container == null) return null;
 		try {

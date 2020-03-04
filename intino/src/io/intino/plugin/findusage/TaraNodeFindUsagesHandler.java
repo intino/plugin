@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +43,7 @@ public class TaraNodeFindUsagesHandler extends FindUsagesHandler {
 		Module moduleForFile = ModuleProvider.moduleOf(node.getContainingFile().getOriginalFile());
 		if (moduleForFile == null) return PsiElement.EMPTY_ARRAY;
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			List<TaraModel> taraFilesOfModule = TaraUtil.getTaraFilesOfModule(module);
+			List<TaraModel> taraFilesOfModule = IntinoUtil.getTaraFilesOfModule(module);
 			if (taraFilesOfModule.isEmpty()) continue;
 			if ((project.getName() + "." + moduleForFile.getName()).equals(taraFilesOfModule.get(0).dsl()))
 				childModules.put(module, taraFilesOfModule);
@@ -56,7 +56,7 @@ public class TaraNodeFindUsagesHandler extends FindUsagesHandler {
 	private Collection collectChildConceptsByType(List<TaraModel> files) {
 		List<Node> list = new ArrayList();
 		for (TaraModel file : files)
-			list.addAll(TaraUtil.getMainNodesOfFile(file).stream().
+			list.addAll(IntinoUtil.getMainNodesOfFile(file).stream().
 					filter(cpt -> node.name().equals(cpt.type())).
 					collect(Collectors.toList()));
 		return list;

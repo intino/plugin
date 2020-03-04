@@ -6,7 +6,7 @@ import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraDslDeclaration;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.messages.MessageProvider;
 
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
@@ -34,7 +34,7 @@ public class DSLDeclarationAnalyzer extends TaraAnalyzer {
 
 	private void checkDslExistence(String dslName) {
 		if (dslName != null && !dslName.isEmpty()) {
-			Language dsl = TaraUtil.getLanguage(file);
+			Language dsl = IntinoUtil.getLanguage(file);
 			if (dsl == null && !PROTEO.equals(dslName) || !dslName.equals(file.dsl())) {
 				results.put(file.getFirstChild(), new AnnotateAndFix(ERROR, MessageProvider.message(MESSAGE), FixFactory.get(MESSAGE, file)));
 			}

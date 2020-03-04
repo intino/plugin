@@ -23,7 +23,7 @@ import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.apache.commons.io.FileUtils;
@@ -69,7 +69,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void processPackagePlugins(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		Configuration configuration = TaraUtil.configurationOf(module);
+		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Artifact.Plugin.Phase.PrePackage).forEach(plugin ->
@@ -77,7 +77,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private ProcessResult processArtifact(Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
 			ProcessResult result = build(module, phase, indicator);
@@ -94,7 +94,7 @@ public abstract class AbstractArtifactFactory {
 
 	private ProcessResult build(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
-		LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
 		if (version.isSnapshot()) buildModule(module, phase, indicator);
 		else {
@@ -135,7 +135,7 @@ public abstract class AbstractArtifactFactory {
 
 	private void buildLanguage(Module module) {
 		try {
-			Configuration configuration = TaraUtil.configurationOf(module);
+			Configuration configuration = IntinoUtil.configurationOf(module);
 			File dslFile = dslFilePath(configuration);
 			LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
 			new MavenRunner(module).executeLanguage(configuration);
@@ -200,7 +200,7 @@ public abstract class AbstractArtifactFactory {
 	private void deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) throws IntinoException {
 		if (!phase.equals(DEPLOY)) return;
 		updateProgressIndicator(indicator, message("publishing.artifact"));
-		LegioConfiguration conf = (LegioConfiguration) TaraUtil.configurationOf(module);
+		LegioConfiguration conf = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(conf.artifact().version());
 		List<Deployment> deployments = collectDeployments(module.getProject(), conf, version.isSnapshot());
 		if (deployments.isEmpty()) {
@@ -252,7 +252,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
-		Configuration configuration = TaraUtil.configurationOf(module);
+		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration.repositories().stream().noneMatch(repository -> repository instanceof Language)) return false;
 		Artifact.Model model = safe(() -> configuration.artifact().model());
 		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");

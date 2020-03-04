@@ -7,7 +7,7 @@ import io.intino.magritte.lang.model.Primitive;
 import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.psi.TaraStringValue;
 import io.intino.plugin.lang.psi.Valued;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class ResourceAnnotator extends TaraAnnotator {
 	}
 
 	private File resources(PsiElement element) {
-		final VirtualFile resourcesRoot = TaraUtil.getResourcesRoot(element);
+		final VirtualFile resourcesRoot = IntinoUtil.getResourcesRoot(element);
 		return resourcesRoot == null ? null : new File(resourcesRoot.getPath());
 	}
 

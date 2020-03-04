@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.intellij.plugins.relaxNG.GotoSymbolContributor;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ public class TaraGotoSymbolContributor extends GotoSymbolContributor {
 	private List<Node> getNodes(Project project) {
 		List<Node> names = new ArrayList<>();
 		for (Module module : ModuleManager.getInstance(project).getModules())
-			TaraUtil.getTaraFilesOfModule(module).forEach(model -> names.addAll(TaraUtil.getAllNodesOfFile(model)));
+			IntinoUtil.getTaraFilesOfModule(module).forEach(model -> names.addAll(IntinoUtil.getAllNodesOfFile(model)));
 		return names;
 	}
 

@@ -10,8 +10,8 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,14 +37,14 @@ public class TaraMetaReferenceSolver extends PsiReferenceBase<PsiElement> implem
 
 	@Nullable
 	private PsiElement findDestiny() {
-		Language language = TaraUtil.getLanguage(myElement);
+		Language language = IntinoUtil.getLanguage(myElement);
 		final Node node = TaraPsiUtil.getContainerNodeOf(myElement);
 		if (language == null || node == null) return null;
 		final Documentation doc = language.doc(node.resolve().type());
 		if (doc == null) return null;
 		PsiFile file = findFile(doc.file());
 		if (file == null) return null;
-		return (PsiElement) searchNodeIn(TaraUtil.getAllNodesOfFile((TaraModel) file), node);
+		return (PsiElement) searchNodeIn(IntinoUtil.getAllNodesOfFile((TaraModel) file), node);
 	}
 
 	private Node searchNodeIn(List<Node> nodes, Node instance) {

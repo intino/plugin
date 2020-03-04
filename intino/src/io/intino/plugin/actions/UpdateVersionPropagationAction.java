@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import io.intino.plugin.build.ModuleDependencyPropagator;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateVersionPropagationAction extends IntinoAction implements DumbAware {
@@ -16,7 +16,7 @@ public class UpdateVersionPropagationAction extends IntinoAction implements Dumb
 
 	@Override
 	public void execute(Module module) {
-		new ModuleDependencyPropagator(module, TaraUtil.configurationOf(module)).execute();
+		new ModuleDependencyPropagator(module, IntinoUtil.configurationOf(module)).execute();
 	}
 
 

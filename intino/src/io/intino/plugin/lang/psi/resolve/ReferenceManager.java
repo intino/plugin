@@ -14,8 +14,8 @@ import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.Rule;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -189,7 +189,7 @@ public class ReferenceManager {
 	}
 
 	private static Node findIn(Node node, Identifier identifier) {
-		return TaraUtil.findComponent(node, identifier.getText());
+		return IntinoUtil.findComponent(node, identifier.getText());
 	}
 
 	private static boolean isLast(Identifier identifier, List<Identifier> path) {
@@ -200,7 +200,7 @@ public class ReferenceManager {
 		TaraModel containingFile = (TaraModel) identifier.getContainingFile().getOriginalFile();
 		if (containingFile.getVirtualFile() == null) return null;
 		Module moduleOfDocument = ModuleProvider.moduleOf(containingFile);
-		for (TaraModel taraBoxFile : TaraUtil.getFilesOfModuleByFileType(moduleOfDocument, containingFile.getFileType()))
+		for (TaraModel taraBoxFile : IntinoUtil.getFilesOfModuleByFileType(moduleOfDocument, containingFile.getFileType()))
 			if (taraBoxFile.getPresentableName().equals(identifier.getText())) return taraBoxFile;
 		return null;
 	}
@@ -237,12 +237,12 @@ public class ReferenceManager {
 	}
 
 	private static PsiElement resolveRuleToClass(Rule rule) {
-		return resolveJavaClassReference(rule.getProject(), TaraUtil.graphPackage(rule).toLowerCase() + ".rules." + rule.getText());
+		return resolveJavaClassReference(rule.getProject(), IntinoUtil.graphPackage(rule).toLowerCase() + ".rules." + rule.getText());
 	}
 
 	private static PsiElement resolveNativeClass(Rule rule, Project project) {
 		if (rule == null) return null;
-		String aPackage = TaraUtil.graphPackage(rule) + '.' + "functions";
+		String aPackage = IntinoUtil.graphPackage(rule) + '.' + "functions";
 		return resolveJavaClassReference(project, aPackage.toLowerCase() + '.' + capitalize(rule.getText()));
 	}
 
@@ -255,7 +255,7 @@ public class ReferenceManager {
 		String[] nativeInfo = data.split(DOC_SEPARATOR);
 		if (nativeInfo.length < 2) return null;
 		File destinyFile = new File(nativeInfo[1]);
-		final List<TaraModel> filesOfModule = TaraUtil.getTaraFilesOfModule(ModuleProvider.moduleOf(psiClass));
+		final List<TaraModel> filesOfModule = IntinoUtil.getTaraFilesOfModule(ModuleProvider.moduleOf(psiClass));
 		for (TaraModel taraModel : filesOfModule)
 			if (FileUtil.compareFiles(destinyFile, new File(taraModel.getVirtualFile().getPath())) == 0)
 				return searchNodeIn(taraModel, nativeInfo);
@@ -263,7 +263,7 @@ public class ReferenceManager {
 	}
 
 	public static PsiElement resolveTaraNativeImplementationToJava(Valued valued) {
-		String workingPackage = TaraUtil.graphPackage(valued);
+		String workingPackage = IntinoUtil.graphPackage(valued);
 		if (ModuleProvider.moduleOf(valued) == null) return null;
 		if (workingPackage.isEmpty())
 			workingPackage = ModuleProvider.moduleOf(valued).getName();

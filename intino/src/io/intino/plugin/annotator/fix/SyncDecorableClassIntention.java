@@ -14,7 +14,7 @@ import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
@@ -49,8 +49,8 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 		final PsiFile file = element.getContainingFile();
-		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getSrcDirectory(TaraUtil.getSourceRoots(file)));
-		PsiDirectoryImpl genPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getGenDirectory(TaraUtil.getSourceRoots(file)));
+		PsiDirectoryImpl srcPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getSrcDirectory(IntinoUtil.getSourceRoots(file)));
+		PsiDirectoryImpl genPsiDirectory = new PsiDirectoryImpl((PsiManagerImpl) file.getManager(), getGenDirectory(IntinoUtil.getSourceRoots(file)));
 		PsiClass aClass = createDecorableClass(file, srcPsiDirectory, genPsiDirectory);
 		if (aClass != null) aClass.navigate(true);
 	}

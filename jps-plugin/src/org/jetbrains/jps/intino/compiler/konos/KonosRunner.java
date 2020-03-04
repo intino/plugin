@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 
@@ -53,7 +54,8 @@ class KonosRunner {
 		if (!classPathFile.exists()) new File(intinoDirectory, moduleName);
 		if (!classPathFile.exists())
 			throw new IOException("Unable to find builder classpath. Please reload configuration");
-		this.classpath = Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).replace("$HOME", System.getProperty("user.home")).split(":"));
+		String text = new String(Files.readAllBytes(classPathFile.toPath()));
+		this.classpath = Arrays.stream(text.split(":")).map(c -> c.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());
 		if (versionOf(new File(classpath.get(0))).compareTo(MINIMUM_VERSION) < 0)
 			throw new IOException("Version of Builder in " + moduleName + " is incompatible with this plugin version. Minimum version: " + MINIMUM_VERSION);
 	}

@@ -14,7 +14,7 @@ import io.intino.cesar.box.schemas.ProcessDeployment;
 import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -36,7 +36,7 @@ public class ArtifactDeployer {
 
 	public ArtifactDeployer(Module module, List<Deployment> deployments) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.deployments = deployments;
 	}
 
@@ -105,7 +105,7 @@ public class ArtifactDeployer {
 	private List<Configuration.Repository> collectRepositories() {
 		List<Configuration.Repository> repositories = new ArrayList<>(configuration.repositories());
 		for (Module dependant : ModuleRootManager.getInstance(module).getDependencies()) {
-			final Configuration dependantConf = TaraUtil.configurationOf(dependant);
+			final Configuration dependantConf = IntinoUtil.configurationOf(dependant);
 			if (dependantConf != null) repositories.addAll(dependantConf.repositories());
 		}
 		return repositories;

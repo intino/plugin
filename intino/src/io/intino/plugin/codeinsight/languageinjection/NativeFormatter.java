@@ -23,8 +23,8 @@ import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
 import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class NativeFormatter implements TemplateTags {
 		this.workingPackage = workingPackage;
 		allImports = new Imports(module.getProject());
 		this.language = language;
-		final Configuration conf = TaraUtil.configurationOf(module);
+		final Configuration conf = IntinoUtil.configurationOf(module);
 		this.m0 = conf != null && safe(() -> conf.artifact().model().level().isSolution(), false);
 	}
 
@@ -233,7 +233,7 @@ public class NativeFormatter implements TemplateTags {
 	}
 
 	private boolean isMultiple(Parameter parameter) {
-		final Constraint.Parameter constraint = TaraUtil.parameterConstraintOf(parameter);
+		final Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(parameter);
 		return constraint != null && !constraint.size().isSingle();
 	}
 
@@ -262,12 +262,12 @@ public class NativeFormatter implements TemplateTags {
 
 	private Set<String> collectImports(Valued valued) {
 		final Node containerOf = TaraPsiUtil.getContainerNodeOf(valued);
-		if (containerOf == null || allImports.get(TaraUtil.importsFile(valued)) == null ||
-				!allImports.get(TaraUtil.importsFile(valued)).containsKey(composeQn(valued, containerOf)))
+		if (containerOf == null || allImports.get(IntinoUtil.importsFile(valued)) == null ||
+				!allImports.get(IntinoUtil.importsFile(valued)).containsKey(composeQn(valued, containerOf)))
 			return emptySet();
 		else {
-			if (allImports.get(TaraUtil.importsFile(valued)) == null) return emptySet();
-			final Set<String> set = allImports.get(TaraUtil.importsFile(valued)).get(composeQn(valued, containerOf));
+			if (allImports.get(IntinoUtil.importsFile(valued)) == null) return emptySet();
+			final Set<String> set = allImports.get(IntinoUtil.importsFile(valued)).get(composeQn(valued, containerOf));
 			return set == null ? emptySet() : set;
 		}
 	}

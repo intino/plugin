@@ -80,7 +80,7 @@ public class ValueMixin extends ASTWrapperPsiElement {
 
 	private Reference createReference(PsiElement element) {
 		final Reference reference = new Reference(getText(element));
-		final Language language = TaraUtil.getLanguage(element);
+		final Language language = IntinoUtil.getLanguage(element);
 		if (language == null) return reference;
 		final InstanceContext instance = language.instances().get(getText(element));
 		if (instance == null) return reference;

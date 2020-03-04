@@ -14,8 +14,8 @@ import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter;
 import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.Nls;
@@ -37,7 +37,7 @@ public class SyncNativeWithTara extends PsiElementBaseIntentionAction {
 		final PsiElement destiny = ReferenceManager.resolveJavaNativeImplementation(psiClass);
 		final Valued valued = valued(destiny);
 		return destiny != null && psiClass.getDocComment() != null &&
-				isAvailable(psiClass, TaraUtil.graphPackage(destiny)) &&
+				isAvailable(psiClass, IntinoUtil.graphPackage(destiny)) &&
 				valued != null && !valued.values().isEmpty() && (valued.values().get(0) instanceof Primitive.Expression || valued.values().get(0) instanceof Primitive.MethodReference);
 	}
 
@@ -93,7 +93,7 @@ public class SyncNativeWithTara extends PsiElementBaseIntentionAction {
 	}
 
 	private void updateImports(PsiClass psiClass, Valued valued) {
-		new Imports(valued.getProject()).save(TaraUtil.importsFile(valued), QualifiedNameFormatter.qnOf(valued), getImports(psiClass.getContainingFile()));
+		new Imports(valued.getProject()).save(IntinoUtil.importsFile(valued), QualifiedNameFormatter.qnOf(valued), getImports(psiClass.getContainingFile()));
 	}
 
 	private Set<String> getImports(PsiFile file) {

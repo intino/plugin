@@ -17,8 +17,8 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.codeinsight.completion.CompletionUtils.FakeElement;
 import io.intino.plugin.lang.psi.*;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -97,7 +97,7 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 	}
 
 	private String findDoc(String type, PsiElement anElement) {
-		final Language language = TaraUtil.getLanguage(anElement);
+		final Language language = IntinoUtil.getLanguage(anElement);
 		if (language == null || language instanceof Proteo || language instanceof Meta)
 			return "**No documentation found for " + type + "**";
 		final Documentation doc = language.doc(type);
@@ -105,7 +105,7 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 	}
 
 	public static File getDocumentationFile(PsiElement element) {
-		final String resourcesRoot = TaraUtil.getResourcesRoot(element).getPath();
+		final String resourcesRoot = IntinoUtil.getResourcesRoot(element).getPath();
 		if (resourcesRoot.isEmpty()) return null;
 		return new File(resourcesRoot, DOC_JSON);
 	}

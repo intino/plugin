@@ -18,7 +18,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.plugin.actions.archetype.ArchetypeRenderer;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +33,7 @@ public class ArchetypeGeneration extends AnAction {
 			public void run(@NotNull ProgressIndicator progressIndicator) {
 				for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {
 					if (WebModuleType.is(module, WebModuleTypeBase.getInstance())) continue;
-					Configuration cnf = TaraUtil.configurationOf(module);
+					Configuration cnf = IntinoUtil.configurationOf(module);
 					if (cnf != null && cnf.artifact().box() != null && cnf.artifact().packageConfiguration().isRunnable())
 						new ArchetypeRenderer(module, (LegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}

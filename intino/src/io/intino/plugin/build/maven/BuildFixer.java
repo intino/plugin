@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration.Artifact.Package.MacOs;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class BuildFixer {
 
 	BuildFixer(Module module) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.buildDirectory = new File(buildDirectory(), "build");
 		if (configuration != null)
 			this.build = safe(() -> configuration.artifact().packageConfiguration());

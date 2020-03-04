@@ -19,8 +19,8 @@ import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.TaraRule;
 import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.IntinoModuleType;
@@ -47,8 +47,8 @@ public class MethodReferenceCreator {
 		this.valued = valued;
 		this.reference = reference.replace("@", "");
 		module = valued != null ? ModuleProvider.moduleOf(valued) : null;
-		workingPackage = TaraUtil.graphPackage(valued);
-		languageWorkingPackage = TaraUtil.languageGraphPackage(valued);
+		workingPackage = IntinoUtil.graphPackage(valued);
+		languageWorkingPackage = IntinoUtil.languageGraphPackage(valued);
 	}
 
 	public PsiMethod create(String methodBody) {
@@ -111,14 +111,14 @@ public class MethodReferenceCreator {
 	}
 
 	private Size parameterSize() {
-		final Constraint.Parameter constraint = TaraUtil.parameterConstraintOf((Parameter) valued);
+		final Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf((Parameter) valued);
 		return constraint != null ? constraint.size() : Size.MULTIPLE();
 	}
 
 	private String type() {
 		try {
 			Node node = TaraPsiUtil.getContainerNodeOf(valued);
-			if (node != null) new Checker(TaraUtil.getLanguage(valued)).check(node.resolve());
+			if (node != null) new Checker(IntinoUtil.getLanguage(valued)).check(node.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
 		if (valued.flags().contains(Tag.Concept)) return "io.intino.magritte.framework.Concept";
@@ -159,7 +159,7 @@ public class MethodReferenceCreator {
 	private PsiClass findClass() {
 		Module module = ModuleProvider.moduleOf(valued);
 		final JavaPsiFacade instance = JavaPsiFacade.getInstance(valued.getProject());
-		final String qualifiedName = TaraUtil.methodReference(valued);
+		final String qualifiedName = IntinoUtil.methodReference(valued);
 		return IntinoModuleType.isIntino(module) && !qualifiedName.isEmpty() ? instance.findClass(qualifiedName, moduleWithDependenciesScope(module)) : null;
 	}
 
@@ -168,9 +168,9 @@ public class MethodReferenceCreator {
 			addImports(aClass, valued instanceof Variable ? findFunctionImports() : ((NativeRule) valued.rule()).imports());
 		Imports imports = new Imports(module.getProject());
 		String qn = qnOf(valued);
-		final Map<String, Set<String>> map = imports.get(TaraUtil.importsFile(valued));
+		final Map<String, Set<String>> map = imports.get(IntinoUtil.importsFile(valued));
 		if (map == null) return;
-		imports.save(TaraUtil.importsFile(valued), qn, map.get(qn));
+		imports.save(IntinoUtil.importsFile(valued), qn, map.get(qn));
 		if (map.get(qn) == null) return;
 		addImports(aClass, map.get(qn));
 		map.remove(qn);
@@ -212,7 +212,7 @@ public class MethodReferenceCreator {
 
 	private void resolve(Valued valued) {
 		final List<Node> tree = tree(valued);
-		final Language language = TaraUtil.getLanguage(valued);
+		final Language language = IntinoUtil.getLanguage(valued);
 		if (!tree.isEmpty() && language != null) for (Node node : tree) {
 			try {
 				new Checker(language).check(node.resolve());

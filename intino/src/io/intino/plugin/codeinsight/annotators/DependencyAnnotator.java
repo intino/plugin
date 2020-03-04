@@ -6,7 +6,7 @@ import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.file.legio.LegioFileType;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ public class DependencyAnnotator extends TaraAnnotator {
 		this.holder = holder;
 		if (element instanceof Node && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
 				isDependencies((Node) element)) {
-			Configuration configuration = TaraUtil.configurationOf(element);
+			Configuration configuration = IntinoUtil.configurationOf(element);
 			if (!(configuration instanceof LegioConfiguration)) return;
 			analyzeAndAnnotate(new DependencyAnalyzer(ModuleProvider.moduleOf(element), (Node) element, (LegioConfiguration) configuration));
 		}

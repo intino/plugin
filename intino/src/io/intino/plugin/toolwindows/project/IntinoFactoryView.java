@@ -23,7 +23,7 @@ import io.intino.plugin.actions.box.BoxElementsGenerationAction;
 import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.project.components.Element;
 import io.intino.plugin.toolwindows.project.components.FactoryPanel;
@@ -162,7 +162,7 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void navigate(Element element, int modifiers) {
-		final Configuration configuration = TaraUtil.configurationOf(selectedModule());
+		final Configuration configuration = IntinoUtil.configurationOf(selectedModule());
 		if (configuration == null) return;
 		TaraModel model = ((TaraModel) ((LegioConfiguration) configuration).legioFile());
 		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);

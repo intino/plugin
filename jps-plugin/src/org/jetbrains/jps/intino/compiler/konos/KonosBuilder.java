@@ -57,9 +57,11 @@ public class KonosBuilder extends IntinoBuilder {
 			conf = service.getConfiguration(chunk.getModules().iterator().next(), context);
 			return doBuild(context, chunk, dirtyFilesHolder, outputConsumer);
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 			if (e.getStackTrace().length != 0) {
 				LOG.error(e.getMessage());
-				LOG.error(e.getStackTrace()[0].getClassName() + " " + e.getStackTrace()[0].getLineNumber());
+				LOG.error("ERROR IN -> " + e.getStackTrace()[0].getClassName() + " " + e.getStackTrace()[0].getLineNumber());
 			}
 			throw new ProjectBuildException(e.getMessage());
 		} finally {

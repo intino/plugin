@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 
-import static io.intino.plugin.lang.psi.impl.TaraUtil.getOverriddenVariable;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOverriddenVariable;
 
 public class TaraOverriddenVariable extends JavaLineMarkerProvider {
 

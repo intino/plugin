@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
-import static io.intino.plugin.lang.psi.impl.TaraUtil.methodReference;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.methodReference;
 
 public class MethodReferenceSolver extends TaraReferenceSolver {
 	private final Module module;

@@ -19,7 +19,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +54,7 @@ public class IntinoModuleListener implements BaseComponent {
 
 	private void addDSLNameToDictionary() {
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			final Configuration conf = TaraUtil.configurationOf(module);
+			final Configuration conf = IntinoUtil.configurationOf(module);
 			if (conf != null && conf.artifact().model() != null && conf.artifact().model().language() != null && conf.artifact().model().language().name() != null)
 				SpellCheckerManager.getInstance(this.project).acceptWordAsCorrect(conf.artifact().model().language().name(), project);
 		}
@@ -93,7 +93,7 @@ public class IntinoModuleListener implements BaseComponent {
 			@Override
 			public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
 				for (Module module : modules) {
-					final Configuration conf = TaraUtil.configurationOf(module);
+					final Configuration conf = IntinoUtil.configurationOf(module);
 					if (conf != null && conf.artifact().model() != null && conf.artifact().model().level().isSolution())
 						ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
 							final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();

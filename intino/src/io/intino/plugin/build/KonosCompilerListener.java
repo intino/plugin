@@ -12,7 +12,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import io.intino.plugin.build.postcompileactions.PostCompileActionFactory;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class KonosCompilerListener implements ProjectComponent {
 					List<String> split = List.of(m.split(SEPARATOR));
 					return PostCompileActionFactory.get(module(module, split.get(0)), split.get(1), split.subList(2, split.size()));
 				}).map(PostCompileAction::execute).collect(Collectors.toList());
-				if (finishSatus.contains(RequiresReload)) TaraUtil.configurationOf(module[0]).reload();
+				if (finishSatus.contains(RequiresReload)) IntinoUtil.configurationOf(module[0]).reload();
 			}
 			if (KONOSC.equals(builderId) && KonosBuildConstants.REFRESH_MESSAGE.equals(messageType)) {
 				final String[] parameters = messageText.split(TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR);

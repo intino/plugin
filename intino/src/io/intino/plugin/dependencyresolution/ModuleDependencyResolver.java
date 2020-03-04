@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +30,10 @@ class ModuleDependencyResolver {
 
 	private DependencyCatalog resolveDependencies(Module dependency) {
 		DependencyCatalog catalog = new DependencyCatalog();
-		catalog.add(dependencyFrom((LegioConfiguration) TaraUtil.configurationOf(dependency)));
+		catalog.add(dependencyFrom((LegioConfiguration) IntinoUtil.configurationOf(dependency)));
 		librariesOf(dependency).stream().filter(l -> l.getName() != null && l.getFiles(OrderRootType.CLASSES).length >= 1).forEach(l -> catalog.add(dependencyFrom(l)));
 		moduleDependenciesOf(dependency).stream().
-				map(TaraUtil::configurationOf).
+				map(IntinoUtil::configurationOf).
 				filter(c -> c instanceof LegioConfiguration).
 				map(c -> (LegioConfiguration) c).
 				forEach(c -> catalog.add(dependencyFrom(c)));

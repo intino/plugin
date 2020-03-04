@@ -17,8 +17,8 @@ import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
 import io.intino.plugin.actions.utils.TaraTemplatesFactory;
 import io.intino.plugin.lang.file.TaraFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static io.intino.plugin.lang.psi.impl.TaraUtil.isTest;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.isTest;
 import static io.intino.plugin.project.Safe.safe;
 
 public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<TaraModelImpl> {
@@ -42,7 +42,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		final Module module = ModuleProvider.moduleOf(directory);
 		if (!IntinoModuleType.isIntino(module))
 			throw new IncorrectOperationException(MessageProvider.message("tara.file.error"));
-		final Configuration conf = TaraUtil.configurationOf(module);
+		final Configuration conf = IntinoUtil.configurationOf(module);
 		Configuration.Artifact.Model model = safe(() -> conf.artifact().model());
 		if (isTest(directory, module)) {
 			if (model != null) builder.addKind(model.outLanguage(), IntinoIcons.MODEL_16, model.outLanguage());
@@ -63,7 +63,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		PsiElement data = CommonDataKeys.PSI_ELEMENT.getData(dataContext);
 		if (!(data instanceof PsiFile || data instanceof PsiDirectory)) return false;
 		Module module = ModuleProvider.moduleOf(data);
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && safe(() -> configuration.artifact().model().language()) != null;
 	}
 

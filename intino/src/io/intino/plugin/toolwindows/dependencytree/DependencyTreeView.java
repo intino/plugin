@@ -17,7 +17,7 @@ import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.dependencyresolution.ResolutionCache;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,7 +133,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
 		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();
 		Module module = dependencyNode.module;
-		((LegioConfiguration) TaraUtil.configurationOf(module)).dependencyAuditor().invalidate(dependencyNode.identifier());
+		((LegioConfiguration) IntinoUtil.configurationOf(module)).dependencyAuditor().invalidate(dependencyNode.identifier());
 		new ReloadConfigurationAction().execute(module);
 	}
 
@@ -192,7 +192,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	private void renderModule(DefaultMutableTreeNode parent, Module module, ResolutionCache cache) {
 		parent.removeAllChildren();
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		renderModel(parent, module, cache, (LegioConfiguration) configuration);
 		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);

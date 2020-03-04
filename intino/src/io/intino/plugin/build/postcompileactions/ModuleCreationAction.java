@@ -16,7 +16,7 @@ import io.intino.Configuration.Repository;
 import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.PostCompileAction;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +45,7 @@ public class ModuleCreationAction extends PostCompileAction {
 
 	public ModuleCreationAction(Module module, String webModule) {
 		super(module);
-		configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.webModule = webModule;
 	}
 
@@ -56,7 +56,7 @@ public class ModuleCreationAction extends PostCompileAction {
 		Application application = ApplicationManager.getApplication();
 		application.invokeAndWait(() -> application.runWriteAction(() -> {
 			if (webPsiModule != null) {
-				addWebDependency(TaraUtil.configurationOf(webPsiModule));
+				addWebDependency(IntinoUtil.configurationOf(webPsiModule));
 				reload[0] = true;
 				return;
 			}
@@ -181,7 +181,7 @@ public class ModuleCreationAction extends PostCompileAction {
 	private Module webModule() {
 		return ApplicationManager.getApplication().
 				runReadAction((Computable<Module>) () ->
-						stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> m.getName().equals(toSnakeCase(webModule))).findFirst().orElse(null));
+						stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(m -> m.getName().equals(toSnakeCase(webModule)) && IntinoUtil.configurationOf(m) != null).findFirst().orElse(null));
 	}
 
 	private String moduleImlFilename() {

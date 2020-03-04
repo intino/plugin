@@ -9,7 +9,7 @@ import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraNodeReference;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
@@ -23,7 +23,7 @@ public class NodeReferenceAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		try {
-			Language language = TaraUtil.getLanguage(nodeReference);
+			Language language = IntinoUtil.getLanguage(nodeReference);
 			if (language == null) return;
 			new Checker(language).check(nodeReference);
 		} catch (SemanticFatalException fatal) {

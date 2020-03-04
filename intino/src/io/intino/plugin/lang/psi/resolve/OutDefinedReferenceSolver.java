@@ -10,8 +10,8 @@ import io.intino.magritte.lang.model.Variable;
 import io.intino.magritte.lang.model.rules.NodeRule;
 import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
 import io.intino.magritte.lang.model.rules.variable.VariableRule;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,7 @@ public class OutDefinedReferenceSolver extends TaraReferenceSolver {
 	public OutDefinedReferenceSolver(@NotNull PsiElement element, TextRange range) {
 		super(element, range);
 		this.module = ModuleProvider.moduleOf(element);
-		this.outputDsl = TaraUtil.graphPackage(element);
+		this.outputDsl = IntinoUtil.graphPackage(element);
 	}
 
 	@Override

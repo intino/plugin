@@ -21,7 +21,7 @@ import io.intino.itrules.Template;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
-import io.intino.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
@@ -61,7 +61,7 @@ class PomCreator {
 
 	PomCreator(Module module) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
@@ -203,7 +203,7 @@ class PomCreator {
 
 	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
-			final Configuration configuration = TaraUtil.configurationOf(dependantModule);
+			final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
 			if (configuration instanceof LegioConfiguration) ((LegioConfiguration) configuration).reloadDependencies();
 			safeList(() -> configuration.artifact().dependencies()).stream().
 					filter(d -> (!d.toModule()) && dependencies.add(d.identifier())).
