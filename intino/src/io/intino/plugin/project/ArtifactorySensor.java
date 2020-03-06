@@ -17,12 +17,12 @@ public class ArtifactorySensor {
 	public static final String DEPENDENCY_TAG = "dependency.library";
 	public static final String GENERATION_TAG = "tara.generation";
 	private final PropertiesComponent properties;
-	private final ArtifactoryConnector languageConnectors;
-	private final ArtifactoryConnector dependencyConnectors;
+	private final ArtifactoryConnector languageConnector;
+	private final ArtifactoryConnector connector;
 
 	public ArtifactorySensor(List<Repository> repositories) {
-		this.languageConnectors = new ArtifactoryConnector(by(repositories, Repository.Language.class));
-		this.dependencyConnectors = new ArtifactoryConnector(by(repositories, Repository.Release.class, Repository.Snapshot.class));
+		this.languageConnector = new ArtifactoryConnector(by(repositories, Repository.Language.class));
+		this.connector = new ArtifactoryConnector(by(repositories, Repository.Release.class, Repository.Snapshot.class));
 		this.properties = PropertiesComponent.getInstance();
 	}
 
@@ -35,38 +35,38 @@ public class ArtifactorySensor {
 
 	@NotNull
 	private List<String> languages() {
-		final List<String> languages = languageConnectors.languages();
+		final List<String> languages = languageConnector.languages();
 		if (!languages.isEmpty()) properties.setValues(LANGUAGES_TAG, languages.toArray(new String[0]));
 		return languages;
 	}
 
 	private void languagesVersions(List<String> languages) {
 		for (String language : languages) {
-			final List<String> versions = languageConnectors.dslVersions(language);
+			final List<String> versions = languageConnector.dslVersions(language);
 			if (!versions.isEmpty())
 				properties.setValues(LANGUAGE_TAG + language, versions.toArray(new String[0]));
 		}
 	}
 
 	private void boxingVersions() {
-		final List<String> versions = languageConnectors.boxingVersions();
+		final List<String> versions = languageConnector.boxingVersions();
 		if (!versions.isEmpty())
 			properties.setValues(BOXING_TAG, versions.toArray(new String[0]));
 	}
 
 	private void generationVersions() {
-		final List<String> versions = languageConnectors.modelBuilderVersions();
+		final List<String> versions = languageConnector.modelBuilderVersions();
 		if (!versions.isEmpty()) properties.setValues(GENERATION_TAG, versions.toArray(new String[0]));
 	}
 
 	public List<String> dependencyVersions(String artifact) {
-		return dependencyConnectors.versions(artifact);
+		return connector.versions(artifact);
 	}
 
 	@SafeVarargs
 	private List<Repository> by(List<Repository> repositories, Class<? extends Repository>... types) {
 		try {
-			repositories.stream().filter(r -> isType(r, types)).collect(Collectors.toList());
+			return repositories.stream().filter(r -> isType(r, types)).collect(Collectors.toList());
 		} catch (Throwable ignored) {
 		}
 		return new ArrayList<>();

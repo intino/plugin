@@ -112,7 +112,8 @@ public class MavenRunner {
 	}
 
 	private boolean preservePOM() {
-		return safe(() -> ((LegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createPOMproject());
+		Boolean safe = safe(() -> ((LegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createPOMproject());
+		return safe != null ? safe : false;
 	}
 
 	private void applyBuildFixes(Module module, FactoryPhase phase) {
