@@ -33,7 +33,7 @@ class JpsConfigurationLoader {
 		final JpsModuleConfiguration conf = new JpsModuleConfiguration();
 		File confFile = new File(JpsModelSerializationDataService.getBaseDirectory(module.getProject()), ".intino/artifacts/" + module.getName() + ".conf");
 		if (confFile.exists()) {
-			fillFromTara(conf, confFile);
+			fillFromLegio(conf, confFile);
 			return conf;
 		}
 		final MavenProjectConfiguration maven = JpsMavenExtensionService.getInstance().getMavenProjectConfiguration(context.getProjectDescriptor().dataManager.getDataPaths());
@@ -43,7 +43,7 @@ class JpsConfigurationLoader {
 		return conf;
 	}
 
-	private void fillFromTara(JpsModuleConfiguration conf, File confFile) {
+	private void fillFromLegio(JpsModuleConfiguration conf, File confFile) {
 		try {
 			Map<String, String> parameters = Files.readAllLines(confFile.toPath()).stream().filter(l -> l.contains("=")).
 					collect(Collectors.toMap(s -> s.split("=")[0], s -> {
@@ -58,6 +58,7 @@ class JpsConfigurationLoader {
 			conf.level = parameters.getOrDefault(LEVEL, "");
 			conf.outDsl = parameters.getOrDefault(OUT_DSL, "");
 			conf.generationPackage = parameters.get(TaraBuildConstants.GENERATION_PACKAGE);
+			conf.boxGenerationPackage = parameters.get(KonosBuildConstants.BOX_GENERATION_PACKAGE);
 			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
 			conf.parameters = parameters.getOrDefault(KonosBuildConstants.PARAMETERS, "");
 			conf.parentInterface = parameters.getOrDefault(PARENT_INTERFACE, "");

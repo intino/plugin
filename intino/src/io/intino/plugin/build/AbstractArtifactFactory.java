@@ -80,9 +80,11 @@ public abstract class AbstractArtifactFactory {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
-			ProcessResult result = build(module, phase, indicator);
-			if (!result.equals(ProcessResult.Done)) return result;
-			bitbucket(phase, configuration);
+			if (phase != DEPLOY || mavenNeeded()) {
+				ProcessResult result = build(module, phase, indicator);
+				if (!result.equals(ProcessResult.Done)) return result;
+				bitbucket(phase, configuration);
+			}
 			deploy(module, phase, indicator);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
@@ -90,6 +92,10 @@ public abstract class AbstractArtifactFactory {
 		}
 		return ProcessResult.Done;
 
+	}
+
+	private boolean mavenNeeded() {
+		return false;
 	}
 
 	private ProcessResult build(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
@@ -102,7 +108,7 @@ public abstract class AbstractArtifactFactory {
 				errorMessages.add("To distribute Git repository must be on master and tagged with the version of the artifact");
 				return ProcessResult.NothingDone;
 			} else {
-				if (phase.ordinal() < INSTALL.ordinal() || !isDistributed(configuration.artifact()))
+				if (phase.ordinal() <= INSTALL.ordinal() || !isDistributed(configuration.artifact()))
 					buildModule(module, phase, indicator);
 				else if (askForSnapshotBuild(module)) {
 					configuration.artifact().version(version.nextSnapshot().get());

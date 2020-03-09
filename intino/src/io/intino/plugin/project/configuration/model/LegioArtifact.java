@@ -266,12 +266,14 @@ public class LegioArtifact implements Configuration.Artifact {
 	public byte[] serialize() {
 		Model model = model();
 		String parent = parent(model);
+		Box box = box();
 		String builder = GROUP_ID + EQ + groupId() + "\n" +
 				ARTIFACT_ID + EQ + name() + "\n" +
 				VERSION + EQ + version() + "\n" +
 				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + "\n" : "") +
 				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + "\n" +
 				GENERATION_PACKAGE + EQ + code().generationPackage() + "\n";
+
 		if (model != null) {
 			builder += LANGUAGE + EQ + model.language().name() + "\n" +
 					LANGUAGE_VERSION + EQ + model.language().version() + "\n" +
@@ -281,6 +283,7 @@ public class LegioArtifact implements Configuration.Artifact {
 			if (model.language().generationPackage() != null)
 				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
 		}
+		if (box != null) builder += KonosBuildConstants.BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
 		Dependency.DataHub datahub = datahub();
 		if (datahub != null) builder += LIBRARY + EQ + datahub().identifier();
 		return builder.getBytes();

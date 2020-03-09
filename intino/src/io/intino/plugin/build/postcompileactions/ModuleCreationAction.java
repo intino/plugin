@@ -86,9 +86,8 @@ public class ModuleCreationAction extends PostCompileAction {
 		builder.add("artifactId", camelCaseToSnakeCase().format(webModule).toString());
 		builder.add("version", artifact.version());
 		final List<Repository> repositories = configuration.repositories().stream().filter(r -> r instanceof Repository.Release).collect(Collectors.toList());
-		for (Repository repository : repositories) {
+		for (Repository repository : repositories)
 			builder.add("repository", new FrameBuilder("repository", "release").add("id", repository.identifier()).add("url", repository.url()));
-		}
 		File file = new File(moduleRoot, LegioArtifact);
 		if (!file.exists()) {
 			Files.write(file.toPath(), new ArtifactTemplate().render(builder).getBytes());
@@ -101,7 +100,7 @@ public class ModuleCreationAction extends PostCompileAction {
 		for (Configuration.Artifact.Dependency.Web webDependency : configuration.artifact().webDependencies())
 			if (webDependency.groupId().equals(webConf.artifact().groupId()) &&
 					webDependency.artifactId().equals(webConf.artifact().name()) &&
-					webDependency.version().equals(webConf.artifact().version()) && webDependency.toModule())
+					webDependency.version().equals(webConf.artifact().version()))
 				return;
 		configuration.artifact().addDependencies(webDependency(webConf.artifact()));
 		webConf.reload();
@@ -133,7 +132,7 @@ public class ModuleCreationAction extends PostCompileAction {
 
 			@Override
 			public String scope() {
-				return "Compile";
+				return "Web";
 			}
 
 			@Override

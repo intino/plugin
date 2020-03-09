@@ -34,11 +34,16 @@ import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY
 
 public class InterfaceBuilderManager {
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
-	private static final Logger LOG = Logger.getInstance(InterfaceBuilderManager.class);
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static String minimunVersion = "8.0.0";
 	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static Map<Project, String> versionsByProject = new HashMap<>();
+	private final Aether aether;
+
+
+	public InterfaceBuilderManager() {
+		aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
+	}
 
 	public static boolean exists(String version) {
 		//TODO
@@ -51,8 +56,9 @@ public class InterfaceBuilderManager {
 	}
 
 	public String load(Module module, String version) {
+
 		if (isDownloaded(version)) {
-			LOG.info("Konos " + version + " is already downloaded");
+			Logger.getInstance(InterfaceBuilderManager.class).info("Konos " + version + " is already downloaded");
 			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
@@ -60,11 +66,6 @@ public class InterfaceBuilderManager {
 		loadLanguage(List.of(artifacts.get(0).getFile()), module, version);
 		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
 		return version;
-	}
-
-	private File languageLibrary(List<Artifact> artifacts) {
-		Artifact language = artifacts.stream().filter(a -> a.getGroupId().equals(Tara.GROUP_ID) && a.getArtifactId().equals("language")).findFirst().orElse(null);
-		return language == null ? null : language.getFile();
 	}
 
 	private void loadLanguage(List<File> builderLibrary, Module module, String version) {
@@ -87,7 +88,6 @@ public class InterfaceBuilderManager {
 		try {
 			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").getConstructors()[0].newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | InvocationTargetException e) {
-			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -109,7 +109,6 @@ public class InterfaceBuilderManager {
 	}
 
 	private List<Artifact> konosLibrary(String version) {
-		final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
 		try {
 			return aether.resolve(new DefaultArtifact("io.intino.konos", "builder", "jar", version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
@@ -142,7 +141,6 @@ public class InterfaceBuilderManager {
 			moduleBoxDirectory.mkdirs();
 			Files.write(classpathFile(moduleBoxDirectory), String.join(":", libraries).getBytes());
 		} catch (IOException e) {
-			LOG.error(e.getMessage());
 		}
 	}
 
@@ -151,7 +149,6 @@ public class InterfaceBuilderManager {
 		try {
 			return l.toURI().toURL();
 		} catch (MalformedURLException e) {
-			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}

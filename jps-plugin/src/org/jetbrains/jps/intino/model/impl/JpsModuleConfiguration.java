@@ -17,6 +17,7 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String outDsl = "";
 
 	public String generationPackage = "";
+	public String boxGenerationPackage = "";
 
 	public String groupId = "";
 	public String artifactId = "";

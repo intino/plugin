@@ -39,6 +39,7 @@ class KonosRunner {
 		this.module = module;
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
 		this.classpath = Arrays.asList(Files.readString(InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module))).replace("$HOME", System.getProperty("user.home")).split(":"));
+		Logger.info("Classpath: " + String.join(":", classpath));
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), encoding))) {
 			writer.write(SRC_FILE + NL);
 			for (File file : sources) writer.write(file.getAbsolutePath() + "#true" + NL);
@@ -56,7 +57,7 @@ class KonosRunner {
 		writer.write(ARTIFACT_ID + NL + conf.artifact().name() + NL);
 		writer.write(VERSION + NL + conf.artifact().version() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
-		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + ".box" + NL);
+		writer.write(BOX_GENERATION_PACKAGE + NL + conf.artifact().box().targetPackage() + NL);
 		writer.write(ONLY_GENERATE_ELEMENTS + NL + true + NL);
 	}
 

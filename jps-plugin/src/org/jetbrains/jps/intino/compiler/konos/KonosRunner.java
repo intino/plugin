@@ -74,7 +74,7 @@ class KonosRunner {
 		if (!conf.library.isEmpty()) writer.write(LIBRARY + NL + conf.library + NL);
 		if (!conf.languageGenerationPackage.isEmpty())
 			writer.write(LANGUAGE_GENERATION_PACKAGE + NL + conf.languageGenerationPackage + NL);
-		writer.write(GENERATION_PACKAGE + NL + (conf.generationPackage.isEmpty() ? conf.outDsl : conf.generationPackage) + ".box" + NL);
+		writer.write(BOX_GENERATION_PACKAGE + NL + conf.generationPackage + NL);
 	}
 
 	private void writePaths(Map<String, String> paths, Writer writer) throws IOException {
