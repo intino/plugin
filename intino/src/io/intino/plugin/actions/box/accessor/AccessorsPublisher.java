@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.intellij.notification.NotificationType.ERROR;
@@ -39,7 +40,6 @@ import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory
 
 public class AccessorsPublisher {
 	private static final Logger LOG = Logger.getInstance("Publishing Accessor:");
-	private static final String KONOS = "konos";
 	private static final String ACCESSOR = "-accessor";
 	private final Module module;
 	private StringBuilder log = new StringBuilder();
@@ -55,7 +55,7 @@ public class AccessorsPublisher {
 
 	public void install() {
 		try {
-			for (File serviceDirectory : root.listFiles(f -> f.isDirectory())) {
+			for (File serviceDirectory : Objects.requireNonNull(root.listFiles(File::isDirectory))) {
 				File[] sources = serviceDirectory.listFiles();
 				if (sources == null || sources.length == 0) return;
 				mvn(serviceDirectory, conf, "install");
@@ -68,10 +68,10 @@ public class AccessorsPublisher {
 
 	public void publish() {
 		try {
-			for (File serviceDirectory : root.listFiles(f -> f.isDirectory())) {
+			for (File serviceDirectory : Objects.requireNonNull(root.listFiles(File::isDirectory))) {
 				File[] sources = serviceDirectory.listFiles();
 				if (sources == null || sources.length == 0) return;
-				mvn(serviceDirectory, conf, "publish");
+				mvn(serviceDirectory, conf, "deploy");
 			}
 		} catch (IOException | MavenInvocationException e) {
 			notifyError(e.getMessage());

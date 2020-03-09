@@ -110,16 +110,18 @@ public class TaraPsiUtil {
 		return parameter != null && !parameter.values().isEmpty() ? (Reference) parameter.values().get(0) : null;
 	}
 
-	public static Reference referenceParameterValue(Node node, String name, int position) {
+	public static Node referenceParameterValue(Node node, String name, int position) {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		if (parameter != null && !parameter.values().isEmpty()) {
-			return (Reference) parameter.values().get(0);
+			Object o = parameter.values().get(0);
+			return o instanceof Reference ? ((Reference) o).reference() : (Node) o;
 		}
 		if (parameters.size() > position) {
 			parameters.get(position).type(Primitive.REFERENCE);
-			return (Reference) parameters.get(position).values().get(0);
+			Object o = parameters.get(position).values().get(0);
+			return o instanceof Reference ? ((Reference) o).reference() : (Node) o;
 		}
 		return null;
 	}

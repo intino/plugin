@@ -53,19 +53,23 @@ public class ExportAction {
 		Configuration.Artifact.Box box = configuration.artifact().box();
 		if (box != null) {
 			final String version = box.version();
-			if (version != null && !version.isEmpty()) {
-				ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
-				try {
-					Path temp = Files.createTempDirectory("konos_accessors");
-					KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
-					konosRunner.runKonosCompiler();
-					AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
-					if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
-					else publisher.publish();
-				} catch (IOException e) {
-					Logger.error(e);
+			if (version == null || version.isEmpty()) return;
+			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
+			withTask(new Task.Backgroundable(module.getProject(), "Exports accessors of " + module.getName(), false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				@Override
+				public void run(@NotNull ProgressIndicator indicator) {
+					try {
+						Path temp = Files.createTempDirectory("konos_accessors");
+						KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
+						konosRunner.runKonosCompiler();
+						AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
+						if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
+						else publisher.publish();
+					} catch (IOException e) {
+						Logger.error(e);
+					}
 				}
-			}
+			});
 		}
 	}
 

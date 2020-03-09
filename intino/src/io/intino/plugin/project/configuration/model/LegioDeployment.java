@@ -2,7 +2,6 @@ package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Primitive;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
@@ -22,16 +21,16 @@ public class LegioDeployment implements Configuration.Deployment {
 
 	@Override
 	public Configuration.Server server() {
-		Primitive.Reference release = referenceParameterValue(node, "server", 0);
+		Node release = referenceParameterValue(node, "server", 0);
 		if (release == null) return null;
-		return new LegioServer(artifact.root(), (TaraNode) release.reference());
+		return new LegioServer(artifact.root(), (TaraNode) release);
 	}
 
 	@Override
 	public Configuration.RunConfiguration runConfiguration() {
-		Primitive.Reference release = referenceParameterValue(node, "runConfiguration", 0);
+		Node release = referenceParameterValue(node, "runConfiguration", 0);
 		if (release == null) return null;
-		return new LegioRunConfiguration(artifact, release.reference());
+		return new LegioRunConfiguration(artifact, release);
 	}
 
 	@Override
