@@ -80,7 +80,7 @@ public abstract class AbstractArtifactFactory {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
 			check(phase, configuration);
-			if (phase != DEPLOY || mavenNeeded()) {
+			if (mavenNeeded(phase, configuration)) {
 				ProcessResult result = build(module, phase, indicator);
 				if (!result.equals(ProcessResult.Done)) return result;
 				bitbucket(phase, configuration);
@@ -94,8 +94,9 @@ public abstract class AbstractArtifactFactory {
 
 	}
 
-	private boolean mavenNeeded() {
-		return false;
+	private boolean mavenNeeded(FactoryPhase phase, LegioConfiguration configuration) {
+		if (phase != DEPLOY) return true;
+		return !isDistributed(configuration.artifact());
 	}
 
 	private ProcessResult build(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
