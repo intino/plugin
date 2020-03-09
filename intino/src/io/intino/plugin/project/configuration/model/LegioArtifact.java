@@ -235,9 +235,10 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
-	@NotNull
+	@Nullable
 	public LegioDistribution distribution() {
-		return new LegioDistribution(this, (TaraNode) TaraPsiUtil.componentOfType(node, "Distribution"));
+		Node distribution = TaraPsiUtil.componentOfType(node, "Distribution");
+		return distribution == null ? null : new LegioDistribution(this, (TaraNode) distribution);
 	}
 
 	@Override

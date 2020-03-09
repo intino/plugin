@@ -29,13 +29,15 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.project.Safe.safe;
+
 public class BitbucketDeployer {
 	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
 	private final Configuration.Distribution.BitBucketDistribution bitbucket;
 	private File jar;
 
 	public BitbucketDeployer(Configuration configuration) {
-		this.bitbucket = configuration.artifact().distribution().onBitbucket();
+		this.bitbucket = safe(() -> configuration.artifact().distribution().onBitbucket());
 		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name() + ":" + configuration.artifact().version());
 	}
 

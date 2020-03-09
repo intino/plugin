@@ -199,8 +199,9 @@ public abstract class AbstractArtifactFactory {
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
 		Artifact artifact = configuration.artifact();
 		if (phase.ordinal() >= DISTRIBUTE.ordinal()) {
-			artifact.distribution();
-			if (artifact.distribution().onBitbucket() != null) new BitbucketDeployer(configuration).execute();
+			Configuration.Distribution distribution = artifact.distribution();
+			if (distribution != null && artifact.distribution().onBitbucket() != null)
+				new BitbucketDeployer(configuration).execute();
 		}
 	}
 

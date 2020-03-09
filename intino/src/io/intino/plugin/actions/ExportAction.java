@@ -3,7 +3,12 @@ package io.intino.plugin.actions;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -11,13 +16,19 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import io.intino.Configuration;
+import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.plugin.MessageProvider;
+import io.intino.plugin.actions.box.KonosRunner;
+import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,25 +36,35 @@ import static io.intino.plugin.DataContext.getContext;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ExportAction {
+	private static final com.intellij.openapi.diagnostic.Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(ExportAction.class);
 
 	public void execute(Module module, FactoryPhase phase) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (configuration == null) {
+		if (!(configuration instanceof LegioConfiguration)) {
 			Notifications.Bus.notify(new Notification("Tara Language",
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
 			return;
 		}
-		runBoxExports(phase, configuration);
+		runBoxExports(phase, module, (LegioConfiguration) configuration);
 		runExportPlugins(module, phase, (LegioConfiguration) configuration);
 	}
 
-	private void runBoxExports(FactoryPhase factoryPhase, Configuration configuration) {
+	private void runBoxExports(FactoryPhase factoryPhase, Module module, LegioConfiguration configuration) {
 		Configuration.Artifact.Box box = configuration.artifact().box();
 		if (box != null) {
 			final String version = box.version();
 			if (version != null && !version.isEmpty()) {
-				AnAction action = ActionManager.getInstance().getAction((factoryPhase.equals(FactoryPhase.INSTALL) ? "Install" : "Publish") + "Accessors" + version);
-				if (action != null) action.actionPerformed(createActionEvent());
+				ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
+				try {
+					Path temp = Files.createTempDirectory("konos_accessors");
+					KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
+					konosRunner.runKonosCompiler();
+					AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
+					if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
+					else publisher.publish();
+				} catch (IOException e) {
+					Logger.error(e);
+				}
 			}
 		}
 	}
