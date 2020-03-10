@@ -124,6 +124,7 @@ public class ArtifactDeployer {
 
 	private boolean isDistribution(Configuration.Repository r) {
 		LegioArtifact artifact = configuration.artifact();
+		if (artifact.distribution() == null) return false;
 		return r instanceof Configuration.Repository.Release ? r.url().equals(safe(() -> artifact.distribution().release().url())) : r.url().equals(safe(() -> artifact.distribution().snapshot().url()));
 	}
 

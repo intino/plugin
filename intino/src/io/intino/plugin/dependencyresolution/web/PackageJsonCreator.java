@@ -53,6 +53,7 @@ public class PackageJsonCreator {
 	}
 
 	private boolean isDistribution(Repository r) {
+		if (artifact.distribution() == null) return false;
 		return r instanceof Repository.Release ? artifact.distribution().release().url().equals(r.url()) : artifact.distribution().snapshot().url().equals(r.url());
 	}
 
