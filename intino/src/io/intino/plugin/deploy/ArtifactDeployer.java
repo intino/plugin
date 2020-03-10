@@ -16,6 +16,7 @@ import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.project.Safe.safe;
@@ -99,19 +101,33 @@ public class ArtifactDeployer {
 
 	private List<Artifactory> artifactories() {
 		List<Configuration.Repository> repositories = collectRepositories();
-		return repositories.stream().map(entry -> addCredentials(new Artifactory().url(entry.url()).id(entry.identifier()))).collect(toList());
+		return repositories.stream().map(entry -> credentials(new Artifactory().url(entry.url()).id(entry.identifier()))).collect(toList());
 	}
 
 	private List<Configuration.Repository> collectRepositories() {
-		List<Configuration.Repository> repositories = new ArrayList<>(configuration.repositories());
+		List<Configuration.Repository> repositories = new ArrayList<>(deployRepositories(configuration.repositories()));
 		for (Module dependant : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration dependantConf = IntinoUtil.configurationOf(dependant);
-			if (dependantConf != null) repositories.addAll(dependantConf.repositories());
+			if (dependantConf == null) continue;
+			deployRepositories(dependantConf.repositories()).stream().filter(repository -> !contains(repositories, repository)).forEach(repositories::add);
 		}
 		return repositories;
 	}
 
-	private Artifactory addCredentials(Artifactory artifactory) {
+	private boolean contains(List<Configuration.Repository> repositories, Configuration.Repository repository) {
+		return repositories.stream().anyMatch(r -> r.url().equals(repository.url()));
+	}
+
+	private List<Configuration.Repository> deployRepositories(List<Configuration.Repository> repositories) {
+		return repositories.stream().filter(r -> !(r instanceof Configuration.Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
+	}
+
+	private boolean isDistribution(Configuration.Repository r) {
+		LegioArtifact artifact = configuration.artifact();
+		return r instanceof Configuration.Repository.Release ? r.url().equals(safe(() -> artifact.distribution().release().url())) : r.url().equals(safe(() -> artifact.distribution().snapshot().url()));
+	}
+
+	private Artifactory credentials(Artifactory artifactory) {
 		final IntinoSettings settings = getSafeInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(artifactory.id()))

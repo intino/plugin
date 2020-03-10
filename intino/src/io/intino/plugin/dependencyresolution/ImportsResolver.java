@@ -29,6 +29,8 @@ import java.util.*;
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class ImportsResolver {
 	private final Module module;
@@ -132,8 +134,8 @@ public class ImportsResolver {
 			return new DependencyCatalog();
 		}
 		DependencyCatalog catalog = new DependencyCatalog();
-		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + s.name(), a.getFile(), false)));
-		d.effectiveVersion(artifacts.keySet().iterator().next().getVersion());
+		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getBaseVersion() + ":" + s.name(), a.getFile(), false)));
+		d.effectiveVersion(artifacts.keySet().iterator().next().getBaseVersion());
 		d.resolved(true);
 		return catalog;
 	}
@@ -210,7 +212,13 @@ public class ImportsResolver {
 
 	private RemoteRepository repository(Repository r) {
 		final RemoteRepository repository = new RemoteRepository(r.identifier(), "default", r.url()).setAuthentication(provideAuthentication(r.identifier()));
-		repository.setPolicy(r instanceof Repository.Snapshot, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(r instanceof Repository.Snapshot ? RepositoryPolicy.UPDATE_POLICY_ALWAYS : RepositoryPolicy.UPDATE_POLICY_DAILY));
+		if (r instanceof Repository.Snapshot) {
+			repository.setPolicy(true, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
+			repository.setPolicy(false, new RepositoryPolicy().setEnabled(false));
+		} else {
+			repository.setPolicy(true, new RepositoryPolicy().setEnabled(false).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
+			repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
+		}
 		return repository;
 	}
 

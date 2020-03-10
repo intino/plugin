@@ -31,6 +31,9 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+
 public class PackageJsonCreator {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
 	private final Module module;
@@ -178,12 +181,22 @@ public class PackageJsonCreator {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY)));
-		remotes.addAll(repositories.stream().
-				map(r -> new RemoteRepository(r.identifier(), "default", r.url()).
-						setPolicy(r instanceof Repository.Snapshot, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(r instanceof Repository.Snapshot ? RepositoryPolicy.UPDATE_POLICY_ALWAYS : RepositoryPolicy.UPDATE_POLICY_DAILY)).
-						setAuthentication(provideAuthentication(r.identifier()))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().map(this::repository).collect(Collectors.toList()));
 		return remotes;
 	}
+
+	private RemoteRepository repository(Repository r) {
+		final RemoteRepository repository = new RemoteRepository(r.identifier(), "default", r.url()).setAuthentication(provideAuthentication(r.identifier()));
+		if (r instanceof Repository.Snapshot) {
+			repository.setPolicy(true, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
+			repository.setPolicy(false, new RepositoryPolicy().setEnabled(false));
+		} else {
+			repository.setPolicy(true, new RepositoryPolicy().setEnabled(false).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
+			repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
+		}
+		return repository;
+	}
+
 
 	private Authentication provideAuthentication(String mavenId) {
 		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
