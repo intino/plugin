@@ -11,7 +11,6 @@ import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency;
-import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -205,22 +204,21 @@ public class ImportsResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
-		remotes.addAll(repositories.stream().filter(r -> r != null && !(r instanceof Repository.Language)).map(this::repository).collect(toList()));
+		remotes.addAll(repositories.stream().map(this::repository).collect(toList()));
 		return remotes;
 	}
 
-	private RemoteRepository repository(Repository remote) {
-		final RemoteRepository repository = new RemoteRepository(remote.identifier(), "default", remote.url()).setAuthentication(provideAuthentication(remote.identifier()));
-		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
+	private RemoteRepository repository(Repository r) {
+		final RemoteRepository repository = new RemoteRepository(r.identifier(), "default", r.url()).setAuthentication(provideAuthentication(r.identifier()));
+		repository.setPolicy(r instanceof Repository.Snapshot, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(r instanceof Repository.Snapshot ? RepositoryPolicy.UPDATE_POLICY_ALWAYS : RepositoryPolicy.UPDATE_POLICY_DAILY));
 		return repository;
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
-		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(mavenId))
-				return new Authentication(credential.username, credential.password);
-		return null;
+		return IntinoSettings.getSafeInstance(module.getProject()).artifactories().stream().
+				filter(c -> c.serverId.equals(mavenId)).findFirst().
+				map(c -> new Authentication(c.username, c.password)).
+				orElse(null);
 	}
 
 	@NotNull

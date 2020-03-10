@@ -71,7 +71,6 @@ public class ExportAction {
 				Logger.error(e);
 			}
 		}
-
 	}
 
 	private void runExportPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration, ProgressIndicator indicator) {

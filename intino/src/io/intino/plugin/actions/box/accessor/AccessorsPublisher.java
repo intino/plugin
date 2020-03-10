@@ -13,7 +13,6 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.ness.datahubterminalplugin.Commons;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
@@ -133,8 +132,16 @@ public class AccessorsPublisher {
 		conf.repositories().stream().filter(r -> r instanceof Configuration.Repository.Release).forEach(r -> buildRepoFrame(builder, r));
 		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").toFrame());
 		final File pomFile = new File(root, "pom.xml");
-		Commons.write(pomFile.toPath(), new AccessorPomTemplate().render(builder.toFrame()));
+		write(builder, pomFile);
 		return pomFile;
+	}
+
+	private void write(FrameBuilder builder, File pomFile) {
+		try {
+			Files.writeString(pomFile.toPath(), new AccessorPomTemplate().render(builder.toFrame()));
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
 	}
 
 	private void buildRepoFrame(FrameBuilder builder, Configuration.Repository r) {

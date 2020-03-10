@@ -46,7 +46,7 @@ public class WebDependencyResolver {
 	public void resolve() {
 		File pom = createPomFile();
 		File temp = createTempDirectory();
-		new PackageJsonCreator(artifact, repositories, temp).createPackageFile(rootDirectory);
+		new PackageJsonCreator(module, artifact, repositories, temp).createPackageFile(rootDirectory);
 		run(pom);
 		Arrays.stream(requireNonNull(temp.listFiles(File::isDirectory))).forEach(file -> {
 			File toDir = new File(nodeModulesDirectory, file.getName());

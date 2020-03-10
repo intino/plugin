@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.io.ZipUtil;
 import com.jcabi.aether.Aether;
@@ -13,8 +14,11 @@ import io.intino.Configuration.Repository;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.settings.ArtifactoryCredential;
+import io.intino.plugin.settings.IntinoSettings;
 import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
+import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -29,18 +33,24 @@ import java.util.stream.Collectors;
 
 public class PackageJsonCreator {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
+	private final Module module;
 	private final Artifact artifact;
 	private final List<Repository> repositories;
 	private final List<Artifact.WebComponent> webComponents;
 	private final List<Artifact.WebResolution> resolutions;
 	private final File nodeModulesDirectory;
 
-	public PackageJsonCreator(Artifact artifact, List<Repository> repositories, File nodeModulesDirectory) {
+	public PackageJsonCreator(Module module, Artifact artifact, List<Repository> repositories, File nodeModulesDirectory) {
+		this.module = module;
 		this.artifact = artifact;
-		this.repositories = repositories;
+		this.repositories = repositories.stream().filter(r -> !(r instanceof Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
 		this.nodeModulesDirectory = nodeModulesDirectory;
+	}
+
+	private boolean isDistribution(Repository r) {
+		return r instanceof Repository.Release ? artifact.distribution().release().url().equals(r.url()) : artifact.distribution().snapshot().url().equals(r.url());
 	}
 
 	public void createPackageFile(File rootDirectory) {
@@ -168,8 +178,18 @@ public class PackageJsonCreator {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY)));
-		remotes.addAll(repositories.stream().map(r -> new RemoteRepository(r.identifier(), "default", r.url()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_DAILY))).collect(Collectors.toList()));
+		remotes.addAll(repositories.stream().
+				map(r -> new RemoteRepository(r.identifier(), "default", r.url()).
+						setPolicy(r instanceof Repository.Snapshot, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(r instanceof Repository.Snapshot ? RepositoryPolicy.UPDATE_POLICY_ALWAYS : RepositoryPolicy.UPDATE_POLICY_DAILY)).
+						setAuthentication(provideAuthentication(r.identifier()))).collect(Collectors.toList()));
 		return remotes;
 	}
 
+	private Authentication provideAuthentication(String mavenId) {
+		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
+		for (ArtifactoryCredential credential : settings.artifactories())
+			if (credential.serverId.equals(mavenId))
+				return new Authentication(credential.username, credential.password);
+		return null;
+	}
 }

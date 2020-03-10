@@ -5,6 +5,7 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import io.intino.Configuration;
+import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
@@ -26,8 +27,8 @@ public class ConfigurationReloader {
 	private final String updatePolicy;
 	private final Artifact artifact;
 	private final Artifact.Model model;
+	private final List<Repository> repositories;
 	private Module module;
-	private final List<Configuration.Repository> repositories;
 
 	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy) {
 		this.module = module;
@@ -79,6 +80,7 @@ public class ConfigurationReloader {
 		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
 		Artifact.Dependency.DataHub datahub = artifact.datahub();
 		if (datahub != null) artifactDependencies.add(datahub);
+		List<Repository> repositories = importRepositories();
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).
@@ -87,6 +89,14 @@ public class ConfigurationReloader {
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);
 		new UnusedLibrariesInspection(module.getProject()).cleanUp();
+	}
+
+	private List<Repository> importRepositories() {
+		return repositories.stream().filter(r -> !(r instanceof Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
+	}
+
+	private boolean isDistribution(Repository r) {
+		return r instanceof Repository.Release ? artifact.distribution().release().url().equals(r.url()) : artifact.distribution().snapshot().url().equals(r.url());
 	}
 
 	@NotNull
