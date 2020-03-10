@@ -108,6 +108,11 @@ def type(jmx) trigger(dependency)
 		<artifactId>jmx</artifactId>
 		<version>$[1.0.0, 2.0.0)</version>
 	</dependency>
+	<dependency>
+        <groupId>io.intino.alexandria</groupId>
+        <artifactId>exceptions</artifactId>
+        <version>$[1.0.0, 2.0.0)</version>
+    </dependency>
 end
 
 def type(messaging) trigger(dependency)

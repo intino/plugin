@@ -75,7 +75,6 @@ public class AccessorsPublisher {
 			}
 		} catch (IOException | MavenInvocationException e) {
 			notifyError(e.getMessage());
-			LOG.error(e.getMessage());
 		}
 	}
 

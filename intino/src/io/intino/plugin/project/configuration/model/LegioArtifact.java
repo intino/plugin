@@ -178,9 +178,10 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
+	@Nullable
 	public Box box() {
 		Node node = TaraPsiUtil.componentOfType(this.node, "Box");
-		return new LegioBox(this, node);
+		return node == null ? null : new LegioBox(this, node);
 	}
 
 	@Override

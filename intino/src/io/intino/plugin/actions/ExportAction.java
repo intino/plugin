@@ -45,46 +45,42 @@ public class ExportAction {
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
 			return;
 		}
-		runBoxExports(phase, module, (LegioConfiguration) configuration);
-		runExportPlugins(module, phase, (LegioConfiguration) configuration);
+		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
+		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			@Override
+			public void run(@NotNull ProgressIndicator indicator) {
+				runBoxExports(phase, module, (LegioConfiguration) configuration, indicator);
+				runExportPlugins(module, phase, (LegioConfiguration) configuration, indicator);
+			}
+		});
 	}
 
-	private void runBoxExports(FactoryPhase factoryPhase, Module module, LegioConfiguration configuration) {
+	private void runBoxExports(FactoryPhase factoryPhase, Module module, LegioConfiguration configuration, ProgressIndicator indicator) {
 		Configuration.Artifact.Box box = configuration.artifact().box();
 		if (box != null) {
 			final String version = box.version();
 			if (version == null || version.isEmpty()) return;
-			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
-			withTask(new Task.Backgroundable(module.getProject(), "Exports accessors of " + module.getName(), false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-				@Override
-				public void run(@NotNull ProgressIndicator indicator) {
-					try {
-						Path temp = Files.createTempDirectory("konos_accessors");
-						KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
-						konosRunner.runKonosCompiler();
-						AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
-						if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
-						else publisher.publish();
-					} catch (IOException e) {
-						Logger.error(e);
-					}
-				}
-			});
+			try {
+				Path temp = Files.createTempDirectory("konos_accessors");
+				KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
+				konosRunner.runKonosCompiler();
+				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
+				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
+				else publisher.publish();
+			} catch (IOException e) {
+				Logger.error(e);
+			}
 		}
+
 	}
 
-	private void runExportPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration) {
+	private void runExportPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration, ProgressIndicator indicator) {
 		List<Configuration.Artifact.Plugin> intinoPlugins = safeList(() -> configuration.artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Configuration.Artifact.Plugin.Phase.Export).forEach(plugin -> {
-			withTask(new Task.Backgroundable(module.getProject(), "Exports plugins of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-				@Override
-				public void run(@NotNull ProgressIndicator indicator) {
-					List<String> errorMessages = new ArrayList<>();
-					new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
-					if (!errorMessages.isEmpty())
-						Notifications.Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
-				}
-			});
+			List<String> errorMessages = new ArrayList<>();
+			new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
+			if (!errorMessages.isEmpty())
+				Notifications.Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
 		});
 	}
 

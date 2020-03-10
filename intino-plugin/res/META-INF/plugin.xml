@@ -260,6 +260,9 @@
         <action id="NewTaraFile" class="io.intino.plugin.actions.CreateModelFileAction">
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
+        <action id="NewBoxFile" class="io.intino.plugin.actions.CreateBoxFileAction">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
         <action id="IntinoGenerate"
                 class="io.intino.plugin.actions.box.BoxElementsGenerationAction"
                 text="Generate Web Elements Code"

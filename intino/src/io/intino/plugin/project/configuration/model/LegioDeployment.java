@@ -7,8 +7,7 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.List;
 
-import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
-import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.referenceParameterValue;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.*;
 
 public class LegioDeployment implements Configuration.Deployment {
 	private final LegioArtifact artifact;
@@ -21,14 +20,14 @@ public class LegioDeployment implements Configuration.Deployment {
 
 	@Override
 	public Configuration.Server server() {
-		Node release = referenceParameterValue(node, "server", 0);
+		Node release = read(() -> referenceParameterValue(node, "server", 0));
 		if (release == null) return null;
 		return new LegioServer(artifact.root(), (TaraNode) release);
 	}
 
 	@Override
 	public Configuration.RunConfiguration runConfiguration() {
-		Node release = referenceParameterValue(node, "runConfiguration", 0);
+		Node release = read(() -> referenceParameterValue(node, "runConfiguration", 0));
 		if (release == null) return null;
 		return new LegioRunConfiguration(artifact, release);
 	}
@@ -44,19 +43,27 @@ public class LegioDeployment implements Configuration.Deployment {
 		return requirements == null ? null : new Requirements() {
 			@Override
 			public int minHdd() {
-				String minHdd = parameterValue(node, "minHdd", 0);
-				return minHdd == null ? 0 : Integer.parseInt(minHdd);
+				Node memoryNode = componentOfType(requirements, "HDD");
+				if (memoryNode == null) return 0;
+				String minHDD = parameterValue(memoryNode, "minHDD", 0);
+				return minHDD == null ? 0 : Integer.parseInt(minHDD);
+
 			}
 
 			@Override
 			public int minMemory() {
-				String minMemory = parameterValue(node, "minMemory", 0);
+				Node memoryNode = componentOfType(requirements, "Memory");
+				if (memoryNode == null) return 0;
+				String minMemory = parameterValue(memoryNode, "minMemory", 0);
 				return minMemory == null ? 0 : Integer.parseInt(minMemory);
 			}
 
 			@Override
 			public String jvmVersion() {
-				return parameterValue(node, "jvmVersion", 0);
+				Node jvm = componentOfType(node, "JVM");
+				if (jvm == null) return "";
+				String version = parameterValue(jvm, "version", 0);
+				return version == null ? "" : version;
 			}
 		};
 	}

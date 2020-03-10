@@ -92,7 +92,7 @@ public class CreateBoxFileAction extends JavaCreateTemplateInPackageAction<TaraM
 		e.getPresentation().setIcon(IntinoIcons.KONOS_16);
 		final Module module = e.getData(LangDataKeys.MODULE);
 		final Configuration configuration = module == null ? null : IntinoUtil.configurationOf(module);
-		boolean enabled = configuration != null && configuration.artifact().box().version() != null;
+		boolean enabled = configuration != null && configuration.artifact().box() != null;
 		e.getPresentation().setVisible(enabled);
 		e.getPresentation().setEnabled(enabled);
 	}

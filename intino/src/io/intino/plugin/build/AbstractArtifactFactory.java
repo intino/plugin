@@ -49,7 +49,7 @@ public abstract class AbstractArtifactFactory {
 	private static final String JAR_EXTENSION = ".jar";
 	private static VcsShowConfirmationOption STATIC_SHOW_CONFIRMATION = new VcsShowConfirmationOption() {
 		public VcsShowConfirmationOption.Value getValue() {
-			return VcsShowConfirmationOption.Value.SHOW_CONFIRMATION;
+			return Value.DO_ACTION_SILENTLY;
 		}
 
 		public void setValue(VcsShowConfirmationOption.Value value) {
@@ -222,7 +222,7 @@ public abstract class AbstractArtifactFactory {
 	private boolean askForDeploy(Module module, LegioConfiguration conf) {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new ConfirmationDialog(module.getProject(),
-				". Are you sure?", "You are going to deploy " + conf.artifact().name(), IntinoIcons.INTINO_16, STATIC_SHOW_CONFIRMATION).showAndGet()));
+				"Are you sure?", "You are going to deploy " + conf.artifact().name(), IntinoIcons.INTINO_16, STATIC_SHOW_CONFIRMATION).showAndGet()));
 		return response.get();
 	}
 
