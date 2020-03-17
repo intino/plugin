@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Future;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
 class TaraRunner {
 	private static final char NL = '\n';

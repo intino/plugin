@@ -85,7 +85,7 @@ public class PluginExecutor {
 			List<Artifact> artifacts = resolve();
 			instantiateAndRun(artifacts);
 		} catch (DependencyResolutionException e) {
-			errorMessages.add("Plugin artifact not found");
+			errorMessages.add("Intino Plugin " + artifact + " not found");
 		}
 	}
 

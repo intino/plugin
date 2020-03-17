@@ -49,7 +49,6 @@ public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Depe
 			}.getType());
 			if (map != null) putAll(map);
 		} catch (Exception e) {
-			Logger.getInstance(this.getClass()).error(e);
 			resolutionsFile.delete();
 		}
 	}

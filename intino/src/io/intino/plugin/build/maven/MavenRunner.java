@@ -4,7 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
@@ -102,9 +101,9 @@ public class MavenRunner {
 		applyBuildFixes(module, phase);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.artifact", phase);
 		else {
-			if (!preservePOM()) FileUtil.delete(pom);
+			if (!preservePOM()) pom.delete();
 			File reducedPom = new File(pom.getParentFile(), "dependency-reduced-pom.xml");
-			if (reducedPom.exists()) FileUtil.delete(reducedPom);
+			if (reducedPom.exists()) reducedPom.delete();
 			new MavenPostBuildActions(module).execute();
 			if (result == null)
 				throw new IOException(message("error.publishing.artifact", phase.name().toLowerCase(), "Maven HOME not found"));

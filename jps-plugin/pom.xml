@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		 xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <version>1.0</version>
-    <groupId>io.intino.tara</groupId>
-    <artifactId>jps-plugin</artifactId>
+	<modelVersion>4.0.0</modelVersion>
+	<version>1.0</version>
+	<groupId>io.intino.tara</groupId>
+	<artifactId>jps-plugin</artifactId>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 
 
-    <build>
-        <outputDirectory>../../out/production/jps-plugin</outputDirectory>
-        <testOutputDirectory>../../out/test/jps-plugin</testOutputDirectory>
-        <directory>../../out/build/jps-plugin</directory>
+	<build>
+		<outputDirectory>../../out/production/jps-plugin</outputDirectory>
+		<testOutputDirectory>../../out/test/jps-plugin</testOutputDirectory>
+		<directory>../../out/build/jps-plugin</directory>
 
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>../builder-constants/src</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>../builder-constants/src</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.intino.tara</groupId>
-            <artifactId>builder-constants</artifactId>
-            <version>3.0.0</version>
-            <type>bundle</type>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>io.intino.magritte</groupId>
+			<artifactId>builder-constants</artifactId>
+			<version>3.0.0</version>
+			<type>bundle</type>
+		</dependency>
+		<dependency>
+			<groupId>io.intino.konos</groupId>
+			<artifactId>konos-builder-constants</artifactId>
+			<version>1.0.0</version>
+			<type>bundle</type>
+		</dependency>
+	</dependencies>
 
 </project>

@@ -1,7 +1,7 @@
 package org.jetbrains.jps.intino.model.impl;
 
 import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.maven.model.JpsMavenExtensionService;
 import org.jetbrains.jps.maven.model.impl.MavenModuleResourceConfiguration;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFACE;
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
 	private static String TARA = "tara.";

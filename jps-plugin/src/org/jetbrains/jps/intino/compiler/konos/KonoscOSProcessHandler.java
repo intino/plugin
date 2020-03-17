@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.ERROR;
-import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.WARNING;
+import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.ERROR;
+import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.WARNING;
 
 class KonoscOSProcessHandler extends BaseOSProcessHandler {
 	private static final String KONOS_COMPILER_IN_OPERATION = "Konos compiler in operation...";

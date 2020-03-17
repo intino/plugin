@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
-import io.intino.tara.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import org.apache.log4j.Level;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
-import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.ERROR;
-import static io.intino.tara.compiler.shared.TaraCompilerMessageCategories.WARNING;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.ERROR;
+import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.WARNING;
 
 class TaracOSProcessHandler extends BaseOSProcessHandler {
 	private static final String TARA_COMPILER_IN_OPERATION = "Tara compiler in operation...";

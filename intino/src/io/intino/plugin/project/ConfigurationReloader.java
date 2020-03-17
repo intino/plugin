@@ -97,7 +97,8 @@ public class ConfigurationReloader {
 
 	private boolean isDistribution(Repository r) {
 		if (artifact.distribution() == null) return false;
-		return r instanceof Repository.Release ? r.url().equals(artifact.distribution().release().url()) : r.url().equals(artifact.distribution().snapshot().url());
+		if (r instanceof Repository.Release) return r.url().equals(safe(() -> artifact.distribution().release().url()));
+		return r.url().equals(safe(() -> artifact.distribution().snapshot().url()));
 	}
 
 	@NotNull

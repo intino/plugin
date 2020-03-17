@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.tara.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
 import static org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode.*;
 import static org.jetbrains.jps.intino.compiler.CopyResourcesUtil.copy;

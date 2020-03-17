@@ -30,6 +30,7 @@ import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
@@ -397,4 +398,7 @@ public class IntinoUtil {
 		return application.<TaraNode[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraNode.class));
 	}
 
+	public static PsiDirectory createResourceRoot(Module module, String name) {
+		return createDirectory(read(() -> PsiManager.getInstance(module.getProject()).findDirectory(module.getModuleFile().getParent())), name);
+	}
 }
