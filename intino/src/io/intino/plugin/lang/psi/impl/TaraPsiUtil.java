@@ -97,11 +97,21 @@ public class TaraPsiUtil {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null ? clean(read(() -> parameter.values().get(0).toString())) : (parameters.size() > position ? clean(read(() -> parameters.get(position).values().get(0).toString())) : null);
+		return parameter != null ? clean(read(() -> parameter.values().get(0).toString())) :
+				parameterValueFromPosition(parameters, position, name);
+	}
+
+	@Nullable
+	private static String parameterValueFromPosition(List<Parameter> parameters, int position, String name) {
+		return parameters.size() > position ? read(() -> {
+			Parameter parameter = parameters.get(position);
+			if (parameter.name() != null && !parameter.name().isEmpty() && !parameter.name().equals(name)) return null;
+			return clean(parameter.values().get(0).toString());
+		}) : null;
 	}
 
 	private static String clean(String string) {
-		return string.replace("\"", "");
+		return string == null ? null : string.replace("\"", "");
 	}
 
 	public static Reference referenceParameterValue(Node node, String name) {
