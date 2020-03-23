@@ -4,6 +4,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.CompilerProjectExtension;
@@ -39,6 +40,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
+import static com.intellij.openapi.module.WebModuleTypeBase.WEB_MODULE;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
@@ -204,7 +206,8 @@ class PomCreator {
 	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
-			if (configuration instanceof LegioConfiguration) ((LegioConfiguration) configuration).reloadDependencies();
+			if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof LegioConfiguration)
+				((LegioConfiguration) configuration).reloadDependencies();
 			safeList(() -> configuration.artifact().dependencies()).stream().
 					filter(d -> (!d.toModule()) && dependencies.add(d.identifier())).
 					forEach(d -> builder.add("dependency", createDependencyFrame(d)));

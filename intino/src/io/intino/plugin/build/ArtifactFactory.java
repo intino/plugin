@@ -44,8 +44,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
 		CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
-		if (languageExists()) compilerManager.make(scope, processArtifact(callback));
-		else compilerManager.compile(scope, processArtifact(callback));
+		if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
+		else compilerManager.make(scope, processArtifact(callback));
 	}
 
 	private CompileStatusNotification processArtifact(FinishCallback callback) {
@@ -74,12 +74,12 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		});
 	}
 
-	private boolean languageExists() {
+	private boolean needsToRebuild() {
 		Configuration configuration = configurationOf(module);
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return !shouldDistributeLanguage(module, phase) || languageFile.exists();
+		return shouldDistributeLanguage(module, phase) && !languageFile.exists();
 	}
 
 	private String firstUpperCase(String input) {
