@@ -99,7 +99,8 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 
 	private boolean isProcessElement(PsiElement e) {
 		Node node = node(e);
-		return e.getContainingFile().getFileType().equals(KonosFileType.instance()) && node != null && "Process".equals(node.type());
+		return e.getContainingFile().getFileType().equals(KonosFileType.instance()) && node != null &&
+				("Process".equals(node.type()) || "Workflow.Process".equals(node.type()));
 	}
 
 	@Nullable

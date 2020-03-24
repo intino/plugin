@@ -233,7 +233,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary, ResolutionCache cache) {
 		parent.removeAllChildren();
 		List<DependencyCatalog.Dependency> dependencies = cache.get(rootLibrary.library);
-		if (dependencies != null) {
+		if (dependencies != null && !dependencies.isEmpty()) {
 			dependencies = dependencies.subList(1, dependencies.size());
 			for (DependencyCatalog.Dependency dep : dependencies) {
 				DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(rootLibrary.module, dep.identifier()));

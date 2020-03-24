@@ -114,7 +114,7 @@ public class WebModelingServer extends RestService {
 
 	private void openDiagram(String process, FullHttpRequest req, ChannelHandlerContext context) throws IOException {
 		File file = processes.get(process);
-		String diagram = file.exists() ? new String(Files.readAllBytes(file.toPath())).replace("\n", "\\n") : "";
+		String diagram = file.exists() ? new String(Files.readAllBytes(file.toPath())).replace("\n", "") : "";
 		String html = template.replace("$diagram", diagram).replace("$process", process);
 		Responses.send(Responses.response("text/html", Unpooled.copiedBuffer(html, StandardCharsets.UTF_8)).setProtocolVersion(req.protocolVersion()).setStatus(HttpResponseStatus.OK), context.channel(), req);
 	}

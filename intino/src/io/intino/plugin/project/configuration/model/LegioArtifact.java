@@ -371,7 +371,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 		@Override
 		public String name() {
-			return parameterValue(node, "name", 0);
+			return parameterValue(node, "url", 0);
 		}
 
 		@Override
