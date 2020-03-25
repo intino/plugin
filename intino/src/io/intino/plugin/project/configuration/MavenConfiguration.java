@@ -253,7 +253,7 @@ public class MavenConfiguration implements Configuration {
 
 	@Override
 	public List<Repository> repositories() {
-		return null;
+		return Collections.emptyList();
 	}
 
 //	@Override

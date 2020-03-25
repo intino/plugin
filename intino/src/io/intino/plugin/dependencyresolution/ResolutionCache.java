@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Dependency>> {
 	private static Map<String, ResolutionCache> cache = new HashMap<>();
-	private File resolutionsFile;
+	private final Project project;
 
 	private ResolutionCache(Project project) {
-		resolutionsFile = resolutionsFile(project);
+		this.project = project;
 		load();
 	}
 
@@ -36,33 +36,34 @@ public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Depe
 	}
 
 	public void invalidate() {
-		resolutionsFile.delete();
+		resolutionsFile().delete();
 		clear();
 	}
 
 	private void load() {
 		try {
-			if (!resolutionsFile.exists()) return;
+			if (!resolutionsFile().exists()) return;
 			Gson gson = new Gson();
-			String json = new String(Files.readAllBytes(resolutionsFile.toPath()));
+			String json = new String(Files.readAllBytes(resolutionsFile().toPath()));
 			Map<? extends String, ? extends List<DependencyCatalog.Dependency>> map = gson.fromJson(json, new TypeToken<Map<String, List<DependencyCatalog.Dependency>>>() {
 			}.getType());
 			if (map != null) putAll(map);
 		} catch (Exception e) {
-			resolutionsFile.delete();
+			resolutionsFile().delete();
 		}
 	}
 
 	synchronized void save() {
 		try {
-
-			Files.write(resolutionsFile.toPath(), new Gson().toJson(new HashMap<>(this)).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			File file = resolutionsFile();
+			file.getParentFile().mkdirs();
+			Files.write(file.toPath(), new Gson().toJson(new HashMap<>(this)).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		} catch (IOException e) {
 			Logger.getInstance(this.getClass()).error(e);
 		}
 	}
 
-	private File resolutionsFile(Project project) {
-		return new File(IntinoDirectory.of(project), "resolution.cache");
+	private File resolutionsFile() {
+		return new File(IntinoDirectory.of(this.project), "resolution.cache");
 	}
 }

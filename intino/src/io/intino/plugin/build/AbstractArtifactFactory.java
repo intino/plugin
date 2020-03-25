@@ -261,6 +261,7 @@ public abstract class AbstractArtifactFactory {
 
 	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) return false;
 		if (configuration.repositories().stream().noneMatch(repository -> repository instanceof Language)) return false;
 		Artifact.Model model = safe(() -> configuration.artifact().model());
 		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
