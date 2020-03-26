@@ -37,16 +37,18 @@ public class ModuleCreationAction extends PostCompileAction {
 	private static final String LegioArtifact = "artifact.legio";
 
 	private final String webModule;
+	private final String uiVersion;
 	private LegioConfiguration configuration;
 
 	public ModuleCreationAction(Module module, List<String> parameters) {
-		this(module, parameters.get(1));
+		this(module, parameters.get(1), parameters.size() > 2 ? parameters.get(2) : "LATEST");
 	}
 
-	public ModuleCreationAction(Module module, String webModule) {
+	public ModuleCreationAction(Module module, String webModule, String uiVersion) {
 		super(module);
-		configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.webModule = webModule;
+		this.uiVersion = uiVersion;
 	}
 
 	@Override
@@ -85,6 +87,7 @@ public class ModuleCreationAction extends PostCompileAction {
 		builder.add("groupId", artifact.groupId());
 		builder.add("artifactId", camelCaseToSnakeCase().format(webModule).toString());
 		builder.add("version", artifact.version());
+		builder.add("uiversion", uiVersion);
 		final List<Repository> repositories = configuration.repositories().stream().filter(r -> r instanceof Repository.Release).collect(Collectors.toList());
 		for (Repository repository : repositories)
 			builder.add("repository", new FrameBuilder("repository", "release").add("id", repository.identifier()).add("url", repository.url()));
