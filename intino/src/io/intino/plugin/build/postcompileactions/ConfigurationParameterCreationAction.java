@@ -10,6 +10,7 @@ import java.util.List;
 
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.NothingDone;
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresReload;
+import static io.intino.plugin.project.Safe.safeList;
 
 
 public class ConfigurationParameterCreationAction extends PostCompileAction {
@@ -26,8 +27,9 @@ public class ConfigurationParameterCreationAction extends PostCompileAction {
 
 	@Override
 	public FinishStatus execute() {
+		if (name == null) return NothingDone;
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (configuration.artifact().parameters().stream().noneMatch(p -> p.name().equals(name))) {
+		if (safeList(() -> configuration.artifact().parameters()).stream().noneMatch(p -> name.equals(p.name()))) {
 			((LegioArtifact) configuration.artifact()).addParameters(name);
 			return RequiresReload;
 		}

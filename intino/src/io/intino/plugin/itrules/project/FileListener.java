@@ -87,7 +87,6 @@ public class FileListener implements com.intellij.openapi.components.BaseCompone
 				try {
 					return DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(10);
 				} catch (TimeoutException | ExecutionException e) {
-					logger.error(e);
 					return null;
 				}
 			}

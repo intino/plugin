@@ -114,7 +114,6 @@ public class LegioConfiguration implements Configuration {
 								 save();
 								 reloading = false;
 							 } catch (Throwable e) {
-								 LOG.error(e);
 							 }
 						 }
 					 }
