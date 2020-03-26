@@ -14,21 +14,19 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
 public class UpdateVersionDialog extends DialogWrapper {
-	private static final Object[] FIELDS = {"identifier", "version"};
+	private static final Object[] FIELDS = {"identifier", "last version"};
 	private JBScrollPane scrollPane;
 	private final JPanel mainPanel;
 	private JBTable table;
 	private Map<String, String> currentSelected;
 
-	public UpdateVersionDialog(Project project, Map<String, List<String>> libraries) {
+	public UpdateVersionDialog(Project project, String title, Map<String, List<String>> libraries) {
 		super(project, false);
-		super.setTitle("Update Versions");
-		this.currentSelected = libraries.keySet().stream().collect(Collectors.toMap(k -> k.substring(0, k.lastIndexOf(":")), v -> v.substring(v.lastIndexOf(":"))));
+		super.setTitle(title);
 		this.centerRelativeToParent();
 		this.setOKButtonText("Update");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,9 +42,8 @@ public class UpdateVersionDialog extends DialogWrapper {
 		mainPanel.setMinimumSize(dimension);
 		mainPanel.setMaximumSize(dimension);
 		mainPanel.setSize(dimension);
-//		scrollPane.add(mainPanel);
 		for (Map.Entry<String, List<String>> entry : libraries.entrySet())
-			((DefaultTableModel) table.getModel()).addRow(new Object[]{entry.getKey(), entry.getKey().split(":")[2]});
+			((DefaultTableModel) table.getModel()).addRow(new Object[]{entry.getKey(), entry.getValue().get(entry.getValue().size() - 1)});
 		init();
 	}
 

@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
-import io.intino.plugin.build.ModuleDependencyPropagator;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 

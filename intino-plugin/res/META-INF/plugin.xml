@@ -280,8 +280,14 @@
                 text="Update Versions of Module Dependencies"
                 description="Update versions module dependencies">
             <keyboard-shortcut keymap="$default" first-keystroke="control alt U"/>
-            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="TechnicalSupport"/>
-
+            <add-to-group group-id="intino" anchor="before" relative-to-action="TechnicalSupport"/>
+        </action>
+        <action id="UpdateVersionPropagationInAllModulesAction"
+                class="io.intino.plugin.actions.UpdateVersionPropagationInAllModulesAction"
+                text="Update Dependency Versions of All Modules"
+                description="Update dependency versions of all modules ">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift control alt U"/>
+            <add-to-group group-id="intino" anchor="before" relative-to-action="TechnicalSupport"/>
         </action>
         <action id="ReloadConfigurationAction"
                 class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"

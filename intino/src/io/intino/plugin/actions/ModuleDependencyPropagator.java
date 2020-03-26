@@ -1,4 +1,4 @@
-package io.intino.plugin.build;
+package io.intino.plugin.actions;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -46,13 +46,15 @@ public class ModuleDependencyPropagator {
 		final Map<String, String>[] response = new Map[]{new HashMap<>()};
 		Application application = ApplicationManager.getApplication();
 		try {
-			Map<String, List<String>> libraries = ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<Map<String, List<String>>, Exception>) this::loadLibraryUpdates), "Calculating Updates", true, this.module.getProject());
+			Map<String, List<String>> libraries = ProgressManager.getInstance().
+					runProcessWithProgressSynchronously(((ThrowableComputable<Map<String, List<String>>, Exception>) this::loadLibraryUpdates),
+							"Calculating Module Updates", true, this.module.getProject());
 			if (libraries.values().stream().noneMatch(v -> v.size() > 1)) {
-				Notifications.Bus.notify(new Notification("Tara Language", "Dependency update", "You are already updated", NotificationType.INFORMATION));
+				Notifications.Bus.notify(new Notification("Tara Language", "Dependency update", "The module " + module.getName() + " is  already updated", NotificationType.INFORMATION));
 				return Collections.emptyMap();
 			}
 			application.invokeAndWait(() -> {
-				UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+				UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), "Update Versions of module", libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 				dialog.show();
 				if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) response[0] = dialog.newVersions();
 				else response[0] = Collections.emptyMap();
