@@ -27,7 +27,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 		inLanguageName();
 		inLanguageVersion();
 		inImportVersion();
-		inGenerationVersion();
+		inModelSdkVersion();
 		inBoxVersion();
 		inBoxLanguage();
 	}
@@ -63,7 +63,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inBoxVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxVersion, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inBoxVersion, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -74,7 +74,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inBoxLanguage() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxLanguage, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inBoxLanguage, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -84,7 +84,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 		);
 	}
 
-	private void inGenerationVersion() {
+	private void inModelSdkVersion() {
 		extend(CompletionType.BASIC, LegioFilters.inSDKVersion, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,

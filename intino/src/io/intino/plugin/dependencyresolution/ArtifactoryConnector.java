@@ -90,7 +90,8 @@ public class ArtifactoryConnector {
 	public List<String> versions(String artifact) {
 		try {
 			for (Configuration.Repository repo : repositories) {
-				URL url = new URL(repo.url() + "/" + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml");
+				String spec = repo.url() + (repo.url().endsWith("/") ? "" : "/") + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml";
+				URL url = new URL(spec);
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}

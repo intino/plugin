@@ -44,7 +44,7 @@ class LegioFilters {
 	}
 
 	private static String typeName(Class aClass) {
-		return aClass.getCanonicalName().replace(aClass.getPackage().getName() + ".", "");
+		return aClass.getCanonicalName().replace(aClass.getPackage().getName() + ".Configuration.", "");
 	}
 
 	private static boolean isElementAcceptable(Object element, PsiElement context) {
