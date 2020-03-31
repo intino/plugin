@@ -69,7 +69,7 @@ public class OutputsToolWindow {
 	}
 
 	public void addProcessOutputTab(ProcessInfo processInfo) {
-		ConsoleView consoleView = createRemoteProcessView(processInfo);
+		ConsoleView consoleView = createConsoleView(processInfo);
 		consumers.put(processInfo.id(), text -> {
 			if (text.equals(CLEAR)) consoleView.clear();
 			else printMessages(consoleView, text);
@@ -77,8 +77,8 @@ public class OutputsToolWindow {
 	}
 
 	@NotNull
-	private ConsoleView createRemoteProcessView(ProcessInfo info) {
-		ConsoleView consoleView = createRemoteProcessView();
+	private ConsoleView createConsoleView(ProcessInfo info) {
+		ConsoleView consoleView = createConsoleView();
 		processOutputs.add(consoleView);
 		String displayName = displayOf(info);
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), displayName);
@@ -108,7 +108,7 @@ public class OutputsToolWindow {
 
 	@NotNull
 	private ConsoleView createBuildView() {
-		ConsoleView consoleView = createRemoteProcessView();
+		ConsoleView consoleView = createConsoleView();
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), "build");
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();
@@ -128,7 +128,7 @@ public class OutputsToolWindow {
 	}
 
 
-	private ConsoleView createRemoteProcessView() {
+	private ConsoleView createConsoleView() {
 		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
 		TextConsoleBuilder consoleBuilder = factory.createBuilder(project);
 		return consoleBuilder.getConsole();

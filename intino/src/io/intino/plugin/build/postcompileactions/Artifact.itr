@@ -1,7 +1,7 @@
 def type(artifact & legio)
 	dsl Legio
 
-	Artifact(groupId = "$groupId+lowercase", version = "$version") $artifactId+lowercase
+	Artifact(groupId = "$groupId+lowercase", version = "1.0.0") $artifactId+lowercase
 		WebImports
 			WebArtifact("io.intino.alexandria", "ui-framework-elements", "$uiversion") alexandria-ui-elements
 

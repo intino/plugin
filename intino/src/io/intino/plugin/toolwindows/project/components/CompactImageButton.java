@@ -11,15 +11,15 @@ class CompactImageButton extends ImageButton {
 	private final Color foregroundColor;
 	private ActionListener listener;
 	private boolean hover = false;
-	private static Map<Operation, Integer> operationPositions = new HashMap<>();
+	private static Map<Operation, Integer> operationYPositions = new HashMap<>();
 
 	static {
-		operationPositions.put(Operation.ImportPackages, 121);
-		operationPositions.put(Operation.GenerateCode, 205);
-		operationPositions.put(Operation.ExportAccessors, 289);
-		operationPositions.put(Operation.PackArtifact, 374);
-		operationPositions.put(Operation.DistributeArtifact, 458);
-		operationPositions.put(Operation.DeployArtifact, 543);
+		operationYPositions.put(Operation.ImportPackages, 31);
+		operationYPositions.put(Operation.GenerateCode, 115);
+		operationYPositions.put(Operation.ExportAccessors, 199);
+		operationYPositions.put(Operation.PackArtifact, 284);
+		operationYPositions.put(Operation.DistributeArtifact, 368);
+		operationYPositions.put(Operation.DeployArtifact, 453);
 	}
 
 	CompactImageButton(Operation operation, Color foregroundColor) {
@@ -29,7 +29,7 @@ class CompactImageButton extends ImageButton {
 	}
 
 	Point getDefaultLocation() {
-		return new Point(48, operationPositions.get(this.operation));
+		return new Point(48, operationYPositions.get(this.operation));
 	}
 
 	public void paint(Graphics g) {

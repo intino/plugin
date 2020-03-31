@@ -32,8 +32,6 @@ import io.intino.plugin.toolwindows.project.components.Operation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.time.Instant;
 
 import static io.intino.plugin.DataContext.getContext;
@@ -48,20 +46,12 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public class IntinoFactoryView extends JPanel {
 	private JPanel contentPane;
 	private JPanel factoryContainerPanel;
-	private JLabel moduleLabel;
 	private Project project;
 	private Instant lastAction;
 
 	IntinoFactoryView(Project project) {
 		this.project = project;
 		this.lastAction = Instant.now();
-		this.contentPane.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				final Module module = selectedModule();
-				if (module != null) moduleLabel.setText(module.getName());
-			}
-		});
 		LafManager.getInstance().addLafManagerListener(source -> {
 			mode(source.getCurrentLookAndFeel().getName().equalsIgnoreCase("darcula"));
 			source.repaintUI();

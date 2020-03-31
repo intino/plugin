@@ -26,7 +26,7 @@ public class FactoryPanel extends JPanel {
 	private Image image;
 	private int imageSize;
 	private int offsetX;
-	private static final int offsetY = 100;
+	private static final int offsetY = 10;
 	private double scale;
 	private Map<Operation, ExtendedImageButton> extendedButtons = new HashMap<>();
 	private Map<Operation, CompactImageButton> compactButtons = new HashMap<>();

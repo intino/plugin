@@ -310,8 +310,11 @@ public class LegioArtifact implements Configuration.Artifact {
 			PsiClass aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, artifact), moduleWithDependenciesAndLibrariesScope(module)));
 			if (aClass == null)
 				aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, language.name()), moduleWithDependenciesAndLibrariesScope(module)));
-			if (aClass != null)
-				return workingPackage.toLowerCase() + ".box." + firstUpperCase(language.name());
+			if (aClass != null) {
+				String qualifiedName = aClass.getQualifiedName();
+				if (qualifiedName == null) return "";
+				return qualifiedName.substring(0, qualifiedName.length() - 3);
+			}
 		} catch (Exception e) {
 			if (e instanceof NullPointerException) e.printStackTrace();
 			else Logger.error(e.getMessage());
