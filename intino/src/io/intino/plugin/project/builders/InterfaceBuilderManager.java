@@ -62,8 +62,10 @@ public class InterfaceBuilderManager {
 			return version;
 		}
 		List<Artifact> artifacts = konosLibrary(version);
-		saveClassPath(module, librariesOf(artifacts));
-		loadLanguage(List.of(artifacts.get(0).getFile()), module, version);
+		if (!artifacts.isEmpty()) {
+			saveClassPath(module, librariesOf(artifacts));
+			loadLanguage(List.of(artifacts.get(0).getFile()), module, version);
+		}
 		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
 		return version;
 	}

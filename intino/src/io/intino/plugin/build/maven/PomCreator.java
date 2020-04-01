@@ -357,7 +357,7 @@ class PomCreator {
 		final FrameBuilder builder = new FrameBuilder("dependency").add("groupId", d.groupId()).
 				add("scope", d.scope()).
 				add("artifactId", d.artifactId()).
-				add("version", d.effectiveVersion().isEmpty() ? d.version() : d.effectiveVersion());
+				add("version", d.version());
 		if (!d.excludes().isEmpty()) for (Dependency.Exclude exclude : d.excludes())
 			builder.add("exclusion", new FrameBuilder("exclusion").add("groupId", exclude.groupId()).add("artifactId", exclude.artifactId()).toFrame());
 		return builder.toFrame();
