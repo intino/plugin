@@ -103,14 +103,9 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void processSuccessMessages() {
-		StringBuilder messageBuilder = new StringBuilder();
-		for (String message : successMessages) {
-			if (messageBuilder.length() != 0) messageBuilder.append('\n');
-			messageBuilder.append(message);
-		}
-		final String message = messageBuilder.toString();
-		if (message.isEmpty()) return;
-		notify(module.getProject(), module.getName(), MessageProvider.message("success.publish.message", phase.participle()));
+		final String message = String.join("\n", successMessages);
+		notify(module.getProject(), module.getName(), message);
+		notify(module.getProject(), module.getName(), MessageProvider.message(shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message", phase.participle()));
 	}
 
 	private void notify(Project project, String title, String body) {

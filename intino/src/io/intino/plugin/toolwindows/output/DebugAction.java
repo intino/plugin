@@ -27,21 +27,21 @@ public class DebugAction extends AnAction implements DumbAware {
 		this.info = info;
 		myContentDescriptor = contentDescriptor;
 		cesarAccessor = new CesarAccessor(project);
-		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		status = cesarAccessor.processStatus(this.info.id());
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(AllIcons.Actions.StartDebugger);
-		templatePresentation.setText("Debug remote process");
+		templatePresentation.setText("Debug Remote Process");
 		templatePresentation.setDescription("Debug remote process");
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
-		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		status = cesarAccessor.processStatus(this.info.id());
 		try {
-			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.project(), this.info.id(), status.running(), true);
+			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.server().name(), this.info.id(), status.running(), true);
 			if (success) {
 				status.running(!status.running());
-				status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+				status = cesarAccessor.processStatus(this.info.id());
 				Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
 			}
 		} catch (BadRequest | Unknown bd) {
@@ -53,7 +53,7 @@ public class DebugAction extends AnAction implements DumbAware {
 	public void update(AnActionEvent e) {
 		super.update(e);
 		super.update(e);
-		if (status == null) status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		if (status == null) status = cesarAccessor.processStatus(this.info.id());
 		if (status == null) e.getPresentation().setVisible(false);
 		else e.getPresentation().setVisible(!status.debug());
 	}

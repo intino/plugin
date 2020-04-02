@@ -38,7 +38,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(LogIcon);
 		templatePresentation.setText("Listen Log");
-		templatePresentation.setDescription("Listen Log");
+		templatePresentation.setDescription("Listen log");
 	}
 
 	@Override
@@ -88,7 +88,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 		String processLog = null;
 		try {
 			CesarAccessor cesarAccessor = new CesarAccessor(project);
-			processLog = cesarAccessor.accessor().getProcessLog(project.getName(), info.id()).replace("\\n", "\n");
+			processLog = cesarAccessor.accessor().getProcessLog(info.server().name(), info.id(), 1).replace("\\n", "\n");
 		} catch (BadRequest | Unknown e) {
 			Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
 		}

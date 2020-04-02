@@ -29,6 +29,7 @@ public class CesarBot {
 		CesarBot.project = project;
 		setConsoleStyle();
 		cesarAccessor = new CesarAccessor(project);
+		cesarAccessor.subscribeToNotifications(message -> insertMessage("cesar", message.trim()));
 		chatInput.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {

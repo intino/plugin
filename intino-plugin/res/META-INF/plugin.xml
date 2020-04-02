@@ -14,7 +14,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-    <idea-version since-build="192.3645"/>
+    <idea-version since-build="193.4698"/>
     <extensions defaultExtensionNs="com.intellij">
         <fileDocumentManagerListener
                 implementation="io.intino.plugin.codeinsight.languageinjection.TaraFileDocumentManagerListener"/>

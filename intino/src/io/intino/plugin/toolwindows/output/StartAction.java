@@ -26,18 +26,18 @@ public class StartAction extends AnAction implements DumbAware {
 		this.info = info;
 		myContentDescriptor = contentDescriptor;
 		cesarAccessor = new CesarAccessor(project);
-		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		status = cesarAccessor.processStatus(this.info.id());
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(Run);
-		templatePresentation.setText("Run remote process");
+		templatePresentation.setText("Run Remote Process");
 		templatePresentation.setDescription("Run remote process");
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
-		status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		status = cesarAccessor.processStatus(this.info.id());
 		try {
-			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.project(), this.info.id(), !status.running(), false);
+			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.server().name(), this.info.id(), !status.running(), false);
 			if (success) status.running(!status.running());
 		} catch (BadRequest | Unknown bd) {
 			Logger.error(bd);
@@ -47,12 +47,12 @@ public class StartAction extends AnAction implements DumbAware {
 	@Override
 	public void update(AnActionEvent e) {
 		super.update(e);
-		if (status == null) status = cesarAccessor.processStatus(this.info.project(), this.info.id());
+		if (status == null) status = cesarAccessor.processStatus(this.info.id());
 		if (status == null) e.getPresentation().setVisible(false);
 		else {
 			e.getPresentation().setVisible(true);
 			e.getPresentation().setIcon(status.running() ? Suspend : Run);
-			e.getPresentation().setText(status.running() ? "Stop process" : "Run process");
+			e.getPresentation().setText(status.running() ? "Stop Process" : "Run Process");
 			e.getPresentation().setDescription(status.running() ? "Stop process" : "Run process");
 		}
 	}

@@ -71,7 +71,7 @@ public class ArtifactDeployer {
 
 	private ProcessDeployment createProcess(Artifact.Package packageConfiguration, Deployment destination) {
 		final String classpathPrefix = packageConfiguration.classpathPrefix();
-		return new ProcessDeployment().project(module.getProject().getName()).
+		return new ProcessDeployment().
 				groupId(configuration.artifact().groupId()).artifactId(configuration.artifact().name().toLowerCase()).version(configuration.artifact().version()).
 				jvmOptions(destination.runConfiguration().vmOptions()).
 				artifactoryList(artifactories()).

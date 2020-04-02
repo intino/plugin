@@ -11,6 +11,7 @@ import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.ui.ConfirmationDialog;
+import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
@@ -44,6 +45,7 @@ import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.*;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
+import static java.lang.String.join;
 
 public abstract class AbstractArtifactFactory {
 	private static final String JAR_EXTENSION = ".jar";
@@ -103,14 +105,14 @@ public abstract class AbstractArtifactFactory {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
 		LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
-		if (version.isSnapshot()) buildModule(module, phase, indicator);
+		if (version.isSnapshot()) buildModule(module, configuration, phase, indicator);
 		else {
 			if (phase.ordinal() >= DISTRIBUTE.ordinal() && !isCommittedToMaster(module)) {
-				errorMessages.add("To distribute Git repository must be on master and tagged with the version of the artifact");
+				errorMessages.add("In order to distribute, Git repository must be on master branch");
 				return ProcessResult.NothingDone;
 			} else {
 				if (phase.ordinal() <= INSTALL.ordinal() || !isDistributed(configuration.artifact()))
-					buildModule(module, phase, indicator);
+					buildModule(module, configuration, phase, indicator);
 				else if (askForSnapshotBuild(module)) {
 					configuration.artifact().version(version.nextSnapshot().get());
 					configuration.save();
@@ -123,9 +125,16 @@ public abstract class AbstractArtifactFactory {
 		return ProcessResult.Done;
 	}
 
-	private void buildModule(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
+	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
 		buildLanguage(module, phase, indicator);
 		buildArtifact(module, phase, indicator);
+		if (phase.ordinal() > INSTALL.ordinal()) {
+			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
+			GitCommandResult gitCommandResult = GitUtils.tagCurrent(module, tag);
+			if (gitCommandResult.success()) successMessages.add("Release tagged with tag '" + tag + "'");
+			else
+				errorMessages.add("Error tagging release:\n" + join("\n", gitCommandResult.getErrorOutput()));
+		}
 	}
 
 	private void buildArtifact(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {

@@ -1,35 +1,31 @@
 package io.intino.plugin.project;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Unknown;
 import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
-import io.intino.cesar.box.schemas.ProjectInfo;
 import io.intino.plugin.IntinoException;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
 
 public class CesarAccessor {
+	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
+
 	private final Project project;
 	private CesarRestAccessor accessor;
+	private Map.Entry<String, String> credentials;
 
 	public CesarAccessor(Project project) {
 		this.project = project;
+		this.credentials = credentials();
 		this.accessor = createAccessor();
-	}
-
-	public ProjectInfo projectInfo() {
-		try {
-			if (accessor == null) return null;
-			return accessor.getProject(this.project.getName());
-		} catch (BadRequest | Unknown e) {
-			return null;
-		}
 	}
 
 	public ProcessInfo processInfo(String id) {
@@ -41,7 +37,7 @@ public class CesarAccessor {
 		}
 	}
 
-	public ProcessStatus processStatus(String project, String id) {
+	public ProcessStatus processStatus(String id) {
 		try {
 			if (accessor == null) return null;
 			return accessor.getProcessStatus(this.project.getName(), id);
@@ -50,17 +46,28 @@ public class CesarAccessor {
 		}
 	}
 
+	public void subscribeToNotifications(Consumer<String> consumer) {
+		try {
+			if (accessor != null) accessor.listenBotNotifications(credentials.getValue(), consumer);
+		} catch (Unknown e) {
+		}
+	}
+
 	public CesarRestAccessor accessor() {
 		return accessor;
 	}
 
 	private CesarRestAccessor createAccessor() {
+		if (credentials == null) return null;
+		return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
+	}
+
+	private Map.Entry<String, String> credentials() {
 		try {
-			final Map.Entry<String, String> credentials = getSafeInstance(this.project).cesar();
-			return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
+			return getSafeInstance(this.project).cesar();
 		} catch (IntinoException e) {
-			return null;
 		}
+		return null;
 	}
 
 	public String talk(String text) {
