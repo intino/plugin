@@ -2,10 +2,10 @@ package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.jcabi.aether.Aether;
 import io.intino.magritte.Language;
 import io.intino.magritte.dsl.Tara;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import org.jetbrains.annotations.NotNull;
@@ -37,17 +37,12 @@ public class InterfaceBuilderManager {
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static String minimunVersion = "8.0.0";
 	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
-	private static Map<Project, String> versionsByProject = new HashMap<>();
-	private final Aether aether;
+	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
+	;
 
-
-	public InterfaceBuilderManager() {
-		aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
-	}
 
 	public static boolean exists(String version) {
-		//TODO
-		return true;
+		return isLoaded(version);
 	}
 
 	@NotNull
@@ -56,34 +51,51 @@ public class InterfaceBuilderManager {
 	}
 
 	public String load(Module module, String version) {
-
-		if (isDownloaded(version)) {
+		if (version.equals("LATEST")) {
+			List<String> versions = new ArtifactoryConnector(Collections.emptyList()).boxBuilderVersions();
+			version = versions.get(versions.size() - 1);
+		}
+		if (isLoaded(version)) {
 			Logger.getInstance(InterfaceBuilderManager.class).info("Konos " + version + " is already downloaded");
 			return version;
 		}
-		List<Artifact> artifacts = konosLibrary(version);
-		if (!artifacts.isEmpty()) {
-			saveClassPath(module, librariesOf(artifacts));
-			loadLanguage(List.of(artifacts.get(0).getFile()), module, version);
-		}
-		if (!artifacts.isEmpty()) return artifacts.get(0).getVersion();
+
+		downloadAndSaveClassPath(module, version);
+		loadLanguage(module, version);
 		return version;
 	}
 
-	private void loadLanguage(List<File> builderLibrary, Module module, String version) {
+	@NotNull
+	private void downloadAndSaveClassPath(Module module, String version) {
+		if (isDownloaded(version) && classpathContains(module, version)) return;
+		List<Artifact> artifacts = konosLibrary(version);
+		if (!artifacts.isEmpty()) saveClassPath(module, librariesOf(artifacts));
+	}
+
+	private boolean classpathContains(Module module, String version) {
+		try {
+			List<String> classpath = Arrays.asList(Files.readString(InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module))).replace("$HOME", System.getProperty("user.home")).split(":"));
+			return !classpath.isEmpty() && classpath.get(0).equals(mainArtifact(version).getAbsolutePath());
+		} catch (IOException e) {
+		}
+		return false;
+	}
+
+	private void loadLanguage(Module module, String version) {
 		if (version.compareTo(minimunVersion) < 0) return;
-		if (isLoaded(module.getProject(), version)) return;
-		final ClassLoader classLoader = areClassesLoaded(version) ? loadedVersions.get(version) : createClassLoader(builderLibrary);
+		if (isLoaded(version)) return;
+		final ClassLoader classLoader;
+		if (isLoaded(version)) classLoader = loadedVersions.get(version);
+		else {
+			classLoader = createClassLoader(mainArtifact(version));
+			loadedVersions.put(version, classLoader);
+		}
 		Language language = loadLanguage(classLoader);
 		if (language != null) LanguageManager.registerAuxiliar(module.getProject(), language);
 	}
 
-	private boolean isLoaded(Project project, String version) {
-		return version != null && version.equalsIgnoreCase(versionsByProject.get(project)) && areClassesLoaded(version);
-	}
-
-	private boolean areClassesLoaded(String version) {
-		return loadedVersions.containsKey(version);
+	private static boolean isLoaded(String version) {
+		return version != null && loadedVersions.containsKey(version);
 	}
 
 	private Language loadLanguage(ClassLoader classLoader) {
@@ -95,7 +107,12 @@ public class InterfaceBuilderManager {
 	}
 
 	private boolean isDownloaded(String version) {
-		return versionsByProject.containsValue(version);
+		return mainArtifact(version).exists();
+	}
+
+	@NotNull
+	private File mainArtifact(String version) {
+		return new File(LOCAL_REPOSITORY, "io/intino/konos/builder/" + version + "/" + "builder-" + version + ".jar");
 	}
 
 	public void purge(String version) {
@@ -119,7 +136,7 @@ public class InterfaceBuilderManager {
 	}
 
 	@NotNull
-	private Collection<RemoteRepository> collectRemotes() {
+	private static Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		try {
 			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
@@ -155,8 +172,8 @@ public class InterfaceBuilderManager {
 		}
 	}
 
-	private ClassLoader createClassLoader(List<File> libraries) {
+	private ClassLoader createClassLoader(File library) {
 		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(libraries.stream().filter(Objects::nonNull).map(this::toURL).toArray(URL[]::new), Tara.class.getClassLoader()));
+				new URLClassLoader(new URL[]{toURL(library)}, Tara.class.getClassLoader()));
 	}
 }

@@ -119,7 +119,7 @@ public class ArtifactoryConnector {
 		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).collect(Collectors.toList());
 	}
 
-	public List<String> boxingVersions() {
+	public List<String> boxBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/konos/builder/maven-metadata.xml");
 			return extractVersions(new String(read(connect(url)).toByteArray()));

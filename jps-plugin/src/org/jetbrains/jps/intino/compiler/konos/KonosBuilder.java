@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
+import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
 import static org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode.*;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.serialization.JpsModelSerializationDataService.getBaseDirectory;
@@ -76,6 +77,7 @@ public class KonosBuilder extends IntinoBuilder {
 		if (finalOutputs == null) return ExitCode.ABORT;
 		final Map<File, Boolean> toCompile = collectChangedFiles(chunk, dirtyFilesHolder);
 		if (conf == null || toCompile.isEmpty()) return NOTHING_DONE;
+		if (toCompile.values().stream().noneMatch(t -> t) && isCompileJavaIncrementally(context)) return NOTHING_DONE;
 		final String encoding = context.getProjectDescriptor().getEncodingConfiguration().getPreferredModuleChunkEncoding(chunk);
 		Map<String, String> paths = collectPaths(chunk, finalOutputs, context.getProjectDescriptor().getProject());
 		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, files(toCompile), encoding, paths);

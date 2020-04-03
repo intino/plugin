@@ -8,9 +8,9 @@ import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Parameter;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
-						resolve(parameters, resultSet, LANGUAGES_TAG);
+						resolve(parameters, resultSet, Languages);
 					}
 				}
 		);
@@ -54,7 +54,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 						if (container == null) return;
 						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
 						if (name == null) return;
-						final String[] values = PropertiesComponent.getInstance().getValues(LANGUAGE_TAG + name.values().get(0).toString());
+						final String[] values = PropertiesComponent.getInstance().getValues(LanguageLibrary + name.values().get(0).toString());
 						if (values == null) return;
 						for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 					}
@@ -67,7 +67,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
-						resolve(parameters, resultSet, BOXING_TAG);
+						resolve(parameters, resultSet, BoxBuilder);
 					}
 				}
 		);
@@ -89,7 +89,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
-						resolve(parameters, resultSet, GENERATION_TAG);
+						resolve(parameters, resultSet, ModelBuilder);
 					}
 				}
 		);
@@ -110,7 +110,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
-		final List<String> values = new ArtifactorySensor(configuration.repositories()).dependencyVersions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
+		final List<String> values = new ArtifactoryConnector(configuration.repositories()).versions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);

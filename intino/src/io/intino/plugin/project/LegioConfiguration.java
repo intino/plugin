@@ -109,7 +109,6 @@ public class LegioConfiguration implements Configuration {
 								 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
 								 reloader.reloadInterfaceBuilder();
 								 reloader.reloadDependencies();
-								 reloader.reloadArtifactoriesMetaData();
 								 reloader.reloadRunConfigurations();
 								 save();
 								 reloading = false;

@@ -87,14 +87,14 @@ public class ImportsResolver {
 					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
 					catalog.merge(newDeps);
 					cache.put(d.identifier(), newDeps.dependencies());
-				} else if (!(d instanceof Web)) {//TODO
+				} else if (!(d instanceof Web)) {
 					DependencyCatalog newDeps = processLibraryDependency(d);
 					catalog.merge(newDeps);
 					cache.put(d.identifier(), newDeps.dependencies());
 				}
 			} else {
 				List<DependencyCatalog.Dependency> deps = cache.get(d.identifier());
-				if (deps != null && !deps.isEmpty() && existFiles(deps)) {
+				if (deps != null && !deps.isEmpty() && (moduleOf(d) != null || existFiles(deps))) {
 					catalog.addAll(deps);
 					d.resolved(true);
 				} else {

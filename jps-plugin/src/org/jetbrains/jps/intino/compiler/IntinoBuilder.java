@@ -70,7 +70,6 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 
 	protected abstract void copyGeneratedResources(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs);
 
-
 	protected File getResourcesDirectory(JpsModule module) {
 		final Iterator<JpsTypedModuleSourceRoot<JavaResourceRootProperties>> iterator = module.getSourceRoots(JavaResourceRootType.RESOURCE).iterator();
 		return iterator.hasNext() ? iterator.next().getFile() : new File(module.getSourceRoots().get(0).getFile().getParentFile(), RES);

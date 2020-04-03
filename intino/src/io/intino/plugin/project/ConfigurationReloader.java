@@ -83,8 +83,7 @@ public class ConfigurationReloader {
 		List<Repository> repositories = importRepositories();
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
-		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).
-				resolveWeb(webDependencies(artifactDependencies)));
+		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolveWeb(webDependencies(artifactDependencies)));
 		new DependencyConflictResolver().resolve(dependencies);
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);
