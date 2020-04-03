@@ -19,8 +19,10 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.plugin.MessageProvider;
+import io.intino.plugin.build.git.GitUtils;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -42,10 +44,40 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public void build(FinishCallback callback) {
+		if (isDistribution(phase) && !isDistributed(configurationOf(module).artifact())) {
+			if (!askForReleaseDistribute(module)) return;
+			if (!isInMasterBranch(module)) checkoutMasterAndMerge();
+			refresh();
+		}
+		if (!errorMessages.isEmpty()) {
+			notifyErrors();
+			return;
+		}
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
 		CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
 		if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
 		else compilerManager.make(scope, processArtifact(callback));
+	}
+
+	private void refresh() {
+		final Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed())
+			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+	}
+
+	private void checkoutMasterAndMerge() {
+		GitCommandResult result = GitUtils.checkoutToMaster(module);
+		if (!result.success()) {
+			errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+			return;
+		}
+		result = GitUtils.pull(module, "master");
+		if (!result.success()) {
+			errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+			return;
+		}
+		result = GitUtils.mergeDevelopIntoMaster(module);
+		if (!result.success()) errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 	}
 
 	private CompileStatusNotification processArtifact(FinishCallback callback) {
@@ -65,13 +97,17 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (!result.equals(ProcessResult.Retry)) {
 					ApplicationManager.getApplication().invokeLater(() -> {
 						reloadProject();
-						if (!errorMessages.isEmpty())
-							Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", phase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
-						else processSuccessMessages();
+						if (!errorMessages.isEmpty()) notifyErrors();
+						else if (result.equals(ProcessResult.Done)) processSuccessMessages();
+						if ("master".equals(GitUtils.currentBranch(module))) GitUtils.checkoutToDevelop(module);
 					});
 				}
 			}
 		});
+	}
+
+	private void notifyErrors() {
+		Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", phase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
 	}
 
 	private boolean needsToRebuild() {
@@ -79,7 +115,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return shouldDistributeLanguage(module, phase) && !languageFile.exists();
+		return checker.shouldDistributeLanguage(module, phase) && !languageFile.exists();
 	}
 
 	private String firstUpperCase(String input) {
@@ -105,7 +141,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	private void processSuccessMessages() {
 		final String message = String.join("\n", successMessages);
 		notify(module.getProject(), module.getName(), message);
-		notify(module.getProject(), module.getName(), MessageProvider.message(shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message", phase.participle()));
+		notify(module.getProject(), module.getName(), MessageProvider.message(checker.shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message", phase.participle()));
 	}
 
 	private void notify(Project project, String title, String body) {

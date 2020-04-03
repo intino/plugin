@@ -7,16 +7,13 @@ import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
-import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
-import git4idea.repo.GitRepository;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Deployment;
-import io.intino.Configuration.Repository.Language;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.git.GitUtils;
@@ -40,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
+import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.*;
@@ -49,20 +47,9 @@ import static java.lang.String.join;
 
 public abstract class AbstractArtifactFactory {
 	private static final String JAR_EXTENSION = ".jar";
-	private static VcsShowConfirmationOption STATIC_SHOW_CONFIRMATION = new VcsShowConfirmationOption() {
-		public VcsShowConfirmationOption.Value getValue() {
-			return Value.DO_ACTION_SILENTLY;
-		}
-
-		public void setValue(VcsShowConfirmationOption.Value value) {
-		}
-
-		public boolean isPersistent() {
-			return true;
-		}
-	};
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
+	FactoryPhaseChecker checker = new FactoryPhaseChecker();
 
 	ProcessResult process(final Module module, FactoryPhase phase, ProgressIndicator indicator) {
 		processPackagePlugins(module, phase, indicator);
@@ -81,9 +68,9 @@ public abstract class AbstractArtifactFactory {
 	private ProcessResult processArtifact(Module module, FactoryPhase phase, ProgressIndicator indicator) {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
-			check(phase, configuration);
+			checker.check(phase, configuration);
 			if (mavenNeeded(phase, configuration)) {
-				ProcessResult result = build(module, phase, indicator);
+				ProcessResult result = runMavenPhases(module, phase, indicator);
 				if (!result.equals(ProcessResult.Done)) return result;
 				bitbucket(phase, configuration);
 			}
@@ -97,32 +84,29 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private boolean mavenNeeded(FactoryPhase phase, LegioConfiguration configuration) {
-		if (phase != DEPLOY) return true;
-		return !isDistributed(configuration.artifact());
+		return phase != DEPLOY || !isDistributed(configuration.artifact());
 	}
 
-	private ProcessResult build(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
+	private ProcessResult runMavenPhases(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
 		LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
 		if (version.isSnapshot()) buildModule(module, configuration, phase, indicator);
 		else {
-			if (phase.ordinal() >= DISTRIBUTE.ordinal() && !isCommittedToMaster(module)) {
-				errorMessages.add("In order to distribute, Git repository must be on master branch");
-				return ProcessResult.NothingDone;
-			} else {
-				if (phase.ordinal() <= INSTALL.ordinal() || !isDistributed(configuration.artifact()))
-					buildModule(module, configuration, phase, indicator);
-				else if (askForSnapshotBuild(module)) {
-					configuration.artifact().version(version.nextSnapshot().get());
-					configuration.save();
-
-					return ProcessResult.Retry;
-				} else return ProcessResult.NothingDone;
-			}
+			if (!isDistribution(phase) || !isDistributed(configuration.artifact()))
+				buildModule(module, configuration, phase, indicator);
+			else if (askForSnapshotBuild(module)) {
+				configuration.artifact().version(version.nextSnapshot().get());
+				configuration.save();
+				return ProcessResult.Retry;
+			} else return ProcessResult.NothingDone;
 		}
 		cleanWebOutputs(module);
 		return ProcessResult.Done;
+	}
+
+	protected boolean isDistribution(FactoryPhase phase) {
+		return phase.ordinal() >= DISTRIBUTE.ordinal();
 	}
 
 	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
@@ -130,7 +114,7 @@ public abstract class AbstractArtifactFactory {
 		buildArtifact(module, phase, indicator);
 		if (phase.ordinal() > INSTALL.ordinal()) {
 			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
-			GitCommandResult gitCommandResult = GitUtils.tagCurrent(module, tag);
+			GitCommandResult gitCommandResult = GitUtils.tagCurrentAndPush(module, tag);
 			if (gitCommandResult.success()) successMessages.add("Release tagged with tag '" + tag + "'");
 			else
 				errorMessages.add("Error tagging release:\n" + join("\n", gitCommandResult.getErrorOutput()));
@@ -143,7 +127,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void buildLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (shouldDistributeLanguage(module, lifeCyclePhase)) {
+		if (checker.shouldDistributeLanguage(module, lifeCyclePhase)) {
 			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			buildLanguage(module);
 		}
@@ -160,6 +144,17 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
+
+	protected boolean askForReleaseDistribute(Module module) {
+		AtomicBoolean response = new AtomicBoolean(false);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			response.set(new ConfirmationDialog(module.getProject(),
+					"If you are in develop branch, make sure you have all changes committed. Changes will be merged into master and pushed.",
+					"Release distribution. Are you sure to distribute a Release version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
+		});
+		return response.get();
+	}
+
 	private boolean askForSnapshotBuild(Module module) {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
@@ -170,7 +165,7 @@ public abstract class AbstractArtifactFactory {
 		return response.get();
 	}
 
-	private boolean isDistributed(Artifact artifact) {
+	protected boolean isDistributed(Artifact artifact) {
 		String identifier = artifact.groupId() + ":" + artifact.name().toLowerCase();
 		List<String> versions = new ArtifactoryConnector(artifact.root().repositories().stream().
 				filter(r -> r instanceof Configuration.Repository.Release).collect(Collectors.toList()))
@@ -178,11 +173,8 @@ public abstract class AbstractArtifactFactory {
 		return versions.contains(artifact.version());
 	}
 
-	private boolean isCommittedToMaster(Module module) {
-		GitRepository repository = GitUtils.repository(module);
-		if (repository == null) return true;
-		String currentBranchName = repository.getCurrentBranchName();
-		return "master".equalsIgnoreCase(currentBranchName);
+	protected boolean isInMasterBranch(Module module) {
+		return "master".equalsIgnoreCase(GitUtils.currentBranch(module));
 	}
 
 	private void cleanWebOutputs(Module module) {
@@ -207,7 +199,7 @@ public abstract class AbstractArtifactFactory {
 
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
 		Artifact artifact = configuration.artifact();
-		if (phase.ordinal() >= DISTRIBUTE.ordinal()) {
+		if (isDistribution(phase)) {
 			Configuration.Distribution distribution = artifact.distribution();
 			if (distribution != null && artifact.distribution().onBitbucket() != null)
 				new BitbucketDeployer(configuration).execute();
@@ -235,15 +227,6 @@ public abstract class AbstractArtifactFactory {
 		return response.get();
 	}
 
-	private void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
-		if (!(configuration instanceof LegioConfiguration))
-			throw new IntinoException(message("legio.artifact.not.found"));
-		if (safe(() -> ((LegioConfiguration) configuration).artifact().packageConfiguration()) == null)
-			throw new IntinoException(message("packaging.configuration.not.found"));
-		if (noDistributionRepository(phase, configuration))
-			throw new IntinoException(message("distribution.repository.not.found"));
-	}
-
 	private List<Deployment> collectDeployments(Project project, LegioConfiguration conf, boolean snapshot) {
 		List<Deployment> deployments = safeList(() -> conf.artifact().deployments()).stream().filter(deployment -> {
 			if (!snapshot) return true;
@@ -254,27 +237,6 @@ public abstract class AbstractArtifactFactory {
 		return deployments;
 	}
 
-	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {
-		try {
-			return lifeCyclePhase.mavenActions().contains("deploy") && repositoryExists(configuration);
-		} catch (IntinoException e) {
-			return false;
-		}
-	}
-
-	private boolean repositoryExists(Configuration configuration) throws IntinoException {
-		Version version = new Version(configuration.artifact().version());
-		if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot()) == null;
-		return safe(() -> configuration.artifact().distribution().release()) == null;
-	}
-
-	boolean shouldDistributeLanguage(Module module, FactoryPhase lifeCyclePhase) {
-		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return false;
-		if (configuration.repositories().stream().noneMatch(repository -> repository instanceof Language)) return false;
-		Artifact.Model model = safe(() -> configuration.artifact().model());
-		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
-	}
 
 	@NotNull
 	private File dslFilePath(Configuration configuration) {
