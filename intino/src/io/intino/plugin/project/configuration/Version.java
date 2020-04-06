@@ -38,13 +38,15 @@ public class Version implements Comparable<Version> {
 	}
 
 	public Version nextSnapshot() throws IntinoException {
-		String[] split = version.split("\\.");
+		String v = this.version.replace(SNAPSHOT, "");
+		String[] split = v.split("\\.");
 		split[split.length - 1] = String.valueOf(Integer.parseInt(split[split.length - 1]) + 1);
 		return new Version(String.join(".", split) + SNAPSHOT);
 	}
 
 	public Version nextRelease(Level level) throws IntinoException {
-		String[] split = version.split("\\.");
+		String v = this.version.replace(SNAPSHOT, "");
+		String[] split = v.split("\\.");
 		split[split.length - level.ordinal()] = String.valueOf(Integer.parseInt(split[split.length - level.ordinal()]) + 1);
 		return new Version(String.join(".", split));
 	}

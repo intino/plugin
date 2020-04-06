@@ -2,12 +2,25 @@ package io.intino.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.ConfirmationDialog;
+import io.intino.Configuration;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
-public class UpdateVersionPropagationAction extends IntinoAction implements DumbAware {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+
+public class UpdateVersionPropagationAction extends UpdateVersionAction {
+	private static final Logger logger = Logger.getInstance(UpdateVersionPropagationAction.class);
+
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		execute(e.getData(LangDataKeys.MODULE));
@@ -15,7 +28,32 @@ public class UpdateVersionPropagationAction extends IntinoAction implements Dumb
 
 	@Override
 	public void execute(Module module) {
-		new ModuleDependencyPropagator(module, IntinoUtil.configurationOf(module)).execute();
+		Configuration configuration = IntinoUtil.configurationOf(module);
+		if (!(configuration instanceof LegioConfiguration)) return;
+		Version.Level changeLevel = new ModuleDependencyPropagator(module, configuration).execute();
+		if (changeLevel != null) {
+			boolean ask = askForDistributeNewReleases(module.getProject());
+			if (ask) {
+				try {
+					upgrade((LegioConfiguration) configuration, changeLevel);
+					distribute(module.getProject(), (LegioConfiguration) configuration);
+				} catch (Exception e) {
+					logger.error(e);
+				}
+			}
+		}
+	}
+
+	private boolean askForDistributeNewReleases(Project project) {
+		AtomicBoolean response = new AtomicBoolean(false);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			ConfirmationDialog confirmationDialog = new ConfirmationDialog(project,
+					"Do you want to distribute new version of the updated module?",
+					"Release updated module.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
+			confirmationDialog.setDoNotAskOption(null);
+			response.set(confirmationDialog.showAndGet());
+		});
+		return response.get();
 	}
 
 
