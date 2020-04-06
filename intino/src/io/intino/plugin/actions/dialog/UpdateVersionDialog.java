@@ -3,8 +3,7 @@ package io.intino.plugin.actions.dialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.StripeTable;
-import com.intellij.ui.ToolbarDecorator;
-import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,8 +18,7 @@ import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
 public class UpdateVersionDialog extends DialogWrapper {
 	private static final Object[] FIELDS = {"identifier", "last version"};
-	private JBScrollPane scrollPane;
-	private final JPanel mainPanel;
+	private final JScrollPane mainPanel;
 	private JBTable table;
 	private Map<String, String> currentSelected;
 
@@ -31,12 +29,6 @@ public class UpdateVersionDialog extends DialogWrapper {
 		this.setOKButtonText("Update");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension dimension = new Dimension((int) (screenSize.getWidth() / 2), (int) (screenSize.getHeight() / 2));
-		scrollPane = new JBScrollPane();
-		scrollPane.setPreferredSize(dimension);
-		scrollPane.setMinimumSize(dimension);
-		scrollPane.setMaximumSize(dimension);
-		scrollPane.setSize(dimension);
-
 		mainPanel = createTable(libraries);
 		mainPanel.setPreferredSize(dimension);
 		mainPanel.setMinimumSize(dimension);
@@ -47,19 +39,18 @@ public class UpdateVersionDialog extends DialogWrapper {
 		init();
 	}
 
-	private JPanel createTable(Map<String, List<String>> libraries) {
+	private JScrollPane createTable(Map<String, List<String>> libraries) {
 		final DefaultTableModel tableModel = new DefaultTableModel(FIELDS, 0);
 		tableModel.setColumnIdentifiers(FIELDS);
 		table = new StripeTable(tableModel);
 		table.setEnableAntialiasing(true);
 		table.getEmptyText().setText("No libraries");
 		table.setAutoResizeMode(AUTO_RESIZE_LAST_COLUMN);
-		table.getColumn(FIELDS[0]).setPreferredWidth(150);
+		table.getColumn(FIELDS[0]).setPreferredWidth(250);
 		table.getColumn(FIELDS[1]).setCellEditor(new CustomComboBoxEditor(libraries.values()));
-		JPanel tablePanel = ToolbarDecorator.createDecorator(table).disableUpAction().disableDownAction().createPanel();
-		tablePanel.setMaximumSize(new Dimension(tablePanel.getWidth(), 200));
 		table.setMaximumSize(new Dimension(table.getWidth(), 200));
 		table.setPreferredSize(new Dimension(table.getWidth(), 200));
+		JScrollPane tablePanel = ScrollPaneFactory.createScrollPane(table);
 		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 200));
 		return tablePanel;
 	}
@@ -73,9 +64,8 @@ public class UpdateVersionDialog extends DialogWrapper {
 	public Map<String, String> newVersions() {
 		TableModel model = table.getModel();
 		Map<String, String> map = new LinkedHashMap<>();
-		for (int i = 0; i < model.getRowCount(); i++) {
+		for (int i = 0; i < model.getRowCount(); i++)
 			map.put(model.getValueAt(i, 0).toString(), model.getValueAt(i, 1).toString());
-		}
 		return map;
 	}
 

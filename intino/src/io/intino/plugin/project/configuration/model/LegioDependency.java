@@ -1,14 +1,11 @@
 package io.intino.plugin.project.configuration.model;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.Collections;
@@ -50,7 +47,7 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 			Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(2));
 			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
 		});
-		ApplicationManager.getApplication().invokeAndWait(this::commitDocument);
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
 	}
 
 	@Override
@@ -102,16 +99,6 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 
 	public TaraNode node() {
 		return node;
-	}
-
-	private void commitDocument() {
-		PsiFile file = node.getContainingFile();
-		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
-		FileDocumentManager fileDocManager = FileDocumentManager.getInstance();
-		Document doc = documentManager.getDocument(file);
-		if (doc == null) return;
-		documentManager.commitDocument(doc);
-		fileDocManager.saveDocument(doc);
 	}
 
 	public static class LegioExclude implements Exclude {

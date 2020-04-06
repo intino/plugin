@@ -112,7 +112,7 @@ public abstract class AbstractArtifactFactory {
 	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
 		buildLanguage(module, phase, indicator);
 		buildArtifact(module, phase, indicator);
-		if (phase.ordinal() > INSTALL.ordinal()) {
+		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot(configuration)) {
 			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
 			GitCommandResult gitCommandResult = GitUtils.tagCurrentAndPush(module, tag);
 			if (gitCommandResult.success()) successMessages.add("Release tagged with tag '" + tag + "'");
@@ -149,7 +149,7 @@ public abstract class AbstractArtifactFactory {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(module.getProject(),
-					"If you are in develop branch, make sure you have all changes committed. Changes will be merged into master and pushed.",
+					"If you are in develop branch, ensure you have all changes committed. Changes will be merged into master and pushed.",
 					"Release distribution. Are you sure to distribute a Release version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
 		});
 		return response.get();
@@ -172,6 +172,15 @@ public abstract class AbstractArtifactFactory {
 				.versions(identifier);
 		return versions.contains(artifact.version());
 	}
+
+	protected boolean isSnapshot(Configuration configuration) {
+		try {
+			return new Version(configuration.artifact().version()).isSnapshot();
+		} catch (IntinoException e) {
+			return true;
+		}
+	}
+
 
 	protected boolean isInMasterBranch(Module module) {
 		return "master".equalsIgnoreCase(GitUtils.currentBranch(module));

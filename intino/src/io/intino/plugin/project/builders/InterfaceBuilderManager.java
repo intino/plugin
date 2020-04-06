@@ -35,11 +35,11 @@ import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY
 public class InterfaceBuilderManager {
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static final String GROUP_ID = "io.intino.konos";
+	public static final String ARTIFACT_ID = "builder";
 	public static String minimunVersion = "8.0.0";
 	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
-	;
-
 
 	public static boolean exists(String version) {
 		return isLoaded(version);
@@ -129,7 +129,7 @@ public class InterfaceBuilderManager {
 
 	private List<Artifact> konosLibrary(String version) {
 		try {
-			return aether.resolve(new DefaultArtifact("io.intino.konos", "builder", "jar", version), JavaScopes.COMPILE);
+			return aether.resolve(new DefaultArtifact(GROUP_ID, ARTIFACT_ID, "jar", version), JavaScopes.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyList();
 		}

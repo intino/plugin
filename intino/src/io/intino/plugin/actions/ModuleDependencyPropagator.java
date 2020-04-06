@@ -10,13 +10,18 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.ThrowableComputable;
 import io.intino.Configuration;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.dialog.UpdateVersionDialog;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.configuration.Version;
+import io.intino.plugin.project.configuration.model.LegioBox;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
+import static io.intino.plugin.project.builders.InterfaceBuilderManager.GROUP_ID;
 
 public class ModuleDependencyPropagator {
 	private final Module module;
@@ -27,15 +32,43 @@ public class ModuleDependencyPropagator {
 		this.configuration = configuration;
 	}
 
-	public void execute() {
-		if (module == null) return;
+	public Version.Level execute() {
+		if (module == null) return null;
 		Map<String, String> newVersions = askForNewVersions();
-		if (newVersions.isEmpty()) return;
+		Version.Level change = null;
+		if (newVersions.isEmpty()) return null;
 		for (String library : newVersions.keySet()) {
-			Configuration.Artifact.Dependency dependency = dependency(library.split(":"));
-			if (!dependency.version().equals(newVersions.get(library))) dependency.version(newVersions.get(library));
+			String[] identifier = library.split(":");
+			Configuration.Artifact.Dependency dependency = dependency(identifier);
+			if (dependency == null) {
+				change = calculateChange(change, identifier[2], configuration.artifact().box().version());
+				updateBoxBuilder(newVersions, library, identifier);
+			} else if (!dependency.version().equals(newVersions.get(library))) {
+				dependency.version(newVersions.get(library));
+			}
 		}
 		configurationOf(module).reload();
+		return change;
+	}
+
+	private void updateBoxBuilder(Map<String, String> newVersions, String library, String[] identifier) {
+		if (identifier[0].equals(GROUP_ID) && identifier[1].equals(InterfaceBuilderManager.ARTIFACT_ID)) {
+			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
+				((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
+		}
+	}
+
+	private Version.Level calculateChange(Version.Level currentChangeLevel, String newVersion, String oldVersion) {
+		Version.Level changeLevel = calculateChangeLevel(oldVersion, newVersion);
+		return currentChangeLevel == null || currentChangeLevel.ordinal() < changeLevel.ordinal() ? changeLevel : currentChangeLevel;
+	}
+
+	private Version.Level calculateChangeLevel(String oldVersion, String newVersion) {
+		try {
+			return new Version(oldVersion).distanceTo(new Version(newVersion));
+		} catch (IntinoException e) {
+			return Version.Level.Minor;
+		}
 	}
 
 	private Configuration.Artifact.Dependency dependency(String[] library) {
@@ -67,6 +100,12 @@ public class ModuleDependencyPropagator {
 	private Map<String, List<String>> loadLibraryUpdates() {
 		ArtifactoryConnector connector = new ArtifactoryConnector(configuration.repositories());
 		Map<String, List<String>> map = new LinkedHashMap<>();
+		Configuration.Artifact.Box box = configuration.artifact().box();
+		if (box != null) {
+			List<String> boxVersions = connector.boxBuilderVersions();
+			if (!box.version().equals(boxVersions.get(boxVersions.size() - 1)))
+				map.put(GROUP_ID + ":" + InterfaceBuilderManager.ARTIFACT_ID + ":" + box.version(), boxVersions);
+		}
 		configuration.artifact().dependencies().forEach(d -> {
 			String[] split = d.identifier().split(":");
 			List<String> versions = connector.versions(split[0] + ":" + split[1]);

@@ -3,6 +3,8 @@ package io.intino.plugin.lang.psi.impl;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -39,6 +41,16 @@ public class IntinoUtil {
 	private static final String FUNCTIONS = "functions";
 
 	private IntinoUtil() {
+	}
+
+
+	public static void commitDocument(PsiFile file) {
+		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
+		FileDocumentManager fileDocManager = FileDocumentManager.getInstance();
+		Document doc = documentManager.getDocument(file);
+		if (doc == null) return;
+		documentManager.commitDocument(doc);
+		fileDocManager.saveDocument(doc);
 	}
 
 	public static List<Node> findRootNode(PsiElement element, String identifier) {

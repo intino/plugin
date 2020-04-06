@@ -149,6 +149,12 @@ public class TaraPsiUtil {
 		return application.runReadAction(t);
 	}
 
+	public static void write(Runnable t) {
+		Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed()) t.run();
+		application.runWriteAction(t);
+	}
+
 	private static void bodyComponents(TaraNode node, List<Node> components) {
 		if (node.getBody() != null) {
 			components.addAll(getBodyComponents(node.getBody()));

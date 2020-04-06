@@ -2,15 +2,29 @@ package io.intino.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.ConfirmationDialog;
+import io.intino.plugin.IntinoException;
+import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.build.ArtifactFactory;
+import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.plugin.build.AbstractArtifactFactory.ProcessResult.Retry;
+import static io.intino.plugin.project.Safe.safe;
 
 public class UpdateVersionPropagationInAllModulesAction extends IntinoAction implements DumbAware {
 	@Override
@@ -19,7 +33,41 @@ public class UpdateVersionPropagationInAllModulesAction extends IntinoAction imp
 	}
 
 	public void execute(Project project) {
-		new AllModuleDependencyPropagator(Arrays.asList(ModuleManager.getInstance(project).getModules())).execute();
+		Map<LegioConfiguration, Version.Level> evolvedConfigurations = new AllModuleDependencyPropagator(Arrays.asList(ModuleManager.getInstance(project).getModules())).execute();
+		Map<LegioConfiguration, Version.Level> configurations = evolvedConfigurations.entrySet().stream().
+				filter(c -> !isRunnable(c.getKey()) && hasDistribution(c.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		if (configurations.isEmpty()) return;
+		boolean b = askForDistributeNewReleases(project);
+		if (b) {
+			for (Map.Entry<LegioConfiguration, Version.Level> e : configurations.entrySet()) {
+				try {
+					upgrade(e.getKey(), e.getValue());
+					distribute(project, e.getKey());
+				} catch (Exception ex) {
+
+				}
+			}
+		}
+	}
+
+	private boolean hasDistribution(LegioConfiguration c) {
+		return safe(() -> c.artifact().distribution().release()) != null;
+	}
+
+	private Boolean isRunnable(LegioConfiguration c) {
+		return safe(() -> c.artifact().packageConfiguration().isRunnable());
+	}
+
+	private void upgrade(LegioConfiguration configuration, Version.Level value) throws IntinoException {
+		Version version = new Version(configuration.artifact().version()).nextRelease(value);
+		configuration.artifact().version(version.toString());
+	}
+
+	private void distribute(Project project, LegioConfiguration configuration) {
+		ArtifactFactory artifactFactory = new ArtifactFactory(project, configuration.module(), FactoryPhase.DISTRIBUTE);
+		artifactFactory.build(result -> {
+			if (result.equals(Retry)) artifactFactory.build(null);
+		});
 	}
 
 
@@ -40,5 +88,15 @@ public class UpdateVersionPropagationInAllModulesAction extends IntinoAction imp
 	private boolean hasLegioModules(Project project) {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).
 				anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration);
+	}
+
+	private boolean askForDistributeNewReleases(Project project) {
+		AtomicBoolean response = new AtomicBoolean(false);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			response.set(new ConfirmationDialog(project,
+					"Do you want to distribute new version of the updated modules?",
+					"Release updated modules.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
+		});
+		return response.get();
 	}
 }

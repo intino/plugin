@@ -20,7 +20,7 @@ import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
 public class SelectDestinationsDialog {
-	private static final Object[] DeploymentFields = {"Server", "Deployment"};
+	private static final Object[] DeploymentFields = {"Server", "Deploy"};
 	private JPanel deploymentsPanel;
 	private JBTable table;
 	private Window parent;
@@ -73,10 +73,10 @@ public class SelectDestinationsDialog {
 		table.getColumn(DeploymentFields[0]).setPreferredWidth(150);
 		table.getColumn(DeploymentFields[1]);
 		deploymentsPanel = ToolbarDecorator.createDecorator(table).disableUpAction().disableDownAction().createPanel();
-		deploymentsPanel.setMinimumSize(new Dimension(400, 200));
-		table.setMinimumSize(new Dimension(400, 200));
-		table.setMaximumSize(new Dimension(400, 1400));
-		deploymentsPanel.setPreferredSize(new Dimension(400, 200));
+		deploymentsPanel.setMinimumSize(new Dimension(500, 200));
+		table.setMinimumSize(new Dimension(500, 200));
+		table.setMaximumSize(new Dimension(500, 1400));
+		deploymentsPanel.setPreferredSize(new Dimension(500, 200));
 	}
 
 	private boolean checkExist(String value, int column) {

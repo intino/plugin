@@ -2,11 +2,11 @@ package io.intino.plugin.project.configuration.model;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.Computable;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.alexandria.logger.Logger;
@@ -16,6 +16,7 @@ import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraNodeImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -77,17 +78,7 @@ public class LegioArtifact implements Configuration.Artifact {
 			io.intino.magritte.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
 			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
 		});
-		ApplicationManager.getApplication().invokeAndWait(this::commitDocument);
-	}
-
-	private void commitDocument() {
-		PsiFile file = node.getContainingFile();
-		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
-		FileDocumentManager fileDocManager = FileDocumentManager.getInstance();
-		Document doc = documentManager.getDocument(file);
-		if (doc == null) return;
-		documentManager.commitDocument(doc);
-		fileDocManager.saveDocument(doc);
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
 	}
 
 	@Override

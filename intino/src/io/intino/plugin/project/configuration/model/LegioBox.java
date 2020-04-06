@@ -1,18 +1,25 @@
 package io.intino.plugin.project.configuration.model;
 
+import com.intellij.openapi.application.ApplicationManager;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
+import java.util.Collections;
+
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioBox implements Configuration.Artifact.Box {
 	private final LegioArtifact artifact;
-	private final Node node;
+	private final TaraNode node;
 	private String version;
 
 	public LegioBox(LegioArtifact artifact, Node node) {
 		this.artifact = artifact;
-		this.node = node;
+		this.node = (TaraNode) node;
 	}
 
 	@Override
@@ -30,6 +37,15 @@ public class LegioBox implements Configuration.Artifact.Box {
 		//TODO
 		return "";
 	}
+
+	public void version(String newVersion) {
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
+			Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
+			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
+		});
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
+	}
+
 
 	@Override
 	public void effectiveVersion(String s) {

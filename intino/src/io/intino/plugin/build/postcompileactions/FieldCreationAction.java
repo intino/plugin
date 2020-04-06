@@ -1,10 +1,7 @@
 package io.intino.plugin.build.postcompileactions;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiField;
+import com.intellij.psi.*;
 import io.intino.plugin.build.PostCompileAction;
 
 import java.io.File;
@@ -54,9 +51,9 @@ public class FieldCreationAction extends PostCompileAction {
 		PsiField field = elementFactory.createField(name, elementFactory.createTypeFromText(type, psiClass));
 		if (field.getModifierList() != null) {
 			boolean isPublic = modifier.equalsIgnoreCase("public");
-			field.getModifierList().setModifierProperty("public", isPublic);
-			field.getModifierList().setModifierProperty("private", !isPublic);
-			field.getModifierList().setModifierProperty("static", isStatic);
+			field.getModifierList().setModifierProperty(PsiModifier.PUBLIC, isPublic);
+			field.getModifierList().setModifierProperty(PsiModifier.PRIVATE, !isPublic);
+			field.getModifierList().setModifierProperty(PsiModifier.STATIC, isStatic);
 		}
 		return field;
 	}

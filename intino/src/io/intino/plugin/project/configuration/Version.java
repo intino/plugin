@@ -3,6 +3,7 @@ package io.intino.plugin.project.configuration;
 import io.intino.plugin.IntinoException;
 
 public class Version implements Comparable<Version> {
+	public enum Level {Minor, Medium, Mayor}
 
 	private static final String SNAPSHOT = "-SNAPSHOT";
 	private String version;
@@ -19,6 +20,19 @@ public class Version implements Comparable<Version> {
 		return this.version;
 	}
 
+	public Level distanceTo(Version that) {
+		String[] thisParts = this.get().split("\\.");
+		String[] thatParts = that.get().split("\\.");
+		if (!thisParts[0].equals(thatParts[0])) return Level.Mayor;
+		if (!thisParts[1].equals(thatParts[1])) return Level.Medium;
+		return Level.Minor;
+	}
+
+	@Override
+	public String toString() {
+		return version;
+	}
+
 	public boolean isSnapshot() {
 		return version.endsWith(SNAPSHOT);
 	}
@@ -27,6 +41,12 @@ public class Version implements Comparable<Version> {
 		String[] split = version.split("\\.");
 		split[split.length - 1] = String.valueOf(Integer.parseInt(split[split.length - 1]) + 1);
 		return new Version(String.join(".", split) + SNAPSHOT);
+	}
+
+	public Version nextRelease(Level level) throws IntinoException {
+		String[] split = version.split("\\.");
+		split[split.length - level.ordinal()] = String.valueOf(Integer.parseInt(split[split.length - level.ordinal()]) + 1);
+		return new Version(String.join(".", split));
 	}
 
 	public Version next() throws IntinoException {

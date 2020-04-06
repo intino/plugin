@@ -19,8 +19,10 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.git.GitUtils;
 import io.intino.plugin.lang.LanguageManager;
@@ -28,7 +30,10 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.plugin.build.git.GitUtils.currentBranch;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 import static io.intino.plugin.project.Safe.safe;
 
@@ -44,10 +49,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public void build(FinishCallback callback) {
-		if (isDistribution(phase) && !isDistributed(configurationOf(module).artifact())) {
+		Configuration configuration = configurationOf(module);
+		if (isDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot(configuration)) {
 			if (!askForReleaseDistribute(module)) return;
 			if (!isInMasterBranch(module)) checkoutMasterAndMerge();
-			refresh();
 		}
 		if (!errorMessages.isEmpty()) {
 			notifyErrors();
@@ -59,25 +64,21 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		else compilerManager.make(scope, processArtifact(callback));
 	}
 
-	private void refresh() {
-		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-	}
-
 	private void checkoutMasterAndMerge() {
-		GitCommandResult result = GitUtils.checkoutToMaster(module);
-		if (!result.success()) {
-			errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
-			return;
-		}
-		result = GitUtils.pull(module, "master");
-		if (!result.success()) {
-			errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
-			return;
-		}
-		result = GitUtils.mergeDevelopIntoMaster(module);
-		if (!result.success()) errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+		withSyncTask("Checking out to Master and merging", () -> {
+			GitCommandResult result = GitUtils.checkoutToMaster(module);
+			if (!result.success()) {
+				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+				return;
+			}
+			result = GitUtils.pull(module, "master");
+			if (!result.success()) {
+				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+				return;
+			}
+			result = GitUtils.mergeDevelopIntoMaster(module);
+			if (!result.success()) errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
+		});
 	}
 
 	private CompileStatusNotification processArtifact(FinishCallback callback) {
@@ -95,15 +96,23 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				AbstractArtifactFactory.ProcessResult result = process(module, phase, indicator);
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
-					ApplicationManager.getApplication().invokeLater(() -> {
-						reloadProject();
+					if ("master".equals(currentBranch(module))) task(() -> GitUtils.checkoutToDevelop(module));
+					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
 						else if (result.equals(ProcessResult.Done)) processSuccessMessages();
-						if ("master".equals(GitUtils.currentBranch(module))) GitUtils.checkoutToDevelop(module);
+						reloadProject();
 					});
 				}
 			}
 		});
+	}
+
+	private void task(Runnable runnable) {
+		ProgressManager.getInstance().runProcess(runnable, null);
+	}
+
+	private void withSyncTask(String title, Runnable runnable) {
+		ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, this.project);
 	}
 
 	private void notifyErrors() {
@@ -148,13 +157,17 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		Bus.notify(new Notification("Tara Language", title, body, NotificationType.INFORMATION), project);
 	}
 
-	private String extractDSL(Module module) {
-		final Configuration conf = configurationOf(module);
-		return safe(() -> conf.artifact().model()) == null ? "" : conf.artifact().model().outLanguage();
-	}
-
-
 	public interface FinishCallback {
 		void onFinish(ProcessResult result);
+	}
+
+	private boolean askForSnapshotBuild(Module module) {
+		AtomicBoolean response = new AtomicBoolean(false);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			response.set(new ConfirmationDialog(module.getProject(),
+					"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
+					"This version already exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
+		});
+		return response.get();
 	}
 }
