@@ -32,6 +32,10 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 		Map<LegioConfiguration, Version.Level> configurations = evolvedConfigurations.entrySet().stream().
 				filter(c -> !isRunnable(c.getKey()) && hasDistribution(c.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		if (configurations.isEmpty()) return;
+//		upgrade(project, configurations);
+	}
+
+	private void upgrade(Project project, Map<LegioConfiguration, Version.Level> configurations) {
 		boolean ask = askForDistributeNewReleases(project);
 		if (ask) {
 			for (Map.Entry<LegioConfiguration, Version.Level> e : configurations.entrySet()) {

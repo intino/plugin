@@ -32,6 +32,10 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		Version.Level changeLevel = new ModuleDependencyPropagator(module, configuration).execute();
+//		upgrade(module, configuration, changeLevel);
+	}
+
+	private void upgrade(Module module, Configuration configuration, Version.Level changeLevel) {
 		if (changeLevel != null) {
 			if (!safe(() -> configuration.artifact().packageConfiguration().isRunnable(), false)) {
 				boolean ask = askForDistributeNewReleases(module.getProject());

@@ -44,7 +44,7 @@ public class ModuleDependencyPropagator {
 				change = calculateChange(change, identifier[2], configuration.artifact().box().version());
 				updateBoxBuilder(newVersions, library, identifier);
 			} else if (!dependency.version().equals(newVersions.get(library))) {
-				change = calculateChange(change, identifier[2], dependency.version());
+				change = calculateChange(change, newVersions.get(library), dependency.version());
 				dependency.version(newVersions.get(library));
 			}
 		}

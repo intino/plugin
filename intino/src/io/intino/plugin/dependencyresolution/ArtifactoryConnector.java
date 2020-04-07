@@ -78,11 +78,12 @@ public class ArtifactoryConnector {
 			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Meta.class.getSimpleName()))
 				return proteoVersions();
 			for (Configuration.Repository repo : repositories) {
-				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
 		} catch (Throwable ignored) {
+			LOG.info(ignored);
 		}
 		return Collections.emptyList();
 	}

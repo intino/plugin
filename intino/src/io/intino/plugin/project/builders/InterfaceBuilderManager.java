@@ -58,6 +58,7 @@ public class InterfaceBuilderManager {
 			version = versions.get(versions.size() - 1);
 		}
 		if (isLoaded(version)) {
+			downloadAndSaveClassPath(module, version);
 			Logger.getInstance(InterfaceBuilderManager.class).info("Konos " + version + " is already downloaded");
 			return version;
 		}

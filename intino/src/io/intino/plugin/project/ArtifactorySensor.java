@@ -3,7 +3,6 @@ package io.intino.plugin.project;
 import com.intellij.ide.util.PropertiesComponent;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,9 +25,8 @@ public class ArtifactorySensor {
 		this.properties = PropertiesComponent.getInstance();
 	}
 
-	void update() {
-		final List<String> languages = languages();
-		languagesVersions(languages);
+	void update(String language) {
+		if (language != null) languageVersions(language);
 		updateBuilders();
 	}
 
@@ -39,19 +37,10 @@ public class ArtifactorySensor {
 		buildersUpdated = true;
 	}
 
-	@NotNull
-	private List<String> languages() {
-		final List<String> languages = modelBuilderConnector.languages();
-		if (!languages.isEmpty()) properties.setValues(Languages, languages.toArray(new String[0]));
-		return languages;
-	}
-
-	private void languagesVersions(List<String> languages) {
-		for (String language : languages) {
-			final List<String> versions = modelBuilderConnector.dslVersions(language);
-			if (!versions.isEmpty())
-				properties.setValues(LanguageLibrary + language, versions.toArray(new String[0]));
-		}
+	private void languageVersions(String language) {
+		final List<String> versions = modelBuilderConnector.dslVersions(language);
+		if (!versions.isEmpty())
+			properties.setValues(LanguageLibrary + language, versions.toArray(new String[0]));
 	}
 
 	private void boxBuilderVersions() {
