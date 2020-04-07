@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.plugin.project.Safe.safe;
 
 public class UpdateVersionPropagationAction extends UpdateVersionAction {
 	private static final Logger logger = Logger.getInstance(UpdateVersionPropagationAction.class);
@@ -32,13 +33,15 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 		if (!(configuration instanceof LegioConfiguration)) return;
 		Version.Level changeLevel = new ModuleDependencyPropagator(module, configuration).execute();
 		if (changeLevel != null) {
-			boolean ask = askForDistributeNewReleases(module.getProject());
-			if (ask) {
-				try {
-					upgrade((LegioConfiguration) configuration, changeLevel);
-					distribute(module.getProject(), (LegioConfiguration) configuration);
-				} catch (Exception e) {
-					logger.error(e);
+			if (!safe(() -> configuration.artifact().packageConfiguration().isRunnable(), false)) {
+				boolean ask = askForDistributeNewReleases(module.getProject());
+				if (ask) {
+					try {
+						upgrade((LegioConfiguration) configuration, changeLevel);
+						distribute(module.getProject(), (LegioConfiguration) configuration);
+					} catch (Exception e) {
+						logger.error(e);
+					}
 				}
 			}
 		}

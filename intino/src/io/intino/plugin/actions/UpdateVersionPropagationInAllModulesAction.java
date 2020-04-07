@@ -36,10 +36,11 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 		if (ask) {
 			for (Map.Entry<LegioConfiguration, Version.Level> e : configurations.entrySet()) {
 				try {
-					upgrade(e.getKey(), e.getValue());
-					distribute(project, e.getKey());
+					if (!safe(() -> e.getKey().artifact().packageConfiguration().isRunnable(), false)) {
+						upgrade(e.getKey(), e.getValue());
+						distribute(project, e.getKey());
+					}
 				} catch (Exception ex) {
-
 				}
 			}
 		}
@@ -76,7 +77,7 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(project,
-					"Do you want to distribute new version of the updated modules?",
+					"Do you want to distribute new version of the updated modules? Only *Non Runnable* artifacts will be distributed",
 					"Release updated modules.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
 		});
 		return response.get();
