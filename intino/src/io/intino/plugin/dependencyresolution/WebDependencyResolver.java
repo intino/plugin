@@ -51,6 +51,7 @@ public class WebDependencyResolver {
 		Arrays.stream(requireNonNull(temp.listFiles(File::isDirectory))).forEach(file -> {
 			File toDir = new File(nodeModulesDirectory, file.getName());
 			toDir.mkdirs();
+			FileUtil.delete(toDir);
 			FileUtil.moveDirWithContent(file, toDir);
 		});
 		VfsUtil.findFileByIoFile(rootDirectory, true);

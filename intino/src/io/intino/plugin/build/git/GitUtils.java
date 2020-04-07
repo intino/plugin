@@ -1,5 +1,6 @@
 package io.intino.plugin.build.git;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitLocalBranch;
@@ -18,6 +19,7 @@ import java.util.List;
 import static git4idea.commands.GitImpl.REBASE_CONFIG_PARAMS;
 
 public class GitUtils {
+	private static final Logger logger = Logger.getInstance(GitUtils.class.getName());
 
 	public static GitRepository repository(@NotNull Module module) {
 		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
@@ -75,7 +77,7 @@ public class GitUtils {
 
 	@NotNull
 	private static GitLineHandlerListener soutListener() {
-		return (line, outputType) -> System.out.println(outputType.toString() + ": " + line);
+		return (line, outputType) -> logger.info(outputType.toString() + ": " + line);
 	}
 
 }

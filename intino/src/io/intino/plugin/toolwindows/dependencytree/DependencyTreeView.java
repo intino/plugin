@@ -2,6 +2,7 @@ package io.intino.plugin.toolwindows.dependencytree;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -40,6 +41,8 @@ import static io.intino.plugin.project.Safe.safeList;
 import static java.util.Comparator.comparing;
 
 public class DependencyTreeView extends SimpleToolWindowPanel {
+	private static final Logger logger = Logger.getInstance(DependencyTreeView.class.getName());
+
 	private JPanel contentPane;
 	private SimpleTree tree;
 	private JScrollPane scrollPane;
@@ -172,7 +175,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void goToLibrary(TreePath library) {
-		System.out.println(library.toString());
+		logger.info(library.toString());
 	}
 
 	private Module moduleOf(String name) {
