@@ -31,7 +31,7 @@ class LegioFilters {
 			.and(new FilterPattern(new InBoxLanguageFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inBoxVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InBoxVersionFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inSDKVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
+	static final PsiElementPattern.Capture<PsiElement> inModelSDKVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InSDKVersionFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inDependencyVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InDependencyVersionFilter()));
@@ -53,7 +53,8 @@ class LegioFilters {
 	}
 
 	private static boolean inModelNode(Node node) {
-		final String type = node.type().replace(":", "");
+		String type = node.type();
+		type = type.contains(".") ? type.substring(type.lastIndexOf(".") + 1) : type;
 		return type.equals(Model.class.getSimpleName()) || type.equals(typeName(Model.class));
 	}
 

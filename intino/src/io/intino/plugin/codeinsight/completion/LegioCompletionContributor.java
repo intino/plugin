@@ -85,7 +85,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inModelSdkVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inSDKVersion, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inModelSDKVersion, new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {

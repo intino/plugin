@@ -33,6 +33,8 @@ import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_U
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
+	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class.getName());
+
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static final String GROUP_ID = "io.intino.konos";
@@ -74,9 +76,12 @@ public class InterfaceBuilderManager {
 
 	private boolean classpathContains(Module module, String version) {
 		try {
-			List<String> classpath = Arrays.asList(Files.readString(InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module))).replace("$HOME", System.getProperty("user.home")).split(":"));
+			Path path = InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
+			if (!path.toFile().exists()) return false;
+			List<String> classpath = Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));
 			return !classpath.isEmpty() && classpath.get(0).equals(mainArtifact(version).getAbsolutePath());
 		} catch (IOException e) {
+			logger.error(e);
 		}
 		return false;
 	}
@@ -157,12 +162,13 @@ public class InterfaceBuilderManager {
 		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
 		try {
 			File moduleBoxDirectory = new File(IntinoDirectory.boxDirectory(module.getProject()), module.getName());
-			moduleBoxDirectory.mkdirs();
-			Files.write(classpathFile(moduleBoxDirectory), String.join(":", libraries).getBytes());
+			Path path = classpathFile(moduleBoxDirectory);
+			path.toFile().getParentFile().mkdirs();
+			Files.write(path, String.join(":", libraries).getBytes());
 		} catch (IOException e) {
+			logger.error(e);
 		}
 	}
-
 
 	private URL toURL(File l) {
 		try {
