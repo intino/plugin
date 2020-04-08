@@ -158,6 +158,7 @@ class PomCreator {
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(builder, module);
 		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
+		addLevelDependency(builder, dependencies);
 		for (Dependency dependency : collectDependencies()) {
 			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
 			if (dependencies.add(dependency.identifier()))
@@ -165,14 +166,13 @@ class PomCreator {
 		}
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest))
 			addDependantModuleLibraries(builder, dependencies);
-		addLevelDependency(builder);
 	}
 
 	@NotNull
 	private List<Dependency> collectDependencies() {
 		List<Dependency> deps = new ArrayList<>(safeList(() -> configuration.artifact().dependencies())).stream().filter(d -> !(d instanceof Dependency.Web)).collect(Collectors.toList());
 		Dependency.DataHub datahub = configuration.artifact().datahub();
-		if (datahub != null) deps.add(datahub);
+		if (datahub != null) deps.add(0, datahub);
 		return deps;
 	}
 
@@ -195,11 +195,14 @@ class PomCreator {
 		}
 	}
 
-	private void addLevelDependency(FrameBuilder builder) {
+	private void addLevelDependency(FrameBuilder builder, Set<String> dependencies) {
 		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
 		if (language != null) {
-			final String languageId = findLanguageId(language);
-			if (!languageId.isEmpty()) builder.add("dependency", createDependencyFrame(languageId.split(":")));
+			final String levelCoors = findLanguageId(language);
+			if (!levelCoors.isEmpty()) {
+				dependencies.add(levelCoors);
+				builder.add("dependency", createDependencyFrame(levelCoors.split(":")));
+			}
 		}
 	}
 
