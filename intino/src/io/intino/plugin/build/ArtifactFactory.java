@@ -19,40 +19,33 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
-import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
-import io.intino.plugin.build.git.GitUtils;
+import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
-import static io.intino.plugin.build.git.GitUtils.currentBranch;
-import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
+import static io.intino.plugin.build.git.GitUtil.currentBranch;
 import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactFactory extends AbstractArtifactFactory {
-	private final Project project;
-	private Module module;
-	private FactoryPhase phase;
-
-	public ArtifactFactory(Project project, final Module module, FactoryPhase phase) {
-		this.project = project;
-		this.module = module;
-		this.phase = phase;
+	public ArtifactFactory(Module module, FactoryPhase phase) {
+		super(module, phase);
 	}
 
 	public void build(FinishCallback callback) {
-		Configuration configuration = configurationOf(module);
-		if (isDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot(configuration)) {
-			if (!askForReleaseDistribute(module)) return;
-			if (!isInMasterBranch(module)) checkoutMasterAndMerge();
+		if (includeDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot()) {
+			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
+			if (GitUtil.isModified(module, ((LegioConfiguration) configuration).legioFile())) {
+				errorMessages.add("Artifact is not committed. Please commit changes and retry.");
+				notifyErrors();
+				return;
+			}
+			if (!isInMasterBranch()) checkoutMasterAndMerge();
 		}
 		if (!errorMessages.isEmpty()) {
 			notifyErrors();
@@ -66,17 +59,17 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void checkoutMasterAndMerge() {
 		withSyncTask("Checking out to Master and merging", () -> {
-			GitCommandResult result = GitUtils.checkoutToMaster(module);
+			GitCommandResult result = GitUtil.checkoutTo(module, "master");
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 				return;
 			}
-			result = GitUtils.pull(module, "master");
+			result = GitUtil.pull(module, "master");
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 				return;
 			}
-			result = GitUtils.mergeDevelopIntoMaster(module);
+			result = GitUtil.mergeDevelopIntoMaster(module);
 			if (!result.success()) errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 		});
 	}
@@ -92,11 +85,12 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		withTask(new Task.Backgroundable(project, firstUpperCase(phase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				if (!(configurationOf(module) instanceof LegioConfiguration)) return;
-				AbstractArtifactFactory.ProcessResult result = process(module, phase, indicator);
+				if (!(configuration instanceof LegioConfiguration)) return;
+				AbstractArtifactFactory.ProcessResult result = process(indicator);
+				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
-					if ("master".equals(currentBranch(module))) task(() -> GitUtils.checkoutToDevelop(module));
+					if ("master".equals(currentBranch(module))) task(() -> GitUtil.checkoutTo(module, startingBranch));
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
 						else if (result.equals(ProcessResult.Done)) processSuccessMessages();
@@ -120,7 +114,6 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private boolean needsToRebuild() {
-		Configuration configuration = configurationOf(module);
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
@@ -159,15 +152,5 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	public interface FinishCallback {
 		void onFinish(ProcessResult result);
-	}
-
-	private boolean askForSnapshotBuild(Module module) {
-		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			response.set(new ConfirmationDialog(module.getProject(),
-					"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
-					"This version already exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
-		});
-		return response.get();
 	}
 }

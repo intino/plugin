@@ -62,7 +62,7 @@ public class SelectDestinationsDialog {
 		final DefaultTableModel tableModel = new DefaultTableModel(destinationsData(), DeploymentFields) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return column != 0 && checkExist(this.getValueAt(row, 0).toString(), column);
+				return column != 0;
 			}
 		};
 		tableModel.setColumnIdentifiers(DeploymentFields);

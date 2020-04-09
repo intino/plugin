@@ -16,7 +16,7 @@ import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Deployment;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.build.git.GitUtils;
+import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.Configuration.Server.Type.Dev;
+import static io.intino.Configuration.Server.Type.Pre;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.*;
@@ -47,17 +49,30 @@ import static java.lang.String.join;
 
 public abstract class AbstractArtifactFactory {
 	private static final String JAR_EXTENSION = ".jar";
+	final Module module;
+	final FactoryPhase phase;
+	final Project project;
+	final Configuration configuration;
+	final String startingBranch;
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 	FactoryPhaseChecker checker = new FactoryPhaseChecker();
 
-	ProcessResult process(final Module module, FactoryPhase phase, ProgressIndicator indicator) {
-		processPackagePlugins(module, phase, indicator);
-		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
-		return processArtifact(module, phase, indicator);
+	public AbstractArtifactFactory(Module module, FactoryPhase phase) {
+		this.module = module;
+		this.configuration = IntinoUtil.configurationOf(module);
+		this.project = module.getProject();
+		this.phase = phase;
+		this.startingBranch = GitUtil.currentBranch(module);
 	}
 
-	private void processPackagePlugins(Module module, FactoryPhase phase, ProgressIndicator indicator) {
+	ProcessResult process(ProgressIndicator indicator) {
+		processPackagePlugins(indicator);
+		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
+		return processArtifact(indicator);
+	}
+
+	private void processPackagePlugins(ProgressIndicator indicator) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).artifact().plugins());
@@ -65,7 +80,7 @@ public abstract class AbstractArtifactFactory {
 				new PluginExecutor(module, phase, (LegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
 	}
 
-	private ProcessResult processArtifact(Module module, FactoryPhase phase, ProgressIndicator indicator) {
+	private ProcessResult processArtifact(ProgressIndicator indicator) {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
 			checker.check(phase, configuration);
@@ -74,7 +89,7 @@ public abstract class AbstractArtifactFactory {
 				if (!result.equals(ProcessResult.Done)) return result;
 				bitbucket(phase, configuration);
 			}
-			deploy(module, phase, indicator);
+			if (phase.equals(DEPLOY)) return deploy(module, phase, indicator);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
 			return ProcessResult.Done;
@@ -93,9 +108,9 @@ public abstract class AbstractArtifactFactory {
 		Version version = new Version(configuration.artifact().version());
 		if (version.isSnapshot()) buildModule(module, configuration, phase, indicator);
 		else {
-			if (!isDistribution(phase) || !isDistributed(configuration.artifact()))
+			if (!includeDistribution(phase) || !isDistributed(configuration.artifact()))
 				buildModule(module, configuration, phase, indicator);
-			else if (askForSnapshotBuild(module)) {
+			else if (askForSnapshotBuild()) {
 				configuration.artifact().version(version.nextSnapshot().get());
 				configuration.save();
 				return ProcessResult.Retry;
@@ -105,16 +120,16 @@ public abstract class AbstractArtifactFactory {
 		return ProcessResult.Done;
 	}
 
-	protected boolean isDistribution(FactoryPhase phase) {
+	protected boolean includeDistribution(FactoryPhase phase) {
 		return phase.ordinal() >= DISTRIBUTE.ordinal();
 	}
 
 	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
 		buildLanguage(module, phase, indicator);
 		buildArtifact(module, phase, indicator);
-		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot(configuration)) {
+		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {
 			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
-			GitCommandResult gitCommandResult = GitUtils.tagCurrentAndPush(module, tag);
+			GitCommandResult gitCommandResult = GitUtil.tagCurrentAndPush(module, tag);
 			if (gitCommandResult.success()) successMessages.add("Release tagged with tag '" + tag + "'");
 			else
 				errorMessages.add("Error tagging release:\n" + join("\n", gitCommandResult.getErrorOutput()));
@@ -145,7 +160,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 
-	protected boolean askForReleaseDistribute(Module module) {
+	protected boolean askForReleaseDistribute() {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(module.getProject(),
@@ -155,7 +170,7 @@ public abstract class AbstractArtifactFactory {
 		return response.get();
 	}
 
-	private boolean askForSnapshotBuild(Module module) {
+	private boolean askForSnapshotBuild() {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(module.getProject(),
@@ -173,7 +188,7 @@ public abstract class AbstractArtifactFactory {
 		return versions.contains(artifact.version());
 	}
 
-	protected boolean isSnapshot(Configuration configuration) {
+	protected boolean isSnapshot() {
 		try {
 			return new Version(configuration.artifact().version()).isSnapshot();
 		} catch (IntinoException e) {
@@ -182,8 +197,8 @@ public abstract class AbstractArtifactFactory {
 	}
 
 
-	protected boolean isInMasterBranch(Module module) {
-		return "master".equalsIgnoreCase(GitUtils.currentBranch(module));
+	protected boolean isInMasterBranch() {
+		return "master".equalsIgnoreCase(startingBranch);
 	}
 
 	private void cleanWebOutputs(Module module) {
@@ -208,25 +223,22 @@ public abstract class AbstractArtifactFactory {
 
 	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
 		Artifact artifact = configuration.artifact();
-		if (isDistribution(phase)) {
+		if (includeDistribution(phase)) {
 			Configuration.Distribution distribution = artifact.distribution();
 			if (distribution != null && artifact.distribution().onBitbucket() != null)
 				new BitbucketDeployer(configuration).execute();
 		}
 	}
 
-	private void deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) throws IntinoException {
-		if (!phase.equals(DEPLOY)) return;
+	private ProcessResult deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) throws IntinoException {
 		updateProgressIndicator(indicator, message("publishing.artifact"));
 		LegioConfiguration conf = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(conf.artifact().version());
 		List<Deployment> deployments = collectDeployments(module.getProject(), conf, version.isSnapshot());
-		if (deployments.isEmpty()) {
-			errorMessages.add("Suitable destinations not found");
-			return;
-		}
-		if (askForDeploy(module, conf)) new ArtifactDeployer(module, deployments).execute();
+		if (deployments.isEmpty()) return ProcessResult.NothingDone;
+		new ArtifactDeployer(module, deployments).execute();
 		successMessages.add("Deployment Done");
+		return ProcessResult.Done;
 	}
 
 	private boolean askForDeploy(Module module, LegioConfiguration conf) {
@@ -239,11 +251,17 @@ public abstract class AbstractArtifactFactory {
 	private List<Deployment> collectDeployments(Project project, LegioConfiguration conf, boolean snapshot) {
 		List<Deployment> deployments = safeList(() -> conf.artifact().deployments()).stream().filter(deployment -> {
 			if (!snapshot) return true;
-			return deployment.server().type().equals(Configuration.Server.Type.Dev);
+			return deployment.server().type().equals(Dev) || deployment.server().type().equals(Pre);
 		}).collect(Collectors.toList());
-		if (deployments.size() > 1)
+		if (deployments.isEmpty()) {
+			errorMessages.add("Not Suitable Destinations have been found");
+			return Collections.emptyList();
+		} else if (deployments.size() > 1)
 			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
-		return deployments;
+		if (askForDeploy(module, conf)) {
+			return deployments;
+		}
+		return Collections.emptyList();
 	}
 
 

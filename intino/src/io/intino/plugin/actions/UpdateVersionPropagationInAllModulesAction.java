@@ -42,7 +42,7 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 				try {
 					if (!safe(() -> e.getKey().artifact().packageConfiguration().isRunnable(), false)) {
 						upgrade(e.getKey(), e.getValue());
-						distribute(project, e.getKey());
+						distribute(e.getKey().module());
 					}
 				} catch (Exception ex) {
 				}

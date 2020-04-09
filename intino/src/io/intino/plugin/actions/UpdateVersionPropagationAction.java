@@ -42,7 +42,7 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 				if (ask) {
 					try {
 						upgrade((LegioConfiguration) configuration, changeLevel);
-						distribute(module.getProject(), (LegioConfiguration) configuration);
+						distribute(module);
 					} catch (Exception e) {
 						logger.error(e);
 					}

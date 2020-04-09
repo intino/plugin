@@ -80,7 +80,7 @@ public class IntinoFactoryView extends JPanel {
 		Module module = selectedModule();
 		if (module != null) {
 			saveConfiguration(module);
-			ArtifactFactory artifactFactory = new ArtifactFactory(project, module, phase);
+			ArtifactFactory artifactFactory = new ArtifactFactory(module, phase);
 			artifactFactory.build(result -> {
 				if (result.equals(Retry)) artifactFactory.build(null);
 			});
@@ -154,7 +154,7 @@ public class IntinoFactoryView extends JPanel {
 	private void navigate(Element element, int modifiers) {
 		final Configuration configuration = IntinoUtil.configurationOf(selectedModule());
 		if (configuration == null) return;
-		TaraModel model = ((TaraModel) ((LegioConfiguration) configuration).legioFile());
+		TaraModel model = ((LegioConfiguration) configuration).legioFile();
 		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
 		if (artifact == null) return;
 		Node node;

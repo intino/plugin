@@ -137,8 +137,14 @@ public class AllModuleDependencyPropagator {
 	}
 
 	private List<String> filter(List<String> versions, String current) {
-		return versions.stream().filter(v -> v.equals(current) || v.compareTo(current) > 0).collect(Collectors.toList());
+		try {
+			Version currentVersion = new Version(current);
+			List<String> list = new ArrayList<>();
+			for (String v : versions)
+				if (new Version(v).equals(currentVersion) || v.compareTo(current) > 0) list.add(v);
+			return list;
+		} catch (IntinoException e) {
+			return versions;
+		}
 	}
-
-
 }

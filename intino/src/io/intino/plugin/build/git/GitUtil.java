@@ -3,6 +3,7 @@ package io.intino.plugin.build.git;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitVcs;
@@ -18,11 +19,24 @@ import java.util.List;
 
 import static git4idea.commands.GitImpl.REBASE_CONFIG_PARAMS;
 
-public class GitUtils {
-	private static final Logger logger = Logger.getInstance(GitUtils.class.getName());
+public class GitUtil {
+	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
 
 	public static GitRepository repository(@NotNull Module module) {
 		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
+	}
+
+	public static boolean isModified(Module module, PsiFile file) {
+		VirtualFile vcsRoot = GitRepositoryAction.getGitRoots(module.getProject(), GitVcs.getInstance(module.getProject())).get(0);
+		String relativeFilePath = file.getVirtualFile().getPath().replace(vcsRoot.getPath(), "");
+		if (relativeFilePath.startsWith("/")) relativeFilePath = relativeFilePath.substring(1);
+		GitLineHandler handler = new GitLineHandler(module.getProject(), vcsRoot, GitCommand.STATUS);
+		GitCommandResult result = Git.getInstance().runCommand(handler);
+		if (result.success()) {
+			String finalRelativeFilePath = relativeFilePath;
+			return result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath));
+		}
+		return false;
 	}
 
 	public static String currentBranch(Module module) {
@@ -45,12 +59,8 @@ public class GitUtils {
 		return Git.getInstance().push(repository(module), new GitPushParamsImpl(remoteMaster.getRemote(), spec, true, false, true, tagMode, Collections.emptyList()));
 	}
 
-	public static GitCommandResult checkoutToMaster(@NotNull Module module) {
-		return Git.getInstance().checkout(repository(module), "master", null, true, false, soutListener());
-	}
-
-	public static GitCommandResult checkoutToDevelop(@NotNull Module module) {
-		return Git.getInstance().checkout(repository(module), "develop", null, true, false, soutListener());
+	public static GitCommandResult checkoutTo(@NotNull Module module, String branch) {
+		return Git.getInstance().checkout(repository(module), branch, null, true, false, soutListener());
 	}
 
 	public static GitCommandResult mergeDevelopIntoMaster(Module module) {
