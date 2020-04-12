@@ -62,11 +62,19 @@ public class GitUtil {
 		return Git.getInstance().checkout(repository(module), branch, null, true, false, soutListener());
 	}
 
-	public static GitCommandResult mergeDevelopIntoMaster(Module module) {
+	public static GitCommandResult stashChanges(@NotNull Module module, String message) {
+		return Git.getInstance().stashSave(repository(module), message);
+	}
+
+	public static GitCommandResult popStash(@NotNull Module module) {
+		return Git.getInstance().stashPop(repository(module), soutListener());
+	}
+
+	public static GitCommandResult mergeBranchIntoCurrent(Module module, String branch) {
 		GitRepository repository = repository(module);
 		String beforeRevision = repository.getCurrentRevision();
 		Git git = Git.getInstance();
-		GitCommandResult result = git.merge(repository, "develop", Collections.emptyList(), soutListener());
+		GitCommandResult result = git.merge(repository, branch, Collections.emptyList(), soutListener());
 		if (!result.success()) git.resetMerge(repository, beforeRevision);
 		return result;
 	}

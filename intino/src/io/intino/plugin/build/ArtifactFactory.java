@@ -29,6 +29,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.Arrays;
 
 import static io.intino.plugin.build.git.GitUtil.currentBranch;
@@ -61,6 +62,9 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void checkoutMasterAndMerge() {
 		withSyncTask("Checking out to Master and merging", () -> {
+			GitCommandResult stashResult = GitUtil.stashChanges(module, "Stashed changes for Release " + module.getName() + " " + Instant.now().toString());
+			System.out.println(String.join("\n", stashResult.getOutput()));
+			System.out.println(String.join("\n", stashResult.getErrorOutput()));
 			GitCommandResult result = GitUtil.checkoutTo(module, "master");
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
@@ -71,7 +75,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 				return;
 			}
-			result = GitUtil.mergeDevelopIntoMaster(module);
+			result = GitUtil.mergeBranchIntoCurrent(module, startingBranch);
 			if (!result.success()) errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 		});
 	}
@@ -92,7 +96,14 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
-					if ("master".equals(currentBranch(module))) task(() -> GitUtil.checkoutTo(module, startingBranch));
+					if ("master".equals(currentBranch(module))) {
+						task(() -> GitUtil.checkoutTo(module, startingBranch));
+						task(() -> {
+							GitCommandResult stashResult = GitUtil.popStash(module);
+							System.out.println(String.join("\n", stashResult.getOutput()));
+							System.out.println(String.join("\n", stashResult.getErrorOutput()));
+						});
+					}
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
 						else if (result.equals(ProcessResult.Done)) processSuccessMessages();

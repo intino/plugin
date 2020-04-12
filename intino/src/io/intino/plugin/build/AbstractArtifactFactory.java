@@ -85,11 +85,11 @@ public abstract class AbstractArtifactFactory {
 		try {
 			checker.check(phase, configuration);
 			if (mavenNeeded(phase, configuration)) {
-				ProcessResult result = runMavenPhases(module, phase, indicator);
+				ProcessResult result = runMavenPhases(indicator);
 				if (!result.equals(ProcessResult.Done)) return result;
 				bitbucket(phase, configuration);
 			}
-			if (phase.equals(DEPLOY)) return deploy(module, phase, indicator);
+			if (phase.equals(DEPLOY)) return deploy(indicator);
 		} catch (MavenInvocationException | IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
 			return ProcessResult.Done;
@@ -102,7 +102,7 @@ public abstract class AbstractArtifactFactory {
 		return phase != DEPLOY || !isDistributed(configuration.artifact());
 	}
 
-	private ProcessResult runMavenPhases(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
+	private ProcessResult runMavenPhases(ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
 		LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
@@ -230,7 +230,7 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	private ProcessResult deploy(Module module, FactoryPhase phase, ProgressIndicator indicator) throws IntinoException {
+	private ProcessResult deploy(ProgressIndicator indicator) throws IntinoException {
 		updateProgressIndicator(indicator, message("publishing.artifact"));
 		LegioConfiguration conf = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(conf.artifact().version());
