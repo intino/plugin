@@ -44,7 +44,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		if (includeDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot()) {
 			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
 			if (Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf))) {
-				errorMessages.add("Artifact is not committed. Please commit changes and retry.");
+				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();
 				return;
 			}
