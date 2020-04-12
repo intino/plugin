@@ -18,6 +18,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
@@ -28,6 +29,7 @@ import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static io.intino.plugin.build.git.GitUtil.currentBranch;
 import static io.intino.plugin.project.Safe.safe;
@@ -40,7 +42,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		if (includeDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot()) {
 			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
-			if (GitUtil.isModified(module, ((LegioConfiguration) configuration).legioFile())) {
+			if (Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf))) {
 				errorMessages.add("Artifact is not committed. Please commit changes and retry.");
 				notifyErrors();
 				return;

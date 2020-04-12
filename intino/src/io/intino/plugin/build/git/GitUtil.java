@@ -3,7 +3,6 @@ package io.intino.plugin.build.git;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitVcs;
@@ -26,9 +25,9 @@ public class GitUtil {
 		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
 	}
 
-	public static boolean isModified(Module module, PsiFile file) {
+	public static boolean isModified(Module module, VirtualFile file) {
 		VirtualFile vcsRoot = GitRepositoryAction.getGitRoots(module.getProject(), GitVcs.getInstance(module.getProject())).get(0);
-		String relativeFilePath = file.getVirtualFile().getPath().replace(vcsRoot.getPath(), "");
+		String relativeFilePath = file.getPath().replace(vcsRoot.getPath(), "");
 		if (relativeFilePath.startsWith("/")) relativeFilePath = relativeFilePath.substring(1);
 		GitLineHandler handler = new GitLineHandler(module.getProject(), vcsRoot, GitCommand.STATUS);
 		GitCommandResult result = Git.getInstance().runCommand(handler);
