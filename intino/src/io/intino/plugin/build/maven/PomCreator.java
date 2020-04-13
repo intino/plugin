@@ -159,13 +159,18 @@ class PomCreator {
 		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
 		addLevelDependency(builder, dependencies);
-		for (Dependency dependency : collectDependencies()) {
-			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) continue;
-			if (dependencies.add(dependency.identifier()))
+		List<Dependency> moduleDependencies = collectDependencies();
+		for (Dependency dependency : moduleDependencies.stream().filter(d -> !d.scope().equalsIgnoreCase("test")).collect(Collectors.toList())) {
+			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest))
+				addDependantModuleLibraries(builder, dependency, dependencies);
+			else if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
+		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).collect(Collectors.toList()))
+			if (!dependency.toModule() && dependencies.add(dependency.identifier()))
+				builder.add("dependency", createDependencyFrame(dependency));
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest))
-			addDependantModuleLibraries(builder, dependencies);
+			addDependantModuleTestLibraries(builder, dependencies);
 	}
 
 	@NotNull
@@ -206,21 +211,44 @@ class PomCreator {
 		}
 	}
 
-	private void addDependantModuleLibraries(FrameBuilder builder, Set<String> dependencies) {
+	private void addDependantModuleLibraries(FrameBuilder builder, Dependency dependency, Set<String> dependencies) {
+		Module dependantModule = findModuleOf(dependency);
+		if (dependantModule == null) return;
+		final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
+		if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof LegioConfiguration)
+			((LegioConfiguration) configuration).reloadDependencies();
+		safeList(() -> configuration.artifact().dependencies()).stream().
+				filter(d -> (!d.toModule()) && !d.scope().equalsIgnoreCase("test") && dependencies.add(d.identifier())).
+				forEach(d -> builder.add("dependency", createDependencyFrame(d)));
+		safeList(() -> configuration.artifact().dependencies()).stream().
+				filter(d -> (d.toModule()) && !d.scope().equalsIgnoreCase("test") && dependencies.add(d.identifier())).
+				forEach(d -> addDependantModuleLibraries(builder, d, dependencies));
+		if (safe(() -> configuration.artifact().model()) == null) return;
+		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
+		if (language != null) {
+			final String languageID = languageId(language.name(), language.version());
+			if (languageID == null || languageID.isEmpty()) return;
+			builder.add("dependency", createDependencyFrame(languageID.split(":")));
+		}
+	}
+
+	private Module findModuleOf(Dependency dependency) {
+		return getModuleDependencies().stream().filter(m -> {
+			Configuration configuration = IntinoUtil.configurationOf(m);
+			Artifact artifact = configuration.artifact();
+			return artifact.groupId().equalsIgnoreCase(dependency.groupId()) &&
+					artifact.name().equalsIgnoreCase(dependency.artifactId()) &&
+					artifact.version().equalsIgnoreCase(dependency.version());
+		}).findFirst().orElse(null);
+	}
+
+	private void addDependantModuleTestLibraries(FrameBuilder builder, Set<String> dependencies) {
 		for (Module dependantModule : getModuleDependencies()) {
 			final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
-			if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof LegioConfiguration)
-				((LegioConfiguration) configuration).reloadDependencies();
 			safeList(() -> configuration.artifact().dependencies()).stream().
-					filter(d -> (!d.toModule()) && dependencies.add(d.identifier())).
+					filter(d -> (d.scope().equalsIgnoreCase("test")) && dependencies.add(d.identifier())).
 					forEach(d -> builder.add("dependency", createDependencyFrame(d)));
-			if (safe(() -> configuration.artifact().model()) == null) continue;
-			Artifact.Model.Language language = configuration.artifact().model().language();
-			if (language != null) {
-				final String languageID = languageId(language.name(), language.version());
-				if (languageID == null || languageID.isEmpty()) return;
-				builder.add("dependency", createDependencyFrame(languageID.split(":")));
-			}
+
 		}
 	}
 
@@ -233,11 +261,7 @@ class PomCreator {
 
 	@NotNull
 	private List<Module> getModuleDependencies() {
-		return collectModuleDependencies(this.module);
-	}
-
-	private List<Module> collectModuleDependencies(Module module) {
-		return new ArrayList<>(collectModuleDependencies(module, new HashSet<>()));
+		return new ArrayList<>(collectModuleDependencies(this.module, new HashSet<>()));
 	}
 
 	private Set<Module> collectModuleDependencies(Module module, Set<Module> collection) {
@@ -332,13 +356,17 @@ class PomCreator {
 	}
 
 	private void addDependantModuleAsSources(FrameBuilder builder, Module module) {
-		for (Module dependency : collectModuleDependencies(module))
-			ApplicationManager.getApplication().runReadAction(() -> {
-				for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
-					if (sourceRoot != null) builder.add("moduleDependency", sourceRoot.getPath());
-				for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
-					if (testRoot != null) builder.add("testModuleDependency", testRoot.getPath());
-			});
+		for (Module dependency : new ArrayList<>(collectModuleDependencies(module, new HashSet<>())))
+			addModuleAsSources(builder, dependency);
+	}
+
+	private void addModuleAsSources(FrameBuilder builder, Module dependency) {
+		ApplicationManager.getApplication().runReadAction(() -> {
+			for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
+				if (sourceRoot != null) builder.add("moduleDependency", sourceRoot.getPath());
+			for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
+				if (testRoot != null) builder.add("testModuleDependency", testRoot.getPath());
+		});
 	}
 
 	private String pathOf(String path) {
