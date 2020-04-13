@@ -62,9 +62,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void checkoutMasterAndMerge() {
 		withSyncTask("Checking out to Master and merging", () -> {
-			GitCommandResult stashResult = GitUtil.stashChanges(module, "Stashed changes for Release " + module.getName() + " " + Instant.now().toString());
-			System.out.println(String.join("\n", stashResult.getOutput()));
-			System.out.println(String.join("\n", stashResult.getErrorOutput()));
+			GitUtil.stashChanges(module, "Stashed changes for Release " + module.getName() + " " + Instant.now().toString());
 			GitCommandResult result = GitUtil.checkoutTo(module, "master");
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
@@ -118,8 +116,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		ProgressManager.getInstance().runProcess(runnable, null);
 	}
 
-	private void withSyncTask(String title, Runnable runnable) {
-		ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, this.project);
+	private boolean withSyncTask(String title, Runnable runnable) {
+		return ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, this.project);
 	}
 
 	private void notifyErrors() {
