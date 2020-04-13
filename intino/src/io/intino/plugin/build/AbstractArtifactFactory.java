@@ -257,7 +257,7 @@ public abstract class AbstractArtifactFactory {
 			errorMessages.add("Not Suitable Destinations have been found");
 			return Collections.emptyList();
 		} else if (deployments.size() > 1)
-			return new SelectDestinationsDialog(WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
+			return new SelectDestinationsDialog(conf.artifact().name(), WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
 		if (askForDeploy(module, conf)) {
 			return deployments;
 		}

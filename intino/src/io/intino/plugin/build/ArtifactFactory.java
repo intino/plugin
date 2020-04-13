@@ -94,14 +94,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
-					if ("master".equals(currentBranch(module))) {
-						task(() -> GitUtil.checkoutTo(module, startingBranch));
-						task(() -> {
-							GitCommandResult stashResult = GitUtil.popStash(module);
-							System.out.println(String.join("\n", stashResult.getOutput()));
-							System.out.println(String.join("\n", stashResult.getErrorOutput()));
-						});
-					}
+					if ("master".equals(currentBranch(module))) task(() -> {
+						GitUtil.checkoutTo(module, startingBranch);
+						GitCommandResult stashResult = GitUtil.popStash(module);
+					});
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
 						else if (result.equals(ProcessResult.Done)) processSuccessMessages();

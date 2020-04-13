@@ -23,10 +23,12 @@ public class SelectDestinationsDialog {
 	private static final Object[] DeploymentFields = {"Server", "Deploy"};
 	private JPanel deploymentsPanel;
 	private JBTable table;
+	private final String artifact;
 	private Window parent;
 	private final List<Deployment> deployments;
 
-	public SelectDestinationsDialog(Window parent, List<Deployment> deployments) {
+	public SelectDestinationsDialog(String artifact, Window parent, List<Deployment> deployments) {
+		this.artifact = artifact;
 		this.parent = parent;
 		this.deployments = deployments;
 		createUIComponents();
@@ -36,7 +38,7 @@ public class SelectDestinationsDialog {
 		final List[] destinations = new List[]{new ArrayList<>()};
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			String[] options = new String[]{"Cancel", "Accept"};
-			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations of deployment",
+			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations for " + artifact,
 					YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, IntinoIcons.INTINO_80, options, options[1]);
 			destinations[0] = option == 1 ? selectedDestinations() : emptyList();
 		}, ModalityState.any());
@@ -47,7 +49,7 @@ public class SelectDestinationsDialog {
 		List<Deployment> destinations = new ArrayList<>();
 		for (int i = 0; i < table.getModel().getRowCount(); i++)
 			if ((boolean) table.getModel().getValueAt(i, 1))
-				destinations.add(findDeployment(table.getModel().getValueAt(i, 0).toString()));
+				destinations.add(findDeployment(table.getModel().getValueAt(i, 0).toString().split(" ")[0]));
 		return destinations;
 	}
 
@@ -100,7 +102,7 @@ public class SelectDestinationsDialog {
 	private Object[][] destinationsData() {
 		Object[][] objects = new Object[deployments.size()][3];
 		for (int i = 0; i < deployments.size(); i++)
-			objects[i] = new Object[]{deployments.get(i).server().name() + " (" + deployments.get(i).server().type().name() + ")", false};
+			objects[i] = new Object[]{deployments.get(i).server().name() + " (" + deployments.get(i).server().type().name().toUpperCase() + ")", false};
 		return objects;
 	}
 }

@@ -74,7 +74,7 @@ public class LanguageResolver {
 			Manifest manifest = new JarFile(languageFile).getManifest();
 			final Attributes tara = manifest.getAttributes("tara");
 			if (tara == null) return null;
-			return tara.getValue("framework");
+			return tara.getValue("framework").toLowerCase();
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
