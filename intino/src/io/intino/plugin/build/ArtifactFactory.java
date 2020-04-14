@@ -42,12 +42,12 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	public void build(FinishCallback callback) {
 		if (includeDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot()) {
-			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
 			if (Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf))) {
 				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();
 				return;
 			}
+			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
 			if (!isInMasterBranch()) checkoutMasterAndMerge();
 		}
 		if (!errorMessages.isEmpty()) {
@@ -150,7 +150,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	private void processSuccessMessages() {
 		final String message = String.join("\n", successMessages);
 		notify(module.getProject(), module.getName(), message);
-		notify(module.getProject(), module.getName(), MessageProvider.message(checker.shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message", phase.participle()));
+		String notificationMessage = MessageProvider.message(checker.shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message", phase.participle());
+		if (phase.equals(FactoryPhase.DEPLOY))
+			notificationMessage = "Deployment of " + configuration.artifact().name() + " requested";
+		notify(module.getProject(), module.getName(), notificationMessage);
 	}
 
 	private void notify(Project project, String title, String body) {

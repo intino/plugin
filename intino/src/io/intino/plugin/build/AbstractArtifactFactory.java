@@ -164,7 +164,7 @@ public abstract class AbstractArtifactFactory {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(module.getProject(),
-					"If you are in develop branch, ensure you have all changes committed. Changes will be merged into master and pushed.",
+					"You aren't in master branch. Changes will be merged into master and pushed. Do you want to continue?",
 					"Release distribution. Are you sure to distribute a Release version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
 		});
 		return response.get();
