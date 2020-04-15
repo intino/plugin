@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class TemplateGenerator extends Task.Modal {
 
@@ -64,7 +64,7 @@ public class TemplateGenerator extends Task.Modal {
 	}
 
 	private void toJava(ParsedTemplate template) throws IOException {
-		OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(this.destiny), Charset.forName("UTF-8"));
+		OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(this.destiny), StandardCharsets.UTF_8);
 		String content = new TemplateRulesWriter(simpleFileName(), aPackage, locale(), lineSeparator()).toJava(template);
 		writer.write(content);
 		writer.close();
@@ -74,10 +74,9 @@ public class TemplateGenerator extends Task.Modal {
 		final VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(destiny);
 		new Runnable() {
 			public void run() {
-				EncodingManager.getInstance().setEncoding(virtualFile, Charset.forName("UTF-8"));
+				EncodingManager.getInstance().setEncoding(virtualFile, StandardCharsets.UTF_8);
 			}
 		};
-
 	}
 
 	private String locale() {
@@ -85,7 +84,7 @@ public class TemplateGenerator extends Task.Modal {
 	}
 
 	private String lineSeparator() {
-		return "\n";
+		return "LF";
 	}
 
 	@NotNull
