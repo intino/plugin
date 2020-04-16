@@ -6,6 +6,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder;
 import org.jetbrains.jps.intino.compiler.konos.KonosBuilder;
 import org.jetbrains.jps.intino.compiler.tara.TaraBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -13,6 +14,6 @@ public class IntinoBuilderService extends BuilderService {
 
 	@NotNull
 	public List<? extends ModuleLevelBuilder> createModuleLevelBuilders() {
-		return List.of(new TaraBuilder(), new KonosBuilder());
+		return Arrays.asList(new TaraBuilder(), new KonosBuilder());
 	}
 }

@@ -90,8 +90,8 @@ class KonosRunner {
 	}
 
 	KonoscOSProcessHandler runKonosCompiler(final CompileContext context) throws IOException {
-		List<String> programParams = List.of(argsFile.getPath());
-		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED"));
+		List<String> programParams = Arrays.asList(argsFile.getPath());
+		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : Arrays.asList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		vmParams.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(

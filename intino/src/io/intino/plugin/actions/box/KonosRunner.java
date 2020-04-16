@@ -9,11 +9,10 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
-import com.intellij.util.indexing.FileBasedIndex;
-import com.intellij.util.indexing.ID;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration.Parameter;
@@ -140,7 +139,7 @@ public class KonosRunner {
 
 	private List<File> konosFiles(Module module) {
 		List<File> konosFiles = new ArrayList<>();
-		Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(ID.create("filetypes"), KonosFileType.instance(), GlobalSearchScope.moduleScope(module));
+		Collection<VirtualFile> files = FileTypeIndex.getFiles(KonosFileType.instance(), GlobalSearchScope.moduleScope(module));
 		files.stream().filter((o) -> o != null && !o.getCanonicalFile().getName().contains("Misc")).forEach((file) -> {
 			TaraModel konosFile = (TaraModel) PsiManager.getInstance(module.getProject()).findFile(file);
 			if (konosFile != null) konosFiles.add(new File(konosFile.getVirtualFile().getPath()));
