@@ -42,7 +42,9 @@ public class CesarBotWindowComponent implements ProjectComponent {
 
 	@Override
 	public void projectClosed() {
+		outputsToolWindow.disconnect();
 		outputsToolWindow = null;
+
 		consoleWindow = null;
 		project = null;
 	}

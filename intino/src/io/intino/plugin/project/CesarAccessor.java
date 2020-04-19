@@ -48,8 +48,12 @@ public class CesarAccessor {
 
 	public void subscribeToNotifications(Consumer<String> consumer) {
 		try {
+			ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			if (accessor != null) accessor.listenBotNotifications(credentials.getValue(), consumer);
-		} catch (Unknown e) {
+			Thread.currentThread().setContextClassLoader(currentClassLoader);
+		} catch (Exception | Unknown e) {
+			LOG.info(e);
 		}
 	}
 
@@ -76,6 +80,13 @@ public class CesarAccessor {
 			return accessor.postBot(text);
 		} catch (Unknown unknown) {
 			return "Command not found";
+		}
+	}
+
+	public void disconnect() {
+		if (accessor != null) {
+			accessor.stopListenLog();
+			accessor.stopListenBotNotifications();
 		}
 	}
 }

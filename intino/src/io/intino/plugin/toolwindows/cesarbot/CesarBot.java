@@ -143,4 +143,8 @@ public class CesarBot {
 	public JPanel content() {
 		return myToolWindowContent;
 	}
+
+	public void disconnect() {
+		cesarAccessor.disconnect();
+	}
 }

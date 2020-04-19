@@ -57,16 +57,17 @@ public class ArtifactDeployer {
 			final Artifact.Package aPackage = safe(() -> configuration.artifact().packageConfiguration());
 			if (aPackage == null) throw new IntinoException("Package configuration not found");
 			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
-			if (!correctParameters(destination.runConfiguration().finalArguments()))
-				throw new IntinoException("Arguments are duplicated");
+			List<Configuration.Parameter> incorrectParameters = incorrectParameters(destination.runConfiguration().finalArguments());
+			if (!incorrectParameters.isEmpty())
+				throw new IntinoException("Parameters missed: " + incorrectParameters.stream().map(Configuration.Parameter::name).collect(Collectors.joining("; ")));
 			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(aPackage, destination));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
 	}
 
-	private boolean correctParameters(Map<String, String> arguments) {
-		return configuration.artifact().parameters().stream().allMatch(p -> arguments.containsKey(p.name()) && arguments.get(p.name()) != null);
+	private List<Configuration.Parameter> incorrectParameters(Map<String, String> arguments) {
+		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name()) || arguments.get(p.name()) == null).collect(Collectors.toList());
 	}
 
 	private ProcessDeployment createProcess(Artifact.Package packageConfiguration, Deployment destination) {
