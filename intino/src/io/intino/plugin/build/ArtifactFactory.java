@@ -54,10 +54,14 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			notifyErrors();
 			return;
 		}
-		final CompilerManager compilerManager = CompilerManager.getInstance(project);
-		CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
-		if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
-		else compilerManager.make(scope, processArtifact(callback));
+		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && isDistributed(configuration.artifact()))
+			process(callback);
+		else {
+			final CompilerManager compilerManager = CompilerManager.getInstance(project);
+			CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
+			if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
+			else compilerManager.make(scope, processArtifact(callback));
+		}
 	}
 
 	private void checkoutMasterAndMerge() {
@@ -96,7 +100,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (!result.equals(ProcessResult.Retry)) {
 					if ("master".equals(currentBranch(module))) task(() -> {
 						GitUtil.checkoutTo(module, startingBranch);
-						GitCommandResult stashResult = GitUtil.popStash(module);
+						GitUtil.popStash(module);
 					});
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
