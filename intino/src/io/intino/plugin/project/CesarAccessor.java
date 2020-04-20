@@ -54,6 +54,7 @@ public class CesarAccessor {
 			Thread.currentThread().setContextClassLoader(currentClassLoader);
 		} catch (Exception | Unknown e) {
 			LOG.info(e);
+			accessor.stopListenBotNotifications();
 		}
 	}
 

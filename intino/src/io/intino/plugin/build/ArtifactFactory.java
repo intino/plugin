@@ -43,8 +43,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public void build(FinishCallback callback) {
-		if (includeDistribution(phase) && !isDistributed(configuration.artifact()) && !isSnapshot()) {
-			if (Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf))) {
+		boolean distributed = isDistributed(configuration.artifact());
+		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
+			boolean hasChanges = Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
+			if (hasChanges) {
 				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();
 				return;
@@ -62,7 +64,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			notifyErrors();
 			return;
 		}
-		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && isDistributed(configuration.artifact())) process(callback);
+		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && distributed) process(callback);
 		else {
 			final CompilerManager compilerManager = CompilerManager.getInstance(project);
 			CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);

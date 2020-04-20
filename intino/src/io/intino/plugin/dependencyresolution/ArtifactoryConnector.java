@@ -1,15 +1,20 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.magritte.dsl.Meta;
 import io.intino.magritte.dsl.Proteo;
+import io.intino.plugin.settings.ArtifactoryCredential;
+import io.intino.plugin.settings.IntinoSettings;
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,11 +29,23 @@ public class ArtifactoryConnector {
 
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
 
+	private final Project project;
 	private final List<Configuration.Repository> repositories;
+	private List<ArtifactoryCredential> artifactories;
 
 	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
-		this.repositories = repositories;
+		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
+		project = null;
+		artifactories = new ArrayList<>();
+	}
+
+	public ArtifactoryConnector(Project project, List<Configuration.Repository> repositories) {
+		this.project = project;
+		this.repositories = new ArrayList<>(repositories);
+		this.repositories.add(mavenRepository());
+		if (project != null) artifactories = IntinoSettings.getSafeInstance(project).artifactories();
+		else artifactories = new ArrayList<>();
 	}
 
 	@NotNull
@@ -93,12 +110,31 @@ public class ArtifactoryConnector {
 			for (Configuration.Repository repo : repositories) {
 				String spec = repo.url() + (repo.url().endsWith("/") ? "" : "/") + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml";
 				URL url = new URL(spec);
-				final String mavenMetadata = new String(read(connect(url)).toByteArray());
+				final String mavenMetadata = new String(read(connect(repo.identifier(), url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
 		} catch (Throwable ignored) {
 		}
 		return Collections.emptyList();
+	}
+
+	private InputStream connect(String mavenId, URL url) {
+		try {
+			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(2000);
+			connection.setReadTimeout(2000);
+			ArtifactoryCredential credential = artifactories.stream().filter(r -> r.serverId.equalsIgnoreCase(mavenId)).findFirst().orElse(null);
+			if (credential != null) {
+				String auth = credential.username + ":" + credential.password;
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
+				String authHeaderValue = "Basic " + new String(encodedAuth);
+				connection.setRequestProperty("Authorization", authHeaderValue);
+				return connection.getInputStream();
+			}
+			return connect(url);
+		} catch (Throwable e) {
+			return null;
+		}
 	}
 
 	private InputStream connect(URL url) {

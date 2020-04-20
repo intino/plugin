@@ -109,7 +109,7 @@ public class AllModuleDependencyPropagator {
 		Map<String, List<String>> cache = new HashMap<>();
 		Map<String, List<String>> map = new LinkedHashMap<>();
 		for (Map.Entry<Module, LegioConfiguration> entry : modules.entrySet()) {
-			ArtifactoryConnector connector = new ArtifactoryConnector(entry.getValue().repositories());
+			ArtifactoryConnector connector = new ArtifactoryConnector(project, entry.getValue().repositories());
 			if (!map.containsKey(GROUP_ID + ":" + ARTIFACT_ID))
 				boxVersions(map, entry, connector);
 			entry.getValue().artifact().dependencies().stream().map(Configuration.Artifact.Dependency::identifier).map(identifier -> identifier.split(":")).forEach(split -> {

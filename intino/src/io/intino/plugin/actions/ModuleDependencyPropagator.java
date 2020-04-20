@@ -99,7 +99,7 @@ public class ModuleDependencyPropagator {
 	}
 
 	private Map<String, List<String>> loadLibraryUpdates() {
-		ArtifactoryConnector connector = new ArtifactoryConnector(configuration.repositories());
+		ArtifactoryConnector connector = new ArtifactoryConnector(module.getProject(), configuration.repositories());
 		Map<String, List<String>> map = new LinkedHashMap<>();
 		Configuration.Artifact.Box box = configuration.artifact().box();
 		if (box != null) {

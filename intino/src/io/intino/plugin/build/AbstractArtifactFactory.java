@@ -182,8 +182,7 @@ public abstract class AbstractArtifactFactory {
 
 	protected boolean isDistributed(Artifact artifact) {
 		String identifier = artifact.groupId() + ":" + artifact.name().toLowerCase();
-		List<String> versions = new ArtifactoryConnector(artifact.root().repositories().stream().
-				filter(r -> r instanceof Configuration.Repository.Release).collect(Collectors.toList()))
+		List<String> versions = new ArtifactoryConnector(project, Collections.singletonList(artifact.distribution().release()))
 				.versions(identifier);
 		return versions.contains(artifact.version());
 	}
