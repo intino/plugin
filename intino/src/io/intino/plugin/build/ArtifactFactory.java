@@ -22,10 +22,12 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -47,6 +49,12 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				notifyErrors();
 				return;
 			}
+
+			if (hasSnapshotDependencies()) {
+				errorMessages.add("A release version must not have SNAPSHOT dependencies.");
+				notifyErrors();
+				return;
+			}
 			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
 			if (!isInMasterBranch()) checkoutMasterAndMerge();
 		}
@@ -54,14 +62,30 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			notifyErrors();
 			return;
 		}
-		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && isDistributed(configuration.artifact()))
-			process(callback);
+		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && isDistributed(configuration.artifact())) process(callback);
 		else {
 			final CompilerManager compilerManager = CompilerManager.getInstance(project);
 			CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
 			if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
 			else compilerManager.make(scope, processArtifact(callback));
 		}
+	}
+
+	private boolean hasSnapshotDependencies() {
+		try {
+			if (configuration.artifact().datahub() != null && new Version(configuration.artifact().datahub().version()).isSnapshot())
+				return true;
+		} catch (IntinoException e) {
+			return false;
+		}
+
+		return configuration.artifact().dependencies().stream().anyMatch(d -> {
+			try {
+				return new Version(d.version()).isSnapshot();
+			} catch (IntinoException e) {
+				return false;
+			}
+		});
 	}
 
 	private void checkoutMasterAndMerge() {
