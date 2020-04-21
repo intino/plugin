@@ -1,7 +1,9 @@
 package io.intino.plugin.build.git;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
@@ -22,7 +24,7 @@ public class GitUtil {
 	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
 
 	public static GitRepository repository(@NotNull Module module) {
-		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
+		return ApplicationManager.getApplication().runReadAction((Computable<GitRepository>) () -> repositoryManager(module).getRepositoryForFile(module.getModuleFile()));
 	}
 
 	public static boolean isModified(Module module, VirtualFile file) {

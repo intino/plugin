@@ -22,9 +22,9 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 	}
 
 	@NotNull
-	public Collection<AbstractTreeNode> modify(@NotNull AbstractTreeNode parent, @NotNull Collection<AbstractTreeNode> children, ViewSettings settings) {
+	public Collection<AbstractTreeNode<?>> modify(@NotNull AbstractTreeNode<?> parent, @NotNull Collection<AbstractTreeNode<?>> children, ViewSettings settings) {
 		if (parent.getValue() instanceof NodeView) return children;
-		Collection<AbstractTreeNode> result = new LinkedHashSet<>();
+		Collection<AbstractTreeNode<?>> result = new LinkedHashSet<>();
 		for (AbstractTreeNode element : children) {
 			if (element instanceof PsiDirectoryNode) {
 				result.add(element);
@@ -43,7 +43,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return element.getValue() instanceof PsiJavaFile;
 	}
 
-	private boolean isMethodObjectClass(Collection<AbstractTreeNode> children, AbstractTreeNode element) {
+	private boolean isMethodObjectClass(Collection<AbstractTreeNode<?>> children, AbstractTreeNode<?> element) {
 		PsiJavaFile file = (PsiJavaFile) element.getValue();
 		final String javaClassName = FileUtilRt.getNameWithoutExtension(file.getName());
 		for (AbstractTreeNode node : children)
@@ -52,14 +52,14 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return false;
 	}
 
-	private TaraModel asTaraFile(AbstractTreeNode element) {
+	private TaraModel asTaraFile(AbstractTreeNode<?> element) {
 		TaraModel model = null;
 		if (element.getValue() instanceof TaraModel)
 			model = (TaraModel) element.getValue();
 		return model;
 	}
 
-	public Object getData(Collection<AbstractTreeNode> selected, String dataId) {
+	public Object getData(Collection<AbstractTreeNode<?>> selected, String dataId) {
 		if (selected == null) return null;
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
@@ -68,7 +68,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return null;
 	}
 
-	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode> selected) {
+	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode<?>> selected) {
 		return selected.stream().
 				filter(node -> node.getValue() instanceof NodeView).
 				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());

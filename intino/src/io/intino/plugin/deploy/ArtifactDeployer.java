@@ -77,7 +77,7 @@ public class ArtifactDeployer {
 				jvmOptions(destination.runConfiguration().vmOptions()).
 				artifactoryList(artifactories()).
 				prerequisites(requirements(destination)).
-				packaging(new ProcessDeployment.Packaging().parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+				packaging(new ProcessDeployment.Packaging().mainClass(packageConfiguration.mainClass()).parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
 				destinationServer(destination.server().name());
 	}
 

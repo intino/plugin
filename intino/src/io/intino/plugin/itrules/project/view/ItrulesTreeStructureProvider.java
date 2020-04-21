@@ -25,9 +25,9 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 
 	@NotNull
 	@Override
-	public Collection<AbstractTreeNode> modify(@NotNull AbstractTreeNode parent, @NotNull Collection<AbstractTreeNode> children, ViewSettings settings) {
+	public Collection<AbstractTreeNode<?>> modify(@NotNull AbstractTreeNode<?> parent, @NotNull Collection<AbstractTreeNode<?>> children, ViewSettings settings) {
 		if (parent.getValue() instanceof NodeView) return children;
-		Collection<AbstractTreeNode> result = new LinkedHashSet<>();
+		Collection<AbstractTreeNode<?>> result = new LinkedHashSet<>();
 		for (AbstractTreeNode element : children) {
 			if (element instanceof PsiDirectoryNode) {
 				result.add(element);
@@ -42,28 +42,27 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 		return result;
 	}
 
-	private boolean isJavaClass(AbstractTreeNode element) {
+	private boolean isJavaClass(AbstractTreeNode<?> element) {
 		return element.getValue() instanceof PsiJavaFile;
 	}
 
-	private boolean isTemplateClass(Collection<AbstractTreeNode> children, AbstractTreeNode element) {
+	private boolean isTemplateClass(Collection<AbstractTreeNode<?>> children, AbstractTreeNode<?> element) {
 		PsiJavaFile file = (PsiJavaFile) element.getValue();
 		final String javaClassName = FileUtilRt.getNameWithoutExtension(file.getName());
-		for (AbstractTreeNode node : children)
+		for (AbstractTreeNode<?> node : children)
 			if (asItrFile(node) != null && (((ItrulesTemplate) node.getValue()).getPresentableName() + "Template").equals(javaClassName))
 				return true;
 		return false;
 	}
 
-	private ItrulesTemplate asItrFile(AbstractTreeNode element) {
+	private ItrulesTemplate asItrFile(AbstractTreeNode<?> element) {
 		ItrulesTemplate model = null;
 		if (element.getValue() instanceof ItrulesTemplate)
 			model = (ItrulesTemplate) element.getValue();
 		return model;
 	}
 
-	public Object getData(Collection<AbstractTreeNode> selected, String dataId) {
-		if (selected == null) return null;
+	public Object getData(@NotNull Collection<AbstractTreeNode<?>> selected, @NotNull String dataId) {
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
 			if (!result.isEmpty()) return result.toArray(new NodeView[result.size()]);
@@ -71,9 +70,10 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 		return null;
 	}
 
-	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode> selected) {
+	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode<?>> selected) {
 		return selected.stream().
 				filter(node -> node.getValue() instanceof NodeView).
 				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());
 	}
+
 }

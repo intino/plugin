@@ -21,6 +21,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.RowIcon;
 import com.intellij.util.PlatformIcons;
 import io.intino.plugin.lang.psi.TaraModel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,7 +52,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 	}
 
 	@Override
-	public Collection<AbstractTreeNode> getChildrenImpl() {
+	public Collection<AbstractTreeNode<?>> getChildrenImpl() {
 		return Collections.emptyList();
 	}
 
@@ -76,7 +77,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 	}
 
 	@Override
-	protected void updateImpl(PresentationData data) {
+	protected void updateImpl(@NotNull PresentationData data) {
 		PsiFile value = getValue();
 		if (value instanceof TaraModel) {
 			myName = getName();

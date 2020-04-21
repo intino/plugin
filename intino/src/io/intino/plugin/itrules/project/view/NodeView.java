@@ -39,7 +39,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 	}
 
 	@Override
-	public Collection<AbstractTreeNode> getChildrenImpl() {
+	public Collection<AbstractTreeNode<?>> getChildrenImpl() {
 		return Collections.emptyList();
 	}
 

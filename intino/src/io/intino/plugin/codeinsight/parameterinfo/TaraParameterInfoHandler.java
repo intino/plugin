@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActionSupport<Parameters, Object, TaraParameter> {
 
-	private static final Set<Class> STOP_SEARCHING_CLASSES = ContainerUtil.<Class>newHashSet(TaraModel.class);
+	private static final Set<Class<?>> STOP_SEARCHING_CLASSES = ContainerUtil.newHashSet(TaraModel.class);
 
 	@NotNull
 	@Override
@@ -45,13 +45,13 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 
 	@NotNull
 	@Override
-	public Set<Class> getArgumentListAllowedParentClasses() {
+	public Set<Class<?>> getArgumentListAllowedParentClasses() {
 		return new HashSet<>(Collections.singletonList(Signature.class));
 	}
 
 	@NotNull
 	@Override
-	public Set<? extends Class> getArgListStopSearchClasses() {
+	public Set<? extends Class<?>> getArgListStopSearchClasses() {
 		return STOP_SEARCHING_CLASSES;
 	}
 

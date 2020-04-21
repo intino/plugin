@@ -83,7 +83,7 @@ public abstract class AbstractArtifactFactory {
 	private ProcessResult processArtifact(ProgressIndicator indicator) {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
-			checker.check(phase, configuration);
+			checker.check(phase, module, configuration);
 			if (mavenNeeded(phase, configuration)) {
 				ProcessResult result = runMavenPhases(indicator);
 				if (!result.equals(ProcessResult.Done)) return result;
@@ -182,6 +182,7 @@ public abstract class AbstractArtifactFactory {
 
 	protected boolean isDistributed(Artifact artifact) {
 		String identifier = artifact.groupId() + ":" + artifact.name().toLowerCase();
+		if (artifact.distribution() == null) return false;
 		List<String> versions = new ArtifactoryConnector(project, Collections.singletonList(artifact.distribution().release()))
 				.versions(identifier);
 		return versions.contains(artifact.version());
