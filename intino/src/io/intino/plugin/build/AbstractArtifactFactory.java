@@ -54,6 +54,7 @@ public abstract class AbstractArtifactFactory {
 	final Project project;
 	final Configuration configuration;
 	final String startingBranch;
+
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 	FactoryPhaseChecker checker = new FactoryPhaseChecker();

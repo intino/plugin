@@ -5,7 +5,6 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.ui.content.Content;
@@ -58,11 +57,6 @@ public class IntinoFactoryComponent implements ProjectComponent {
 
 	private void unregisterToolWindow() {
 		toolWindow = null;
-		if (isToolWindowRegistered()) ToolWindowManager.getInstance(project).unregisterToolWindow(ID_TOOL_WINDOW);
-	}
-
-	private boolean isToolWindowRegistered() {
-		return ToolWindowManager.getInstance(project).getToolWindow(ID_TOOL_WINDOW) != null;
 	}
 
 	@Override

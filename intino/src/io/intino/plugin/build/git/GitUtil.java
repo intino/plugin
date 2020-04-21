@@ -1,9 +1,12 @@
 package io.intino.plugin.build.git;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
@@ -24,7 +27,18 @@ public class GitUtil {
 	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
 
 	public static GitRepository repository(@NotNull Module module) {
-		return ApplicationManager.getApplication().runReadAction((Computable<GitRepository>) () -> repositoryManager(module).getRepositoryForFile(module.getModuleFile()));
+		try {
+			Application application = ApplicationManager.getApplication();
+			if (application.isDispatchThread())
+				return (GitRepository) withSyncTask(module.getProject(), "Refreshing vcs", () -> getRepositoryForFile(module));
+			return getRepositoryForFile(module);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private static GitRepository getRepositoryForFile(@NotNull Module module) {
+		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
 	}
 
 	public static boolean isModified(Module module, VirtualFile file) {
@@ -68,8 +82,42 @@ public class GitUtil {
 		return Git.getInstance().stashSave(repository(module), message);
 	}
 
-	public static GitCommandResult popStash(@NotNull Module module) {
-		return Git.getInstance().stashPop(repository(module), soutListener());
+	public static GitCommandResult popStash(@NotNull Module module, String stash) {
+		String result = stashList(module);
+		if (result == null) return null;
+		String index = findStash(result, stash);
+		if (index == null) return null;
+		return popStashByIndex(module, index);
+
+	}
+
+	private static String stashList(@NotNull Module module) {
+		final GitLineHandler handler = new GitLineHandler(module.getProject(), repository(module).getRoot(), GitCommand.STASH);
+		handler.addParameters("list");
+		StringBuilder builder = new StringBuilder();
+		handler.addLineListener(stringBuilderListener(builder));
+		GitCommandResult gitCommandResult = Git.getInstance().runCommand(handler);
+		if (!gitCommandResult.success()) return null;
+		return builder.toString();
+	}
+
+	@NotNull
+	private static GitCommandResult popStashByIndex(@NotNull Module module, String stashIndex) {
+		final GitLineHandler handler = new GitLineHandler(module.getProject(), repository(module).getRoot(), GitCommand.STASH);
+		handler.addParameters("pop");
+		handler.addParameters(stashIndex);
+		StringBuilder builder = new StringBuilder();
+		handler.addLineListener(stringBuilderListener(builder));
+		return Git.getInstance().runCommand(handler);
+	}
+
+
+	private static String findStash(String out, String stash) {
+		String[] lines = out.split("\n");
+		for (int i = 0; i < lines.length; i++) {
+			if (lines[i].contains(stash)) return lines[i].substring(0, lines[i].indexOf(":"));
+		}
+		return null;
 	}
 
 	public static GitCommandResult mergeBranchIntoCurrent(Module module, String branch) {
@@ -97,6 +145,15 @@ public class GitUtil {
 	@NotNull
 	private static GitLineHandlerListener soutListener() {
 		return (line, outputType) -> logger.info(outputType.toString() + ": " + line);
+	}
+
+	@NotNull
+	private static GitLineHandlerListener stringBuilderListener(StringBuilder builder) {
+		return (line, outputType) -> builder.append(line);
+	}
+
+	private static Object withSyncTask(Project project, String title, ThrowableComputable<Object, Exception> runnable) throws Exception {
+		return ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, project);
 	}
 
 }

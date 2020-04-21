@@ -38,6 +38,8 @@ import static io.intino.plugin.build.git.GitUtil.currentBranch;
 import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactFactory extends AbstractArtifactFactory {
+	private String stash;
+
 	public ArtifactFactory(Module module, FactoryPhase phase) {
 		super(module, phase);
 	}
@@ -92,7 +94,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void checkoutMasterAndMerge() {
 		withSyncTask("Checking out to Master and merging", () -> {
-			GitUtil.stashChanges(module, "Stashed changes for Release " + module.getName() + " " + Instant.now().toString());
+			stash = "intino:" + module.getName() + ":" + Instant.now().toString();
+			GitUtil.stashChanges(module, stash);
 			GitCommandResult result = GitUtil.checkoutTo(module, "master");
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
@@ -126,7 +129,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (!result.equals(ProcessResult.Retry)) {
 					if ("master".equals(currentBranch(module))) task(() -> {
 						GitUtil.checkoutTo(module, startingBranch);
-						GitUtil.popStash(module);
+						GitUtil.popStash(module, stash);
 					});
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();

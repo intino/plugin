@@ -1,8 +1,10 @@
 package io.intino.plugin.toolwindows.output;
 
+import com.intellij.build.BuildTextConsoleView;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -12,6 +14,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import io.intino.alexandria.message.Message;
@@ -78,7 +81,7 @@ public class OutputsToolWindow {
 
 	@NotNull
 	private ConsoleView createConsoleView(ProcessInfo info) {
-		ConsoleView consoleView = createConsoleView();
+		BuildTextConsoleView consoleView = (BuildTextConsoleView) createConsoleView();
 		processOutputs.add(consoleView);
 		String displayName = displayOf(info);
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), displayName);
@@ -108,7 +111,9 @@ public class OutputsToolWindow {
 
 	@NotNull
 	private ConsoleView createBuildView() {
-		ConsoleView consoleView = createConsoleView();
+		ConsoleViewImpl consoleView = (ConsoleViewImpl) createConsoleView();
+		if (consoleView.getEditor() != null && !consoleView.getEditor().isDisposed())
+			EditorFactory.getInstance().releaseEditor(consoleView.getEditor());
 		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), "build");
 		final JComponent ui = descriptor.getComponent();
 		JComponent consoleViewComponent = consoleView.getComponent();

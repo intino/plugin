@@ -28,6 +28,10 @@ public class CesarAccessor {
 		this.accessor = createAccessor();
 	}
 
+	public CesarRestAccessor accessor() {
+		return accessor;
+	}
+
 	public ProcessInfo processInfo(String id) {
 		try {
 			if (accessor == null) return null;
@@ -58,23 +62,6 @@ public class CesarAccessor {
 		}
 	}
 
-	public CesarRestAccessor accessor() {
-		return accessor;
-	}
-
-	private CesarRestAccessor createAccessor() {
-		if (credentials == null) return null;
-		return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
-	}
-
-	private Map.Entry<String, String> credentials() {
-		try {
-			return getSafeInstance(this.project).cesar();
-		} catch (IntinoException e) {
-		}
-		return null;
-	}
-
 	public String talk(String text) {
 		try {
 			if (accessor == null) return null;
@@ -89,5 +76,18 @@ public class CesarAccessor {
 			accessor.stopListenLog();
 			accessor.stopListenBotNotifications();
 		}
+	}
+
+	private CesarRestAccessor createAccessor() {
+		if (credentials == null) return null;
+		return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
+	}
+
+	private Map.Entry<String, String> credentials() {
+		try {
+			return getSafeInstance(this.project).cesar();
+		} catch (IntinoException e) {
+		}
+		return null;
 	}
 }
