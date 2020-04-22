@@ -59,8 +59,13 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				notifyErrors();
 				return;
 			}
-			if (!isInMasterBranch() && !askForReleaseDistribute()) return;
-			if (!isInMasterBranch()) checkoutMasterAndMerge();
+			try {
+				checker.check(phase, module, configuration);
+				if (!isInMasterBranch() && !askForReleaseDistribute()) return;
+				if (!isInMasterBranch()) checkoutMasterAndMerge();
+			} catch (IntinoException e) {
+				errorMessages.add(e.getMessage());
+			}
 		}
 		if (!errorMessages.isEmpty()) {
 			notifyErrors();
