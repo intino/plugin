@@ -68,7 +68,6 @@ public class InterfaceBuilderManager {
 		return version;
 	}
 
-	@NotNull
 	private void downloadAndSaveClassPath(Module module, String version) {
 		if (isDownloaded(version) && classpathContains(module, version)) return;
 		List<Artifact> artifacts = konosLibrary(version);
@@ -92,12 +91,12 @@ public class InterfaceBuilderManager {
 		if (isLoaded(version)) return;
 		final ClassLoader classLoader;
 		if (isLoaded(version)) classLoader = loadedVersions.get(version);
-		else {
-			classLoader = createClassLoader(mainArtifact(version));
+		else classLoader = createClassLoader(mainArtifact(version));
+		Language language = loadLanguage(classLoader);
+		if (language != null) {
+			LanguageManager.registerAuxiliar(module.getProject(), language);
 			loadedVersions.put(version, classLoader);
 		}
-		Language language = loadLanguage(classLoader);
-		if (language != null) LanguageManager.registerAuxiliar(module.getProject(), language);
 	}
 
 	private static boolean isLoaded(String version) {
