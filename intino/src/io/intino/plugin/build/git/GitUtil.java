@@ -83,6 +83,7 @@ public class GitUtil {
 	}
 
 	public static void popStash(@NotNull Module module, String stash) {
+		if (stash == null) return;
 		String result = stashList(module);
 		if (result == null) return;
 		String index = findStash(result, stash);
