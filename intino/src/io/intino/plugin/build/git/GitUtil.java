@@ -82,12 +82,12 @@ public class GitUtil {
 		return Git.getInstance().stashSave(repository(module), message);
 	}
 
-	public static GitCommandResult popStash(@NotNull Module module, String stash) {
+	public static void popStash(@NotNull Module module, String stash) {
 		String result = stashList(module);
-		if (result == null) return null;
+		if (result == null) return;
 		String index = findStash(result, stash);
-		if (index == null) return null;
-		return popStashByIndex(module, index);
+		if (index == null) return;
+		popStashByIndex(module, index);
 
 	}
 
@@ -114,9 +114,11 @@ public class GitUtil {
 
 	private static String findStash(String out, String stash) {
 		String[] lines = out.split("\n");
-		for (int i = 0; i < lines.length; i++) {
-			if (lines[i].contains(stash)) return lines[i].substring(0, lines[i].indexOf(":"));
-		}
+		for (String line : lines)
+			if (line.contains(stash) && line.contains(":")) {
+				logger.info("Stash found:" + line);
+				return line.substring(0, line.indexOf(":"));
+			}
 		return null;
 	}
 
