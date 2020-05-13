@@ -19,6 +19,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
@@ -47,7 +48,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		boolean distributed = isDistributed(configuration.artifact());
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
-			boolean hasChanges = Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
+			boolean hasChanges = task(() -> Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf)));
 			if (hasChanges) {
 				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();
@@ -132,9 +133,11 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
-					if ("master".equals(currentBranch(module))) task(() -> {
-						GitUtil.checkoutTo(module, startingBranch);
-						GitUtil.popStash(module, stash);
+					task(() -> {
+						if ("master".equals(currentBranch(module))) {
+							GitUtil.checkoutTo(module, startingBranch);
+							GitUtil.popStash(module, stash);
+						}
 					});
 					ApplicationManager.getApplication().invokeAndWait(() -> {
 						if (!errorMessages.isEmpty()) notifyErrors();
@@ -148,6 +151,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void task(Runnable runnable) {
 		ProgressManager.getInstance().runProcess(runnable, null);
+	}
+
+	private <T> T task(Computable<T> runnable) {
+		return ProgressManager.getInstance().runProcess(runnable, null);
 	}
 
 	private boolean withSyncTask(String title, Runnable runnable) {

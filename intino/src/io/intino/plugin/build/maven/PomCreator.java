@@ -167,7 +167,7 @@ class PomCreator {
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
 		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).collect(Collectors.toList()))
-			if (!dependency.toModule() && dependencies.add(dependency.identifier()))
+			if (((dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) || !dependency.toModule()) && dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest))
 			addDependantModuleTestLibraries(builder, dependencies);

@@ -56,11 +56,13 @@ public class GitUtil {
 
 	public static String currentBranch(Module module) {
 		GitRepository repository = repository(module);
-		return repository == null ? null : repository.getCurrentBranchName();
+		if (repository == null) return null;
+		repository.update();
+		return repository.getCurrentBranchName();
 	}
 
 	public static GitCommandResult tagCurrentAndPush(@NotNull Module module, String tag) {
-		GitCommandResult result = Git.getInstance().createNewTag(repository(module), tag, soutListener(), "HEAD");
+		GitCommandResult result = Git.getInstance().createNewTag(repository(module), tag, soutListener("tagCurrentAndPush" + " " + tag), "HEAD");
 		return result.success() ? pushMaster(module, tag) : result;
 	}
 
@@ -75,7 +77,7 @@ public class GitUtil {
 	}
 
 	public static GitCommandResult checkoutTo(@NotNull Module module, String branch) {
-		return Git.getInstance().checkout(repository(module), branch, null, true, false, soutListener());
+		return Git.getInstance().checkout(repository(module), branch, null, true, false, soutListener("checkout to " + branch));
 	}
 
 	public static GitCommandResult stashChanges(@NotNull Module module, String message) {
@@ -127,7 +129,7 @@ public class GitUtil {
 		GitRepository repository = repository(module);
 		String beforeRevision = repository.getCurrentRevision();
 		Git git = Git.getInstance();
-		GitCommandResult result = git.merge(repository, branch, Collections.emptyList(), soutListener());
+		GitCommandResult result = git.merge(repository, branch, Collections.emptyList(), soutListener("merge branch " + branch));
 		if (!result.success()) git.resetMerge(repository, beforeRevision);
 		return result;
 	}
@@ -146,8 +148,8 @@ public class GitUtil {
 	}
 
 	@NotNull
-	private static GitLineHandlerListener soutListener() {
-		return (line, outputType) -> logger.info(outputType.toString() + ": " + line);
+	private static GitLineHandlerListener soutListener(String prefix) {
+		return (line, outputType) -> logger.info(prefix + "> " + outputType.toString() + ": " + line);
 	}
 
 	@NotNull
