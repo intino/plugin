@@ -134,7 +134,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
 					task(() -> {
-						if ("master".equals(currentBranch(module))) {
+						if (!startingBranch.equals(currentBranch(module))) {
 							GitUtil.checkoutTo(module, startingBranch);
 							GitUtil.popStash(module, stash);
 						}
