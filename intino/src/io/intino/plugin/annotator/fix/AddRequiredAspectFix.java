@@ -61,7 +61,7 @@ class AddRequiredAspectFix implements IntentionAction {
 	}
 
 	private List<Constraint> findConstraints() {
-		final List<Constraint> constraintsOf = new ArrayList<>(Objects.requireNonNull(IntinoUtil.getConstraintsOf(node)));
+		final List<Constraint> constraintsOf = new ArrayList<>(Objects.requireNonNull(IntinoUtil.constraintsOf(node)));
 		List<Constraint> facetConstraints = new ArrayList<>();
 		final List<String> facets = facetTypes(node);
 		constraintsOf.stream().

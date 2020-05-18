@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
@@ -49,7 +50,7 @@ public class LegioConfiguration implements Configuration {
 	private final Resolver resolver;
 	private TaraModel legioFile;
 	private VirtualFile vFile;
-	private boolean reloading = false;
+	private AtomicBoolean reloading = new AtomicBoolean(false);
 	private boolean inited = false;
 	private DependencyAuditor dependencyAuditor;
 
@@ -95,8 +96,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void reload() {
-		if (reloading) return;
-		reloading = true;
+		if (reloading.get()) return;
+		reloading.set(true);
 		refresh();
 		if (module.isDisposed() || module.getProject().isDisposed()) return;
 		try {
@@ -104,15 +105,16 @@ public class LegioConfiguration implements Configuration {
 						 @Override
 						 public void run(@NotNull ProgressIndicator indicator) {
 							 try {
-								 reloading = true;
+								 reloading.set(true);
 								 if (legioFile == null) legioFile = legioFile();
 								 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
 								 reloader.reloadInterfaceBuilder();
 								 reloader.reloadDependencies();
 								 reloader.reloadRunConfigurations();
 								 save();
-								 reloading = false;
-							 } catch (Throwable e) {
+								 reloading.set(false);
+							 } catch (Throwable ignored) {
+								 reloading.set(false);
 							 }
 						 }
 					 }
@@ -120,7 +122,7 @@ public class LegioConfiguration implements Configuration {
 		} catch (Throwable e) {
 			LOG.error(e);
 		}
-		reloading = false;
+		reloading.set(false);
 	}
 
 	public void reloadDependencies() {
@@ -133,25 +135,25 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void purgeAndReload() {
-		if (reloading) return;
-		reloading = true;
+		if (reloading.get()) return;
+		reloading.set(true);
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
 		ProgressManager.getInstance().run(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 											  @Override
 											  public void run(@NotNull ProgressIndicator indicator) {
-												  reloading = true;
+												  reloading.set(true);
 												  if (legioFile == null) legioFile = legioFile();
 												  final ConfigurationReloader reloader = reloader(UPDATE_POLICY_ALWAYS);
 												  reloader.reloadInterfaceBuilder();
 												  reloader.reloadDependencies();
 												  save();
-												  reloading = false;
+												  reloading.set(false);
 											  }
 										  }
 		);
-		reloading = false;
+		reloading.set(false);
 	}
 
 

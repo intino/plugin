@@ -79,7 +79,7 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	private List<Constraint> findConstraints() {
 		final Node node = (Node) this.parametrized;
-		final List<Constraint> constraintsOf = new ArrayList<>(IntinoUtil.getConstraintsOf(node));
+		final List<Constraint> constraintsOf = new ArrayList<>(IntinoUtil.constraintsOf(node));
 		List<Constraint> aspectConstraints = new ArrayList<>();
 		final List<String> aspects = aspectTypes(node);
 		for (Constraint c : constraintsOf) {

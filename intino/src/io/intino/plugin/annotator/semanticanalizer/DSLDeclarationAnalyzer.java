@@ -9,11 +9,12 @@ import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.messages.MessageProvider;
 
+import static io.intino.magritte.dsl.ProteoConstants.META;
+import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class DSLDeclarationAnalyzer extends TaraAnalyzer {
 
-	private static final String PROTEO = "Proteo";
 	private static final String MESSAGE = "dsl.not.found";
 	private final TaraModel file;
 
@@ -35,10 +36,14 @@ public class DSLDeclarationAnalyzer extends TaraAnalyzer {
 	private void checkDslExistence(String dslName) {
 		if (dslName != null && !dslName.isEmpty()) {
 			Language dsl = IntinoUtil.getLanguage(file);
-			if (dsl == null && !PROTEO.equals(dslName) || !dslName.equals(file.dsl())) {
+			if (dsl == null && !isBuiltInLanguage(dslName) || !dslName.equals(file.dsl())) {
 				results.put(file.getFirstChild(), new AnnotateAndFix(ERROR, MessageProvider.message(MESSAGE), FixFactory.get(MESSAGE, file)));
 			}
 		}
+	}
+
+	private boolean isBuiltInLanguage(String dslName) {
+		return PROTEO.equals(dslName) || META.equals(dslName);
 	}
 
 	private void findDuplicates() {

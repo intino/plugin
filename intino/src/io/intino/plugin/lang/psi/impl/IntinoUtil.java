@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static io.intino.plugin.project.Safe.safe;
+import static java.util.Collections.emptyList;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 
@@ -70,6 +71,7 @@ public class IntinoUtil {
 	public static Language getLanguage(PsiElement element) {
 		if (element == null) return null;
 		PsiFile file = element.getContainingFile();
+		if (file == null) return null;
 		return LanguageManager.getLanguage(file.getVirtualFile() == null ? file.getOriginalFile() : file);
 	}
 
@@ -138,7 +140,7 @@ public class IntinoUtil {
 	}
 
 	@Nullable
-	public static List<Constraint> getConstraintsOf(Node node) {
+	public static List<Constraint> constraintsOf(Node node) {
 		Language language = getLanguage((PsiElement) node);
 		if (language == null) return null;
 		return language.constraints(node.resolve().type());
@@ -147,9 +149,9 @@ public class IntinoUtil {
 	@NotNull
 	public static List<Constraint.Parameter> parameterConstraintsOf(Node node) {
 		Language language = getLanguage((PsiElement) node);
-		if (language == null) return Collections.emptyList();
+		if (language == null) return emptyList();
 		final List<Constraint> nodeConstraints = language.constraints(node.resolve().type());
-		if (nodeConstraints == null) return Collections.emptyList();
+		if (nodeConstraints == null) return emptyList();
 		List<Constraint.Parameter> parameters = new ArrayList<>();
 		for (Constraint constraint : nodeConstraints)
 			if (constraint instanceof Constraint.Parameter) parameters.add((Constraint.Parameter) constraint);
@@ -161,9 +163,9 @@ public class IntinoUtil {
 	@NotNull
 	public static List<Constraint.Parameter> aspectParameterConstraintsOf(Node node) {
 		Language language = getLanguage((PsiElement) node);
-		if (language == null) return Collections.emptyList();
+		if (language == null) return emptyList();
 		final List<Constraint> nodeConstraints = language.constraints(node.resolve().type());
-		if (nodeConstraints == null) return Collections.emptyList();
+		if (nodeConstraints == null) return emptyList();
 		List<Constraint.Parameter> parameters = new ArrayList<>();
 		nodeConstraints.stream().
 				filter(constraint -> constraint instanceof Constraint.Aspect && hasAspect(node, (Constraint.Aspect) constraint)).
@@ -177,18 +179,19 @@ public class IntinoUtil {
 	}
 
 	@Nullable
-	public static List<Constraint> getConstraintsOf(Aspect aspect) {
-		final Node nodeOf = TaraPsiUtil.getContainerNodeOf((PsiElement) aspect);
-		final List<Constraint> allowsOf = getConstraintsOf(nodeOf);
-		if (allowsOf == null || allowsOf.isEmpty()) return Collections.emptyList();
-		return collectAspectConstrains(aspect, allowsOf);
+	public static List<Constraint> constraintsOf(Aspect aspect) {
+		final Node node = TaraPsiUtil.getContainerNodeOf((PsiElement) aspect);
+		final List<Constraint> nodeConstraints = constraintsOf(node);
+		if (nodeConstraints == null || nodeConstraints.isEmpty()) return emptyList();
+		return collectAspectConstrains(aspect, nodeConstraints);
 	}
 
 	private static List<Constraint> collectAspectConstrains(Aspect aspect, List<Constraint> constraints) {
-		for (Constraint constraint : constraints)
-			if (constraint instanceof Constraint.Aspect && ((Constraint.Aspect) constraint).type().equals(aspect.type()))
-				return ((Constraint.Aspect) constraint).constraints();
-		return Collections.emptyList();
+		return constraints.stream().
+				filter(c -> c instanceof Constraint.Aspect && ((Constraint.Aspect) c).type().equals(aspect.fullType())).
+				findFirst().
+				map(c -> ((Constraint.Aspect) c).constraints()).
+				orElse(emptyList());
 	}
 
 	@Nullable
@@ -281,7 +284,7 @@ public class IntinoUtil {
 	public static List<Node> getAllNodesOfFile(TaraModel model) {
 		Set<Node> all = new HashSet<>();
 		final Node[] rootNodes = components(model);
-		if (rootNodes == null) return Collections.emptyList();
+		if (rootNodes == null) return emptyList();
 		for (Node include : rootNodes) all.addAll(include.subs());
 		for (Node root : rootNodes) getRecursiveComponentsOf(root, all);
 		return new ArrayList<>(all);
@@ -317,7 +320,7 @@ public class IntinoUtil {
 	public static List<VirtualFile> getSourceRoots(@NotNull PsiElement foothold) {
 		final Module module = ModuleUtilCore.findModuleForPsiElement(foothold);
 		if (module != null) return getSourceRoots(module);
-		return Collections.emptyList();
+		return emptyList();
 	}
 
 	public static List<VirtualFile> getSourceRoots(@NotNull Module module) {
@@ -399,7 +402,7 @@ public class IntinoUtil {
 
 	private static List<Node> findMainNodes(TaraModel file) {
 		final TaraNode[] childrenOfType = components(file);
-		if (childrenOfType == null) return Collections.emptyList();
+		if (childrenOfType == null) return emptyList();
 		final List<Node> rootNodes = Arrays.asList(childrenOfType);
 		return rootNodes.stream().filter((node) -> !TaraPsiUtil.isAnnotatedAsComponent(node)).collect(Collectors.toList());
 	}

@@ -20,7 +20,7 @@ import java.util.Map;
 public class ImplicitToExplicitParameters extends ParametersIntentionAction {
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-		final List<Constraint> allowsOf = IntinoUtil.getConstraintsOf(TaraPsiUtil.getContainerNodeOf(element));
+		final List<Constraint> allowsOf = IntinoUtil.constraintsOf(TaraPsiUtil.getContainerNodeOf(element));
 		if (allowsOf == null) return;
 		Parameters parameters = getParametersScope(element);
 		Map<String, String> explicit = extractParametersData(parameters.getParameters());

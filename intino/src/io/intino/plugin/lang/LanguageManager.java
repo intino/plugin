@@ -18,6 +18,7 @@ import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +32,7 @@ import java.util.Map;
 import static io.intino.magritte.dsl.ProteoConstants.META;
 import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.project.builders.InterfaceBuilderManager.BOX_LANGUAGE;
 
 public class LanguageManager {
 	public static final String DSL = "dsl";
@@ -41,7 +43,7 @@ public class LanguageManager {
 	public static final String DSL_GROUP_ID = "tara.dsl";
 	private static final Map<Project, Map<String, Language>> languages = new HashMap<>();
 	private static final Map<String, Language> core = new HashMap<>();
-	private static final Map<String, Map<Project, Language>> auxiliarLanguages = new HashMap<>();
+	private static final Map<String, Language> boxLanguages = new HashMap<>();
 	private static final String INFO_JSON = "info" + JSON;
 	private static final String LATEST = "LATEST";
 
@@ -56,8 +58,14 @@ public class LanguageManager {
 			final Configuration configuration = IntinoUtil.configurationOf(file);
 			final String dslName = ((TaraModel) file).dsl();
 			if (dslName == null) return null;
-			String v = safe(() -> configuration.artifact().model().language().version());
-			final String version = v == null ? LATEST : safe(() -> configuration.artifact().model().language().version());
+			String version = null;
+			if (core.containsKey(dslName)) {
+				version = safe(() -> configuration.artifact().model().language().version());
+				if (version == null) version = LATEST;
+			} else if (BOX_LANGUAGE.equals(dslName)) {
+				version = safe(() -> configuration.artifact().box().version());
+				if (version == null) version = InterfaceBuilderManager.minimunVersion;
+			}
 			if (version == null) return null;
 			return getLanguage(file.getProject(), dslName, version);
 		} else return null;
@@ -72,7 +80,7 @@ public class LanguageManager {
 	public static Language getLanguage(Project project, String dsl, String version) {
 		if (dsl == null) return null;
 		if (core.containsKey(dsl)) return core.get(dsl);
-		if (auxiliarLanguages.containsKey(dsl)) return auxiliarLanguages.get(dsl).get(project);
+		if (boxLanguages.containsKey(dsl + "#" + version)) return boxLanguages.get(dsl + "#" + version);
 		if (dsl.isEmpty()) return core.get(META);
 		if (project == null) return null;
 		return loadLanguage(project, dsl, version);
@@ -85,46 +93,34 @@ public class LanguageManager {
 		return languages.get(project) == null ? null : languages.get(project).get(dsl);
 	}
 
-
-	private static Language languageFrom(String dsl, Map<String, Language> languages) {
-		for (String currentDSL : languages.keySet())
-			if (currentDSL.equalsIgnoreCase(dsl))
-				return languages.get(currentDSL);
-		return null;
-	}
-
 	public static void register(Language language) {
 		core.put(language.languageName(), language);
 	}
 
-	public static void registerAuxiliar(Project project, Language language) {
-		if (!auxiliarLanguages.containsKey(language.languageName()))
-			auxiliarLanguages.put(language.languageName(), new HashMap<>());
-		auxiliarLanguages.get(language.languageName()).put(project, language);
+	public static void registerBoxLanguage(Project project, Language language, String version) {
+		boxLanguages.putIfAbsent(language.languageName() + "#" + version, language);
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public static boolean reloadLanguage(Project project, String dsl) {
+	public static void reloadLanguage(Project project, String dsl) {
 		final File languageDirectory = getLanguageDirectory(dsl);
-		if (!languageDirectory.exists()) return false;
+		if (!languageDirectory.exists()) return;
 		Language language = LanguageLoader.loadLatest(dsl, languageDirectory.getPath());
-		if (language == null) return false;
+		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
 		Notifications.Bus.notify(new Notification("Language Reload", "", "Language " + dsl + " reloaded", NotificationType.INFORMATION), project);
-		return true;
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public static boolean reloadLanguage(Project project, String dsl, String version) {
+	public static void reloadLanguage(Project project, String dsl, String version) {
 		final File languageDirectory = getLanguageDirectory(dsl);
-		if (!languageDirectory.exists()) return false;
+		if (!languageDirectory.exists()) return;
 		Language language = LanguageLoader.load(dsl, version, languageDirectory.getPath());
-		if (language == null) return false;
+		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
 		Notifications.Bus.notify(new Notification("Language Reload", "", "Language " + dsl + " reloaded", NotificationType.INFORMATION), project);
-		return true;
 	}
 
 	@SuppressWarnings("WeakerAccess")

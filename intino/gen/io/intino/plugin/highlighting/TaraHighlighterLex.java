@@ -784,7 +784,7 @@ class TaraHighlighterLex implements FlexLexer {
 			if (!dslLine.startsWith(DSL) || dslLine.split(DSL).length < 2) return;
 			dsl = dslLine.split(DSL)[1].trim();
 		}
-		identifiers = new HashSet();
+		identifiers = new HashSet<>();
 		Language heritage = LanguageManager.getLanguage(project, dsl);
 		if (heritage != null) Collections.addAll(identifiers, heritage.lexicon());
 	}

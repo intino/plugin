@@ -13,6 +13,7 @@ import io.intino.cesar.box.CesarRestAccessor;
 import io.intino.cesar.box.schemas.ProcessDeployment;
 import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
+import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -42,25 +43,35 @@ public class ArtifactDeployer {
 		this.deployments = deployments;
 	}
 
-	public boolean execute() throws IntinoException {
-		for (Deployment destination : deployments) {
-			deploy(destination);
-			waitASecond();
-		}
-		return true;
+	public DeployResult execute() {
+		List<IntinoException> errors = new ArrayList<>();
+		List<String> success = new ArrayList<>();
+		for (Deployment destination : deployments)
+			try {
+				deploy(destination);
+				waitASecond();
+				success.add("Deployment to " + destination.server().name() + " requested");
+			} catch (IntinoException e) {
+				errors.add(e);
+				if (e instanceof FatalIntinoException) return new DeployResult.Fail(errors);
+			}
+		if (errors.size() == deployments.size()) return new DeployResult.Fail(errors);
+		return !errors.isEmpty() ? new DeployResult.DoneWithErrors(errors, success) : new DeployResult.Done(success);
 	}
 
-	private void deploy(Deployment destination) throws IntinoException {
+	private void deploy(Deployment deployment) throws IntinoException {
 		try {
-			final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
-			if (destination.server() == null) throw new IntinoException("Server not found");
 			final Artifact.Package aPackage = safe(() -> configuration.artifact().packageConfiguration());
-			if (aPackage == null) throw new IntinoException("Package configuration not found");
-			if (!aPackage.isRunnable()) throw new IntinoException("Packaging must be runnable");
-			List<Configuration.Parameter> incorrectParameters = incorrectParameters(destination.runConfiguration().finalArguments());
+			if (aPackage == null) throw new FatalIntinoException("Package configuration not found");
+			if (!aPackage.isRunnable())
+				throw new FatalIntinoException("Packaging must be runnable and have Main Class");
+			final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+			if (deployment.server() == null)
+				throw new IntinoException("Server " + deployment.server().name() + " not found");
+			List<Configuration.Parameter> incorrectParameters = incorrectParameters(deployment.runConfiguration().finalArguments());
 			if (!incorrectParameters.isEmpty())
 				throw new IntinoException("Parameters missed: " + incorrectParameters.stream().map(Configuration.Parameter::name).collect(Collectors.joining("; ")));
-			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(aPackage, destination));
+			new CesarRestAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(aPackage, deployment));
 		} catch (Unknown | Forbidden | BadRequest unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -142,5 +153,46 @@ public class ArtifactDeployer {
 			Thread.sleep(1000);
 		} catch (InterruptedException ignored) {
 		}
+	}
+
+	public abstract static class DeployResult {
+
+		public static class Fail extends DeployResult {
+			public List<IntinoException> errors;
+
+			public Fail(List<IntinoException> errors) {
+				this.errors = errors;
+			}
+
+			public List<IntinoException> errors() {
+				return errors;
+			}
+		}
+
+		public static class DoneWithErrors extends Fail {
+			private final List<String> success;
+
+			public DoneWithErrors(List<IntinoException> errors, List<String> success) {
+				super(errors);
+				this.success = success;
+			}
+
+			public List<String> success() {
+				return success;
+			}
+		}
+
+		public static class Done extends DeployResult {
+			private final List<String> successMessages;
+
+			public Done(List<String> successMessages) {
+				this.successMessages = successMessages;
+			}
+
+			public List<String> successMessages() {
+				return successMessages;
+			}
+		}
+
 	}
 }

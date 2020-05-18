@@ -11,8 +11,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.CheckUtil;
 import com.intellij.util.IncorrectOperationException;
+import io.intino.magritte.lang.model.Aspect;
 import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Rule;
 import io.intino.magritte.lang.model.rules.Size;
 import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
@@ -24,15 +27,20 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AddRequiredElementFix extends WithLiveTemplateFix implements IntentionAction {
-
-	private final Node node;
+	private Node node;
 
 	public AddRequiredElementFix(PsiElement element) {
-		this.node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
+		try {
+			this.node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
+		} catch (Throwable e) {
+			this.node = null;
+		}
 	}
 
 	@Nls
@@ -51,25 +59,40 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 
 	@Override
 	public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-		return file.isValid();
+		boolean writable = false;
+		try {
+			CheckUtil.checkWritable(file);
+			writable = true;
+		} catch (IncorrectOperationException e) {
+
+		}
+		return file.isValid() && node != null && writable;
 	}
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
 		List<Constraint.Component> requires = findConstraints().stream().
-				filter(constraint -> constraint instanceof Constraint.Component && isRequired((Constraint.Component) constraint)).
-				map(constraint -> (Constraint.Component) constraint).collect(Collectors.toList());
+				filter(c -> c instanceof Constraint.Component && isRequired((Constraint.Component) c)).
+				map(c -> (Constraint.Component) c).collect(Collectors.toList());
 		filterPresentElements(requires);
 		createLiveTemplateFor(requires, file, editor);
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 	}
 
-	private boolean isRequired(Constraint.Component constraint) {
-		return constraint.rules().stream().filter(r -> r instanceof Size).allMatch(r -> ((Size) r).isRequired());
+	private boolean isRequired(Constraint.Component component) {
+		List<Rule> sizes = component.rules().stream().filter(r -> r instanceof Size).collect(Collectors.toList());
+		return sizes.size() > 0 && sizes.stream().allMatch(r -> ((Size) r).isRequired());
 	}
 
 	private List<Constraint> findConstraints() {
-		return IntinoUtil.getConstraintsOf(node);
+		List<Constraint> constraints = IntinoUtil.constraintsOf(node);
+		if (constraints == null) return Collections.emptyList();
+		constraints = new ArrayList<>(constraints);
+		for (Aspect aspect : node.appliedAspects()) {
+			List<Constraint> collection = IntinoUtil.constraintsOf(aspect);
+			if (collection != null) constraints.addAll(collection);
+		}
+		return constraints;
 	}
 
 	private void filterPresentElements(List<Constraint.Component> requires) {

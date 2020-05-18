@@ -20,6 +20,7 @@ import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
+import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -173,11 +174,9 @@ public abstract class AbstractArtifactFactory {
 
 	private boolean askForSnapshotBuild() {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			response.set(new ConfirmationDialog(module.getProject(),
-					"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
-					"This version already exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
-		});
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new ConfirmationDialog(module.getProject(),
+				"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
+				"This version already exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet()));
 		return response.get();
 	}
 
@@ -237,9 +236,16 @@ public abstract class AbstractArtifactFactory {
 		Version version = new Version(conf.artifact().version());
 		List<Deployment> deployments = collectDeployments(module.getProject(), conf, version.isSnapshot());
 		if (deployments.isEmpty()) return ProcessResult.NothingDone;
-		new ArtifactDeployer(module, deployments).execute();
-		successMessages.add("Deployment Done");
-		return ProcessResult.Done;
+		DeployResult result = new ArtifactDeployer(module, deployments).execute();
+		if (result instanceof DeployResult.Done) {
+			successMessages.addAll(((DeployResult.Done) result).successMessages());
+			return ProcessResult.Done;
+		} else {
+			String errors = ((DeployResult.Fail) result).errors().stream().map(Throwable::getMessage).collect(Collectors.joining("\n"));
+			if (result instanceof DeployResult.Fail) throw new IntinoException(errors);
+			else
+				throw new IntinoException(String.join("\n", ((DeployResult.DoneWithErrors) result).success()) + "\n" + errors);
+		}
 	}
 
 	private boolean askForDeploy(Module module, LegioConfiguration conf) {
@@ -279,7 +285,6 @@ public abstract class AbstractArtifactFactory {
 			progressIndicator.setIndeterminate(true);
 		}
 	}
-
 
 	public enum ProcessResult {
 		Done, Retry, NothingDone

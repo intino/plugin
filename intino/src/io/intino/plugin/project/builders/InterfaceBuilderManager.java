@@ -37,10 +37,11 @@ public class InterfaceBuilderManager {
 
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static final String BOX_LANGUAGE = "Konos";
 	public static final String GROUP_ID = "io.intino.konos";
 	public static final String ARTIFACT_ID = "builder";
-	public static String minimunVersion = "8.0.0";
-	private static Map<String, ClassLoader> loadedVersions = new HashMap<>();
+	public static String minimunVersion = "8.5.1";
+	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
 
 	public static boolean exists(String version) {
@@ -94,7 +95,7 @@ public class InterfaceBuilderManager {
 		else classLoader = createClassLoader(mainArtifact(version));
 		Language language = loadLanguage(classLoader);
 		if (language != null) {
-			LanguageManager.registerAuxiliar(module.getProject(), language);
+			LanguageManager.registerBoxLanguage(module.getProject(), language, version);
 			loadedVersions.put(version, classLoader);
 		}
 	}

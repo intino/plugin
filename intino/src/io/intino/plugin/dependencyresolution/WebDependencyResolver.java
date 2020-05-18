@@ -46,13 +46,14 @@ public class WebDependencyResolver {
 	public void resolve() {
 		File pom = createPomFile();
 		File temp = createTempDirectory();
-		new PackageJsonCreator(module, artifact, repositories, temp).createPackageFile(rootDirectory);
+		PackageJsonCreator packageJsonCreator = new PackageJsonCreator(module, artifact, repositories, temp);
+		packageJsonCreator.createPackageFile(rootDirectory);
 		run(pom);
-		Arrays.stream(requireNonNull(temp.listFiles(File::isDirectory))).forEach(file -> {
-			File toDir = new File(nodeModulesDirectory, file.getName());
+		Arrays.stream(requireNonNull(temp.listFiles(File::isDirectory))).forEach(fromDir -> {
+			File toDir = new File(nodeModulesDirectory, fromDir.getName());
 			toDir.mkdirs();
 			FileUtil.delete(toDir);
-			FileUtil.moveDirWithContent(file, toDir);
+			FileUtil.moveDirWithContent(fromDir, toDir);
 		});
 		VfsUtil.findFileByIoFile(rootDirectory, true);
 	}

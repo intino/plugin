@@ -53,7 +53,7 @@ class VariantsManager {
 	private List<String> filterTypes(PsiElement element) {
 		final Node node = TaraPsiUtil.getContainerNodeOf(element);
 		check(node);
-		final List<Constraint> constraints = IntinoUtil.getConstraintsOf(node);
+		final List<Constraint> constraints = IntinoUtil.constraintsOf(node);
 		final Parameter parameter = TaraPsiUtil.getContainerByType(element, Parameter.class);
 		if (constraints == null || parameter == null || parameter.name() == null) return emptyList();
 		Constraint.Parameter constraint = findParameter(constraints, parameter);
