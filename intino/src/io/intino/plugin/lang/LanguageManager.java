@@ -58,13 +58,16 @@ public class LanguageManager {
 			final Configuration configuration = IntinoUtil.configurationOf(file);
 			final String dslName = ((TaraModel) file).dsl();
 			if (dslName == null) return null;
-			String version = null;
+			String version;
 			if (core.containsKey(dslName)) {
 				version = safe(() -> configuration.artifact().model().language().version());
 				if (version == null) version = LATEST;
 			} else if (BOX_LANGUAGE.equals(dslName)) {
 				version = safe(() -> configuration.artifact().box().version());
 				if (version == null) version = InterfaceBuilderManager.minimunVersion;
+			} else {
+				version = safe(() -> configuration.artifact().model().language().version());
+				if (version == null) version = LATEST;
 			}
 			if (version == null) return null;
 			return getLanguage(file.getProject(), dslName, version);

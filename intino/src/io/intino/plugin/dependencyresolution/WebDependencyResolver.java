@@ -98,11 +98,9 @@ public class WebDependencyResolver {
 	private void processResult(MavenRunner mavenRunner, File pom, InvocationResult result) throws IntinoException {
 		if (result != null && result.getExitCode() != 0 && result.getExecutionException() != null)
 			throw new IntinoException(message("error.resolving.web.dependencies", result.getExecutionException().getMessage()));
-		else {
-			FileUtil.delete(pom);
-			if (result != null && result.getExitCode() != 0)
-				throw new IntinoException(message("error.resolving.web.dependencies", mavenRunner.output()));
-		}
+		else if (result != null && result.getExitCode() != 0)
+			throw new IntinoException(message("error.resolving.web.dependencies", mavenRunner.output()));
+		else FileUtil.delete(pom);
 	}
 
 	private File createPomFile() {
