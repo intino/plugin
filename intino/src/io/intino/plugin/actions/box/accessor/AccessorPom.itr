@@ -111,7 +111,7 @@ end
 def type(messaging) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
-		<artifactId>jms</artifactId>
-		<version>$[1.0.0, 2.0.0)</version>
+		<artifactId>terminal-jms</artifactId>
+		<version>$[3.0.0, 4.0.0]</version>
 	</dependency>
 end

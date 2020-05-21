@@ -15,7 +15,7 @@ public class AccessorPomTemplate extends Template {
 				rule().condition((type("BSD")), (trigger("license"))).output(literal("<license>\n\t<name>BSD 3-Clause License</name>\n\t<url>https://opensource.org/licenses/BSD-3-Clause</url>\n</license>")),
 				rule().condition((type("rest")), (trigger("dependency"))).output(literal("<dependency>\n\t<groupId>io.intino.alexandria</groupId>\n\t<artifactId>rest-accessor</artifactId>\n\t<version>[1.0.4, 2.0.0)</version>\n</dependency>")),
 				rule().condition((type("jmx")), (trigger("dependency"))).output(literal("<dependency>\n\t<groupId>io.intino.alexandria</groupId>\n\t<artifactId>jmx</artifactId>\n\t<version>[1.0.0, 2.0.0)</version>\n</dependency>\n<dependency>\n    <groupId>io.intino.alexandria</groupId>\n    <artifactId>exceptions</artifactId>\n    <version>[1.0.0, 2.0.0)</version>\n</dependency>")),
-				rule().condition((type("messaging")), (trigger("dependency"))).output(literal("<dependency>\n\t<groupId>io.intino.alexandria</groupId>\n\t<artifactId>jms</artifactId>\n\t<version>[1.0.0, 2.0.0)</version>\n</dependency>"))
+				rule().condition((type("messaging")), (trigger("dependency"))).output(literal("<dependency>\n\t<groupId>io.intino.alexandria</groupId>\n\t<artifactId>terminal-jms</artifactId>\n\t<version>[3.0.0, 4.0.0]</version>\n</dependency>"))
 		);
 	}
 }
