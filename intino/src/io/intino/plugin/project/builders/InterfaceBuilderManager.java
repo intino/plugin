@@ -33,40 +33,30 @@ import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_U
 import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
-	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class.getName());
-
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
-	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	public static final String BOX_LANGUAGE = "Konos";
 	public static final String GROUP_ID = "io.intino.konos";
 	public static final String ARTIFACT_ID = "builder";
-	public static String minimunVersion = "8.5.1";
+	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class.getName());
+	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
-
-	public static boolean exists(String version) {
-		return isLoaded(version);
-	}
-
-	@NotNull
-	public static Path classpathFile(File moduleBoxDirectory) {
-		return new File(moduleBoxDirectory, "compiler.classpath").toPath();
-	}
+	public static String minimunVersion = "8.5.1";
 
 	public String load(Module module, String version) {
+		String effectiveVersion = version;
 		if (version.equals("LATEST")) {
 			List<String> versions = new ArtifactoryConnector(Collections.emptyList()).boxBuilderVersions();
-			version = versions.get(versions.size() - 1);
+			effectiveVersion = versions.get(versions.size() - 1);
 		}
-		if (isLoaded(version)) {
-			downloadAndSaveClassPath(module, version);
+		if (isLoaded(effectiveVersion)) {
+			downloadAndSaveClassPath(module, effectiveVersion);
 			Logger.getInstance(InterfaceBuilderManager.class).info("Konos " + version + " is already downloaded");
-			return version;
+			return effectiveVersion;
 		}
-
 		downloadAndSaveClassPath(module, version);
-		loadLanguage(module, version);
-		return version;
+		loadLanguage(module, version, effectiveVersion);
+		return effectiveVersion;
 	}
 
 	private void downloadAndSaveClassPath(Module module, String version) {
@@ -87,21 +77,21 @@ public class InterfaceBuilderManager {
 		return false;
 	}
 
-	private void loadLanguage(Module module, String version) {
-		if (version.compareTo(minimunVersion) < 0) return;
-		if (isLoaded(version)) return;
+	private void loadLanguage(Module module, String version, String effectiveVersion) {
+		if (effectiveVersion.compareTo(minimunVersion) < 0) return;
+		if (isLoaded(effectiveVersion)) return;
 		final ClassLoader classLoader;
-		if (isLoaded(version)) classLoader = loadedVersions.get(version);
-		else classLoader = createClassLoader(mainArtifact(version));
+		if (isLoaded(effectiveVersion)) classLoader = loadedVersions.get(effectiveVersion);
+		else classLoader = createClassLoader(mainArtifact(effectiveVersion));
 		Language language = loadLanguage(classLoader);
 		if (language != null) {
-			LanguageManager.registerBoxLanguage(module.getProject(), language, version);
-			loadedVersions.put(version, classLoader);
+			LanguageManager.registerBoxLanguage(module.getProject(), language, effectiveVersion);
+			loadedVersions.put(effectiveVersion, classLoader);
+			if (!effectiveVersion.equals(version)) {
+				LanguageManager.registerBoxLanguage(module.getProject(), language, version);
+				loadedVersions.put(version, classLoader);
+			}
 		}
-	}
-
-	private static boolean isLoaded(String version) {
-		return version != null && loadedVersions.containsKey(version);
 	}
 
 	private Language loadLanguage(ClassLoader classLoader) {
@@ -141,18 +131,6 @@ public class InterfaceBuilderManager {
 		}
 	}
 
-	@NotNull
-	private static Collection<RemoteRepository> collectRemotes() {
-		Collection<RemoteRepository> remotes = new ArrayList<>();
-		try {
-			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		} catch (MalformedURLException ignored) {
-		}
-		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		return remotes;
-	}
-
 	private List<String> librariesOf(List<Artifact> classpath) {
 		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
 	}
@@ -182,5 +160,30 @@ public class InterfaceBuilderManager {
 	private ClassLoader createClassLoader(File library) {
 		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
 				new URLClassLoader(new URL[]{toURL(library)}, Tara.class.getClassLoader()));
+	}
+
+	public static boolean exists(String version) {
+		return isLoaded(version);
+	}
+
+	@NotNull
+	public static Path classpathFile(File moduleBoxDirectory) {
+		return new File(moduleBoxDirectory, "compiler.classpath").toPath();
+	}
+
+	private static boolean isLoaded(String version) {
+		return version != null && loadedVersions.containsKey(version);
+	}
+
+	@NotNull
+	private static Collection<RemoteRepository> collectRemotes() {
+		Collection<RemoteRepository> remotes = new ArrayList<>();
+		try {
+			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		} catch (MalformedURLException ignored) {
+		}
+		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		return remotes;
 	}
 }

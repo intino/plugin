@@ -59,7 +59,7 @@ class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private final Mode packageType;
-	private Set<Integer> randomGeneration = new HashSet<>();
+	private final Set<Integer> randomGeneration = new HashSet<>();
 
 	PomCreator(Module module) {
 		this.module = module;
