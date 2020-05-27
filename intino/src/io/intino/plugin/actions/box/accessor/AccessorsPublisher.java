@@ -195,10 +195,20 @@ public class AccessorsPublisher {
 	@NotNull
 	private String newDependency(Configuration conf, String app) {
 		return "<dependency>\n" +
-				"    <groupId>" + conf.artifact().groupId().toLowerCase() + "</groupId>\n" +
-				"    <artifactId>" + app.toLowerCase() + ACCESSOR + "</artifactId>\n" +
+				"    <groupId>" + accessorGroupId(conf) + "</groupId>\n" +
+				"    <artifactId>" + accessorArtifactId(app) + "</artifactId>\n" +
 				"    <version>" + conf.artifact().version() + "</version>\n" +
 				"</dependency>";
+	}
+
+	@NotNull
+	private String accessorGroupId(Configuration conf) {
+		return conf.artifact().groupId().toLowerCase() + "." + conf.artifact().name().toLowerCase();
+	}
+
+	@NotNull
+	private String accessorArtifactId(String app) {
+		return app.toLowerCase() + ACCESSOR;
 	}
 
 	private void notifyError(String message) {
