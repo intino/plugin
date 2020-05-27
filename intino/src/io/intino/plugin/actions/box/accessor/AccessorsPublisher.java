@@ -79,7 +79,7 @@ public class AccessorsPublisher {
 
 	private void mvn(File serviceDirectory, Configuration conf, String goal) throws MavenInvocationException, IOException {
 		String[] name = serviceDirectory.getName().split("#");
-		final File pom = createPom(serviceDirectory, name[0], conf.artifact().groupId(), name[1] + ACCESSOR, conf.artifact().version());
+		final File pom = createPom(serviceDirectory, name[0], conf.artifact().groupId().toLowerCase() + "." + conf.artifact().name().toLowerCase(), name[1] + ACCESSOR, conf.artifact().version());
 		final InvocationResult result = invoke(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
