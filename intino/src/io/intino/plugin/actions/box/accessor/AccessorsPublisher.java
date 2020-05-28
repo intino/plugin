@@ -203,12 +203,12 @@ public class AccessorsPublisher {
 
 	@NotNull
 	private String accessorGroupId(Configuration conf) {
-		return conf.artifact().groupId().toLowerCase() + "." + conf.artifact().name().toLowerCase();
+		return conf.artifact().groupId().toLowerCase();
 	}
 
 	@NotNull
 	private String accessorArtifactId(String app) {
-		return app.toLowerCase() + ACCESSOR;
+		return conf.artifact().name().toLowerCase() + "-" + app.toLowerCase() + ACCESSOR;
 	}
 
 	private void notifyError(String message) {
