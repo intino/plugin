@@ -79,7 +79,7 @@ public class AccessorsPublisher {
 
 	private void mvn(File serviceDirectory, Configuration conf, String goal) throws MavenInvocationException, IOException {
 		String[] name = serviceDirectory.getName().split("#");
-		final File pom = createPom(serviceDirectory, name[0], conf.artifact().groupId().toLowerCase() + "." + conf.artifact().name().toLowerCase(), name[1] + ACCESSOR, conf.artifact().version());
+		final File pom = createPom(serviceDirectory, name[0], accessorGroupId(), accessorArtifactId(name[1]), conf.artifact().version());
 		final InvocationResult result = invoke(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
@@ -195,20 +195,20 @@ public class AccessorsPublisher {
 	@NotNull
 	private String newDependency(Configuration conf, String app) {
 		return "<dependency>\n" +
-				"    <groupId>" + accessorGroupId(conf) + "</groupId>\n" +
+				"    <groupId>" + accessorGroupId() + "</groupId>\n" +
 				"    <artifactId>" + accessorArtifactId(app) + "</artifactId>\n" +
 				"    <version>" + conf.artifact().version() + "</version>\n" +
 				"</dependency>";
 	}
 
 	@NotNull
-	private String accessorGroupId(Configuration conf) {
+	private String accessorGroupId() {
 		return conf.artifact().groupId().toLowerCase();
 	}
 
 	@NotNull
-	private String accessorArtifactId(String app) {
-		return conf.artifact().name().toLowerCase() + "-" + app.toLowerCase() + ACCESSOR;
+	private String accessorArtifactId(String service) {
+		return conf.artifact().name().toLowerCase() + "-" + service.toLowerCase() + ACCESSOR;
 	}
 
 	private void notifyError(String message) {
