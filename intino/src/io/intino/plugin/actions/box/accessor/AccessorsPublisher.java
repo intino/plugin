@@ -13,6 +13,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
@@ -28,10 +29,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
@@ -130,10 +129,20 @@ public class AccessorsPublisher {
 	private File createPom(File root, String serviceType, String group, String artifact, String version) {
 		final FrameBuilder builder = new FrameBuilder("pom").add("group", group).add("artifact", artifact).add("version", version);
 		conf.repositories().stream().filter(r -> !(r instanceof Configuration.Repository.Language)).forEach(r -> buildRepoFrame(builder, r, version.contains("SNAPSHOT")));
-		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").toFrame());
+		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").add("version", versionOf(serviceType)).toFrame());
 		final File pomFile = new File(root, "pom.xml");
 		write(builder, pomFile);
 		return pomFile;
+	}
+
+	private String versionOf(String serviceType) {
+		String artifact = "";
+		if (serviceType.equals("rest")) artifact = "io.intino.alexandra:rest-accessor";
+		else if (serviceType.equals("messaging")) artifact = "io.intino.alexandria:terminal-jms";
+		List<String> versions = new ArtifactoryConnector(conf.repositories()).versions(artifact);
+		if (versions.isEmpty()) return "";
+		Collections.sort(versions);
+		return versions.get(versions.size() - 1);
 	}
 
 	private void write(FrameBuilder builder, File pomFile) {

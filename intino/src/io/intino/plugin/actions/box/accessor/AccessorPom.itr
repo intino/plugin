@@ -91,7 +91,7 @@ def type(rest) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>rest-accessor</artifactId>
-		<version>$[1.0.4, 2.0.0)</version>
+		<version>$version</version>
 	</dependency>
 end
 
@@ -112,7 +112,7 @@ def type(messaging) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>terminal-jms</artifactId>
-		<version>$[3.0.0, 4.0.0]</version>
+		<version>$version</version>
 	</dependency>
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
