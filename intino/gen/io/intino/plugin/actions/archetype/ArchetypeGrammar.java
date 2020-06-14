@@ -1,4 +1,4 @@
-// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/actions/archetype/ArchetypeGrammar.g4 by ANTLR 4.7.2
+// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/actions/archetype/ArchetypeGrammar.g4 by ANTLR 4.8
 package io.intino.plugin.actions.archetype;
 
 import org.antlr.v4.runtime.*;
@@ -16,7 +16,7 @@ import java.util.List;
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class ArchetypeGrammar extends Parser {
 	static {
-		RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION);
+		RuntimeMetaData.checkVersion("4.8", RuntimeMetaData.VERSION);
 	}
 
 	protected static final DFA[] _decisionToDFA;
@@ -48,9 +48,7 @@ public class ArchetypeGrammar extends Parser {
 				"'%EXPRESSION_END%'"
 		};
 	}
-
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
-
 	private static String[] makeSymbolicNames() {
 		return new String[]{
 				null, "IN", "WITH", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "COMMA",
@@ -59,7 +57,6 @@ public class ArchetypeGrammar extends Parser {
 				"UNKNOWN_TOKEN", "QUOTE_BEGIN", "QUOTE_END", "EXPRESSION_BEGIN", "EXPRESSION_END"
 		};
 	}
-
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -68,7 +65,6 @@ public class ArchetypeGrammar extends Parser {
 	 */
 	@Deprecated
 	public static final String[] tokenNames;
-
 	static {
 		tokenNames = new String[_SYMBOLIC_NAMES.length];
 		for (int i = 0; i < tokenNames.length; i++) {
@@ -879,7 +875,6 @@ public class ArchetypeGrammar extends Parser {
 					"\2\20\25\34!(-\61\668BEKRV_";
 	public static final ATN _ATN =
 			new ATNDeserializer().deserialize(_serializedATN.toCharArray());
-
 	static {
 		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];
 		for (int i = 0; i < _ATN.getNumberOfDecisions(); i++) {

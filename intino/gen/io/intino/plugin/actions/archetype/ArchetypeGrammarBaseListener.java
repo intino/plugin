@@ -1,4 +1,4 @@
-// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/actions/archetype/ArchetypeGrammar.g4 by ANTLR 4.7.2
+// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/actions/archetype/ArchetypeGrammar.g4 by ANTLR 4.8
 package io.intino.plugin.actions.archetype;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -178,16 +178,11 @@ public class ArchetypeGrammarBaseListener implements ArchetypeGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override
-	public void visitTerminal(TerminalNode node) {
-	}
-
+	@Override public void visitTerminal(TerminalNode node) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override
-	public void visitErrorNode(ErrorNode node) {
-	}
+	@Override public void visitErrorNode(ErrorNode node) { }
 }
