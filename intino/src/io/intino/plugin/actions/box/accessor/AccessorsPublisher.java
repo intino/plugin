@@ -50,7 +50,6 @@ public class AccessorsPublisher {
 		this.root = root;
 	}
 
-
 	public void install() {
 		try {
 			for (File serviceDirectory : Objects.requireNonNull(root.listFiles(File::isDirectory))) {
@@ -137,7 +136,7 @@ public class AccessorsPublisher {
 
 	private String versionOf(String serviceType) {
 		String artifact = "";
-		if (serviceType.equals("rest")) artifact = "io.intino.alexandra:rest-accessor";
+		if (serviceType.equals("rest")) artifact = "io.intino.alexandria:rest-accessor";
 		else if (serviceType.equals("messaging")) artifact = "io.intino.alexandria:terminal-jms";
 		List<String> versions = new ArtifactoryConnector(conf.repositories()).versions(artifact);
 		if (versions.isEmpty()) return "";
