@@ -18,9 +18,9 @@ import static io.intino.plugin.project.LibraryConflictResolver.VersionRange.*;
 import static io.intino.plugin.project.Safe.safeList;
 
 class DependencyAnalyzer extends TaraAnalyzer {
-	private Module module;
 	private final Node dependencyNode;
 	private final LegioConfiguration configuration;
+	private final Module module;
 
 	DependencyAnalyzer(Module module, Node node, LegioConfiguration configuration) {
 		this.module = module;
@@ -50,7 +50,7 @@ class DependencyAnalyzer extends TaraAnalyzer {
 	private Module findModule(Artifact.Dependency dependency) {
 		for (Module m : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
-			if (configuration != null && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
+			if (configuration instanceof LegioConfiguration && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
 				return m;
 		}
 		return null;

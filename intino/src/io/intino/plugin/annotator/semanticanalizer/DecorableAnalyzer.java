@@ -1,6 +1,7 @@
 package io.intino.plugin.annotator.semanticanalizer;
 
 import com.intellij.codeInsight.intention.IntentionAction;
+import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import io.intino.magritte.lang.model.Node;
@@ -22,18 +23,20 @@ import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.java
 
 public class DecorableAnalyzer extends TaraAnalyzer {
 	private final TaraNode node;
-	private final String graphPackage;
+	private final String modelPackage;
 
 	public DecorableAnalyzer(TaraNode node) {
 		this.node = node;
-		graphPackage = IntinoUtil.graphPackage(node).toLowerCase();
+		modelPackage = IntinoUtil.graphPackage(node).toLowerCase();
 	}
 
 	@Override
 	public void analyze() {
 		if (node.isAnonymous()) return;
 		if (!node.is(Tag.Decorable)) return;
-		PsiClass aClass = JavaPsiFacade.getInstance(node.getProject()).findClass(graphPackage + "." + format(node.name()), moduleScope(ModuleProvider.moduleOf(node)));
+		Module module = ModuleProvider.moduleOf(node);
+		if (module == null) return;
+		PsiClass aClass = JavaPsiFacade.getInstance(node.getProject()).findClass(modelPackage + "." + format(node.name()), moduleScope(module));
 		if (aClass == null) {
 			results.put(node.getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
 			return;
@@ -61,6 +64,6 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 
 	private IntentionAction[] collectFixes() {
 		if (node == null) return new IntentionAction[0];
-		return new IntentionAction[]{new SyncDecorableClassIntention(node, graphPackage)};
+		return new IntentionAction[]{new SyncDecorableClassIntention(node, modelPackage)};
 	}
 }

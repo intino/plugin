@@ -31,17 +31,16 @@ public class ProjectLibrariesManager {
 	public void registerSources(Dependency dependency) {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) {
+			Library library = table.findLibrary(dependency);
+			if (library == null) return;
+			Library.ModifiableModel model = library.getModifiableModel();
+			registerSources(dependency, model);
+			model.commit();
+		} else application.invokeLater(() -> application.runWriteAction(() -> {
 			Library.ModifiableModel model = table.findLibrary(dependency).getModifiableModel();
 			registerSources(dependency, model);
 			model.commit();
-
-		} else {
-			application.invokeLater(() -> application.runWriteAction(() -> {
-				Library.ModifiableModel model = table.findLibrary(dependency).getModifiableModel();
-				registerSources(dependency, model);
-				model.commit();
-			}));
-		}
+		}));
 
 	}
 

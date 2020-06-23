@@ -153,7 +153,7 @@ public class IntinoFactoryView extends JPanel {
 
 	private void navigate(Element element, int modifiers) {
 		final Configuration configuration = IntinoUtil.configurationOf(selectedModule());
-		if (configuration == null) return;
+		if (!(configuration instanceof LegioConfiguration)) return;
 		TaraModel model = ((LegioConfiguration) configuration).legioFile();
 		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
 		if (artifact == null) return;

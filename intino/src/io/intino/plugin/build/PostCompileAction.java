@@ -16,6 +16,10 @@ import java.io.File;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 public abstract class PostCompileAction {
+	public enum FinishStatus {
+		NothingDone, RequiresReload
+	}
+
 	protected final Module module;
 
 	public PostCompileAction(Module module) {
@@ -23,10 +27,6 @@ public abstract class PostCompileAction {
 	}
 
 	public abstract FinishStatus execute();
-
-	public enum FinishStatus {
-		NothingDone, RequiresReload
-	}
 
 	protected PsiClass findClass(File file) {
 		VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
@@ -37,6 +37,7 @@ public abstract class PostCompileAction {
 	}
 
 	private PsiClass getClass(VirtualFile virtualFile) {
+		if (module == null) return null;
 		PsiFile psiFile = PsiManager.getInstance(module.getProject()).findFile(virtualFile);
 		return ((PsiJavaFile) psiFile).getClasses()[0];
 	}
