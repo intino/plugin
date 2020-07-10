@@ -2,9 +2,12 @@ package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Aspect;
+import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
@@ -32,25 +35,37 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	@Override
 	public boolean createPOMproject() {
 		String createPOMproject = read(() -> parameterValue(node, "createPOMproject", 1));
-		return createPOMproject != null && Boolean.parseBoolean(createPOMproject);
+		return Boolean.parseBoolean(createPOMproject);
 	}
 
 	@Override
 	public boolean attachSources() {
 		String attachSources = read(() -> parameterValue(node, "attachSources", 2));
-		return attachSources != null && Boolean.parseBoolean(attachSources);
+		return Boolean.parseBoolean(attachSources);
+	}
+
+	@Override
+	public List<String> mavenPlugins() {
+		List<Node> mavenPlugins = TaraPsiUtil.componentsOfType(node, "MavenPlugin");
+		return mavenPlugins.stream().map(n -> read(() -> parameterValue(n, "code", 0).replace("=", ""))).collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean attachDoc() {
 		String attachDoc = read(() -> parameterValue(node, "attachDoc", 3));
-		return attachDoc != null && Boolean.parseBoolean(attachDoc);
+		return Boolean.parseBoolean(attachDoc);
 	}
 
 	@Override
 	public boolean includeTests() {
 		String includeTests = read(() -> parameterValue(node, "includeTests", 4));
-		return includeTests != null && Boolean.parseBoolean(includeTests);
+		return Boolean.parseBoolean(includeTests);
+	}
+
+	@Override
+	public boolean signArtifactWitGpg() {
+		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWitGpg", 5));
+		return Boolean.parseBoolean(signArtifactWitGpg);
 	}
 
 	@Override

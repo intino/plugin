@@ -210,6 +210,11 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
+			public List<Developer> developers() {
+				return Collections.emptyList();
+			}
+
+			@Override
 			public QualityAnalytics qualityAnalytics() {
 				return null;
 			}

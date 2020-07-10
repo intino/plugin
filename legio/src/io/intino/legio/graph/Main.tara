@@ -13,10 +13,15 @@ Concept:{1..1}:Named Artifact
 		sub Platform
 		sub Product
 		sub Solution
-	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} License
 		var string author
 		var word:{GPL BSD} type
+	Concept Developer
+		var string name
+		var string email
+		var string organization
+		var string organizationUrl
+	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} Imports
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
@@ -75,6 +80,7 @@ Concept:{1..1}:Named Artifact
 		var boolean attachSources = false
 		var boolean attachDoc = false
 		var boolean includeTests = false
+		var boolean signArtifactWitGpg = false
 		var string classpathPrefix = empty
 		var string finalName = empty
 		var string defaultJVMOptions = ""

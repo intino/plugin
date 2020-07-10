@@ -64,7 +64,7 @@ class PomCreator {
 	PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
-		packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
+		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
 	File frameworkPom(FactoryPhase phase) {
@@ -122,9 +122,14 @@ class PomCreator {
 			builder.add("testOutDirectory", relativeToModulePath(testOutDirectory(extension)));
 			builder.add("buildDirectory", relativeToModulePath(buildDirectory()) + "/");
 		}
-		if (pack != null) configureBuild(builder, configuration.artifact().licence(), pack);
+		if (pack != null) configureBuild(builder, configuration.artifact(), pack);
+		addPlugins(builder);
 		addDependencies(builder);
 		addRepositories(builder);
+	}
+
+	private void addPlugins(FrameBuilder builder) {
+		configuration.artifact().packageConfiguration().mavenPlugins().forEach(mp -> builder.add("mavenPlugin", mp));
 	}
 
 	@NotNull
@@ -302,8 +307,9 @@ class PomCreator {
 		return list;
 	}
 
-	private void configureBuild(FrameBuilder builder, Artifact.Licence license, Artifact.Package aPackage) {
+	private void configureBuild(FrameBuilder builder, Artifact artifact, Artifact.Package aPackage) {
 		if (aPackage.attachSources()) builder.add("attachSources", " ");
+		if (aPackage.signArtifactWitGpg()) builder.add("gpgSign", " ");
 		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
 		if (aPackage.isRunnable()) {
 			if (aPackage.macOsConfiguration() != null) builder.add("osx", osx(aPackage));
@@ -323,7 +329,16 @@ class PomCreator {
 			addMVOptions(builder, aPackage.defaultJVMOptions());
 		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
 			builder.add("finalName", aPackage.finalName());
-		if (license != null) builder.add("license", new FrameBuilder("license", license.type().name()).toFrame());
+		if (artifact.licence() != null)
+			builder.add("license", new FrameBuilder("license", artifact.licence().type().name()).toFrame());
+		builder.add("developer", artifact.developers().stream().map(d -> new FrameBuilder("developer").
+				add("name", d.name()).
+				add("email", d.email()).
+				add("organization", d.organization()).
+				add("organizationUrl", d.organizationUrl()).
+				toFrame()).toArray(Frame[]::new));
+		if (artifact.licence() != null)
+			builder.add("license", new FrameBuilder("license", artifact.licence().type().name()).toFrame());
 	}
 
 	private void addMVOptions(FrameBuilder frame, String jvmOptions) {
@@ -407,8 +422,9 @@ class PomCreator {
 	}
 
 	private int generateRandom() {
-		int random = new Random().nextInt(10);
-		while (!randomGeneration.add(random)) random = new Random().nextInt(10);
+		Random generator = new Random();
+		int random = generator.nextInt(99);
+		while (!randomGeneration.add(random)) random = generator.nextInt(99);
 		return random;
 	}
 

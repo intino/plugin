@@ -55,6 +55,8 @@ public interface Configuration {
 
 		Artifact.Licence licence();
 
+		List<Developer> developers();
+
 		Artifact.QualityAnalytics qualityAnalytics();
 
 		List<Parameter> parameters();
@@ -74,6 +76,30 @@ public interface Configuration {
 		}
 
 		interface Model extends ConfigurationNode {
+
+			enum Level {
+				Solution, Product, Platform;
+
+				public int compareLevelWith(Level type) {
+					return type.ordinal() - this.ordinal();
+				}
+
+				public boolean is(Level type, int level) {
+					return type.ordinal() == level;
+				}
+
+				public boolean isSolution() {
+					return Solution.equals(this);
+				}
+
+				public boolean isProduct() {
+					return Product.equals(this);
+				}
+
+				public boolean isPlatform() {
+					return Platform.equals(this);
+				}
+			}
 
 			Language language();
 
@@ -98,30 +124,6 @@ public interface Configuration {
 				void version(String version);
 
 				String generationPackage();
-			}
-
-			enum Level {
-				Solution, Product, Platform;
-
-				public int compareLevelWith(Level type) {
-					return type.ordinal() - this.ordinal();
-				}
-
-				public boolean is(Level type, int level) {
-					return type.ordinal() == level;
-				}
-
-				public boolean isSolution() {
-					return Solution.equals(this);
-				}
-
-				public boolean isProduct() {
-					return Product.equals(this);
-				}
-
-				public boolean isPlatform() {
-					return Platform.equals(this);
-				}
 			}
 		}
 
@@ -218,6 +220,16 @@ public interface Configuration {
 			LicenceType type();
 		}
 
+		interface Developer {
+			String name();
+
+			String email();
+
+			String organization();
+
+			String organizationUrl();
+		}
+
 		interface WebComponent {
 			String name();
 
@@ -271,9 +283,13 @@ public interface Configuration {
 
 			boolean attachSources();
 
+			List<String> mavenPlugins();
+
 			boolean attachDoc();
 
 			boolean includeTests();
+
+			boolean signArtifactWitGpg();
 
 			String classpathPrefix();
 
@@ -296,7 +312,6 @@ public interface Configuration {
 			interface Windows {
 				String icon();
 			}
-
 		}
 	}
 
@@ -384,13 +399,13 @@ public interface Configuration {
 	}
 
 	interface Server {
-		String name();
-
-		Type type();
-
 		enum Type {
 			Dev, Pre, Pro
 		}
+
+		String name();
+
+		Type type();
 	}
 
 	interface ConfigurationNode {

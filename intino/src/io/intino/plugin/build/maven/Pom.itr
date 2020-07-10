@@ -10,7 +10,9 @@ def type(pom)
 		[<licenses>
 			$license...[$NL]
 		</licenses>]
-
+		[<developers>
+			$developer...[$NL]
+		</developers>]
 		<properties>
 			<maven.compiler.source>$sdk</maven.compiler.source>
 			<maven.compiler.target>$sdk</maven.compiler.target>
@@ -156,6 +158,20 @@ def type(pom)
 							</execution>
 					</executions>
 				</plugin>]
+				[$gpgSign<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+					  <execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+						  <goal>sign</goal>
+						</goals>
+					  </execution>
+					</executions>
+				</plugin>]
 				[$attachSources<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
@@ -184,6 +200,7 @@ def type(pom)
 					</plugin>]
 				[$osx]
 				[$windows]
+				[$mavenPlugin...[$NL]]
 			</plugins>
 		</build>
 
@@ -229,6 +246,15 @@ def type(repository) type(Distribution) trigger(distribution)
 		<name>$name</name>
 		<url>$url</url>
 	</repository>
+end
+
+def trigger(developer)
+	 <developer>
+          <name>$name</name>
+          <email>$email</email>
+          <organization>$organization</organization>
+          <organizationUrl>$organizationUrl</organizationUrl>
+	</developer>
 end
 
 def trigger(distribution)

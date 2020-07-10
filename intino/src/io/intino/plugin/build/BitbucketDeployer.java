@@ -3,7 +3,6 @@ package io.intino.plugin.build;
 import com.intellij.openapi.diagnostic.Logger;
 import com.jcabi.aether.Aether;
 import io.intino.Configuration;
-import io.intino.alexandria.Resource;
 import io.intino.alexandria.restaccessor.RestAccessor;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
 import org.apache.http.HttpEntity;
@@ -15,7 +14,6 @@ import org.apache.http.entity.mime.*;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -25,7 +23,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +32,7 @@ import static io.intino.plugin.project.Safe.safe;
 public class BitbucketDeployer {
 	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
 	private final Configuration.Distribution.BitBucketDistribution bitbucket;
-	private File jar;
+	private final File jar;
 
 	public BitbucketDeployer(Configuration configuration) {
 		this.bitbucket = safe(() -> configuration.artifact().distribution().onBitbucket());
@@ -46,21 +44,20 @@ public class BitbucketDeployer {
 		final URL url = url();
 		try {
 			HttpPost post = new HttpPost(url.toURI());
-			post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ==");
-			post.setEntity(multipartEntityOf(resource()));
+			post.addHeader("Authorization", "Basic c2lhbmlkZXY6TmdycmhHNERYZ2d1eHVGdFNMZ2c=");
+			post.setEntity(multipartEntityOf(jar));
 			final RestAccessor.Response response = executeMethod(url, post);
 			System.out.println(response.content());
-		} catch (URISyntaxException | RestfulFailure e) {
+		} catch (URISyntaxException | RestfulFailure | FileNotFoundException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private HttpEntity multipartEntityOf(Resource resource) throws RestfulFailure {
+	private HttpEntity multipartEntityOf(File resource) throws FileNotFoundException {
 		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create().
 				setContentType(ContentType.MULTIPART_FORM_DATA).
 				setMode(HttpMultipartMode.BROWSER_COMPATIBLE).
-
-				setCharset(Charset.forName("UTF-8"));
+				setCharset(StandardCharsets.UTF_8);
 		addContent(entityBuilder, resource);
 		return entityBuilder.build();
 	}
@@ -83,20 +80,10 @@ public class BitbucketDeployer {
 		return responseOf(response);
 	}
 
-	private void addContent(MultipartEntityBuilder builder, Resource resource) {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.name(), new InputStreamBody(resource.stream(), ContentType.create(resource.type()), resource.name())).build();
+	private void addContent(MultipartEntityBuilder builder, File resource) throws FileNotFoundException {
+		final FormBodyPart part = FormBodyPartBuilder.create("files", new InputStreamBody(new FileInputStream(resource), ContentType.create("jar"), resource.getName())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
 		builder.addPart(part);
-	}
-
-	@NotNull
-	private Resource resource() {
-		try {
-			return new Resource("files", new FileInputStream(jar));
-		} catch (IOException e) {
-			logger.error(e);
-			return null;
-		}
 	}
 
 	private URL url() {

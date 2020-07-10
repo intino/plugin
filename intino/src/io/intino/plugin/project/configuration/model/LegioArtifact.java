@@ -40,6 +40,7 @@ import static io.intino.plugin.actions.archetype.Formatters.snakeCaseToCamelCase
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 public class LegioArtifact implements Configuration.Artifact {
 	public static final String EQ = "=";
@@ -129,7 +130,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
 				map(d -> new LegioWeb(this, dependencyAuditor, (TaraNode) d)).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	@Override
@@ -139,7 +140,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "WebComponent");
 		return nodes.stream().
 				map(d -> new LegioWebComponent((TaraNode) d)).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	@Override
@@ -149,7 +150,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "Resolution");
 		return nodes.stream().
 				map(d -> new LegioWebResolution((TaraNode) d)).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	@Override
@@ -159,13 +160,13 @@ public class LegioArtifact implements Configuration.Artifact {
 		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "WebArtifact");
 		return nodes.stream().
 				map(d -> new LegioWebArtifact((TaraNode) d)).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	@Override
 	public List<Plugin> plugins() {
 		List<Node> plugins = TaraPsiUtil.componentsOfType(node, "IntinoPlugin");
-		return plugins.stream().map(p -> new LegioPlugin((TaraNode) p)).collect(Collectors.toList());
+		return plugins.stream().map(p -> new LegioPlugin((TaraNode) p)).collect(toList());
 	}
 
 	@Override
@@ -196,6 +197,32 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
+	public List<Developer> developers() {
+		final List<Node> developers = TaraPsiUtil.componentsOfType(node, "Developer");
+		return developers.stream().map(d -> new Developer() {
+			@Override
+			public String name() {
+				return parameterValue(d, "name", 0);
+			}
+
+			@Override
+			public String email() {
+				return parameterValue(d, "email", 1);
+			}
+
+			@Override
+			public String organization() {
+				return parameterValue(d, "organization", 2);
+			}
+
+			@Override
+			public String organizationUrl() {
+				return parameterValue(d, "organizationUrl", 3);
+			}
+		}).collect(toList());
+	}
+
+	@Override
 	public QualityAnalytics qualityAnalytics() {
 		return null;
 	}
@@ -204,7 +231,7 @@ public class LegioArtifact implements Configuration.Artifact {
 	@NotNull
 	public List<Parameter> parameters() {
 		List<Node> nodes = TaraPsiUtil.componentsOfType(node, "Parameter");
-		return nodes.stream().map(p -> new LegioParameter(this, (TaraNode) p)).collect(Collectors.toList());
+		return nodes.stream().map(p -> new LegioParameter(this, (TaraNode) p)).collect(toList());
 	}
 
 	public void addDependencies(Dependency... dependencies) {
@@ -238,7 +265,7 @@ public class LegioArtifact implements Configuration.Artifact {
 	public List<Configuration.Deployment> deployments() {
 		return TaraPsiUtil.componentsOfType(node, "Deployment").stream().
 				map(d -> new LegioDeployment(this, (TaraNode) d)).
-				collect(Collectors.toList());
+				collect(toList());
 	}
 
 	@Override
