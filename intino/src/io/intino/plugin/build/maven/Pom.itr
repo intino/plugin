@@ -7,6 +7,8 @@ def type(pom)
 		<groupId>$groupId+lowercase</groupId>
 		<artifactId>$artifactId+lowercase</artifactId>
 		<version>$version</version>
+		<packaging>jar</packaging>
+
 		[<licenses>
 			$license...[$NL]
 		</licenses>]
@@ -294,6 +296,13 @@ def type(GPL) trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+	</license>
+end
+
+def type(LGPL) trigger(license)
+	<license>
+		<name>GNU Lesser General Public License v3.0</name>
+		<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
 	</license>
 end
 

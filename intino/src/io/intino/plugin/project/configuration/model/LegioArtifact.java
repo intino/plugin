@@ -74,6 +74,16 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
+	public String description() {
+		return parameterValue(node, "description", 2);
+	}
+
+	@Override
+	public String url() {
+		return parameterValue(node, "url", 2);
+	}
+
+	@Override
 	public void version(String newVersion) {
 		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
 			io.intino.magritte.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));

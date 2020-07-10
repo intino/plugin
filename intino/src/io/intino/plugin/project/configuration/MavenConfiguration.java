@@ -68,6 +68,16 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
+			public String description() {
+				return null;
+			}
+
+			@Override
+			public String url() {
+				return null;
+			}
+
+			@Override
 			public void version(String newVersion) {
 
 			}

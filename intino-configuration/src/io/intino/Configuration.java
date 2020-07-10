@@ -33,6 +33,10 @@ public interface Configuration {
 
 		String version();
 
+		String description();
+
+		String url();
+
 		void version(String newVersion);
 
 		Artifact.Code code();

@@ -3,6 +3,8 @@ dsl Proteo
 Concept:{1..1}:Named Artifact
 	var string groupId
 	var string version
+	var string description = empty
+	var string url = empty
 	Aspect Level
 		Concept:{1..1} Model
 			var string language
@@ -14,8 +16,7 @@ Concept:{1..1}:Named Artifact
 		sub Product
 		sub Solution
 	Concept:{0..1} License
-		var string author
-		var word:{GPL BSD} type
+		var word:{GPL BSD LGPL} type
 	Concept Developer
 		var string name
 		var string email
