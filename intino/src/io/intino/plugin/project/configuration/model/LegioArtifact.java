@@ -187,21 +187,45 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
-	public Licence licence() {
-		final Node licence = TaraPsiUtil.componentOfType(node, "Licence");
-		return licence == null ? null : new Licence() {
-			Node licenceNode = licence;
+	public License license() {
+		final Node licence = TaraPsiUtil.componentOfType(node, "License");
+		return licence == null ? null : new License() {
+			final Node licenceNode = licence;
 
-			public String author() {
-				return licenceNode == null ? null : parameterValue(node, "author");
-			}
-
-			public LicenceType type() {
+			public LicenseType type() {
 				if (licenceNode == null) return null;
 				else {
-					String type = parameterValue(node, "type");
-					return type != null ? LicenceType.valueOf(type) : null;
+					String type = parameterValue(licenceNode, "type", 0);
+					return type != null ? LicenseType.valueOf(type) : null;
 				}
+			}
+		};
+	}
+
+	@Override
+	public Scm scm() {
+		final Node scm = TaraPsiUtil.componentOfType(node, "Scm");
+		return (scm == null) ? null : new Scm() {
+			final Node scmNode = scm;
+
+			@Override
+			public String url() {
+				return scmNode == null ? null : parameterValue(scmNode, "url", 0);
+			}
+
+			@Override
+			public String connection() {
+				return scmNode == null ? null : parameterValue(scmNode, "connection", 1);
+			}
+
+			@Override
+			public String developerConnection() {
+				return connection();
+			}
+
+			@Override
+			public String tag() {
+				return name() + "/" + version();
 			}
 		};
 	}

@@ -57,7 +57,9 @@ public interface Configuration {
 
 		List<Plugin> plugins();
 
-		Artifact.Licence licence();
+		License license();
+
+		Artifact.Scm scm();
 
 		List<Developer> developers();
 
@@ -214,14 +216,12 @@ public interface Configuration {
 		}
 
 
-		interface Licence {
-			enum LicenceType {
-				GLP, BSD
+		interface License {
+			enum LicenseType {
+				GLP, BSD, LGPL
 			}
 
-			String author();
-
-			LicenceType type();
+			LicenseType type();
 		}
 
 		interface Developer {
@@ -316,6 +316,16 @@ public interface Configuration {
 			interface Windows {
 				String icon();
 			}
+		}
+
+		interface Scm {
+			String url();
+
+			String connection();
+
+			String developerConnection();
+
+			String tag();
 		}
 	}
 

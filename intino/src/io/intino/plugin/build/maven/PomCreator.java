@@ -308,6 +308,8 @@ class PomCreator {
 	}
 
 	private void configureBuild(FrameBuilder builder, Artifact artifact, Artifact.Package aPackage) {
+		if (artifact.url() != null) builder.add("url", artifact.url());
+		if (artifact.description() != null) builder.add("description", artifact.description());
 		if (aPackage.attachSources()) builder.add("attachSources", " ");
 		if (aPackage.signArtifactWitGpg()) builder.add("gpgSign", " ");
 		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
@@ -329,16 +331,22 @@ class PomCreator {
 			addMVOptions(builder, aPackage.defaultJVMOptions());
 		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
 			builder.add("finalName", aPackage.finalName());
-		if (artifact.licence() != null)
-			builder.add("license", new FrameBuilder("license", artifact.licence().type().name()).toFrame());
 		builder.add("developer", artifact.developers().stream().map(d -> new FrameBuilder("developer").
 				add("name", d.name()).
 				add("email", d.email()).
 				add("organization", d.organization()).
 				add("organizationUrl", d.organizationUrl()).
 				toFrame()).toArray(Frame[]::new));
-		if (artifact.licence() != null)
-			builder.add("license", new FrameBuilder("license", artifact.licence().type().name()).toFrame());
+		if (artifact.license() != null)
+			builder.add("license", new FrameBuilder("license", artifact.license().type().name()).toFrame());
+		if (artifact.license() != null) {
+			Artifact.Scm scm = artifact.scm();
+			builder.add("scm", new FrameBuilder("scm").add("url", scm.url()).
+					add("connection", scm.connection()).
+					add("developerConnection", scm.developerConnection()).
+					add("tag", scm.tag()).toFrame());
+		}
+
 	}
 
 	private void addMVOptions(FrameBuilder frame, String jvmOptions) {

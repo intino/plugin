@@ -18,7 +18,6 @@ public class MavenConfiguration implements Configuration {
 	private final MavenProject maven;
 	private final MavenHelper mavenHelper;
 
-
 	public MavenConfiguration(Module module) {
 		this.module = module;
 		maven = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
@@ -215,7 +214,12 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
-			public Licence licence() {
+			public License license() {
+				return null;
+			}
+
+			@Override
+			public Scm scm() {
 				return null;
 			}
 

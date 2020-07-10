@@ -6,12 +6,15 @@ def type(pom)
 
 		<groupId>$groupId+lowercase</groupId>
 		<artifactId>$artifactId+lowercase</artifactId>
+		<name>$artifactId+lowercase</name>
 		<version>$version</version>
 		<packaging>jar</packaging>
-
+		[<url>$url</url>]
+		[<description>$description</description>]
 		[<licenses>
-			$license...[$NL]
+			$license
 		</licenses>]
+		[$scm]
 		[<developers>
 			$developer...[$NL]
 		</developers>]
@@ -190,7 +193,7 @@ def type(pom)
 				[$attachJavaDoc<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
+					<version>3.2.0</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -290,6 +293,16 @@ def trigger(exclusion)
         <groupId>$groupId</groupId>
         <artifactId>$artifactId</artifactId>
     </exclusion>
+end
+
+def trigger(scm)
+	<scm>
+		<url>$url</url>
+        <connection>$connection</connection>
+        <developerConnection>$developerConnection</developerConnection>
+        <tag>$tag</tag>
+	</scm>
+
 end
 
 def type(GPL) trigger(license)
