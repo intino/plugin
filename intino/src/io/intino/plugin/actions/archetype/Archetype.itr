@@ -161,7 +161,6 @@ def type(node) trigger(getter)
 	}
 end
 
-
 def type(node & splitted) !type(leaf) trigger(relativeClass)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
@@ -209,7 +208,7 @@ def type(node & splitted) !type(leaf) trigger(class)
 		private final File root;
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parent, String name) {
-			this.root = new File(parent, name);
+			this.root = new File(parent, "$name" + File.separator + name);
 			root.mkdirs();
 		}
 

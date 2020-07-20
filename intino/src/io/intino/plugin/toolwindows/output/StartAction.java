@@ -12,6 +12,7 @@ import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.project.CesarAccessor;
+import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.icons.AllIcons.Actions.Suspend;
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
@@ -45,7 +46,7 @@ public class StartAction extends AnAction implements DumbAware {
 	}
 
 	@Override
-	public void update(AnActionEvent e) {
+	public void update(@NotNull AnActionEvent e) {
 		super.update(e);
 		if (status == null) status = cesarAccessor.processStatus(this.info.id());
 		if (status == null) e.getPresentation().setVisible(false);
