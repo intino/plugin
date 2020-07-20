@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
+import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
@@ -39,7 +39,7 @@ public class StartAction extends AnAction implements DumbAware {
 		try {
 			Boolean success = cesarAccessor.accessor().postProcessStatus(this.info.server().name(), this.info.id(), !status.running(), false);
 			if (success) status.running(!status.running());
-		} catch (BadRequest | Unknown bd) {
+		} catch (BadRequest | InternalServerError bd) {
 			Logger.error(bd);
 		}
 	}

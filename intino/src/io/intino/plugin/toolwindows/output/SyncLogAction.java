@@ -10,7 +10,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
+import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.plugin.project.CesarAccessor;
 import io.intino.plugin.project.ProcessOutputLoader;
@@ -74,7 +74,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 				Consumer<String> consumer = consumers.get(processId(text.substring(0, messageStart)));
 				if (consumer != null) consumer.accept(text.substring(messageStart + 1));
 			});
-		} catch (io.intino.alexandria.exceptions.Unknown e) {
+		} catch (io.intino.alexandria.exceptions.InternalServerError e) {
 			Logger.getInstance(ProcessOutputLoader.class.getName()).info(e.getMessage(), e);
 
 		}
@@ -89,7 +89,7 @@ class SyncLogAction extends AnAction implements DumbAware {
 		try {
 			CesarAccessor cesarAccessor = new CesarAccessor(project);
 			processLog = cesarAccessor.accessor().getProcessLog(info.server().name(), info.id(), 1).replace("\\n", "\n");
-		} catch (BadRequest | Unknown e) {
+		} catch (BadRequest | InternalServerError e) {
 			Logger.getInstance(ProcessOutputLoader.class.getName()).error(e.getMessage(), e);
 		}
 		if (processLog != null) {

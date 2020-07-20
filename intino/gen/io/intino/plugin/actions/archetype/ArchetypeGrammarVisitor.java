@@ -34,20 +34,34 @@ public interface ArchetypeGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStarting(ArchetypeGrammar.StartingContext ctx);
+
 	/**
 	 * Visit a parse tree produced by {@link ArchetypeGrammar#parameters}.
+	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParameters(ArchetypeGrammar.ParametersContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ArchetypeGrammar#splitted}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSplitted(ArchetypeGrammar.SplittedContext ctx);
+
 	/**
 	 * Visit a parse tree produced by {@link ArchetypeGrammar#parameter}.
+	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParameter(ArchetypeGrammar.ParameterContext ctx);
+
 	/**
 	 * Visit a parse tree produced by {@link ArchetypeGrammar#body}.
+	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

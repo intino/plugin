@@ -27,11 +27,6 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="jboss.community" />
-      <option name="name" value="JBoss Community repository" />
-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="siani-maven-snapshot" />
       <option name="name" value="siani-maven-snapshot" />
       <option name="url" value="http://artifactory.siani.es/artifactory/libs-snapshot" />
@@ -40,6 +35,11 @@
       <option name="id" value="siani-maven" />
       <option name="name" value="siani-maven-releases" />
       <option name="url" value="http://artifactory.siani.es/artifactory/libs-release" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
     </remote-repository>
   </component>
 </project>

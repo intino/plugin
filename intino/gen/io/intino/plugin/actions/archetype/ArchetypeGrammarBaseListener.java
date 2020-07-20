@@ -107,6 +107,24 @@ public class ArchetypeGrammarBaseListener implements ArchetypeGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override
+	public void enterSplitted(ArchetypeGrammar.SplittedContext ctx) {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override
+	public void exitSplitted(ArchetypeGrammar.SplittedContext ctx) {
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override
 	public void enterParameter(ArchetypeGrammar.ParameterContext ctx) {
 	}
 
@@ -169,10 +187,7 @@ public class ArchetypeGrammarBaseListener implements ArchetypeGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override
-	public void exitEveryRule(ParserRuleContext ctx) {
-	}
-
+	@Override public void exitEveryRule(ParserRuleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

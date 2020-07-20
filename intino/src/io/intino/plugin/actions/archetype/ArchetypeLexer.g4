@@ -81,9 +81,12 @@ import io.intino.plugin.actions.archetype.BlockManager;
 
 IN                	: 'in';
 WITH              	: 'with';
+SPLITTED           	: 'splitted';
 
 LEFT_PARENTHESIS    : '(';
+LEFT_SQUARE    		: '[';
 RIGHT_PARENTHESIS   : ')';
+RIGHT_SQUARE   		: ']';
 COMMA               : ',';
 
 MINUS               : '-';

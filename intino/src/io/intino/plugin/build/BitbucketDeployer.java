@@ -3,7 +3,7 @@ package io.intino.plugin.build;
 import com.intellij.openapi.diagnostic.Logger;
 import com.jcabi.aether.Aether;
 import io.intino.Configuration;
-import io.intino.alexandria.restaccessor.RestAccessor;
+import io.intino.alexandria.restaccessor.Response;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -46,7 +46,7 @@ public class BitbucketDeployer {
 			HttpPost post = new HttpPost(url.toURI());
 			post.addHeader("Authorization", "Basic c2lhbmlkZXY6TmdycmhHNERYZ2d1eHVGdFNMZ2c=");
 			post.setEntity(multipartEntityOf(jar));
-			final RestAccessor.Response response = executeMethod(url, post);
+			final Response response = executeMethod(url, post);
 			System.out.println(response.content());
 		} catch (URISyntaxException | RestfulFailure | FileNotFoundException e) {
 			logger.error(e.getMessage(), e);
@@ -62,7 +62,7 @@ public class BitbucketDeployer {
 		return entityBuilder.build();
 	}
 
-	private RestAccessor.Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
+	private Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
 		HttpResponse response;
 		final CloseableHttpClient client = HttpClientBuilder.create().build();
 		try {
@@ -95,8 +95,8 @@ public class BitbucketDeployer {
 		}
 	}
 
-	private RestAccessor.Response responseOf(HttpResponse response) {
-		return new RestAccessor.Response() {
+	private Response responseOf(HttpResponse response) {
+		return new Response() {
 
 			@Override
 			public int code() {

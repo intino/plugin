@@ -3,8 +3,8 @@ package io.intino.plugin.project;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
-import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.cesar.box.ApiAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoException;
@@ -19,7 +19,7 @@ public class CesarAccessor {
 	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
 
 	private final Project project;
-	private CesarRestAccessor accessor;
+	private ApiAccessor accessor;
 	private Map.Entry<String, String> credentials;
 
 	public CesarAccessor(Project project) {
@@ -28,7 +28,7 @@ public class CesarAccessor {
 		this.accessor = createAccessor();
 	}
 
-	public CesarRestAccessor accessor() {
+	public ApiAccessor accessor() {
 		return accessor;
 	}
 
@@ -36,7 +36,7 @@ public class CesarAccessor {
 		try {
 			if (accessor == null) return null;
 			return accessor.getProcess(this.project.getName(), id);
-		} catch (BadRequest | Unknown e) {
+		} catch (BadRequest | InternalServerError e) {
 			return null;
 		}
 	}
@@ -45,7 +45,7 @@ public class CesarAccessor {
 		try {
 			if (accessor == null) return null;
 			return accessor.getProcessStatus(this.project.getName(), id);
-		} catch (BadRequest | Unknown e) {
+		} catch (BadRequest | InternalServerError e) {
 			return null;
 		}
 	}
@@ -56,7 +56,7 @@ public class CesarAccessor {
 			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			if (accessor != null) accessor.listenBotNotifications(credentials.getValue(), consumer);
 			Thread.currentThread().setContextClassLoader(currentClassLoader);
-		} catch (Exception | Unknown e) {
+		} catch (Exception | InternalServerError e) {
 			LOG.info(e);
 			accessor.stopListenBotNotifications();
 		}
@@ -66,7 +66,7 @@ public class CesarAccessor {
 		try {
 			if (accessor == null) return null;
 			return accessor.postBot(text);
-		} catch (Unknown unknown) {
+		} catch (InternalServerError error) {
 			return "Command not found";
 		}
 	}
@@ -78,9 +78,9 @@ public class CesarAccessor {
 		}
 	}
 
-	private CesarRestAccessor createAccessor() {
+	private ApiAccessor createAccessor() {
 		if (credentials == null) return null;
-		return new CesarRestAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
+		return new ApiAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {

@@ -6,8 +6,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.jcraft.jsch.Channel;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
-import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.cesar.box.ApiAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessInfo.Server;
 import io.intino.cesar.box.schemas.ServerInfo;
@@ -107,8 +107,8 @@ public class ArtifactManager {
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url, cesar.getValue()).getServer(system.server().name());
-		} catch (BadRequest | Unknown e) {
+			return new ApiAccessor(url, cesar.getValue()).getServer(system.server().name());
+		} catch (BadRequest | InternalServerError e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
@@ -119,8 +119,8 @@ public class ArtifactManager {
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			LegioArtifact artifact = configuration.artifact();
-			return new CesarRestAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
-		} catch (BadRequest | Unknown e) {
+			return new ApiAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
+		} catch (BadRequest | InternalServerError e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}

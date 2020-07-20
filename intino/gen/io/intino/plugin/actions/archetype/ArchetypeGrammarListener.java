@@ -52,21 +52,42 @@ public interface ArchetypeGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void enterParameters(ArchetypeGrammar.ParametersContext ctx);
+
 	/**
 	 * Exit a parse tree produced by {@link ArchetypeGrammar#parameters}.
+	 *
 	 * @param ctx the parse tree
 	 */
 	void exitParameters(ArchetypeGrammar.ParametersContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ArchetypeGrammar#splitted}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void enterSplitted(ArchetypeGrammar.SplittedContext ctx);
+
+	/**
+	 * Exit a parse tree produced by {@link ArchetypeGrammar#splitted}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void exitSplitted(ArchetypeGrammar.SplittedContext ctx);
+
 	/**
 	 * Enter a parse tree produced by {@link ArchetypeGrammar#parameter}.
+	 *
 	 * @param ctx the parse tree
 	 */
 	void enterParameter(ArchetypeGrammar.ParameterContext ctx);
+
 	/**
 	 * Exit a parse tree produced by {@link ArchetypeGrammar#parameter}.
+	 *
 	 * @param ctx the parse tree
 	 */
 	void exitParameter(ArchetypeGrammar.ParameterContext ctx);
+
 	/**
 	 * Enter a parse tree produced by {@link ArchetypeGrammar#body}.
 	 * @param ctx the parse tree

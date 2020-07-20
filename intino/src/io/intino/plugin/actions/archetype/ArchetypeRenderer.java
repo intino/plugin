@@ -86,10 +86,17 @@ public class ArchetypeRenderer {
 	}
 
 	private Frame frameOf(ArchetypeGrammar.NodeContext node) {
+		String nodeName = node.declaration().IDENTIFIER().toString().replace(".", "_");
 		FrameBuilder builder = new FrameBuilder("node").
-				add("name", node.declaration().IDENTIFIER().toString().replace(".", "_")).
+				add("name", nodeName).
 				add("artifact", artifactId);
 		if (isLeaf(node)) builder.add("leaf");
+		if (isSplitted(node)) {
+			Frame[] splits = node.declaration().splitted().IDENTIFIER().stream().
+					map(Object::toString).
+					map(s -> new FrameBuilder("split").add("class", nodeName).add("value", s).toFrame()).toArray(Frame[]::new);
+			builder.add("splitted").add("split", splits);
+		}
 		String parentIn = null;
 		if (isModuleSplit(node)) {
 			if (hasIn(node)) parentIn = node.declaration().LABEL(0).toString().replace("\"", "");
@@ -110,6 +117,10 @@ public class ArchetypeRenderer {
 		if (node.body() != null && !node.body().node().isEmpty())
 			builder.add("node", node.body().node().stream().map(this::frameOf).toArray(Frame[]::new));
 		return builder.toFrame();
+	}
+
+	private boolean isSplitted(ArchetypeGrammar.NodeContext node) {
+		return node.declaration().splitted() != null;
 	}
 
 	private boolean hasIn(ArchetypeGrammar.NodeContext node) {

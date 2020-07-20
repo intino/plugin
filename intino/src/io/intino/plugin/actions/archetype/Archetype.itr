@@ -112,9 +112,46 @@ def type(node & leaf) trigger(getter)
 	}
 end
 
+def type(node & splitted) trigger(relativeGetter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name, split);
+	}
+
+	public $name+snakeCaseToCamelCase+firstUpperCase~Split $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase~Split(root);
+	}
+end
+
+def trigger(split)
+	public $class+snakeCaseToCamelCase+firstUpperCase $value(String split) {
+		return new $class+snakeCaseToCamelCase+firstUpperCase(root, "$value");
+	}
+end
+
 def type(node) trigger(relativeGetter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name);
+	}
+end
+
+def type(node & splitted) trigger(getter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, split);
+	}
+
+	public $name+snakeCaseToCamelCase+firstUpperCase~Split $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase~Split(root);
+	}
+
+	public static class $name+snakeCaseToCamelCase+firstUpperCase~Split {
+		private final File root;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase~Split(File root) {
+			this.root = root;
+			root.mkdirs();
+		}
+
+		$split...[$NL]
 	}
 end
 
@@ -125,7 +162,28 @@ def type(node) trigger(getter)
 end
 
 
-def type(node) !type(leaf) trigger(relativeClass)
+def type(node & splitted) !type(leaf) trigger(relativeClass)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+		private final String name;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent, String name) {
+			this.root = new File(parent, name);
+			root.mkdirs();
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + name;
+		}
+
+		public String root() {
+			return this.name;
+		}
+
+		[$node+relativeGetter...[$NL$NL]]
+
+		[$node+relativeClass...[$NL$NL]]
+	}
+end
+
+def type(node) !type(splitted) !type(leaf) trigger(relativeClass)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 		private final String name;
@@ -146,7 +204,26 @@ def type(node) !type(leaf) trigger(relativeClass)
 	}
 end
 
-def type(node) !type(leaf) trigger(class)
+def type(node & splitted) !type(leaf) trigger(class)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parent, String name) {
+			this.root = new File(parent, name);
+			root.mkdirs();
+		}
+
+		public File root() {
+			return this.root;
+		}
+
+		[$node+getter...[$NL$NL]]
+
+		[$node+class...[$NL$NL]]
+	}
+end
+
+def type(node) !type(splitted) !type(leaf) trigger(class)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 
@@ -164,7 +241,6 @@ def type(node) !type(leaf) trigger(class)
 		[$node+class...[$NL$NL]]
 	}
 end
-
 
 def type(timetag) trigger(signature)
 	io.intino.alexandria.Timetag $value

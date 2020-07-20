@@ -11,7 +11,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
+import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
@@ -44,7 +44,7 @@ public class DebugAction extends AnAction implements DumbAware {
 				status = cesarAccessor.processStatus(this.info.id());
 				Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
 			}
-		} catch (BadRequest | Unknown bd) {
+		} catch (BadRequest | InternalServerError bd) {
 			Logger.error(bd);
 		}
 	}

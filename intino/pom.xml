@@ -158,7 +158,7 @@
         </dependency>
         <dependency>
             <groupId>io.intino</groupId>
-            <artifactId>cesar-rest-accessor</artifactId>
+            <artifactId>cesar-api-accessor</artifactId>
             <version>3.0.0</version>
             <exclusions>
                 <exclusion>
