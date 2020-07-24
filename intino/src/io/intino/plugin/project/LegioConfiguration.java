@@ -50,7 +50,7 @@ public class LegioConfiguration implements Configuration {
 	private final Resolver resolver;
 	private TaraModel legioFile;
 	private VirtualFile vFile;
-	private AtomicBoolean reloading = new AtomicBoolean(false);
+	private final AtomicBoolean reloading = new AtomicBoolean(false);
 	private boolean inited = false;
 	private DependencyAuditor dependencyAuditor;
 
@@ -187,8 +187,6 @@ public class LegioConfiguration implements Configuration {
 	private Repository repository(Node r) {
 		if (((TaraNode) r).simpleType().equals("Release"))
 			return new LegioRepository.LegioReleaseRepository(this, (TaraNode) r);
-		if (((TaraNode) r).simpleType().equals("Language"))
-			return new LegioRepository.LegioLanguageRepository(this, (TaraNode) r);
 		if (((TaraNode) r).simpleType().equals("Snapshot"))
 			return new LegioRepository.LegioSnapshotRepository(this, (TaraNode) r);
 		return null;

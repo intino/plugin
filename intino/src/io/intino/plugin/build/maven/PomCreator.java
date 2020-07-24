@@ -187,8 +187,7 @@ class PomCreator {
 	}
 
 	private void addRepositories(FrameBuilder builder) {
-		configuration.repositories().stream().filter(r -> !(r instanceof Repository.Language)).forEach(r ->
-				builder.add("repository", createRepositoryFrame(r)));
+		configuration.repositories().forEach(r -> builder.add("repository", createRepositoryFrame(r)));
 		Repository releaseRepository = repository();
 		if (releaseRepository != null)
 			builder.add("repository", createDistributionRepositoryFrame(releaseRepository, "release"));

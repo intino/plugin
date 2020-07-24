@@ -71,8 +71,6 @@ Concept:{1..1}:Named Artifact
 		var string targetPackage = "box"
 	Concept:{0..1} Code
 		var string targetPackage
-	Concept Exports
-		var Repository.Type repository
 	Concept IntinoPlugin
 		var string artifact
 		var string pluginClass
@@ -100,13 +98,10 @@ Concept:{1..1}:Named Artifact
         	var string windowsIcon
 
 	has Parameter
-	Concept:CheckLevel:{0..1} Distribution
-		Concept:{0..1} Release
-			var string identifier
-			var string url
-		Concept:{0..1} Snapshot
-			var string mavenId
-			var string url
+	Concept:{0..1} Distribution
+		var string identifier
+		Concept:{0..1} Release > var string url
+		Concept:{0..1} Snapshot > var string url
 		Concept:{0..1} OnBitbucket
 			var string owner
 			var string slugName

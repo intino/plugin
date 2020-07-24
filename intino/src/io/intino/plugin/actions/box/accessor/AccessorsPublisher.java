@@ -127,7 +127,7 @@ public class AccessorsPublisher {
 
 	private File createPom(File root, String serviceType, String group, String artifact, String version) {
 		final FrameBuilder builder = new FrameBuilder("pom").add("group", group).add("artifact", artifact).add("version", version);
-		conf.repositories().stream().filter(r -> !(r instanceof Configuration.Repository.Language)).forEach(r -> buildRepoFrame(builder, r, version.contains("SNAPSHOT")));
+		conf.repositories().forEach(r -> buildRepoFrame(builder, r, version.contains("SNAPSHOT")));
 		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").add("version", versionOf(serviceType)).toFrame());
 		final File pomFile = new File(root, "pom.xml");
 		write(builder, pomFile);
