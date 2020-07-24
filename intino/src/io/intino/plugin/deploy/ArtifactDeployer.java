@@ -17,7 +17,6 @@ import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
@@ -117,27 +116,17 @@ public class ArtifactDeployer {
 	}
 
 	private List<Configuration.Repository> collectRepositories() {
-		List<Configuration.Repository> repositories = new ArrayList<>(deployRepositories(configuration.repositories()));
+		List<Configuration.Repository> repositories = new ArrayList<>(configuration.repositories());
 		for (Module dependant : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration dependantConf = IntinoUtil.configurationOf(dependant);
 			if (dependantConf == null) continue;
-			deployRepositories(dependantConf.repositories()).stream().filter(repository -> !contains(repositories, repository)).forEach(repositories::add);
+			dependantConf.repositories().stream().filter(r -> !contains(repositories, r)).forEach(repositories::add);
 		}
 		return repositories;
 	}
 
 	private boolean contains(List<Configuration.Repository> repositories, Configuration.Repository repository) {
 		return repositories.stream().anyMatch(r -> r.url().equals(repository.url()));
-	}
-
-	private List<Configuration.Repository> deployRepositories(List<Configuration.Repository> repositories) {
-		return repositories.stream().filter(r -> !(r instanceof Configuration.Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
-	}
-
-	private boolean isDistribution(Configuration.Repository r) {
-		LegioArtifact artifact = configuration.artifact();
-		if (artifact.distribution() == null) return false;
-		return r instanceof Configuration.Repository.Release ? r.url().equals(safe(() -> artifact.distribution().release().url())) : r.url().equals(safe(() -> artifact.distribution().snapshot().url()));
 	}
 
 	private Artifactory credentials(Artifactory artifactory) {

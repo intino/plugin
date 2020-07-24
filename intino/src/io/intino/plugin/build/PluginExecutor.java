@@ -18,7 +18,7 @@ import com.jcabi.aether.Aether;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
-import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
@@ -45,7 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
-import static java.util.stream.Collectors.toList;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
@@ -175,8 +174,9 @@ public class PluginExecutor {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS)));
-		remotes.addAll(this.configuration.repositories().stream().filter(r -> r != null && !(r instanceof Repository.Language)).map(this::repository).collect(toList()));
+		Repositories repositories = new Repositories(this.module);
+		remotes.add(repositories.maven(RepositoryPolicy.UPDATE_POLICY_ALWAYS));
+		remotes.addAll(repositories.map(this.configuration.repositories()));
 		return remotes;
 	}
 

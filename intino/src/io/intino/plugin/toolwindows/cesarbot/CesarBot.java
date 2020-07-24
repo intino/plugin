@@ -18,8 +18,8 @@ import static javax.swing.text.StyleConstants.LineSpacing;
 
 public class CesarBot {
 	private static final com.intellij.openapi.diagnostic.Logger logger = Logger.getInstance(CesarBot.class);
-	private List<String> icons = List.of("disconnected", "harddisk", "memory", "network", "threads", "work", "small_red_triangle", "small_red_triangle_down", "clock10", "hammer_and_pick");
 	static Project project;
+	private final List<String> icons = List.of("disconnected", "harddisk", "memory", "network", "threads", "work", "small_red_triangle", "small_red_triangle_down", "clock10", "hammer_and_pick");
 	private final CesarAccessor cesarAccessor;
 	private JTextField chatInput;
 	private JTextPane console;

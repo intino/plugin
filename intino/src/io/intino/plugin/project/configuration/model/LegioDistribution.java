@@ -3,8 +3,10 @@ package io.intino.plugin.project.configuration.model;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
-import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.*;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentOfType;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioDistribution implements Configuration.Distribution {
 	private final LegioArtifact artifact;
@@ -17,23 +19,16 @@ public class LegioDistribution implements Configuration.Distribution {
 
 	@Override
 	public Configuration.Repository release() {
-		Node release = read(() -> referenceParameterValue(node, "release", 0));
+		Node release = TaraPsiUtil.componentOfType(node, "Release");
 		if (release == null) return null;
 		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraNode) release);
 	}
 
 	@Override
-	public Configuration.Repository language() {
-		Node release = read(() -> referenceParameterValue(node, "language", 1));
-		if (release == null) return null;
-		return new LegioRepository.LegioLanguageRepository(artifact.root(), (TaraNode) release);
-	}
-
-	@Override
 	public Configuration.Repository snapshot() {
-		Node release = read(() -> referenceParameterValue(node, "snapshot", 2));
-		if (release == null) return null;
-		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) release);
+		Node snapshot = TaraPsiUtil.componentOfType(node, "Snapshot");
+		if (snapshot == null) return null;
+		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) snapshot);
 	}
 
 	@Override

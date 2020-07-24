@@ -332,8 +332,6 @@ public interface Configuration {
 	interface Distribution {
 		Repository release();
 
-		Repository language();
-
 		Repository snapshot();
 
 		BitBucketDistribution onBitbucket();
@@ -406,9 +404,6 @@ public interface Configuration {
 		}
 
 		interface Snapshot extends Repository {
-		}
-
-		interface Language extends Repository {
 		}
 	}
 

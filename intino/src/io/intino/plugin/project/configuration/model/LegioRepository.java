@@ -23,7 +23,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 
 	@Override
 	public String url() {
-		return parameterValue(node, "url", 0);
+		return parameterValue(node, "url", 1);
 	}
 
 	@Override
@@ -53,9 +53,4 @@ public abstract class LegioRepository implements Configuration.Repository {
 		}
 	}
 
-	public static class LegioLanguageRepository extends LegioRepository implements Configuration.Repository.Language {
-		public LegioLanguageRepository(LegioConfiguration configuration, TaraNode node) {
-			super(configuration, node);
-		}
-	}
 }

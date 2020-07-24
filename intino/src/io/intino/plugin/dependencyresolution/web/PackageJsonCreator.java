@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PackageJsonCreator {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
@@ -29,7 +28,7 @@ public class PackageJsonCreator {
 	public PackageJsonCreator(Module module, Artifact artifact, List<Repository> repositories, File destination) {
 		this.module = module;
 		this.artifact = artifact;
-		this.repositories = repositories.stream().filter(r -> !(r instanceof Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
+		this.repositories = repositories;
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
 		this.destination = destination;
@@ -37,11 +36,6 @@ public class PackageJsonCreator {
 
 	public void createPackageFile(File rootDirectory) {
 		write(new Package_jsonTemplate().render(packageFrame().toFrame()), new File(rootDirectory, "package.json"));
-	}
-
-	private boolean isDistribution(Repository r) {
-		if (artifact.distribution() == null) return false;
-		return r instanceof Repository.Release ? artifact.distribution().release().url().equals(r.url()) : artifact.distribution().snapshot().url().equals(r.url());
 	}
 
 	@NotNull

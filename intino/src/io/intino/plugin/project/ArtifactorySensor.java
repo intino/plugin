@@ -17,11 +17,9 @@ public class ArtifactorySensor {
 	private static boolean buildersUpdated = false;
 	private final PropertiesComponent properties;
 	private final ArtifactoryConnector modelBuilderConnector;
-	private final ArtifactoryConnector connector;
 
 	public ArtifactorySensor(List<Repository> repositories) {
-		this.modelBuilderConnector = new ArtifactoryConnector(by(repositories, Repository.Language.class));
-		this.connector = new ArtifactoryConnector(by(repositories, Repository.Release.class, Repository.Snapshot.class));
+		this.modelBuilderConnector = new ArtifactoryConnector(by(repositories));
 		this.properties = PropertiesComponent.getInstance();
 	}
 

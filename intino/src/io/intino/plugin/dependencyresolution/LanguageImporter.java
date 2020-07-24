@@ -28,13 +28,13 @@ import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 
 public class LanguageImporter {
 	private final Configuration configuration;
-	private Module module;
 	private final List<Repository> repositories;
+	private final Module module;
 
 	LanguageImporter(Module module, Configuration configuration) {
 		this.module = module;
 		this.configuration = configuration;
-		this.repositories = languageRepositories(configuration);
+		this.repositories = configuration.repositories();
 	}
 
 	String importLanguage(String dsl, String version) {
@@ -45,7 +45,6 @@ public class LanguageImporter {
 			reload(dsl, module.getProject());
 		}
 		return effectiveVersion;
-
 	}
 
 	private boolean downloadLanguage(String name, String version) {
@@ -81,11 +80,6 @@ public class LanguageImporter {
 			return versions.isEmpty() ? LATEST_VERSION : versions.get(versions.lastKey());
 		}
 		return version;
-	}
-
-	@NotNull
-	private List<Repository> languageRepositories(Configuration configuration) {
-		return configuration.repositories().stream().filter(r -> r instanceof Repository.Language).collect(Collectors.toList());
 	}
 
 	private Long indexOf(String version) {

@@ -11,13 +11,10 @@ import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency;
-import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -26,11 +23,8 @@ import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
 import java.io.File;
 import java.util.*;
 
-import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
-import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class ImportsResolver {
 	private final Module module;
@@ -209,33 +203,14 @@ public class ImportsResolver {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
-		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy)));
-		remotes.addAll(repositories.stream().map(this::repository).collect(toList()));
+		Repositories repositories = new Repositories(this.module);
+		remotes.add(repositories.maven(updatePolicy));
+		remotes.addAll(repositories.map(this.repositories));
 		return remotes;
-	}
-
-	private RemoteRepository repository(Repository r) {
-		final RemoteRepository repository = new RemoteRepository(r.identifier(), "default", r.url()).setAuthentication(provideAuthentication(r.identifier()));
-		if (r instanceof Repository.Snapshot) {
-			repository.setPolicy(true, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
-			repository.setPolicy(false, new RepositoryPolicy().setEnabled(false));
-		} else {
-			repository.setPolicy(true, new RepositoryPolicy().setEnabled(false).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
-			repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
-		}
-		return repository;
-	}
-
-	private Authentication provideAuthentication(String mavenId) {
-		return IntinoSettings.getSafeInstance(module.getProject()).artifactories().stream().
-				filter(c -> c.serverId.equals(mavenId)).findFirst().
-				map(c -> new Authentication(c.username, c.password)).
-				orElse(null);
 	}
 
 	@NotNull
 	private File localRepository() {
 		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
-
 }

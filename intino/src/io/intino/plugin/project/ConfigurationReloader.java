@@ -28,7 +28,7 @@ public class ConfigurationReloader {
 	private final Artifact artifact;
 	private final Artifact.Model model;
 	private final List<Repository> repositories;
-	private Module module;
+	private final Module module;
 
 	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy) {
 		this.module = module;
@@ -80,7 +80,6 @@ public class ConfigurationReloader {
 		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
 		Artifact.Dependency.DataHub datahub = artifact.datahub();
 		if (datahub != null) artifactDependencies.add(datahub);
-		List<Repository> repositories = importRepositories();
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolveWeb(webDependencies(artifactDependencies)));
@@ -90,15 +89,6 @@ public class ConfigurationReloader {
 		new UnusedLibrariesInspection(module.getProject()).cleanUp();
 	}
 
-	private List<Repository> importRepositories() {
-		return repositories.stream().filter(r -> !(r instanceof Repository.Language) && !isDistribution(r)).collect(Collectors.toList());
-	}
-
-	private boolean isDistribution(Repository r) {
-		if (artifact.distribution() == null) return false;
-		if (r instanceof Repository.Release) return r.url().equals(safe(() -> artifact.distribution().release().url()));
-		return r.url().equals(safe(() -> artifact.distribution().snapshot().url()));
-	}
 
 	@NotNull
 	private List<Artifact.Dependency.Web> webDependencies(List<Artifact.Dependency> artifactDependencies) {

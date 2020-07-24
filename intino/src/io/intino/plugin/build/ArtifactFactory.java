@@ -169,7 +169,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return checker.shouldDistributeLanguage(module, phase) && !languageFile.exists();
+		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists();
 	}
 
 	private String firstUpperCase(String input) {
@@ -195,7 +195,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	private void processSuccessMessages() {
 		final String message = String.join("\n", successMessages);
 		notify(module.getProject(), module.getName(), message);
-		String notificationMessage = MessageProvider.message(checker.shouldDistributeLanguage(module, phase) ? "success.language.publish.message" : "success.publish.message",configuration.artifact().name(), phase.participle());
+		String notificationMessage = MessageProvider.message(checker.shouldDistributeLanguage(phase, module) ? "success.language.publish.message" : "success.publish.message", configuration.artifact().name(), phase.participle());
 		if (phase.equals(FactoryPhase.DEPLOY))
 			notificationMessage = "Deployment of " + configuration.artifact().name() + " requested";
 		notify(module.getProject(), module.getName(), notificationMessage);

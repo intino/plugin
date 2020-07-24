@@ -144,7 +144,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void buildLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (checker.shouldDistributeLanguage(module, lifeCyclePhase)) {
+		if (checker.shouldDistributeLanguage(lifeCyclePhase, module)) {
 			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			buildLanguage(module);
 		}

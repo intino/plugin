@@ -101,9 +101,12 @@ Concept:{1..1}:Named Artifact
 
 	has Parameter
 	Concept:CheckLevel:{0..1} Distribution
-		var Repository.Release release
-		var Repository.Language language = empty
-		var Repository.Snapshot snapshot = empty
+		Concept:{0..1} Release
+			var string identifier
+			var string url
+		Concept:{0..1} Snapshot
+			var string mavenId
+			var string url
 		Concept:{0..1} OnBitbucket
 			var string owner
 			var string slugName
@@ -146,7 +149,6 @@ Concept Repository
 		var string url
 		sub Release
 		sub:{0..1} Snapshot
-		sub:{0..1} Language
 
 Concept Parameter is component
 	var string name
