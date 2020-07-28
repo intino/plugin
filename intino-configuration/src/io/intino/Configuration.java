@@ -360,7 +360,6 @@ public interface Configuration {
 
 			String jvmVersion();
 		}
-
 	}
 
 	interface WebDependency {

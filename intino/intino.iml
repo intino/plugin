@@ -11,83 +11,7 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA 11" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:jmx:1.0.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:ui-framework:4.3.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:http:1.0.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.sparkjava:spark-core:2.7.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-server:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-http:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-util:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-io:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-webapp:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-xml:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-servlet:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-security:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty.websocket:websocket-server:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty.websocket:websocket-common:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty.websocket:websocket-client:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-client:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty.websocket:websocket-servlet:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty.websocket:websocket-api:9.4.8.v20171121" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: eu.medsea.mimeutil:mime-util:2.1.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:logger4j:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-log4j12:1.7.25" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.opencsv:opencsv:5.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.commons:commons-text:1.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-beanutils:commons-beanutils:1.9.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.commons:commons-collections4:4.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.hashids:hashids:1.0.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.locationtech.jts:jts-core:1.16.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:driver-shiny:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:driver:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:proxy:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.httpcomponents:fluent-hc:4.5.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:driver-r:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.rforge:Rserve:0.6-8.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.rforge:REngine:0.6-8.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:jms:1.2.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-client:5.15.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.fusesource.hawtbuf:hawtbuf:1.11" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:ingestion:3.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:event:2.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:session:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:zet:1.0.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:tris:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:sealing:3.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:datalake:3.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:mapp:1.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-broker:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-openwire-legacy:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.google.guava:guava:18.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-mqtt:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq.protobuf:activemq-protobuf:1.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.fusesource.mqtt-client:mqtt-client:1.15" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.fusesource.hawtdispatch:hawtdispatch-transport:1.22" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.fusesource.hawtdispatch:hawtdispatch:1.22" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-net:commons-net:3.6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-kahadb-store:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-jaas:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-runtime-config:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.xbean:xbean-spring:4.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-spring:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-pool:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.activemq:activemq-jms-pool:5.15.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework:spring-beans:4.3.18.RELEASE" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework:spring-context:4.3.18.RELEASE" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework:spring-aop:4.3.18.RELEASE" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework:spring-expression:4.3.18.RELEASE" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.6.4" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.1.0" level="project" />
     <orderEntry type="module" module-name="intino-configuration" />
     <orderEntry type="library" name="Maven: io.intino.magritte:language:1.3.2" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:message:1.0.0" level="project" />
@@ -170,7 +94,7 @@
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
     <orderEntry type="library" name="Maven: io.intino:cesar-api-accessor:3.0.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.1.0" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:exceptions:2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15:1.45" level="project" />
@@ -203,7 +127,7 @@
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.ness:data-hub-terminal-plugin:2.7.8" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.ness:data-hub-terminal-plugin:2.7.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino:data-hub:4.6.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.magritte:framework:3.0.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.intino.alexandria:core-framework:2.0.4" level="project" />

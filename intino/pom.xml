@@ -55,7 +55,7 @@
         <dependency>
             <groupId>io.intino</groupId>
             <artifactId>configuration</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.intino.magritte</groupId>
@@ -170,7 +170,7 @@
         <dependency>
             <groupId>io.intino</groupId>
             <artifactId>plugin-interface</artifactId>
-            <version>2.0.0</version>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.siani.itrules</groupId>
@@ -202,7 +202,7 @@
         <dependency>
             <groupId>io.intino.ness</groupId>
             <artifactId>data-hub-terminal-plugin</artifactId>
-            <version>2.7.8</version>
+            <version>2.7.10</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -126,7 +126,7 @@ public class ArtifactDeployer {
 	}
 
 	private boolean contains(List<Configuration.Repository> repositories, Configuration.Repository repository) {
-		return repositories.stream().anyMatch(r -> r.url().equals(repository.url()));
+		return repositories.stream().anyMatch(r -> r.url() != null && r.url().equals(repository.url()));
 	}
 
 	private Artifactory credentials(Artifactory artifactory) {
