@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -9,6 +10,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.goros.GorosFileType;
@@ -27,14 +29,23 @@ public class ModernizationGeneration extends AnAction {
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		Module module = e.getData(LangDataKeys.MODULE);
+		PsiFile context = e.getData(PSI_FILE);
+		if (context == null) return;
 		try {
-			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Modernizating to Goros", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Modernizing to Goros", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
-					//TODO call builder.
+					try {
+						io.intino.goros.Shifter.main(new String[]{context.getVirtualFile().getPath()});
+					} catch (Exception exception) {
+						final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
+						if (balloon != null)
+							balloon.createNotification("Error during modernization: " + exception.getMessage(), MessageType.ERROR).
+									setImportant(false).notify(module.getProject());
+					}
 				}
 			});
-		} catch (Throwable ex) {
+		} catch (Throwable ignored) {
 
 		}
 	}
