@@ -17,9 +17,9 @@ public class IntinoIcons {
 
 
 	public static final Icon BOX_PROCESS = RETINA ? scale(getIcon("/icons/box_process-32.png")) : getIcon("/icons/box_process-16.png");
-	;
 
 	public static final Icon INTINO_16 = RETINA ? scale(getIcon("/icons/intino/intino-32.png")) : getIcon("/icons/intino/intino-16.png");
+
 
 	public static final Icon INTINO_13 = RETINA ? scale(getIcon("/icons/intino/intino-26.png")) : getIcon("/icons/intino/intino-13.png");
 	public static final Icon INTINO_80 = RETINA ? scale(getIcon("/icons/intino/intino-80.png")) : getIcon("/icons/intino/intino-80.png");
@@ -29,9 +29,16 @@ public class IntinoIcons {
 	public static final Icon KONOS_16 = RETINA ? scale(getIcon("/icons/files/box-32.png")) : getIcon("/icons/files/box-16.png");
 	public static final Icon GENARATION_16 = RETINA ? scale(getIcon("/icons/generate-32.png")) : getIcon("/icons/generate-16.png");
 
+	public static final Icon GOROS_13 = RETINA ? scale(getIcon("/icons/goros/goros-26.png")) : getIcon("/icons/goros/goros-13.png");
+	public static final Icon GOROS_16 = RETINA ? scale(getIcon("/icons/goros/goros-32.png")) : getIcon("/icons/goros/goros-16.png");
+
 	public static final Icon MODEL_16 = RETINA ? scale(getIcon("/icons/files/model-32.png")) : getIcon("/icons/files/model-16.png");
 	public static final Icon NODE = RETINA ? scale(getIcon("/icons/files/model-32.png")) : getIcon("/icons/files/model-16.png");
 	public static final Icon STASH_16 = RETINA ? scale(getIcon("/icons/files/stash-32.png")) : getIcon("/icons/files/stash-16.png");
+
+	public static Icon ICON_13 = RETINA ? scale(getIcon("/icons/icon-26.png")) : getIcon("/icons/icon-13.png");
+	public static Icon ICON_16 = RETINA ? scale(getIcon("/icons/icon-32.png")) : getIcon("/icons/icon-16.png");
+
 
 	public static class Operations {
 		public static class Dark {

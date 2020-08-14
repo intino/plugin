@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 
@@ -36,10 +37,7 @@ public class LegioDependencyPasteProcessor implements CopyPastePreProcessor {
 	private String processAsMaven(String text) {
 		List<String[]> parameters = extractInfoFrom(text);
 		if (parameters.isEmpty()) return text;
-		String result = "";
-		for (String[] parameter : parameters)
-			result += parameter[0] + "(\"" + parameter[1] + "\", \"" + parameter[2] + "\", \"" + parameter[3] + "\")\n";
-		return result;
+		return parameters.stream().map(parameter -> parameter[0] + "(\"" + parameter[1] + "\", \"" + parameter[2] + "\", \"" + parameter[3] + "\")\n").collect(Collectors.joining());
 	}
 
 	private String processAsBower(String text) {

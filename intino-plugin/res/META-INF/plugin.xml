@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>5.3.1</version>
+    <version>5.4.0</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.idea.maven</depends>
@@ -53,6 +53,7 @@
                         serviceImplementation="io.intino.plugin.lang.psi.impl.TaraElementFactoryImpl"/>
         <projectService serviceInterface="io.intino.plugin.codeinsight.JavaHelper"
                         serviceImplementation="io.intino.plugin.codeinsight.JavaHelper$Impl"/>
+        <framework.type implementation="io.intino.plugin.frameworks.GorosFrameworkType"/>
 
         <projectStructureDetector implementation="io.intino.plugin.project.module.TaraProjectStructureDetector"/>
         <lang.commenter language="Tara" implementationClass="io.intino.plugin.lang.TaraCommenter"/>
@@ -226,7 +227,6 @@
         <!--        <fileType name="Legio" implementationClass="io.intino.plugin.file.legio.LegioFileType"/>-->
         <!--        <fileType name="itrules" implementationClass="io.intino.plugin.itrules.lang.file.ItrulesFileType"/>-->
         <fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
-        <fileTypeFactory implementation="io.intino.plugin.itrules.lang.file.ItrulesFileTypeFactory"/>
         <errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
         <copyPastePreProcessor implementation="io.intino.plugin.file.legio.LegioDependencyPasteProcessor"/>
         <problemFileHighlightFilter
@@ -252,6 +252,16 @@
     </extensions>
 
     <actions>
+        <group id="GorosMenu" text="Goros" description="Goros menu">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+        <action id="goros.toClass" class="io.intino.plugin.actions.ModernizationGeneration"
+                text="Modernize Module"
+                description="Modernize the project from old platform to intino">
+            <add-to-group group-id="GorosMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
         <action id="NewPackage" class="io.intino.plugin.actions.CreatePackageAction" text="Package"
                 description="Create a new package" icon="AllIcons.Nodes.Package"/>
         <group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">

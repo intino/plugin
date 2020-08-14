@@ -13,7 +13,9 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
+import io.intino.plugin.actions.ActionUtils;
 import io.intino.plugin.itrules.lang.ItrulesIcons;
+import io.intino.plugin.itrules.lang.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -25,13 +27,12 @@ public abstract class GenerationAction extends AnAction implements DumbAware {
 	public static final Logger LOG = Logger.getInstance("itrules: Generate");
 
 	public void update(@NotNull AnActionEvent e) {
-		ActionUtils.selectedFilesAreItrules(e);
-		ActionUtils.selectedFilesAreInItrulesModule(e);
+		ActionUtils.selectedFilesAre(e, ItrulesFileType.INSTANCE.getDefaultExtension());
 		e.getPresentation().setIcon(ItrulesIcons.ICON_13);
 	}
 
 	protected List<VirtualFile> getVirtualFile(AnActionEvent e) {
-		List<VirtualFile> rulesFiles = ActionUtils.getItrulesFilesFromEvent(e);
+		List<VirtualFile> rulesFiles = ActionUtils.getFilesFromEvent(e, ItrulesFileType.INSTANCE.getDefaultExtension());
 		LOG.info("actionPerformed " + (rulesFiles.isEmpty() ? "NONE" : rulesFiles));
 		if (rulesFiles.isEmpty()) return null;
 		return rulesFiles;
@@ -68,4 +69,5 @@ public abstract class GenerationAction extends AnAction implements DumbAware {
 	protected Module getModuleOf(Project project, VirtualFile file) {
 		return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(file);
 	}
+
 }
