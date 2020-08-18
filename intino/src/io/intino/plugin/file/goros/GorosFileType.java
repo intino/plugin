@@ -1,6 +1,6 @@
 package io.intino.plugin.file.goros;
 
-import com.intellij.json.JsonLanguage;
+import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ public class GorosFileType extends LanguageFileType {
 	public static final GorosFileType INSTANCE = new GorosFileType();
 
 	protected GorosFileType() {
-		super(JsonLanguage.INSTANCE);
+		super(XMLLanguage.INSTANCE);
 	}
 
 	@NotNull

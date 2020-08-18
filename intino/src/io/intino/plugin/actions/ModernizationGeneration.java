@@ -37,11 +37,10 @@ public class ModernizationGeneration extends AnAction {
 				public void run(@NotNull ProgressIndicator indicator) {
 					try {
 						io.intino.goros.Shifter.main(new String[]{context.getVirtualFile().getPath()});
-					} catch (Exception exception) {
-						final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-						if (balloon != null)
-							balloon.createNotification("Error during modernization: " + exception.getMessage(), MessageType.ERROR).
-									setImportant(false).notify(module.getProject());
+					} catch (Exception ex) {
+						final NotificationGroup balloon = NotificationGroup.balloonGroup("tara");
+						balloon.createNotification("Error during modernization: " + ex.getMessage(), MessageType.ERROR).
+								setImportant(false).notify(module.getProject());
 					}
 				}
 			});
