@@ -85,7 +85,7 @@
         <dependency>
             <groupId>io.intino.goros</groupId>
             <artifactId>shifter</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.intino.alexandria</groupId>
