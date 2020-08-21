@@ -11,10 +11,14 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.goros.GorosFileType;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
 
@@ -44,10 +48,19 @@ public class ModernizationGeneration extends AnAction {
 					}
 				}
 			});
+			refreshFiles(new File(module.getModuleFilePath()).getParentFile());
 		} catch (Throwable ignored) {
 
 		}
 	}
+
+	private void refreshFiles(File dir) {
+		VirtualFile vDir = VfsUtil.findFileByIoFile(dir, true);
+		if (vDir == null || !vDir.isValid()) return;
+		VfsUtil.markDirtyAndRefresh(true, true, true, vDir);
+		vDir.refresh(true, true);
+	}
+
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
