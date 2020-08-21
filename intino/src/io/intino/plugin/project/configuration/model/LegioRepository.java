@@ -23,7 +23,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 
 	@Override
 	public String url() {
-		return parameterValue(node, "url", 1);
+		return parameterValue(node, "url", 0);
 	}
 
 	@Override

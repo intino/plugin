@@ -65,7 +65,10 @@ public class GorosSupportProvider extends FrameworkSupportInModuleProvider {
 		try {
 			File file = modernizationFile(module);
 			file.getParentFile().mkdirs();
-			Files.writeString(file.toPath(), "<modernization>\n\n</modernization>\n");
+			Files.writeString(file.toPath(), "<modernization>\n" +
+					"\t<\\project name=" + module.getProject().getName() + ">" +
+					"\t<\\module name=" + module.getName() + ">" +
+					"</modernization>\n");
 			VirtualFile vFile = VfsUtil.findFileByIoFile(file, true);
 			if (vFile != null) vFile.refresh(true, false);
 		} catch (IOException ignored) {
