@@ -34,6 +34,7 @@ public class CesarAccessor {
 
 	public ProcessInfo processInfo(String id) {
 		try {
+			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getProcess(this.project.getName(), id);
 		} catch (BadRequest | InternalServerError e) {
@@ -41,12 +42,30 @@ public class CesarAccessor {
 		}
 	}
 
+	private void checkCredentials() {
+		if (credentials == null || this.accessor == null) {
+			this.credentials = credentials();
+			this.accessor = createAccessor();
+		}
+	}
+
 	public ProcessStatus processStatus(String id) {
 		try {
+			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getProcessStatus(this.project.getName(), id);
 		} catch (BadRequest | InternalServerError e) {
 			return null;
+		}
+	}
+
+	public String talk(String text) {
+		try {
+			checkCredentials();
+			if (accessor == null) return null;
+			return accessor.postBot(text);
+		} catch (InternalServerError error) {
+			return "Command not found";
 		}
 	}
 
@@ -62,14 +81,6 @@ public class CesarAccessor {
 		}
 	}
 
-	public String talk(String text) {
-		try {
-			if (accessor == null) return null;
-			return accessor.postBot(text);
-		} catch (InternalServerError error) {
-			return "Command not found";
-		}
-	}
 
 	public void disconnect() {
 		if (accessor != null) {

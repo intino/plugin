@@ -8,6 +8,7 @@ import io.intino.plugin.project.CesarAccessor;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -34,10 +35,12 @@ public class CesarBot {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyChar() == '\n') {
-					String response = sendCommand(chatInput.getText());
 					insertMessage("you", chatInput.getText());
+					String response = sendCommand(chatInput.getText());
 					chatInput.setText("");
-					insertMessage("cesar", response.trim());
+					if (response == null)
+						insertMessage("cesar", "Bot not available. Ensure your credential are correct and have connectivity.");
+					else insertMessage("cesar", response.trim());
 				}
 			}
 		});
@@ -77,8 +80,8 @@ public class CesarBot {
 					}
 				if (state.equals("icon") || state.equals("box")) buffer.append(aChar);
 				else document.insertString(document.getLength(), aChar + "", document.getStyle("normal"));
-
 			}
+			console.scrollRectToVisible(new Rectangle(0, console.getBounds(null).height, 1, 1));
 		} catch (BadLocationException e1) {
 			logger.error(e1);
 		}
