@@ -19,14 +19,18 @@ public class LegioDistribution implements Configuration.Distribution {
 
 	@Override
 	public Configuration.Repository release() {
-		Node release = TaraPsiUtil.componentOfType(node, "Release");
+		Node artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
+		if (artifactory == null) return null;
+		Node release = TaraPsiUtil.componentOfType(artifactory, "Release");
 		if (release == null) return null;
 		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraNode) release);
 	}
 
 	@Override
 	public Configuration.Repository snapshot() {
-		Node snapshot = TaraPsiUtil.componentOfType(node, "Snapshot");
+		Node artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
+		if (artifactory == null) return null;
+		Node snapshot = TaraPsiUtil.componentOfType(artifactory, "Snapshot");
 		if (snapshot == null) return null;
 		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) snapshot);
 	}

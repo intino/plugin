@@ -26,22 +26,17 @@ import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER
 
 public class ArtifactoryConnector {
 	public static final String MAVEN_URL = "https://repo1.maven.org/maven2/";
-
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
-
-	private final Project project;
 	private final List<Configuration.Repository> repositories;
-	private List<ArtifactoryCredential> artifactories;
+	private final List<ArtifactoryCredential> artifactories;
 
 	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
 		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
-		project = null;
 		artifactories = new ArrayList<>();
 	}
 
 	public ArtifactoryConnector(Project project, List<Configuration.Repository> repositories) {
-		this.project = project;
 		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
 		if (project != null) artifactories = IntinoSettings.getSafeInstance(project).artifactories();

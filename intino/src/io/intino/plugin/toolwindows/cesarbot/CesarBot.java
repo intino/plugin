@@ -20,7 +20,7 @@ import static javax.swing.text.StyleConstants.LineSpacing;
 public class CesarBot {
 	private static final com.intellij.openapi.diagnostic.Logger logger = Logger.getInstance(CesarBot.class);
 	static Project project;
-	private final List<String> icons = List.of("disconnected", "harddisk", "memory", "network", "threads", "work", "small_red_triangle", "small_red_triangle_down", "clock10", "hammer_and_pick");
+	private final List<String> icons = List.of("disconnected", "DEV", "PRE", "PRO", "DEMO", "hdd", "memory", "network", "threads", "cpu", "small_red_triangle", "small_red_triangle_down", "clock10", "cpu");
 	private final CesarAccessor cesarAccessor;
 	private JTextField chatInput;
 	private JTextPane console;
@@ -34,7 +34,7 @@ public class CesarBot {
 		chatInput.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar() == '\n') {
+				if (e.getKeyChar() == '\n' && chatInput.getText().length() > 0) {
 					insertMessage("you", chatInput.getText());
 					String response = sendCommand(chatInput.getText());
 					chatInput.setText("");
@@ -124,7 +124,6 @@ public class CesarBot {
 		normalStyle.addAttribute(StyleConstants.FontSize, 14);
 		normalStyle.addAttribute(StyleConstants.FontFamily, "Jetbrains Mono");
 		normalStyle.addAttribute(StyleConstants.Bold, Boolean.FALSE);
-
 	}
 
 	private String sendCommand(String text) {
@@ -132,7 +131,7 @@ public class CesarBot {
 	}
 
 	ImageIcon createImage(String code) {
-		InputStream resourceAsStream = this.getClass().getResourceAsStream("/icons/cesar/" + code + ".png");
+		InputStream resourceAsStream = this.getClass().getResourceAsStream("/icons/cesar/bot/" + code.toLowerCase() + ".png");
 		try {
 			if (resourceAsStream == null) throw new IOException(code + " not found");
 			return new ImageIcon(ImageIO.read(resourceAsStream));

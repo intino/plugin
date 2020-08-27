@@ -99,9 +99,10 @@ Concept:{1..1}:Named Artifact
 
 	has Parameter
 	Concept:{0..1} Distribution
-		var string identifier
-		Concept:{0..1} Release > var string url
-		Concept:{0..1} Snapshot > var string url
+		Concept Artifactory
+			var string identifier
+			Concept:{0..1} Release > var string url
+			Concept:{0..1} Snapshot > var string url
 		Concept:{0..1} OnBitbucket
 			var string owner
 			var string slugName
@@ -136,7 +137,7 @@ Concept:CheckDuplicatedArguments RunConfiguration
 	var function:FinalArguments finalArguments = @finalArguments is private
 
 Concept:Named Server
-	var word:{Dev Pre Pro} type
+	var word:{Dev Pre Pro Demo} type
 
 Concept Repository
 	var string identifier
