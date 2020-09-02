@@ -24,7 +24,7 @@ import java.util.Map;
 )
 public class IntinoSettings implements PersistentStateComponent<io.intino.plugin.settings.IntinoSettings.State> {
 
-	private State myState = new State();
+	private final State myState = new State();
 	private List<ArtifactoryCredential> artifactories = null;
 
 	public static io.intino.plugin.settings.IntinoSettings getSafeInstance(Project project) {
@@ -61,12 +61,12 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		myState.trackerApiToken = trackerApiToken;
 	}
 
-	public String cesarUser() {
-		return myState.cesarUser;
+	public String cesarToken() {
+		return myState.cesarToken;
 	}
 
-	public void cesarUser(String cesarUser) {
-		myState.cesarUser = cesarUser;
+	public void cesarToken(String cesarUser) {
+		myState.cesarToken = cesarUser;
 	}
 
 	public String cesarUrl() {
@@ -77,23 +77,13 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		myState.cesarUrl = url;
 	}
 
-
 	@NotNull
 	public Map.Entry<String, String> cesar() throws IntinoException {
 		final String cesar = cesarUrl();
-		final String user = cesarUser();
+		final String user = cesarToken();
 		if (cesar.isEmpty() || user.isEmpty())
 			throw new IntinoException("Cesar credentials not found, please specify it in Intino settings");
 		return new AbstractMap.SimpleEntry<>(cesar, user);
-	}
-
-
-	public boolean overrides() {
-		return myState.overrides;
-	}
-
-	public void overrides(boolean overrides) {
-		myState.overrides = overrides;
 	}
 
 	@Nullable
@@ -108,18 +98,16 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	}
 
 	public static class State {
-		public boolean overrides = false;
-
 		@Tag("trackerProjectId")
 		public String trackerProjectId = "1022010";
 
 		@Tag("trackerApiToken")
 		public String trackerApiToken = "ae3d1e4d4bcb011927e2768d7aa39f3a";
 
-		@Tag("cesarUser")
-		public String cesarUser = "";
 		@Tag("cesarUrl")
 		public String cesarUrl = "";
-	}
 
+		@Tag("cesarToken")
+		public String cesarToken = "";
+	}
 }

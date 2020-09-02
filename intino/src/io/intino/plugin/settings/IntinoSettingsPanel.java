@@ -3,6 +3,7 @@ package io.intino.plugin.settings;
 import com.intellij.openapi.ui.StripeTable;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -21,16 +22,25 @@ public class IntinoSettingsPanel {
 	private JTextField trackerProject;
 	private JTextField trackerApi;
 	private JScrollPane artifactories;
-	private JCheckBox overrides;
 	private JBTable table;
 	private JPanel tablePanel;
-	private JTextField cesarUser;
+	private JTextField cesarToken;
 	private JPanel cesar;
-	private JTextField url;
+	private JTextField cesarUrl;
+	private JButton generateButton;
 
 	IntinoSettingsPanel() {
 		tracker.setBorder(BorderFactory.createTitledBorder("Issue Tracker"));
 		artifactories.setMaximumSize(new Dimension(artifactories.getWidth(), 500));
+		generateButton.addActionListener(e -> {
+			UserPassword dialog = new UserPassword();
+			dialog.pack();
+			dialog.setTitle("Put user and password");
+			dialog.setLocationRelativeTo(dialog.getParent());
+			dialog.show();
+			if (dialog.user() != null && dialog.password() != null)
+				cesarToken.setText(DigestUtils.md5Hex(dialog.user() + ":" + dialog.password()));
+		});
 	}
 
 	void loadConfigurationData(IntinoSettings settings) {
@@ -40,20 +50,18 @@ public class IntinoSettingsPanel {
 			model.addRow(new Object[]{artifactory.serverId.trim(), artifactory.username.trim(), artifactory.password.trim()});
 		}
 		if (table.getRowCount() > 0) table.addRowSelectionInterval(0, 0);
-		overrides.setSelected(settings.overrides());
 		trackerProject.setText(settings.trackerProjectId());
 		trackerApi.setText(settings.trackerApiToken());
-		cesarUser.setText(settings.cesarUser());
-		url.setText(settings.cesarUrl());
+		cesarToken.setText(settings.cesarToken());
+		cesarUrl.setText(settings.cesarUrl());
 	}
 
 	void applyConfigurationData(IntinoSettings settings) {
 		settings.artifactories(createArtifactories());
-		settings.overrides(overrides.isSelected());
 		settings.trackerProjectId(trackerProject.getText());
 		settings.trackerApiToken(trackerApi.getText());
-		settings.cesarUser(cesarUser.getText());
-		settings.cesarUrl(url.getText());
+		settings.cesarUrl(cesarUrl.getText());
+		settings.cesarToken(cesarToken.getText());
 		settings.saveState();
 	}
 

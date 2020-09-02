@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class IntinoConfigurationType extends ApplicationConfigurationType {
 
-	private IntinoConfigurationFactory icf = new IntinoConfigurationFactory(this);
+	private final IntinoConfigurationFactory icf = new IntinoConfigurationFactory(this);
 
 	@Override
 	public String getDisplayName() {

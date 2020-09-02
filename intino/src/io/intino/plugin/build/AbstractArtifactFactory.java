@@ -154,6 +154,10 @@ public abstract class AbstractArtifactFactory {
 		try {
 			Configuration configuration = IntinoUtil.configurationOf(module);
 			File dslFile = dslFilePath(configuration);
+			if (!dslFile.exists()) {
+				errorMessages.add("Language not found");
+				return;
+			}
 			LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
 			new MavenRunner(module).executeLanguage(configuration);
 		} catch (Exception e) {
