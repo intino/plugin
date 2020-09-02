@@ -34,6 +34,7 @@ import java.util.*;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
+import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class AccessorsPublisher {
@@ -127,7 +128,11 @@ public class AccessorsPublisher {
 
 	private File createPom(File root, String serviceType, String group, String artifact, String version) {
 		final FrameBuilder builder = new FrameBuilder("pom").add("group", group).add("artifact", artifact).add("version", version);
-		conf.repositories().forEach(r -> buildRepoFrame(builder, r, version.contains("SNAPSHOT")));
+		conf.repositories().forEach(r -> buildRepoFrame(builder, r, false, r instanceof Configuration.Repository.Snapshot));
+		if (safe(() -> conf.artifact().distribution().release()) != null)
+			buildRepoFrame(builder, conf.artifact().distribution().release(), true, false);
+		if (safe(() -> conf.artifact().distribution().snapshot()) != null)
+			buildRepoFrame(builder, conf.artifact().distribution().snapshot(), true, true);
 		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").add("version", versionOf(serviceType)).toFrame());
 		final File pomFile = new File(root, "pom.xml");
 		write(builder, pomFile);
@@ -152,23 +157,18 @@ public class AccessorsPublisher {
 		}
 	}
 
-	private void buildRepoFrame(FrameBuilder builder, Configuration.Repository r, boolean snapshot) {
-		builder.add("repository", createRepositoryFrame(r, snapshot));
+	private void buildRepoFrame(FrameBuilder builder, Configuration.Repository r, boolean isDistribution, boolean snapshot) {
+		builder.add("repository", createRepositoryFrame(r, isDistribution, snapshot));
 	}
 
-	private Frame createRepositoryFrame(Configuration.Repository repository, boolean snapshot) {
-		return new FrameBuilder("repository", isDistribution(repository, snapshot) ? "distribution" : "release").
+	private Frame createRepositoryFrame(Configuration.Repository repository, boolean isDistribution, boolean snapshot) {
+		FrameBuilder builder = new FrameBuilder("repository").
 				add("name", repository.identifier()).
 				add("random", UUID.randomUUID().toString()).
-				add("url", repository.url()).toFrame();
-	}
-
-	private boolean isDistribution(Configuration.Repository repository, boolean snapshot) {
-		Configuration.Distribution distribution = conf.artifact().distribution();
-		if (distribution == null) return false;
-		Configuration.Repository repo = snapshot ? distribution.snapshot() : distribution.release();
-		return repo != null && repository.identifier().equals(repo.identifier()) &&
-				repository.url().equals(repo.url());
+				add("url", repository.url());
+		if (isDistribution) builder.add("distribution");
+		if (snapshot) builder.add("snapshot");
+		return builder.toFrame();
 	}
 
 	private void notifySuccess(Configuration conf, String app) {

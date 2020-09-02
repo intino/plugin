@@ -55,6 +55,13 @@ def type(pom)
 </project>
 end
 
+def type(repository & Distribution & snapshot) trigger(distribution)
+	<snapshotRepository>
+		<id>$name</id>
+		<url>$url</url>
+	</snapshotRepository>
+end
+
 def type(repository) type(Distribution) trigger(distribution)
 	<repository>
 		<id>$name</id>
