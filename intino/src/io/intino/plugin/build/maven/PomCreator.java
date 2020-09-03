@@ -160,22 +160,26 @@ class PomCreator {
 	}
 
 	private void addDependencies(FrameBuilder builder) {
-		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) addDependantModuleAsSources(builder, module);
+		if (!allModulesSeparated()) addDependantModuleAsSources(builder, module);
 		else builder.add("compile", " ");
 		Set<String> dependencies = new HashSet<>();
 		addLevelDependency(builder, dependencies);
 		List<Dependency> moduleDependencies = collectDependencies();
 		for (Dependency dependency : moduleDependencies.stream().filter(d -> !d.scope().equalsIgnoreCase("test")).collect(Collectors.toList())) {
-			if (dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest))
+			if (dependency.toModule() && !allModulesSeparated())
 				addDependantModuleLibraries(builder, dependency, dependencies);
 			else if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
 		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).collect(Collectors.toList()))
-			if (((dependency.toModule() && !packageType.equals(ModulesAndLibrariesLinkedByManifest)) || !dependency.toModule()) && dependencies.add(dependency.identifier()))
+			if (((dependency.toModule() && !allModulesSeparated()) || !dependency.toModule()) && dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
-		if (!packageType.equals(ModulesAndLibrariesLinkedByManifest))
+		if (!allModulesSeparated())
 			addDependantModuleTestLibraries(builder, dependencies);
+	}
+
+	private boolean allModulesSeparated() {
+		return packageType.equals(ModulesAndLibrariesLinkedByManifest);
 	}
 
 	@NotNull
@@ -216,7 +220,7 @@ class PomCreator {
 	}
 
 	private void addDependantModuleLibraries(FrameBuilder builder, Dependency dependency, Set<String> dependencies) {
-		Module dependantModule = findModuleOf(dependency);
+		Module dependantModule = findModuleOf(dependency, dependency.scope().equalsIgnoreCase("test"));
 		if (dependantModule == null) return;
 		final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
 		if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof LegioConfiguration)
@@ -236,8 +240,8 @@ class PomCreator {
 		}
 	}
 
-	private Module findModuleOf(Dependency dependency) {
-		return getModuleDependencies().stream().filter(m -> {
+	private Module findModuleOf(Dependency dependency, boolean includeTests) {
+		return getModuleDependencies(includeTests).stream().filter(m -> {
 			Configuration configuration = IntinoUtil.configurationOf(m);
 			Artifact artifact = configuration.artifact();
 			return artifact.groupId().equalsIgnoreCase(dependency.groupId()) &&
@@ -247,12 +251,11 @@ class PomCreator {
 	}
 
 	private void addDependantModuleTestLibraries(FrameBuilder builder, Set<String> dependencies) {
-		for (Module dependantModule : getModuleDependencies()) {
+		for (Module dependantModule : getModuleDependencies(true)) {
 			final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
 			safeList(() -> configuration.artifact().dependencies()).stream().
 					filter(d -> (d.scope().equalsIgnoreCase("test")) && dependencies.add(d.identifier())).
 					forEach(d -> builder.add("dependency", createDependencyFrame(d)));
-
 		}
 	}
 
@@ -264,13 +267,14 @@ class PomCreator {
 	}
 
 	@NotNull
-	private List<Module> getModuleDependencies() {
-		return new ArrayList<>(collectModuleDependencies(this.module, new HashSet<>()));
+	private List<Module> getModuleDependencies(boolean includeTests) {
+		return new ArrayList<>(collectModuleDependencies(this.module, new HashSet<>(), includeTests));
 	}
 
-	private Set<Module> collectModuleDependencies(Module module, Set<Module> collection) {
-		for (Module dependant : getInstance(module).getModuleDependencies()) {
-			if (!collection.contains(dependant)) collection.addAll(collectModuleDependencies(dependant, collection));
+	private Set<Module> collectModuleDependencies(Module module, Set<Module> collection, boolean includeTests) {
+		for (Module dependant : getInstance(module).getModuleDependencies(includeTests)) {
+			if (!collection.contains(dependant))
+				collection.addAll(collectModuleDependencies(dependant, collection, includeTests));
 			collection.add(dependant);
 		}
 		return collection;
@@ -285,12 +289,12 @@ class PomCreator {
 	private List<String> resourceDirectories(Module module) {
 		final List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(RESOURCE);
 		final List<String> resources = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
-		for (Module dependency : collectModuleDependencies(module, new HashSet<>())) {
+		for (Module dependency : collectModuleDependencies(module, new HashSet<>(), false)) {
 			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) {
 				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 				if (extension != null && extension.getCompilerOutputUrl() != null)
 					resources.add(outDirectory(extension));
-			} else if (!packageType.equals(ModulesAndLibrariesLinkedByManifest)) {
+			} else if (!allModulesSeparated()) {
 				List<VirtualFile> roots = getInstance(dependency).getSourceRoots(RESOURCE);
 				resources.addAll(roots.stream().map(VirtualFile::getPath).collect(Collectors.toList()));
 			}
@@ -301,7 +305,7 @@ class PomCreator {
 	private List<String> resourceTestDirectories(Module module) {
 		List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(TEST_RESOURCE);
 		List<String> list = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
-		for (Module dep : getModuleDependencies())
+		for (Module dep : getModuleDependencies(true))
 			list.addAll(getInstance(dep).getSourceRoots(TEST_RESOURCE).stream().map(VirtualFile::getPath).collect(Collectors.toList()));
 		return list;
 	}
@@ -310,7 +314,7 @@ class PomCreator {
 		if (artifact.url() != null) builder.add("url", artifact.url());
 		if (artifact.description() != null) builder.add("description", artifact.description());
 		if (aPackage.attachSources()) builder.add("attachSources", " ");
-		if (aPackage.signArtifactWitGpg()) builder.add("gpgSign", " ");
+		if (aPackage.signArtifactWithGpg()) builder.add("gpgSign", " ");
 		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
 		if (aPackage.isRunnable()) {
 			if (aPackage.macOsConfiguration() != null) builder.add("osx", osx(aPackage));
@@ -378,16 +382,16 @@ class PomCreator {
 	}
 
 	private void addDependantModuleAsSources(FrameBuilder builder, Module module) {
-		for (Module dependency : new ArrayList<>(collectModuleDependencies(module, new HashSet<>())))
+		for (Module dependency : new ArrayList<>(collectModuleDependencies(module, new HashSet<>(), false)))
 			addModuleAsSources(builder, dependency);
 	}
 
 	private void addModuleAsSources(FrameBuilder builder, Module dependency) {
 		ApplicationManager.getApplication().runReadAction(() -> {
 			for (VirtualFile sourceRoot : getInstance(dependency).getModifiableModel().getSourceRoots(SOURCE))
-				if (sourceRoot != null) builder.add("moduleDependency", sourceRoot.getPath());
+				if (sourceRoot != null) builder.add("moduleDependency", relativeToModulePath(sourceRoot.getPath()));
 			for (VirtualFile testRoot : getInstance(dependency).getModifiableModel().getSourceRoots(TEST_SOURCE))
-				if (testRoot != null) builder.add("testModuleDependency", testRoot.getPath());
+				if (testRoot != null) builder.add("testModuleDependency", relativeToModulePath(testRoot.getPath()));
 		});
 	}
 
@@ -401,7 +405,7 @@ class PomCreator {
 	}
 
 	private String findLanguageId(Artifact.Model.Language language) {
-		if (packageType.equals(ModulesAndLibrariesLinkedByManifest))
+		if (allModulesSeparated())
 			return languageId(language.name(), language.version());
 		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageId(language.name(), language.version());
 	}

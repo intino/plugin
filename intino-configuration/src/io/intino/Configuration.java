@@ -283,7 +283,7 @@ public interface Configuration {
 
 			boolean isRunnable();
 
-			boolean createPOMproject();
+			boolean createMavenPom();
 
 			boolean attachSources();
 
@@ -293,7 +293,7 @@ public interface Configuration {
 
 			boolean includeTests();
 
-			boolean signArtifactWitGpg();
+			boolean signArtifactWithGpg();
 
 			String classpathPrefix();
 

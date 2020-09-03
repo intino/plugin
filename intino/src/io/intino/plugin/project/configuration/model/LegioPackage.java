@@ -33,8 +33,8 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	}
 
 	@Override
-	public boolean createPOMproject() {
-		String createPOMproject = read(() -> parameterValue(node, "createPOMproject", 1));
+	public boolean createMavenPom() {
+		String createPOMproject = read(() -> parameterValue(node, "createMavenPom", 1));
 		return Boolean.parseBoolean(createPOMproject);
 	}
 
@@ -63,8 +63,8 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	}
 
 	@Override
-	public boolean signArtifactWitGpg() {
-		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWitGpg", 5));
+	public boolean signArtifactWithGpg() {
+		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWithGpg", 5));
 		return Boolean.parseBoolean(signArtifactWitGpg);
 	}
 

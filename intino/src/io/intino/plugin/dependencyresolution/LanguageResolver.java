@@ -43,8 +43,8 @@ public class LanguageResolver {
 	private final DependencyAuditor auditor;
 	private final List<Repository> repositories;
 	private final Model model;
+	private final File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private String version;
-	private File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 
 	public LanguageResolver(Module module, DependencyAuditor auditor, Model model, String version, List<Repository> repositories) {
 		this.module = module;
@@ -80,7 +80,7 @@ public class LanguageResolver {
 	}
 
 	private DependencyCatalog resolveModuleLanguage(Module dependency) {
-		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency);
+		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency, "COMPILE");
 		final Configuration configuration = IntinoUtil.configurationOf(dependency);
 		if (configuration != null) model.language().effectiveVersion(configuration.artifact().version());
 		return catalog;

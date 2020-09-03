@@ -111,7 +111,7 @@ public class MavenRunner {
 	}
 
 	private boolean preservePOM() {
-		Boolean safe = safe(() -> ((LegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createPOMproject());
+		Boolean safe = safe(() -> ((LegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createMavenPom());
 		return safe != null ? safe : false;
 	}
 

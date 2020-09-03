@@ -44,7 +44,6 @@ public class CesarBot {
 				}
 			}
 		});
-
 	}
 
 	private void insertMessage(String user, String message) {

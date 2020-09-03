@@ -16,39 +16,39 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope.COMPILE;
 import static io.intino.plugin.dependencyresolution.IntinoLibrary.INTINO;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 class ModuleDependencyResolver {
-	DependencyCatalog resolveDependencyTo(Module dependency) {
+	DependencyCatalog resolveDependencyTo(Module dependency, String scope) {
 		Application application = ApplicationManager.getApplication();
-		if (application.isReadAccessAllowed()) return resolveDependencies(dependency);
-		else return application.runReadAction((Computable<DependencyCatalog>) () -> resolveDependencies(dependency));
+		if (application.isReadAccessAllowed()) return resolveDependencies(dependency, scope);
+		else
+			return application.runReadAction((Computable<DependencyCatalog>) () -> resolveDependencies(dependency, scope));
 	}
 
-	private DependencyCatalog resolveDependencies(Module dependency) {
+	private DependencyCatalog resolveDependencies(Module dependency, String scope) {
 		DependencyCatalog catalog = new DependencyCatalog();
-		catalog.add(dependencyFrom((LegioConfiguration) IntinoUtil.configurationOf(dependency)));
-		librariesOf(dependency).stream().filter(l -> l.getName() != null && l.getFiles(OrderRootType.CLASSES).length >= 1).forEach(l -> catalog.add(dependencyFrom(l)));
+		catalog.add(dependencyFrom((LegioConfiguration) IntinoUtil.configurationOf(dependency), scope));
+		librariesOf(dependency).stream().filter(l -> l.getName() != null && l.getFiles(OrderRootType.CLASSES).length >= 1).forEach(l -> catalog.add(dependencyFrom(l, scope)));
 		moduleDependenciesOf(dependency).stream().
 				map(IntinoUtil::configurationOf).
 				filter(c -> c instanceof LegioConfiguration).
 				map(c -> (LegioConfiguration) c).
-				forEach(c -> catalog.add(dependencyFrom(c)));
+				forEach(c -> catalog.add(dependencyFrom(c, scope)));
 		return catalog;
 	}
 
 	@NotNull
-	private Dependency dependencyFrom(LegioConfiguration c) {
+	private Dependency dependencyFrom(LegioConfiguration c, String scope) {
 		LegioArtifact artifact = c.artifact();
-		return new Dependency(artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + COMPILE, c.module().getName());
+		return new Dependency(artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + DependencyScope.valueOf(scope.toUpperCase()), c.module().getName());
 	}
 
 	@NotNull
-	private Dependency dependencyFrom(Library library) {
-		return new Dependency(requireNonNull(library.getName()).replace(INTINO, "") + ":" + COMPILE,
+	private Dependency dependencyFrom(Library library, String scope) {
+		return new Dependency(requireNonNull(library.getName()).replace(INTINO, "") + ":" + scope,
 				new File(library.getFiles(OrderRootType.CLASSES)[0].getPath().replace("!", "")),
 				library.getFiles(OrderRootType.SOURCES).length > 0);
 	}
