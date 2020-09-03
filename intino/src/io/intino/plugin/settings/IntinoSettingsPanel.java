@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
@@ -38,8 +39,10 @@ public class IntinoSettingsPanel {
 			dialog.setTitle("Put user and password");
 			dialog.setLocationRelativeTo(dialog.getParent());
 			dialog.show();
-			if (dialog.user() != null && dialog.password() != null)
-				cesarToken.setText(DigestUtils.md5Hex(dialog.user() + ":" + dialog.password()));
+			if (dialog.user() != null && dialog.password() != null) {
+				Base64.Encoder encoder = Base64.getEncoder();
+				cesarToken.setText(encoder.encodeToString((dialog.user() + ":" + encoder.encodeToString(DigestUtils.md5(dialog.password()))).getBytes()));
+			}
 		});
 	}
 

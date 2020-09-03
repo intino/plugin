@@ -43,10 +43,8 @@ public class CesarAccessor {
 	}
 
 	private void checkCredentials() {
-		if (credentials == null || this.accessor == null) {
-			this.credentials = credentials();
-			this.accessor = createAccessor();
-		}
+		this.credentials = credentials();
+		this.accessor = createAccessor();
 	}
 
 	public ProcessStatus processStatus(String id) {
@@ -64,8 +62,8 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.postBot(text);
-		} catch (InternalServerError error) {
-			return "Command not found";
+		} catch (InternalServerError e) {
+			return "Error executing command: " + e.getMessage();
 		}
 	}
 
@@ -80,7 +78,6 @@ public class CesarAccessor {
 			accessor.stopListenBotNotifications();
 		}
 	}
-
 
 	public void disconnect() {
 		if (accessor != null) {

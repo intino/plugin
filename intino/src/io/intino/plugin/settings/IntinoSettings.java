@@ -80,10 +80,10 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	@NotNull
 	public Map.Entry<String, String> cesar() throws IntinoException {
 		final String cesar = cesarUrl();
-		final String user = cesarToken();
-		if (cesar.isEmpty() || user.isEmpty())
+		final String token = cesarToken();
+		if (cesar.isEmpty() || token.isEmpty())
 			throw new IntinoException("Cesar credentials not found, please specify it in Intino settings");
-		return new AbstractMap.SimpleEntry<>(cesar, user);
+		return new AbstractMap.SimpleEntry<>(cesar, token);
 	}
 
 	@Nullable
