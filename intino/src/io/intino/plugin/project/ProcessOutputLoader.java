@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ProcessOutputLoader {
-	private Project project;
+	private final Project project;
 
 	public ProcessOutputLoader(Project project) {
 		this.project = project;

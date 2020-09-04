@@ -81,6 +81,7 @@ public class CesarBot {
 				else document.insertString(document.getLength(), aChar + "", document.getStyle("normal"));
 			}
 			console.scrollRectToVisible(new Rectangle(0, console.getBounds(null).height, 1, 1));
+			console.moveCaretPosition(console.getDocument().getLength());
 		} catch (BadLocationException e1) {
 			logger.error(e1);
 		}
