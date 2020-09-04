@@ -36,14 +36,18 @@ public class CesarBot {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyChar() == '\n' && chatInput.getText().length() > 0) {
 					insertMessage("you", chatInput.getText());
-					String response = sendCommand(chatInput.getText());
-					chatInput.setText("");
-					if (response == null)
-						insertMessage("cesar", "Bot is not available. Ensure your credential are correct and have connectivity.");
-					else insertMessage("cesar", response.trim().replace("\n\n", "\n"));
+					new Thread(() -> response()).start();
 				}
 			}
 		});
+	}
+
+	private void response() {
+		String response = sendCommand(chatInput.getText());
+		chatInput.setText("");
+		if (response == null)
+			insertMessage("cesar", "Bot is not available. Ensure your credential are correct and have connectivity.");
+		else insertMessage("cesar", response.trim().replace("\n\n", "\n"));
 	}
 
 	private void insertMessage(String user, String message) {
