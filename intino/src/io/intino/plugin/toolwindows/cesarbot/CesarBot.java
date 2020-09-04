@@ -47,7 +47,11 @@ public class CesarBot {
 		chatInput.setText("");
 		if (response == null)
 			insertMessage("cesar", "Bot is not available. Ensure your credential are correct and have connectivity.");
-		else insertMessage("cesar", response.trim().replace("\n\n", "\n"));
+		else {
+			response = response.trim().replace("\n\n", "\n");
+			if (response.contains("\n")) response = "\n" + response;
+			insertMessage("cesar", response);
+		}
 	}
 
 	private void insertMessage(String user, String message) {
