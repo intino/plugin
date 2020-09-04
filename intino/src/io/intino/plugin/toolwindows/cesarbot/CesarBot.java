@@ -20,7 +20,7 @@ import static javax.swing.text.StyleConstants.LineSpacing;
 public class CesarBot {
 	private static final com.intellij.openapi.diagnostic.Logger logger = Logger.getInstance(CesarBot.class);
 	static Project project;
-	private final List<String> icons = List.of("disconnected", "DEV", "PRE", "PRO", "DEMO", "hdd", "memory", "network", "threads", "cpu", "small_red_triangle", "small_red_triangle_down", "clock10", "cpu");
+	private final List<String> icons = List.of("disconnected", "ok_hand", "DEV", "PRE", "PRO", "DEMO", "hdd", "memory", "network", "threads", "cpu", "small_red_triangle", "small_red_triangle_down", "clock10", "cpu");
 	private final CesarAccessor cesarAccessor;
 	private JTextField chatInput;
 	private JTextPane console;
@@ -138,7 +138,6 @@ public class CesarBot {
 			logger.error(e);
 			return null;
 		}
-
 	}
 
 	public JPanel content() {

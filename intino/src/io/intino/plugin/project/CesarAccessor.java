@@ -10,6 +10,7 @@ import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoException;
 
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
@@ -61,7 +62,7 @@ public class CesarAccessor {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.postBot(text);
+			return accessor.postBot(text, TimeZone.getDefault().getID());
 		} catch (InternalServerError e) {
 			return "Error executing command: " + e.getMessage();
 		}
