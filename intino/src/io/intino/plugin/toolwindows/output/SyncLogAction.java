@@ -13,7 +13,6 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.plugin.project.CesarAccessor;
-import io.intino.plugin.project.ProcessOutputLoader;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

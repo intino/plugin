@@ -45,7 +45,7 @@ public class CesarBot {
 	}
 
 	private void response(String query) {
-		String response = sendCommand(chatInput.getText());
+		String response = sendCommand(query);
 		if (response == null)
 			insertMessage("cesar", "Bot is not available. Ensure your credential are correct and have connectivity.");
 		else {

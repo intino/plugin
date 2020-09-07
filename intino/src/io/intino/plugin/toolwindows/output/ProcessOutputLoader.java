@@ -1,10 +1,8 @@
-package io.intino.plugin.project;
+package io.intino.plugin.toolwindows.output;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.plugin.toolwindows.output.ConsoleWindowComponent;
-import io.intino.plugin.toolwindows.output.OutputsToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;

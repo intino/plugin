@@ -1,9 +1,15 @@
 package io.intino.plugin.build.maven;
 
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessListener;
+import com.intellij.execution.runners.ProgramRunner;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.util.Key;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
@@ -17,13 +23,12 @@ import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import org.apache.maven.shared.invoker.*;
+import org.codehaus.plexus.util.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.io.File;
@@ -40,9 +45,11 @@ import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLe
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
-	private Module module;
-	private InvocationOutputHandler handler;
-	private String output = "";
+	private final Module module;
+	private final InvocationOutputHandler handler;
+	private final String output = "";
+
+	private static final Object monitor = new Object();
 
 	public MavenRunner(Module module) {
 		this.module = module;
@@ -95,7 +102,7 @@ public class MavenRunner {
 		return safe(() -> configuration.artifact().distribution().release());
 	}
 
-	public void executeArtifact(FactoryPhase phase) throws MavenInvocationException, IOException {
+	public void executeArtifact(FactoryPhase phase) throws IOException {
 		final File pom = new PomCreator(module).frameworkPom(phase);
 		final InvocationResult result = invokeMaven(pom, phase);
 		applyBuildFixes(module, phase);
@@ -119,18 +126,40 @@ public class MavenRunner {
 		new BuildFixer(module).apply();
 	}
 
-	public void invokeMaven(String... phases) {
-		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
-		if (project == null) return;
+	public synchronized InvocationResult invokeMavenWithConfiguration(File pom, String... phases) {
+		DefaultInvocationResult result = new DefaultInvocationResult();
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
 		generalSettings.setOutputLevel(ERROR);
 		generalSettings.setPrintErrorStackTraces(false);
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
-		MavenRunnerSettings runnerSettings = org.jetbrains.idea.maven.execution.MavenRunner.getInstance(module.getProject()).getSettings().clone();
-		runnerSettings.setSkipTests(false);
-		runnerSettings.setRunMavenInBackground(true);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, "pom2.xml", new File(project.getPath()).getParent(), asList(phases), Collections.emptyList());
-		MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, null);
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), asList(phases), Collections.emptyList());
+		synchronized (monitor) {
+			ApplicationManager.getApplication().invokeLater(() -> {
+				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
+					@Override
+					public void startNotified(@NotNull ProcessEvent event) {
+					}
+
+					@Override
+					public void processTerminated(@NotNull ProcessEvent event) {
+						result.exitCode(event.getExitCode());
+						synchronized (monitor) {
+							monitor.notify();
+						}
+					}
+
+					@Override
+					public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+					}
+				});
+				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, null, callback);
+			}, ModalityState.NON_MODAL);
+			try {
+				monitor.wait();
+			} catch (InterruptedException e) {
+			}
+		}
+		return result;
 	}
 
 	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
@@ -144,8 +173,8 @@ public class MavenRunner {
 		return invoker.execute(request);
 	}
 
-	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) throws MavenInvocationException {
-		return invokeMaven(pom, "", lifeCyclePhase.mavenActions().toArray(new String[0]));
+	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) {
+		return invokeMavenWithConfiguration(pom, lifeCyclePhase.mavenActions().toArray(new String[0]));
 	}
 
 	public String output() {
@@ -196,5 +225,30 @@ public class MavenRunner {
 		request.setShowErrors(true);
 		final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
 		if (sdk != null && sdk.getHomePath() != null) request.setJavaHome(new File(sdk.getHomePath()));
+	}
+
+
+	public final class DefaultInvocationResult implements InvocationResult {
+		private CommandLineException executionException;
+		private int exitCode = -2147483648;
+
+		DefaultInvocationResult() {
+		}
+
+		public int getExitCode() {
+			return this.exitCode;
+		}
+
+		public CommandLineException getExecutionException() {
+			return this.executionException;
+		}
+
+		void exitCode(int exitCode) {
+			this.exitCode = exitCode;
+		}
+
+		void executionException(CommandLineException executionException) {
+			this.executionException = executionException;
+		}
 	}
 }
