@@ -11,12 +11,7 @@ import io.intino.plugin.lang.psi.TaraNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-
 public class TaraMethodSeparatorProvider implements LineMarkerProvider {
-
-
 	@Nullable
 	@Override
 	public LineMarkerInfo getLineMarkerInfo(@NotNull PsiElement element) {
@@ -26,11 +21,6 @@ public class TaraMethodSeparatorProvider implements LineMarkerProvider {
 
 	private boolean isRoot(Node element) {
 		return element.container() instanceof TaraModel;
-	}
-
-	@Override
-	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
-
 	}
 
 	private PsiElement leafOf(@NotNull PsiElement element) {

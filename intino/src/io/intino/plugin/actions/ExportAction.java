@@ -3,10 +3,6 @@ package io.intino.plugin.actions;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -32,7 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.intino.plugin.DataContext.getContext;
+import static io.intino.Configuration.Artifact.Plugin.Phase.Export;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ExportAction {
@@ -50,7 +46,7 @@ public class ExportAction {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				runBoxExports(phase, module, (LegioConfiguration) configuration, indicator);
-				runExportPlugins(module, phase, (LegioConfiguration) configuration, indicator);
+				runPlugins(module, phase, (LegioConfiguration) configuration, indicator);
 			}
 		});
 	}
@@ -73,9 +69,9 @@ public class ExportAction {
 		}
 	}
 
-	private void runExportPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration, ProgressIndicator indicator) {
+	private void runPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration, ProgressIndicator indicator) {
 		List<Configuration.Artifact.Plugin> intinoPlugins = safeList(() -> configuration.artifact().plugins());
-		intinoPlugins.stream().filter(i -> i.phase() == Configuration.Artifact.Plugin.Phase.Export).forEach(plugin -> {
+		intinoPlugins.stream().filter(i -> i.phase() == Export).forEach(plugin -> {
 			List<String> errorMessages = new ArrayList<>();
 			new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
 			if (!errorMessages.isEmpty())
@@ -85,11 +81,5 @@ public class ExportAction {
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
-	}
-
-	private AnActionEvent createActionEvent() {
-		return new AnActionEvent(null, getContext(),
-				ActionPlaces.UNKNOWN, new Presentation(),
-				ActionManager.getInstance(), 0);
 	}
 }

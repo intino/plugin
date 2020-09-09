@@ -14,8 +14,6 @@ import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
 public class KonoscOSProcessHandler {
-
-
 	private final Process process;
 	private final Consumer<String> statusUpdater;
 

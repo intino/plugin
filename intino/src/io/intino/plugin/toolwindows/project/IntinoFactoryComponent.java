@@ -1,5 +1,6 @@
 package io.intino.plugin.toolwindows.project;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -11,6 +12,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.project.StartupActivity;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.toolwindows.project.IntinoFactoryComponent.ViewConstants.*;
@@ -26,7 +28,13 @@ public class IntinoFactoryComponent implements ProjectComponent {
 
 	@Override
 	public void initComponent() {
-		StartupManager.getInstance(project).registerPostStartupActivity(this::registerToolWindow);
+		StartupManager.getInstance(project).registerPostStartupActivity(new StartupActivity() {
+																			@Override
+																			public void run() {
+																				ApplicationManager.getApplication().invokeLater(() -> registerToolWindow());
+																			}
+																		}
+		);
 	}
 
 	@Override

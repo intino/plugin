@@ -26,7 +26,7 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 	public static Map<String, String> nodeMap = new HashMap<>();
 
 	@Override
-	protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo> result) {
+	protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
 		if (!(element instanceof Node) || (element instanceof TaraModel) || !isInterfaceFile(element) || nodeMap.isEmpty())
 			return;
 		Node node = (Node) element;
@@ -47,7 +47,7 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		return JavaHelper.getJavaHelper(((PsiElement) node).getProject()).findClass(boxPackage(module).toLowerCase() + "." + nodeMap.get(key));
 	}
 
-	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {
+	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo<?>> result, PsiElement destiny) {
 		NavigationGutterIconBuilder<PsiElement> builder =
 				NavigationGutterIconBuilder.create(ImplementedMethod).setTarget(destiny).setTooltipText("Navigate to the native code");
 		result.add(builder.createLineMarkerInfo(leafOf(element)));

@@ -20,7 +20,7 @@ public class JavaNativeImplementationToTara extends RelatedItemLineMarkerProvide
 	private static final String NATIVE_PACKAGE = "natives";
 
 	@Override
-	protected void collectNavigationMarkers(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result) {
+	protected void collectNavigationMarkers(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo<?>> result) {
 		if (!(element instanceof PsiClass)) return;
 		PsiClass psiClass = (PsiClass) element;
 		PsiElement destiny = ReferenceManager.resolveJavaNativeImplementation(psiClass);
@@ -40,7 +40,7 @@ public class JavaNativeImplementationToTara extends RelatedItemLineMarkerProvide
 				(module != null && packageName.startsWith(Format.javaValidName().format(module.getName()).toString().toLowerCase() + '.' + NATIVE_PACKAGE));
 	}
 
-	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {
+	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo<?>> result, PsiElement destiny) {
 		result.add(NavigationGutterIconBuilder.create(IntinoIcons.MODEL_16).setTarget(destiny).setTooltipText("Navigate to the native declaration").createLineMarkerInfo(element));
 	}
 

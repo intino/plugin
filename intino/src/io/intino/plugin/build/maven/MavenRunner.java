@@ -56,11 +56,6 @@ public class MavenRunner {
 		handler = defaultHandler();
 	}
 
-	public MavenRunner(Module module, InvocationOutputHandler handler) {
-		this.module = module;
-		this.handler = handler == null ? defaultHandler() : handler;
-	}
-
 	@NotNull
 	private InvocationOutputHandler defaultHandler() {
 		return this::publish;

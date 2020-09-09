@@ -13,8 +13,6 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration.Parameter;
 import io.intino.plugin.file.konos.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -22,12 +20,11 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
-import io.intino.plugin.toolwindows.output.MavenListener;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +38,8 @@ public class KonosRunner {
 	private static final int COMPILER_MEMORY = 600;
 	private static File argsFile;
 	private final Module module;
-	private List<String> classpath;
+	private final StringBuilder output = new StringBuilder();
+	private final List<String> classpath;
 
 	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException {
 		this.module = module;
@@ -89,24 +87,20 @@ public class KonosRunner {
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
 				getJavaExecutable(), "io.intino.konos.KonoscRunner", Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
-
-		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, u -> publish(u));
+		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, this::save);
 		handler.startNotify();
 		try {
 			handler.waitFor();
 		} catch (InterruptedException e) {
 			Logger.error(e);
 		}
+		Path tempFile = Files.createTempFile("konos", "runner");
+		Files.writeString(tempFile, output.toString());
+		Logger.info("Output of konos execution saved in: " + tempFile.toFile().getAbsolutePath());
 	}
 
-	private void publish(String line) {
-		if (module.getProject().isDisposed()) return;
-		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
-		mavenListener.println(line);
-		final MessageBusConnection connect = messageBus.connect();
-		connect.deliverImmediately();
-		connect.disconnect();
+	private void save(String line) {
+		output.append(line).append("\n");
 	}
 
 	private Map<String, String> collectPaths(Module module, String outputPath) {

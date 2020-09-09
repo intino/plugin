@@ -65,7 +65,7 @@
         <dependency>
             <groupId>io.intino.alexandria</groupId>
             <artifactId>message</artifactId>
-            <version>1.0.0</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>io.intino.magritte</groupId>
@@ -164,7 +164,7 @@
         <dependency>
             <groupId>io.intino</groupId>
             <artifactId>cesar-api-accessor</artifactId>
-            <version>3.0.0</version>
+            <version>4.0.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

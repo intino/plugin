@@ -47,7 +47,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	}
 
 	@Override
-	protected boolean isAvailable() {
+	public boolean isAvailable() {
 		return true;
 	}
 

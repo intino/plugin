@@ -6,20 +6,14 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
-import io.intino.plugin.toolwindows.output.MavenListener;
-import org.apache.maven.shared.invoker.*;
+import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -29,21 +23,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
 import static io.intino.plugin.project.Safe.safe;
-import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class AccessorsPublisher {
 	private static final Logger LOG = Logger.getInstance("Publishing Accessor:");
 	private static final String ACCESSOR = "-accessor";
 	private final Module module;
-	private StringBuilder log = new StringBuilder();
-	private File root;
-	private LegioConfiguration conf;
+	private final StringBuilder log = new StringBuilder();
+	private final File root;
+	private final LegioConfiguration conf;
 
 	public AccessorsPublisher(Module module, LegioConfiguration conf, File root) {
 		this.module = module;
@@ -58,7 +53,7 @@ public class AccessorsPublisher {
 				if (sources == null || sources.length == 0) return;
 				mvn(serviceDirectory, conf, "install");
 			}
-		} catch (IOException | MavenInvocationException e) {
+		} catch (IOException e) {
 			notifyError(e.getMessage());
 			LOG.error(e.getMessage());
 		}
@@ -71,59 +66,21 @@ public class AccessorsPublisher {
 				if (sources == null || sources.length == 0) return;
 				mvn(serviceDirectory, conf, "deploy");
 			}
-		} catch (IOException | MavenInvocationException e) {
+		} catch (IOException e) {
 			notifyError(e.getMessage());
 		}
 	}
 
-	private void mvn(File serviceDirectory, Configuration conf, String goal) throws MavenInvocationException, IOException {
+	private void mvn(File serviceDirectory, Configuration conf, String goal) throws IOException {
 		String[] name = serviceDirectory.getName().split("#");
 		final File pom = createPom(serviceDirectory, name[0], accessorGroupId(), accessorArtifactId(name[1]), conf.artifact().version());
-		final InvocationResult result = invoke(pom, goal);
+		final InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
 				throw new IOException("Failed to publish accessor.", result.getExecutionException());
 			else throw new IOException("Failed to publish accessor. Exit code: " + result.getExitCode());
 		} else if (result == null) throw new IOException("Failed to publish accessor. Maven HOME not found");
 		notifySuccess(this.conf, name[1]);
-	}
-
-	private InvocationResult invoke(File pom, String goal) throws MavenInvocationException {
-		List<String> goals = new ArrayList<>();
-		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		goals.add("clean");
-		goals.add("install");
-		if (!goal.isEmpty()) goals.add(goal);
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(goals);
-		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
-		if (mavenHome == null) return null;
-		LOG.info("Maven HOME: " + mavenHome.getAbsolutePath());
-		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
-		log(invoker);
-		config(request, mavenHome);
-		return invoker.execute(request);
-	}
-
-	private void log(Invoker invoker) {
-		invoker.setErrorHandler(LOG::error);
-		invoker.setOutputHandler(this::publish);
-	}
-
-	private void publish(String line) {
-		if (module.getProject().isDisposed()) return;
-		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
-		mavenListener.println(line);
-		final MessageBusConnection connect = messageBus.connect();
-		connect.deliverImmediately();
-		connect.disconnect();
-	}
-
-	private void config(InvocationRequest request, File mavenHome) {
-		final File mvn = new File(mavenHome, "bin" + File.separator + "mvn");
-		mvn.setExecutable(true);
-		final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-		if (sdk != null && sdk.getHomePath() != null) request.setJavaHome(new File(sdk.getHomePath()));
 	}
 
 	private File createPom(File root, String serviceType, String group, String artifact, String version) {

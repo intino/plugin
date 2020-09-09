@@ -7,8 +7,10 @@ import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.cesar.box.ApiAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.ServerInfo;
 import io.intino.plugin.IntinoException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.function.Consumer;
@@ -33,11 +35,11 @@ public class CesarAccessor {
 		return accessor;
 	}
 
-	public ProcessInfo processInfo(String id) {
+	public ProcessInfo processInfo(String server, String id) {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.getProcess(this.project.getName(), id);
+			return accessor.getProcess(server, id);
 		} catch (BadRequest | InternalServerError e) {
 			return null;
 		}
@@ -48,12 +50,32 @@ public class CesarAccessor {
 		this.accessor = createAccessor();
 	}
 
-	public ProcessStatus processStatus(String id) {
+	public ProcessStatus processStatus(String server, String id) {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.getProcessStatus(this.project.getName(), id);
+			return accessor.getProcessStatus(server, id);
 		} catch (BadRequest | InternalServerError e) {
+			return null;
+		}
+	}
+
+	public ServerInfo server(String server) {
+		try {
+			checkCredentials();
+			if (accessor == null) return null;
+			return accessor.getServer(server);
+		} catch (BadRequest | InternalServerError e) {
+			return null;
+		}
+	}
+
+	public List<ProcessInfo> processes(String server) {
+		try {
+			checkCredentials();
+			if (accessor == null) return null;
+			return accessor.getProcesses(server);
+		} catch (InternalServerError e) {
 			return null;
 		}
 	}

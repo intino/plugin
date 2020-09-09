@@ -37,7 +37,7 @@ public class CesarBotWindowComponent implements ProjectComponent {
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 		consoleWindow = toolWindowManager.registerToolWindow(CESAR_BOT_WINDOW_ID, true, ToolWindowAnchor.BOTTOM);
 		consoleWindow.getContentManager().addContent(contentFactory.createContent(outputsToolWindow.content(), "", false));
-		consoleWindow.setIcon(IntinoIcons.INTINO_16);
+		consoleWindow.setIcon(IntinoIcons.INTINO_13);
 	}
 
 	@Override

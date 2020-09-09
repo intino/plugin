@@ -21,8 +21,6 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
 
 public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	private static final Logger logger = Logger.getInstance(ProcessLineMarkerProvider.class);
@@ -40,7 +38,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
 		if (isProcessElement(element)) {
 			final Icon icon = IntinoIcons.BOX_PROCESS;
@@ -50,8 +48,6 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		} else return super.getLineMarkerInfo(element);
 	}
 
-	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
-	}
 
 	@NotNull
 	@Override

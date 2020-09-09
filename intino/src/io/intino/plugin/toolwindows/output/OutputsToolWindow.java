@@ -1,21 +1,18 @@
 package io.intino.plugin.toolwindows.output;
 
-import com.intellij.build.BuildTextConsoleView;
-import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.wm.ToolWindow;
 import io.intino.alexandria.message.Message;
 import io.intino.alexandria.message.MessageReader;
@@ -25,19 +22,19 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.ByteArrayInputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
 	public static final String CLEAR = "##clear##";
-	private Project project;
+	private final Project project;
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
-	private ConsoleView buildOutput;
-	private List<ConsoleView> processOutputs = new ArrayList<>();
-	private Map<String, Consumer<String>> consumers = new HashMap<>();
+	private final ConsoleView buildOutput;
+	private final Map<String, Consumer<String>> consumers = new HashMap<>();
 
 	public OutputsToolWindow(Project project) {
 		this.project = project;
@@ -67,71 +64,69 @@ public class OutputsToolWindow {
 		return myToolWindowContent;
 	}
 
-	public boolean existsOutputTab(ProcessInfo info) {
-		return tabs.indexOfTab(displayOf(info)) > -1;
+	public boolean existsOutputTab(String server) {
+		return tabs.indexOfTab(server) > -1;
 	}
 
-	public void addProcessOutputTab(ProcessInfo processInfo) {
-		ConsoleView consoleView = createConsoleView(processInfo);
-		consumers.put(processInfo.id(), text -> {
-			if (text.equals(CLEAR)) consoleView.clear();
-			else printMessages(consoleView, text);
-		});
+	public void addProcess(String server, List<ProcessInfo> processes) {
+		ConsoleView consoleView = createServerTab(server, processes);
+		for (ProcessInfo info : processes) {
+			consumers.put(info.id(), text -> {
+				if (text.equals(CLEAR)) consoleView.clear();
+				else printMessages(consoleView, text);
+			});
+		}
 	}
 
 	@NotNull
-	private ConsoleView createConsoleView(ProcessInfo info) {
-		BuildTextConsoleView consoleView = (BuildTextConsoleView) createConsoleView();
-		processOutputs.add(consoleView);
-		String displayName = displayOf(info);
-		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), displayName);
-		final JComponent ui = descriptor.getComponent();
+	private ConsoleView createServerTab(String server, List<ProcessInfo> processesInfo) {
+		ConsoleViewImpl consoleView = (ConsoleViewImpl) createConsoleView();
+		JComponent processesBox = processesCombo(processesInfo);
+		JPanel container = new JPanel(new BorderLayout());
+		container.add(processesBox, BorderLayout.NORTH);
+		final JComponent ui = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), server).getComponent();
+		container.add(ui);
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new SyncLogAction(info, descriptor, project, consumers));
-		actionGroup.add(new StartAction(info, descriptor, project));
-		actionGroup.add(new DebugAction(info, descriptor, project));
+		actionGroup.add(new ListenLogAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project, consumers));
+		actionGroup.add(new StartStopAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project));
+		actionGroup.add(new DebugAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project));
 		actionGroup.addAll(consoleView.createConsoleActions());
-		actionGroup.add(new CloseAction(DefaultRunExecutor.getRunExecutorInstance(), descriptor, project) {
-			@Override
-			public void actionPerformed(@NotNull AnActionEvent e) {
-				tabs.remove(ui);
-				consoleView.dispose();
-				processOutputs.remove(consoleView);
-				super.actionPerformed(e);
-			}
-		});
 		final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("IntinoConsole", actionGroup, false);
 		toolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
 		ui.add(toolbar.getComponent(), BorderLayout.WEST);
-		tabs.addTab(displayName, ui);
+		tabs.addTab(server, container);
 		return consoleView;
 	}
 
 	@NotNull
+	private JPanel processesCombo(List<ProcessInfo> processInfo) {
+		ComboBox<Object> processesBox = new ComboBox<>();
+		processInfo.stream().map(ProcessInfo::artifact).forEach(processesBox::addItem);
+		JPanel container = new JPanel(new BorderLayout());
+		container.add(processesBox);
+		return container;
+	}
+
+	@NotNull
 	private ConsoleView createBuildView() {
-		ConsoleViewImpl consoleView = (ConsoleViewImpl) createConsoleView();
-		if (consoleView.getEditor() != null && !consoleView.getEditor().isDisposed())
-			EditorFactory.getInstance().releaseEditor(consoleView.getEditor());
-		final RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), "build");
+		ConsoleViewImpl buildView = (ConsoleViewImpl) createConsoleView();
+		if (buildView.getEditor() != null && !buildView.getEditor().isDisposed())
+			EditorFactory.getInstance().releaseEditor(buildView.getEditor());
+		final RunContentDescriptor descriptor = new RunContentDescriptor(buildView, null, new JPanel(new BorderLayout()), "Build");
 		final JComponent ui = descriptor.getComponent();
-		JComponent consoleViewComponent = consoleView.getComponent();
+		JComponent consoleViewComponent = buildView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.addAll(consoleView.createConsoleActions());
+		actionGroup.addAll(buildView.createConsoleActions());
 		final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("BuildConsole", actionGroup, false);
 		toolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
 		ui.add(toolbar.getComponent(), BorderLayout.WEST);
 		tabs.addTab("build", ui);
-		return consoleView;
-	}
+		return buildView;
 
-	@NotNull
-	private String displayOf(ProcessInfo info) {
-		return info.server().name() + " : " + info.artifact();
 	}
-
 
 	private ConsoleView createConsoleView() {
 		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
@@ -163,7 +158,7 @@ public class OutputsToolWindow {
 	@SuppressWarnings("unchecked")
 	private List<Message> toInl(String text) {
 		try {
-			return IteratorUtils.toList(new MessageReader(new ByteArrayInputStream(text.getBytes())).iterator());
+			return IteratorUtils.toList(new MessageReader(text).iterator());
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}

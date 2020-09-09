@@ -3,9 +3,7 @@ package io.intino.plugin.toolwindows.output;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import io.intino.cesar.box.schemas.ProcessInfo;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class ProcessOutputLoader {
@@ -15,18 +13,13 @@ public class ProcessOutputLoader {
 		this.project = project;
 	}
 
-	void loadOutputs(List<ProcessInfo> processInfos) {
+	public void loadProcessReference(String server, List<ProcessInfo> processInfos) {
 		ApplicationManager.getApplication().invokeLater(() -> {
 			ConsoleWindowComponent instance = ConsoleWindowComponent.getInstance(project);
 			if (instance == null) return;
 			OutputsToolWindow window = instance.outputsToolWindow();
 			if (window == null) return;
-			processInfos.stream().sorted(Comparator.comparing(this::id)).filter(p -> !window.existsOutputTab(p)).forEach(window::addProcessOutputTab);
+			if (!window.existsOutputTab(server)) window.addProcess(server, processInfos);
 		});
-	}
-
-	@NotNull
-	private String id(ProcessInfo o1) {
-		return o1.server().name() + " : " + o1.artifact();
 	}
 }

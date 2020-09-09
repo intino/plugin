@@ -16,7 +16,7 @@ import static com.intellij.icons.AllIcons.Gutter.ImplementedMethod;
 public class TaraNativeImplementationToJava extends RelatedItemLineMarkerProvider {
 
 	@Override
-	protected void collectNavigationMarkers(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result) {
+	protected void collectNavigationMarkers(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo<?>> result) {
 		if (!(element instanceof Valued)) return;
 		Valued valued = (Valued) element;
 		if (!isAvailable(valued)) return;
@@ -24,7 +24,7 @@ public class TaraNativeImplementationToJava extends RelatedItemLineMarkerProvide
 		if (destination != null) addResult(leafOf(element), result, destination);
 	}
 
-	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo> result, PsiElement destiny) {
+	private void addResult(@NotNull PsiElement element, Collection<? super RelatedItemLineMarkerInfo<?>> result, PsiElement destiny) {
 		NavigationGutterIconBuilder<PsiElement> builder =
 				NavigationGutterIconBuilder.create(ImplementedMethod).setTarget(destiny).setTooltipText("Navigate to the native code");
 		result.add(builder.createLineMarkerInfo(element));

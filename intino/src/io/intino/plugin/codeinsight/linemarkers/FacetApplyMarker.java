@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
-import com.intellij.refactoring.ui.ClassCellRenderer;
 import io.intino.itrules.formatters.StringFormatters.PluralInflector;
 import io.intino.itrules.formatters.inflectors.EnglishPluralInflector;
 import io.intino.magritte.lang.model.Aspect;
@@ -53,9 +52,7 @@ public class FacetApplyMarker extends JavaLineMarkerProvider {
 			List<PsiElement> facetClasses = getFacetClasses(node);
 			if (facetClasses.isEmpty()) return;
 			String title = MessageProvider.message("aspect.class.chooser", node.name(), facetClasses.size());
-			ClassCellRenderer renderer = new ClassCellRenderer(null);
-			PsiElementListNavigator.openTargets(e, facetClasses.toArray(toNavigatable(facetClasses)), title,
-					"Facet implementations of " + (node.name()), renderer);
+			PsiElementListNavigator.openTargets(e, facetClasses.toArray(toNavigatable(facetClasses)), title, "Facet implementations of " + (node.name()), (ListCellRenderer) (jList, o, i, b, b1) -> null);
 		}
 	}
 	);

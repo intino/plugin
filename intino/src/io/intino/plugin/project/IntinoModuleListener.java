@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
@@ -28,27 +29,26 @@ import java.io.File;
 import java.util.List;
 
 
-public class IntinoModuleListener implements BaseComponent {
+public class IntinoModuleListener implements BaseComponent, DumbAware {
 
 	private final Project project;
-	private final ModuleListener listener;
 	private final MessageBusConnection connection;
 
 	public IntinoModuleListener(Project project) {
 		this.project = project;
 		connection = project.getMessageBus().connect();
-		listener = newModuleListener();
-	}
-
-
-	@Override
-	public void initComponent() {
+		ModuleListener listener = newModuleListener();
 		TaraSyntaxHighlighter.setProject(this.project);
 		connection.subscribe(ProjectTopics.MODULES, listener);
 		addDSLNameToDictionary();
 		for (Module module : ModuleManager.getInstance(project).getModules())
 			if (!module.isLoaded() || !project.isInitialized())
-				StartupManager.getInstance(project).registerPostStartupActivity(() -> registerIntinoModule(module));
+				StartupManager.getInstance(project).registerPostStartupActivity(new StartupActivity() {
+					@Override
+					public void run() {
+						IntinoModuleListener.this.registerIntinoModule(module);
+					}
+				});
 			else registerIntinoModule(module);
 	}
 
@@ -97,10 +97,10 @@ public class IntinoModuleListener implements BaseComponent {
 					if (conf != null && conf.artifact().model() != null && conf.artifact().model().level().isSolution())
 						ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
 							final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-							progressIndicator.setText("Refactoring Java");
+							progressIndicator.setText("Refactoring java");
 							progressIndicator.setIndeterminate(true);
 							runRefactor(project, module.getName(), oldNameProvider.fun(module));
-						}, "Refactoring Java", true, project, null);
+						}, "Refactoring java", true, project, null);
 				}
 			}
 		};

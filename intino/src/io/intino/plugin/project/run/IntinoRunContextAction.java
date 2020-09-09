@@ -40,7 +40,7 @@ import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPA
 
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
-	private Node runConfiguration;
+	private final Node runConfiguration;
 
 	public IntinoRunContextAction(@NotNull Executor executor, PsiElement runConfiguration) {
 		super(executor);
