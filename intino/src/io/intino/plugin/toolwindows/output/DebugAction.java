@@ -6,65 +6,117 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.AnimatedIcon;
+import com.intellij.util.ui.ConfirmationDialog;
+import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.CesarAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DebugAction extends AnAction implements DumbAware {
+import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static io.intino.Configuration.Server.Type.Pro;
+
+public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAction {
+	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
-	private final Map<String, ProcessInfo> infos;
 	private ProcessInfo selectedProcess;
 	private ProcessStatus status;
+	private boolean inProcess = false;
 
-	public DebugAction(List<ProcessInfo> infos, ComboBox<Object> processSelector, Project project) {
-		this.infos = infos.stream().collect(Collectors.toMap(ProcessInfo::id, i -> i));
-		cesarAccessor = new CesarAccessor(project);
+	public DebugAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
+		this.serverType = serverType;
+		this.cesarAccessor = cesarAccessor;
 		selectedProcess = infos.get(0);
-		processSelector.addItemListener(e -> {
-			String anObject = e.getItem().toString();
-			selectedProcess = infos.stream().filter(p -> p.artifact().equals(anObject)).findFirst().get();
-			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-		});
-		status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-		final Presentation templatePresentation = getTemplatePresentation();
-		templatePresentation.setIcon(AllIcons.Actions.StartDebugger);
-		templatePresentation.setText("Debug Remote Process");
-		templatePresentation.setDescription("Debug remote process");
+		status = this.cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+		final Presentation presentation = getTemplatePresentation();
+		presentation.setIcon(AllIcons.Actions.StartDebugger);
+		presentation.setText((status.debug() ? "Restart " : "") + "Debug Remote Process");
+		presentation.setDisabledIcon(AnimatedIcon.Default.INSTANCE);
+		presentation.setDescription((status.debug() ? "Restart " : "") + "Debug remote process");
+	}
+
+	@Override
+	public void onChanging() {
+		inProcess = true;
+	}
+
+	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
+		inProcess = true;
+		new Thread(() -> {
+			selectedProcess = newProcess;
+			status = newProcessStatus;
+			inProcess = false;
+			update();
+		}).start();
 	}
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
-		status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-		try {
-			Boolean success = cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), status.running(), true);
-			if (success) {
-				status.running(!status.running());
-				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-				Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
+		inProcess = true;
+		boolean sure = askAndContinue(e);
+		if (!sure) return;
+		new Thread(() -> {
+			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+			try {
+				Boolean success = cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), status.running(), true);
+				if (success) {
+					status.running(!status.running());
+					status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
+				}
+			} catch (BadRequest | InternalServerError bd) {
+				Logger.error(bd);
 			}
-		} catch (BadRequest | InternalServerError bd) {
-			Logger.error(bd);
-		}
+			inProcess = false;
+			update(e);
+		}).start();
+	}
+
+	private boolean askAndContinue(@NotNull AnActionEvent e) {
+		if (!serverType.equals(Pro)) return true;
+		AtomicBoolean response = new AtomicBoolean(false);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
+					"Are you sure to debug this process?",
+					"Change Process status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
+			confirmationDialog.setDoNotAskOption(null);
+			response.set(confirmationDialog.showAndGet());
+		});
+		return response.get();
+	}
+
+	public void update() {
+		update(this.getTemplatePresentation());
 	}
 
 	@Override
-	public void update(AnActionEvent e) {
+	public void update(@NotNull AnActionEvent e) {
 		super.update(e);
-		super.update(e);
-		if (status == null) status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-		if (status == null) e.getPresentation().setVisible(false);
-		else e.getPresentation().setVisible(!status.debug());
+		update(e.getPresentation());
+	}
+
+	private void update(Presentation presentation) {
+		if (inProcess) presentation.setEnabled(false);
+		else {
+			if (status == null)
+				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+			if (status == null) presentation.setEnabled(false);
+			else {
+				if (status.debug()) presentation.setIcon(AllIcons.Actions.RestartDebugger);
+				else presentation.setIcon(AllIcons.Actions.StartDebugger);
+			}
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package io.intino.plugin;
 
+import com.intellij.ui.IconManager;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.UIUtil;
 
@@ -15,12 +16,12 @@ public class IntinoIcons {
 		return IconUtil.scale(icon, null, 0.5f);
 	}
 
-
 	public static final Icon BOX_PROCESS = RETINA ? scale(getIcon("/icons/box_process-32.png")) : getIcon("/icons/box_process-16.png");
 
 	public static final Icon INTINO_16 = RETINA ? scale(getIcon("/icons/intino/intino-32.png")) : getIcon("/icons/intino/intino-16.png");
 
 
+	public static final Icon STOP_CONSOLE = IconManager.getInstance().getIcon("/icons/cesar/console_stop.svg", IntinoIcons.class);
 	public static final Icon INTINO_13 = RETINA ? scale(getIcon("/icons/intino/intino-26.png")) : getIcon("/icons/intino/intino-13.png");
 	public static final Icon INTINO_80 = RETINA ? scale(getIcon("/icons/intino/intino-80.png")) : getIcon("/icons/intino/intino-80.png");
 	public static final Icon LOGO_16 = RETINA ? scale(getIcon("/icons/intino/logo-32.png")) : getIcon("/icons/intino/logo-16.png");

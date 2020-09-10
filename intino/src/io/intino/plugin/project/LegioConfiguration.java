@@ -89,7 +89,7 @@ public class LegioConfiguration implements Configuration {
 		ProcessOutputLoader loader = new ProcessOutputLoader(module.getProject());
 		servers().forEach(s -> {
 			List<ProcessInfo> processes = cesarAccessor.processes(s.name());
-			if (processes != null && !processes.isEmpty()) loader.loadProcessReference(s.name(), processes);
+			if (processes != null && !processes.isEmpty()) loader.loadProcessReference(s.name(), s.type(), processes);
 		});
 	}
 

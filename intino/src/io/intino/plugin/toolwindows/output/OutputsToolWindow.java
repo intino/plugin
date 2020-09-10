@@ -8,24 +8,27 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.wm.ToolWindow;
+import io.intino.Configuration;
 import io.intino.alexandria.message.Message;
 import io.intino.alexandria.message.MessageReader;
 import io.intino.cesar.box.schemas.ProcessInfo;
+import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.plugin.project.CesarAccessor;
 import org.apache.commons.collections.IteratorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.HashMap;
+import java.awt.event.ItemEvent;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class OutputsToolWindow {
@@ -68,18 +71,17 @@ public class OutputsToolWindow {
 		return tabs.indexOfTab(server) > -1;
 	}
 
-	public void addProcess(String server, List<ProcessInfo> processes) {
-		ConsoleView consoleView = createServerTab(server, processes);
-		for (ProcessInfo info : processes) {
+	public void addProcess(String server, Configuration.Server.Type type, List<ProcessInfo> processes) {
+		ConsoleView consoleView = createServerTab(server, type, processes);
+		for (ProcessInfo info : processes)
 			consumers.put(info.id(), text -> {
 				if (text.equals(CLEAR)) consoleView.clear();
 				else printMessages(consoleView, text);
 			});
-		}
 	}
 
 	@NotNull
-	private ConsoleView createServerTab(String server, List<ProcessInfo> processesInfo) {
+	private ConsoleView createServerTab(String server, Configuration.Server.Type type, List<ProcessInfo> processesInfo) {
 		ConsoleViewImpl consoleView = (ConsoleViewImpl) createConsoleView();
 		JComponent processesBox = processesCombo(processesInfo);
 		JPanel container = new JPanel(new BorderLayout());
@@ -88,10 +90,24 @@ public class OutputsToolWindow {
 		container.add(ui);
 		JComponent consoleViewComponent = consoleView.getComponent();
 		final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new ListenLogAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project, consumers));
-		actionGroup.add(new StartStopAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project));
-		actionGroup.add(new DebugAction(processesInfo, (ComboBox<Object>) processesBox.getComponent(0), project));
+		CesarAccessor cesarAccessor = new CesarAccessor(project);
+		List<IntinoConsoleAction> actions = new ArrayList<>();
+		actions.add(new ListenLogAction(processesInfo, cesarAccessor, consumers));
+		actions.add(new StartStopAction(processesInfo, type, cesarAccessor));
+		actions.add(new DebugAction(processesInfo, type, cesarAccessor));
+		((ComboBox<Object>) processesBox.getComponent(0)).addItemListener(e -> {
+			if (e.getStateChange() != ItemEvent.SELECTED) return;
+			String newProcess = e.getItemSelectable().getSelectedObjects()[0].toString();
+			actions.forEach(IntinoConsoleAction::onChanging);
+			new Thread(() -> {
+				ProcessInfo processInfo = processesInfo.stream().filter(p -> p.artifact().equals(newProcess)).findFirst().get();
+				ProcessStatus newProcessStatus = cesarAccessor.processStatus(server, processInfo.id());
+				actions.forEach(a -> a.onProcessChange(processInfo, newProcessStatus));
+			}).start();
+		});
+		actions.forEach(a -> actionGroup.add((AnAction) a));
 		actionGroup.addAll(consoleView.createConsoleActions());
+
 		final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("IntinoConsole", actionGroup, false);
 		toolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
@@ -139,7 +155,7 @@ public class OutputsToolWindow {
 		if (text.startsWith("[") && !(messages = toInl(text)).isEmpty())
 			for (Message message : messages) {
 				String level = levelFrom(message);
-				consoleView.print("\n\n" + compactLog(message), level(level.trim()));
+				consoleView.print("\n" + compactLog(message), level(level.trim()));
 			}
 		else consoleView.print("\n" + text, ConsoleViewContentType.NORMAL_OUTPUT);
 	}

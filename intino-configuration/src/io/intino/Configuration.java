@@ -408,7 +408,7 @@ public interface Configuration {
 
 	interface Server {
 		enum Type {
-			Dev, Pre, Pro
+			Dev, Pre, Pro, Demo
 		}
 
 		String name();
