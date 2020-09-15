@@ -43,7 +43,7 @@ class ModuleDependencyResolver {
 	@NotNull
 	private Dependency dependencyFrom(LegioConfiguration c, String scope) {
 		LegioArtifact artifact = c.artifact();
-		return new Dependency(artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + DependencyScope.valueOf(scope.toUpperCase()), c.module().getName());
+		return new Dependency(artifact.groupId() + ":" + artifact.name() + ":" + artifact.version() + ":" + DependencyCatalog.DependencyScope.valueOf(scope.toUpperCase()), c.module().getName());
 	}
 
 	@NotNull

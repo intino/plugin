@@ -46,7 +46,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	private JPanel contentPane;
 	private SimpleTree tree;
 	private JScrollPane scrollPane;
-	private Project project;
+	private final Project project;
 	private DefaultMutableTreeNode root;
 
 	DependencyTreeView(Project project) {

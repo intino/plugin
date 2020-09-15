@@ -89,7 +89,6 @@ public class ConfigurationReloader {
 		new UnusedLibrariesInspection(module.getProject()).cleanUp();
 	}
 
-
 	@NotNull
 	private List<Artifact.Dependency.Web> webDependencies(List<Artifact.Dependency> artifactDependencies) {
 		return artifactDependencies.stream().
