@@ -39,7 +39,7 @@ public class FacetApplyMarker extends JavaLineMarkerProvider {
 		for (PsiElement reference : references)
 			pattern.append(", ").append(reference.getNavigationElement().getContainingFile().getName());
 		pattern = new StringBuilder(pattern.substring(2));
-		return GutterIconTooltipHelper.composeText(references.toArray(new PsiElement[0]), start, pattern.toString());
+		return GutterTooltipHelper.getTooltipText(references, start, false, pattern.toString());
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {

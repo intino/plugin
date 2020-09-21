@@ -31,7 +31,7 @@ public class NodeFragments extends JavaLineMarkerProvider {
 		@NonNls String pattern;
 		if (references.isEmpty()) return null;
 		pattern = references.get(0).getNavigationElement().getContainingFile().getName();
-		return GutterIconTooltipHelper.composeText(references.toArray(new NavigatablePsiElement[references.size()]), "fragment ", pattern);
+		return GutterTooltipHelper.getTooltipText(references, "fragment ", false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {

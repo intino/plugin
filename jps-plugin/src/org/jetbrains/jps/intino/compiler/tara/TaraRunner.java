@@ -5,6 +5,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.ContainerUtilRt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.cmdline.ClasspathBootstrap;
@@ -85,7 +86,7 @@ class TaraRunner {
 	}
 
 	TaracOSProcessHandler runTaraCompiler(final CompileContext context) throws IOException {
-		List<String> programParams = ContainerUtilRt.newArrayList(argsFile.getPath());
+		List<String> programParams = ContainerUtil.newArrayList(argsFile.getPath());
 		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : ContainerUtilRt.newArrayList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED");
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		String encoding = System.getProperty("file.encoding");
@@ -95,8 +96,8 @@ class TaraRunner {
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, String.join(" ", cmd), encoding, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
 			@Override
-			protected Future<?> executeOnPooledThread(@NotNull Runnable task) {
-				return SharedThreadPool.getInstance().executeOnPooledThread(task);
+			public Future<?> executeTask(@NotNull Runnable task) {
+				return SharedThreadPool.getInstance().submit(task);
 			}
 		};
 		handler.startNotify();

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class TaraOverriddenNode extends JavaLineMarkerProvider {
 
@@ -26,11 +27,11 @@ public class TaraOverriddenNode extends JavaLineMarkerProvider {
 		@NonNls String pattern;
 		if (reference == null) return null;
 		pattern = reference.getNavigationElement().getContainingFile().getName();
-		return GutterIconTooltipHelper.composeText(new PsiElement[]{reference}, start, pattern);
+		return GutterTooltipHelper.getTooltipText(List.of(reference), start, false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!Node.class.isInstance(element)) return;
+			if (!(element instanceof Node)) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to implementation classes is not possible during index update");
 				return;

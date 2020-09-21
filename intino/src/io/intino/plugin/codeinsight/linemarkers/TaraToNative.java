@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class TaraToNative extends JavaLineMarkerProvider {
 
@@ -27,7 +28,7 @@ public class TaraToNative extends JavaLineMarkerProvider {
 		@NonNls String pattern;
 		if (reference == null) return null;
 		pattern = reference.getNavigationElement().getContainingFile().getName();
-		return GutterIconTooltipHelper.composeText(new PsiElement[]{reference}, start, pattern);
+		return GutterTooltipHelper.getTooltipText(List.of(reference), start, false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {

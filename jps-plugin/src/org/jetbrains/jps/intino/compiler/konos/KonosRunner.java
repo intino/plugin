@@ -90,7 +90,7 @@ class KonosRunner {
 	}
 
 	KonoscOSProcessHandler runKonosCompiler(final CompileContext context) throws IOException {
-		List<String> programParams = Arrays.asList(argsFile.getPath());
+		List<String> programParams = Collections.singletonList(argsFile.getPath());
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : Arrays.asList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		vmParams.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
@@ -99,8 +99,8 @@ class KonosRunner {
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, String.join(" ", cmd), statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
 			@Override
-			protected Future<?> executeOnPooledThread(@NotNull Runnable task) {
-				return SharedThreadPool.getInstance().executeOnPooledThread(task);
+			public Future<?> executeTask(@NotNull Runnable task) {
+				return SharedThreadPool.getInstance().submit(task);
 			}
 		};
 		handler.startNotify();

@@ -1,6 +1,5 @@
 package io.intino.plugin.annotator.fix;
 
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
@@ -77,10 +76,7 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 		Map<String, String> additionalProperties = new HashMap<>();
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) {
-			final AccessToken accessToken = application.acquireWriteActionLock(CreateNodeRuleClassIntention.class);
-			final PsiClass aClass = createClass(destiny, className, additionalProperties);
-			accessToken.close();
-			return aClass;
+			return application.<PsiClass>runWriteAction(() -> createClass(destiny, className, additionalProperties));
 		} else return ApplicationManager.getApplication().runWriteAction(
 				new Computable<PsiClass>() {
 					@Override

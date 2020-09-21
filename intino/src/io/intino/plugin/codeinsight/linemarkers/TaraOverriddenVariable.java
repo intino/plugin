@@ -15,23 +15,24 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOverriddenVariable;
 
 public class TaraOverriddenVariable extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("TaraOverridenVariable", element -> {
-		if (!Variable.class.isInstance(element)) return null;
+		if (!(element instanceof Variable)) return null;
 		PsiElement reference = getOverriddenVariable((Variable) element);
 		String start = "Overrides variable in ";
 		@NonNls String pattern;
 		if (reference == null) return null;
 		pattern = reference.getNavigationElement().getContainingFile().getName();
-		return GutterIconTooltipHelper.composeText(new PsiElement[]{reference}, start, pattern);
+		return GutterTooltipHelper.getTooltipText(List.of(reference), start, false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!Variable.class.isInstance(element)) return;
+			if (!(element instanceof Variable)) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to implementation classes is not possible during index update");
 				return;
@@ -47,7 +48,7 @@ public class TaraOverriddenVariable extends JavaLineMarkerProvider {
 
 	@Override
 	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
-		if (!Variable.class.isInstance(element)) return super.getLineMarkerInfo(element);
+		if (!(element instanceof Variable)) return super.getLineMarkerInfo(element);
 		Variable variable = (Variable) element;
 		if (isOverridden(variable)) {
 			final Icon icon = AllIcons.Gutter.OverridingMethod;
