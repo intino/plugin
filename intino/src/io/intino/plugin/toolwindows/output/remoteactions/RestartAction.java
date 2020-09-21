@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.ui.AnimatedIcon;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
@@ -41,6 +42,7 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 		final Presentation presentation = getTemplatePresentation();
 		presentation.setText("Rerun Remote Process");
 		presentation.setDescription("Rerun remote process");
+		presentation.setDisabledIcon(AnimatedIcon.Default.INSTANCE);
 		presentation.setIcon(AllIcons.Actions.Restart);
 	}
 
@@ -101,12 +103,18 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 
 	public void update(Presentation p) {
 		p.setVisible(true);
-		if (selectedProcess == null || inProcess) p.setVisible(false);
-		else {
+		if (selectedProcess == null) {
+			p.setVisible(false);
+		} else if (inProcess) {
+			p.setEnabled(false);
+		} else {
 			if (status == null) {
 				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 				p.setVisible(false);
-			} else p.setVisible(status.running());
+			} else {
+				p.setEnabled(true);
+				p.setVisible(status.running());
+			}
 		}
 	}
 }
