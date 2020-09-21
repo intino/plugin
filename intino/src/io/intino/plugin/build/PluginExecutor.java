@@ -22,9 +22,9 @@ import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
+import io.intino.plugin.toolwindows.output.ConsoleWindow;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
-import io.intino.plugin.toolwindows.output.OutputsToolWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.sonatype.aether.artifact.Artifact;
@@ -146,7 +146,7 @@ public class PluginExecutor {
 
 	private void connectLogger(PipedOutputStream out) {
 		try {
-			publish(OutputsToolWindow.CLEAR);
+			publish(ConsoleWindow.CLEAR);
 			PipedInputStream stream = new PipedInputStream(out);
 			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
 			String line;

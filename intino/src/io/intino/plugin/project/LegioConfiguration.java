@@ -17,10 +17,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.Configuration;
-import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.magritte.Resolver;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.NodeContainer;
+import io.intino.plugin.cesar.CesarServerInfoDownloader;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -30,7 +30,6 @@ import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.project.configuration.model.LegioRepository;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import io.intino.plugin.project.configuration.model.LegioServer;
-import io.intino.plugin.toolwindows.output.ProcessOutputLoader;
 import org.jetbrains.annotations.NotNull;
 import tara.dsl.Legio;
 
@@ -74,7 +73,7 @@ public class LegioConfiguration implements Configuration {
 					reloader.reloadInterfaceBuilder();
 					reloader.reloadLanguage();
 					reloader.reloadArtifactoriesMetaData();
-					loadServerProcesses();
+					loadRemoteProcessesInfo();
 					inited = true;
 				}
 			});
@@ -84,13 +83,8 @@ public class LegioConfiguration implements Configuration {
 		return this;
 	}
 
-	private void loadServerProcesses() {
-		CesarAccessor cesarAccessor = new CesarAccessor(module.getProject());
-		ProcessOutputLoader loader = new ProcessOutputLoader(module.getProject());
-		servers().forEach(s -> {
-			List<ProcessInfo> processes = cesarAccessor.processes(s.name());
-			if (processes != null && !processes.isEmpty()) loader.loadProcessReference(s.name(), s.type(), processes);
-		});
+	public void loadRemoteProcessesInfo() {
+		new CesarServerInfoDownloader().download(module);
 	}
 
 	public Module module() {

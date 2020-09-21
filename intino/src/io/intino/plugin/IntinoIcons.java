@@ -19,9 +19,14 @@ public class IntinoIcons {
 	public static final Icon BOX_PROCESS = RETINA ? scale(getIcon("/icons/box_process-32.png")) : getIcon("/icons/box_process-16.png");
 
 	public static final Icon INTINO_16 = RETINA ? scale(getIcon("/icons/intino/intino-32.png")) : getIcon("/icons/intino/intino-16.png");
-
-
 	public static final Icon STOP_CONSOLE = IconManager.getInstance().getIcon("/icons/cesar/console_stop.svg", IntinoIcons.class);
+
+	public static final Icon ALL_LOG = RETINA ? scale(getIcon("/icons/cesar/log/all-40.png")) : getIcon("/icons/cesar/log/all-20.png");
+	public static final Icon DEBUG_LOG = RETINA ? scale(getIcon("/icons/cesar/log/debug-40.png")) : getIcon("/icons/cesar/log/debug-20.png");
+	public static final Icon INFO_LOG = RETINA ? scale(getIcon("/icons/cesar/log/info-40.png")) : getIcon("/icons/cesar/log/info-20.png");
+	public static final Icon WARN_LOG = RETINA ? scale(getIcon("/icons/cesar/log/warn-40.png")) : getIcon("/icons/cesar/log/warn-20.png");
+	public static final Icon ERROR_LOG = RETINA ? scale(getIcon("/icons/cesar/log/error-40.png")) : getIcon("/icons/cesar/log/error-20.png");
+
 	public static final Icon INTINO_13 = RETINA ? scale(getIcon("/icons/intino/intino-26.png")) : getIcon("/icons/intino/intino-13.png");
 	public static final Icon INTINO_80 = RETINA ? scale(getIcon("/icons/intino/intino-80.png")) : getIcon("/icons/intino/intino-80.png");
 	public static final Icon LOGO_16 = RETINA ? scale(getIcon("/icons/intino/logo-32.png")) : getIcon("/icons/intino/logo-16.png");

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.intino.plugin</id>
     <name>Intino</name>
-    <version>5.5.0</version>
+    <version>5.5.1</version>
     <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.idea.maven</depends>
@@ -196,7 +196,7 @@
         <codeInsight.lineMarkerProvider language="Tara"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
         <fileDocumentManagerListener
-                implementation="io.intino.plugin.toolwindows.project.FileDocumentManagerListener"/>
+                implementation="io.intino.plugin.toolwindows.factory.FileDocumentManagerListener"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
         <annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DataHubAnnotator"/>
         <annotator language="Tara"
@@ -218,6 +218,7 @@
             <descriptionDirectoryName>RemoveFromLocalRepository</descriptionDirectoryName>
         </intentionAction>
         <projectService serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
+        <projectService serviceImplementation="io.intino.plugin.cesar.CesarInfo"/>
         <projectConfigurable instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
         <attachSourcesProvider
                 implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
@@ -249,6 +250,22 @@
                            implementationClass="io.intino.plugin.itrules.highlighting.ItrulesBraceMatcher"/>
         <treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
         <!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
+        <toolWindow id="Intino Console"
+                    icon="/icons/intino/intino-13.png"
+                    anchor="bottom"
+                    factoryClass="io.intino.plugin.toolwindows.output.ConsoleWindowFactory"/>
+        <toolWindow id="Cesar Bot"
+                    icon="/icons/intino/intino-13.png"
+                    anchor="bottom"
+                    factoryClass="io.intino.plugin.toolwindows.cesarbot.CesarBotWindowFactory"/>
+        <toolWindow id="Intino Factory"
+                    icon="/icons/intino/intino-13.png"
+                    anchor="right"
+                    factoryClass="io.intino.plugin.toolwindows.factory.IntinoFactoryWindowFactory"/>
+        <toolWindow id="Intino Dependencies"
+                    icon="/icons/intino/intino-13.png"
+                    anchor="right"
+                    factoryClass="io.intino.plugin.toolwindows.dependencytree.DependencyTreeWindowFactory"/>
     </extensions>
 
     <actions>
@@ -363,23 +380,13 @@
             </implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.cesarbot.CesarBotWindowComponent</implementation-class>
+            <implementation-class>io.intino.plugin.toolwindows.cesarbot.CesarBotWindowFactory</implementation-class>
         </component>
         <component>
             <implementation-class>io.intino.plugin.settings.IntinoSettingsComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>io.intino.plugin.toolwindows.project.IntinoFactoryComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>io.intino.plugin.toolwindows.output.ConsoleWindowComponent</implementation-class>
-        </component>
-        <component>
             <implementation-class>io.intino.plugin.toolwindows.store.IntinoStoreComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>io.intino.plugin.toolwindows.dependencytree.DependencyTreeComponent
-            </implementation-class>
         </component>
     </project-components>
     <module-components>

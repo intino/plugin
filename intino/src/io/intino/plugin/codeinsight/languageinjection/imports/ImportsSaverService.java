@@ -30,7 +30,6 @@ import static io.intino.plugin.lang.psi.impl.IntinoUtil.importsFile;
 public class ImportsSaverService implements ProjectComponent {
 
 	private final Project project;
-	private MessageBusConnection connection;
 
 	protected ImportsSaverService(Project project, FileEditorManager fileEditorManager) {
 		this.project = project;
@@ -103,7 +102,7 @@ public class ImportsSaverService implements ProjectComponent {
 	}
 
 	private void initListener() {
-		connection = project.getMessageBus().connect(project);
+		MessageBusConnection connection = project.getMessageBus().connect(project);
 		connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, myListener);
 	}
 

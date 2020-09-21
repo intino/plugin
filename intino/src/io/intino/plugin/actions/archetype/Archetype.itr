@@ -54,7 +54,7 @@ def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
-            filter(f-> [$with]$parameter+replace...[].matches(f.getName()))
+            filter(f-> [$with]$parameter+replace...[].matches(f.getName())).
             map(f -> f.getName()).
             .collect(java.util.stream.Collectors.toList());
 	}
@@ -84,18 +84,18 @@ end
 
 def type(node & leaf & list & regex) trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
-	    new File(root, "$filePath").mkdirs();
-		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
-		    filter(f-> [$with][$parameter+replace...[]].matches(f.getName())).
+	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
+		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
+		    filter(f-> [$with].matches(f.getName())).
 		    collect(java.util.stream.Collectors.toList());
 	}
 end
 
 def type(node & leaf & list) trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
-	    new File(root, "$filePath").mkdirs();
-		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
-            filter(f-> f.getName().contains([$with][$parameter+replace...[]])).
+	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
+		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
+            filter(f-> f.getName().contains([$with])).
             collect(java.util.stream.Collectors.toList());
 	}
 end

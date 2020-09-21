@@ -68,6 +68,11 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
+            <groupId>io.intino.alexandria</groupId>
+            <artifactId>json</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>io.intino.magritte</groupId>
             <artifactId>io</artifactId>
             <version>3.0.0</version>

@@ -9,6 +9,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
@@ -25,6 +27,8 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
+import io.intino.plugin.toolwindows.output.IntinoRemoteConsoleListener;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
@@ -243,6 +247,7 @@ public abstract class AbstractArtifactFactory {
 		DeployResult result = new ArtifactDeployer(module, deployments).execute();
 		if (result instanceof DeployResult.Done) {
 			successMessages.addAll(((DeployResult.Done) result).successMessages());
+			publishInBus(conf);
 			return ProcessResult.Done;
 		} else {
 			String errors = ((DeployResult.Fail) result).errors().stream().map(Throwable::getMessage).collect(Collectors.joining("\n"));
@@ -250,6 +255,17 @@ public abstract class AbstractArtifactFactory {
 			else
 				throw new IntinoException(String.join("\n", ((DeployResult.DoneWithErrors) result).success()) + "\n" + errors);
 		}
+	}
+
+	private void publishInBus(LegioConfiguration conf) {
+		final MessageBus messageBus = module.getProject().getMessageBus();
+		conf.loadRemoteProcessesInfo();
+		final IntinoRemoteConsoleListener mavenListener = messageBus.syncPublisher(IntinoTopics.REMOTE_CONSOLE);
+		mavenListener.refresh();
+		final MessageBusConnection connect = messageBus.connect();
+		connect.deliverImmediately();
+		connect.disconnect();
+
 	}
 
 	private boolean askForDeploy(Module module, LegioConfiguration conf) {

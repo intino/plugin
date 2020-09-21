@@ -3,7 +3,7 @@ package io.intino.plugin.toolwindows.cesarbot;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
-import io.intino.plugin.project.CesarAccessor;
+import io.intino.plugin.cesar.CesarAccessor;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

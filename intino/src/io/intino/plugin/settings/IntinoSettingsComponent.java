@@ -5,8 +5,13 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.cesar.CesarServerInfoDownloader;
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.toolwindows.output.IntinoRemoteConsoleListener;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +67,13 @@ public class IntinoSettingsComponent implements ProjectComponent, Configurable {
 	public void apply() throws ConfigurationException {
 		if (intinoSettingsPanel != null) try {
 			intinoSettingsPanel.applyConfigurationData(settings);
+			new CesarServerInfoDownloader().download(project);
+			final MessageBus messageBus = project.getMessageBus();
+			final IntinoRemoteConsoleListener mavenListener = messageBus.syncPublisher(IntinoTopics.REMOTE_CONSOLE);
+			mavenListener.refresh();
+			final MessageBusConnection connect = messageBus.connect();
+			connect.deliverImmediately();
+			connect.disconnect();
 		} catch (Exception ex) {
 			throw new ConfigurationException(ex.getMessage());
 		}
