@@ -6,7 +6,6 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import io.intino.plugin.IntinoIcons;
 import org.jetbrains.annotations.NotNull;
 
 public class IntinoStoreWindowFactory implements ToolWindowFactory, DumbAware {
@@ -16,7 +15,6 @@ public class IntinoStoreWindowFactory implements ToolWindowFactory, DumbAware {
 		IntinoStoreToolWindow factorytoolWindow = new IntinoStoreToolWindow(project);
 		Content content = ContentFactory.SERVICE.getInstance().
 				createContent(factorytoolWindow, "", false);
-		toolWindow.setIcon(IntinoIcons.STASH_16);
 		toolWindow.getContentManager().addContent(content);
 		toolWindow.getContentManager().setSelectedContent(content, false);
 	}

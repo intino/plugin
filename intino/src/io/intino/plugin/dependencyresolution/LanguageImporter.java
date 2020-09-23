@@ -48,14 +48,19 @@ public class LanguageImporter {
 	}
 
 	private boolean downloadLanguage(String name, String version) {
+		if (Proteo.class.getSimpleName().equalsIgnoreCase(name) || Meta.class.getSimpleName().equals(name))
+			return true;
+		final File languagesDirectory = new File(LanguageManager.getLanguagesDirectory().getPath());
+		Aether aether = new Aether(repositories(), languagesDirectory);
 		try {
-			if (Proteo.class.getSimpleName().equalsIgnoreCase(name) || Meta.class.getSimpleName().equals(name))
-				return true;
-			final File languagesDirectory = new File(LanguageManager.getLanguagesDirectory().getPath());
-			new Aether(repositories(), languagesDirectory).resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
+			aether.resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name, "jar", version), JavaScopes.COMPILE);
 			return true;
 		} catch (DependencyResolutionException e) {
-			error(e);
+			try {
+				aether.resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name.toLowerCase(), "jar", version), JavaScopes.COMPILE);
+			} catch (DependencyResolutionException e2) {
+				error(e2);
+			}
 			return false;
 		}
 	}
