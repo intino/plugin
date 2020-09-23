@@ -65,12 +65,12 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	public static class ServerInfo {
 		String name;
 		String type;
-		List<ProcessInfo> processses;
+		List<ProcessInfo> processes;
 
-		public ServerInfo(String name, String type, List<ProcessInfo> processses) {
+		public ServerInfo(String name, String type, List<ProcessInfo> processes) {
 			this.name = name;
 			this.type = type;
-			this.processses = processses;
+			this.processes = processes;
 		}
 
 		public ServerInfo() {
@@ -85,7 +85,7 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 		}
 
 		public List<ProcessInfo> processes() {
-			return processses;
+			return processes != null ? processes : Collections.emptyList();
 		}
 	}
 }

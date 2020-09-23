@@ -1,17 +1,13 @@
 package io.intino.plugin.codeinsight.languageinjection.imports;
 
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorImpl;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
@@ -27,36 +23,34 @@ import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAct
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qnOf;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.importsFile;
 
-public class ImportsSaverService implements ProjectComponent {
+public class ImportsSaverService implements com.intellij.openapi.fileEditor.FileEditorManagerListener {
 
 	private final Project project;
 
-	protected ImportsSaverService(Project project, FileEditorManager fileEditorManager) {
+	protected ImportsSaverService(Project project) {
 		this.project = project;
 	}
 
-	private final FileEditorManagerListener myListener = new FileEditorManagerListener() {
-		@Override
-		public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-		}
+	@Override
+	public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+	}
 
-		@Override
-		public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile sourceFile) {
-			if (!sourceFile.isValid() || !project.isInitialized()) return;
-			final PsiFile file = PsiManager.getInstance(project).findFile(sourceFile);
-			if (!isJavaNativeScratch(file)) return;
-			Imports imports = new Imports(project);
-			String moduleName = getModuleName(source);
-			final Valued valued = findValued(source);
-			String qn = qnOf(valued);
-			if (moduleName == null || qn.isEmpty()) return;
-			runWriteCommandAction(project, () -> imports.save(importsFile(valued), qn, getImports(file)));
-		}
+	@Override
+	public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile sourceFile) {
+		if (!sourceFile.isValid() || !project.isInitialized()) return;
+		final PsiFile file = PsiManager.getInstance(project).findFile(sourceFile);
+		if (!isJavaNativeScratch(file)) return;
+		Imports imports = new Imports(project);
+		String moduleName = getModuleName(source);
+		final Valued valued = findValued(source);
+		String qn = qnOf(valued);
+		if (moduleName == null || qn.isEmpty()) return;
+		runWriteCommandAction(project, () -> imports.save(importsFile(valued), qn, getImports(file)));
+	}
 
-		@Override
-		public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-		}
-	};
+	@Override
+	public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+	}
 
 	private Valued findValued(FileEditorManager source) {
 		if (source.getSelectedFiles().length == 0) return null;
@@ -95,36 +89,4 @@ public class ImportsSaverService implements ProjectComponent {
 		if (importList == null) return Collections.emptySet();
 		return Arrays.asList(importList.getAllImportStatements()).stream().map((i) -> i.getText().trim()).collect(Collectors.toSet());
 	}
-
-	@Override
-	public void projectOpened() {
-		StartupManager.getInstance(project).runWhenProjectIsInitialized(this::initListener);
-	}
-
-	private void initListener() {
-		MessageBusConnection connection = project.getMessageBus().connect(project);
-		connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, myListener);
-	}
-
-	@Override
-	public void projectClosed() {
-		disposeComponent();
-	}
-
-	@Override
-	public void initComponent() {
-
-	}
-
-	@Override
-	public void disposeComponent() {
-	}
-
-	@NotNull
-	@Override
-	public String getComponentName() {
-		return "Native Imports Saver";
-	}
-
-
 }

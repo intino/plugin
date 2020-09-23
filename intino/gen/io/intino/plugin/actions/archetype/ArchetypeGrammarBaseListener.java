@@ -178,10 +178,7 @@ public class ArchetypeGrammarBaseListener implements ArchetypeGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override
-	public void enterEveryRule(ParserRuleContext ctx) {
-	}
-
+	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

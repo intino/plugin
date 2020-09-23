@@ -1,6 +1,6 @@
 package io.intino.plugin.toolwindows.factory;
 
-import com.intellij.ide.ui.LafManager;
+import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -52,7 +52,7 @@ public class IntinoFactoryView extends JPanel {
 	IntinoFactoryView(Project project) {
 		this.project = project;
 		this.lastAction = Instant.now();
-		LafManager.getInstance().addLafManagerListener(source -> {
+		project.getMessageBus().connect().subscribe(LafManagerListener.TOPIC, source -> {
 			mode("darcula".equalsIgnoreCase(source.getCurrentLookAndFeel().getName()));
 			source.repaintUI();
 		});

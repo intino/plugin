@@ -96,7 +96,7 @@ AS	                : 'as';
 REGEX               : 'regex';
 TIMETAG             : 'timetag';
 COLON               : ':';
-
+LINE_COMMENT        : ('\r' | '\n')* ([ ] | [\t])* '#'  ~('\r' | '\n')* -> skip;
 LABEL         		: '"' (~('"' | '\\') | '\\' ('"' | '\\'))* '"';
 
 IDENTIFIER          : (LETTER | UNDERDASH) (DIGIT | LETTER | DASH | UNDERDASH | DOT)*;

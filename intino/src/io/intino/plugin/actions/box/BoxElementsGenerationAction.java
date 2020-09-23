@@ -77,9 +77,9 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	}
 
 	private void notify(Module module) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification(module.getName() + " Web elements " + "reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		balloon.createNotification(module.getName() + " Web elements " + "reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
 

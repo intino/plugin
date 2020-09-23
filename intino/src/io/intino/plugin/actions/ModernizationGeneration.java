@@ -42,7 +42,8 @@ public class ModernizationGeneration extends AnAction {
 					try {
 						io.intino.goros.Shifter.main(new String[]{context.getVirtualFile().getPath()});
 					} catch (Exception ex) {
-						final NotificationGroup balloon = NotificationGroup.balloonGroup("tara");
+						NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+						if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
 						balloon.createNotification("Error during modernization: " + ex.getMessage(), MessageType.ERROR).
 								setImportant(false).notify(module.getProject());
 					}

@@ -33,7 +33,7 @@ public class CesarServerInfoDownloader {
 		CesarAccessor accessor = new CesarAccessor(project);
 		CesarInfo info = CesarInfo.getSafeInstance(project);
 		info.serversInfo(configuration.servers().stream().collect(Collectors.toMap(Configuration.Server::name,
-				s -> new CesarInfo.ServerInfo(s.name(), s.type().name(), accessor.processes(s.name())), (u, v) -> u, LinkedHashMap::new)));
+				s -> new CesarInfo.ServerInfo(s.name(), s.type().name(), accessor.processes(s.name())), (u, v) -> v, LinkedHashMap::new)));
 	}
 
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

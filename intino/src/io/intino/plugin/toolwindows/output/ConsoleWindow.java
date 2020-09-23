@@ -76,7 +76,7 @@ public class ConsoleWindow {
 	private ConsoleViewContentType contentType(String line) {
 		if (line.trim().toUpperCase().startsWith("[ERROR")) return ConsoleViewContentType.LOG_ERROR_OUTPUT;
 		if (line.trim().toUpperCase().startsWith("[WARN")) return ConsoleViewContentType.LOG_WARNING_OUTPUT;
-		else return ConsoleViewContentType.NORMAL_OUTPUT;
+		return ConsoleViewContentType.NORMAL_OUTPUT;
 	}
 
 	public JPanel content() {
@@ -170,7 +170,7 @@ public class ConsoleWindow {
 	@NotNull
 	private JPanel createProcessesCombo(List<ProcessInfo> processInfo) {
 		ComboBox<Object> processesBox = new ComboBox<>();
-		processInfo.stream().map(ProcessInfo::artifact).forEach(processesBox::addItem);
+		if (processInfo != null) processInfo.stream().map(ProcessInfo::artifact).forEach(processesBox::addItem);
 		JPanel container = new JPanel(new BorderLayout());
 		container.add(processesBox);
 		return container;

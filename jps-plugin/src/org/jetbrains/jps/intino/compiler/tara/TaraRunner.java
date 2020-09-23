@@ -6,7 +6,6 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.ContainerUtilRt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.cmdline.ClasspathBootstrap;
 import org.jetbrains.jps.incremental.CompileContext;
@@ -87,7 +86,7 @@ class TaraRunner {
 
 	TaracOSProcessHandler runTaraCompiler(final CompileContext context) throws IOException {
 		List<String> programParams = ContainerUtil.newArrayList(argsFile.getPath());
-		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : ContainerUtilRt.newArrayList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED");
+		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : ContainerUtil.newArrayList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED");
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);

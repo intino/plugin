@@ -52,6 +52,6 @@ public class NodeAnnotator extends TaraAnnotator {
 	private void addInstanceAnnotation(Node node) {
 		TextAttributesKey root = createTextAttributesKey("node_instance", new TextAttributes(null, null, null, null, Font.ITALIC));
 		final TaraIdentifier identifier = ((TaraNode) node).getSignature().getIdentifier();
-		if (identifier != null) holder.createInfoAnnotation(identifier, "node").setTextAttributes(root);
+		if (identifier != null) holder.createInfoAnnotation(identifier, "Node").setTextAttributes(root);
 	}
 }

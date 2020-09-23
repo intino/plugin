@@ -135,8 +135,8 @@ public class ArtifactManager {
 	}
 
 	private void notifyError(String error) {
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Tara Language");
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
 		balloon.createNotification(error, MessageType.ERROR).setImportant(false).notify(null);
 	}
 

@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.ContentFactory;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		ConsoleWindow consoleWindow = new ConsoleWindow(project);
+		toolWindow.setIcon(IntinoIcons.ICON_13);
 		toolWindow.setTitle("Console");
 		toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().
 				createContent(consoleWindow.content(), "", false));

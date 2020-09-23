@@ -83,8 +83,8 @@ public class WebDependencyResolver {
 	}
 
 	private void notifyError(String message) {
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Tara Language");
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
 		List<String> lines = Arrays.asList(message.split("\n"));
 		for (int i = 0; i <= lines.size() / 5; i++) {
 			StringBuilder choppedMessage = new StringBuilder();

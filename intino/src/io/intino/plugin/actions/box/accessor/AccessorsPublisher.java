@@ -129,7 +129,7 @@ public class AccessorsPublisher {
 	}
 
 	private void notifySuccess(Configuration conf, String app) {
-		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Tara Language", "Balloon");
+		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Intino", "Balloon");
 		balloon.createNotification("Accessors generated and uploaded", message(), INFORMATION, (n, e) -> {
 			StringSelection selection = new StringSelection(newDependency(conf, app));
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

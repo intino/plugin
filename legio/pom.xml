@@ -12,7 +12,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <tara.level>Product</tara.level>
-        <tara.generation.package>io.intino.legio</tara.generation.package>
+        <tara.generation.package>io.intino.legio.graph</tara.generation.package>
         <tara.language>Proteo</tara.language>
         <tara.language.version>1.0.0</tara.language.version>
         <tara.out.language>Legio</tara.out.language>

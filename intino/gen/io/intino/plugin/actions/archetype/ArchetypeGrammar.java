@@ -25,9 +25,9 @@ public class ArchetypeGrammar extends Parser {
 	public static final int
 			IN = 1, WITH = 2, SPLITTED = 3, LEFT_PARENTHESIS = 4, LEFT_SQUARE = 5, RIGHT_PARENTHESIS = 6,
 			RIGHT_SQUARE = 7, COMMA = 8, MINUS = 9, PLUS = 10, STAR = 11, AS = 12, REGEX = 13, TIMETAG = 14,
-			COLON = 15, LABEL = 16, IDENTIFIER = 17, NEWLINE = 18, SPACES = 19, SP = 20, NL = 21,
-			NEW_LINE_INDENT = 22, DEDENT = 23, UNKNOWN_TOKEN = 24, QUOTE_BEGIN = 25, QUOTE_END = 26,
-			EXPRESSION_BEGIN = 27, EXPRESSION_END = 28;
+			COLON = 15, LINE_COMMENT = 16, LABEL = 17, IDENTIFIER = 18, NEWLINE = 19, SPACES = 20,
+			SP = 21, NL = 22, NEW_LINE_INDENT = 23, DEDENT = 24, UNKNOWN_TOKEN = 25, QUOTE_BEGIN = 26,
+			QUOTE_END = 27, EXPRESSION_BEGIN = 28, EXPRESSION_END = 29;
 	public static final int
 			RULE_root = 0, RULE_node = 1, RULE_declaration = 2, RULE_starting = 3,
 			RULE_parameters = 4, RULE_splitted = 5, RULE_parameter = 6, RULE_body = 7,
@@ -46,7 +46,7 @@ public class ArchetypeGrammar extends Parser {
 		return new String[]{
 				null, "'in'", "'with'", "'splitted'", "'('", "'['", "')'", "']'", "','",
 				"'-'", "'+'", "'*'", "'as'", "'regex'", "'timetag'", "':'", null, null,
-				null, null, null, null, "'indent'", "'dedent'", null, "'%QUOTE_BEGIN%'",
+				null, null, null, null, null, "'indent'", "'dedent'", null, "'%QUOTE_BEGIN%'",
 				"'%QUOTE_END%'", "'%EXPRESSION_BEGIN%'", "'%EXPRESSION_END%'"
 		};
 	}
@@ -55,9 +55,9 @@ public class ArchetypeGrammar extends Parser {
 		return new String[]{
 				null, "IN", "WITH", "SPLITTED", "LEFT_PARENTHESIS", "LEFT_SQUARE", "RIGHT_PARENTHESIS",
 				"RIGHT_SQUARE", "COMMA", "MINUS", "PLUS", "STAR", "AS", "REGEX", "TIMETAG",
-				"COLON", "LABEL", "IDENTIFIER", "NEWLINE", "SPACES", "SP", "NL", "NEW_LINE_INDENT",
-				"DEDENT", "UNKNOWN_TOKEN", "QUOTE_BEGIN", "QUOTE_END", "EXPRESSION_BEGIN",
-				"EXPRESSION_END"
+				"COLON", "LINE_COMMENT", "LABEL", "IDENTIFIER", "NEWLINE", "SPACES",
+				"SP", "NL", "NEW_LINE_INDENT", "DEDENT", "UNKNOWN_TOKEN", "QUOTE_BEGIN",
+				"QUOTE_END", "EXPRESSION_BEGIN", "EXPRESSION_END"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -976,7 +976,7 @@ public class ArchetypeGrammar extends Parser {
 	}
 
 	public static final String _serializedATN =
-			"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\36s\4\2\t\2\4\3\t" +
+			"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\37s\4\2\t\2\4\3\t" +
 					"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\7\2\26" +
 					"\n\2\f\2\16\2\31\13\2\3\2\3\2\7\2\35\n\2\f\2\16\2 \13\2\7\2\"\n\2\f\2" +
 					"\16\2%\13\2\3\2\3\2\3\3\3\3\5\3+\n\3\3\4\3\4\3\4\3\4\5\4\61\n\4\3\4\3" +
@@ -986,24 +986,24 @@ public class ArchetypeGrammar extends Parser {
 					"\t\16\tc\6\tf\n\t\r\t\16\tg\3\t\3\t\3\n\3\n\3\n\3\n\3\n\5\nq\n\n\3\n\2" +
 					"\2\13\2\4\6\b\n\f\16\20\22\2\3\3\2\13\r\2z\2\27\3\2\2\2\4(\3\2\2\2\6," +
 					"\3\2\2\2\b=\3\2\2\2\n?\3\2\2\2\fL\3\2\2\2\16Z\3\2\2\2\20^\3\2\2\2\22k" +
-					"\3\2\2\2\24\26\7\24\2\2\25\24\3\2\2\2\26\31\3\2\2\2\27\25\3\2\2\2\27\30" +
-					"\3\2\2\2\30#\3\2\2\2\31\27\3\2\2\2\32\36\5\4\3\2\33\35\7\24\2\2\34\33" +
+					"\3\2\2\2\24\26\7\25\2\2\25\24\3\2\2\2\26\31\3\2\2\2\27\25\3\2\2\2\27\30" +
+					"\3\2\2\2\30#\3\2\2\2\31\27\3\2\2\2\32\36\5\4\3\2\33\35\7\25\2\2\34\33" +
 					"\3\2\2\2\35 \3\2\2\2\36\34\3\2\2\2\36\37\3\2\2\2\37\"\3\2\2\2 \36\3\2" +
 					"\2\2!\32\3\2\2\2\"%\3\2\2\2#!\3\2\2\2#$\3\2\2\2$&\3\2\2\2%#\3\2\2\2&\'" +
 					"\7\2\2\3\'\3\3\2\2\2(*\5\6\4\2)+\5\20\t\2*)\3\2\2\2*+\3\2\2\2+\5\3\2\2" +
-					"\2,-\5\b\5\2-\60\7\23\2\2.\61\5\n\6\2/\61\5\f\7\2\60.\3\2\2\2\60/\3\2" +
-					"\2\2\60\61\3\2\2\2\61\64\3\2\2\2\62\63\7\3\2\2\63\65\7\22\2\2\64\62\3" +
-					"\2\2\2\64\65\3\2\2\2\65;\3\2\2\2\66\67\7\4\2\2\679\7\22\2\28:\5\22\n\2" +
+					"\2,-\5\b\5\2-\60\7\24\2\2.\61\5\n\6\2/\61\5\f\7\2\60.\3\2\2\2\60/\3\2" +
+					"\2\2\60\61\3\2\2\2\61\64\3\2\2\2\62\63\7\3\2\2\63\65\7\23\2\2\64\62\3" +
+					"\2\2\2\64\65\3\2\2\2\65;\3\2\2\2\66\67\7\4\2\2\679\7\23\2\28:\5\22\n\2" +
 					"98\3\2\2\29:\3\2\2\2:<\3\2\2\2;\66\3\2\2\2;<\3\2\2\2<\7\3\2\2\2=>\t\2" +
 					"\2\2>\t\3\2\2\2?H\7\6\2\2@E\5\16\b\2AB\7\n\2\2BD\5\16\b\2CA\3\2\2\2DG" +
 					"\3\2\2\2EC\3\2\2\2EF\3\2\2\2FI\3\2\2\2GE\3\2\2\2H@\3\2\2\2HI\3\2\2\2I" +
-					"J\3\2\2\2JK\7\b\2\2K\13\3\2\2\2LM\7\5\2\2MV\7\7\2\2NS\7\23\2\2OP\7\n\2" +
-					"\2PR\7\23\2\2QO\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2TW\3\2\2\2US\3\2" +
-					"\2\2VN\3\2\2\2VW\3\2\2\2WX\3\2\2\2XY\7\t\2\2Y\r\3\2\2\2Z\\\7\23\2\2[]" +
-					"\5\22\n\2\\[\3\2\2\2\\]\3\2\2\2]\17\3\2\2\2^e\7\30\2\2_a\5\4\3\2`b\7\24" +
+					"J\3\2\2\2JK\7\b\2\2K\13\3\2\2\2LM\7\5\2\2MV\7\7\2\2NS\7\24\2\2OP\7\n\2" +
+					"\2PR\7\24\2\2QO\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2TW\3\2\2\2US\3\2" +
+					"\2\2VN\3\2\2\2VW\3\2\2\2WX\3\2\2\2XY\7\t\2\2Y\r\3\2\2\2Z\\\7\24\2\2[]" +
+					"\5\22\n\2\\[\3\2\2\2\\]\3\2\2\2]\17\3\2\2\2^e\7\31\2\2_a\5\4\3\2`b\7\25" +
 					"\2\2a`\3\2\2\2bc\3\2\2\2ca\3\2\2\2cd\3\2\2\2df\3\2\2\2e_\3\2\2\2fg\3\2" +
-					"\2\2ge\3\2\2\2gh\3\2\2\2hi\3\2\2\2ij\7\31\2\2j\21\3\2\2\2kp\7\16\2\2l" +
-					"q\7\17\2\2mn\7\20\2\2no\7\21\2\2oq\7\23\2\2pl\3\2\2\2pm\3\2\2\2q\23\3" +
+					"\2\2ge\3\2\2\2gh\3\2\2\2hi\3\2\2\2ij\7\32\2\2j\21\3\2\2\2kp\7\16\2\2l" +
+					"q\7\17\2\2mn\7\20\2\2no\7\21\2\2oq\7\24\2\2pl\3\2\2\2pm\3\2\2\2q\23\3" +
 					"\2\2\2\22\27\36#*\60\649;EHSV\\cgp";
 	public static final ATN _ATN =
 			new ATNDeserializer().deserialize(_serializedATN.toCharArray());

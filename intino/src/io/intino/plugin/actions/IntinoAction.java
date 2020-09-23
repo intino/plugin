@@ -16,9 +16,9 @@ import java.util.Arrays;
 public abstract class IntinoAction extends AnAction {
 
 	void notifyReload(Module module) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
 	public abstract void execute(Module module);

@@ -43,9 +43,9 @@ public class ArchetypeGeneration extends AnAction {
 	}
 
 	private void notifySuccess(Project project) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification("Archetype reloaded", MessageType.INFO).setImportant(false).notify(project);
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		balloon.createNotification("Archetype reloaded", MessageType.INFO).setImportant(false).notify(project);
 	}
 
 	private void withTask(Task.Backgroundable runnable) {
