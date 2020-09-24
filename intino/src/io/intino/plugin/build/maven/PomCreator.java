@@ -428,15 +428,7 @@ class PomCreator {
 		return new FrameBuilder("repository", repo.getClass().getSimpleName()).
 				add("name", repo.identifier()).
 				add("url", repo.url()).
-				add("random", generateRandom()).
-				add("type", (repo instanceof Repository.Snapshot) ? "snapshot" : "release").toFrame();
-	}
-
-	private int generateRandom() {
-		Random generator = new Random();
-		int random = generator.nextInt(99);
-		while (!randomGeneration.add(random)) random = generator.nextInt(99);
-		return random;
+				add("type", (repo instanceof Repository.Snapshot) ? "-snapshot" : "").toFrame();
 	}
 
 	private Frame createDistributionRepositoryFrame(Repository repo, String type) {

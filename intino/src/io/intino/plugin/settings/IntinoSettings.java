@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @State(
 		name = "Intino.Settings",
@@ -37,7 +38,8 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	}
 
 	public List<ArtifactoryCredential> artifactories() {
-		return artifactories == null ? artifactories = new ArtifactoryCredentialsManager().loadCredentials() : artifactories;
+		return artifactories == null ? artifactories = new ArtifactoryCredentialsManager().loadCredentials().stream().
+				filter(c -> !c.serverId.endsWith("-snapshot")).collect(Collectors.toList()) : artifactories;
 	}
 
 	public void artifactories(List<ArtifactoryCredential> artifactories) {

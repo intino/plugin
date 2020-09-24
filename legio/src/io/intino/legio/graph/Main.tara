@@ -143,7 +143,7 @@ Concept Repository
 	var string identifier
 	Concept Type
 		var string url
-		sub Release
+		sub:{0..1} Release
 		sub:{0..1} Snapshot
 
 Concept Parameter is component

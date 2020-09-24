@@ -59,7 +59,7 @@ class ArtifactoryCredentialsManager {
 			StreamResult result = new StreamResult(settingsFile());
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
@@ -112,7 +112,9 @@ class ArtifactoryCredentialsManager {
 	private void setCredentials(List<io.intino.plugin.settings.ArtifactoryCredential> credentials) {
 		removeServers();
 		for (io.intino.plugin.settings.ArtifactoryCredential credential : credentials)
-			setCredentials(createServer(credential.serverId), credential.username, credential.password);
+			addCredentials(createServer(credential.serverId), credential.username, credential.password);
+		for (ArtifactoryCredential credential : credentials)
+			addCredentials(createServer(credential.serverId + "-snapshot"), credential.username, credential.password);
 		commit(doc);
 	}
 
@@ -122,7 +124,7 @@ class ArtifactoryCredentialsManager {
 		elementsByTagName.item(0).getParentNode().removeChild(elementsByTagName.item(0));
 	}
 
-	private void setCredentials(Node server, String user, String password) {
+	private void addCredentials(Node server, String user, String password) {
 		get(server.getChildNodes(), USERNAME).setTextContent(user);
 		get(server.getChildNodes(), PASSWORD).setTextContent(password);
 	}
@@ -139,7 +141,6 @@ class ArtifactoryCredentialsManager {
 		serverNode.appendChild(serverId);
 		serverNode.appendChild(userNode);
 		serverNode.appendChild(passwordNode);
-		;
 		serverNode.appendChild(doc.importNode(configurationNode, true));
 		return serversNode.appendChild(serverNode);
 	}
