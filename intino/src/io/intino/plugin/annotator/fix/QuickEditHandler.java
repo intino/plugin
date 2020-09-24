@@ -18,11 +18,11 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
-import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class QuickEditHandler implements Disposable, DocumentListener {
 	private final Project myProject;
@@ -48,7 +48,7 @@ public class QuickEditHandler implements Disposable, DocumentListener {
 		assert myNewDocument != null;
 		myOrigDocument.addDocumentListener(this, this);
 		myNewDocument.addDocumentListener(this, this);
-		EditorFactory editorFactory = ObjectUtils.assertNotNull(EditorFactory.getInstance());
+		EditorFactory editorFactory = Objects.requireNonNull(EditorFactory.getInstance());
 		// not FileEditorManager listener because of RegExp checker and alike
 		editorFactory.addEditorFactoryListener(new EditorFactoryListener() {
 			int useCount;

@@ -39,8 +39,8 @@
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraNativeImplementationToJava"/>
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="io.intino.plugin.codeinsight.linemarkers.JavaNativeImplementationToTara"/>
-        <defaultLiveTemplatesProvider implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateProvider"/>
         <liveTemplateContext implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext"/>
+        <defaultLiveTemplates file="/livetemplates/var.xml"/>
 
         <gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>
         <gotoRelatedProvider implementation="io.intino.plugin.codeinsight.TaraRelatedFilesProvider"/>

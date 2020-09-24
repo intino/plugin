@@ -1,6 +1,6 @@
 package io.intino.plugin.errorreporting;
 
-import com.intellij.CommonBundle;
+import com.intellij.AbstractBundle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
@@ -17,7 +17,7 @@ public class PluginErrorReportSubmitterBundle {
 	}
 
 	public static String message(@PropertyKey(resourceBundle = PATH_TO_BUNDLE) String key, @NotNull Object... params) {
-		return CommonBundle.message(getBundle(), key, params);
+		return AbstractBundle.message(getBundle(), key, params);
 	}
 
 	private static ResourceBundle getBundle() {

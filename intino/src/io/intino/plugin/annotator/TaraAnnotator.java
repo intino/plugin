@@ -1,10 +1,10 @@
 package io.intino.plugin.annotator;
 
 import com.intellij.codeInsight.intention.IntentionAction;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.annotation.Annotation;
+import com.intellij.lang.annotation.AnnotationBuilder;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
@@ -27,40 +27,40 @@ public abstract class TaraAnnotator implements Annotator {
 	}
 
 	public void annotateAndFix(Map<PsiElement, AnnotateAndFix> annotations) {
-		Annotation annotation;
+		AnnotationBuilder builder;
 		for (Map.Entry<PsiElement, AnnotateAndFix> entry : annotations.entrySet()) {
 			switch (entry.getValue().level()) {
 				case INFO:
-					annotation = holder.createInfoAnnotation(entry.getKey().getNode(), entry.getValue().message());
+					builder = holder.newAnnotation(HighlightSeverity.INFORMATION, entry.getValue().message()).range(entry.getKey());
 					break;
 				case WARNING:
-					annotation = holder.createWarningAnnotation(entry.getKey().getNode(), entry.getValue().message());
+					builder = holder.newAnnotation(HighlightSeverity.WARNING, entry.getValue().message()).range(entry.getKey());
 					break;
 				case INSTANCE:
-					annotation = addDeclarationAnnotation(entry.getKey().getNode(), entry.getValue().message());
+					builder = createDeclarationAnnotation(entry.getKey(), entry.getValue().message());
 					break;
 				default:
-					annotation = holder.createErrorAnnotation(entry.getKey().getNode(), entry.getValue().message());
+					builder = holder.newAnnotation(HighlightSeverity.ERROR, entry.getValue().message()).range(entry.getKey());
 					break;
 			}
-			if (entry.getValue().textAttributes() != null) annotation.setTextAttributes(entry.getValue().attributes);
-			for (IntentionAction action : entry.getValue().actions()) annotation.registerFix(action);
+			if (entry.getValue().textAttributes() != null) builder.textAttributes(entry.getValue().attributes);
+			for (IntentionAction action : entry.getValue().actions()) builder.newFix(action);
+			builder.create();
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	private Annotation addDeclarationAnnotation(ASTNode node, String message) {
+	private AnnotationBuilder createDeclarationAnnotation(PsiElement node, String message) {
+		AnnotationBuilder builder = holder.newAnnotation(HighlightSeverity.WARNING, message).range(node);
 		TextAttributesKey root = createTextAttributesKey("node_declaration", new TextAttributes(null, null, null, null, Font.ITALIC));
-		final Annotation declaration = holder.createInfoAnnotation(node, message);
-		declaration.setTextAttributes(root);
-		return declaration;
+		return builder.textAttributes(root);
 	}
 
 	public static class AnnotateAndFix {
-		private Level level;
-		private String message;
-		private IntentionAction[] actions = IntentionAction.EMPTY_ARRAY;
-		private TextAttributesKey attributes;
+		private final Level level;
+		private final String message;
+		private IntentionAction[] actions;
+		private final TextAttributesKey attributes;
 
 		public AnnotateAndFix(Level level, String message, IntentionAction... actions) {
 			this(level, message, null, actions);
@@ -92,6 +92,5 @@ public abstract class TaraAnnotator implements Annotator {
 		public void setActions(IntentionAction[] actions) {
 			this.actions = actions.clone();
 		}
-
 	}
 }

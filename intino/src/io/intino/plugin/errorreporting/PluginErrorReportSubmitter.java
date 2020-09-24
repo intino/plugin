@@ -34,7 +34,6 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 
 
 	@NonNls
-
 	public String getReportActionText() {
 		return PluginErrorReportSubmitterBundle.message("report.error.to.plugin.vendor");
 	}
