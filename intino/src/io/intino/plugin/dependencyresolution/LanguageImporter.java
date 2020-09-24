@@ -22,7 +22,6 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 import java.io.File;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 
@@ -58,16 +57,18 @@ public class LanguageImporter {
 		} catch (DependencyResolutionException e) {
 			try {
 				aether.resolve(new DefaultArtifact(LanguageManager.DSL_GROUP_ID, name.toLowerCase(), "jar", version), JavaScopes.COMPILE);
+				return true;
 			} catch (DependencyResolutionException e2) {
 				error(e2);
+				return false;
 			}
-			return false;
 		}
 	}
 
 	@NotNull
 	private List<RemoteRepository> repositories() {
-		return repositories.stream().map(r -> new RemoteRepository(r.identifier(), "default", r.url())).collect(Collectors.toList());
+		Repositories repositories = new Repositories(this.module);
+		return repositories.map(this.repositories);
 	}
 
 	private void reload(String fileName, Project project) {

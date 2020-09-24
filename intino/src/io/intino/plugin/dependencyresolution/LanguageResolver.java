@@ -15,11 +15,8 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.ModelBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioModel;
-import io.intino.plugin.settings.ArtifactoryCredential;
-import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -73,7 +70,7 @@ public class LanguageResolver {
 			}
 		}
 		final Module dependency = moduleDependencyOf(this.module, model.language().name(), version);
-		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveExternalLanguage();
+		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveLibraryLanguage();
 		cache.put(languageId, catalog.dependencies());
 		cache.save();
 		return catalog;
@@ -86,7 +83,7 @@ public class LanguageResolver {
 		return catalog;
 	}
 
-	private DependencyCatalog resolveExternalLanguage() {
+	private DependencyCatalog resolveLibraryLanguage() {
 		DependencyCatalog catalog = new DependencyCatalog();
 		if (!LanguageManager.getLanguageFile(model.language().name(), version).exists()) version = importLanguage();
 		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language().name(), version));
@@ -103,11 +100,12 @@ public class LanguageResolver {
 		model.language().effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
 	}
 
-	private Map<Artifact, DependencyScope> findLanguageFramework(String languageId) {
+	private Map<Artifact, DependencyScope> findLanguageFramework(String frameworkCoors) {
 		try {
-			if (languageId == null) return Collections.emptyMap();
+			if (frameworkCoors == null) return Collections.emptyMap();
 			Aether aether = new Aether(remotes(), localRepository);
-			List<Artifact> resolve = aether.resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
+			String[] coors = frameworkCoors.split(":");
+			List<Artifact> resolve = aether.resolve(new DefaultArtifact(coors[0], coors[1], "jar", coors[2]), JavaScopes.COMPILE);
 			return toMap(resolve, DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyMap();
@@ -141,14 +139,6 @@ public class LanguageResolver {
 		return remotes;
 	}
 
-	private Authentication provideAuthentication(String mavenId) {
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
-		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(mavenId))
-				return new Authentication(credential.username, credential.password);
-		return null;
-	}
-
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
 		for (Module m : modules) {
@@ -167,7 +157,7 @@ public class LanguageResolver {
 			Manifest manifest = new JarFile(languageFile).getManifest();
 			final Attributes tara = manifest.getAttributes("tara");
 			if (tara == null) return null;
-			return tara.getValue("framework").toLowerCase();
+			return tara.getValue("framework");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
