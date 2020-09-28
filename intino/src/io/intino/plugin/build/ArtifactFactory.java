@@ -62,8 +62,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			}
 			try {
 				checker.check(phase, module, configuration);
-				if (!isInMasterBranch() && !askForReleaseDistribute()) return;
-				if (!isInMasterBranch()) checkoutMasterAndMerge();
+				if (startingBranch != null && !isInMasterBranch() && !askForReleaseDistribute()) return;
+				if (startingBranch != null && !isInMasterBranch()) checkoutMasterAndMerge();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}
@@ -134,7 +134,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {
 					task(() -> {
-						if (!startingBranch.equals(currentBranch(module))) {
+						if (startingBranch != null && !startingBranch.equals(currentBranch(module))) {
 							GitUtil.checkoutTo(module, startingBranch);
 							GitUtil.popStash(module, stash);
 						}
