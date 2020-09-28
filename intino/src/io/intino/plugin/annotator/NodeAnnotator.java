@@ -1,6 +1,7 @@
 package io.intino.plugin.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
@@ -50,8 +51,9 @@ public class NodeAnnotator extends TaraAnnotator {
 
 	@SuppressWarnings("deprecation")
 	private void addInstanceAnnotation(Node node) {
-		TextAttributesKey root = createTextAttributesKey("node_instance", new TextAttributes(null, null, null, null, Font.ITALIC));
+		TextAttributesKey textAttributes = createTextAttributesKey("node_instance", new TextAttributes(null, null, null, null, Font.ITALIC));
 		final TaraIdentifier identifier = ((TaraNode) node).getSignature().getIdentifier();
-		if (identifier != null) holder.createInfoAnnotation(identifier, "Node").setTextAttributes(root);
+		if (identifier != null)
+			holder.newAnnotation(HighlightSeverity.INFORMATION, "Node").range(identifier).textAttributes(textAttributes).create();
 	}
 }

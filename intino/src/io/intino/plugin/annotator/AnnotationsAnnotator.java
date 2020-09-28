@@ -1,6 +1,7 @@
 package io.intino.plugin.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.Annotations;
@@ -17,6 +18,6 @@ public class AnnotationsAnnotator extends TaraAnnotator {
 		final Configuration.Artifact.Model.Level level = IntinoUtil.level(element);
 		if (level == null) return;
 		if ((element instanceof Annotations && (level.isProduct() || level.isSolution())) || (element instanceof Flags && (level.isSolution())))
-			holder.createErrorAnnotation(element, MessageProvider.message("reject.annotations.in.level"));
+			holder.newAnnotation(HighlightSeverity.ERROR, MessageProvider.message("reject.annotations.in.level")).range(element).create();
 	}
 }

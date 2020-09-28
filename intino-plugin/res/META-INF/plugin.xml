@@ -2,7 +2,7 @@
     <id>io.intino.plugin</id>
     <name>Intino</name>
     <version>5.5.2</version>
-    <vendor email="info@intino.io" url="http://www.intino.io">intino.io</vendor>
+    <vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.idea.maven</depends>
     <depends>Git4Idea</depends>
