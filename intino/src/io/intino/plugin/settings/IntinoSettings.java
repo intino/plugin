@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @State(
 		name = "Intino.Settings",
 		storages = {
-				@Storage(file = "$PROJECT_FILE$"),
-				@Storage(file = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml")
+				@Storage(value = "$PROJECT_FILE$"),
+				@Storage(value = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml")
 		}
 )
 public class IntinoSettings implements PersistentStateComponent<io.intino.plugin.settings.IntinoSettings.State> {
@@ -67,8 +67,16 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		return myState.cesarToken;
 	}
 
-	public void cesarToken(String cesarUser) {
-		myState.cesarToken = cesarUser;
+	public void cesarToken(String cesarToken) {
+		myState.cesarToken = cesarToken;
+	}
+
+	public String bitbucketToken() {
+		return myState.bitbucketToken;
+	}
+
+	public void bitbucketToken(String bitbucketToken) {
+		myState.bitbucketToken = bitbucketToken;
 	}
 
 	public String cesarUrl() {
@@ -111,5 +119,8 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 
 		@Tag("cesarToken")
 		public String cesarToken = "";
+
+		@Tag("bitbucketToken")
+		public String bitbucketToken = "";
 	}
 }

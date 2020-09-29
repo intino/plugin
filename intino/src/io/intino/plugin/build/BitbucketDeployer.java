@@ -33,10 +33,12 @@ public class BitbucketDeployer {
 	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
 	private final Configuration.Distribution.BitBucketDistribution bitbucket;
 	private final File jar;
+	private final String bitbucketToken;
 
-	public BitbucketDeployer(Configuration configuration) {
+	public BitbucketDeployer(Configuration configuration, String bitbucketToken) {
 		this.bitbucket = safe(() -> configuration.artifact().distribution().onBitbucket());
 		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name() + ":" + configuration.artifact().version());
+		this.bitbucketToken = bitbucketToken;
 	}
 
 	public void execute() {
@@ -44,7 +46,7 @@ public class BitbucketDeployer {
 		final URL url = url();
 		try {
 			HttpPost post = new HttpPost(url.toURI());
-			post.addHeader("Authorization", "Basic c2lhbmlkZXY6TmdycmhHNERYZ2d1eHVGdFNMZ2c=");
+			post.addHeader("Authorization", "Basic " + bitbucketToken);
 			post.setEntity(multipartEntityOf(jar));
 			final Response response = executeMethod(url, post);
 			System.out.println(response.content());
@@ -54,12 +56,12 @@ public class BitbucketDeployer {
 	}
 
 	private HttpEntity multipartEntityOf(File resource) throws FileNotFoundException {
-		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create().
+		return MultipartEntityBuilder.create().
 				setContentType(ContentType.MULTIPART_FORM_DATA).
 				setMode(HttpMultipartMode.BROWSER_COMPATIBLE).
-				setCharset(StandardCharsets.UTF_8);
-		addContent(entityBuilder, resource);
-		return entityBuilder.build();
+				setCharset(StandardCharsets.UTF_8).
+				addPart(createContent(resource)).
+				build();
 	}
 
 	private Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
@@ -80,10 +82,10 @@ public class BitbucketDeployer {
 		return responseOf(response);
 	}
 
-	private void addContent(MultipartEntityBuilder builder, File resource) throws FileNotFoundException {
+	private FormBodyPart createContent(File resource) throws FileNotFoundException {
 		final FormBodyPart part = FormBodyPartBuilder.create("files", new InputStreamBody(new FileInputStream(resource), ContentType.create("jar"), resource.getName())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
-		builder.addPart(part);
+		return part;
 	}
 
 	private URL url() {

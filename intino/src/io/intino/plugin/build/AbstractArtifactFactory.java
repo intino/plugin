@@ -27,6 +27,7 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
+import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.output.IntinoRemoteConsoleListener;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.apache.commons.io.FileUtils;
@@ -229,12 +230,15 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) {
+	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) throws IntinoException {
 		Artifact artifact = configuration.artifact();
 		if (includeDistribution(phase)) {
-			Configuration.Distribution distribution = artifact.distribution();
-			if (distribution != null && artifact.distribution().onBitbucket() != null)
-				new BitbucketDeployer(configuration).execute();
+			if (safe(() -> artifact.distribution().onBitbucket()) != null) {
+				String bitbucketToken = IntinoSettings.getSafeInstance(module.getProject()).bitbucketToken();
+				if (bitbucketToken == null || bitbucketToken.isEmpty())
+					throw new IntinoException("Bitbucket token not found. Please, set it on Intino Settings");
+				new BitbucketDeployer(configuration, bitbucketToken).execute();
+			}
 		}
 	}
 

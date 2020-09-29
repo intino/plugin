@@ -29,6 +29,7 @@ public class IntinoSettingsPanel {
 	private JPanel cesar;
 	private JTextField cesarUrl;
 	private JButton generateButton;
+	private JTextField bitbucketToken;
 
 	IntinoSettingsPanel() {
 		tracker.setBorder(BorderFactory.createTitledBorder("Issue Tracker"));
@@ -57,6 +58,7 @@ public class IntinoSettingsPanel {
 		trackerApi.setText(settings.trackerApiToken());
 		cesarToken.setText(settings.cesarToken());
 		cesarUrl.setText(settings.cesarUrl());
+		bitbucketToken.setText(settings.bitbucketToken());
 	}
 
 	void applyConfigurationData(IntinoSettings settings) {
@@ -65,6 +67,7 @@ public class IntinoSettingsPanel {
 		settings.trackerApiToken(trackerApi.getText());
 		settings.cesarUrl(cesarUrl.getText());
 		settings.cesarToken(cesarToken.getText());
+		settings.bitbucketToken(bitbucketToken.getText());
 		settings.saveState();
 	}
 
@@ -115,7 +118,7 @@ public class IntinoSettingsPanel {
 		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 200));
 	}
 
-	class PasswordCellRenderer extends DefaultTableCellRenderer {
+	static class PasswordCellRenderer extends DefaultTableCellRenderer {
 		private static final String ASTERISKS = "******";
 
 		@Override
