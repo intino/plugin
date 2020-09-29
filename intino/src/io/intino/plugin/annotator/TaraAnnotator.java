@@ -44,7 +44,9 @@ public abstract class TaraAnnotator implements Annotator {
 					break;
 			}
 			if (entry.getValue().textAttributes() != null) builder.textAttributes(entry.getValue().attributes);
-			for (IntentionAction action : entry.getValue().actions()) builder.newFix(action);
+			for (IntentionAction action : entry.getValue().actions()) {
+				builder.newFix(action).range(entry.getKey().getTextRange()).registerFix();
+			}
 			builder.create();
 		}
 	}
