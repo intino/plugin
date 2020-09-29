@@ -1,12 +1,12 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification;
 import io.intino.plugin.MessageProvider;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification;
+import io.intino.plugin.annotator.TaraAnnotator;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,7 +1,7 @@
 package io.intino.plugin.actions;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -12,11 +12,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
+import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.dialog.SubmitFeedbackDialogPane;
+import io.intino.plugin.errorreporting.PivotalLoggingEventSubmitter;
+import io.intino.plugin.errorreporting.PluginErrorReportSubmitterBundle;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.plugin.actions.dialog.SubmitFeedbackDialogPane;
-import io.intino.tara.plugin.diagnostic.errorreporting.PivotalLoggingEventSubmitter;
-import io.intino.tara.plugin.diagnostic.errorreporting.PluginErrorReportSubmitterBundle;
-import io.intino.tara.plugin.lang.TaraIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Properties;
@@ -34,7 +34,7 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	public void update(@NotNull AnActionEvent e) {
 		e.getPresentation().setVisible(true);
 		e.getPresentation().setEnabled(true);
-		e.getPresentation().setIcon(TaraIcons.ICON_16);
+		e.getPresentation().setIcon(IntinoIcons.MODEL_16);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	}
 
 	private void sendReport(Project project, String reportTitle, String reportDescription, String type) {
-		IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginId.getId("io.intino.tara"));
+		IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId("io.intino.plugin"));
 		final Properties properties = createErrorProperties(plugin, reportTitle, reportDescription, type);
 		final IntinoSettings settings = IntinoSettings.getSafeInstance(project);
 		PivotalLoggingEventSubmitter submitter = new PivotalLoggingEventSubmitter(properties, settings.trackerProjectId(), settings.trackerApiToken());

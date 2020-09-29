@@ -1,0 +1,156 @@
+dsl Proteo
+
+Concept:{1..1}:Named Artifact
+	var string groupId
+	var string version
+	var string description = empty
+	var string url = empty
+	Aspect Level
+		Concept:{1..1} Model
+			var string language
+			var string version
+			var string sdk
+			var string effectiveVersion = "" is private
+			var string outLanguage = 'self.graph().artifact().name$()'
+		sub Platform
+		sub Product
+		sub Solution
+	Concept:{0..1} License
+		var word:{GPL BSD LGPL} type
+	Concept Scm
+		var string url
+		var string connection
+	Concept Developer
+		var string name
+		var string email
+		var string organization
+		var string organizationUrl
+	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
+	Concept:{0..1} Imports
+		Concept Dependency
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string name = '"Legio: " + self.identifier()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
+			var string effectiveVersion = "" is private
+			var boolean transitive = true
+			var boolean resolved = false is private
+			var boolean toModule = false is private
+			Concept Exclude
+				var string groupId
+				var string artifactId
+			sub Compile
+			sub Runtime
+			sub Provided
+			sub Test
+		Concept Web
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
+			var boolean resolved = false is private
+	Concept:{0..1} WebImports
+		var string webDirectory = "lib"
+		Concept Resolution
+			var string name
+			var string version
+		Concept WebComponent
+			var string url = ""
+			var string version
+		Concept:Named WebArtifact
+			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+			var string groupId
+			var string artifactId
+			var string version
+	Concept:{0..1} Box
+		var string language
+		var string version
+		var string sdk = empty
+		var string effectiveVersion = "" is private
+		var string targetPackage = "box"
+	Concept:{0..1} Code
+		var string targetPackage
+	Concept IntinoPlugin
+		var string artifact
+		var string pluginClass
+		var word:{Export PostCompilation PrePackage PostPackage PostDistribution} phase = PrePackage
+
+	Concept:{0..1} Package
+		var word:{ModulesAndLibrariesExtracted LibrariesLinkedByManifest ModulesAndLibrariesLinkedByManifest} mode
+		var boolean createMavenPom = false
+		var boolean attachSources = false
+		var boolean attachDoc = false
+		var boolean includeTests = false
+		var boolean signArtifactWithGpg = false
+		var string classpathPrefix = empty
+		var string finalName = empty
+		var string defaultJVMOptions = ""
+		Concept MavenPlugin
+			var string code
+		Aspect Runnable
+        	var string mainClass
+		Aspect MacOS with Runnable
+        	var string macIcon
+        	var string resourceDirectory = empty
+
+        Aspect Windows with Runnable
+        	var string windowsIcon
+
+	has Parameter
+	Concept:{0..1} Distribution
+		Concept Artifactory
+			var string identifier
+			Concept:{0..1} Release > var string url
+			Concept:{0..1} Snapshot > var string url
+		Concept:{0..1} OnBitbucket
+			var string owner
+			var string slugName
+
+	Concept:{0..1} QualityAnalytics
+		var string url
+		Concept:{0..1} Authentication
+			var string token
+
+	Concept:MustHaveDistribution Deployment
+		var Server server
+		var RunConfiguration runConfiguration
+		Concept:{0..1} BugTracking
+			var string[] slackUsers = empty
+		Concept:{0..1} Requirements
+			Concept:{0..1} HDD
+				var double:{GB} min
+			Concept:{0..1} Memory
+				var integer:{MB} min
+			Concept:{0..1} CPU
+				var integer cores
+			Concept:{0..1} JVM
+				var string version
+			Concept:{0..1} R
+				var string version
+				var string[] libraries
+
+Concept:CheckDuplicatedArguments RunConfiguration
+	var string mainClass = ""
+	var string vmOptions = ""
+	has Argument
+	var function:FinalArguments finalArguments = @finalArguments is private
+
+Concept:Named Server
+	var word:{Dev Pre Pro Demo} type
+
+Concept Repository
+	var string identifier
+	Concept Type
+		var string url
+		sub:{0..1} Release
+		sub:{0..1} Snapshot
+
+Concept Parameter is component
+	var string name
+	var string defaultValue = empty
+	var string description = ""
+
+Concept Argument is component
+	var string name
+	var string value

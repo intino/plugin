@@ -1,0 +1,129 @@
+def type(pom)
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>$group+lowercase</groupId>
+	<artifactId>$artifact+lowercase</artifactId>
+	<version>$version</version>
+	[<licenses>
+		$license...[$NL]
+	</licenses>]
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<outputDirectory>out/production/$artifact+lowercase</outputDirectory>
+		<testOutputDirectory>out/test/$artifact+lowercase</testOutputDirectory>
+		<directory>out/build/$artifact+lowercase</directory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+        $repository+release...[$NL]
+        <repository>
+            <id>intino-maven</id>
+            <name>intino-maven-releases</name>
+            <url>https://artifactory.intino.io/artifactory/releases</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        $repository+distribution...[$NL]
+    </distributionManagement>
+
+	<dependencies>
+		$dependency...[$NL]
+	</dependencies>
+</project>
+end
+
+def type(repository & Distribution & snapshot) trigger(distribution)
+	<snapshotRepository>
+		<id>$name</id>
+		<url>$url</url>
+	</snapshotRepository>
+end
+
+def type(repository) type(Distribution) trigger(distribution)
+	<repository>
+		<id>$name</id>
+		<url>$url</url>
+	</repository>
+end
+
+def trigger(distribution)
+end
+
+def type(repository) !type(distribution) trigger(release)
+	<repository>
+		<id>$name-~$random</id>
+		<url>$url</url>
+	</repository>
+end
+
+
+def type(GPL) trigger(license)
+	<license>
+		<name>The GNU General Public License v3.0</name>
+		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+	</license>
+end
+
+def type(BSD) trigger(license)
+	<license>
+		<name>BSD 3-Clause License</name>
+		<url>https://opensource.org/licenses/BSD-3-Clause</url>
+	</license>
+end
+
+def type(rest) trigger(dependency)
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>rest-accessor</artifactId>
+		<version>$version</version>
+	</dependency>
+end
+
+def type(jmx) trigger(dependency)
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>jmx</artifactId>
+		<version>$[1.0.0, 2.0.0)</version>
+	</dependency>
+	<dependency>
+        <groupId>io.intino.alexandria</groupId>
+        <artifactId>exceptions</artifactId>
+        <version>$[1.0.0, 2.0.0)</version>
+    </dependency>
+end
+
+def type(messaging) trigger(dependency)
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>terminal-jms</artifactId>
+		<version>$version</version>
+	</dependency>
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>json</artifactId>
+		<version>$[1.0.0, 2.0.0]</version>
+	</dependency>
+end

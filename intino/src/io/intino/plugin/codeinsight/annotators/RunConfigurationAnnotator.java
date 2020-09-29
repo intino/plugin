@@ -2,9 +2,9 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
+import io.intino.magritte.lang.model.Node;
+import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.file.legio.LegioFileType;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.annotator.TaraAnnotator;
 import org.jetbrains.annotations.NotNull;
 
 public class RunConfigurationAnnotator extends TaraAnnotator {
@@ -17,6 +17,6 @@ public class RunConfigurationAnnotator extends TaraAnnotator {
 	}
 
 	private boolean isRunConfiguration(Node element) {
-		return element.simpleType().equals("RunConfiguration");
+		return element.type().equals("RunConfiguration");
 	}
 }

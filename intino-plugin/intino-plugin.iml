@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PLUGIN_MODULE" version="4">
-  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
-  <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../out/production/intino" />
-    <output-test url="file://$MODULE_DIR$/../out/test/intino" />
-    <exclude-output />
-    <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="IDEA Tara" jdkType="IDEA JDK" />
+  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/res/META-INF/plugin.xml" />
+  <component name="ExternalSystem" linkedProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" rootProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" />
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
+    <output url="file://$MODULE_DIR$/../out/production/intino-plugin" />
+    <output-test url="file://$MODULE_DIR$/../out/test/intino-plugin" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
+    </content>
+    <orderEntry type="jdk" jdkName="IDEA 11" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="intino" />
+    <orderEntry type="module" module-name="intino" exported="" />
   </component>
 </module>

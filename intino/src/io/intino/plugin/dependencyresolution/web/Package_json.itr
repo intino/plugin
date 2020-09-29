@@ -1,43 +1,48 @@
 def type(package)
-	{
-		"name": "$artifactID",
-		"version": "$version",
-		"dependencies": {},
-		"devDependencies": {
-			"babel-preset-env": "^1.6.1",
-            "bower": "^1.7.7",
-            "del": "^2.2.2",
-            "fs-extra": "^5.0.0",
-            "eslint-plugin-html": "^1.4.0",
-            "gulp": "^3.9.1",
-            "gulp-autoprefixer": "^2.1.0",
-            "gulp-babel": "^6.1.2",
-            "gulp-changed": "^1.0.0",
-            "gulp-clean-css": "^3.9.2",
-            "gulp-concat": "^2.6.0",
-            "gulp-crisper": "1.0.0",
-            "gulp-eslint": "^2.0.0",
-            "gulp-htmlmin": "^4.0.0",
-            "gulp-if": "^1.2.1",
-            "gulp-imagemin": "^2.2.1",
-            "gulp-livereload": "^3.8.1",
-            "gulp-load-plugins": "^0.10.0",
-            "gulp-rename": "^1.2.0",
-            "gulp-replace": "^0.5.3",
-            "gulp-rsync": "0.0.8",
-            "gulp-size": "^2.0.0",
-            "gulp-sourcemaps": "^1.6.0",
-            "gulp-uglify": "^1.2.0",
-            "gulp-useref": "^1.1.2",
-            "gulp-vulcanize": "^6.0.0",
-            "merge-stream": "^0.1.7",
-            "run-sequence": "^1.0.2",
-            "web-component-tester": "^4.2.0"
-		},
-		"scripts": {
-		},
-		"engines": {
-			"node": ">=0.10.0"
-		}
-	}
+    {
+        "name": "$artifactId",
+        "version": "$version",
+        "description": "",
+        "main": "src/App.js",
+        "scripts": {
+            "build": "webpack --mode production",
+            "dev": "webpack --mode development --watch"
+        },
+        "author": "",
+        "license": "ISC",
+        "devDependencies": {
+            "@babel/core": "^7.4.5",
+            "@babel/plugin-proposal-class-properties": "^7.4.4",
+            "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+            "@babel/preset-env": "^7.4.5",
+            "@babel/preset-react": "^7.0.0",
+            "acorn": "^6.1.1",
+            "babel-loader": "^8.0.6",
+            "babel-plugin-dynamic-import-webpack": "^1.1.0",
+            "circular-dependency-plugin": "^5.0.2",
+            "copy-webpack-plugin": "^5.0.3",
+            "css-loader": "^2.1.1",
+            "html-loader": "^0.5.5",
+            "html-webpack-plugin": "^3.2.0",
+            "jss": "^9.8.7",
+            "prop-types": "^15.7.2",
+            $fsevents
+            "style-loader": "^0.23.1",
+            "styled-components": "^4.3.1",
+            "webpack": "^4.34.0",
+            "webpack-cli": "^3.3.4",
+            "webpack-dev-server": "^3.7.1"
+        },
+        "dependencies": {
+            $dependency...[,$NL]
+        }
+    }
+end
+
+def trigger(dependency)
+     "$name": "$version"
+end
+
+def trigger(fsevents)
+    "fsevents": "^2.1.2",
 end

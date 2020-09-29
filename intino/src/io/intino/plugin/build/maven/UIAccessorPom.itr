@@ -1,0 +1,120 @@
+def type(pom)
+	<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+    		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    	<modelVersion>4.0.0</modelVersion>
+
+		<groupId>$groupId+lowercase</groupId>
+		<artifactId>$artifactId+lowercase</artifactId>
+		<version>$version</version>
+		[<licenses>
+			$license...[$NL]
+		</licenses>]
+
+    	<properties>
+    		<maven.compiler.source>1.8</maven.compiler.source>
+    		<maven.compiler.target>1.8</maven.compiler.target>
+    		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	</properties>
+
+    	<build>
+    		<outputDirectory>$outDirectory~$artifactId+lowercase</outputDirectory>
+			<directory>$buildDirectory~$artifactId+lowercase</directory>
+    		<plugins>
+    		    $build
+    			<plugin>
+    				<groupId>org.codehaus.mojo</groupId>
+    				<artifactId>build-helper-maven-plugin</artifactId>
+    				<version>1.7</version>
+    				<executions>
+    					<execution>
+    						<id>add-source</id>
+    						<phase>generate-resources</phase>
+    						<goals>
+    							<goal>add-resource</goal>
+    						</goals>
+    						<configuration>
+    							<resources>
+                                    <resource>
+                                        <directory>./</directory>
+                                        <includes>
+                                            <include>package.json</include>
+                                            <include>src/**/*</include>
+                                            <include>gen/**/*</include>
+                                            <include>res/**/*</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+    						</configuration>
+    					</execution>
+    				</executions>
+    			</plugin>
+    			<plugin>
+    				<groupId>org.apache.maven.plugins</groupId>
+    				<artifactId>maven-source-plugin</artifactId>
+    				<version>3.0.1</version>
+    				<executions>
+    					<execution>
+    						<id>attach-sources</id>
+    						<goals>
+    							<goal>jar-no-fork</goal>
+    						</goals>
+    					</execution>
+    				</executions>
+    				<configuration>
+    					<useDefaultExcludes>false</useDefaultExcludes>
+    				</configuration>
+    			</plugin>
+    		</plugins>
+    	</build>
+
+		<distributionManagement>
+			$repository+distribution...[$NL]
+		</distributionManagement>
+    </project>
+end
+
+def type(package) trigger(build)
+    <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+            $nodeInstalled
+            <execution>
+                <id>npm install</id>
+                <goals>
+                    <goal>npm</goal>
+                </goals>
+                <configuration>
+                    <arguments>run-script build</arguments>
+                </configuration>
+            </execution>
+        </executions>
+        <configuration>
+            <nodeVersion>v11.2.0</nodeVersion>
+            <installDirectory>$${user.home}/</installDirectory>
+        </configuration>
+    </plugin>
+end
+
+def type(repository) type(Distribution) trigger(distribution)
+	<repository>
+		<id>$name</id>
+		<name>$name</name>
+		<url>$url</url>
+	</repository>
+end
+
+def attribute(this:false) trigger(nodeInstalled)
+    <execution>
+        <id>install node and npm</id>
+        <goals>
+            <goal>install-node-and-npm</goal>
+        </goals>
+        <phase>generate-resources</phase>
+    </execution>
+end
+
+def trigger(nodeInstalled)
+end

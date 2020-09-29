@@ -1,6 +1,9 @@
 package io.intino.plugin.settings;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
@@ -11,17 +14,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @State(
 		name = "Intino.Settings",
 		storages = {
-				@Storage(file = "$PROJECT_FILE$"),
-				@Storage(file = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+				@Storage(value = "$PROJECT_FILE$"),
+				@Storage(value = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml")
 		}
 )
 public class IntinoSettings implements PersistentStateComponent<io.intino.plugin.settings.IntinoSettings.State> {
 
-	private State myState = new State();
+	private final State myState = new State();
 	private List<ArtifactoryCredential> artifactories = null;
 
 	public static io.intino.plugin.settings.IntinoSettings getSafeInstance(Project project) {
@@ -34,7 +38,8 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	}
 
 	public List<ArtifactoryCredential> artifactories() {
-		return artifactories == null ? artifactories = new ArtifactoryCredentialsManager().loadCredentials() : artifactories;
+		return artifactories == null ? artifactories = new ArtifactoryCredentialsManager().loadCredentials().stream().
+				filter(c -> !c.serverId.endsWith("-snapshot")).collect(Collectors.toList()) : artifactories;
 	}
 
 	public void artifactories(List<ArtifactoryCredential> artifactories) {
@@ -58,12 +63,20 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		myState.trackerApiToken = trackerApiToken;
 	}
 
-	public String cesarUser() {
-		return myState.cesarUser;
+	public String cesarToken() {
+		return myState.cesarToken;
 	}
 
-	public void cesarUser(String cesarUser) {
-		myState.cesarUser = cesarUser;
+	public void cesarToken(String cesarToken) {
+		myState.cesarToken = cesarToken;
+	}
+
+	public String bitbucketToken() {
+		return myState.bitbucketToken;
+	}
+
+	public void bitbucketToken(String bitbucketToken) {
+		myState.bitbucketToken = bitbucketToken;
 	}
 
 	public String cesarUrl() {
@@ -74,23 +87,13 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 		myState.cesarUrl = url;
 	}
 
-
 	@NotNull
 	public Map.Entry<String, String> cesar() throws IntinoException {
 		final String cesar = cesarUrl();
-		final String user = cesarUser();
-		if (cesar.isEmpty() || user.isEmpty())
+		final String token = cesarToken();
+		if (cesar.isEmpty() || token.isEmpty())
 			throw new IntinoException("Cesar credentials not found, please specify it in Intino settings");
-		return new AbstractMap.SimpleEntry<>(cesar, user);
-	}
-
-
-	public boolean overrides() {
-		return myState.overrides;
-	}
-
-	public void overrides(boolean overrides) {
-		myState.overrides = overrides;
+		return new AbstractMap.SimpleEntry<>(cesar, token);
 	}
 
 	@Nullable
@@ -105,18 +108,19 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	}
 
 	public static class State {
-		public boolean overrides = false;
-
 		@Tag("trackerProjectId")
 		public String trackerProjectId = "1022010";
 
 		@Tag("trackerApiToken")
 		public String trackerApiToken = "ae3d1e4d4bcb011927e2768d7aa39f3a";
 
-		@Tag("cesarUser")
-		public String cesarUser = "";
 		@Tag("cesarUrl")
 		public String cesarUrl = "";
-	}
 
+		@Tag("cesarToken")
+		public String cesarToken = "";
+
+		@Tag("bitbucketToken")
+		public String bitbucketToken = "";
+	}
 }

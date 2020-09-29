@@ -1,7 +1,8 @@
 package io.intino.plugin.settings;
 
 import com.intellij.openapi.diagnostic.Logger;
-import org.siani.itrules.model.Frame;
+import io.intino.itrules.Frame;
+import io.intino.itrules.FrameBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,7 +25,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.io.File.separator;
 
@@ -59,24 +59,22 @@ class ArtifactoryCredentialsManager {
 			StreamResult result = new StreamResult(settingsFile());
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
 	private static void createSettingsFile(List<ArtifactoryCredential> credentials) {
-		Frame artifactory = new Frame().addTypes("artifactory");
-		List<Frame> credentialFrames = credentials.stream().
-				map(credential -> new Frame().addTypes("server").addSlot("name", credential.serverId).addSlot(USERNAME, credential.username).addSlot(PASSWORD, credential.password)).collect(Collectors.toList());
-		artifactory.addSlot("server", credentialFrames.toArray(new Frame[credentialFrames.size()]));
-		final String settings = ArtifactorySettingsTemplate.create().format(artifactory);
-		write(settings);
+		FrameBuilder builder = new FrameBuilder("artifactory");
+		builder.add("server", credentials.stream().
+				map(credential -> new FrameBuilder("server").add("name", credential.serverId).add(USERNAME, credential.username).add(PASSWORD, credential.password).toFrame()).toArray(Frame[]::new));
+		write(new ArtifactorySettingsTemplate().render(builder));
 	}
 
 	private static void write(String settings) {
 		try {
 			Files.write(settingsFile().toPath(), settings.getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
@@ -114,7 +112,9 @@ class ArtifactoryCredentialsManager {
 	private void setCredentials(List<io.intino.plugin.settings.ArtifactoryCredential> credentials) {
 		removeServers();
 		for (io.intino.plugin.settings.ArtifactoryCredential credential : credentials)
-			setCredentials(createServer(credential.serverId), credential.username, credential.password);
+			addCredentials(createServer(credential.serverId), credential.username, credential.password);
+		for (ArtifactoryCredential credential : credentials)
+			addCredentials(createServer(credential.serverId + "-snapshot"), credential.username, credential.password);
 		commit(doc);
 	}
 
@@ -124,7 +124,7 @@ class ArtifactoryCredentialsManager {
 		elementsByTagName.item(0).getParentNode().removeChild(elementsByTagName.item(0));
 	}
 
-	private void setCredentials(Node server, String user, String password) {
+	private void addCredentials(Node server, String user, String password) {
 		get(server.getChildNodes(), USERNAME).setTextContent(user);
 		get(server.getChildNodes(), PASSWORD).setTextContent(password);
 	}
@@ -141,7 +141,6 @@ class ArtifactoryCredentialsManager {
 		serverNode.appendChild(serverId);
 		serverNode.appendChild(userNode);
 		serverNode.appendChild(passwordNode);
-		;
 		serverNode.appendChild(doc.importNode(configurationNode, true));
 		return serversNode.appendChild(serverNode);
 	}

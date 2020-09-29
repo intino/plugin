@@ -1,18 +1,24 @@
 package io.intino.plugin.settings;
 
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.lang.LanguageManager;
+import io.intino.plugin.cesar.CesarServerInfoDownloader;
+import io.intino.plugin.toolwindows.output.IntinoRemoteConsoleListener;
+import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Arrays;
+import java.util.List;
 
 
-public class IntinoSettingsComponent implements ProjectComponent, Configurable {
+public class IntinoSettingsComponent implements Configurable {
 
 	private static final String INTINO_CONTROL_PLUGIN_NAME = "Intino Plugin";
 	private static final String INTINO_CONTROL_COMPONENT_NAME = "ArtifactComponent";
@@ -24,14 +30,13 @@ public class IntinoSettingsComponent implements ProjectComponent, Configurable {
 	public IntinoSettingsComponent(Project project) {
 		this.settings = IntinoSettings.getSafeInstance(project);
 		this.project = project;
+		CompilerConfigurationImpl instance = (CompilerConfigurationImpl) CompilerConfigurationImpl.getInstance(project);
+		List<String> patterns = Arrays.asList(instance.getResourceFilePatterns());
+		if (!patterns.contains("!?*.tara")) instance.addResourceFilePattern("!?*.tara");
+		if (!patterns.contains("!?*.itr")) instance.addResourceFilePattern("!?*.itr");
+		if (!patterns.contains("!?*.konos")) instance.addResourceFilePattern("!?*.konos");
 	}
 
-	public void projectOpened() {
-	}
-
-	public void projectClosed() {
-		LanguageManager.remove(project);
-	}
 
 	public JComponent createComponent() {
 		if (intinoSettingsPanel == null) intinoSettingsPanel = new IntinoSettingsPanel();
@@ -50,10 +55,16 @@ public class IntinoSettingsComponent implements ProjectComponent, Configurable {
 		return null;
 	}
 
-
 	public void apply() throws ConfigurationException {
 		if (intinoSettingsPanel != null) try {
 			intinoSettingsPanel.applyConfigurationData(settings);
+			new CesarServerInfoDownloader().download(project);
+			final MessageBus messageBus = project.getMessageBus();
+			final IntinoRemoteConsoleListener mavenListener = messageBus.syncPublisher(IntinoTopics.REMOTE_CONSOLE);
+			mavenListener.refresh();
+			final MessageBusConnection connect = messageBus.connect();
+			connect.deliverImmediately();
+			connect.disconnect();
 		} catch (Exception ex) {
 			throw new ConfigurationException(ex.getMessage());
 		}
@@ -80,12 +91,4 @@ public class IntinoSettingsComponent implements ProjectComponent, Configurable {
 		intinoSettingsPanel.loadConfigurationData(settings);
 	}
 
-
-	public void initComponent() {
-
-	}
-
-	public void disposeComponent() {
-
-	}
 }

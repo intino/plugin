@@ -5,27 +5,24 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
-import io.intino.legio.graph.Artifact;
-import io.intino.legio.graph.Artifact.Box;
-import io.intino.legio.graph.Artifact.Imports.Compile;
-import io.intino.legio.graph.Artifact.Imports.Provided;
-import io.intino.legio.graph.level.LevelArtifact.Model;
-import io.intino.tara.Checker;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticFatalException;
-import io.intino.tara.plugin.lang.TaraLanguage;
-import io.intino.tara.plugin.lang.psi.StringValue;
-import io.intino.tara.plugin.lang.psi.TaraModel;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.Configuration.Artifact.Box;
+import io.intino.Configuration.Artifact.Dependency;
+import io.intino.Configuration.Artifact.Model;
+import io.intino.magritte.Checker;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
+import io.intino.plugin.lang.TaraLanguage;
+import io.intino.plugin.lang.psi.StringValue;
+import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nullable;
 import tara.dsl.Legio;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil.getContainerByType;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 
 class LegioFilters {
-
 	static final PsiElementPattern.Capture<PsiElement> inModelLanguage = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InLanguageNameFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inLanguageVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
@@ -34,16 +31,54 @@ class LegioFilters {
 			.and(new FilterPattern(new InBoxLanguageFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inBoxVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InBoxVersionFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inSDKVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
+	static final PsiElementPattern.Capture<PsiElement> inModelSDKVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InSDKVersionFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inDependencyVersion = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new InDependencyVersionFilter()));
 
+	private static void check(Node node) {
+		try {
+			new Checker(new Legio()).check(node);
+		} catch (SemanticFatalException ignored) {
+		}
+	}
+
+	private static String typeName(Class aClass) {
+		return aClass.getCanonicalName().replace(aClass.getPackage().getName() + ".Configuration.", "");
+	}
+
+	private static boolean isElementAcceptable(Object element, PsiElement context) {
+		final PsiFile file = context.getContainingFile().getOriginalFile();
+		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && Legio.class.getSimpleName().equals(((TaraModel) file).dsl());
+	}
+
+	private static boolean inModelNode(Node node) {
+		String type = node.type();
+		type = type.contains(".") ? type.substring(type.lastIndexOf(".") + 1) : type;
+		return type.equals(Model.class.getSimpleName()) || type.equals(typeName(Model.class));
+	}
+
+	private static boolean inDependencyNode(Node node) {
+		String type = node.type().replace(":", "");
+		type = type.substring(type.lastIndexOf(".") + 1);
+		return is(type, Dependency.Compile.class) || is(type, Dependency.Test.class) || is(type, Dependency.Provided.class) || is(type, Dependency.Runtime.class);
+	}
+
+	private static boolean is(String type, Class aClass) {
+		return type.equals(aClass.getSimpleName()) || type.equals(typeName(aClass));
+	}
+
+	private static boolean inParameter(PsiElement context, String parameterName) {
+		final StringValue value = getContainerByType(context, StringValue.class);
+		if (value == null) return false;
+		final Parameter parameter = getContainerByType(value, Parameter.class);
+		return parameter != null && parameter.name().equals(parameterName);
+	}
 
 	private static class InLanguageNameFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "language");
@@ -58,7 +93,7 @@ class LegioFilters {
 	private static class InLanguageVersionFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "version");
@@ -72,16 +107,16 @@ class LegioFilters {
 
 	private static class InBoxLanguageFilter implements ElementFilter {
 
+		private static boolean inBoxNode(Node node) {
+			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
+		}
+
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inBoxNode(node) && inParameter(context, "language");
-		}
-
-		private static boolean inBoxNode(Node node) {
-			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
 		}
 
 		@Override
@@ -92,17 +127,17 @@ class LegioFilters {
 
 	private static class InBoxVersionFilter implements ElementFilter {
 
+		private static boolean inBoxNode(Node node) {
+			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
+		}
+
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inBoxNode(node) &&
 					(inParameter(context, "version") || inParameter(context, "sdk"));
-		}
-
-		private static boolean inBoxNode(Node node) {
-			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
 		}
 
 		@Override
@@ -115,7 +150,7 @@ class LegioFilters {
 
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "sdk");
@@ -130,7 +165,7 @@ class LegioFilters {
 	private static class InDependencyVersionFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Node node = TaraPsiImplUtil.getContainerNodeOf(context);
+			final Node node = TaraPsiUtil.getContainerNodeOf(context);
 			if (node == null) return false;
 			check(node);
 			return isElementAcceptable(element, context) && inDependencyNode(node) && inParameter(context, "version");
@@ -140,43 +175,5 @@ class LegioFilters {
 		public boolean isClassAcceptable(Class hintClass) {
 			return true;
 		}
-	}
-
-	private static void check(Node node) {
-		try {
-			new Checker(new Legio()).check(node);
-		} catch (SemanticFatalException ignored) {
-		}
-	}
-
-	private static String typeName(Class aClass) {
-		return aClass.getCanonicalName().replace(aClass.getPackage().getName() + ".", "");
-	}
-
-	private static boolean isElementAcceptable(Object element, PsiElement context) {
-		final PsiFile file = context.getContainingFile().getOriginalFile();
-		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && Legio.class.getSimpleName().equals(((TaraModel) file).dsl());
-	}
-
-
-	private static boolean inModelNode(Node node) {
-		final String type = node.type().replace(":", "");
-		return type.equals(Model.class.getSimpleName()) || type.equals(typeName(Model.class));
-	}
-
-	private static boolean inDependencyNode(Node node) {
-		final String type = node.type().replace(":", "");
-		return is(type, Compile.class) || is(type, Artifact.Imports.Test.class) || is(type, Provided.class) || is(type, Artifact.Imports.Runtime.class);
-	}
-
-	private static boolean is(String type, Class aClass) {
-		return type.equals(aClass.getSimpleName()) || type.equals(typeName(aClass));
-	}
-
-	private static boolean inParameter(PsiElement context, String parameterName) {
-		final StringValue value = getContainerByType(context, StringValue.class);
-		if (value == null) return false;
-		final Parameter parameter = getContainerByType(value, Parameter.class);
-		return parameter != null && parameter.name().equals(parameterName);
 	}
 }

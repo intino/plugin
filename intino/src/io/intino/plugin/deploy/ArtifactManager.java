@@ -6,17 +6,18 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
 import com.jcraft.jsch.Channel;
 import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.Unknown;
-import io.intino.cesar.box.CesarRestAccessor;
+import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.cesar.box.ApiAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessInfo.Server;
 import io.intino.cesar.box.schemas.ServerInfo;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import javax.swing.*;
 import java.io.File;
@@ -42,7 +43,7 @@ public class ArtifactManager {
 
 	public void start() {
 		try {
-			final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+			final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 			final ProcessInfo system = getProcess(configuration);
 			final int proxyPort = nextProxyPort();
 			Channel channel;
@@ -106,8 +107,8 @@ public class ArtifactManager {
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url, cesar.getValue()).getServer(system.server().name());
-		} catch (BadRequest | Unknown e) {
+			return new ApiAccessor(url, cesar.getValue()).getServer(system.server().name());
+		} catch (BadRequest | InternalServerError e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
@@ -117,8 +118,9 @@ public class ArtifactManager {
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new CesarRestAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), configuration.groupId() + ":" + configuration.artifactId() + ":" + configuration.version());
-		} catch (BadRequest | Unknown e) {
+			LegioArtifact artifact = configuration.artifact();
+			return new ApiAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
+		} catch (BadRequest | InternalServerError e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
@@ -133,8 +135,8 @@ public class ArtifactManager {
 	}
 
 	private void notifyError(String error) {
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Tara Language");
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
 		balloon.createNotification(error, MessageType.ERROR).setImportant(false).notify(null);
 	}
 

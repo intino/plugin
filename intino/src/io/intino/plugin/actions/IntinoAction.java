@@ -8,17 +8,17 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 import java.util.Arrays;
 
 public abstract class IntinoAction extends AnAction {
 
 	void notifyReload(Module module) {
-		final NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Tara Language");
-		if (balloon != null)
-			balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
 	public abstract void execute(Module module);
@@ -34,6 +34,6 @@ public abstract class IntinoAction extends AnAction {
 
 	private boolean hasLegioModules(Project project) {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).
-				anyMatch(module -> TaraUtil.configurationOf(module) instanceof LegioConfiguration);
+				anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration);
 	}
 }

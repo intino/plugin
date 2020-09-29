@@ -1,34 +1,78 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.tara.dsl.Proteo;
-import io.intino.tara.dsl.Verso;
+import com.intellij.openapi.project.Project;
+import io.intino.Configuration;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
+import io.intino.plugin.settings.ArtifactoryCredential;
+import io.intino.plugin.settings.IntinoSettings;
+import org.apache.commons.codec.binary.Base64;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_RELEASES;
 import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
 
 public class ArtifactoryConnector {
+	public static final String MAVEN_URL = "https://repo1.maven.org/maven2/";
 	private static final Logger LOG = Logger.getInstance(ArtifactoryConnector.class.getName());
+	private final List<Configuration.Repository> repositories;
+	private final List<ArtifactoryCredential> artifactories;
 
-	private final Map<String, String> repositories;
+	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
+		this.repositories = new ArrayList<>(repositories);
+		this.repositories.add(mavenRepository());
+		artifactories = new ArrayList<>();
+	}
 
-	public ArtifactoryConnector(Map<String, String> repositories) {
-		this.repositories = repositories;
-		this.repositories.put("https://repo.maven.apache.org/maven2/", "maven2");
+	public ArtifactoryConnector(Project project, List<Configuration.Repository> repositories) {
+		this.repositories = new ArrayList<>(repositories);
+		this.repositories.add(mavenRepository());
+		if (project != null) artifactories = IntinoSettings.getSafeInstance(project).artifactories();
+		else artifactories = new ArrayList<>();
+	}
+
+	@NotNull
+	private Configuration.Repository.Release mavenRepository() {
+		return new Configuration.Repository.Release() {
+			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
+			}
+
+			@Override
+			public String identifier() {
+				return "maven2";
+			}
+
+			@Override
+			public String url() {
+				return "https://repo.maven.apache.org/maven2/";
+			}
+		};
 	}
 
 	public List<String> languages() {
 		List<String> langs = new ArrayList<>();
 		try {
-			for (String repo : repositories.keySet()) {
-				URL url = new URL(repo + "/" + "tara/dsl" + "/");
+			for (Configuration.Repository repo : repositories) {
+				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/");
 				final String result = new String(read(connect(url)).toByteArray());
 				if (result.isEmpty()) continue;
 				langs.addAll(extractLanguages(result));
@@ -43,11 +87,25 @@ public class ArtifactoryConnector {
 
 	public List<String> dslVersions(String dsl) {
 		try {
-			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Verso.class.getSimpleName()))
+			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Meta.class.getSimpleName()))
 				return proteoVersions();
-			for (String repo : repositories.keySet()) {
-				URL url = new URL(repo + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+			for (Configuration.Repository repo : repositories) {
+				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
 				final String mavenMetadata = new String(read(connect(url)).toByteArray());
+				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
+			}
+		} catch (Throwable ignored) {
+			LOG.info(ignored);
+		}
+		return Collections.emptyList();
+	}
+
+	public List<String> versions(String artifact) {
+		try {
+			for (Configuration.Repository repo : repositories) {
+				String spec = repo.url() + (repo.url().endsWith("/") ? "" : "/") + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml";
+				URL url = new URL(spec);
+				final String mavenMetadata = new String(read(connect(repo.identifier(), url)).toByteArray());
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
 		} catch (Throwable ignored) {
@@ -55,16 +113,23 @@ public class ArtifactoryConnector {
 		return Collections.emptyList();
 	}
 
-	public List<String> versions(String artifact) {
+	private InputStream connect(String mavenId, URL url) {
 		try {
-			for (String repo : repositories.keySet()) {
-				URL url = new URL(repo + "/" + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml");
-				final String mavenMetadata = new String(read(connect(url)).toByteArray());
-				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
+			URLConnection connection = url.openConnection();
+			connection.setConnectTimeout(2000);
+			connection.setReadTimeout(2000);
+			ArtifactoryCredential credential = artifactories.stream().filter(r -> r.serverId.equalsIgnoreCase(mavenId)).findFirst().orElse(null);
+			if (credential != null) {
+				String auth = credential.username + ":" + credential.password;
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
+				String authHeaderValue = "Basic " + new String(encodedAuth);
+				connection.setRequestProperty("Authorization", authHeaderValue);
+				return connection.getInputStream();
 			}
-		} catch (Throwable ignored) {
+			return connect(url);
+		} catch (Throwable e) {
+			return null;
 		}
-		return Collections.emptyList();
 	}
 
 	private InputStream connect(URL url) {
@@ -86,7 +151,7 @@ public class ArtifactoryConnector {
 		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).collect(Collectors.toList());
 	}
 
-	public List<String> boxingVersions() {
+	public List<String> boxBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/konos/builder/maven-metadata.xml");
 			return extractVersions(new String(read(connect(url)).toByteArray()));
@@ -95,7 +160,7 @@ public class ArtifactoryConnector {
 		}
 	}
 
-	public List<String> generationVersions() {
+	public List<String> modelBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/tara/builder/maven-metadata.xml");
 			return extractVersions(new String(read(connect(url)).toByteArray()));
@@ -121,13 +186,11 @@ public class ArtifactoryConnector {
 	private ByteArrayOutputStream read(InputStream stream) throws Throwable {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		if (stream == null) return baos;
-		try {
+		try (stream) {
 			byte[] byteChunk = new byte[4096];
 			int n;
 			while ((n = stream.read(byteChunk)) > 0)
 				baos.write(byteChunk, 0, n);
-		} finally {
-			stream.close();
 		}
 		return baos;
 	}

@@ -1,0 +1,23 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import org.junit.Before;
+import org.junit.Test;
+import io.intino.magritte.framework.Graph;
+import ${WORKING_PACKAGE.toLowerCase()}.${APPLICATION}Application;
+
+public class ${NAME}Test {
+
+	private ${APPLICATION}Application application;
+
+	@Before
+	public void setUp() {
+		Graph graph = Graph.load("${NAME}").wrap(${APPLICATION}Application.class);
+		this.application = graph.application();
+		this.application.execute();
+	}
+
+	@Test
+	public void testModel() throws Exception {
+
+	}
+}

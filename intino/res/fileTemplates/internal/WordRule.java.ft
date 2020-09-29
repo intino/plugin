@@ -1,0 +1,13 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import io.intino.magritte.lang.model.Rule;
+
+public enum ${NAME} implements Rule<Enum> {
+
+	;
+
+	@Override
+	public boolean accept(Enum value) {
+	return value instanceof ${NAME};
+	}
+}

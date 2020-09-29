@@ -5,9 +5,9 @@ import java.util.List;
 
 public enum FactoryPhase {
 	PACKAGE("packaging", "packaged", "clean", "package"),
-	INSTALL("installing", "installed", "clean", "package", "install"),
-	DISTRIBUTE("distributing", "distributed", "clean", "package", "install", "deploy"),
-	DEPLOY("deploying", "deployed", "clean", "package", "install", "deploy"),
+	INSTALL("installing", "installed", "clean", "install"),
+	DISTRIBUTE("distributing", "distributed", "clean", "deploy"),
+	DEPLOY("deploying", "deployed", "clean", "deploy"),
 	MANAGE("managing", "managed");
 
 	private final String gerund;

@@ -12,40 +12,45 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.actions.utils.TaraTemplates;
-import io.intino.tara.plugin.actions.utils.TaraTemplatesFactory;
-import io.intino.tara.plugin.lang.TaraIcons;
-import io.intino.tara.plugin.lang.file.TaraFileType;
-import io.intino.tara.plugin.lang.psi.impl.TaraModelImpl;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.messages.MessageProvider;
-import io.intino.tara.plugin.project.TaraModuleType;
-import io.intino.tara.plugin.project.module.ModuleProvider;
+import io.intino.Configuration;
+import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.utils.TaraTemplates;
+import io.intino.plugin.actions.utils.TaraTemplatesFactory;
+import io.intino.plugin.lang.file.TaraFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.plugin.messages.MessageProvider;
+import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static io.intino.tara.plugin.lang.psi.impl.TaraUtil.isTest;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.isTest;
+import static io.intino.plugin.project.Safe.safe;
 
 public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<TaraModelImpl> {
 
 	public CreateModelFileAction() {
-		super(MessageProvider.message("new.file.menu.action.text"), MessageProvider.message("new.file.menu.action.description"), TaraIcons.ICON_16, true);
+		super(MessageProvider.message("new.file.menu.action.text"), MessageProvider.message("new.file.menu.action.description"), IntinoIcons.MODEL_16, true);
 	}
 
 	@Override
 	protected void buildDialog(Project project, PsiDirectory directory, CreateFileFromTemplateDialog.Builder builder) {
 		builder.setTitle(MessageProvider.message("new.model.dlg.prompt"));
 		final Module module = ModuleProvider.moduleOf(directory);
-		if (!TaraModuleType.isTara(module))
+		if (!IntinoModuleType.isIntino(module))
 			throw new IncorrectOperationException(MessageProvider.message("tara.file.error"));
-		final Configuration conf = TaraUtil.configurationOf(module);
-		if (isTest(directory, module)) builder.addKind(conf.outDSL(), TaraIcons.MODEL_16, conf.outDSL());
-		else for (Configuration.LanguageLibrary languageLibrary : conf.languages())
-			if (!languageLibrary.name().isEmpty())
-				builder.addKind(languageLibrary.name(), TaraIcons.MODEL_16, languageLibrary.name());
+		final Configuration conf = IntinoUtil.configurationOf(module);
+		Configuration.Artifact.Model model = safe(() -> conf.artifact().model());
+		if (isTest(directory, module)) {
+			if (model != null) builder.addKind(model.outLanguage(), IntinoIcons.MODEL_16, model.outLanguage());
+		} else {
+			Configuration.Artifact.Model.Language language = model.language();
+			if (language != null && !language.name().isEmpty())
+				builder.addKind(language.name(), IntinoIcons.MODEL_16, language.name());
+		}
 	}
 
 	@Override
@@ -58,8 +63,8 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		PsiElement data = CommonDataKeys.PSI_ELEMENT.getData(dataContext);
 		if (!(data instanceof PsiFile || data instanceof PsiDirectory)) return false;
 		Module module = ModuleProvider.moduleOf(data);
-		final Configuration configuration = TaraUtil.configurationOf(module);
-		return super.isAvailable(dataContext) && TaraModuleType.isTara(module) && configuration != null && !configuration.languages().isEmpty();
+		final Configuration configuration = IntinoUtil.configurationOf(module);
+		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && safe(() -> configuration.artifact().model().language()) != null;
 	}
 
 	@Nullable

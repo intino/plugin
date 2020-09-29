@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templateSet group="Tara">
+
+    <template name="var" value="var $TYPE$ $NAME$"
+              description="creates a new variable" toReformat="false" toShortenFQNames="true">
+        <variable name="TYPE" expression="" defaultValue="&quot;REFERENCE&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;name&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="Tara" value="true"/>
+        </context>
+    </template>
+</templateSet>

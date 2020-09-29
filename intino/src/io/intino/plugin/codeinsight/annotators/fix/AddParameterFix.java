@@ -13,12 +13,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.annotator.fix.WithLiveTemplateFix;
-import io.intino.tara.plugin.codeinsight.livetemplates.TaraTemplateContext;
-import io.intino.tara.plugin.lang.psi.TaraElementFactory;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraPsiImplUtil;
+import io.intino.magritte.lang.model.Node;
+import io.intino.plugin.annotator.fix.WithLiveTemplateFix;
+import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +31,7 @@ public class AddParameterFix extends WithLiveTemplateFix implements IntentionAct
 	private final Map<String, String> requiredParameters;
 
 	public AddParameterFix(PsiElement element, Map<String, String> requiredParameters) {
-		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiImplUtil.getContainerOf(element);
+		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiUtil.getContainerOf(element);
 		this.requiredParameters = requiredParameters;
 	}
 
@@ -80,7 +79,7 @@ public class AddParameterFix extends WithLiveTemplateFix implements IntentionAct
 	}
 
 	private Template createTemplate(PsiFile file) {
-		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(TaraPsiImplUtil.getIndentation((PsiElement) node) + 1));
+		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(TaraPsiUtil.getIndentation((PsiElement) node) + 1));
 		addComponents(template);
 		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
 		return template;

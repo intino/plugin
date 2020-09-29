@@ -1,0 +1,18 @@
+def type(artifact & legio)
+	dsl Legio
+
+	Artifact(groupId = "$groupId+lowercase", version = "1.0.0") $artifactId+lowercase
+		WebImports
+			WebArtifact("io.intino.alexandria", "ui-framework-elements", "$uiversion") alexandria-ui-elements
+
+	$repository...[$NL$NL]
+end
+
+def type(repository)
+	Repository("$id")
+		$url...[$NL]
+end
+
+def trigger(url)
+	Release("$this")
+end

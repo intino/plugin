@@ -1,17 +1,13 @@
 def type(legio & empty)
 	dsl Legio
 
-	Artifact(groupId = "org.example", version = "1.0.0") $name as Platform
-		Model(language = "Verso", version = "LATEST", sdk = "LATEST")
-    	Box(language = "Konos", version = "LATEST", sdk = "LATEST")
-    	Imports
-    		Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+	Artifact(groupId = "org.example", version = "1.0.0") $name
+		Imports
+			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+		Package(mode = ModulesAndLibrariesLinkedByManifest)
 
-    	Package(mode = ModulesAndLibrariesLinkedByManifest)
-
-    Repository(identifier = "intino-maven")
-    	Language(url = "https://artifactory.intino.io/artifactory/releases")
-    	Release(url = "https://artifactory.intino.io/artifactory/releases")
+	Repository(identifier = "intino-maven")
+		Release("https://artifactory.intino.io/artifactory/releases")
 end
 
 def type(legio) !type(empty)
@@ -20,15 +16,14 @@ def type(legio) !type(empty)
 	Artifact(groupId = "$groupId", version = "$version") $artifactId[ as $level+firstUpperCase]
 		[$factory
 		]
-    	Imports[
-    		$dependency...[$NL]]
-    	Package(mode = ModulesAndLibrariesLinkedByManifest)
-    	[$distribution...[$NL]]
+		Imports[
+			$dependency...[$NL]]
+		Package(mode = ModulesAndLibrariesLinkedByManifest)
+		[$distribution...[$NL]]
 
 	[$isIntino
 	Repository(identifier = "intino-maven")
-		Release(url = "https://artifactory.intino.io/artifactory/releases")
-		Language(url = "https://artifactory.intino.io/artifactory/releases")]
+		Release("https://artifactory.intino.io/artifactory/releases")
 	[$repository...[$NL]]
 end
 
@@ -47,7 +42,7 @@ def type(dependency)
 end
 
 def type(factory)
-    Model(language = "$dsl", version = "$dslVersion", sdk = "LATEST")
+	Model(language = "$dsl", version = "$dslVersion", sdk = "LATEST")
 end
 
 def type(distribution)

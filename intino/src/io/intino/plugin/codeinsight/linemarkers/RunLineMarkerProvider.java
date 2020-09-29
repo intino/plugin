@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.linemarkers;
 
-import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
 import com.intellij.execution.Executor;
@@ -18,24 +17,21 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
 import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.plugin.project.run.IntinoRunContextAction;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
-import io.intino.tara.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Collection;
-import java.util.List;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.mapNotNull;
 import static io.intino.plugin.DataContext.getContext;
-import static io.intino.plugin.project.Safe.safe;
 
 public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
@@ -58,13 +54,13 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	@NotNull
 	private LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
-		return new LineMarkerInfo<PsiElement>(leafOf(element), element.getTextRange(), info.icon, Pass.LINE_MARKERS,
+		return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), info.icon,
 				tooltipProvider, null,
 				GutterIconRenderer.Alignment.CENTER) {
 			@NotNull
 			@Override
 			public GutterIconRenderer createGutterRenderer() {
-				return new LineMarkerGutterIconRenderer<PsiElement>(this) {
+				return new LineMarkerGutterIconRenderer<>(this) {
 					@Override
 					public AnAction getClickAction() {
 						return null;
@@ -105,7 +101,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		return new Info(Run, element -> join(mapNotNull(actions, a -> getText(a, runnerClass)), "\n"), actions);
 	}
 
-	private static String getText(@NotNull AnAction action, @NotNull PsiElement element) {
+	private String getText(@NotNull AnAction action, @NotNull PsiElement element) {
 		DataContext parent = getContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
 		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
@@ -115,12 +111,11 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	}
 
 	private PsiClass findRunnerClass(Module module) {
-		final LegioConfiguration configuration = (LegioConfiguration) TaraUtil.configurationOf(module);
+		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		if (configuration == null) return null;
-		return JavaPsiFacade.getInstance(module.getProject()).findClass(safe(() -> safe(() -> configuration.graph().artifact().package$()).asRunnable().mainClass()), GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
-	}
-
-	public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
+		String qualifiedName = configuration.artifact().packageConfiguration().mainClass();
+		if (qualifiedName == null) return null;
+		return JavaPsiFacade.getInstance(module.getProject()).findClass(qualifiedName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
 	}
 
 	@NotNull

@@ -6,12 +6,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.project.CesarAccessor;
-import io.intino.plugin.project.CesarFileCreator;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 
 public class ReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override
@@ -20,12 +18,11 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 		if (project == null) return;
 		Module module = e.getData(LangDataKeys.MODULE);
 		if (module != null) execute(module);
-		else new CesarFileCreator(project).writeCesarConfiguration(new CesarAccessor(project).projectInfo());
 	}
 
 	@Override
 	public void execute(Module module) {
-		final Configuration configuration = TaraUtil.configurationOf(module);
+		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
 			configuration.reload();

@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.IntinoIcons;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class IntinoActionGroup extends DefaultActionGroup {
 		List<Module> modules = new ArrayList<>();
 		if (project == null) return Collections.emptyList();
 		for (Module module : ModuleManager.getInstance(project).getModules())
-			if (TaraUtil.configurationOf(module) != null)
+			if (IntinoUtil.configurationOf(module) != null)
 				modules.add(module);
 		return modules;
 	}

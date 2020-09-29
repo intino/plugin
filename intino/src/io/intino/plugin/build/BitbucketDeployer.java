@@ -2,11 +2,9 @@ package io.intino.plugin.build;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.jcabi.aether.Aether;
-import io.intino.alexandria.Resource;
-import io.intino.alexandria.restaccessor.RestAccessor;
+import io.intino.Configuration;
+import io.intino.alexandria.restaccessor.Response;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
-import io.intino.legio.graph.Artifact.Distribution.OnBitbucket;
-import io.intino.plugin.project.LegioConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -16,7 +14,6 @@ import org.apache.http.entity.mime.*;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -26,18 +23,22 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.project.Safe.safe;
+
 public class BitbucketDeployer {
 	private static final Logger logger = Logger.getInstance(BitbucketDeployer.class);
-	private final OnBitbucket bitbucket;
-	private File jar;
+	private final Configuration.Distribution.BitBucketDistribution bitbucket;
+	private final File jar;
+	private final String bitbucketToken;
 
-	public BitbucketDeployer(LegioConfiguration configuration) {
-		this.bitbucket = configuration.graph().artifact().distribution().onBitbucket();
-		this.jar = find(configuration.graph().artifact().groupId() + ":" + configuration.graph().artifact().name$() + ":" + configuration.graph().artifact().version());
+	public BitbucketDeployer(Configuration configuration, String bitbucketToken) {
+		this.bitbucket = safe(() -> configuration.artifact().distribution().onBitbucket());
+		this.jar = find(configuration.artifact().groupId() + ":" + configuration.artifact().name() + ":" + configuration.artifact().version());
+		this.bitbucketToken = bitbucketToken;
 	}
 
 	public void execute() {
@@ -45,26 +46,25 @@ public class BitbucketDeployer {
 		final URL url = url();
 		try {
 			HttpPost post = new HttpPost(url.toURI());
-			post.addHeader("Authorization", "Basic b2N0YXZpb3JvbmNhbDpxTXptMjgzeHR1RkJValNzVURZYQ==");
-			post.setEntity(multipartEntityOf(resource()));
-			final RestAccessor.Response response = executeMethod(url, post);
+			post.addHeader("Authorization", "Basic " + bitbucketToken);
+			post.setEntity(multipartEntityOf(jar));
+			final Response response = executeMethod(url, post);
 			System.out.println(response.content());
-		} catch (URISyntaxException | FileNotFoundException | RestfulFailure e) {
+		} catch (URISyntaxException | RestfulFailure | FileNotFoundException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private HttpEntity multipartEntityOf(Resource resource) throws RestfulFailure {
-		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create().
+	private HttpEntity multipartEntityOf(File resource) throws FileNotFoundException {
+		return MultipartEntityBuilder.create().
 				setContentType(ContentType.MULTIPART_FORM_DATA).
 				setMode(HttpMultipartMode.BROWSER_COMPATIBLE).
-
-				setCharset(Charset.forName("UTF-8"));
-		addContent(entityBuilder, resource);
-		return entityBuilder.build();
+				setCharset(StandardCharsets.UTF_8).
+				addPart(createContent(resource)).
+				build();
 	}
 
-	private RestAccessor.Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
+	private Response executeMethod(URL url, HttpRequestBase method) throws RestfulFailure {
 		HttpResponse response;
 		final CloseableHttpClient client = HttpClientBuilder.create().build();
 		try {
@@ -82,15 +82,10 @@ public class BitbucketDeployer {
 		return responseOf(response);
 	}
 
-	private void addContent(MultipartEntityBuilder builder, Resource resource) throws RestfulFailure {
-		final FormBodyPart part = FormBodyPartBuilder.create(resource.id(), new InputStreamBody(resource.data(), ContentType.create(resource.contentType()), resource.id())).build();
+	private FormBodyPart createContent(File resource) throws FileNotFoundException {
+		final FormBodyPart part = FormBodyPartBuilder.create("files", new InputStreamBody(new FileInputStream(resource), ContentType.create("jar"), resource.getName())).build();
 		part.getHeader().setField(new MinimalField("Content-Type", "multipart/form-data"));
-		builder.addPart(part);
-	}
-
-	@NotNull
-	private Resource resource() throws FileNotFoundException {
-		return new Resource("files").data(new FileInputStream(jar));
+		return part;
 	}
 
 	private URL url() {
@@ -102,8 +97,13 @@ public class BitbucketDeployer {
 		}
 	}
 
-	private RestAccessor.Response responseOf(HttpResponse response) {
-		return new RestAccessor.Response() {
+	private Response responseOf(HttpResponse response) {
+		return new Response() {
+
+			@Override
+			public int code() {
+				return response.getStatusLine().getStatusCode();
+			}
 
 			@Override
 			public String content() {

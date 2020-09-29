@@ -1,10 +1,10 @@
 package io.intino.plugin;
 
-import com.intellij.CommonBundle;
+import com.intellij.AbstractBundle;
+import io.intino.plugin.messages.UTF8Control;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
-import io.intino.tara.plugin.messages.UTF8Control;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -20,7 +20,7 @@ public class MessageProvider {
 	}
 
 	public static String message(@NotNull @PropertyKey(resourceBundle = PATH_TO_BUNDLE) String key, @NotNull Object... params) {
-		return CommonBundle.message(getBundle(), key, params);
+		return AbstractBundle.message(getBundle(), key, params);
 	}
 
 	private static ResourceBundle getBundle() {

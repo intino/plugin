@@ -1,0 +1,260 @@
+def type(archetype)
+	package $package;
+
+	import java.io.File;
+	import java.util.Collections;
+
+	public class Archetype {
+    	private final File root;
+
+    	public Archetype(File root) {
+    		this.root = root;
+    		root.mkdirs();
+    	}
+
+    	public File root() {
+    		return this.root;
+    	}
+
+    	public Relative relative() {
+    	    return new Relative(root);
+    	}
+
+    	private static File createParent(File file) {
+    	    file.getParentFile().mkdirs();
+    	    return file;
+    	}
+
+		[$node+getter...[$NL$NL]]
+
+		[$node+class...[$NL$NL]]
+
+		public static class Relative {
+            private final String name;
+            private final File root;
+
+            public Relative(File root) {
+                this.name = "";
+                this.root = root;
+                root.mkdirs();
+            }
+
+            public String root() {
+                return this.name;
+            }
+
+            [$node+relativeGetter...[$NL$NL]]
+
+            [$node+relativeClass...[$NL$NL]]
+		}
+    }
+end
+
+def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter)
+	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
+		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
+            filter(f-> [$with]$parameter+replace...[].matches(f.getName())).
+            map(f -> f.getName()).
+            .collect(java.util.stream.Collectors.toList());
+	}
+end
+
+def type(node & leaf & list) trigger(relativeGetter)
+	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
+		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
+            filter(f-> f.getName().contains([$with][$parameter+replace...[]])).
+            map(f -> f.getName()).
+            collect(java.util.stream.Collectors.toList());
+	}
+end
+
+def type(node & leaf) attribute(parameter) trigger(relativeGetter)
+	public String $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+		return "$filePath"[$parameter+replace...[]];
+	}
+end
+
+def type(node & leaf) trigger(relativeGetter)
+	public String $name+snakeCaseToCamelCase+firstLowerCase() {
+		return "$filePath";
+	}
+end
+
+def type(node & leaf & list & regex) trigger(getter)
+	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
+		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
+		    filter(f-> [$with].matches(f.getName())).
+		    collect(java.util.stream.Collectors.toList());
+	}
+end
+
+def type(node & leaf & list) trigger(getter)
+	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
+		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
+            filter(f-> f.getName().contains([$with])).
+            collect(java.util.stream.Collectors.toList());
+	}
+end
+
+def type(node & leaf) trigger(getter)
+	public File $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
+		return createParent(new File(root, "$filePath"[$parameter+replace...[]]));
+	}
+end
+
+def type(node & leaf) trigger(getter)
+	public File $name+snakeCaseToCamelCase+firstLowerCase() {
+		return createParent(new File(root, "$filePath"));
+	}
+end
+
+def type(node & splitted) trigger(relativeGetter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name, split);
+	}
+
+	public $name+snakeCaseToCamelCase+firstUpperCase~Split $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase~Split(root);
+	}
+end
+
+def trigger(split)
+	public $class+snakeCaseToCamelCase+firstUpperCase $value(String split) {
+		return new $class+snakeCaseToCamelCase+firstUpperCase(root, "$value");
+	}
+end
+
+def type(node) trigger(relativeGetter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name);
+	}
+end
+
+def type(node & splitted) trigger(getter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, split);
+	}
+
+	public $name+snakeCaseToCamelCase+firstUpperCase~Split $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase~Split(root);
+	}
+
+	public static class $name+snakeCaseToCamelCase+firstUpperCase~Split {
+		private final File root;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase~Split(File root) {
+			this.root = root;
+			root.mkdirs();
+		}
+
+		$split...[$NL]
+	}
+end
+
+def type(node) trigger(getter)
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root);
+	}
+end
+
+def type(node & splitted) !type(leaf) trigger(relativeClass)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+		private final String name;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent, String name) {
+			this.root = new File(parent, name);
+			root.mkdirs();
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + name;
+		}
+
+		public String root() {
+			return this.name;
+		}
+
+		[$node+relativeGetter...[$NL$NL]]
+
+		[$node+relativeClass...[$NL$NL]]
+	}
+end
+
+def type(node) !type(splitted) !type(leaf) trigger(relativeClass)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+		private final String name;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent) {
+			this.root = new File(parent, "$filePath");
+			root.mkdirs();
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath";
+		}
+
+		public String root() {
+			return this.name;
+		}
+
+		[$node+relativeGetter...[$NL$NL]]
+
+		[$node+relativeClass...[$NL$NL]]
+	}
+end
+
+def type(node & splitted) !type(leaf) trigger(class)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parent, String name) {
+			this.root = new File(parent, "$name" + File.separator + name);
+			root.mkdirs();
+		}
+
+		public File root() {
+			return this.root;
+		}
+
+		[$node+getter...[$NL$NL]]
+
+		[$node+class...[$NL$NL]]
+	}
+end
+
+def type(node) !type(splitted) !type(leaf) trigger(class)
+	public static class $name+snakeCaseToCamelCase+firstUpperCase {
+		private final File root;
+
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parent) {
+			this.root = new File(parent, "$filePath");
+			root.mkdirs();
+		}
+
+		public File root() {
+			return this.root;
+		}
+
+		[$node+getter...[$NL$NL]]
+
+		[$node+class...[$NL$NL]]
+	}
+end
+
+def type(timetag) trigger(signature)
+	io.intino.alexandria.Timetag $value
+end
+
+def trigger(signature)
+	String $value
+end
+
+def type(timetag) trigger(replace)
+	.replace("{$value}", $value.toString())
+end
+
+def trigger(replace)
+	.replace("{$value}", $value)
+end
+
+

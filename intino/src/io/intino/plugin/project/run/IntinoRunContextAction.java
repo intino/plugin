@@ -8,10 +8,12 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupStep;
@@ -20,10 +22,11 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
+import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -34,13 +37,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
-import static io.intino.plugin.project.LegioConfiguration.parametersOf;
-import static io.intino.plugin.project.Safe.safeList;
 
-@SuppressWarnings("ComponentNotRegistered")
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
-	private Node runConfiguration;
+	private final Node runConfiguration;
 
 	public IntinoRunContextAction(@NotNull Executor executor, PsiElement runConfiguration) {
 		super(executor);
@@ -112,25 +112,14 @@ public class IntinoRunContextAction extends RunContextAction {
 	private String collectParameters() {
 		final LegioConfiguration configuration = (LegioConfiguration) configuration();
 		if (configuration == null) return "";
-		final List<io.intino.legio.graph.RunConfiguration> runConfigurations = safeList(() -> configuration.graph().runConfigurationList());
-		for (io.intino.legio.graph.RunConfiguration legioConf : runConfigurations)
-			if (this.runConfiguration.name().equals(legioConf.name$())) return parametersOf(legioConf);
-		return runConfigurations.isEmpty() ? "" : parametersOf(runConfigurations.get(0));
-	}
-
-	@Override
-	public void update(final AnActionEvent event) {
-		super.update(event);
-
-	}
-
-	private void set(Presentation presentation, boolean b) {
-		presentation.setEnabled(b);
-		presentation.setVisible(b);
+		final List<Configuration.RunConfiguration> runConfigurations = configuration.runConfigurations();
+		for (Configuration.RunConfiguration rc : runConfigurations)
+			if (this.runConfiguration.name().equals(rc.name())) return ((LegioRunConfiguration) rc).argumentsChain();
+		return runConfigurations.isEmpty() ? "" : ((LegioRunConfiguration) runConfigurations.get(0)).argumentsChain();
 	}
 
 	private Configuration configuration() {
-		return TaraUtil.configurationOf((PsiElement) runConfiguration);
+		return IntinoUtil.configurationOf((PsiElement) runConfiguration);
 	}
 
 	private ConfigurationContext createContext(@NotNull PsiElement runConfiguration) {

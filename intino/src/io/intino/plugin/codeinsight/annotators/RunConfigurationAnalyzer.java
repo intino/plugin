@@ -1,15 +1,16 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
+import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddArgumentFix;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level;
-import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,12 +24,12 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 
 	RunConfigurationAnalyzer(Node node) {
 		this.runConfigurationNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) runConfigurationNode);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf((PsiElement) runConfigurationNode);
 	}
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.graph() == null) return;
+		if (configuration == null) return;
 		List<String> parameters = collectRequiredParameters();
 		List<String> notFoundParameters = notFoundArguments(parameters);
 		if (!notFoundParameters.isEmpty()) {
@@ -44,13 +45,13 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 	}
 
 	private List<String> collectRequiredParameters() {
-		return configuration.graph().artifact().parameterList().stream().filter(p -> p.defaultValue() == null).map(io.intino.legio.graph.Parameter::name).collect(Collectors.toList());
+		return configuration.artifact().parameters().stream().filter(p -> p.value() == null).map(Configuration.Parameter::name).collect(Collectors.toList());
 	}
 
 	@NotNull
 	private Level level() {
-		return configuration.graph().artifact().deploymentList().stream().flatMap(deploy -> deploy.destinations().stream()).
-				anyMatch(destination -> destination != null && destination.runConfiguration() != null && runConfigurationNode.name().equals(destination.runConfiguration().name$())) ?
+		return configuration.artifact().deployments().stream().
+				anyMatch(destination -> destination != null && destination.runConfiguration() != null && runConfigurationNode.name().equals(destination.runConfiguration().name())) ?
 				Level.ERROR : Level.WARNING;
 	}
 

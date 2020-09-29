@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.intino</groupId>
+    <artifactId>configuration</artifactId>
+    <version>1.0.1</version>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <outputDirectory>../out/production/intino-plugin</outputDirectory>
+        <testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
+        <directory>../out/build/intino-plugin</directory>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>intino-maven</id>
+            <url>https://artifactory.intino.io/artifactory/releases</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>intino-maven</id>
+            <url>https://artifactory.intino.io/artifactory/release-builders</url>
+        </repository>
+    </distributionManagement>
+</project>

@@ -1,17 +1,17 @@
 package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.psi.PsiElement;
+import io.intino.Configuration;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.model.Parameter;
+import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
+import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddParameterFix;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.compiler.shared.Configuration.Level;
-import io.intino.tara.lang.model.Node;
-import io.intino.tara.lang.model.Parameter;
-import io.intino.tara.plugin.annotator.TaraAnnotator.AnnotateAndFix;
-import io.intino.tara.plugin.annotator.semanticanalizer.TaraAnalyzer;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.TaraNode;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.plugin.project.configuration.model.LegioLanguage;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +23,9 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.tara.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 	private final Node artifactNode;
@@ -32,16 +33,17 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	ArtifactParametersAnalyzer(Node node) {
 		this.artifactNode = node;
-		this.configuration = (LegioConfiguration) TaraUtil.configurationOf((PsiElement) artifactNode);
+		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf((PsiElement) artifactNode);
 	}
 
 	@Override
 	public void analyze() {
-		if (configuration == null || configuration.languages().isEmpty()) return;
+		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
+		if (model == null) return;
 		Map<String, String> languageParameters = collectLanguageParameters();
 		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())
-			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Level.values()[configuration.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
+			results.put(((TaraNode) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Configuration.Artifact.Model.Level.values()[model.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
 	}
 
 	private boolean isDeclared(String parameter) {
@@ -61,12 +63,10 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	private Map<String, String> collectLanguageParameters() {
 		Map<String, String> map = new LinkedHashMap<>();
-		for (Configuration.LanguageLibrary library : configuration.languages()) {
-			final File languageFile = LanguageManager.getLanguageFile(library.name(), library.effectiveVersion());
-			if (!languageFile.exists()) continue;
-			map.putAll(parameters(languageFile));
-		}
-		return map;
+		LegioLanguage language = (LegioLanguage) configuration.artifact().model().language();
+		final File languageFile = LanguageManager.getLanguageFile(language.name(), language.effectiveVersion());
+		if (!languageFile.exists()) return map;
+		return parameters(languageFile);
 	}
 
 	private Map<String, String> parameters(File languageFile) {

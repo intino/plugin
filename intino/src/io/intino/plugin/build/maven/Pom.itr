@@ -6,11 +6,18 @@ def type(pom)
 
 		<groupId>$groupId+lowercase</groupId>
 		<artifactId>$artifactId+lowercase</artifactId>
+		<name>$artifactId+lowercase</name>
 		<version>$version</version>
+		<packaging>jar</packaging>
+		[<url>$url</url>]
+		[<description>$description</description>]
 		[<licenses>
-			$license...[$NL]
+			$license
 		</licenses>]
-
+		[$scm]
+		[<developers>
+			$developer...[$NL]
+		</developers>]
 		<properties>
 			<maven.compiler.source>$sdk</maven.compiler.source>
 			<maven.compiler.target>$sdk</maven.compiler.target>
@@ -93,7 +100,7 @@ def type(pom)
 				]<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.0</version>
 					<configuration>
 						[<finalName>$finalName</finalName>]
 						<archive>
@@ -148,6 +155,7 @@ def type(pom)
 							</goals>
 							<configuration>
 								<sources>
+								    <source>test</source>
 									<source>test-gen</source>
 									$testModuleDependency...[$NL]
 								</sources>
@@ -155,8 +163,21 @@ def type(pom)
 							</execution>
 					</executions>
 				</plugin>]
-				[$attachSources
-				<plugin>
+				[$gpgSign<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+					  <execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+						  <goal>sign</goal>
+						</goals>
+					  </execution>
+					</executions>
+				</plugin>]
+				[$attachSources<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>3.0.1</version>
@@ -168,11 +189,11 @@ def type(pom)
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				][$attachJavaDoc<plugin>
+				</plugin>]
+				[$attachJavaDoc<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
+					<version>3.2.0</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -181,10 +202,10 @@ def type(pom)
 							</goals>
 						</execution>
 					</executions>
-					</plugin>
-				][$osx
-		        ][$windows
-                ]
+					</plugin>]
+				[$osx]
+				[$windows]
+				[$mavenPlugin...[$NL]]
 			</plugins>
 		</build>
 
@@ -204,24 +225,24 @@ def type(pom)
 end
 
 def trigger(sourceDirectory)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 def trigger(testModuleDependency)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 def trigger(moduleDependency)
-	<source>$value</source>
+	<source>$this</source>
 end
 
 
 def trigger(resourceDirectory)
-	<resource><directory>$value</directory></resource>
+	<resource><directory>$this</directory></resource>
 end
 
 def trigger(resourceTestDirectory)
-	<testResource><directory>$value</directory></testResource>
+	<testResource><directory>$this</directory></testResource>
 end
 
 def type(repository) type(Distribution) trigger(distribution)
@@ -232,18 +253,27 @@ def type(repository) type(Distribution) trigger(distribution)
 	</repository>
 end
 
+def trigger(developer)
+	 <developer>
+          <name>$name</name>
+          <email>$email</email>
+          <organization>$organization</organization>
+          <organizationUrl>$organizationUrl</organizationUrl>
+	</developer>
+end
+
 def trigger(distribution)
 end
 
 def type(repository) !type(Distribution) trigger(release)
 	<repository>
-		<id>$name~-$random</id>
+		<id>$name$type</id>
 		<url>$url</url>
 	</repository>
 end
 
 def trigger(parameter)
-    <_$key>$value[##$description]</_$key>
+    <_$key>$this[##$description]</_$key>
 end
 
 def type(dependency) trigger(dependency)
@@ -251,8 +281,8 @@ def type(dependency) trigger(dependency)
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
 		<scope>$scope+lowercase</scope>
-		<version>$version</version>[
-        <exclusions>
+		<version>$version</version>
+        [<exclusions>
 		    $exclusion...[$NL]
         </exclusions>]
 	</dependency>
@@ -265,10 +295,27 @@ def trigger(exclusion)
     </exclusion>
 end
 
+def trigger(scm)
+	<scm>
+		<url>$url</url>
+        <connection>$connection</connection>
+        <developerConnection>$developerConnection</developerConnection>
+        <tag>$tag</tag>
+	</scm>
+
+end
+
 def type(GPL) trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+	</license>
+end
+
+def type(LGPL) trigger(license)
+	<license>
+		<name>GNU Lesser General Public License v3.0</name>
+		<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
 	</license>
 end
 
@@ -361,6 +408,7 @@ def trigger(copyDependencies)
                 </goals>
                 <configuration>[
                     <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+                    <useBaseVersion>false</useBaseVersion>
                     <includeScope>runtime</includeScope>
                     <overWriteReleases>false</overWriteReleases>
                     <overWriteSnapshots>false</overWriteSnapshots>

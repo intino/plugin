@@ -7,17 +7,17 @@ import com.intellij.psi.JavaDirectoryService;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
-import io.intino.tara.Language;
-import io.intino.tara.compiler.shared.Configuration;
-import io.intino.tara.dsl.ProteoConstants;
-import io.intino.tara.plugin.lang.LanguageManager;
-import io.intino.tara.plugin.lang.psi.impl.TaraUtil;
+import io.intino.Configuration;
+import io.intino.magritte.Language;
+import io.intino.magritte.dsl.ProteoConstants;
+import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.tara.plugin.lang.psi.impl.TaraUtil.graphPackage;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.graphPackage;
 
 class TestClassCreator {
 
@@ -25,7 +25,7 @@ class TestClassCreator {
 	static void creteTestClass(Module module, String dsl, String newName) {
 		final PsiDirectory psiDirectory = testDirectory(module);
 		if (psiDirectory == null) return;
-		final Configuration conf = TaraUtil.configurationOf(module);
+		final Configuration conf = IntinoUtil.configurationOf(module);
 		final PsiClass aClass = JavaDirectoryService.getInstance().createClass(psiDirectory, newName + "Test", "Tara" + (dsl.equals(ProteoConstants.PROTEO) ? "Ontology" : "") + "Test", false, templateParameters(module, conf, dsl, newName));
 		assert aClass != null;
 		VfsUtil.markDirtyAndRefresh(true, true, true, psiDirectory.getVirtualFile());
@@ -42,7 +42,7 @@ class TestClassCreator {
 	}
 
 	private static PsiDirectory testDirectory(Module module) {
-		final List<VirtualFile> sourceRoots = TaraUtil.getSourceRoots(module);
+		final List<VirtualFile> sourceRoots = IntinoUtil.getSourceRoots(module);
 		for (VirtualFile sourceRoot : sourceRoots)
 			if (sourceRoot.isDirectory() && "test".equals(sourceRoot.getName()))
 				return PsiManager.getInstance(module.getProject()).findDirectory(sourceRoot);

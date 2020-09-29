@@ -1,19 +1,27 @@
 package io.intino.plugin.toolwindows.cesarbot;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
-import io.intino.plugin.project.CesarAccessor;
+import io.intino.plugin.cesar.CesarAccessor;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import static javax.swing.text.StyleConstants.LineSpacing;
 
 public class CesarBot {
-
+	private static final com.intellij.openapi.diagnostic.Logger logger = Logger.getInstance(CesarBot.class);
 	static Project project;
+	private final List<String> icons = List.of("disconnected", "ok_hand", "dev", "pre", "pro", "demo", "hdd", "memory", "network", "threads", "cpu", "small_red_triangle", "small_red_triangle_down", "clock10", "cpu");
 	private final CesarAccessor cesarAccessor;
-	private JPanel chat;
 	private JTextField chatInput;
 	private JTextPane console;
 	private JPanel myToolWindowContent;
@@ -22,48 +30,133 @@ public class CesarBot {
 		CesarBot.project = project;
 		setConsoleStyle();
 		cesarAccessor = new CesarAccessor(project);
+		cesarAccessor.subscribeToNotifications(message -> {
+			String trim = message.trim();
+			insertMessage("cesar", trim.substring(trim.lastIndexOf("#") + 1));
+		});
 		chatInput.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar() == '\n') {
-					String response = sendCommand(chatInput.getText());
-					insertMessage("user", chatInput.getText());
+				if (e.getKeyChar() == '\n' && chatInput.getText().length() > 0) {
+					String query = chatInput.getText();
+					insertMessage("you", query);
 					chatInput.setText("");
-					insertMessage("cesar", response);
+					new Thread(() -> response(query)).start();
 				}
 			}
 		});
+	}
 
+	private void response(String query) {
+		String response = sendCommand(query);
+		if (response == null)
+			insertMessage("cesar", "Bot is not available. Ensure your credential are correct and have connectivity.");
+		else {
+			response = response.trim().replace("\n\n", "\n");
+			if (response.contains("\n")) response = "\n" + response;
+			insertMessage("cesar", response);
+		}
 	}
 
 	private void insertMessage(String user, String message) {
 		StyledDocument document = console.getStyledDocument();
 		try {
-			document.insertString(document.getLength(), "\n", new SimpleAttributeSet());
+			document.insertString(document.getLength(), "\n", document.getStyle("normal"));
 			String header = user + ": ";
-			document.insertString(document.getLength(), header, document.getStyle("Heading2"));
-			document.insertString(document.getLength(), message, null);
+			document.insertString(document.getLength(), header, document.getStyle(user + "Style"));
+			for (String icon : icons) message = message.replace(":" + icon + ":", "#" + icon + "#");
+			String state = "";
+			StringBuilder buffer = new StringBuilder();
+			message = message.replace("*", "`");
+			for (char aChar : message.toCharArray()) {
+				if (aChar == '#')
+					if (state.isEmpty()) {
+						state = "icon";
+						continue;
+					} else {
+						printIcon(document, buffer.toString());
+						buffer = new StringBuilder();
+						state = "";
+						continue;
+					}
+				if (aChar == '`')
+					if (state.isEmpty()) {
+						state = "box";
+						continue;
+					} else {
+						document.insertString(document.getLength(), buffer.toString(), document.getStyle("bold"));
+						buffer = new StringBuilder();
+						state = "";
+						continue;
+					}
+				if (state.equals("icon") || state.equals("box")) buffer.append(aChar);
+				else document.insertString(document.getLength(), aChar + "", document.getStyle("normal"));
+			}
+			console.scrollRectToVisible(new Rectangle(0, console.getBounds(null).height, 1, 1));
 		} catch (BadLocationException e1) {
-			e1.printStackTrace();
+			logger.error(e1);
 		}
+	}
+
+	private void printIcon(StyledDocument document, String words) throws BadLocationException {
+		SimpleAttributeSet attrs = new SimpleAttributeSet();
+		StyleConstants.setIcon(attrs, createImage(words));
+		document.insertString(document.getLength(), words, attrs);
 	}
 
 	private void setConsoleStyle() {
 		StyledDocument document = console.getStyledDocument();
-		final Style heading2Style = document.addStyle("Heading2", null);
-		heading2Style.addAttribute(StyleConstants.Foreground, JBColor.GREEN);
-		heading2Style.addAttribute(StyleConstants.FontSize, 16);
-		heading2Style.addAttribute(StyleConstants.FontFamily, "serif");
-		heading2Style.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+		AttributeSet paragraphAttributes = console.getParagraphAttributes();
+		final Style paragraph = document.addStyle("paragraph", null);
+		paragraphAttributes.getAttributeNames().asIterator().forEachRemaining(a -> {
+			if (!a.equals(LineSpacing)) paragraph.addAttribute(a, paragraphAttributes.getAttribute(a));
+		});
+		StyleConstants.setLineSpacing(paragraph, 0.3f);
+		console.setParagraphAttributes(paragraph, true);
+		final Style userStype = document.addStyle("youStyle", null);
+		userStype.addAttribute(StyleConstants.Foreground, JBColor.GREEN);
+		userStype.addAttribute(StyleConstants.FontSize, 14);
+		userStype.addAttribute(StyleConstants.FontFamily, "Jetbrains Mono");
+		userStype.addAttribute(StyleConstants.Bold, Boolean.TRUE);
 
+		final Style cesarStyle = document.addStyle("cesarStyle", null);
+		cesarStyle.addAttribute(StyleConstants.Foreground, JBColor.RED);
+		cesarStyle.addAttribute(StyleConstants.FontSize, 14);
+		cesarStyle.addAttribute(StyleConstants.FontFamily, "Jetbrains Mono");
+
+		cesarStyle.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+
+		final Style boldStyle = document.addStyle("bold", null);
+		boldStyle.addAttribute(StyleConstants.FontSize, 14);
+		boldStyle.addAttribute(StyleConstants.FontFamily, "Jetbrains Mono");
+		boldStyle.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+
+		final Style normalStyle = document.addStyle("normal", null);
+		normalStyle.addAttribute(StyleConstants.FontSize, 14);
+		normalStyle.addAttribute(StyleConstants.FontFamily, "Jetbrains Mono");
+		normalStyle.addAttribute(StyleConstants.Bold, Boolean.FALSE);
 	}
 
 	private String sendCommand(String text) {
 		return cesarAccessor.talk(text);
+	}
 
+	ImageIcon createImage(String code) {
+		InputStream resourceAsStream = this.getClass().getResourceAsStream("/icons/cesar/bot/" + code.toLowerCase() + ".png");
+		try {
+			if (resourceAsStream == null) throw new IOException(code + " not found");
+			return new ImageIcon(ImageIO.read(resourceAsStream));
+		} catch (IOException e) {
+			logger.error(e);
+			return null;
+		}
 	}
 
 	public JPanel content() {
 		return myToolWindowContent;
+	}
+
+	public void disconnect() {
+		cesarAccessor.disconnect();
 	}
 }
