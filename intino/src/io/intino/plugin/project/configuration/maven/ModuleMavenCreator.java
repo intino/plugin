@@ -1,5 +1,6 @@
 package io.intino.plugin.project.configuration.maven;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
@@ -39,16 +40,20 @@ public class ModuleMavenCreator {
 
 	private VirtualFile createPom(final Module module) {
 		final PsiFile[] files = new PsiFile[1];
-		ApplicationManager.getApplication().runWriteAction(() -> {
-			MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
-			if (project == null) {
-				PsiDirectory root = getModuleRoot(module);
-				files[0] = root.findFile(POM_XML);
-				if (files[0] == null)
-					writePom((files[0] = root.createFile(POM_XML)).getVirtualFile().getPath(), new ModulePomTemplate().render(createModuleFrame(module)));
-			}
-		});
+		Application app = ApplicationManager.getApplication();
+		if (app.isDispatchThread()) app.runWriteAction(() -> createPom(module, files));
+		else createPom(module, files);
 		return files[0] == null ? null : files[0].getVirtualFile();
+	}
+
+	private void createPom(Module module, PsiFile[] files) {
+		MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
+		if (project == null) {
+			PsiDirectory root = getModuleRoot(module);
+			files[0] = root.findFile(POM_XML);
+			if (files[0] == null)
+				writePom((files[0] = root.createFile(POM_XML)).getVirtualFile().getPath(), new ModulePomTemplate().render(createModuleFrame(module)));
+		}
 	}
 
 

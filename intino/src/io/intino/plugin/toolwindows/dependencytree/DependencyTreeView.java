@@ -88,7 +88,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void openContextualMenu(MouseEvent e, TreePath treePath) {
-		if (treePath.getParentPath() == null) return;
+		if (treePath == null || treePath.getParentPath() == null) return;
 		Object userObject = ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
 		if (!(userObject instanceof DependencyNode)) return;
 		JBPopupMenu options = new JBPopupMenu("options");

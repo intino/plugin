@@ -37,8 +37,7 @@ import static io.intino.magritte.lang.model.Node.ANONYMOUS;
 import static io.intino.magritte.lang.model.Tag.Abstract;
 import static io.intino.magritte.lang.model.Tag.Terminal;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
-import static java.util.Collections.EMPTY_LIST;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
 
 public class NodeMixin extends ASTWrapperPsiElement {
@@ -145,8 +144,8 @@ public class NodeMixin extends ASTWrapperPsiElement {
 		return unmodifiableList(IntinoUtil.getComponentsOf((Node) this));
 	}
 
-	public List<Rule> rulesOf(Node component) {
-		return Collections.emptyList();
+	public List<Rule<?>> rulesOf(Node component) {
+		return emptyList();
 	}
 
 	public List<Variable> variables() {
@@ -201,17 +200,17 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	private List<Parameter> getVarInits() {
-		if (this.getBody() == null) return EMPTY_LIST;
+		if (this.getBody() == null) return emptyList();
 		return unmodifiableList(this.getBody().getVarInitList());
 	}
 
 	public String qualifiedName() {
 		if (container() == null) return name();
 		String container = container().qualifiedName();
-		return new StringBuilder().append(container.isEmpty() ? "" : container + ".").
-				append(name().isEmpty() ?
+		return (container.isEmpty() ? "" : container + ".") +
+				(name().isEmpty() ?
 						"[" + ANONYMOUS + shortType() + "]" :
-						name()).toString();
+						name());
 	}
 
 	public String layerQualifiedName() {
@@ -335,21 +334,20 @@ public class NodeMixin extends ASTWrapperPsiElement {
 
 	@NotNull
 	public TaraSignature getSignature() {
-		TaraSignature notNullChildByClass = findNotNullChildByClass(TaraSignature.class);
-		return notNullChildByClass == null ? new TaraSignatureImpl(null) : notNullChildByClass;
+		return findNotNullChildByClass(TaraSignature.class);
 	}
 
 
 	@NotNull
 	private List<Annotation> getAnnotations() {
 		Annotations annotations = this.getAnnotationsNode();
-		return annotations == null ? EMPTY_LIST : unmodifiableList(annotations.getAnnotationList());
+		return annotations == null ? emptyList() : unmodifiableList(annotations.getAnnotationList());
 	}
 
 	@NotNull
 	private List<Flag> getFlags() {
 		Flags flags = this.getFlagsElement();
-		return flags == null ? EMPTY_LIST : flags.getFlagList();
+		return flags == null ? emptyList() : flags.getFlagList();
 	}
 
 
@@ -428,7 +426,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	public List<Node> children() {
-		return Collections.emptyList();
+		return emptyList();
 	}
 
 	public boolean isAnonymous() {
@@ -449,7 +447,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 	}
 
 	public List<String> uses() {
-		return Collections.emptyList();
+		return emptyList();
 	}
 
 
