@@ -15,6 +15,7 @@ import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
@@ -84,6 +85,9 @@ public class ArtifactDeployer {
 		final String classpathPrefix = packageConfiguration.classpathPrefix();
 		return new ProcessDeployment().
 				groupId(configuration.artifact().groupId()).artifactId(configuration.artifact().name().toLowerCase()).version(configuration.artifact().version()).
+				vcs(new ProcessDeployment.Vcs().
+						url(safe(() -> GitUtil.repository(module).getRemotes().iterator().next().getFirstUrl())).
+						commit(safe(() -> GitUtil.repository(module).getCurrentRevision()))).
 				jvmOptions(destination.runConfiguration().vmOptions()).
 				artifactoryList(artifactories()).
 				prerequisites(requirements(destination)).

@@ -95,7 +95,7 @@
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-interpolation:1.26" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:2.0.11" level="project" />
-    <orderEntry type="library" name="Maven: io.intino:cesar-api-accessor:4.0.0" level="project" />
+    <orderEntry type="library" name="Maven: io.intino:cesar-api-accessor:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:exceptions:2.0.0" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:primitives:1.0.4" level="project" />
