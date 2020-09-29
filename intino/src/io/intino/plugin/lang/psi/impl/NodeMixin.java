@@ -144,7 +144,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 		return unmodifiableList(IntinoUtil.getComponentsOf((Node) this));
 	}
 
-	public List<Rule<?>> rulesOf(Node component) {
+	public List<Rule> rulesOf(Node component) {
 		return emptyList();
 	}
 
