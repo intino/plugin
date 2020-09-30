@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.goros.GorosFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -49,7 +50,7 @@ public class ModernizationGeneration extends AnAction {
 					}
 				}
 			});
-			refreshFiles(new File(module.getModuleFilePath()).getParentFile());
+			refreshFiles(IntinoUtil.moduleRoot(module));
 		} catch (Throwable ignored) {
 
 		}

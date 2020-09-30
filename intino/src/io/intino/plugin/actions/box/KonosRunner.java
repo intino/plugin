@@ -107,7 +107,7 @@ public class KonosRunner {
 		File projectDirectory = new File(Objects.requireNonNull(module.getProject().getBasePath()));
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put(PROJECT_PATH, projectDirectory.getAbsolutePath());
-		map.put(MODULE_PATH, new File(module.getModuleFilePath()).getParent());
+		map.put(MODULE_PATH, IntinoUtil.moduleRoot(module).getAbsolutePath());
 		VirtualFile resourcesRoot = IntinoUtil.getResourcesRoot(module, false);
 		if (resourcesRoot == null) resourcesRoot = IntinoUtil.createResourceRoot(module, "res").getVirtualFile();
 		map.put(RES_PATH, resourcesRoot.getPath());

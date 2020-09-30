@@ -11,6 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -56,14 +57,15 @@ public class ModuleMavenCreator {
 		}
 	}
 
-
 	private PsiDirectory getModuleRoot(Module module) {
 		VirtualFile moduleFile = module.getModuleFile();
 		final PsiManager manager = PsiManager.getInstance(module.getProject());
 		PsiDirectory directory = moduleFile != null ?
 				manager.findDirectory(moduleFile.getParent()) :
 				manager.findDirectory(VfsUtil.findFile(new File(module.getProject().getBasePath()).toPath(), true)).findSubdirectory(module.getName());
-		if (directory == null) directory = create(manager, new File(module.getModuleFilePath()).getParentFile());
+		if (directory == null) {
+			directory = create(manager, IntinoUtil.moduleRoot(module));
+		}
 		return directory;
 	}
 
@@ -90,7 +92,8 @@ public class ModuleMavenCreator {
 				.add("project", module.getProject().getName())
 				.add("name", module.getName())
 				.add("version", "1.0");
-		if (new File(module.getModuleFilePath()).getParent().equals(new File(module.getProject().getBasePath()).getAbsolutePath()))
+		File moduleRoot = IntinoUtil.moduleRoot(module);
+		if (moduleRoot.getAbsolutePath().equals(new File(module.getProject().getBasePath()).getAbsolutePath()))
 			builder.add("default", "");
 		return builder.toFrame();
 	}

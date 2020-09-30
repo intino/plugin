@@ -36,7 +36,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
@@ -104,8 +107,8 @@ class PomCreator {
 		return new File(moduleDirectory(), "pom.xml");
 	}
 
-	private String moduleDirectory() {
-		return new File(module.getModuleFilePath()).getParent();
+	private File moduleDirectory() {
+		return IntinoUtil.moduleRoot(module);
 	}
 
 	private void fillMavenId(FrameBuilder builder) {
@@ -151,7 +154,7 @@ class PomCreator {
 
 	private String relativeToModulePath(String path) {
 		Path other = Paths.get(path);
-		Path modulePath = Paths.get(moduleDirectory()).toAbsolutePath();
+		Path modulePath = moduleDirectory().toPath();
 		try {
 			return modulePath.relativize(other.toAbsolutePath()).toFile().getPath();
 		} catch (IllegalArgumentException e) {

@@ -59,7 +59,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
 			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
-			final VirtualFile moduleFile = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()), true);
+			final VirtualFile moduleFile = module.getModuleFile();
 			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
 			publish(module);
 		};
@@ -143,7 +143,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 
 	@NotNull
 	private File legioFile(Module module) {
-		File moduleRoot = new File(module.getModuleFilePath()).getParentFile();
-		return new File(moduleRoot, LEGIO_FILE);
+		return new File(IntinoUtil.moduleRoot(module), LEGIO_FILE);
 	}
 }

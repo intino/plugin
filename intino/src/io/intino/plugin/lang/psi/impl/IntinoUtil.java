@@ -9,6 +9,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,6 @@ public class IntinoUtil {
 
 	private IntinoUtil() {
 	}
-
 
 	public static void commitDocument(PsiFile file) {
 		final PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
@@ -65,6 +66,10 @@ public class IntinoUtil {
 
 	private static void extractNodesByName(String identifier, List<Node> result, Collection<Node> nodes) {
 		result.addAll(nodes.stream().filter(node -> identifier.equals(node.name())).collect(Collectors.toList()));
+	}
+
+	public static File moduleRoot(Module module) {
+		return VfsUtil.virtualToIoFile(ModuleRootManager.getInstance(module).getContentRoots()[0]);
 	}
 
 	@Nullable

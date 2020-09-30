@@ -13,6 +13,7 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
@@ -39,7 +40,7 @@ public class WebDependencyResolver {
 		this.module = module;
 		this.artifact = artifact;
 		this.repositories = repositories;
-		this.rootDirectory = new File(module.getModuleFilePath()).getParentFile();
+		this.rootDirectory = IntinoUtil.moduleRoot(module);
 		this.nodeModulesDirectory = new File(rootDirectory, NodeModules);
 	}
 

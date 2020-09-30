@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,9 +23,9 @@ class LegioFileCreator {
 
 	VirtualFile getOrCreate() {
 		FrameBuilder builder = new FrameBuilder("legio", "empty").add("name", module.getName());
-		final File destiny = new File(new File(module.getModuleFilePath()).getParent(), LegioFileType.LEGIO_FILE);
-		if (destiny.exists()) return findFileByIoFile(destiny, true);
-		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(builder.toFrame()), destiny).toFile(), true);
+		final File destination = new File(IntinoUtil.moduleRoot(module), LegioFileType.LEGIO_FILE);
+		if (destination.exists()) return findFileByIoFile(destination, true);
+		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(builder.toFrame()), destination).toFile(), true);
 	}
 
 	private Path write(String legio, File destiny) {

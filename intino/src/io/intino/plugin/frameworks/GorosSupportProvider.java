@@ -16,6 +16,7 @@ import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBPanel;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +43,7 @@ public class GorosSupportProvider extends FrameworkSupportInModuleProvider {
 	}
 
 	private File modernizationFile(Module module) {
-		return new File(new File(module.getModuleFilePath()).getParentFile(), "modernization.goros");
+		return new File(IntinoUtil.moduleRoot(module), "modernization.goros");
 	}
 
 	@NotNull

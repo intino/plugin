@@ -62,8 +62,8 @@ public class BuildFixer {
 		return files.isEmpty() ? null : files.get(0);
 	}
 
-	private String moduleDirectory() {
-		return new File(module.getModuleFilePath()).getParent();
+	private File moduleDirectory() {
+		return IntinoUtil.moduleRoot(module);
 	}
 
 	private String buildDirectory() {

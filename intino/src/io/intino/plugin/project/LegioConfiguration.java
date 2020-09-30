@@ -25,6 +25,7 @@ import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.legio.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.project.configuration.model.LegioRepository;
@@ -92,7 +93,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public boolean isSuitable() {
-		return new File(new File(module.getModuleFilePath()).getParentFile(), LegioFileType.LEGIO_FILE).exists();
+		return new File(IntinoUtil.moduleRoot(module), LegioFileType.LEGIO_FILE).exists();
 	}
 
 	public void refresh() {
