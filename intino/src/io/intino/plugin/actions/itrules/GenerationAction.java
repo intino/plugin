@@ -27,12 +27,12 @@ public abstract class GenerationAction extends AnAction implements DumbAware {
 	public static final Logger LOG = Logger.getInstance("itrules: Generate");
 
 	public void update(@NotNull AnActionEvent e) {
-		ActionUtils.selectedFilesAre(e, ItrulesFileType.INSTANCE.getDefaultExtension());
+		ActionUtils.selectedFilesAre(e, ItrulesFileType.instance().getDefaultExtension());
 		e.getPresentation().setIcon(ItrulesIcons.ICON_13);
 	}
 
 	protected List<VirtualFile> getVirtualFile(AnActionEvent e) {
-		List<VirtualFile> rulesFiles = ActionUtils.getFilesFromEvent(e, ItrulesFileType.INSTANCE.getDefaultExtension());
+		List<VirtualFile> rulesFiles = ActionUtils.getFilesFromEvent(e, ItrulesFileType.instance().getDefaultExtension());
 		LOG.info("actionPerformed " + (rulesFiles.isEmpty() ? "NONE" : rulesFiles));
 		if (rulesFiles.isEmpty()) return null;
 		return rulesFiles;

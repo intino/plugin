@@ -26,7 +26,7 @@ public class ModernizationGeneration extends AnAction {
 	public void update(@NotNull AnActionEvent e) {
 		e.getPresentation().setIcon(IntinoIcons.GOROS_13);
 		PsiFile context = e.getData(PSI_FILE);
-		if (context != null && context.getFileType().equals(GorosFileType.INSTANCE)) enable(e);
+		if (context != null && context.getFileType().equals(GorosFileType.instance())) enable(e);
 		else disable(e);
 	}
 

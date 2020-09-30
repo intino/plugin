@@ -27,7 +27,7 @@ public class ItrFileDocumentManagerListener implements FileDocumentManagerListen
 		for (Project project : openProjects) {
 			if (!project.isInitialized()) continue;
 			final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-			if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(ItrulesFileType.INSTANCE))
+			if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(ItrulesFileType.instance()))
 				ApplicationManager.getApplication().invokeLater(() -> generator.createTemplate(project, psiFile.getVirtualFile()), ModalityState.NON_MODAL);
 		}
 	}

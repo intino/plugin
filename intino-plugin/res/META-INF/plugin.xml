@@ -16,6 +16,18 @@
 
 	<idea-version since-build="202.7319"/>
 	<extensions defaultExtensionNs="com.intellij">
+		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>
+		<fileType name="Stash" extensions="stash" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.lang.file.StashFileType"/>
+		<fileType name="Konos" language="Tara" extensions="konos" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.file.konos.KonosFileType"/>
+		<fileType name="Legio" language="Tara" extensions="legio" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.file.legio.LegioFileType"/>
+		<fileType name="Itrules" language="Itrules" extensions="itr" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.itrules.lang.file.ItrulesFileType"/>
+		<fileType name="Goros" language="XML" extensions="goros" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.file.goros.GorosFileType"/>
 		<fileDocumentManagerListener
 				implementation="io.intino.plugin.codeinsight.languageinjection.TaraFileDocumentManagerListener"/>
 		<errorHandler implementation="io.intino.plugin.errorreporting.PluginErrorReportSubmitter"/>
@@ -165,10 +177,8 @@
 				implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
 		<fileDocumentManagerListener
 				implementation="io.intino.plugin.project.ConfigurationListener"/>
-		<!--        <fileType name="Konos" implementationClass="io.intino.plugin.file.konos.KonosFileType"/>-->
-		<!--        <fileType name="Legio" implementationClass="io.intino.plugin.file.legio.LegioFileType"/>-->
-		<!--        <fileType name="itrules" implementationClass="io.intino.plugin.itrules.lang.file.ItrulesFileType"/>-->
-		<fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>
+
+		<!--		<fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>-->
 		<errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
 		<copyPastePreProcessor implementation="io.intino.plugin.file.legio.LegioDependencyPasteProcessor"/>
 		<problemFileHighlightFilter

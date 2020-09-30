@@ -9,6 +9,7 @@ import com.intellij.execution.lineMarker.LineMarkerActionWrapper;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
@@ -105,7 +106,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		DataContext parent = getContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
 		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
-		action.update(event);
+		ApplicationManager.getApplication().invokeAndWait(() -> action.update(event));
 		Presentation presentation = event.getPresentation();
 		return presentation.isEnabled() && presentation.isVisible() ? presentation.getText() : null;
 	}

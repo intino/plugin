@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LegioFileType extends TaraFileType {
-	public static LegioFileType INSTANCE;
+	public static final LegioFileType INSTANCE = new LegioFileType();
 	public static final String LEGIO_FILE = "artifact.legio";
 
 
@@ -15,7 +15,7 @@ public class LegioFileType extends TaraFileType {
 	}
 
 	public static LegioFileType instance() {
-		return INSTANCE != null ? INSTANCE : (INSTANCE = new LegioFileType());
+		return INSTANCE;
 	}
 
 	@NotNull

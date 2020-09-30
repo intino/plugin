@@ -22,7 +22,7 @@ public class ItrulesTemplateImpl extends PsiFileBase implements ItrulesTemplate 
     @NotNull
     @Override
     public FileType getFileType() {
-        return ItrulesFileType.INSTANCE;
+        return ItrulesFileType.instance();
     }
 
     @Override

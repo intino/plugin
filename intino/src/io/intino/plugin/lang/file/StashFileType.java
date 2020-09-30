@@ -7,13 +7,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class StashFileType implements FileType {
-	private static StashFileType INSTANCE;
+	public static final StashFileType INSTANCE = new StashFileType();
 
 	private StashFileType() {
 	}
 
 	public static StashFileType instance() {
-		return INSTANCE != null ? INSTANCE : (INSTANCE = new StashFileType());
+		return INSTANCE;
 	}
 
 	@NotNull

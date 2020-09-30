@@ -34,7 +34,7 @@ public class FileListener implements BulkFileListener {
 
 	public void propertyChanged(@NotNull VFilePropertyChangeEvent event) {
 		final VirtualFile file = event.getFile();
-		if (ItrulesFileType.INSTANCE.getDefaultExtension().equals(file.getExtension()) && VirtualFile.PROP_NAME.equals(event.getPropertyName())) {
+		if (ItrulesFileType.instance().getDefaultExtension().equals(file.getExtension()) && VirtualFile.PROP_NAME.equals(event.getPropertyName())) {
 			VirtualFile template = findOldJava(event.getOldValue().toString(), event.getFile().getParent());
 			final Project project = project();
 			if (template != null && project != null) {
@@ -48,7 +48,7 @@ public class FileListener implements BulkFileListener {
 
 	public void fileDeleted(@NotNull VFileDeleteEvent event) {
 		final VirtualFile file = event.getFile();
-		if (ItrulesFileType.INSTANCE.getDefaultExtension().equals(file.getExtension())) {
+		if (ItrulesFileType.instance().getDefaultExtension().equals(file.getExtension())) {
 			VirtualFile template = findOldJava(file, event.getFile().getParent());
 			if (template != null) try {
 				template.delete(event.getRequestor());
@@ -59,7 +59,7 @@ public class FileListener implements BulkFileListener {
 
 	public void fileMoved(@NotNull VFileMoveEvent event) {
 		final VirtualFile file = event.getFile();
-		if (!ItrulesFileType.INSTANCE.getDefaultExtension().equals(file.getExtension())) return;
+		if (!ItrulesFileType.instance().getDefaultExtension().equals(file.getExtension())) return;
 		final VirtualFile oldJavaTemplate = findOldJava(file, event.getOldParent());
 		if (oldJavaTemplate == null) return;
 		final Project project = project();
@@ -77,7 +77,7 @@ public class FileListener implements BulkFileListener {
 	}
 
 	private VirtualFile findOldJava(String file, VirtualFile parent) {
-		return parent != null ? parent.findChild(file.replace(ItrulesFileType.INSTANCE.getDefaultExtension(), "Template.java")) : null;
+		return parent != null ? parent.findChild(file.replace(ItrulesFileType.instance().getDefaultExtension(), "Template.java")) : null;
 	}
 
 	private VirtualFile findOldJava(VirtualFile file, VirtualFile parent) {

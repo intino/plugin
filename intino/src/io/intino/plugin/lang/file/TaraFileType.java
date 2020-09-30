@@ -7,14 +7,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TaraFileType extends LanguageFileType {
-	private static TaraFileType INSTANCE;
+	public static final TaraFileType INSTANCE = new TaraFileType();
 
 	protected TaraFileType() {
 		super(TaraLanguage.INSTANCE);
 	}
 
 	public static TaraFileType instance() {
-		return INSTANCE != null ? INSTANCE : (INSTANCE = new TaraFileType());
+		return INSTANCE;
 	}
 
 	@NotNull

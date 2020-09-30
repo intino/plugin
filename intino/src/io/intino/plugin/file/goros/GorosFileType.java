@@ -9,16 +9,21 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class GorosFileType extends LanguageFileType {
-	public static final GorosFileType INSTANCE = new GorosFileType();
+	private static final GorosFileType INSTANCE = new GorosFileType();
 
 	protected GorosFileType() {
 		super(XMLLanguage.INSTANCE);
 	}
 
+
+	public static GorosFileType instance() {
+		return INSTANCE;
+	}
+
 	@NotNull
 	@Override
 	public String getName() {
-		return "Goros File";
+		return "Goros";
 	}
 
 	@NotNull

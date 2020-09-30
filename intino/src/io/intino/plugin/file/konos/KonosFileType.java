@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class KonosFileType extends TaraFileType {
-	private static TaraFileType INSTANCE;
+	public static final KonosFileType INSTANCE = new KonosFileType();
 
 
 	private KonosFileType() {
@@ -14,7 +14,7 @@ public class KonosFileType extends TaraFileType {
 	}
 
 	public static KonosFileType instance() {
-		return INSTANCE != null ? (KonosFileType) INSTANCE : (KonosFileType) (INSTANCE = new KonosFileType());
+		return INSTANCE;
 	}
 
 	@NotNull
