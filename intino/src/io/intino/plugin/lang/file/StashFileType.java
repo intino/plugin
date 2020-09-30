@@ -31,7 +31,6 @@ public class StashFileType implements FileType {
 		return "stash";
 	}
 
-
 	@Nullable
 	@Override
 	public javax.swing.Icon getIcon() {
