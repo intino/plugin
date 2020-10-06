@@ -62,7 +62,6 @@ class PomCreator {
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private final Mode packageType;
-	private final Set<Integer> randomGeneration = new HashSet<>();
 
 	PomCreator(Module module) {
 		this.module = module;
@@ -175,7 +174,7 @@ class PomCreator {
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
 		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).collect(Collectors.toList()))
-			if (((dependency.toModule() && !allModulesSeparated()) || !dependency.toModule()) && dependencies.add(dependency.identifier()))
+			if ((!dependency.toModule() || (dependency.toModule() && allModulesSeparated())) && dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		if (!allModulesSeparated())
 			addDependantModuleTestLibraries(builder, dependencies);
