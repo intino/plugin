@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 

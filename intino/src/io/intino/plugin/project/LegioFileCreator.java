@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.itrules.FrameBuilder;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import java.io.File;

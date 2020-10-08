@@ -1,4 +1,4 @@
-package io.intino.plugin.file.legio;
+package io.intino.plugin.file;
 
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.file.TaraFileType;

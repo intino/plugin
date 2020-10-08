@@ -17,7 +17,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+
+import java.util.List;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
@@ -91,10 +93,8 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private Info createInfo(Module module, PsiElement runConfiguration) {
 		final PsiClass runnerClass = findRunnerClass(module);
 		if (runnerClass == null) return null;
-		final Executor[] executors = ExecutorRegistry.getInstance().getRegisteredExecutors();
-
-		final RunContextAction[] actions =
-				new RunContextAction[]{new IntinoRunContextAction(executors[0], runConfiguration), new IntinoRunContextAction(executors[1], runConfiguration)};
+		final List<Executor> executors = Executor.EXECUTOR_EXTENSION_NAME.getExtensionList();
+		final RunContextAction[] actions = new RunContextAction[]{new IntinoRunContextAction(executors.get(0), runConfiguration), new IntinoRunContextAction(executors.get(1), runConfiguration)};
 		for (RunContextAction action : actions) {
 			action.getTemplatePresentation().setEnabled(true);
 			action.getTemplatePresentation().setVisible(true);

@@ -25,7 +25,6 @@ public class ArchetypeParser {
 		this.text = text;
 	}
 
-
 	public ArchetypeGrammar.RootContext parse() throws IntinoException {
 		try {
 			ArchetypeLexer lexer = new ArchetypeLexer(fromString(text.trim()));

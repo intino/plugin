@@ -24,19 +24,19 @@ public class ArchetypeGrammar extends Parser {
 			new PredictionContextCache();
 	public static final int
 			IN = 1, WITH = 2, SPLITTED = 3, LEFT_PARENTHESIS = 4, LEFT_SQUARE = 5, RIGHT_PARENTHESIS = 6,
-			RIGHT_SQUARE = 7, COMMA = 8, MINUS = 9, PLUS = 10, STAR = 11, AS = 12, REGEX = 13, TIMETAG = 14,
-			COLON = 15, LINE_COMMENT = 16, LABEL = 17, IDENTIFIER = 18, NEWLINE = 19, SPACES = 20,
-			SP = 21, NL = 22, NEW_LINE_INDENT = 23, DEDENT = 24, UNKNOWN_TOKEN = 25, QUOTE_BEGIN = 26,
-			QUOTE_END = 27, EXPRESSION_BEGIN = 28, EXPRESSION_END = 29;
+			RIGHT_SQUARE = 7, COMMA = 8, MINUS = 9, PLUS = 10, STAR = 11, AS = 12, REGEX = 13, OWNER = 14,
+			USES = 15, TIMETAG = 16, COLON = 17, LINE_COMMENT = 18, LABEL = 19, IDENTIFIER = 20,
+			NEWLINE = 21, SPACES = 22, SP = 23, NL = 24, NEW_LINE_INDENT = 25, DEDENT = 26, UNKNOWN_TOKEN = 27,
+			QUOTE_BEGIN = 28, QUOTE_END = 29, EXPRESSION_BEGIN = 30, EXPRESSION_END = 31;
 	public static final int
 			RULE_root = 0, RULE_node = 1, RULE_declaration = 2, RULE_starting = 3,
 			RULE_parameters = 4, RULE_splitted = 5, RULE_parameter = 6, RULE_body = 7,
-			RULE_type = 8;
+			RULE_type = 8, RULE_ownerAndUses = 9, RULE_uses = 10;
 
 	private static String[] makeRuleNames() {
 		return new String[]{
 				"root", "node", "declaration", "starting", "parameters", "splitted",
-				"parameter", "body", "type"
+				"parameter", "body", "type", "ownerAndUses", "uses"
 		};
 	}
 
@@ -45,18 +45,18 @@ public class ArchetypeGrammar extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[]{
 				null, "'in'", "'with'", "'splitted'", "'('", "'['", "')'", "']'", "','",
-				"'-'", "'+'", "'*'", "'as'", "'regex'", "'timetag'", "':'", null, null,
-				null, null, null, null, null, "'indent'", "'dedent'", null, "'%QUOTE_BEGIN%'",
-				"'%QUOTE_END%'", "'%EXPRESSION_BEGIN%'", "'%EXPRESSION_END%'"
+				"'-'", "'+'", "'*'", "'as'", "'regex'", "'owner'", "'uses'", "'timetag'",
+				"':'", null, null, null, null, null, null, null, "'indent'", "'dedent'",
+				null, "'%QUOTE_BEGIN%'", "'%QUOTE_END%'", "'%EXPRESSION_BEGIN%'", "'%EXPRESSION_END%'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[]{
 				null, "IN", "WITH", "SPLITTED", "LEFT_PARENTHESIS", "LEFT_SQUARE", "RIGHT_PARENTHESIS",
-				"RIGHT_SQUARE", "COMMA", "MINUS", "PLUS", "STAR", "AS", "REGEX", "TIMETAG",
-				"COLON", "LINE_COMMENT", "LABEL", "IDENTIFIER", "NEWLINE", "SPACES",
-				"SP", "NL", "NEW_LINE_INDENT", "DEDENT", "UNKNOWN_TOKEN", "QUOTE_BEGIN",
+				"RIGHT_SQUARE", "COMMA", "MINUS", "PLUS", "STAR", "AS", "REGEX", "OWNER",
+				"USES", "TIMETAG", "COLON", "LINE_COMMENT", "LABEL", "IDENTIFIER", "NEWLINE",
+				"SPACES", "SP", "NL", "NEW_LINE_INDENT", "DEDENT", "UNKNOWN_TOKEN", "QUOTE_BEGIN",
 				"QUOTE_END", "EXPRESSION_BEGIN", "EXPRESSION_END"
 		};
 	}
@@ -174,49 +174,49 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(21);
+				setState(25);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la == NEWLINE) {
 					{
 						{
-							setState(18);
+							setState(22);
 							match(NEWLINE);
 						}
 					}
-					setState(23);
+					setState(27);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(33);
+				setState(37);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MINUS) | (1L << PLUS) | (1L << STAR))) != 0)) {
 					{
 						{
-							setState(24);
-							node();
 							setState(28);
+							node();
+							setState(32);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
 							while (_la == NEWLINE) {
 								{
 									{
-										setState(25);
+										setState(29);
 										match(NEWLINE);
 									}
 								}
-								setState(30);
+								setState(34);
 								_errHandler.sync(this);
 								_la = _input.LA(1);
 							}
 						}
 					}
-					setState(35);
+					setState(39);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(36);
+				setState(40);
 				match(EOF);
 			}
 		} catch (RecognitionException re) {
@@ -272,14 +272,14 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(38);
+				setState(42);
 				declaration();
-				setState(40);
+				setState(44);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == NEW_LINE_INDENT) {
 					{
-						setState(39);
+						setState(43);
 						body();
 					}
 				}
@@ -328,6 +328,10 @@ public class ArchetypeGrammar extends Parser {
 			return getToken(ArchetypeGrammar.WITH, 0);
 		}
 
+		public OwnerAndUsesContext ownerAndUses() {
+			return getRuleContext(OwnerAndUsesContext.class, 0);
+		}
+
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class, 0);
 		}
@@ -368,20 +372,20 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(42);
-				starting();
-				setState(43);
-				match(IDENTIFIER);
 				setState(46);
+				starting();
+				setState(47);
+				match(IDENTIFIER);
+				setState(50);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 					case LEFT_PARENTHESIS: {
-						setState(44);
+						setState(48);
 						parameters();
 					}
 					break;
 					case SPLITTED: {
-						setState(45);
+						setState(49);
 						splitted();
 					}
 					break;
@@ -391,43 +395,54 @@ public class ArchetypeGrammar extends Parser {
 					case MINUS:
 					case PLUS:
 					case STAR:
+					case OWNER:
 					case NEWLINE:
 					case NEW_LINE_INDENT:
 						break;
 					default:
 						break;
 				}
-				setState(50);
+				setState(54);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == IN) {
 					{
-						setState(48);
+						setState(52);
 						match(IN);
-						setState(49);
+						setState(53);
 						match(LABEL);
 					}
 				}
 
-				setState(57);
+				setState(61);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == WITH) {
 					{
-						setState(52);
+						setState(56);
 						match(WITH);
-						setState(53);
+						setState(57);
 						match(LABEL);
-						setState(55);
+						setState(59);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						if (_la == AS) {
 							{
-								setState(54);
+								setState(58);
 								type();
 							}
 						}
 
+					}
+				}
+
+				setState(64);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la == OWNER) {
+					{
+						setState(63);
+						ownerAndUses();
 					}
 				}
 
@@ -489,7 +504,7 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(59);
+				setState(66);
 				_la = _input.LA(1);
 				if (!((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MINUS) | (1L << PLUS) | (1L << STAR))) != 0))) {
 					_errHandler.recoverInline(this);
@@ -570,35 +585,35 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(61);
+				setState(68);
 				match(LEFT_PARENTHESIS);
-				setState(70);
+				setState(77);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == IDENTIFIER) {
 					{
-						setState(62);
+						setState(69);
 						parameter();
-						setState(67);
+						setState(74);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						while (_la == COMMA) {
 							{
 								{
-									setState(63);
+									setState(70);
 									match(COMMA);
-									setState(64);
+									setState(71);
 									parameter();
 								}
 							}
-							setState(69);
+							setState(76);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
 						}
 					}
 				}
 
-				setState(72);
+				setState(79);
 				match(RIGHT_PARENTHESIS);
 			}
 		} catch (RecognitionException re) {
@@ -674,37 +689,37 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(74);
+				setState(81);
 				match(SPLITTED);
-				setState(75);
+				setState(82);
 				match(LEFT_SQUARE);
-				setState(84);
+				setState(91);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == IDENTIFIER) {
 					{
-						setState(76);
+						setState(83);
 						match(IDENTIFIER);
-						setState(81);
+						setState(88);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 						while (_la == COMMA) {
 							{
 								{
-									setState(77);
+									setState(84);
 									match(COMMA);
-									setState(78);
+									setState(85);
 									match(IDENTIFIER);
 								}
 							}
-							setState(83);
+							setState(90);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
 						}
 					}
 				}
 
-				setState(86);
+				setState(93);
 				match(RIGHT_SQUARE);
 			}
 		} catch (RecognitionException re) {
@@ -761,14 +776,14 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(88);
+				setState(95);
 				match(IDENTIFIER);
-				setState(90);
+				setState(97);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la == AS) {
 					{
-						setState(89);
+						setState(96);
 						type();
 					}
 				}
@@ -843,37 +858,37 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(92);
-				match(NEW_LINE_INDENT);
 				setState(99);
+				match(NEW_LINE_INDENT);
+				setState(106);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 						{
-							setState(93);
+							setState(100);
 							node();
-							setState(95);
+							setState(102);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
 							do {
 								{
 									{
-										setState(94);
+										setState(101);
 										match(NEWLINE);
 									}
 								}
-								setState(97);
+								setState(104);
 								_errHandler.sync(this);
 								_la = _input.LA(1);
 							} while (_la == NEWLINE);
 						}
 					}
-					setState(101);
+					setState(108);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MINUS) | (1L << PLUS) | (1L << STAR))) != 0));
-				setState(103);
+				setState(110);
 				match(DEDENT);
 			}
 		} catch (RecognitionException re) {
@@ -940,23 +955,23 @@ public class ArchetypeGrammar extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-				setState(105);
+				setState(112);
 				match(AS);
-				setState(110);
+				setState(117);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 					case REGEX: {
-						setState(106);
+						setState(113);
 						match(REGEX);
 					}
 					break;
 					case TIMETAG: {
 						{
-							setState(107);
+							setState(114);
 							match(TIMETAG);
-							setState(108);
+							setState(115);
 							match(COLON);
-							setState(109);
+							setState(116);
 							match(IDENTIFIER);
 						}
 					}
@@ -975,36 +990,202 @@ public class ArchetypeGrammar extends Parser {
 		return _localctx;
 	}
 
+	public static class OwnerAndUsesContext extends ParserRuleContext {
+		public TerminalNode OWNER() {
+			return getToken(ArchetypeGrammar.OWNER, 0);
+		}
+
+		public TerminalNode IDENTIFIER() {
+			return getToken(ArchetypeGrammar.IDENTIFIER, 0);
+		}
+
+		public UsesContext uses() {
+			return getRuleContext(UsesContext.class, 0);
+		}
+
+		public OwnerAndUsesContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+
+		@Override
+		public int getRuleIndex() {
+			return RULE_ownerAndUses;
+		}
+
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if (listener instanceof ArchetypeGrammarListener)
+				((ArchetypeGrammarListener) listener).enterOwnerAndUses(this);
+		}
+
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if (listener instanceof ArchetypeGrammarListener)
+				((ArchetypeGrammarListener) listener).exitOwnerAndUses(this);
+		}
+
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if (visitor instanceof ArchetypeGrammarVisitor)
+				return ((ArchetypeGrammarVisitor<? extends T>) visitor).visitOwnerAndUses(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final OwnerAndUsesContext ownerAndUses() throws RecognitionException {
+		OwnerAndUsesContext _localctx = new OwnerAndUsesContext(_ctx, getState());
+		enterRule(_localctx, 18, RULE_ownerAndUses);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+				setState(119);
+				match(OWNER);
+				setState(120);
+				match(IDENTIFIER);
+				setState(122);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la == USES) {
+					{
+						setState(121);
+						uses();
+					}
+				}
+
+			}
+		} catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		} finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class UsesContext extends ParserRuleContext {
+		public TerminalNode USES() {
+			return getToken(ArchetypeGrammar.USES, 0);
+		}
+
+		public TerminalNode LEFT_SQUARE() {
+			return getToken(ArchetypeGrammar.LEFT_SQUARE, 0);
+		}
+
+		public TerminalNode RIGHT_SQUARE() {
+			return getToken(ArchetypeGrammar.RIGHT_SQUARE, 0);
+		}
+
+		public List<TerminalNode> IDENTIFIER() {
+			return getTokens(ArchetypeGrammar.IDENTIFIER);
+		}
+
+		public TerminalNode IDENTIFIER(int i) {
+			return getToken(ArchetypeGrammar.IDENTIFIER, i);
+		}
+
+		public UsesContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+
+		@Override
+		public int getRuleIndex() {
+			return RULE_uses;
+		}
+
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if (listener instanceof ArchetypeGrammarListener) ((ArchetypeGrammarListener) listener).enterUses(this);
+		}
+
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if (listener instanceof ArchetypeGrammarListener) ((ArchetypeGrammarListener) listener).exitUses(this);
+		}
+
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if (visitor instanceof ArchetypeGrammarVisitor)
+				return ((ArchetypeGrammarVisitor<? extends T>) visitor).visitUses(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final UsesContext uses() throws RecognitionException {
+		UsesContext _localctx = new UsesContext(_ctx, getState());
+		enterRule(_localctx, 20, RULE_uses);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+				setState(124);
+				match(USES);
+				setState(125);
+				match(LEFT_SQUARE);
+				setState(127);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				do {
+					{
+						{
+							setState(126);
+							match(IDENTIFIER);
+						}
+					}
+					setState(129);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				} while (_la == IDENTIFIER);
+				setState(131);
+				match(RIGHT_SQUARE);
+			}
+		} catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		} finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
 	public static final String _serializedATN =
-			"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\37s\4\2\t\2\4\3\t" +
-					"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\7\2\26" +
-					"\n\2\f\2\16\2\31\13\2\3\2\3\2\7\2\35\n\2\f\2\16\2 \13\2\7\2\"\n\2\f\2" +
-					"\16\2%\13\2\3\2\3\2\3\3\3\3\5\3+\n\3\3\4\3\4\3\4\3\4\5\4\61\n\4\3\4\3" +
-					"\4\5\4\65\n\4\3\4\3\4\3\4\5\4:\n\4\5\4<\n\4\3\5\3\5\3\6\3\6\3\6\3\6\7" +
-					"\6D\n\6\f\6\16\6G\13\6\5\6I\n\6\3\6\3\6\3\7\3\7\3\7\3\7\3\7\7\7R\n\7\f" +
-					"\7\16\7U\13\7\5\7W\n\7\3\7\3\7\3\b\3\b\5\b]\n\b\3\t\3\t\3\t\6\tb\n\t\r" +
-					"\t\16\tc\6\tf\n\t\r\t\16\tg\3\t\3\t\3\n\3\n\3\n\3\n\3\n\5\nq\n\n\3\n\2" +
-					"\2\13\2\4\6\b\n\f\16\20\22\2\3\3\2\13\r\2z\2\27\3\2\2\2\4(\3\2\2\2\6," +
-					"\3\2\2\2\b=\3\2\2\2\n?\3\2\2\2\fL\3\2\2\2\16Z\3\2\2\2\20^\3\2\2\2\22k" +
-					"\3\2\2\2\24\26\7\25\2\2\25\24\3\2\2\2\26\31\3\2\2\2\27\25\3\2\2\2\27\30" +
-					"\3\2\2\2\30#\3\2\2\2\31\27\3\2\2\2\32\36\5\4\3\2\33\35\7\25\2\2\34\33" +
-					"\3\2\2\2\35 \3\2\2\2\36\34\3\2\2\2\36\37\3\2\2\2\37\"\3\2\2\2 \36\3\2" +
-					"\2\2!\32\3\2\2\2\"%\3\2\2\2#!\3\2\2\2#$\3\2\2\2$&\3\2\2\2%#\3\2\2\2&\'" +
-					"\7\2\2\3\'\3\3\2\2\2(*\5\6\4\2)+\5\20\t\2*)\3\2\2\2*+\3\2\2\2+\5\3\2\2" +
-					"\2,-\5\b\5\2-\60\7\24\2\2.\61\5\n\6\2/\61\5\f\7\2\60.\3\2\2\2\60/\3\2" +
-					"\2\2\60\61\3\2\2\2\61\64\3\2\2\2\62\63\7\3\2\2\63\65\7\23\2\2\64\62\3" +
-					"\2\2\2\64\65\3\2\2\2\65;\3\2\2\2\66\67\7\4\2\2\679\7\23\2\28:\5\22\n\2" +
-					"98\3\2\2\29:\3\2\2\2:<\3\2\2\2;\66\3\2\2\2;<\3\2\2\2<\7\3\2\2\2=>\t\2" +
-					"\2\2>\t\3\2\2\2?H\7\6\2\2@E\5\16\b\2AB\7\n\2\2BD\5\16\b\2CA\3\2\2\2DG" +
-					"\3\2\2\2EC\3\2\2\2EF\3\2\2\2FI\3\2\2\2GE\3\2\2\2H@\3\2\2\2HI\3\2\2\2I" +
-					"J\3\2\2\2JK\7\b\2\2K\13\3\2\2\2LM\7\5\2\2MV\7\7\2\2NS\7\24\2\2OP\7\n\2" +
-					"\2PR\7\24\2\2QO\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2TW\3\2\2\2US\3\2" +
-					"\2\2VN\3\2\2\2VW\3\2\2\2WX\3\2\2\2XY\7\t\2\2Y\r\3\2\2\2Z\\\7\24\2\2[]" +
-					"\5\22\n\2\\[\3\2\2\2\\]\3\2\2\2]\17\3\2\2\2^e\7\31\2\2_a\5\4\3\2`b\7\25" +
-					"\2\2a`\3\2\2\2bc\3\2\2\2ca\3\2\2\2cd\3\2\2\2df\3\2\2\2e_\3\2\2\2fg\3\2" +
-					"\2\2ge\3\2\2\2gh\3\2\2\2hi\3\2\2\2ij\7\32\2\2j\21\3\2\2\2kp\7\16\2\2l" +
-					"q\7\17\2\2mn\7\20\2\2no\7\21\2\2oq\7\24\2\2pl\3\2\2\2pm\3\2\2\2q\23\3" +
-					"\2\2\2\22\27\36#*\60\649;EHSV\\cgp";
+			"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3!\u0088\4\2\t\2\4" +
+					"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t" +
+					"\13\4\f\t\f\3\2\7\2\32\n\2\f\2\16\2\35\13\2\3\2\3\2\7\2!\n\2\f\2\16\2" +
+					"$\13\2\7\2&\n\2\f\2\16\2)\13\2\3\2\3\2\3\3\3\3\5\3/\n\3\3\4\3\4\3\4\3" +
+					"\4\5\4\65\n\4\3\4\3\4\5\49\n\4\3\4\3\4\3\4\5\4>\n\4\5\4@\n\4\3\4\5\4C" +
+					"\n\4\3\5\3\5\3\6\3\6\3\6\3\6\7\6K\n\6\f\6\16\6N\13\6\5\6P\n\6\3\6\3\6" +
+					"\3\7\3\7\3\7\3\7\3\7\7\7Y\n\7\f\7\16\7\\\13\7\5\7^\n\7\3\7\3\7\3\b\3\b" +
+					"\5\bd\n\b\3\t\3\t\3\t\6\ti\n\t\r\t\16\tj\6\tm\n\t\r\t\16\tn\3\t\3\t\3" +
+					"\n\3\n\3\n\3\n\3\n\5\nx\n\n\3\13\3\13\3\13\5\13}\n\13\3\f\3\f\3\f\6\f" +
+					"\u0082\n\f\r\f\16\f\u0083\3\f\3\f\3\f\2\2\r\2\4\6\b\n\f\16\20\22\24\26" +
+					"\2\3\3\2\13\r\2\u0090\2\33\3\2\2\2\4,\3\2\2\2\6\60\3\2\2\2\bD\3\2\2\2" +
+					"\nF\3\2\2\2\fS\3\2\2\2\16a\3\2\2\2\20e\3\2\2\2\22r\3\2\2\2\24y\3\2\2\2" +
+					"\26~\3\2\2\2\30\32\7\27\2\2\31\30\3\2\2\2\32\35\3\2\2\2\33\31\3\2\2\2" +
+					"\33\34\3\2\2\2\34\'\3\2\2\2\35\33\3\2\2\2\36\"\5\4\3\2\37!\7\27\2\2 \37" +
+					"\3\2\2\2!$\3\2\2\2\" \3\2\2\2\"#\3\2\2\2#&\3\2\2\2$\"\3\2\2\2%\36\3\2" +
+					"\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(*\3\2\2\2)\'\3\2\2\2*+\7\2\2\3+\3" +
+					"\3\2\2\2,.\5\6\4\2-/\5\20\t\2.-\3\2\2\2./\3\2\2\2/\5\3\2\2\2\60\61\5\b" +
+					"\5\2\61\64\7\26\2\2\62\65\5\n\6\2\63\65\5\f\7\2\64\62\3\2\2\2\64\63\3" +
+					"\2\2\2\64\65\3\2\2\2\658\3\2\2\2\66\67\7\3\2\2\679\7\25\2\28\66\3\2\2" +
+					"\289\3\2\2\29?\3\2\2\2:;\7\4\2\2;=\7\25\2\2<>\5\22\n\2=<\3\2\2\2=>\3\2" +
+					"\2\2>@\3\2\2\2?:\3\2\2\2?@\3\2\2\2@B\3\2\2\2AC\5\24\13\2BA\3\2\2\2BC\3" +
+					"\2\2\2C\7\3\2\2\2DE\t\2\2\2E\t\3\2\2\2FO\7\6\2\2GL\5\16\b\2HI\7\n\2\2" +
+					"IK\5\16\b\2JH\3\2\2\2KN\3\2\2\2LJ\3\2\2\2LM\3\2\2\2MP\3\2\2\2NL\3\2\2" +
+					"\2OG\3\2\2\2OP\3\2\2\2PQ\3\2\2\2QR\7\b\2\2R\13\3\2\2\2ST\7\5\2\2T]\7\7" +
+					"\2\2UZ\7\26\2\2VW\7\n\2\2WY\7\26\2\2XV\3\2\2\2Y\\\3\2\2\2ZX\3\2\2\2Z[" +
+					"\3\2\2\2[^\3\2\2\2\\Z\3\2\2\2]U\3\2\2\2]^\3\2\2\2^_\3\2\2\2_`\7\t\2\2" +
+					"`\r\3\2\2\2ac\7\26\2\2bd\5\22\n\2cb\3\2\2\2cd\3\2\2\2d\17\3\2\2\2el\7" +
+					"\33\2\2fh\5\4\3\2gi\7\27\2\2hg\3\2\2\2ij\3\2\2\2jh\3\2\2\2jk\3\2\2\2k" +
+					"m\3\2\2\2lf\3\2\2\2mn\3\2\2\2nl\3\2\2\2no\3\2\2\2op\3\2\2\2pq\7\34\2\2" +
+					"q\21\3\2\2\2rw\7\16\2\2sx\7\17\2\2tu\7\22\2\2uv\7\23\2\2vx\7\26\2\2ws" +
+					"\3\2\2\2wt\3\2\2\2x\23\3\2\2\2yz\7\20\2\2z|\7\26\2\2{}\5\26\f\2|{\3\2" +
+					"\2\2|}\3\2\2\2}\25\3\2\2\2~\177\7\21\2\2\177\u0081\7\7\2\2\u0080\u0082" +
+					"\7\26\2\2\u0081\u0080\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0081\3\2\2\2" +
+					"\u0083\u0084\3\2\2\2\u0084\u0085\3\2\2\2\u0085\u0086\7\t\2\2\u0086\27" +
+					"\3\2\2\2\25\33\"\'.\648=?BLOZ]cjnw|\u0083";
 	public static final ATN _ATN =
 			new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

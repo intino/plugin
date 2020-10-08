@@ -1,4 +1,4 @@
-package io.intino.plugin.file.goros;
+package io.intino.plugin.file;
 
 import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.fileTypes.LanguageFileType;
@@ -9,12 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class GorosFileType extends LanguageFileType {
-	private static final GorosFileType INSTANCE = new GorosFileType();
+	public static final GorosFileType INSTANCE = new GorosFileType();
 
 	protected GorosFileType() {
 		super(XMLLanguage.INSTANCE);
 	}
-
 
 	public static GorosFileType instance() {
 		return INSTANCE;

@@ -3,7 +3,7 @@ package io.intino.plugin.codeinsight.annotators;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 
 public class LegioProblemFileHighlightFilter implements Condition<VirtualFile> {
 

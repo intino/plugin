@@ -9,7 +9,7 @@ import com.intellij.util.IncorrectOperationException;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.Nls;

@@ -41,28 +41,6 @@ public class ArchetypeRenderer {
 		this.artifactId = configuration.artifact().name();
 	}
 
-	public static void writeFrame(File packageFolder, String name, String text) {
-		try {
-			packageFolder.mkdirs();
-			File file = javaFile(packageFolder, name);
-			Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	public static File javaFile(File packageFolder, String name) {
-		return preparedFile(packageFolder, name, "java");
-	}
-
-	private static File preparedFile(File packageFolder, String name, String extension) {
-		return new File(packageFolder, prepareName(name) + "." + extension);
-	}
-
-	private static String prepareName(String name) {
-		return name.isEmpty() ? name : Character.toUpperCase(name.charAt(0)) + name.substring(1);
-	}
-
 	public void render(File archetypeFile) {
 		ArchetypeGrammar.RootContext root;
 		try {
@@ -191,6 +169,28 @@ public class ArchetypeRenderer {
 
 	private void error(Exception e) {
 		Notifications.Bus.notify(new Notification("Tara Language", "Error parsing archetype.", e.getMessage() == null ? "Null" : e.getMessage(), NotificationType.ERROR));
+	}
+
+	private void writeFrame(File packageFolder, String name, String text) {
+		try {
+			packageFolder.mkdirs();
+			File file = javaFile(packageFolder, name);
+			Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private File javaFile(File packageFolder, String name) {
+		return preparedFile(packageFolder, name, "java");
+	}
+
+	private File preparedFile(File packageFolder, String name, String extension) {
+		return new File(packageFolder, prepareName(name) + "." + extension);
+	}
+
+	private String prepareName(String name) {
+		return name.isEmpty() ? name : Character.toUpperCase(name.charAt(0)) + name.substring(1);
 	}
 
 }

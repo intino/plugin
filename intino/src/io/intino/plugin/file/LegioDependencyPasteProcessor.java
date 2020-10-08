@@ -1,4 +1,4 @@
-package io.intino.plugin.file.legio;
+package io.intino.plugin.file;
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor;
 import com.intellij.openapi.editor.Editor;

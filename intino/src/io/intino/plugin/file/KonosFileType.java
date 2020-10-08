@@ -1,4 +1,4 @@
-package io.intino.plugin.file.konos;
+package io.intino.plugin.file;
 
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.file.TaraFileType;
@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class KonosFileType extends TaraFileType {
 	public static final KonosFileType INSTANCE = new KonosFileType();
-
 
 	private KonosFileType() {
 		super();
@@ -37,6 +36,5 @@ public class KonosFileType extends TaraFileType {
 	public javax.swing.Icon getIcon() {
 		return IntinoIcons.KONOS_16;
 	}
-
 
 }

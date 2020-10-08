@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class BlockManager {
 
 	private int level;
-	private int tabSize;
+	private final int tabSize;
 	private Token[] tokens;
 
 	public BlockManager() {

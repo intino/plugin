@@ -18,7 +18,7 @@ import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
 import io.intino.plugin.actions.utils.TaraTemplatesFactory;
-import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
 import io.intino.plugin.messages.MessageProvider;

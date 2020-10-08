@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.file.goros.GorosFileType;
+import io.intino.plugin.file.GorosFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 

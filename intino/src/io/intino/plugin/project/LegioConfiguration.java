@@ -22,7 +22,7 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.NodeContainer;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;

@@ -34,7 +34,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.plugin.file.legio.LegioFileType.LEGIO_FILE;
+import static io.intino.plugin.file.LegioFileType.LEGIO_FILE;
 
 public class JoinToLegioAction extends AnAction implements DumbAware {
 	private static final com.intellij.openapi.diagnostic.Logger logger = com.intellij.openapi.diagnostic.Logger.getInstance(JoinToLegioAction.class);

@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiElement;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.IntinoIcons;
-import io.intino.plugin.file.konos.KonosFileType;
+import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;

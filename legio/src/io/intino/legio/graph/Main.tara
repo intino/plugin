@@ -129,6 +129,7 @@ Concept:{1..1}:Named Artifact
 			Concept:{0..1} R
 				var string version
 				var string[] libraries
+			Concept:{0..1} RSync > Concept:{1..*}:Named TargetModule > var string server
 
 Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
@@ -150,6 +151,7 @@ Concept Parameter is component
 	var string name
 	var string defaultValue = empty
 	var string description = ""
+	Aspect ArchetypeRoot
 
 Concept Argument is component
 	var string name

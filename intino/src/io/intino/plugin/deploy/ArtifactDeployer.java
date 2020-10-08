@@ -15,6 +15,7 @@ import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.actions.archetype.FileRelationsExtractor;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -22,6 +23,7 @@ import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,7 @@ public class ArtifactDeployer {
 			List<Configuration.Parameter> incorrectParameters = incorrectParameters(deployment.runConfiguration().finalArguments());
 			if (!incorrectParameters.isEmpty())
 				throw new IntinoException("Parameters missed: " + incorrectParameters.stream().map(Configuration.Parameter::name).collect(Collectors.joining("; ")));
-			new ApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createProcess(aPackage, deployment));
+			new ApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createDeployment(aPackage, deployment));
 		} catch (Forbidden | BadRequest | InternalServerError unknown) {
 			throw new IntinoException(unknown.getMessage());
 		}
@@ -81,7 +83,7 @@ public class ArtifactDeployer {
 		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name()) || arguments.get(p.name()) == null).collect(Collectors.toList());
 	}
 
-	private ProcessDeployment createProcess(Artifact.Package packageConfiguration, Deployment destination) {
+	private ProcessDeployment createDeployment(Artifact.Package packageConfiguration, Deployment destination) {
 		final String classpathPrefix = packageConfiguration.classpathPrefix();
 		return new ProcessDeployment().
 				groupId(configuration.artifact().groupId()).artifactId(configuration.artifact().name().toLowerCase()).version(configuration.artifact().version()).
@@ -90,20 +92,29 @@ public class ArtifactDeployer {
 						commit(safe(() -> GitUtil.repository(module).getCurrentRevision()))).
 				jvmOptions(destination.runConfiguration().vmOptions()).
 				artifactoryList(artifactories()).
-				prerequisites(requirements(destination)).
+				requirements(requirements(destination)).
 				packaging(new ProcessDeployment.Packaging().mainClass(packageConfiguration.mainClass()).parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
 				destinationServer(destination.server().name());
 	}
 
 	@NotNull
-	private ProcessDeployment.Prerequisites requirements(Deployment destination) {
-		final ProcessDeployment.Prerequisites prerequisites = new ProcessDeployment.Prerequisites();
+	private ProcessDeployment.Requirements requirements(Deployment destination) {
+		final ProcessDeployment.Requirements requirements = new ProcessDeployment.Requirements();
 		Deployment.Requirements r = destination.requirements();
 		if (r != null) {
-			if (r.minMemory() != 0) prerequisites.memory(r.minMemory());
-			if (r.minHdd() != 0) prerequisites.hdd(r.minHdd());
+			if (r.minMemory() != 0) requirements.memory(r.minMemory());
+			if (r.minHdd() != 0) requirements.hdd(r.minHdd());
+			if (r.rSync() != null) {
+				File archetypeFile = archetypeFile();
+				if (archetypeFile.exists())
+					requirements.syncFileToServer(new FileRelationsExtractor(archetypeFile).sharedDirectoriesWithOwner(module.getName()));
+			}
 		}
-		return prerequisites;
+		return requirements;
+	}
+
+	private File archetypeFile() {
+		return new File(module.getProject().getBasePath(), ".archetype");
 	}
 
 	private List<Parameter> extractParameters(RunConfiguration configuration) {

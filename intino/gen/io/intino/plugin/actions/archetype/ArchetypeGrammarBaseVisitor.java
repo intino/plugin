@@ -109,4 +109,26 @@ public class ArchetypeGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> 
 	public T visitType(ArchetypeGrammar.TypeContext ctx) {
 		return visitChildren(ctx);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override
+	public T visitOwnerAndUses(ArchetypeGrammar.OwnerAndUsesContext ctx) {
+		return visitChildren(ctx);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override
+	public T visitUses(ArchetypeGrammar.UsesContext ctx) {
+		return visitChildren(ctx);
+	}
 }

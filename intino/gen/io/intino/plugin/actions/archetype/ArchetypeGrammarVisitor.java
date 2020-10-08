@@ -58,10 +58,28 @@ public interface ArchetypeGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBody(ArchetypeGrammar.BodyContext ctx);
+
 	/**
 	 * Visit a parse tree produced by {@link ArchetypeGrammar#type}.
+	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitType(ArchetypeGrammar.TypeContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ArchetypeGrammar#ownerAndUses}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOwnerAndUses(ArchetypeGrammar.OwnerAndUsesContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ArchetypeGrammar#uses}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUses(ArchetypeGrammar.UsesContext ctx);
 }

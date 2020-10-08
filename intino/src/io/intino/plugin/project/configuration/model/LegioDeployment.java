@@ -6,6 +6,7 @@ import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.*;
 
@@ -64,6 +65,14 @@ public class LegioDeployment implements Configuration.Deployment {
 				if (jvm == null) return "";
 				String version = parameterValue(jvm, "version", 0);
 				return version == null ? "" : version;
+			}
+
+			@Override
+			public RSync rSync() {
+				Node rSync = componentOfType(requirements, "rSync");
+				if (rSync == null) return null;
+				return () -> componentsOfType(rSync, "targetModule").stream().
+						collect(Collectors.toMap(Node::name, r -> parameterValue(r, "server"), (a, b) -> b));
 			}
 		};
 	}

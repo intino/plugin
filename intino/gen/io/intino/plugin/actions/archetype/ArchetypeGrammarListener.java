@@ -87,14 +87,46 @@ public interface ArchetypeGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBody(ArchetypeGrammar.BodyContext ctx);
+
 	/**
 	 * Enter a parse tree produced by {@link ArchetypeGrammar#type}.
+	 *
 	 * @param ctx the parse tree
 	 */
 	void enterType(ArchetypeGrammar.TypeContext ctx);
+
 	/**
 	 * Exit a parse tree produced by {@link ArchetypeGrammar#type}.
+	 *
 	 * @param ctx the parse tree
 	 */
 	void exitType(ArchetypeGrammar.TypeContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ArchetypeGrammar#ownerAndUses}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void enterOwnerAndUses(ArchetypeGrammar.OwnerAndUsesContext ctx);
+
+	/**
+	 * Exit a parse tree produced by {@link ArchetypeGrammar#ownerAndUses}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void exitOwnerAndUses(ArchetypeGrammar.OwnerAndUsesContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ArchetypeGrammar#uses}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void enterUses(ArchetypeGrammar.UsesContext ctx);
+
+	/**
+	 * Exit a parse tree produced by {@link ArchetypeGrammar#uses}.
+	 *
+	 * @param ctx the parse tree
+	 */
+	void exitUses(ArchetypeGrammar.UsesContext ctx);
 }

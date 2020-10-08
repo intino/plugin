@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 import io.intino.Configuration.Repository;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.annotator.TaraAnnotator;
-import io.intino.plugin.file.legio.LegioFileType;
+import io.intino.plugin.file.LegioFileType;
 import org.jetbrains.annotations.NotNull;
 
 public class DuplicatedRepositoryAnnotator extends TaraAnnotator {

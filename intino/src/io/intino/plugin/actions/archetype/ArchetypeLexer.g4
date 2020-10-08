@@ -94,6 +94,8 @@ PLUS                : '+';
 STAR                : '*';
 AS	                : 'as';
 REGEX               : 'regex';
+OWNER               : 'owner';
+USES                : 'uses';
 TIMETAG             : 'timetag';
 COLON               : ':';
 LINE_COMMENT        : ('\r' | '\n')* ([ ] | [\t])* '#'  ~('\r' | '\n')* -> skip;
