@@ -20,25 +20,24 @@ public class FileRelationsExtractor {
 	}
 
 	public Map<String, String> sharedDirectoriesWithOwner(String owner) {
-		Map<String, String> directories = new HashMap<>();
-		directories.putAll(extract(root.node(), owner, ""));
-		return directories;
+		return extract(root.node(), owner, null, "");
 	}
 
-	private Map<String, String> extract(List<ArchetypeGrammar.NodeContext> nodes, String owner, String contextDirectory) {
+	private Map<String, String> extract(List<ArchetypeGrammar.NodeContext> nodes, String owner, String parentOwner, String contextDirectory) {
+		Map<String, String> directories = new HashMap<>();
 		for (ArchetypeGrammar.NodeContext node : nodes) {
 			if (node.start.toString().equals("*")) continue;
+			String currentDirectory = contextDirectory(node, contextDirectory);
 			if (node.declaration().parameters() == null &&
 					node.declaration().splitted() == null &&
 					node.declaration().WITH() == null &&
-					node.declaration().ownerAndUses().OWNER().toString().equals(owner)) {
-				node.declaration().ownerAndUses().uses().IDENTIFIER().stream().map(Object::toString).forEach(i -> {
-
-				});
-			}
-			extract(node.body().node(), owner, contextDirectory(node, contextDirectory));
+					(node.declaration().ownerAndUses().OWNER().toString().equals(owner) || parentOwner.equals(owner))) {
+				node.declaration().ownerAndUses().uses().IDENTIFIER().stream().
+						map(Object::toString).
+						forEach(uses -> directories.put(currentDirectory, uses));
+			} else directories.putAll(extract(node.body().node(), owner, currentDirectory));
 		}
-		return null;
+		return directories;
 	}
 
 	private String contextDirectory(ArchetypeGrammar.NodeContext node, String contextDirectory) {
