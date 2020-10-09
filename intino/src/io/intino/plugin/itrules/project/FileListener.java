@@ -14,7 +14,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.refactoring.openapi.impl.JavaRenameRefactoringImpl;
-import io.intino.plugin.itrules.lang.file.ItrulesFileType;
+import io.intino.plugin.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

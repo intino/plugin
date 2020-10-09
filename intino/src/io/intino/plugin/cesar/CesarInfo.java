@@ -28,13 +28,8 @@ import java.util.Map;
 public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	private final State myState = new State();
 
-	public static CesarInfo getSafeInstance(Project project) {
-		CesarInfo settings = ServiceManager.getService(project, CesarInfo.class);
-		return settings != null ? settings : new CesarInfo();
-	}
-
-
 	public Map<String, ServerInfo> serversInfo() {
+		if (myState.serversInfo.equals("{}")) return Collections.emptyMap();
 		Map<String, ServerInfo> map = Json.gsonReader().fromJson(myState.serversInfo, new TypeToken<Map<String, ServerInfo>>() {
 		}.getType());
 		return map == null ? Collections.emptyMap() : map;
@@ -55,6 +50,11 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	@Override
 	public void loadState(State state) {
 		XmlSerializerUtil.copyBean(state, myState);
+	}
+
+	public static CesarInfo getSafeInstance(Project project) {
+		CesarInfo settings = ServiceManager.getService(project, CesarInfo.class);
+		return settings != null ? settings : new CesarInfo();
 	}
 
 	public static class State {

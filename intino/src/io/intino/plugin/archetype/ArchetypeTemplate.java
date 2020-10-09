@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.archetype;
+package io.intino.plugin.archetype;
 
 import io.intino.itrules.RuleSet;
 import io.intino.itrules.Template;

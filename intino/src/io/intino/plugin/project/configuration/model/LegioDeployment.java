@@ -28,7 +28,7 @@ public class LegioDeployment implements Configuration.Deployment {
 
 	@Override
 	public Configuration.RunConfiguration runConfiguration() {
-		Node release = read(() -> referenceParameterValue(node, "runConfiguration", 0));
+		Node release = read(() -> referenceParameterValue(node, "runConfiguration", 1));
 		if (release == null) return null;
 		return new LegioRunConfiguration(artifact, release);
 	}
@@ -55,8 +55,16 @@ public class LegioDeployment implements Configuration.Deployment {
 			public int minMemory() {
 				Node memoryNode = componentOfType(requirements, "Memory");
 				if (memoryNode == null) return 0;
-				String minMemory = parameterValue(memoryNode, "minMemory", 0);
+				String minMemory = parameterValue(memoryNode, "min", 0);
 				return minMemory == null ? 0 : Integer.parseInt(minMemory);
+			}
+
+			@Override
+			public int maxMemory() {
+				Node memoryNode = componentOfType(requirements, "Memory");
+				if (memoryNode == null) return 0;
+				String max = parameterValue(memoryNode, "max", 1);
+				return max == null ? 0 : Integer.parseInt(max);
 			}
 
 			@Override
@@ -68,11 +76,11 @@ public class LegioDeployment implements Configuration.Deployment {
 			}
 
 			@Override
-			public RSync rSync() {
-				Node rSync = componentOfType(requirements, "rSync");
-				if (rSync == null) return null;
-				return () -> componentsOfType(rSync, "targetModule").stream().
-						collect(Collectors.toMap(Node::name, r -> parameterValue(r, "server"), (a, b) -> b));
+			public Sync sync() {
+				Node sync = componentOfType(requirements, "SyncDirectories");
+				if (sync == null) return null;
+				return () -> read(() -> componentsOfType(sync, "To").stream().
+						collect(Collectors.toMap(r -> parameterValue(r, "module", 0), r -> referenceParameterValue(r, "server", 1).name(), (a, b) -> b)));
 			}
 		};
 	}

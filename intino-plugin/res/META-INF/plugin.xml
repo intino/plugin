@@ -25,10 +25,10 @@
 		<fileType name="Legio" language="Tara" extensions="legio" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.LegioFileType"/>
 		<fileType name="Itrules" language="Itrules" extensions="itr" fieldName="INSTANCE"
-				  implementationClass="io.intino.plugin.itrules.lang.file.ItrulesFileType"/>
+				  implementationClass="io.intino.plugin.file.ItrulesFileType"/>
 		<fileType name="Goros" language="XML" extensions="goros" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.GorosFileType"/>
-		<fileType name="Archetype" language="TEXT" extensions="archetype" fieldName="INSTANCE"
+		<fileType name="Archetype" language="Archetype" extensions="archetype" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.ArchetypeFileType"/>
 		<fileDocumentManagerListener
 				implementation="io.intino.plugin.codeinsight.languageinjection.TaraFileDocumentManagerListener"/>
@@ -138,9 +138,9 @@
 							  implementationClass="io.intino.plugin.codeinsight.spelling.TaraSpellcheckerStrategy"/>
 		<spellchecker.bundledDictionaryProvider
 				implementation="io.intino.plugin.codeinsight.spelling.TaraDictionaryProvider"/>
+		<extendWordSelectionHandler implementation="io.intino.plugin.archetype.lang.psi.ArchetypeSelectionHandler"/>
 		<extendWordSelectionHandler implementation="io.intino.plugin.lang.psi.TaraSelectionHandler"/>
 		<basicWordSelectionFilter implementation="io.intino.plugin.lang.psi.TaraBasicWordSelectionFilter"/>
-		<appStarter implementation="io.intino.plugin.lang.psi.TaraBasicWordSelectionFilter"/>
 		<moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.IntinoModuleType"/>
 		<httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
@@ -201,6 +201,10 @@
 									   implementationClass="io.intino.plugin.itrules.highlighting.ItrulesSyntaxHighlighterFactory"/>
 		<lang.braceMatcher language="Itrules"
 						   implementationClass="io.intino.plugin.itrules.highlighting.ItrulesBraceMatcher"/>
+		<lang.parserDefinition language="Archetype"
+							   implementationClass="io.intino.plugin.archetype.lang.parser.ArchetypeParserDefinition"/>
+		<lang.syntaxHighlighterFactory language="Archetype"
+									   implementationClass="io.intino.plugin.archetype.highlighting.ArchetypeSyntaxHighlighterFactory"/>
 		<treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
 		<!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
 		<toolWindow id="Intino Console"
@@ -220,7 +224,7 @@
 					anchor="right"
 					factoryClass="io.intino.plugin.toolwindows.dependencytree.DependencyTreeWindowFactory"/>
 		<toolWindow id="Intino Store"
-					icon="/icons/intino/stash-16.png"
+					icon="/icons/files/stash-16.png"
 					anchor="left"
 					factoryClass="io.intino.plugin.toolwindows.store.IntinoStoreWindowFactory"/>
 		<intentionAction>

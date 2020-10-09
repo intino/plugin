@@ -7,7 +7,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDirectory;
 import io.intino.plugin.itrules.lang.ItrulesIcons;
 import io.intino.plugin.itrules.lang.ItrulesLanguage;
-import io.intino.plugin.itrules.lang.file.ItrulesFileType;
+import io.intino.plugin.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

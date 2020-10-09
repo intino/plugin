@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.archetype;
+package io.intino.plugin.archetype.lang.antlr;
 
 import java.util.Arrays;
 

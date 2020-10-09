@@ -121,7 +121,8 @@ Concept:{1..1}:Named Artifact
 			Concept:{0..1} HDD
 				var double:{GB} min
 			Concept:{0..1} Memory
-				var integer:{MB} min
+				var integer:{Mb} min
+				var integer:{Mb} max
 			Concept:{0..1} CPU
 				var integer cores
 			Concept:{0..1} JVM
@@ -129,7 +130,9 @@ Concept:{1..1}:Named Artifact
 			Concept:{0..1} R
 				var string version
 				var string[] libraries
-			Concept:{0..1} RSync > Concept:{1..*}:Named TargetModule > var string server
+			Concept:{0..1} SyncDirectories > Concept:{1..*} To
+					var string module
+					var Server server
 
 Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""

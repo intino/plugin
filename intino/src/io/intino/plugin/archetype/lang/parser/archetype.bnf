@@ -1,0 +1,35 @@
+{
+	parserClass='io.intino.plugin.archetype.lang.parser.ArchetypeParser'
+	parserUtilClass="io.intino.plugin.archetype.lang.parser.ArchetypeParserUtil"
+	psiVisitorName="ArchetypeVisitor"
+	extends='com.intellij.extapi.psi.ASTWrapperPsiElement'
+	implements='io.intino.plugin.archetype.lang.psi.ArchetypePsiElement'
+	psiClassPrefix='Archetype'
+	psiImplClassSuffix='Impl'
+	psiPackage='io.intino.plugin.archetype.lang.psi'
+	psiImplPackage='io.intino.plugin.archetype.lang.psi.impl'
+
+	elementTypeHolderClass='io.intino.plugin.archetype.lang.psi.ArchetypeTypes'
+	elementTypeClass='io.intino.plugin.archetype.lang.psi.ArchetypeElementType'
+	tokenTypeClass='io.intino.plugin.archetype.lang.psi.ArchetypeTokenType'
+
+}
+
+root ::= (
+        NEWLINE
+        | LEFT_PARENTHESIS
+        | RIGHT_PARENTHESIS
+        | LEFT_SQUARE
+        | RIGHT_SQUARE
+        | MINUS
+        | PLUS
+        | STAR
+        | stringValue
+      	| ANNOTATION
+      	| KEYWORD
+        | COMMENT
+        | IDENTIFIER_KEY
+        | TEXT)*;
+
+
+stringValue ::= (QUOTE_BEGIN CHARACTER* QUOTE_END)

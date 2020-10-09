@@ -35,8 +35,8 @@ import static com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAn
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
-import static io.intino.plugin.actions.archetype.Formatters.firstUpperCase;
-import static io.intino.plugin.actions.archetype.Formatters.snakeCaseToCamelCase;
+import static io.intino.plugin.archetype.Formatters.firstUpperCase;
+import static io.intino.plugin.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static java.util.Arrays.stream;

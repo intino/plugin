@@ -9,7 +9,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
-import io.intino.plugin.itrules.lang.file.ItrulesFileType;
+import io.intino.plugin.file.ItrulesFileType;
 import org.jetbrains.annotations.NotNull;
 
 

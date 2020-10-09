@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.plugin.itrules.lang.ItrulesIcons;
-import io.intino.plugin.itrules.lang.file.ItrulesFileType;
+import io.intino.plugin.file.ItrulesFileType;
 import io.intino.plugin.itrules.lang.psi.ItrulesTemplateImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

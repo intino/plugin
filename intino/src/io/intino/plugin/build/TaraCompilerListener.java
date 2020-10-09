@@ -23,7 +23,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
-import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
 import io.intino.magritte.compiler.shared.TaraBuildConstants;
 import io.intino.plugin.lang.LanguageManager;
@@ -40,11 +39,13 @@ public class TaraCompilerListener implements com.intellij.compiler.server.Custom
 	private static final String TARA_PATTERN = "!?*.tara";
 	private final Project project;
 
-	private MessageBusConnection messageBusConnection;
-
 	public TaraCompilerListener(Project project) {
 		this.project = project;
-		fillResourcePatterns(new CompilerConfigurationImpl(project));
+		try {
+			fillResourcePatterns(new CompilerConfigurationImpl(project));
+		} catch (Throwable e) {
+			LOG.error(e);
+		}
 	}
 
 	private void fillResourcePatterns(CompilerConfigurationImpl configuration) {

@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.archetype;
+package io.intino.plugin.archetype;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -16,6 +16,8 @@ import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.archetype.lang.antlr.ArchetypeGrammar;
+import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;

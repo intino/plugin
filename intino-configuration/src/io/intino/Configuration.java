@@ -358,11 +358,13 @@ public interface Configuration {
 
 			int minMemory();
 
+			int maxMemory();
+
 			String jvmVersion();
 
-			RSync rSync();
+			Sync sync();
 
-			interface RSync {
+			interface Sync {
 				Map<String, String> moduleServer();
 			}
 		}

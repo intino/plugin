@@ -1,4 +1,4 @@
-package io.intino.plugin.itrules.lang.file;
+package io.intino.plugin.file;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import io.intino.plugin.itrules.lang.ItrulesIcons;

@@ -1,6 +1,6 @@
 lexer grammar ArchetypeLexer;
 @header{
-import io.intino.plugin.actions.archetype.BlockManager;
+import io.intino.plugin.archetype.lang.antlr.BlockManager;
 }
 @lexer::members {
     BlockManager blockManager = new BlockManager();
@@ -84,11 +84,11 @@ WITH              	: 'with';
 SPLITTED           	: 'splitted';
 
 LEFT_PARENTHESIS    : '(';
-LEFT_SQUARE    		: '[';
 RIGHT_PARENTHESIS   : ')';
+LEFT_SQUARE    		: '[';
 RIGHT_SQUARE   		: ']';
-COMMA               : ',';
 
+COMMA               : ',';
 MINUS               : '-';
 PLUS                : '+';
 STAR                : '*';

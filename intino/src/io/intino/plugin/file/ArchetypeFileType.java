@@ -3,6 +3,7 @@ package io.intino.plugin.file;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.archetype.lang.antlr.ArchetypeLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +13,7 @@ public class ArchetypeFileType extends LanguageFileType {
 	public static final ArchetypeFileType INSTANCE = new ArchetypeFileType();
 
 	private ArchetypeFileType() {
-		super(PlainTextLanguage.INSTANCE);
+		super(ArchetypeLanguage.INSTANCE);
 	}
 
 	@NotNull

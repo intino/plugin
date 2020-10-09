@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.actions.archetype.Formatters.camelCaseToSnakeCase;
+import static io.intino.plugin.archetype.Formatters.camelCaseToSnakeCase;
 import static io.intino.plugin.project.configuration.ConfigurationManager.newExternalProvider;
 import static java.util.Arrays.stream;
 

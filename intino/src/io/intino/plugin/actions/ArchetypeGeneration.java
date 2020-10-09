@@ -17,7 +17,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
-import io.intino.plugin.actions.archetype.ArchetypeRenderer;
+import io.intino.plugin.archetype.ArchetypeRenderer;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;

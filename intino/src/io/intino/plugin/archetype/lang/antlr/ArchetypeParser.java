@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.archetype;
+package io.intino.plugin.archetype.lang.antlr;
 
 import io.intino.plugin.IntinoException;
 import org.antlr.v4.runtime.CommonTokenStream;
