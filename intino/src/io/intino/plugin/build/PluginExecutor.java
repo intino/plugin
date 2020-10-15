@@ -70,14 +70,6 @@ public class PluginExecutor {
 		this.indicator = indicator;
 	}
 
-	private static URL toURL(File l) {
-		try {
-			return l.toURI().toURL();
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
-
 	public void execute() {
 		try {
 			indicator.setText("Running package plugins");
@@ -151,9 +143,7 @@ public class PluginExecutor {
 			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.equalsIgnoreCase(END)) {
-					break;
-				}
+				if (line.equalsIgnoreCase(END)) break;
 				publish(line);
 			}
 		} catch (IOException ignored) {
@@ -233,5 +223,13 @@ public class PluginExecutor {
 	private ClassLoader createClassLoader(File[] libraries) {
 		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
 				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), PluginExecutor.class.getClassLoader()));
+	}
+
+	private static URL toURL(File l) {
+		try {
+			return l.toURI().toURL();
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

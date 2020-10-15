@@ -17,7 +17,7 @@ IN                	= "in"
 WITH              	= "with"
 SPLITTED           	= "splitted"
 OWNER           	= "owner"
-USES	           	= "uses"
+CONSUMER         	= "consumer"
 AS	           		= "as"
 REGEX          		= "regex"
 NEWLINE             = [\r|\n|\r\n]+ ([ ] | [\t])*
@@ -44,7 +44,7 @@ IDENTIFIER_KEY      = [:jletter:] ([:jletterdigit:] | {UNDERDASH} | {DASH})*
 {REGEX}             		{   return ArchetypeTypes.KEYWORD;	}
 
 {OWNER}                 	{   return ArchetypeTypes.ANNOTATION; }
-{USES}	                	{   return ArchetypeTypes.ANNOTATION;	}
+{CONSUMER}	                {   return ArchetypeTypes.ANNOTATION;	}
 
 {MINUS}                 	{   return ArchetypeTypes.MINUS; }
 {STAR}                 		{   return ArchetypeTypes.STAR; }
