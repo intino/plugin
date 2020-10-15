@@ -39,7 +39,7 @@ public class IntinoSettingsPanel {
 			dialog.pack();
 			dialog.setTitle("Put user and password");
 			dialog.setLocationRelativeTo(dialog.getParent());
-			dialog.show();
+			dialog.setVisible(true);
 			if (dialog.user() != null && dialog.password() != null) {
 				Base64.Encoder encoder = Base64.getEncoder();
 				cesarToken.setText(encoder.encodeToString((dialog.user() + ":" + encoder.encodeToString(DigestUtils.md5(dialog.password()))).getBytes()));

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static io.intino.plugin.project.Safe.safe;
 
@@ -114,6 +115,16 @@ public class BitbucketDeployer {
 					logger.error(e.getMessage(), e);
 					return null;
 				}
+			}
+
+			@Override
+			public Map<String, String> headers() {
+				return Collections.emptyMap();
+			}
+
+			@Override
+			public String contentType() {
+				return null;
 			}
 
 			@Override

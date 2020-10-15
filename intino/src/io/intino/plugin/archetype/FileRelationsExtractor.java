@@ -35,13 +35,13 @@ public class FileRelationsExtractor {
 		for (ArchetypeGrammar.NodeContext node : nodes) {
 			if (node.start.toString().equals("*")) continue;
 			String currentDirectory = contextDirectory(node, contextDirectory);
-			String scopeOwner = (parentOwner == null) ? safe(() -> node.declaration().ownerAndUses().IDENTIFIER().toString(), null) : parentOwner;
+			String scopeOwner = (parentOwner == null) ? safe(() -> node.declaration().ownerAndConsumer().IDENTIFIER().toString(), null) : parentOwner;
 			if (node.declaration().parameters() == null &&
 					node.declaration().splitted() == null &&
 					node.declaration().WITH() == null &&
-					node.declaration().ownerAndUses().uses() != null &&
+					node.declaration().ownerAndConsumer().uses() != null &&
 					scopeOwner.equals(searchOwner)) {
-				directories.put(currentDirectory, node.declaration().ownerAndUses().uses().IDENTIFIER().stream().map(Object::toString).collect(Collectors.toList()));
+				directories.put(currentDirectory, node.declaration().ownerAndConsumer().uses().IDENTIFIER().stream().map(Object::toString).collect(Collectors.toList()));
 			}
 			if (node.body() != null)
 				directories.putAll(extract(node.body().node(), searchOwner, scopeOwner, currentDirectory));

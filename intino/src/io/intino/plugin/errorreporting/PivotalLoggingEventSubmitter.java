@@ -16,8 +16,6 @@ import java.util.Properties;
 
 public class PivotalLoggingEventSubmitter {
 
-	private Logger logger = Logger.getInstance(PivotalLoggingEventSubmitter.class);
-
 	private static final String TRACKER = "www.pivotaltracker.com/services/v5/projects/";
 	private static final String TRACKER_URL = "https://" + TRACKER + "/";
 	private static final String COMMENTS = "/comments";
@@ -30,9 +28,10 @@ public class PivotalLoggingEventSubmitter {
 	private static final String REPORT_DESCRIPTION = "report.description";
 	private static final String REPORT_TITLE = "report.title";
 	private static final String REPORT_TYPE = "report.type";
-	private Properties properties;
 	private final String token;
 	private final String url;
+	private final Logger logger = Logger.getInstance(PivotalLoggingEventSubmitter.class);
+	private final Properties properties;
 
 	public PivotalLoggingEventSubmitter(Properties properties, String project, String token) {
 		this.properties = properties;
@@ -44,7 +43,7 @@ public class PivotalLoggingEventSubmitter {
 		try {
 			PivotalStory story = new PivotalStory();
 			String response = createStory(story);
-			addInfo(story, new JsonParser().parse(response));
+			addInfo(story, new Gson().toJsonTree(response));
 			addCommentary(story);
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);

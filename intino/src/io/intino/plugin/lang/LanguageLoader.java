@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -34,8 +35,8 @@ class LanguageLoader {
 			final ClassLoader classLoader = createClassLoader(jar);
 			if (classLoader == null) return null;
 			Class cls = classLoader.loadClass(LANGUAGES_PACKAGE + "." + Format.snakeCasetoCamelCase().format(name).toString());
-			return (Language) cls.newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | Error e) {
+			return (Language) cls.getConstructors()[0].newInstance();
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | Error | InvocationTargetException e) {
 			return null;
 		}
 	}

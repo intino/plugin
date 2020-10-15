@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.notifications;
 
-import com.google.common.collect.ImmutableSet;
 import com.intellij.codeInsight.AttachSourcesProvider;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -35,7 +34,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 	public Collection<AttachSourcesAction> getActions(List<LibraryOrderEntry> orderEntries, PsiFile psiFile) {
 		List<LegioConfiguration> configurations = configurations(psiFile);
 		if (configurations.isEmpty()) return Collections.emptyList();
-		return ImmutableSet.of(new AttachSourcesAction() {
+		return List.of(new AttachSourcesAction() {
 			@Override
 			public String getName() {
 				return "Download Sources";
