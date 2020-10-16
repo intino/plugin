@@ -23,7 +23,7 @@ class LegioFileCreator {
 
 	VirtualFile getOrCreate() {
 		FrameBuilder builder = new FrameBuilder("legio", "empty").add("name", module.getName());
-		final File destination = new File(IntinoUtil.moduleRoot(module), LegioFileType.LEGIO_FILE);
+		final File destination = new File(new File(module.getModuleFilePath()).getParent(), LegioFileType.LEGIO_FILE);
 		if (destination.exists()) return findFileByIoFile(destination, true);
 		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(builder.toFrame()), destination).toFile(), true);
 	}

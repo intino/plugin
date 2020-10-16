@@ -40,7 +40,7 @@ class ExtendedImageButton extends ImageButton {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (listener == null) return;
-		listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiersEx()));
+		listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiers()));
 	}
 
 	@Override
