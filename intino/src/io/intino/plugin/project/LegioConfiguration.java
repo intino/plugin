@@ -3,6 +3,7 @@ package io.intino.plugin.project;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
@@ -50,9 +51,9 @@ public class LegioConfiguration implements Configuration {
 	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());
 	private final Module module;
 	private final Resolver resolver;
+	private final AtomicBoolean reloading = new AtomicBoolean(false);
 	private TaraModel legioFile;
 	private VirtualFile vFile;
-	private final AtomicBoolean reloading = new AtomicBoolean(false);
 	private boolean inited = false;
 	private DependencyAuditor dependencyAuditor;
 
@@ -64,7 +65,7 @@ public class LegioConfiguration implements Configuration {
 	public Configuration init() {
 		this.vFile = new LegioFileCreator(module).getOrCreate();
 		this.legioFile = legioFile();
-		this.dependencyAuditor = new DependencyAuditor(module, legioFile);
+		this.dependencyAuditor = new DependencyAuditor(module);
 		try {
 			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override
@@ -99,7 +100,12 @@ public class LegioConfiguration implements Configuration {
 	public void refresh() {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
-			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+			application.runWriteAction(() -> {
+				FileDocumentManager instance = FileDocumentManager.getInstance();
+				Document document = instance.getDocument(legioFile.getVirtualFile());
+				if (document != null) instance.saveDocument(document);
+				else instance.saveAllDocuments();
+			});
 	}
 
 	public void reload() {

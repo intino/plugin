@@ -18,12 +18,10 @@ public class DependencyAuditor {
 	private static final com.intellij.openapi.diagnostic.Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(DependencyAuditor.class.getName());
 	private static final DependencyItem defaultItem = new DependencyItem("");
 	private final Module module;
-	private final PsiFile legioFile;
 	private Map<Integer, DependencyItem> map = new HashMap<>();
 
-	public DependencyAuditor(Module module, PsiFile legioFile) {
+	public DependencyAuditor(Module module) {
 		this.module = module;
-		this.legioFile = legioFile;
 		reload();
 	}
 
@@ -64,6 +62,7 @@ public class DependencyAuditor {
 	}
 
 	public void reload() {
+		map.clear();
 		map = loadDependencyMap();
 	}
 
