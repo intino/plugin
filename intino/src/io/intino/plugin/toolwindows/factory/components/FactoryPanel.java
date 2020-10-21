@@ -28,10 +28,10 @@ public class FactoryPanel extends JPanel {
 	private int offsetX;
 	private static final int offsetY = 10;
 	private double scale;
-	private Map<Operation, ExtendedImageButton> extendedButtons = new HashMap<>();
-	private Map<Operation, CompactImageButton> compactButtons = new HashMap<>();
-	private Map<Element, ActionListener> listeners = new HashMap<>();
-	private Map<Label, String[]> labels = new HashMap<>();
+	private final Map<Operation, ExtendedImageButton> extendedButtons = new HashMap<>();
+	private final Map<Operation, CompactImageButton> compactButtons = new HashMap<>();
+	private final Map<Element, ActionListener> listeners = new HashMap<>();
+	private final Map<Label, String[]> labels = new HashMap<>();
 	private Mode mode;
 
 	public FactoryPanel(Mode mode) {

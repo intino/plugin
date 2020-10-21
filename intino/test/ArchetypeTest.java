@@ -1,6 +1,11 @@
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.archetype.FileRelationsExtractor;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public class ArchetypeTest {
 
@@ -22,5 +27,10 @@ public class ArchetypeTest {
 		} catch (IntinoException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+	@Test
+	public void relationExtractor() {
+		System.out.println(new FileRelationsExtractor(new File("/Users/oroncal/workspace/b.cfe/gestioncomercial/.archetype")).sharedDirectoriesWithOwner("data-hub-ng"));
 	}
 }
