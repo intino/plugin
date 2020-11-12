@@ -69,7 +69,8 @@ public class IntinoUtil {
 	}
 
 	public static File moduleRoot(Module module) {
-		return VfsUtil.virtualToIoFile(ModuleRootManager.getInstance(module).getContentRoots()[0]);
+		VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
+		return contentRoots.length == 0 ? null : VfsUtil.virtualToIoFile(contentRoots[0]);
 	}
 
 	@Nullable

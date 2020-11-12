@@ -94,7 +94,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public boolean isSuitable() {
-		return new File(IntinoUtil.moduleRoot(module), LegioFileType.LEGIO_FILE).exists();
+		File parent = IntinoUtil.moduleRoot(module);
+		return parent != null && new File(parent, LegioFileType.LEGIO_FILE).exists();
 	}
 
 	public void refresh() {
