@@ -187,10 +187,10 @@ def type(node) !type(splitted) !type(leaf) trigger(relativeClass)
 		private final File root;
 		private final String name;
 
-		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent) {
-			this.root = new File(parent, "$filePath");
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parentRoot, String parent[, $parameter+signature...[, ]]) {
+			this.root = new File(parent, "$filePath"[$with][$parameter+replace...[]]);
 			root.mkdirs();
-			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath";
+			this.name = parent + (!parent.isEmpty() ? "/" : "") + "$filePath"[$with][$parameter+replace...[]];
 		}
 
 		public String root() {
@@ -227,7 +227,7 @@ def type(node) !type(splitted) !type(leaf) trigger(class)
 		private final File root;
 
 		public $name+snakeCaseToCamelCase+firstUpperCase(File parent) {
-			this.root = new File(parent, "$filePath");
+			this.root = new File(parent, "$filePath"[$with][$parameter+replace...[]]);
 			root.mkdirs();
 		}
 
