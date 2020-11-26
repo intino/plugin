@@ -112,7 +112,7 @@ public class CesarAccessor {
 
 	private ApiAccessor createAccessor() {
 		if (credentials == null) return null;
-		return new ApiAccessor(urlOf(credentials.getKey().trim()), 10000, credentials.getValue());
+		return new ApiAccessor(urlOf(credentials.getKey().trim()), 1000, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {

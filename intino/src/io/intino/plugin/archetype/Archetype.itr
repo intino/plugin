@@ -129,8 +129,8 @@ def trigger(split)
 end
 
 def type(node) trigger(relativeGetter)
-	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
-		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name);
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name[, $parameter+name...[, ]]);
 	}
 end
 
@@ -156,8 +156,8 @@ def type(node & splitted) trigger(getter)
 end
 
 def type(node) trigger(getter)
-	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase() {
-		return new $name+snakeCaseToCamelCase+firstUpperCase(root);
+	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
+		return new $name+snakeCaseToCamelCase+firstUpperCase(root[, $parameter+name...[, ]]);
 	}
 end
 
@@ -226,7 +226,7 @@ def type(node) !type(splitted) !type(leaf) trigger(class)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 
-		public $name+snakeCaseToCamelCase+firstUpperCase(File parent) {
+		public $name+snakeCaseToCamelCase+firstUpperCase(File parent[, $parameter+signature...[, ]]) {
 			this.root = new File(parent, "$filePath"[$with][$parameter+replace...[]]);
 			root.mkdirs();
 		}
@@ -247,6 +247,10 @@ end
 
 def trigger(signature)
 	String $value
+end
+
+def trigger(name)
+	$value
 end
 
 def type(timetag) trigger(replace)
