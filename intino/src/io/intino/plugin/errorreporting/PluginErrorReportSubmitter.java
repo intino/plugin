@@ -39,7 +39,7 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 	}
 
 	@Override
-	public boolean submit(@NotNull IdeaLoggingEvent[] events, String additionalInfo, @NotNull Component parentComponent, @NotNull Consumer<SubmittedReportInfo> consumer) {
+	public boolean submit(@NotNull IdeaLoggingEvent[] events, String additionalInfo, @NotNull Component parentComponent, @NotNull Consumer<? super SubmittedReportInfo> consumer) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptor();
 		final Properties reportingProperties = createErrorProperties(pluginDescriptor, null, processEvents(events), additionalInfo);
 		LOG.debug("Properties read from plugin descriptor: " + reportingProperties);

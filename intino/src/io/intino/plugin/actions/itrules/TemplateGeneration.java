@@ -65,16 +65,16 @@ public class TemplateGeneration extends GenerationAction {
 				new Notification("Itrules", "Itrules", getDestinyFile(rulesFile).getName() + " generated", NotificationType.INFORMATION), project);
 	}
 
-	private VirtualFile find(Module module, String sourcePath) {
-		VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots();
-		for (VirtualFile sourceRoot : sourceRoots) if (sourceRoot.getName().equals(sourcePath)) return sourceRoot;
-		return null;
-	}
-
 	private String getPackage(VirtualFile file, Module module) throws Exception {
 		String path = file.getParent().getPath();
-		final VirtualFile virtualFile = find(module, "src");
+		final VirtualFile virtualFile = srcRoot(module);
 		return virtualFile == null ? "" : format(path, virtualFile.getPath());
+	}
+
+	private VirtualFile srcRoot(Module module) {
+		VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots();
+		for (VirtualFile sourceRoot : sourceRoots) if (sourceRoot.getName().equals("src")) return sourceRoot;
+		return null;
 	}
 
 	private String format(String path, String modulePath) {

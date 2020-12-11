@@ -20,7 +20,7 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFA
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
-	private static String TARA = "tara.";
+	private static final String TARA = "tara.";
 	private final JpsModule module;
 	private final CompileContext context;
 

@@ -28,7 +28,7 @@ public class TemplateGenerator extends Task.Modal {
 	private final Module module;
 	private final File destiny;
 	private final String aPackage;
-	private VirtualFile rulesFile;
+	private final VirtualFile rulesFile;
 	private ProgressIndicator indicator;
 
 	public TemplateGenerator(VirtualFile rulesFile, Module module, String title, File destiny, String aPackage) {

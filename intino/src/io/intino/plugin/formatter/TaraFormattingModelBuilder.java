@@ -14,25 +14,19 @@ import org.jetbrains.annotations.Nullable;
 
 public class TaraFormattingModelBuilder implements CustomFormattingModelBuilder {
 
-	@NotNull
-	@Override
-	public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
-		return createModel(element, settings, FormattingMode.REFORMAT);
-	}
-
 	@Override
 	public boolean isEngagedToFormat(PsiElement context) {
 		PsiFile file = context.getContainingFile();
 		return file != null && file.getLanguage() == TaraLanguage.INSTANCE;
 	}
 
-	@NotNull
-	private FormattingModel createModel(@NotNull PsiElement element, @NotNull CodeStyleSettings settings, @NotNull FormattingMode mode) {
-		settings.AUTODETECT_INDENTS = false;
-		final ASTNode fileNode = element.getContainingFile().getNode();
-		final TaraBlock block = new TaraBlock(fileNode, Alignment.createAlignment(), Indent.getNormalIndent(true), Wrap.createWrap(WrapType.NONE, false), new TaraBlockContext(settings, createSpacingBuilder(settings), mode));
-		return FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(), block, settings);
-	}
+//	@NotNull
+//	private FormattingModel createModel(@NotNull PsiElement element, @NotNull CodeStyleSettings settings, @NotNull FormattingMode mode) {
+//		settings.AUTODETECT_INDENTS = false;
+//		final ASTNode fileNode = element.getContainingFile().getNode();
+//		final TaraBlock block = new TaraBlock(fileNode, Alignment.createAlignment(), Indent.getNormalIndent(true), Wrap.createWrap(WrapType.NONE, false), new TaraBlockContext(settings, createSpacingBuilder(settings), mode));
+//		return FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(), block, settings);
+//	}
 
 	private SpacingBuilder createSpacingBuilder(CodeStyleSettings settings) {
 		return new SpacingBuilder(settings.getCommonSettings(TaraLanguage.INSTANCE));

@@ -32,7 +32,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public class WebModelingServer extends RestService {
 	private static final Logger logger = Logger.getInstance(WebModelingServer.class);
-	private static Map<String, File> processes = new HashMap<>();
+	private static final Map<String, File> processes = new HashMap<>();
 	private static String template;
 
 	static {

@@ -82,12 +82,12 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 	}
 
 	@SuppressWarnings("FieldCanBeLocal")
-	private static String SPACING_SETTINGS_PREVIEW = "Timeline(from = \"01/01/2011 00:00\", to = \"31/01/2011 00:00\", Minute)\n\n" +
+	private static final String SPACING_SETTINGS_PREVIEW = "Timeline(from = \"01/01/2011 00:00\", to = \"31/01/2011 00:00\", Minute)\n\n" +
 			"Indicator(Weather, \"Temperature\") temperatureIndicator\n" +
 			"\tAggregate('item.as(Weather.class).temperature()', Max Min Average)";
 
 	@SuppressWarnings("FieldCanBeLocal")
-	private static String BLANK_LINES_SETTINGS_PREVIEW = "dsl Sumus\n" +
+	private static final String BLANK_LINES_SETTINGS_PREVIEW = "dsl Sumus\n" +
 			"\n" +
 			"use Store\n" +
 			"\n" +
@@ -98,7 +98,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 			"\t\tOrdinal('item.as(Node.class) != null ? item.as(Node.class).side() : null')\n" +
 			"\tClassification(Event, \"Month of year\") monthOfYear";
 	@SuppressWarnings("FieldCanBeLocal")
-	private static String WRAP_SETTINGS_PREVIEW = "dsl Sumus\n" +
+	private static final String WRAP_SETTINGS_PREVIEW = "dsl Sumus\n" +
 			"\" +\n" +
 			"\t\t\"\\n\" +\n" +
 			"\t\t\"use Store\\n\" +\n" +
@@ -110,7 +110,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 			"\t\t\"\\t\\tOrdinal('item.as(Node.class) != null ? item.as(Node.class).side() : null')\\n\" +\n" +
 			"\t\t\"\tClassification(Event, \"Month of year\") monthOfYear";
 	@SuppressWarnings("FieldCanBeLocal")
-	private static String INDENT_SETTINGS_PREVIEW = "dsl Sumus\n" +
+	private static final String INDENT_SETTINGS_PREVIEW = "dsl Sumus\n" +
 			"\n" +
 			"Member Building\n" +
 			"\n" +
