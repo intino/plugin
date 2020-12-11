@@ -194,9 +194,9 @@ class PomCreator {
 
 	private void addRepositories(FrameBuilder builder) {
 		configuration.repositories().forEach(r -> builder.add("repository", createRepositoryFrame(r)));
-		Repository releaseRepository = repository();
-		if (releaseRepository != null)
-			builder.add("repository", createDistributionRepositoryFrame(releaseRepository, "release"));
+		Repository repository = repository();
+		if (repository != null)
+			builder.add("repository", createDistributionRepositoryFrame(repository, "release"));
 	}
 
 	private Configuration.Repository repository() {
@@ -430,7 +430,8 @@ class PomCreator {
 		return new FrameBuilder("repository", repo.getClass().getSimpleName()).
 				add("name", repo.identifier()).
 				add("url", repo.url()).
-				add("type", (repo instanceof Repository.Snapshot) ? "-snapshot" : "").toFrame();
+				add("type", (repo instanceof Repository.Snapshot) ? "-snapshot" : "").
+				add("snapshot", repo instanceof Repository.Snapshot).toFrame();
 	}
 
 	private Frame createDistributionRepositoryFrame(Repository repo, String type) {

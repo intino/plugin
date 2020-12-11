@@ -269,6 +269,7 @@ def type(repository) !type(Distribution) trigger(release)
 	<repository>
 		<id>$name$type</id>
 		<url>$url</url>
+		[<snapshots><enabled>$snapshot</enabled></snapshots>]
 	</repository>
 end
 

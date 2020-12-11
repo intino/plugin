@@ -39,13 +39,12 @@ import java.util.function.Consumer;
 public class ConsoleWindow {
 	public static final String CLEAR = "##clear##";
 	private final Project project;
-	private JPanel myToolWindowContent;
-	private JTabbedPane tabs;
 	private final ConsoleView buildOutput;
 	private final List<ConsoleView> remoteConsoleViews;
-
 	private final Map<String, Consumer<Log>> consoleConsumers = new HashMap<>();
 	private final CesarAccessor cesarAccessor;
+	private JPanel myToolWindowContent;
+	private JTabbedPane tabs;
 
 	public ConsoleWindow(Project project) {
 		this.project = project;
@@ -70,7 +69,8 @@ public class ConsoleWindow {
 	}
 
 	public void reload(Project project) {
-		CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView);
+		ApplicationManager.getApplication().invokeAndWait(() ->
+				CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView));
 	}
 
 	private ConsoleViewContentType contentType(String line) {
