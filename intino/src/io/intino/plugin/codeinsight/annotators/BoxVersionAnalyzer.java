@@ -6,11 +6,13 @@ import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.Parameter;
 import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.annotator.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.configuration.Version;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,7 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 			else return;
 		}
 		final String version = parameter.values().get(0).toString();
-		if (version.compareTo(InterfaceBuilderManager.minimunVersion) < 0)
+		if (isNotSuitableVersion(version))
 			results.put(((TaraNode) interfaceNode).getSignature(), new AnnotateAndFix(Level.ERROR, message("error.interface.version.not.compatible", version)));
 		else if (!version.equals("LATEST") && !InterfaceBuilderManager.exists(version))
 			results.put(((TaraNode) interfaceNode).getSignature(),
@@ -45,6 +47,14 @@ public class BoxVersionAnalyzer extends TaraAnalyzer {
 		else if (boxVersionOfOtherModules().stream().anyMatch(s -> !s.equalsIgnoreCase(version)))
 			results.put(((TaraNode) interfaceNode).getSignature(),
 					new AnnotateAndFix(Level.WARNING, message("warn.interface.version.differ.in.project", version)));
+	}
+
+	private boolean isNotSuitableVersion(String version) {
+		try {
+			return new Version(version).compareTo(new Version(InterfaceBuilderManager.minimunVersion)) < 0;
+		} catch (IntinoException e) {
+			return false;
+		}
 	}
 
 	private List<String> boxVersionOfOtherModules() {
