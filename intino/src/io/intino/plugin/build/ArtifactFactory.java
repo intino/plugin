@@ -157,8 +157,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		return ProgressManager.getInstance().runProcess(runnable, null);
 	}
 
-	private boolean withSyncTask(String title, Runnable runnable) {
-		return ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, this.project);
+	private void withSyncTask(String title, Runnable runnable) {
+		ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, this.project);
 	}
 
 	private void notifyErrors() {

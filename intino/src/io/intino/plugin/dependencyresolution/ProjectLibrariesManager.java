@@ -53,7 +53,7 @@ public class ProjectLibrariesManager {
 			});
 		application.invokeLater(() -> application.runWriteAction(() -> {
 			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
-			table.model().commit();
+			if (table.model().isChanged()) table.model().commit();
 		}));
 	}
 

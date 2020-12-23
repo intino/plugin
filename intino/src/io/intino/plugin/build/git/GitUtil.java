@@ -49,9 +49,13 @@ public class GitUtil {
 		GitCommandResult result = Git.getInstance().runCommand(handler);
 		if (result.success()) {
 			String finalRelativeFilePath = relativeFilePath;
-			return result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath));
+			return (finalRelativeFilePath.isEmpty() && !upToDate(result.getOutput())) || (!finalRelativeFilePath.isEmpty() && result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath)));
 		}
 		return false;
+	}
+
+	private static boolean upToDate(@NotNull List<String> output) {
+		return output.stream().anyMatch(l -> l.contains("nothing to commit"));
 	}
 
 	public static String currentBranch(Module module) {
