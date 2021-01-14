@@ -37,8 +37,9 @@ public class TaraFileDocumentManagerListener implements FileDocumentManagerListe
 		final Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
 		for (Project project : openProjects) {
 			if (!project.isInitialized()) continue;
+			if (!file.getName().startsWith("Java Fragment")) return;
 			final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-			if (psiFile != null && (psiFile.getName().startsWith("Java Fragment") || psiFile.getName().startsWith("Groovy Fragment") || psiFile.getName().startsWith("Kotlin Fragment")))
+			if (psiFile != null && (psiFile.getName().startsWith("Java Fragment")))
 				ApplicationManager.getApplication().invokeLater(() -> new ReformatCodeProcessor(project, psiFile, null, false).run());
 		}
 	}

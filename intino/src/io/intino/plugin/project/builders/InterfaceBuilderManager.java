@@ -5,9 +5,11 @@ import com.intellij.openapi.module.Module;
 import com.jcabi.aether.Aether;
 import io.intino.magritte.Language;
 import io.intino.magritte.dsl.Tara;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
+import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -78,7 +80,7 @@ public class InterfaceBuilderManager {
 	}
 
 	private void loadLanguage(Module module, String version, String effectiveVersion) {
-		if (effectiveVersion.compareTo(minimunVersion) < 0) return;
+		if (!isSuitable(effectiveVersion)) return;
 		if (isLoaded(effectiveVersion)) return;
 		final ClassLoader classLoader;
 		if (isLoaded(effectiveVersion)) classLoader = loadedVersions.get(effectiveVersion);
@@ -91,6 +93,14 @@ public class InterfaceBuilderManager {
 				LanguageManager.registerBoxLanguage(module.getProject(), language, version);
 				loadedVersions.put(version, classLoader);
 			}
+		}
+	}
+
+	private boolean isSuitable(String effectiveVersion) {
+		try {
+			return new Version(effectiveVersion).compareTo(new Version(minimunVersion)) >= 0;
+		} catch (IntinoException e) {
+			return false;
 		}
 	}
 
