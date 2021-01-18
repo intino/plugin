@@ -17,21 +17,23 @@ import org.jetbrains.annotations.NotNull;
 
 public class LanguageFileDocumentManagerListener implements com.intellij.openapi.fileEditor.FileDocumentManagerListener {
 
-	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
-		final Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
-		for (Project project : openProjects) {
-			if (!project.isInitialized()) continue;
-			final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-			if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
-				document.addDocumentListener(new DocumentListener() {
-					public void beforeDocumentChange(DocumentEvent event) {
-					}
+	private final Project project;
 
-					public void documentChanged(DocumentEvent event) {
-						publish(psiFile);
-					}
-				});
-			}
+	public LanguageFileDocumentManagerListener(Project project) {
+		this.project = project;
+	}
+
+	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
+		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
+			document.addDocumentListener(new DocumentListener() {
+				public void beforeDocumentChange(DocumentEvent event) {
+				}
+
+				public void documentChanged(DocumentEvent event) {
+					publish(psiFile);
+				}
+			});
 		}
 	}
 
