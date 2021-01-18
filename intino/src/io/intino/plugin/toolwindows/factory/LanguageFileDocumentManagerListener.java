@@ -3,10 +3,13 @@ package io.intino.plugin.toolwindows.factory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
@@ -15,6 +18,8 @@ import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 public class LanguageFileDocumentManagerListener implements FileDocumentManagerListener {
 
@@ -26,6 +31,8 @@ public class LanguageFileDocumentManagerListener implements FileDocumentManagerL
 
 	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
 		if (!project.isInitialized()) return;
+		FileViewProvider vp = FileDocumentManager.getInstance().findCachedPsiInAnyProject(file);
+		if (vp == null || vp.getManager().getProject() != project) return;
 		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
 		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
 			document.addDocumentListener(new DocumentListener() {
