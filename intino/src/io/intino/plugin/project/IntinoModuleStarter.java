@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.List;
 
-
 public class IntinoModuleStarter implements ModuleListener, com.intellij.openapi.startup.StartupActivity {
 
 	@Override

@@ -30,8 +30,7 @@
 				  implementationClass="io.intino.plugin.file.GorosFileType"/>
 		<fileType name="Archetype" language="Archetype" extensions="archetype" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.ArchetypeFileType"/>
-		<fileDocumentManagerListener
-				implementation="io.intino.plugin.codeinsight.languageinjection.TaraFileDocumentManagerListener"/>
+
 		<errorHandler implementation="io.intino.plugin.errorreporting.PluginErrorReportSubmitter"/>
 		<treeStructureProvider implementation="io.intino.plugin.project.view.TaraTreeStructureProvider"/>
 		<fileTemplateGroup implementation="io.intino.plugin.actions.utils.TaraTemplatesFactory"/>
@@ -149,8 +148,6 @@
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
-		<fileDocumentManagerListener
-				implementation="io.intino.plugin.toolwindows.factory.FileDocumentManagerListener"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DataHubAnnotator"/>
 		<annotator language="Tara"
@@ -177,8 +174,6 @@
 							 instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
 		<attachSourcesProvider
 				implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
-		<fileDocumentManagerListener
-				implementation="io.intino.plugin.project.ConfigurationListener"/>
 
 		<!--		<fileTypeFactory implementation="io.intino.plugin.file.IntinoFileTypeFactory"/>-->
 		<errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
@@ -193,8 +188,6 @@
 		<consoleActionsPostProcessor
 				implementation="io.intino.plugin.toolwindows.output.ConsoleActionsProcessor"/>
 
-		<fileDocumentManagerListener
-				implementation="io.intino.plugin.actions.itrules.ItrFileDocumentManagerListener"/>
 		<lang.parserDefinition language="Itrules"
 							   implementationClass="io.intino.plugin.itrules.lang.parser.ItrulesParserDefinition"/>
 		<lang.syntaxHighlighterFactory language="Itrules"
@@ -303,6 +296,14 @@
 				  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
 		<listener class="io.intino.plugin.project.IntinoModuleStarter"
 				  topic="com.intellij.openapi.project.ModuleListener"/>
+		<listener class="io.intino.plugin.project.ConfigurationListener"
+				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+		<listener class="io.intino.plugin.actions.itrules.ItrFileDocumentManagerListener"
+				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+		<listener class="io.intino.plugin.toolwindows.factory.LanguageFileDocumentManagerListener"
+				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+		<listener class="io.intino.plugin.codeinsight.languageinjection.JavaFragmentDocumentManagerListener"
+				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
 	</projectListeners>
 
 	<actions>

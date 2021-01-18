@@ -15,45 +15,20 @@ import org.jetbrains.annotations.NotNull;
 
 public class ItrFileDocumentManagerListener implements FileDocumentManagerListener {
 
-	private TemplateGeneration generator = new TemplateGeneration();
+	private final Project project;
+	private final TemplateGeneration generator;
 
-	@Override
-	public void beforeAllDocumentsSaving() {
+	public ItrFileDocumentManagerListener(Project project) {
+		this.project = project;
+		generator = new TemplateGeneration();
 	}
 
 	@Override
 	public void beforeDocumentSaving(@NotNull Document document) {
-		final Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
-		for (Project project : openProjects) {
-			if (!project.isInitialized()) continue;
-			final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-			if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(ItrulesFileType.instance()))
-				ApplicationManager.getApplication().invokeLater(() -> generator.createTemplate(project, psiFile.getVirtualFile()), ModalityState.NON_MODAL);
-		}
+		if (!project.isInitialized()) return;
+		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+		if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(ItrulesFileType.instance()))
+			ApplicationManager.getApplication().invokeLater(() -> generator.createTemplate(project, psiFile.getVirtualFile()), ModalityState.NON_MODAL);
 	}
 
-	@Override
-	public void beforeFileContentReload(VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void fileWithNoDocumentChanged(@NotNull VirtualFile file) {
-
-	}
-
-	@Override
-	public void fileContentReloaded(@NotNull VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void unsavedDocumentsDropped() {
-
-	}
 }

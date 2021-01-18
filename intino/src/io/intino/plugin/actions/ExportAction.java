@@ -22,6 +22,7 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +38,7 @@ public class ExportAction {
 	public void execute(Module module, FactoryPhase phase) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) {
-			Notifications.Bus.notify(new Notification("Tara Language",
+			Notifications.Bus.notify(new Notification("Intino",
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
 			return;
 		}
@@ -57,10 +58,10 @@ public class ExportAction {
 			final String version = box.version();
 			if (version == null || version.isEmpty()) return;
 			try {
-				Path temp = Files.createTempDirectory("konos_accessors");
-				KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.toFile().getAbsolutePath());
+				File temp = Files.createTempDirectory("konos_accessors").toFile();
+				KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.getAbsolutePath());
 				konosRunner.runKonosCompiler();
-				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp.toFile());
+				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);
 				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
 				else publisher.publish();
 			} catch (IOException e) {
@@ -75,7 +76,7 @@ public class ExportAction {
 			List<String> errorMessages = new ArrayList<>();
 			new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
 			if (!errorMessages.isEmpty())
-				Notifications.Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
+				Notifications.Bus.notify(new Notification("Intino", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
 		});
 	}
 

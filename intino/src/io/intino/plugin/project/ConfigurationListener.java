@@ -19,51 +19,25 @@ import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 public class ConfigurationListener implements FileDocumentManagerListener {
 
-	@Override
-	public void beforeAllDocumentsSaving() {
+	private final Project project;
+
+	public ConfigurationListener(Project project) {
+		this.project = project;
 	}
 
 	@Override
 	public void beforeDocumentSaving(@NotNull Document document) {
-		final Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
-		for (Project project : openProjects) {
-			if (!project.isInitialized()) continue;
-			final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-			if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(LegioFileType.INSTANCE)) {
-				final Module module = moduleOf(psiFile);
-				if	(module == null) return;
-				ApplicationManager.getApplication().invokeLater(() -> reloadConfiguration(module), ModalityState.NON_MODAL);
-			}
+		if (!project.isInitialized()) return;
+		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+		if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(LegioFileType.INSTANCE)) {
+			final Module module = moduleOf(psiFile);
+			if (module == null) return;
+			ApplicationManager.getApplication().invokeLater(() -> reloadConfiguration(module), ModalityState.NON_MODAL);
 		}
 	}
 
 	private void reloadConfiguration(Module module) {
 		final Configuration configuration = ConfigurationManager.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) configuration.reload();
-	}
-
-	@Override
-	public void beforeFileContentReload(VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void fileWithNoDocumentChanged(@NotNull VirtualFile file) {
-
-	}
-
-	@Override
-	public void fileContentReloaded(@NotNull VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
-
-	}
-
-	@Override
-	public void unsavedDocumentsDropped() {
-
 	}
 }

@@ -127,3 +127,16 @@ def type(messaging) trigger(dependency)
 		<version>$[1.0.0, 2.0.0]</version>
 	</dependency>
 end
+
+def type(analytic) trigger(dependency)
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>led</artifactId>
+		<version>$version</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<version>2.8.0</version>
+	</dependency>
+end

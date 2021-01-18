@@ -15,22 +15,7 @@ import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
 
-public class FileDocumentManagerListener implements com.intellij.openapi.fileEditor.FileDocumentManagerListener {
-	public void beforeAllDocumentsSaving() {
-	}
-
-	public void beforeDocumentSaving(@NotNull Document document) {
-	}
-
-	public void beforeFileContentReload(VirtualFile file, @NotNull Document document) {
-
-	}
-
-	public void fileWithNoDocumentChanged(@NotNull VirtualFile file) {
-	}
-
-	public void fileContentReloaded(@NotNull VirtualFile file, @NotNull Document document) {
-	}
+public class LanguageFileDocumentManagerListener implements com.intellij.openapi.fileEditor.FileDocumentManagerListener {
 
 	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
 		final Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
@@ -48,11 +33,6 @@ public class FileDocumentManagerListener implements com.intellij.openapi.fileEdi
 				});
 			}
 		}
-	}
-
-	@Override
-	public void unsavedDocumentsDropped() {
-
 	}
 
 	private void publish(PsiFile file) {
