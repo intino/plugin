@@ -12,6 +12,7 @@ import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.LegioConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,6 +54,7 @@ public class AccessorsPublisher {
 				if (sources == null || sources.length == 0) return;
 				mvn(serviceDirectory, conf, "install");
 			}
+			FileUtils.deleteDirectory(root);
 		} catch (IOException e) {
 			notifyError(e.getMessage());
 			LOG.error(e.getMessage());
@@ -66,6 +68,7 @@ public class AccessorsPublisher {
 				if (sources == null || sources.length == 0) return;
 				mvn(serviceDirectory, conf, "deploy");
 			}
+			FileUtils.deleteDirectory(root);
 		} catch (IOException e) {
 			notifyError(e.getMessage());
 		}
@@ -98,8 +101,9 @@ public class AccessorsPublisher {
 
 	private String versionOf(String serviceType) {
 		String artifact = "";
-		if (serviceType.equals("rest")) artifact = "io.intino.alexandria:rest-accessor";
-		else if (serviceType.equals("messaging")) artifact = "io.intino.alexandria:terminal-jms";
+		if ("rest".equals(serviceType)) artifact = "io.intino.alexandria:rest-accessor";
+		else if ("messaging".equals(serviceType)) artifact = "io.intino.alexandria:terminal-jms";
+		else if ("analytic".equals(serviceType)) artifact = "io.intino.alexandria:led";
 		List<String> versions = new ArtifactoryConnector(conf.repositories()).versions(artifact);
 		if (versions.isEmpty()) return "";
 		Collections.sort(versions);
@@ -147,8 +151,7 @@ public class AccessorsPublisher {
 		try {
 			Files.write(file, text.getBytes(StandardCharsets.UTF_8));
 		} catch (IOException e) {
-			e.printStackTrace();
-
+			notifyError(e.getMessage());
 		}
 	}
 

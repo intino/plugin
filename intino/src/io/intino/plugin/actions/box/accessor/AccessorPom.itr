@@ -10,8 +10,8 @@ def type(pom)
 		$license...[$NL]
 	</licenses>]
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -133,6 +133,11 @@ def type(analytic) trigger(dependency)
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>led</artifactId>
 		<version>$version</version>
+	</dependency>
+	<dependency>
+		<groupId>io.intino.alexandria</groupId>
+		<artifactId>session</artifactId>
+		<version>1.1.0</version>
 	</dependency>
 	<dependency>
 		<groupId>commons-io</groupId>
