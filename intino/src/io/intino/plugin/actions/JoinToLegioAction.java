@@ -59,7 +59,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
 			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
-			final VirtualFile moduleFile = module.getModuleFile();
+			final VirtualFile moduleFile = com.intellij.openapi.project.ProjectUtil.guessModuleDir(module);
 			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
 			publish(module);
 		};

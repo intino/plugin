@@ -38,7 +38,6 @@ public class JpsTaraSerializerExtension extends JpsModelSerializerExtension {
 		@Override
 		public void loadExtension(@NotNull JpsProject project, @NotNull Element componentTag) {
 			JpsTaraSettings settings = XmlSerializer.deserialize(componentTag, JpsTaraSettings.class);
-			if (settings == null) settings = new JpsTaraSettings();
 			TaraJpsCompilerSettings component = new TaraJpsCompilerSettings(settings);
 			project.getContainer().setChild(TaraJpsCompilerSettings.ROLE, component);
 		}
@@ -49,8 +48,5 @@ public class JpsTaraSerializerExtension extends JpsModelSerializerExtension {
 			project.getContainer().setChild(TaraJpsCompilerSettings.ROLE, component);
 		}
 
-		@Override
-		public void saveExtension(@NotNull JpsProject project, @NotNull Element componentTag) {
-		}
 	}
 }

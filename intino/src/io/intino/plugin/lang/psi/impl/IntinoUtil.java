@@ -8,6 +8,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -420,6 +421,7 @@ public class IntinoUtil {
 	}
 
 	public static PsiDirectory createResourceRoot(Module module, String name) {
-		return createDirectory(read(() -> PsiManager.getInstance(module.getProject()).findDirectory(module.getModuleFile().getParent())), name);
+		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
+		return createDirectory(read(() -> PsiManager.getInstance(module.getProject()).findDirectory(moduleDir.getParent())), name);
 	}
 }

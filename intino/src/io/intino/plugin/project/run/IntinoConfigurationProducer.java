@@ -29,7 +29,8 @@ import io.intino.plugin.project.Safe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.intellij.openapi.util.Comparing.equal;
+import java.util.Objects;
+
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.Configuration.Artifact;
 
@@ -77,14 +78,14 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 		if (!(conf instanceof LegioConfiguration)) return false;
 		final LegioConfiguration legio = (LegioConfiguration) conf;
 		final PsiClass aClass = getMainClass(legio, location);
-		if (aClass != null && equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
+		if (aClass != null && Objects.equals(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
 			final PsiMethod method = PsiTreeUtil.getParentOfType(location, PsiMethod.class, false);
 			if (method != null && TestFrameworks.getInstance().isTestMethod(method)) return false;
 			final Module configurationModule = configuration.getConfigurationModule().getModule();
-			if (equal(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
+			if (Objects.equals(context.getModule(), configurationModule) && configuration.getName().equalsIgnoreCase(configurationName(location, legio)))
 				return true;
 			ApplicationConfiguration template = (ApplicationConfiguration) context.getRunManager().getConfigurationTemplate(getConfigurationFactory()).getConfiguration();
-			return equal(template.getConfigurationModule().getModule(), configurationModule);
+			return Objects.equals(template.getConfigurationModule().getModule(), configurationModule);
 		}
 		return false;
 	}

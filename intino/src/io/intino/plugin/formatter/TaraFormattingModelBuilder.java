@@ -20,13 +20,16 @@ public class TaraFormattingModelBuilder implements CustomFormattingModelBuilder 
 		return file != null && file.getLanguage() == TaraLanguage.INSTANCE;
 	}
 
-//	@NotNull
-//	private FormattingModel createModel(@NotNull PsiElement element, @NotNull CodeStyleSettings settings, @NotNull FormattingMode mode) {
+
+	@Override
+	public @NotNull
+	FormattingModel createModel(@NotNull FormattingContext formattingContext) {
 //		settings.AUTODETECT_INDENTS = false;
 //		final ASTNode fileNode = element.getContainingFile().getNode();
 //		final TaraBlock block = new TaraBlock(fileNode, Alignment.createAlignment(), Indent.getNormalIndent(true), Wrap.createWrap(WrapType.NONE, false), new TaraBlockContext(settings, createSpacingBuilder(settings), mode));
 //		return FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(), block, settings);
-//	}
+		return null;
+	}
 
 	private SpacingBuilder createSpacingBuilder(CodeStyleSettings settings) {
 		return new SpacingBuilder(settings.getCommonSettings(TaraLanguage.INSTANCE));

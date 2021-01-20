@@ -81,7 +81,7 @@ public class WebArtifactResolver {
 	private File extract(WebArtifact artifact, File jarFile) {
 		try {
 			final File outputDir = new File(destination, artifact.name().toLowerCase());
-			ZipUtil.extract(jarFile, outputDir, null);
+			ZipUtil.extract(jarFile.toPath(), outputDir.toPath(), null);
 			FileUtil.delete(new File(outputDir, "META-INF"));
 			return new File(outputDir, "package.json");
 		} catch (IOException e) {

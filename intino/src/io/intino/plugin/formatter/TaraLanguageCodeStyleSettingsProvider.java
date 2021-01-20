@@ -77,7 +77,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 	}
 
 	@Override
-	public DisplayPriority getDisplayPriority() {
+	public DisplayPriority getPriority() {
 		return DisplayPriority.LANGUAGE_SETTINGS;
 	}
 

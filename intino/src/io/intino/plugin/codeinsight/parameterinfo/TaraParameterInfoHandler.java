@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.parameterinfo;
 
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.parameterInfo.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -59,18 +58,6 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 	@Override
 	public Class<Parameters> getArgumentListClass() {
 		return Parameters.class;
-	}
-
-	@Override
-	public boolean couldShowInLookup() {
-		return true;
-	}
-
-	@Nullable
-	@Override
-	public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
-		Parameters parameters = getParameters(context.getFile(), context.getOffset());
-		return new Object[]{parameters};
 	}
 
 	@Nullable

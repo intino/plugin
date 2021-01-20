@@ -57,15 +57,14 @@ public class ModuleMavenCreator {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private PsiDirectory getModuleRoot(Module module) {
-		VirtualFile moduleFile = module.getModuleFile();
+		VirtualFile moduleFile = com.intellij.openapi.project.ProjectUtil.guessModuleDir(module);
 		final PsiManager manager = PsiManager.getInstance(module.getProject());
 		PsiDirectory directory = moduleFile != null ?
 				manager.findDirectory(moduleFile.getParent()) :
 				manager.findDirectory(VfsUtil.findFile(new File(module.getProject().getBasePath()).toPath(), true)).findSubdirectory(module.getName());
-		if (directory == null) {
-			directory = create(manager, IntinoUtil.moduleRoot(module));
-		}
+		if (directory == null) directory = create(manager, IntinoUtil.moduleRoot(module));
 		return directory;
 	}
 

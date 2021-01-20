@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.file.KonosFileType;
@@ -31,15 +32,15 @@ public class LanguageFileDocumentManagerListener implements FileDocumentManagerL
 
 	public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
 		if (!project.isInitialized()) return;
-		FileViewProvider vp = FileDocumentManager.getInstance().findCachedPsiInAnyProject(file);
+		FileViewProvider vp = PsiManagerEx.getInstanceEx(project).getFileManager().findCachedViewProvider(file);
 		if (vp == null || vp.getManager().getProject() != project) return;
 		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
 		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
 			document.addDocumentListener(new DocumentListener() {
-				public void beforeDocumentChange(DocumentEvent event) {
+				public void beforeDocumentChange(@NotNull DocumentEvent event) {
 				}
 
-				public void documentChanged(DocumentEvent event) {
+				public void documentChanged(@NotNull DocumentEvent event) {
 					publish(psiFile);
 				}
 			});

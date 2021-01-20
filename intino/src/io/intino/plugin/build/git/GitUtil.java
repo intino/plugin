@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitLocalBranch;
@@ -38,7 +39,7 @@ public class GitUtil {
 	}
 
 	private static GitRepository getRepositoryForFile(@NotNull Module module) {
-		return repositoryManager(module).getRepositoryForFile(module.getModuleFile());
+		return repositoryManager(module).getRepositoryForFile(ProjectUtil.guessModuleDir(module));
 	}
 
 	public static boolean isModified(Module module, VirtualFile file) {
