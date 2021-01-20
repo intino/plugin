@@ -25,7 +25,7 @@ class LegioFileCreator {
 	VirtualFile getOrCreate() {
 		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
 		FrameBuilder builder = new FrameBuilder("legio", "empty").add("name", module.getName());
-		final File destination = new File(moduleDir.getParent().getPath(), LegioFileType.LEGIO_FILE);
+		final File destination = new File(moduleDir.getPath(), LegioFileType.LEGIO_FILE);
 		if (destination.exists()) return findFileByIoFile(destination, true);
 		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(builder.toFrame()), destination).toFile(), true);
 	}
