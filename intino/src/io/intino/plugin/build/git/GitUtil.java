@@ -28,14 +28,10 @@ public class GitUtil {
 	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
 
 	public static GitRepository repository(@NotNull Module module) {
-		try {
-			Application application = ApplicationManager.getApplication();
-			if (application.isDispatchThread())
-				return (GitRepository) withSyncTask(module.getProject(), "Refreshing vcs", () -> getRepositoryForFile(module));
-			return getRepositoryForFile(module);
-		} catch (Exception e) {
-			return null;
-		}
+		Application application = ApplicationManager.getApplication();
+		if (application.isDispatchThread())
+			return (GitRepository) withSyncTask(module.getProject(), "Refreshing vcs", () -> getRepositoryForFile(module));
+		return getRepositoryForFile(module);
 	}
 
 	private static GitRepository getRepositoryForFile(@NotNull Module module) {
@@ -62,7 +58,13 @@ public class GitUtil {
 	public static String currentBranch(Module module) {
 		GitRepository repository = repository(module);
 		if (repository == null) return null;
-		repository.update();
+		Application application = ApplicationManager.getApplication();
+		if (application.isDispatchThread()) {
+			withSyncVoidTask(module.getProject(), "Refreshing vcs", () -> {
+				repository.update();
+				return true;
+			});
+		} else repository.update();
 		return repository.getCurrentBranchName();
 	}
 
@@ -162,8 +164,23 @@ public class GitUtil {
 		return (line, outputType) -> builder.append(line);
 	}
 
-	private static Object withSyncTask(Project project, String title, ThrowableComputable<Object, Exception> runnable) throws Exception {
-		return ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, project);
+	private static Object withSyncTask(Project project, String title, ThrowableComputable<Object, Exception> runnable) {
+		try {
+			return ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, project);
+		} catch (Exception e) {
+			logger.error(e);
+			return null;
+		}
+	}
+
+	private static boolean withSyncVoidTask(Project project, String title, ThrowableComputable<Object, Exception> runnable) {
+		try {
+			ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, project);
+			return true;
+		} catch (Exception e) {
+			logger.error(e);
+			return false;
+		}
 	}
 
 }
