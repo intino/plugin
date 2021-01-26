@@ -3,6 +3,7 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -40,7 +41,7 @@ public class WebDependencyResolver {
 		this.module = module;
 		this.artifact = artifact;
 		this.repositories = repositories;
-		this.rootDirectory = IntinoUtil.moduleRoot(module);
+		this.rootDirectory = VfsUtil.virtualToIoFile(ProjectUtil.guessModuleDir(module));
 		this.nodeModulesDirectory = new File(rootDirectory, NodeModules);
 	}
 
