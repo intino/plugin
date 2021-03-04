@@ -124,7 +124,7 @@ def type(messaging) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>json</artifactId>
-		<version>$[1.0.0, 2.0.0]</version>
+		<version>$[1.0.0, 2.0.0)</version>
 	</dependency>
 end
 
