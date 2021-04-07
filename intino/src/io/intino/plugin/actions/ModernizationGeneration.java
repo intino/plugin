@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,7 +28,8 @@ public class ModernizationGeneration extends AnAction {
 	public void update(@NotNull AnActionEvent e) {
 		e.getPresentation().setIcon(IntinoIcons.GOROS_13);
 		PsiFile context = e.getData(PSI_FILE);
-		if (context != null && context.getFileType().equals(GorosFileType.instance())) enable(e);
+		if (context != null && isGorosFile(context))
+			enable(e);
 		else disable(e);
 	}
 
@@ -77,5 +79,9 @@ public class ModernizationGeneration extends AnAction {
 	private static void disable(AnActionEvent e) {
 		e.getPresentation().setVisible(false);
 		e.getPresentation().setEnabled(false);
+	}
+
+	private boolean isGorosFile(PsiFile context) {
+		return context.getFileType().equals(GorosFileType.instance()) || context.getFileType().equals(XmlFileType.INSTANCE) && context.getOriginalFile().getName().endsWith(GorosFileType.INSTANCE.getDefaultExtension());
 	}
 }

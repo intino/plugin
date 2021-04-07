@@ -100,8 +100,8 @@ public class PluginExecutor {
 	private void executePlugin(PrintStream logStream, ClassLoader classLoader, ModuleRootManager manager) {
 		try {
 			PluginLauncher launcher = (PluginLauncher) classLoader.loadClass(pluginClass).getConstructors()[0].newInstance();
-			launcher.moduleConfiguration(configuration);
-			launcher.moduleDirectory(new File(manager.getContentRootUrls()[0]))
+			launcher.moduleConfiguration(configuration)
+					.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
 					.invokedPhase(PluginLauncher.Phase.valueOf(phase.name()))
