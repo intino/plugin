@@ -15,6 +15,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.intino.goros.space.Shifter;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.GorosFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -43,7 +44,7 @@ public class ModernizationGeneration extends AnAction {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
 					try {
-						io.intino.goros.Shifter.main(new String[]{context.getVirtualFile().getPath()});
+						Shifter.main(new String[]{context.getVirtualFile().getPath()});
 					} catch (Exception ex) {
 						NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
 						if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
