@@ -12,11 +12,11 @@ import static java.util.Collections.emptyList;
 
 public class MethodCreationAction extends io.intino.plugin.build.PostCompileAction {
 	private final String name;
-	private boolean isStatic;
-	private List<String> parameters;
-	private String returnType;
-	private List<String> exceptions;
-	private PsiClass psiClass;
+	private final boolean isStatic;
+	private final List<String> parameters;
+	private final String returnType;
+	private final List<String> exceptions;
+	private final PsiClass psiClass;
 
 	public MethodCreationAction(Module module, List<String> parameters) {
 		this(module, new File(parameters.get(0)),

@@ -65,7 +65,7 @@ public class ModuleCreationAction extends PostCompileAction {
 			final ModuleManager manager = ModuleManager.getInstance(module.getProject());
 			Module webModule = manager.newModule(moduleImlFilename(), WebModuleType.WEB_MODULE);
 			final ModifiableRootModel model = ModuleRootManager.getInstance(webModule).getModifiableModel();
-			final File moduleRoot = IntinoUtil.moduleRoot(module);
+			final File moduleRoot = IntinoUtil.moduleRoot(webModule);
 			moduleRoot.mkdirs();
 			VirtualFile file = VfsUtil.findFile(moduleRoot.toPath(), true);
 			if (file != null) model.addContentEntry(file);

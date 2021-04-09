@@ -38,7 +38,6 @@
           <element id="library" level="project" name="Maven: io.intino.alexandria:message:3.0.2" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:primitives:1.0.4" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:zim:1.0.7" />
-          <element id="library" level="project" name="Maven: io.intino.goros:shifter:1.0.4" />
           <element id="library" level="project" name="Maven: io.intino.itrules:engine:1.0.0" />
           <element id="library" level="project" name="Maven: io.intino.itrules:reader-itr:1.0.0" />
           <element id="library" level="project" name="Maven: io.intino.konos:konos-builder-constants:1.0.0" />
@@ -119,6 +118,7 @@
           <element id="library" level="module" name="Maven: tara.dsl:legio:4.0.0" module-name="intino" />
           <element id="library" level="project" name="Maven: io.intino:cesar-api-accessor:4.2.0" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:rest-accessor:2.1.2" />
+          <element id="library" level="project" name="Maven: io.intino.goros:shifter:1.0.5" />
         </element>
       </element>
     </root>

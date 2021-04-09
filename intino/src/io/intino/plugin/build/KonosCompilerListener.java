@@ -37,7 +37,6 @@ public class KonosCompilerListener implements com.intellij.compiler.server.Custo
 
 	@Override
 	public void messageReceived(String builderId, String messageType, String messageText) {
-
 		if (messageText.isEmpty()) return;
 		if (KONOSC.equals(builderId) && KonosBuildConstants.ACTION_MESSAGE.equals(messageType)) {
 			final List<String> messages = Arrays.asList(messageText.split(KonosBuildConstants.MESSAGE_ACTION_START));
