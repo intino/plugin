@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import io.intino.Configuration;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.actions.box.KonosRunner;
 import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
@@ -25,10 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.intellij.notification.NotificationType.ERROR;
 import static io.intino.Configuration.Artifact.Plugin.Phase.Export;
 import static io.intino.plugin.project.Safe.safeList;
 
@@ -66,6 +67,8 @@ public class ExportAction {
 				else publisher.publish();
 			} catch (IOException e) {
 				Logger.error(e);
+			} catch (IntinoException e) {
+				notifyError(e.getMessage(), module);
 			}
 		}
 	}
@@ -82,5 +85,10 @@ public class ExportAction {
 
 	private void withTask(Task.Backgroundable runnable) {
 		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
+
+	private void notifyError(String message, Module module) {
+		Notifications.Bus.notify(new Notification("Konos", "Elements cannot be generated. ", message, ERROR), module.getProject());
 	}
 }
