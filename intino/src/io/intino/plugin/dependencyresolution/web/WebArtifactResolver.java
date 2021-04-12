@@ -66,6 +66,22 @@ public class WebArtifactResolver {
 		return manifests;
 	}
 
+	public void extractArtifacts() {
+		Aether aether = new Aether(collectRemotes(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		for (WebArtifact artifact : artifact.webArtifacts()) {
+			if (isOverriding(artifact)) continue;
+			final List<org.sonatype.aether.artifact.Artifact> artifacts = resolve(aether, artifact);
+			if (!artifacts.isEmpty()) {
+				File packageJson = extract(artifact, artifacts.get(0).getFile());
+				if (packageJson == null) continue;
+				JsonObject jsonObject = readPackageJson(packageJson);
+				if (jsonObject == null) continue;
+				jsonObject.addProperty("name", artifact.artifactId());
+				write(jsonObject.toString(), packageJson);
+			}
+		}
+	}
+
 
 	private boolean isOverriding(WebArtifact artifact) {
 		final File file = new File(destination, artifact.artifactId() + File.separator + "package.json");

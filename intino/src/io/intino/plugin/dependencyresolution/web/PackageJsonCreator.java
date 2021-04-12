@@ -40,13 +40,15 @@ public class PackageJsonCreator {
 
 	@NotNull
 	private FrameBuilder packageFrame() {
-		List<JsonObject> packages = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination).resolveArtifacts();
+		WebArtifactResolver webArtifactResolver = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination);
+		List<JsonObject> packages = webArtifactResolver.resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
 		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fsevents", "");
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
 		packages.stream().map(this::resolutionFrameFrom).filter(Objects::nonNull).forEach(frames -> builder.add("resolution", frames));
+		if (SystemUtils.IS_OS_WINDOWS) webArtifactResolver.extractArtifacts();
 		return builder;
 	}
 
@@ -57,7 +59,6 @@ public class PackageJsonCreator {
 		packages.forEach(p -> dependenciesFrom(p).forEach(dependencies::putIfAbsent));
 		return dependencies;
 	}
-
 
 	private FrameBuilder baseFrame() {
 		return new FrameBuilder().add("groupId", artifact.groupId()).add("artifactId", artifact.name()).add("version", artifact.version());
