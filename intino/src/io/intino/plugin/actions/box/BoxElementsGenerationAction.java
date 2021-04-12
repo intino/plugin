@@ -1,6 +1,8 @@
 package io.intino.plugin.actions.box;
 
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
@@ -15,6 +17,7 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.Configuration;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.IntinoAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -23,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import static com.intellij.notification.NotificationType.ERROR;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.Mode;
 import static io.intino.plugin.project.Safe.safe;
 
@@ -69,6 +73,8 @@ public class BoxElementsGenerationAction extends IntinoAction {
 			notify(module);
 		} catch (IOException e) {
 			Logger.error(e);
+		} catch (IntinoException e) {
+			notifyError(e.getMessage(), module);
 		}
 	}
 
@@ -82,5 +88,9 @@ public class BoxElementsGenerationAction extends IntinoAction {
 		balloon.createNotification(module.getName() + " Web elements " + "reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
+
+	private void notifyError(String message, Module module) {
+		Notifications.Bus.notify(new Notification("Konos", "Elements cannot be generated. ", message, ERROR), module.getProject());
+	}
 
 }

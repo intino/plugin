@@ -14,6 +14,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
 import io.intino.Configuration.Parameter;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -41,10 +42,13 @@ public class KonosRunner {
 	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
 
-	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException {
+	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException, IntinoException {
 		this.module = module;
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
-		this.classpath = Arrays.asList(Files.readString(InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module))).replace("$HOME", System.getProperty("user.home")).split(":"));
+		Path path = InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
+		if (!path.toFile().exists())
+			throw new IntinoException("Classpath of compiler not found. Please Reload configuration in order to attach it.");
+		this.classpath = Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));
 		Logger.info("Classpath: " + String.join(":", classpath));
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), UTF_8))) {
 			writer.write(SRC_FILE + NL);

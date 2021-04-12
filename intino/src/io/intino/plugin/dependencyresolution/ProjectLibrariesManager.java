@@ -49,9 +49,9 @@ public class ProjectLibrariesManager {
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> {
 				catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
-				table.model().commit();
+				if (table.model().isChanged()) table.model().commit();
 			});
-		application.invokeLater(() -> application.runWriteAction(() -> {
+		else application.invokeLater(() -> application.runWriteAction(() -> {
 			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
 			if (table.model().isChanged()) table.model().commit();
 		}));

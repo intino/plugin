@@ -12,7 +12,7 @@ import java.util.List;
 public class IntinoLibrary {
 	public static final String INTINO = "Intino: ";
 	private final LibraryTable table;
-	private ModifiableModel modifiableModel;
+	private final ModifiableModel modifiableModel;
 
 	IntinoLibrary(Project project) {
 		this.table = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
