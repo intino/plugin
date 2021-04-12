@@ -19,6 +19,9 @@ def type(pom)
 		<outputDirectory>out/production/$artifact+lowercase</outputDirectory>
 		<testOutputDirectory>out/test/$artifact+lowercase</testOutputDirectory>
 		<directory>out/build/$artifact+lowercase</directory>
+		<resources>
+			<resource><directory>res</directory></resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
