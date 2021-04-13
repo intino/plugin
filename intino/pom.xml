@@ -22,6 +22,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>add-source</id>
@@ -42,12 +43,12 @@
 
 	<repositories>
 		<repository>
-			<id>siani-maven</id>
-			<url>https://artifactory.siani.es/artifactory/libs-release</url>
-		</repository>
-		<repository>
 			<id>intino-maven</id>
 			<url>https://artifactory.intino.io/artifactory/releases</url>
+		</repository>
+		<repository>
+			<id>siani-maven</id>
+			<url>https://artifactory.siani.es/artifactory/libs-release</url>
 		</repository>
 	</repositories>
 
@@ -62,6 +63,7 @@
 			<artifactId>language</artifactId>
 			<version>[1.3.0, 2.0.0)</version>
 		</dependency>
+
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
 			<artifactId>message</artifactId>
@@ -97,6 +99,7 @@
 			<artifactId>zim</artifactId>
 			<version>1.0.7</version>
 		</dependency>
+
 		<dependency>
 			<groupId>tara.dsl</groupId>
 			<artifactId>legio</artifactId>
@@ -169,7 +172,7 @@
 		<dependency>
 			<groupId>io.intino</groupId>
 			<artifactId>cesar-api-accessor</artifactId>
-			<version>4.2.0</version>
+			<version>4.3.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -208,7 +211,16 @@
 			<scope>test</scope>
 			<version>4.12</version>
 		</dependency>
-
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-transport</artifactId>
+			<version>4.1.63.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-codec-http</artifactId>
+			<version>4.1.63.Final</version>
+		</dependency>
 		<dependency>
 			<groupId>io.intino.ness</groupId>
 			<artifactId>data-hub-terminal-plugin</artifactId>

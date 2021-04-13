@@ -58,7 +58,7 @@ public class IntinoModuleStarter implements ModuleListener, com.intellij.openapi
 	}
 
 	@Override
-	public void modulesRenamed(@NotNull Project project, @NotNull List<Module> modules, @NotNull Function<Module, String> oldNameProvider) {
+	public void modulesRenamed(@NotNull Project project, @NotNull List<? extends Module> modules, @NotNull Function<? super Module, String> oldNameProvider) {
 		for (Module module : modules) {
 			final Configuration conf = IntinoUtil.configurationOf(module);
 			if (conf != null && conf.artifact().model() != null && conf.artifact().model().level().isSolution())

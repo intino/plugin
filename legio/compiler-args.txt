@@ -1,5 +1,5 @@
 def.file
-/Users/oroncal/workspace/intino/legio/src/io/intino/legio/Main.tara#true
+/Users/oroncal/workspace/intino/legio/src/io/intino/legio/graph/Main.tara#true
 
 project
 intino

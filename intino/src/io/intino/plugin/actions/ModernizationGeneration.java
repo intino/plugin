@@ -2,6 +2,7 @@ package io.intino.plugin.actions;
 
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -47,7 +48,8 @@ public class ModernizationGeneration extends AnAction {
 						Shifter.main(new String[]{context.getVirtualFile().getPath()});
 					} catch (Exception ex) {
 						NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-						if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+						if (balloon == null)
+							balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 						balloon.createNotification("Error during modernization: " + ex.getMessage(), MessageType.ERROR).
 								setImportant(false).notify(module.getProject());
 					}

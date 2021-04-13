@@ -14,7 +14,6 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
-import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
@@ -48,8 +47,8 @@ public class WebDependencyResolver {
 	public void resolve() {
 		File pom = createPomFile();
 		File temp = createTempDirectory();
-		PackageJsonCreator packageJsonCreator = new PackageJsonCreator(module, artifact, repositories, temp);
-		packageJsonCreator.createPackageFile(rootDirectory);
+		Logger.getInstance(this.getClass()).info("Temporal web resolution directory: " + temp.getAbsolutePath());
+		new PackageJsonCreator(module, artifact, repositories, temp).createPackageFile(rootDirectory);
 		run(pom);
 		Arrays.stream(requireNonNull(temp.listFiles(File::isDirectory))).forEach(fromDir -> {
 			File toDir = new File(nodeModulesDirectory, fromDir.getName());
@@ -57,6 +56,7 @@ public class WebDependencyResolver {
 			FileUtil.delete(toDir);
 			FileUtil.moveDirWithContent(fromDir, toDir);
 		});
+		new PackageJsonCreator(module, artifact, repositories, nodeModulesDirectory).extractArtifacts();
 		VfsUtil.findFileByIoFile(rootDirectory, true);
 	}
 

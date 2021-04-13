@@ -1,6 +1,7 @@
 package io.intino.plugin.actions;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
@@ -17,7 +18,7 @@ public abstract class IntinoAction extends AnAction {
 
 	void notifyReload(Module module) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		if (balloon == null) balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		balloon.createNotification("Artifact " + module.getName() + ": reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 

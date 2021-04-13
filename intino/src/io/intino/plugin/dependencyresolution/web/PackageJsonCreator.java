@@ -24,6 +24,7 @@ public class PackageJsonCreator {
 	private final List<Artifact.WebComponent> webComponents;
 	private final List<Artifact.WebResolution> resolutions;
 	private final File destination;
+	private final WebArtifactResolver webArtifactResolver;
 
 	public PackageJsonCreator(Module module, Artifact artifact, List<Repository> repositories, File destination) {
 		this.module = module;
@@ -32,15 +33,20 @@ public class PackageJsonCreator {
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
 		this.destination = destination;
+		this.webArtifactResolver = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination);
+
 	}
 
 	public void createPackageFile(File rootDirectory) {
 		write(new Package_jsonTemplate().render(packageFrame().toFrame()), new File(rootDirectory, "package.json"));
 	}
 
+	public void extractArtifacts() {
+		if (SystemUtils.IS_OS_WINDOWS) webArtifactResolver.extractArtifacts();
+	}
+
 	@NotNull
 	private FrameBuilder packageFrame() {
-		WebArtifactResolver webArtifactResolver = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination);
 		List<JsonObject> packages = webArtifactResolver.resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
 		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fsevents", "");
@@ -48,7 +54,6 @@ public class PackageJsonCreator {
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
 		packages.stream().map(this::resolutionFrameFrom).filter(Objects::nonNull).forEach(frames -> builder.add("resolution", frames));
-		if (SystemUtils.IS_OS_WINDOWS) webArtifactResolver.extractArtifacts();
 		return builder;
 	}
 

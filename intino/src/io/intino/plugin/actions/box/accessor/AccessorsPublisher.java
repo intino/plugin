@@ -2,6 +2,7 @@ package io.intino.plugin.actions.box.accessor;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.diagnostic.Logger;
@@ -133,7 +134,7 @@ public class AccessorsPublisher {
 	}
 
 	private void notifySuccess(Configuration conf, String app) {
-		final NotificationGroup balloon = NotificationGroup.toolWindowGroup("Intino", "Balloon");
+		final NotificationGroup balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		balloon.createNotification("Accessors generated and uploaded", message(), INFORMATION, (n, e) -> {
 			StringSelection selection = new StringSelection(newDependency(conf, app));
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

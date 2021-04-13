@@ -8,10 +8,7 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -20,7 +17,6 @@ import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.testFramework.MapDataContext;
 import com.intellij.ui.awt.RelativePoint;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
@@ -32,9 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPARATOR;
 
@@ -59,7 +53,7 @@ public class IntinoRunContextAction extends RunContextAction {
 				final Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
 				producers.sort(NAME_COMPARATOR);
 				final ListPopup popup =
-						JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<ConfigurationFromContext>(ExecutionBundle.message("configuration.action.chooser.title"), producers) {
+						JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>(ExecutionBundle.message("configuration.action.chooser.title"), producers) {
 							@Override
 							@NotNull
 							public String getTextFor(final ConfigurationFromContext producer) {
@@ -145,5 +139,25 @@ public class IntinoRunContextAction extends RunContextAction {
 	@Override
 	public String toString() {
 		return super.toString();
+	}
+
+	public class MapDataContext implements DataContext {
+		private final Map<String, Object> myMap = new HashMap<>();
+
+		public MapDataContext() {
+		}
+
+		@Override
+		public Object getData(@NotNull String dataId) {
+			return myMap.get(dataId);
+		}
+
+		public void put(@NotNull String dataId, Object data) {
+			myMap.put(dataId, data);
+		}
+
+		public <T> void put(@NotNull DataKey<T> dataKey, T data) {
+			put(dataKey.getName(), data);
+		}
 	}
 }
