@@ -1,6 +1,9 @@
 package io.intino.plugin.errorreporting;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.intellij.openapi.diagnostic.Logger;
 
 import java.io.BufferedReader;
@@ -43,7 +46,7 @@ public class PivotalLoggingEventSubmitter {
 		try {
 			PivotalStory story = new PivotalStory();
 			String response = createStory(story);
-			addInfo(story, new Gson().toJsonTree(response));
+			addInfo(story, new Gson().fromJson(response, JsonObject.class));
 			addCommentary(story);
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
@@ -70,9 +73,8 @@ public class PivotalLoggingEventSubmitter {
 		osw.close();
 	}
 
-	private void addInfo(PivotalStory story, JsonElement element) {
-		JsonObject jobject = element.getAsJsonObject();
-		story.id = jobject.get("id").getAsInt();
+	private void addInfo(PivotalStory story, JsonObject element) {
+		story.id = element.get("id").getAsInt();
 		story.url = url + "/" + story.id;
 	}
 
@@ -118,9 +120,9 @@ public class PivotalLoggingEventSubmitter {
 		int id;
 		String name = buildName();
 		String description = buildDescription(PivotalLoggingEventSubmitter.this.properties.get(REPORT_DESCRIPTION).toString());
-		String storyType = getReportType();
+		String story_type = getReportType();
 		List<String> labels = Collections.singletonList(PivotalLoggingEventSubmitter.this.properties.get(PLUGIN_NAME).toString());
-		String currentState = "unstarted";
+		String current_state = "unstarted";
 		String url;
 		String comment = (String) properties.get(REPORT_ADDITIONAL_INFO);
 
@@ -146,8 +148,8 @@ public class PivotalLoggingEventSubmitter {
 		JsonElement asJson() {
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.add("name", new JsonPrimitive(name));
-			jsonObject.add("current_state", new JsonPrimitive(currentState));
-			jsonObject.add("story_type", new JsonPrimitive(storyType));
+			jsonObject.add("current_state", new JsonPrimitive(current_state));
+			jsonObject.add("story_type", new JsonPrimitive(story_type));
 			jsonObject.add("labels", new Gson().toJsonTree(labels));
 			jsonObject.add("description", new JsonPrimitive(description));
 			return jsonObject;
