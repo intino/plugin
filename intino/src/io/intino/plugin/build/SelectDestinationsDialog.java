@@ -24,7 +24,7 @@ public class SelectDestinationsDialog {
 	private JPanel deploymentsPanel;
 	private JBTable table;
 	private final String artifact;
-	private Window parent;
+	private final Window parent;
 	private final List<Deployment> deployments;
 
 	public SelectDestinationsDialog(String artifact, Window parent, List<Deployment> deployments) {

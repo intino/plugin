@@ -4,8 +4,6 @@ import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 public class ArchetypeTest {
 

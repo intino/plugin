@@ -170,7 +170,7 @@ public class ArchetypeRenderer {
 	}
 
 	private void error(Exception e) {
-		Notifications.Bus.notify(new Notification("Tara Language", "Error parsing archetype.", e.getMessage() == null ? "Null" : e.getMessage(), NotificationType.ERROR));
+		Notifications.Bus.notify(new Notification("Intino", "Error parsing archetype.", e.getMessage() == null ? "Null" : e.getMessage(), NotificationType.ERROR));
 	}
 
 	private void writeFrame(File packageFolder, String name, String text) {

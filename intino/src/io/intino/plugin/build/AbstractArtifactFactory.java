@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -287,8 +288,11 @@ public abstract class AbstractArtifactFactory {
 		if (deployments.isEmpty()) {
 			errorMessages.add("Not Suitable Destinations have been found");
 			return Collections.emptyList();
-		} else if (deployments.size() > 1)
-			return new SelectDestinationsDialog(conf.artifact().name(), WindowManager.getInstance().suggestParentWindow(project), deployments).showAndGet();
+		} else if (deployments.size() > 1) {
+			final Window[] parent = new Window[1];
+			ApplicationManager.getApplication().invokeAndWait(() -> parent[0] = WindowManager.getInstance().suggestParentWindow(project));
+			return new SelectDestinationsDialog(conf.artifact().name(), parent[0], deployments).showAndGet();
+		}
 		if (askForDeploy(module, conf)) {
 			return deployments;
 		}
