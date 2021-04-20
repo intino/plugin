@@ -91,7 +91,7 @@ public class AllModuleDependencyPropagator {
 							"Calculating Project Updates", true, project);
 
 			if (libraries.isEmpty()) {
-				Notifications.Bus.notify(new Notification("Tara Language", "Dependency update", "The project " + project.getName() + " is  already updated", NotificationType.INFORMATION));
+				Notifications.Bus.notify(new Notification("Intino", "Dependency update", "The project " + project.getName() + " is  already updated", NotificationType.INFORMATION));
 				return Collections.emptyMap();
 			}
 			application.invokeAndWait(() -> {

@@ -1,9 +1,6 @@
 package io.intino.plugin.toolwindows.factory;
 
 import com.intellij.ide.ui.LafManagerListener;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.compiler.CompileScope;
@@ -12,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
 import io.intino.Configuration;
@@ -20,6 +18,7 @@ import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.actions.box.BoxElementsGenerationAction;
+import io.intino.plugin.actions.dialog.ModuleSelectorDialog;
 import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -78,14 +77,15 @@ public class IntinoFactoryView extends JPanel {
 		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		Module module = selectedModule();
-		if (module != null) {
-			saveConfiguration(module);
-			ArtifactFactory artifactFactory = new ArtifactFactory(module, phase);
-			artifactFactory.build(result -> {
-				if (result.equals(Retry)) artifactFactory.build(null);
-			});
-		} else Notifications.Bus.notify(new Notification("Tara Language",
-				phase.gerund() + " artifact", "Impossible identify module scope", NotificationType.ERROR));
+		if (module != null) build(phase, module);
+	}
+
+	private void build(FactoryPhase phase, Module module) {
+		saveConfiguration(module);
+		ArtifactFactory artifactFactory = new ArtifactFactory(module, phase);
+		artifactFactory.build(result -> {
+			if (result.equals(Retry)) artifactFactory.build(null);
+		});
 	}
 
 	private void saveConfiguration(Module module) {
@@ -184,12 +184,16 @@ public class IntinoFactoryView extends JPanel {
 
 	private Module selectedModule() {
 		final DataContext resultSync = getContext();
-		return resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
+		Module module = resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
+		if (module == null) {
+			ModuleSelectorDialog dialog = new ModuleSelectorDialog(this.project);
+			dialog.show();
+			return dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE ? dialog.selected() : null;
+		}
+		return module;
 	}
-
 
 	Component contentPane() {
 		return contentPane;
 	}
-
 }

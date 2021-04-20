@@ -186,7 +186,7 @@ public abstract class AbstractArtifactFactory {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new ConfirmationDialog(module.getProject(),
 				"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
-				"This version already exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet()));
+				"This Version Already Exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet()));
 		return response.get();
 	}
 
@@ -205,7 +205,6 @@ public abstract class AbstractArtifactFactory {
 			return true;
 		}
 	}
-
 
 	protected boolean isInMasterBranch() {
 		return "master".equalsIgnoreCase(startingBranch);
