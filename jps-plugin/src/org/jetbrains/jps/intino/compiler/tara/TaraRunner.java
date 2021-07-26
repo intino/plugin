@@ -25,7 +25,7 @@ import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 class TaraRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(TaraRunner.class.getName());
-	private static final int COMPILER_MEMORY = 600;
+	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
 	private List<String> classpath;
 
