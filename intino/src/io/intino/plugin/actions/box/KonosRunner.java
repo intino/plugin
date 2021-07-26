@@ -36,7 +36,7 @@ public class KonosRunner {
 	private static final com.intellij.openapi.diagnostic.Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(KonosRunner.class);
 
 	private static final char NL = '\n';
-	private static final int COMPILER_MEMORY = 600;
+	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
 	private final Module module;
 	private final StringBuilder output = new StringBuilder();
