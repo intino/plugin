@@ -1,6 +1,5 @@
-// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/archetype/lang/antlr/ArchetypeGrammar.g4 by ANTLR 4.8
+// Generated from /Users/oroncal/workspace/intino-plugin/intino/src/io/intino/plugin/archetype/lang/antlr/ArchetypeGrammar.g4 by ANTLR 4.9.1
 package io.intino.plugin.archetype.lang.antlr;
-
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -9,7 +8,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for
- *            operations with no return type.
+ * operations with no return type.
  */
 public class ArchetypeGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements ArchetypeGrammarVisitor<T> {
 	/**
@@ -18,118 +17,75 @@ public class ArchetypeGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitRoot(ArchetypeGrammar.RootContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitRoot(ArchetypeGrammar.RootContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitNode(ArchetypeGrammar.NodeContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitNode(ArchetypeGrammar.NodeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitDeclaration(ArchetypeGrammar.DeclarationContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitDeclaration(ArchetypeGrammar.DeclarationContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitStarting(ArchetypeGrammar.StartingContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitStarting(ArchetypeGrammar.StartingContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitParameters(ArchetypeGrammar.ParametersContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitParameters(ArchetypeGrammar.ParametersContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitSplitted(ArchetypeGrammar.SplittedContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitSplitted(ArchetypeGrammar.SplittedContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitParameter(ArchetypeGrammar.ParameterContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitParameter(ArchetypeGrammar.ParameterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitBody(ArchetypeGrammar.BodyContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitBody(ArchetypeGrammar.BodyContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitType(ArchetypeGrammar.TypeContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitType(ArchetypeGrammar.TypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitOwnerAndConsumer(ArchetypeGrammar.OwnerAndConsumerContext ctx) {
-		return visitChildren(ctx);
-	}
-
+	@Override public T visitOwnerAndConsumer(ArchetypeGrammar.OwnerAndConsumerContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override
-	public T visitUses(ArchetypeGrammar.UsesContext ctx) {
-		return visitChildren(ctx);
-	}
+	@Override public T visitUses(ArchetypeGrammar.UsesContext ctx) { return visitChildren(ctx); }
 }

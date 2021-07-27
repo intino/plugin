@@ -85,7 +85,7 @@ public class CesarAccessor {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.postBot(text, TimeZone.getDefault().getID());
+			return accessor.postBot(text, TimeZone.getDefault().getID()).raw();
 		} catch (InternalServerError e) {
 			return "Error executing command: " + e.getMessage();
 		}
