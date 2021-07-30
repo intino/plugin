@@ -109,7 +109,7 @@ def type(jmx) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>jmx</artifactId>
-		<version>$[1.0.0, 2.0.0)</version>
+		<version>1.0.2</version>
 	</dependency>
 	<dependency>
         <groupId>io.intino.alexandria</groupId>
