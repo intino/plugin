@@ -31,6 +31,12 @@ public class KonosFileType extends TaraFileType {
 		return "konos";
 	}
 
+	@Override
+	@NotNull
+	public String getDisplayName() {
+		return getName();
+	}
+
 	@Nullable
 	@Override
 	public javax.swing.Icon getIcon() {

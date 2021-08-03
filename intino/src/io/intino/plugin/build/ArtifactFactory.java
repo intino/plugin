@@ -48,7 +48,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		boolean distributed = isDistributed(configuration.artifact());
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
-			boolean hasChanges = task(() -> Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf)));
+			boolean hasChanges = Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
 			if (hasChanges) {
 				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();

@@ -23,7 +23,7 @@ import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.toolwindows.output.IntinoTopics;
 import io.intino.plugin.toolwindows.output.MavenListener;
 import org.apache.maven.shared.invoker.*;
-import org.codehaus.plexus.util.cli.CommandLineException;
+import org.apache.maven.shared.utils.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
@@ -223,7 +223,7 @@ public class MavenRunner {
 	}
 
 
-	public final class DefaultInvocationResult implements InvocationResult {
+	public static final class DefaultInvocationResult implements InvocationResult {
 		private CommandLineException executionException;
 		private int exitCode = -2147483648;
 

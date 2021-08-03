@@ -43,7 +43,7 @@ public class GitUtil {
 		String relativeFilePath = file.getPath().replace(vcsRoot.getPath(), "");
 		if (relativeFilePath.startsWith("/")) relativeFilePath = relativeFilePath.substring(1);
 		GitLineHandler handler = new GitLineHandler(module.getProject(), vcsRoot, GitCommand.STATUS);
-		GitCommandResult result = Git.getInstance().runCommand(handler);
+		GitCommandResult result = (GitCommandResult) withSyncTask(module.getProject(), "Checking vcs", () -> Git.getInstance().runCommand(handler));
 		if (result.success()) {
 			String finalRelativeFilePath = relativeFilePath;
 			return (finalRelativeFilePath.isEmpty() && !upToDate(result.getOutput())) || (!finalRelativeFilePath.isEmpty() && result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath)));

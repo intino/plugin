@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.GuiUtils;
-import com.petebevin.markdown.MarkdownProcessor;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import org.jetbrains.annotations.NonNls;
 
@@ -42,7 +41,6 @@ public class TaraDocumentationFormatter {
 		String html = "";
 		if (text == null) return "";
 		String cleanText = text.replaceAll("'", "").replaceAll(" \\s+", " ").trim();
-		html = new MarkdownProcessor().markdown(cleanText);
-		return html;
+		return com.github.rjeschke.txtmark.Processor.process(cleanText);
 	}
 }

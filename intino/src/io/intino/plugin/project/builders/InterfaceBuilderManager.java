@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
-import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
 	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";

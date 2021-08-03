@@ -26,7 +26,6 @@ import io.intino.plugin.toolwindows.output.remoteactions.DebugAction;
 import io.intino.plugin.toolwindows.output.remoteactions.ListenLogAction;
 import io.intino.plugin.toolwindows.output.remoteactions.RestartAction;
 import io.intino.plugin.toolwindows.output.remoteactions.StartStopAction;
-import org.apache.commons.collections.IteratorUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -35,6 +34,8 @@ import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ConsoleWindow {
 	public static final String CLEAR = "##clear##";
@@ -217,7 +218,9 @@ public class ConsoleWindow {
 	@SuppressWarnings("unchecked")
 	private List<Message> toInl(String text) {
 		try {
-			return IteratorUtils.toList(new MessageReader(text).iterator());
+			return StreamSupport
+					.stream(((Iterable<Message>) () -> new MessageReader(text).iterator()).spliterator(), false)
+					.collect(Collectors.toList());
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}

@@ -44,8 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
-import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
-import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
+
 
 public class LegioConfiguration implements Configuration {
 	private static final Logger LOG = Logger.getInstance(LegioConfiguration.class.getName());

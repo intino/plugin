@@ -33,6 +33,12 @@ public class LegioFileType extends TaraFileType {
 		return "legio";
 	}
 
+	@Override
+	@NotNull
+	public String getDisplayName() {
+		return getName();
+	}
+
 	@Nullable
 	@Override
 	public javax.swing.Icon getIcon() {

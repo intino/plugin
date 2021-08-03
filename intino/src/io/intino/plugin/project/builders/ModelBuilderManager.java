@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+
 
 public class ModelBuilderManager {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
