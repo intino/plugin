@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
@@ -24,6 +25,7 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
@@ -150,10 +152,16 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void buildLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (checker.shouldDistributeLanguage(lifeCyclePhase, module)) {
+		if (checker.shouldDistributeLanguage(lifeCyclePhase, module) && hasModelFiles(module)) {
 			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			buildLanguage(module);
 		}
+	}
+
+	private boolean hasModelFiles(Module module) {
+		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
+		if (!srcRoot.exists()) return false;
+		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
 	}
 
 	private void buildLanguage(Module module) {
