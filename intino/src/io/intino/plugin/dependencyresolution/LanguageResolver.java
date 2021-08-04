@@ -95,9 +95,9 @@ public class LanguageResolver {
 
 	private void resolveSources(DependencyCatalog catalog, Map<Artifact, DependencyScope> framework) {
 		Artifact mainArtifact = framework.keySet().iterator().next();
-		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + scope.name(), a.getFile())));
+		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getBaseVersion() + ":" + scope.name(), a.getFile())));
 		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
-		model.language().effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getVersion() : "");
+		model.language().effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getBaseVersion() : "");
 	}
 
 	private Map<Artifact, DependencyScope> findLanguageFramework(String frameworkCoors) {

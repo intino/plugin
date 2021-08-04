@@ -36,7 +36,7 @@ import static io.intino.plugin.project.Safe.safe;
 class LanguageDeclarationAnalyzer extends TaraAnalyzer {
 	private final Node modelNode;
 	private final LegioConfiguration configuration;
-	private Module module;
+	private final Module module;
 
 	LanguageDeclarationAnalyzer(Node node, Module module) {
 		this.modelNode = node;

@@ -20,6 +20,7 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
@@ -27,8 +28,11 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.file.TaraFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -48,18 +52,17 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		boolean distributed = isDistributed(configuration.artifact());
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
-			boolean hasChanges = Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
-			if (hasChanges) {
+			if (hasChanges()) {
 				errorMessages.add("Module has changes. Please commit them and retry.");
 				notifyErrors();
 				return;
 			}
 
-			if (hasSnapshotDependencies()) {
-				errorMessages.add("A release version must not have SNAPSHOT dependencies.");
-				notifyErrors();
-				return;
-			}
+//			if (hasSnapshotDependencies()) {
+//				errorMessages.add("A release version must not have SNAPSHOT dependencies.");
+//				notifyErrors();
+//				return;
+//			}
 			try {
 				checker.check(phase, module, configuration);
 				if (startingBranch != null && !isInMasterBranch() && !askForReleaseDistribute()) return;
@@ -79,6 +82,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
 			else compilerManager.make(scope, processArtifact(callback));
 		}
+	}
+
+	private boolean hasChanges() {
+		return Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
 	}
 
 	private boolean hasSnapshotDependencies() {
@@ -169,7 +176,13 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists();
+		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists() && hasModelFiles(((LegioConfiguration) configuration).module());
+	}
+
+	private boolean hasModelFiles(Module module) {
+		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
+		if (!srcRoot.exists()) return false;
+		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
 	}
 
 	private String firstUpperCase(String input) {
