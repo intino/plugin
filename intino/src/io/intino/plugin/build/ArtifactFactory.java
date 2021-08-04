@@ -169,7 +169,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void notifyErrors() {
-		Bus.notify(new Notification("Tara Language", MessageProvider.message("error.occurred", phase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
+		Bus.notify(new Notification("Intino", MessageProvider.message("error.occurred", phase.gerund().toLowerCase()), errorMessages.get(0), NotificationType.ERROR), project);
 	}
 
 	private boolean needsToRebuild() {
@@ -215,7 +215,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void notify(Project project, String title, String body) {
-		Bus.notify(new Notification("Tara Language", title, body, NotificationType.INFORMATION), project);
+		Bus.notify(new Notification("Intino", title, body, NotificationType.INFORMATION), project);
 	}
 
 	public interface FinishCallback {
