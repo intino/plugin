@@ -53,5 +53,9 @@ public class LegioDistribution implements Configuration.Distribution {
 		};
 	}
 
-
+	@Override
+	public boolean distributeLanguage() {
+		String distributeLanguage = parameterValue(node, "distributeLanguage");
+		return distributeLanguage == null || Boolean.parseBoolean(distributeLanguage);
+	}
 }

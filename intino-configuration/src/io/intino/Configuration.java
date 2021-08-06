@@ -336,6 +336,8 @@ public interface Configuration {
 
 		BitBucketDistribution onBitbucket();
 
+		boolean distributeLanguage();
+
 		interface BitBucketDistribution {
 			String owner();
 
