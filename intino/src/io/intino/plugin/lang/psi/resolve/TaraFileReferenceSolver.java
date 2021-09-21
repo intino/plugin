@@ -28,7 +28,9 @@ public class TaraFileReferenceSolver extends TaraReferenceSolver {
 	@Override
 	public PsiElement resolve() {
 		final List<PsiElement> results = ReferenceManager.resolve((Identifier) myElement.getLastChild());
-		return results.isEmpty() ? null : results.get(0);
+		if (results.isEmpty()) return null;
+		final PsiElement e = results.get(0);
+		return e instanceof TaraModel ? ((TaraModel) e).getDSLDeclaration().getHeaderReference().getIdentifierList().get(0) : e;
 	}
 
 	@NotNull

@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.search.GlobalSearchScope;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.alexandria.logger.Logger;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
-import static com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
@@ -359,12 +359,12 @@ public class LegioArtifact implements Configuration.Artifact {
 			final String workingPackage = language.generationPackage().replace(".graph", "");
 			String artifact = LanguageResolver.languageId(language.name(), language.effectiveVersion()).split(":")[1];
 			Application application = ApplicationManager.getApplication();
-			PsiClass aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, artifact), moduleWithDependenciesAndLibrariesScope(module)));
+			PsiClass aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, artifact), GlobalSearchScope.allScope(module.getProject())));
 			if (aClass == null)
-				aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, language.name()), moduleWithDependenciesAndLibrariesScope(module)));
+				aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, language.name()), GlobalSearchScope.allScope(module.getProject())));
 			if (aClass != null) {
 				String qualifiedName = aClass.getQualifiedName();
-				if (qualifiedName == null) return "";
+				if (qualifiedName == null) return null;
 				return qualifiedName.substring(0, qualifiedName.length() - 3);
 			}
 		} catch (Exception e) {
