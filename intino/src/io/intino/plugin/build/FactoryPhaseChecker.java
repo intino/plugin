@@ -70,7 +70,7 @@ public class FactoryPhaseChecker {
 		if (!(configuration instanceof LegioConfiguration)) return false;
 		if (noDistributionRepository(lifeCyclePhase, configuration)) return false;
 		Configuration.Distribution distribution = safe(() -> configuration.artifact().distribution());
-		if (distribution != null && distribution.distributeLanguage()) return false;
+		if (distribution != null && !distribution.distributeLanguage()) return false;
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
 	}
