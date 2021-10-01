@@ -5,12 +5,17 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.net.HttpConfigurable;
 import com.jcabi.aether.Aether;
 import io.intino.Configuration.Artifact.Model;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.IntinoDirectory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.Authentication;
+import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -55,10 +60,27 @@ public class ModelBuilderManager {
 	}
 
 	private List<Artifact> artifacts() throws DependencyResolutionException {
+		return new Aether(repos(), localRepository).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
+	}
+
+	@NotNull
+	private List<RemoteRepository> repos() {
 		final List<RemoteRepository> repos = Arrays.asList(
 				new RemoteRepository("intino-maven", "default", TARA_BUILDER_REPOSITORY).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)),
 				new RemoteRepository("maven-central", "default", ArtifactoryConnector.MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		return new Aether(repos, localRepository).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
+		repos.forEach(ModelBuilderManager::addProxies);
+		return repos;
+	}
+
+	private static void addProxies(RemoteRepository r) {
+		final HttpConfigurable proxyConf = HttpConfigurable.getInstance();
+		if (proxyConf.isHttpProxyEnabledForUrl(r.getUrl()))
+			r.setProxy(new Proxy("http", proxyConf.PROXY_HOST, proxyConf.PROXY_PORT, auth(proxyConf)));
+	}
+
+	@Nullable
+	private static Authentication auth(HttpConfigurable proxyConf) {
+		return proxyConf.getProxyLogin() != null && !proxyConf.getProxyLogin().isEmpty() ? new Authentication(proxyConf.getProxyLogin(), proxyConf.getPlainProxyPassword()) : null;
 	}
 
 	private void saveClassPath(List<String> paths) {

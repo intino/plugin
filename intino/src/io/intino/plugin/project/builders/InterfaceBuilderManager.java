@@ -2,6 +2,7 @@ package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.util.net.HttpConfigurable;
 import com.jcabi.aether.Aether;
 import io.intino.magritte.Language;
 import io.intino.magritte.dsl.Tara;
@@ -11,7 +12,10 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.repository.Authentication;
+import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -194,6 +198,18 @@ public class InterfaceBuilderManager {
 		}
 		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
+		remotes.forEach(InterfaceBuilderManager::addProxies);
 		return remotes;
+	}
+
+	private static void addProxies(RemoteRepository r) {
+		final HttpConfigurable proxyConf = HttpConfigurable.getInstance();
+		if (proxyConf.isHttpProxyEnabledForUrl(r.getUrl()))
+			r.setProxy(new Proxy("http", proxyConf.PROXY_HOST, proxyConf.PROXY_PORT, auth(proxyConf)));
+	}
+
+	@Nullable
+	private static Authentication auth(HttpConfigurable proxyConf) {
+		return proxyConf.getProxyLogin() != null && !proxyConf.getProxyLogin().isEmpty() ? new Authentication(proxyConf.getProxyLogin(), proxyConf.getPlainProxyPassword()) : null;
 	}
 }
