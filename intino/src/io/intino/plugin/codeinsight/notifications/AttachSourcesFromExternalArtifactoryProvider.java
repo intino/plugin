@@ -67,19 +67,23 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		}
 	}
 
-	private void attachSources(List<LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact artifact, PsiFile psiFile) {
+	private void attachSources(List<LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact a, PsiFile psiFile) {
 		Application application = ApplicationManager.getApplication();
 		application.runWriteAction(() -> {
-			if (artifact == null) {
+			if (a == null) {
 				notifyNotFound(resultWrapper, psiFile);
 				return;
 			}
 			for (LibraryOrderEntry orderEntry : orderEntries) {
-				DependencyCatalog.Dependency dependency = new DependencyCatalog.Dependency(artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":COMPILE", artifact.getFile(), true);
+				DependencyCatalog.Dependency dependency = new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + classifier(a) + ":" + a.getVersion() + ":COMPILE", a.getFile(), true);
 				new ProjectLibrariesManager(orderEntry.getOwnerModule().getProject()).registerSources(dependency);
 			}
 		});
 		resultWrapper.setDone();
+	}
+
+	private String classifier(Artifact a) {
+		return a.getClassifier().trim().isEmpty() ? "" : ":" + a.getClassifier();
 	}
 
 	private void notifyNotFound(ActionCallback resultWrapper, PsiFile psiFile) {

@@ -60,6 +60,7 @@ public class DependencyCatalog {
 		boolean sources;
 		String groupId;
 		String artifactId;
+		String classifier;
 		String version;
 		DependencyScope scope;
 		String moduleReference;
@@ -80,7 +81,8 @@ public class DependencyCatalog {
 			String[] split = mavenId().split(":");
 			this.groupId = split[0];
 			this.artifactId = split[1];
-			this.version = split[2];
+			this.classifier = split.length == 5 ? split[2] : "";
+			this.version = split.length == 5 ? split[3] : split[2];
 			this.scope = calculateScope();
 		}
 
@@ -95,6 +97,10 @@ public class DependencyCatalog {
 
 		public File jar() {
 			return jar;
+		}
+
+		public String classifier() {
+			return classifier;
 		}
 
 		public DependencyScope scope() {

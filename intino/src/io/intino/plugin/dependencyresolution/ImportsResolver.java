@@ -128,10 +128,14 @@ public class ImportsResolver {
 			return new DependencyCatalog();
 		}
 		DependencyCatalog catalog = new DependencyCatalog();
-		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getBaseVersion() + ":" + s.name(), a.getFile(), false)));
+		artifacts.forEach((a, s) -> catalog.add(new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + classifier(a) + ":" + a.getBaseVersion() + ":" + s.name(), a.getFile(), false)));
 		d.effectiveVersion(findArtifact(artifacts, d.groupId(), d.artifactId()).getBaseVersion());
 		d.resolved(true);
 		return catalog;
+	}
+
+	private String classifier(Artifact a) {
+		return a.getClassifier().trim().isEmpty() ? "" : ":" + a.getClassifier();
 	}
 
 	private Artifact findArtifact(Map<Artifact, DependencyScope> artifacts, String groupId, String artifactId) {
