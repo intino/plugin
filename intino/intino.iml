@@ -92,11 +92,11 @@
     <orderEntry type="library" name="Maven: org.sonatype.plexus:plexus-cipher:1.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-model:3.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-interpolation:1.26" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:3.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-invoker:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.shared:maven-shared-utils:3.3.3" level="project" />
-    <orderEntry type="library" name="Maven: io.intino:cesar-api-accessor:4.5.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.3.3" level="project" />
+    <orderEntry type="library" name="Maven: io.intino:cesar-api-accessor:5.0.0" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.alexandria:rest-accessor:2.3.4" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:exceptions:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: io.intino.alexandria:primitives:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" level="project" />
