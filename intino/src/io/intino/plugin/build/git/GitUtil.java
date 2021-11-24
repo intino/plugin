@@ -46,7 +46,7 @@ public class GitUtil {
 		GitCommandResult result = (GitCommandResult) withSyncTask(module.getProject(), "Checking vcs", () -> Git.getInstance().runCommand(handler));
 		if (result.success()) {
 			String finalRelativeFilePath = relativeFilePath;
-			return (finalRelativeFilePath.isEmpty() && !upToDate(result.getOutput())) || (!finalRelativeFilePath.isEmpty() && result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath)));
+			return (!upToDate(result.getOutput())) && (!finalRelativeFilePath.isEmpty() && result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath)));
 		}
 		return false;
 	}

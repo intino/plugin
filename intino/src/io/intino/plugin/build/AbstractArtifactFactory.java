@@ -185,7 +185,7 @@ public abstract class AbstractArtifactFactory {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			response.set(new ConfirmationDialog(module.getProject(),
 					"You aren't in master branch. Changes will be merged into master and pushed. Do you want to continue?",
-					"Release distribution. Are you sure to distribute a Release version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
+					"Release Distribution. Are You Sure to Distribute a Release Version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
 		});
 		return response.get();
 	}
@@ -216,6 +216,10 @@ public abstract class AbstractArtifactFactory {
 
 	protected boolean isInMasterBranch() {
 		return "master".equalsIgnoreCase(startingBranch);
+	}
+
+	protected boolean isHotFixBranch() {
+		return startingBranch.toLowerCase().startsWith("hotfix");
 	}
 
 	private void cleanWebOutputs(Module module) {
