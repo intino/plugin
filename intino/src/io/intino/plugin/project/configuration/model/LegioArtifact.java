@@ -3,14 +3,13 @@ package io.intino.plugin.project.configuration.model;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.search.GlobalSearchScope;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
-import io.intino.alexandria.logger.Logger;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
+import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
@@ -43,6 +43,8 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class LegioArtifact implements Configuration.Artifact {
+	private static final com.intellij.openapi.diagnostic.Logger LOG = com.intellij.openapi.diagnostic.Logger.getInstance(LegioArtifact.class.getName());
+
 	public static final String EQ = "=";
 	private final LegioConfiguration root;
 	private final DependencyAuditor dependencyAuditor;
@@ -344,33 +346,53 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	private String parent(Model model) {
-		Application application = ApplicationManager.getApplication();
+		final Application application = ApplicationManager.getApplication();
 		if (application.isReadAccessAllowed()) return calculateParent(model);
 		return application.<String>runReadAction(() -> calculateParent(model));
 	}
 
 	private String calculateParent(Model model) {
 		try {
-			if (node == null || model == null) return null;
+			LOG.warn("Owner interface: Searching");
+			if (node == null || model == null) {
+				LOG.info("Owner interface: Model not found; " + (node == null ? "node null" : "model null"));
+				return null;
+			}
 			Module module = ModuleProvider.moduleOf(node);
 			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
 			Model.Language language = model.language();
-			if (language == null || language.generationPackage() == null) return null;
+			if (language == null || language.generationPackage() == null) {
+				LOG.info("Owner interface: Language not found; " + (language == null ? "language null" : "generationPackage null"));
+				return null;
+			}
 			final String workingPackage = language.generationPackage().replace(".graph", "");
-			String artifact = LanguageResolver.languageId(language.name(), language.effectiveVersion()).split(":")[1];
-			Application application = ApplicationManager.getApplication();
-			PsiClass aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, artifact), GlobalSearchScope.allScope(module.getProject())));
+			final String languageId = LanguageResolver.languageId(language.name(), language.effectiveVersion());
+			if (languageId == null) {
+				LOG.error("Owner interface: LanguageId = null;" + language.name() + "," + language.effectiveVersion());
+				return null;
+			}
+			String artifact = languageId.split(":")[1];
+			final String parentBoxName = parentBoxName(workingPackage, artifact);
+			LOG.info("Owner interface: parentBoxName = " + parentBoxName);
+
+			PsiClass aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName, allScope(module.getProject())));
 			if (aClass == null)
-				aClass = application.runReadAction((Computable<PsiClass>) () -> facade.findClass(parentBoxName(workingPackage, language.name()), GlobalSearchScope.allScope(module.getProject())));
+				aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName(workingPackage, language.name()), allScope(module.getProject())));
 			if (aClass != null) {
 				String qualifiedName = aClass.getQualifiedName();
-				if (qualifiedName == null) return null;
+				if (qualifiedName == null) {
+					LOG.warn("Owner interface cannot be collected. QualifiedName = null");
+					return null;
+				}
 				return qualifiedName.substring(0, qualifiedName.length() - 3);
 			}
-		} catch (Exception e) {
-			if (e instanceof NullPointerException) e.printStackTrace();
-			else Logger.error(e.getMessage());
+		} catch (IndexNotReadyException e) {
+			e.printStackTrace();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			LOG.error(e.getMessage());
 		}
+		LOG.warn("Owner interface cannot be collected. aClass = null");
 		return null;
 	}
 
