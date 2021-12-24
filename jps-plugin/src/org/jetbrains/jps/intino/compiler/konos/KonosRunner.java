@@ -24,7 +24,7 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 class KonosRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(KonosRunner.class.getName());
-	private static final int COMPILER_MEMORY = 1024;
+	private static final int COMPILER_MEMORY = 2048;
 	private static final String MINIMUM_VERSION = "8.0.0";
 	private static File argsFile;
 	private List<String> classpath;
