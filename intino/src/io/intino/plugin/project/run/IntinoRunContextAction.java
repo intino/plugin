@@ -8,7 +8,11 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.runners.ExecutionUtil;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -18,6 +22,7 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.awt.RelativePoint;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -40,6 +45,29 @@ public class IntinoRunContextAction extends RunContextAction {
 		super(executor);
 		this.context = createContext(runConfiguration);
 		this.runConfiguration = (Node) runConfiguration;
+	}
+
+	@Override
+	protected void perform(ConfigurationContext context) {
+		final RunManagerEx runManager = (RunManagerEx) context.getRunManager();
+		DataContext dataContext = context.getDefaultDataContext();
+		ReadAction.nonBlocking(() -> context.findExisting() != null ? context.findExisting() : context.getConfiguration())
+				.finishOnUiThread(ModalityState.NON_MODAL, existingConfiguration -> perform(runManager, existingConfiguration, dataContext))
+				.submit(AppExecutorUtil.getAppExecutorService());
+	}
+
+	private void perform(RunManagerEx runManager,
+						 RunnerAndConfigurationSettings configuration,
+						 DataContext dataContext) {
+		if (runManager.findConfigurationByName(configuration.getName()) == null)
+			runManager.addConfiguration(configuration);
+		if (runManager.shouldSetRunConfigurationFromContext()) runManager.setSelectedConfiguration(configuration);
+		if (LOG.isDebugEnabled()) {
+			String configurationClass = configuration.getConfiguration().getClass().getName();
+			LOG.debug(String.format("Execute run configuration: %s", configurationClass));
+		}
+		if (ApplicationManager.getApplication().isUnitTestMode()) return;
+		ExecutionUtil.doRunConfiguration(configuration, getExecutor(), null, null, dataContext);
 	}
 
 	@Override
@@ -136,12 +164,7 @@ public class IntinoRunContextAction extends RunContextAction {
 		return enabledConfigurations;
 	}
 
-	@Override
-	public String toString() {
-		return super.toString();
-	}
-
-	public class MapDataContext implements DataContext {
+	public static class MapDataContext implements DataContext {
 		private final Map<String, Object> myMap = new HashMap<>();
 
 		public MapDataContext() {

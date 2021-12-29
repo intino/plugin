@@ -7,8 +7,7 @@ import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.actions.ConfigurationFromContextImpl;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
+import com.intellij.execution.application.ApplicationConfigurationProducer;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -34,27 +33,8 @@ import java.util.Objects;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.Configuration.Artifact;
 
-public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBase<ApplicationConfiguration> {
+public class IntinoConfigurationProducer extends ApplicationConfigurationProducer {
 	private static final Logger LOG = Logger.getInstance(IntinoConfigurationProducer.class);
-
-	@Nullable
-	public ConfigurationFromContext createConfigurationFromContext(@NotNull ConfigurationContext context) {
-		final RunnerAndConfigurationSettings settings = cloneTemplateConfiguration(context);
-		Ref<PsiElement> ref = new Ref<>(context.getPsiLocation());
-		try {
-			if (!setupConfigurationFromContext((ApplicationConfiguration) settings.getConfiguration(), context, ref))
-				return null;
-		} catch (ClassCastException e) {
-			LOG.error(getConfigurationFactory() + " produced wrong type", e);
-			return null;
-		} catch (ProcessCanceledException e) {
-			throw e;
-		} catch (Throwable e) {
-			LOG.error(e);
-			return null;
-		}
-		return new ConfigurationFromContextImpl(this, settings, ref.get());
-	}
 
 	@Override
 	protected boolean setupConfigurationFromContext(@NotNull ApplicationConfiguration configuration, @NotNull ConfigurationContext context, Ref<PsiElement> sourceElement) {
@@ -90,21 +70,31 @@ public class IntinoConfigurationProducer extends JavaRunConfigurationProducerBas
 		return false;
 	}
 
+	@Nullable
+	public ConfigurationFromContext createConfigurationFromContext(@NotNull ConfigurationContext context) {
+		final RunnerAndConfigurationSettings settings = cloneTemplateConfiguration(context);
+		Ref<PsiElement> ref = new Ref<>(context.getPsiLocation());
+		try {
+			if (!setupConfigurationFromContext((ApplicationConfiguration) settings.getConfiguration(), context, ref))
+				return null;
+		} catch (ClassCastException e) {
+			LOG.error(getConfigurationFactory() + " produced wrong type", e);
+			return null;
+		} catch (ProcessCanceledException e) {
+			throw e;
+		} catch (Throwable e) {
+			LOG.error(e);
+			return null;
+		}
+		context.setConfiguration(settings);
+		return new ConfigurationFromContextImpl(this, settings, ref.get());
+	}
+
 	@Override
 	public boolean shouldReplace(@NotNull ConfigurationFromContext self, @NotNull ConfigurationFromContext other) {
 		return self.getSourceElement().equals(other.getSourceElement());
 	}
 
-	@Override
-	public boolean isPreferredConfiguration(ConfigurationFromContext self, ConfigurationFromContext other) {
-		return super.isPreferredConfiguration(self, other);
-	}
-
-	@NotNull
-	@Override
-	public ConfigurationFactory getConfigurationFactory() {
-		return IntinoConfigurationType.getInstance().getConfigurationFactories()[0];
-	}
 
 	@NotNull
 	private String configurationName(PsiElement location, LegioConfiguration conf) {

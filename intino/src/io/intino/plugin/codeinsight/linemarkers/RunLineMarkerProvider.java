@@ -3,7 +3,6 @@ package io.intino.plugin.codeinsight.linemarkers;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
 import com.intellij.execution.Executor;
-import com.intellij.execution.ExecutorRegistry;
 import com.intellij.execution.actions.RunContextAction;
 import com.intellij.execution.lineMarker.LineMarkerActionWrapper;
 import com.intellij.icons.AllIcons;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-
 import java.util.List;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
@@ -40,11 +38,11 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	@Nullable
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull PsiElement element) {
+	public LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element) {
 		if (!isRunConfiguration(element)) return null;
 		final Info info = createInfo(ModuleProvider.moduleOf(element), element);
 		if (info == null) return null;
-		final DefaultActionGroup actionGroup = new DefaultActionGroup("run actions", true);
+		final DefaultActionGroup actionGroup = new DefaultActionGroup("Run Actions", true);
 		actionGroup.getTemplatePresentation().setVisible(true);
 		actionGroup.getTemplatePresentation().setEnabled(true);
 		for (AnAction action : info.actions) actionGroup.add(new LineMarkerActionWrapper(element, action));
@@ -52,11 +50,11 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 			final String value = info.tooltipProvider.apply(element1);
 			return value.length() == 0 ? null : value;
 		};
-		return getLineMarkerInfo(element, info, actionGroup, tooltipProvider);
+		return createLineMarkerInfo(element, info, actionGroup, tooltipProvider);
 	}
 
 	@NotNull
-	private LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
+	private LineMarkerInfo<PsiElement> createLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
 		return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), info.icon,
 				tooltipProvider, null,
 				GutterIconRenderer.Alignment.CENTER) {

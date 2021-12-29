@@ -9,7 +9,6 @@ import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
-import io.intino.plugin.project.run.IntinoRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -112,7 +111,7 @@ public class ConfigurationReloader {
 
 	private ApplicationConfiguration findRunConfiguration(String name) {
 		final List<com.intellij.execution.configurations.RunConfiguration> list = RunManager.getInstance(module.getProject()).
-				getAllConfigurationsList().stream().filter(r -> r instanceof IntinoRunConfiguration).collect(Collectors.toList());
+				getAllConfigurationsList().stream().filter(r -> r instanceof ApplicationConfiguration).collect(Collectors.toList());
 		return (ApplicationConfiguration) list.stream().filter(r -> (r.getName()).equalsIgnoreCase(artifact.name().toLowerCase() + "-" + name)).findFirst().orElse(null);
 	}
 }

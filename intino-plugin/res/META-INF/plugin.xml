@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>5.8.2</version>
+	<version>5.8.3</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>org.jetbrains.idea.maven</depends>
@@ -143,7 +143,6 @@
 		<moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.IntinoModuleType"/>
 		<httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
-		<configurationType implementation="io.intino.plugin.project.run.IntinoConfigurationType"/>
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
 		<codeInsight.lineMarkerProvider language="Tara"

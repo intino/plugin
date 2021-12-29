@@ -150,16 +150,15 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	@Override
 	public Lexer getHighlightingLexer() {
 		if (project == null) {
-			final DataContext[] result = {context()};
-			if (result[0] == null)
-				if (!EventQueue.isDispatchThread()) {
-					try {
-						final Application application = ApplicationManager.getApplication();
+			final DataContext[] result = {null};
+			if (!EventQueue.isDispatchThread()) {
+				try {
+					final Application application = ApplicationManager.getApplication();
 //						application.acquireReadActionLock().close();
-						application.invokeAndWait(() -> result[0] = syncContext());
-					} catch (Throwable ignored) {
-					}
-				} else result[0] = syncContext();
+//						application.invokeAndWait(() -> result[0] = syncContext());
+				} catch (Throwable ignored) {
+				}
+			} else result[0] = syncContext();
 			project = result[0] != null ? result[0].getData(LangDataKeys.PROJECT) : WindowManager.getInstance().getAllProjectFrames()[0].getProject();
 		}
 
@@ -174,18 +173,9 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 		}
 	}
 
-	private DataContext context() {
-		try {
-			return io.intino.plugin.project.DataContext.getContext();
-		} catch (Throwable e) {
-			return null;
-		}
-	}
-
 	@NotNull
 	@Override
 	public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
 		return pack(KEYS.get(tokenType));
 	}
-
 }
