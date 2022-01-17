@@ -20,7 +20,7 @@ import static java.util.stream.IntStream.range;
 
 class StashToTara {
 
-	private StringBuilder builder = new StringBuilder();
+	private final StringBuilder builder = new StringBuilder();
 
 	static Path createTara(VirtualFile stash, File destiny) throws IOException {
 		destiny.deleteOnExit();

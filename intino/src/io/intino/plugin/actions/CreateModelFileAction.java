@@ -12,6 +12,8 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.net.HttpProxyConfigurable;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
