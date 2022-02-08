@@ -3,7 +3,7 @@ def type(legio & empty)
 
 	Artifact(groupId = "org.example", version = "1.0.0") $name
 		Imports
-			Test(groupId = "junit", artifactId = "junit", version = "LATEST")
+			Test(groupId = "junit", artifactId = "junit", version = "4.13")
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
 
 	Repository(identifier = "intino-maven")
@@ -23,7 +23,7 @@ def type(legio) !type(empty)
 
 	[$isIntino
 	Repository(identifier = "intino-maven")
-		Release("https://artifactory.intino.io/artifactory/releases")
+		Release("https://artifactory.intino.io/artifactory/releases")]
 	[$repository...[$NL]]
 end
 
