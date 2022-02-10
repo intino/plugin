@@ -100,9 +100,15 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 		for (Map.Entry<ModuleBuildTarget, List<OutputItem>> entry : compiled.entrySet())
 			for (OutputItem outputItem : entry.getValue()) {
 				final File generatedFile = new File(outputItem.getOutputPath());
-				outputConsumer.registerOutputFile(entry.getKey(), generatedFile, Collections.singleton(outputItem.getSourcePath()));
+				if (isGen(generatedFile, entry.getKey().getModule()))
+					outputConsumer.registerOutputFile(entry.getKey(), generatedFile, Collections.singleton(outputItem.getSourcePath()));
 				FSOperations.markDirty(context, CompilationRound.CURRENT, generatedFile);
 			}
+	}
+
+	private boolean isGen(File generatedFile, @NotNull JpsModule module) {
+		String genDir = getGenDir(module);
+		return generatedFile.getAbsolutePath().startsWith(genDir);
 	}
 
 	private void removeOldClasses(CompileContext context, Map<ModuleBuildTarget, List<OutputItem>> compiled) {
