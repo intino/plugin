@@ -29,14 +29,13 @@ import java.nio.file.Path;
 class StashEditor implements TextEditor {
 	private final VirtualFile stash;
 	private StashEditorComponent myComponent;
-	private Path path;
 	private VirtualFile taraVFile;
 
 
 	StashEditor(Project project, VirtualFile stash) {
 		this.stash = stash;
 		try {
-			path = StashToTara.createTara(stash, new File(FileUtilRt.getTempDirectory(), "__temp" + stash.getName() + ".tara"));
+			Path path = StashToTara.createTara(stash, new File(FileUtilRt.getTempDirectory(), "__temp" + stash.getName() + ".tara"));
 			taraVFile = VfsUtil.findFileByIoFile(path.toFile(), true);
 			refreshFiles();
 			if (taraVFile != null) myComponent = createEditorComponent(project, taraVFile);
@@ -126,6 +125,11 @@ class StashEditor implements TextEditor {
 	@Override
 	public void deselectNotify() {
 
+	}
+
+	@Override
+	public @Nullable VirtualFile getFile() {
+		return stash;
 	}
 
 	@Override

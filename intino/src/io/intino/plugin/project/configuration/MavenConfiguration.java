@@ -123,7 +123,7 @@ public class MavenConfiguration implements Configuration {
 						return new Artifact.Model.Language() {
 							@Override
 							public String name() {
-								return maven.getProperties().getProperty(MavenTags.DSL);
+								return maven == null ? null : maven.getProperties().getProperty(MavenTags.DSL);
 							}
 
 							@Override
@@ -155,18 +155,21 @@ public class MavenConfiguration implements Configuration {
 
 					@Override
 					public String outLanguage() {
+						if (maven == null) return null;
 						final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL);
 						return outDSL != null ? outDSL : "";
 					}
 
 					@Override
 					public String outLanguageVersion() {
+						if (maven == null) return null;
 						final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL_VERSION);
 						return outDSL != null ? outDSL : "";
 					}
 
 					@Override
 					public Level level() {
+						if (maven == null) return null;
 						final String property = maven.getProperties().getProperty(MavenTags.LEVEL);
 						return property == null ? Level.Platform : Level.valueOf(property);
 					}
@@ -274,62 +277,4 @@ public class MavenConfiguration implements Configuration {
 	public List<Repository> repositories() {
 		return Collections.emptyList();
 	}
-
-//	@Override
-//	public Box box() {
-//		return new Box() {
-//			@Override
-//			public String language() {
-//				return maven.getProperties().getProperty(MavenTags.INTERFACE_NAME);
-//			}
-//
-//			@Override
-//			public String version() {
-//				return maven.getProperties().getProperty(MavenTags.INTERFACE_VERSION);
-//			}
-//
-//			@Override
-//			public String effectiveVersion() {
-//				return version();
-//			}
-//
-//			@Override
-//			public String targetPackage() {
-//				return "box";
-//			}
-//		};
-//	}
-//
-//	@Override
-//	public Map<String, String> releaseRepositories() {
-//		return maven.getRemoteRepositories().stream().
-//				filter(repository -> repository.getSnapshotsPolicy() == null).
-//				collect(Collectors.toMap(MavenRemoteRepository::getUrl, MavenRemoteRepository::getId));
-//	}
-//
-//	@Override
-//	public String snapshotRepository() {
-//		return maven.getRemoteRepositories().stream().
-//				filter(repository -> repository.getSnapshotsPolicy() != null).
-//				map(MavenRemoteRepository::getUrl).findFirst().orElse("");
-//	}
-//
-//	@Override
-//	public Map<String, String> languageRepositories() {
-//		return maven.getRemoteRepositories().stream().
-//				filter(repository -> repository.getSnapshotsPolicy() == null).
-//				collect(Collectors.toMap(MavenRemoteRepository::getUrl, MavenRemoteRepository::getId));
-//	}
-//
-//
-//	@Override
-//	public String version() {
-//		return maven.getMavenId().getVersion();
-//	}
-//
-//	@Override
-//	public void version(String newVersion) {
-//		mavenHelper.version(newVersion);
-//	}
-
 }

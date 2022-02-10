@@ -91,6 +91,7 @@ public class KonosBuilder extends IntinoBuilder {
 		return OK;
 	}
 
+	@NotNull
 	@Override
 	public List<String> getCompilableFileExtensions() {
 		return Collections.singletonList(KONOS_EXTENSION);

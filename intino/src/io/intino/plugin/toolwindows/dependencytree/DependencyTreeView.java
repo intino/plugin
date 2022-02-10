@@ -1,17 +1,18 @@
 package io.intino.plugin.toolwindows.dependencytree;
 
+import com.intellij.ProjectTopics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.util.containers.Convertor;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.plugin.actions.ReloadConfigurationAction;
@@ -53,6 +54,17 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		super(true);
 		this.project = project;
 		initProjectTree();
+		project.getMessageBus().connect().subscribe(ProjectTopics.MODULES, new ModuleListener() {
+			@Override
+			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
+				renderProject(root);
+			}
+
+			@Override
+			public void moduleRemoved(@NotNull Project project, @NotNull Module module) {
+				renderProject(root);
+			}
+		});
 	}
 
 	Component contentPane() {
@@ -151,7 +163,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	@NotNull
-	private ArrayList childrenOf(DefaultMutableTreeNode module) {
+	private List<TreeNode> childrenOf(DefaultMutableTreeNode module) {
 		return Collections.list(module.children());
 	}
 
@@ -294,7 +306,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		private final Module module;
 		private final String label;
 		private final String scope;
-		private String library;
+		private final String library;
 
 		DependencyNode(Module module, String library) {
 			this(module, library, library);
@@ -328,23 +340,8 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		}
 	}
 
-	private static class TreePathStringConvertor implements Convertor<TreePath, String> {
-		@Override
-		public String convert(TreePath o) {
-			Object node = o.getLastPathComponent();
-			if (node instanceof DefaultMutableTreeNode) {
-				Object object = ((DefaultMutableTreeNode) node).getUserObject();
-				if (object instanceof String) return (String) object;
-				else if (object instanceof DependencyNode) return ((DependencyNode) object).label;
-				else if (object instanceof ModuleNode) return ((ModuleNode) object).name;
-				return "";
-			}
-			return "";
-		}
-	}
-
-	private class ModuleNode {
-		private String name;
+	private static class ModuleNode {
+		private final String name;
 
 		ModuleNode(String name) {
 			this.name = name;

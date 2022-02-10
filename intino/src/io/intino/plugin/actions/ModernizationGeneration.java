@@ -46,6 +46,7 @@ public class ModernizationGeneration extends AnAction {
 				public void run(@NotNull ProgressIndicator indicator) {
 					try {
 						Shifter.main(new String[]{context.getVirtualFile().getPath()});
+						refreshFiles(IntinoUtil.moduleRoot(module));
 					} catch (Exception ex) {
 						NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
 						if (balloon == null)
@@ -55,7 +56,6 @@ public class ModernizationGeneration extends AnAction {
 					}
 				}
 			});
-			refreshFiles(IntinoUtil.moduleRoot(module));
 		} catch (Throwable ignored) {
 
 		}

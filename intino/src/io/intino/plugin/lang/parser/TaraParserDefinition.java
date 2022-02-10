@@ -48,15 +48,18 @@ public class TaraParserDefinition implements ParserDefinition {
 		return new TaraParser();
 	}
 
+	@NotNull
 	@Override
 	public IFileElementType getFileNodeType() {
 		return FILE;
 	}
 
-	public PsiFile createFile(FileViewProvider viewProvider) {
+	@NotNull
+	public PsiFile createFile(@NotNull FileViewProvider viewProvider) {
 		return new TaraModelImpl(viewProvider);
 	}
 
+	@NotNull
 	public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
 		return SpaceRequirements.MAY;
 	}
