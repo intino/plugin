@@ -1,7 +1,6 @@
 package io.intino.plugin.stash;
 
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
-import com.intellij.diagnostic.PluginException;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -74,10 +73,6 @@ class StashEditor implements TextEditor {
 		return "Stash editor";
 	}
 
-	public VirtualFile getFile() {
-		return stash;
-	}
-
 	@NotNull
 	@Override
 	public FileEditorState getState(@NotNull FileEditorStateLevel level) {
@@ -128,7 +123,8 @@ class StashEditor implements TextEditor {
 	}
 
 	@Override
-	public @Nullable VirtualFile getFile() {
+	@Nullable
+	public VirtualFile getFile() {
 		return stash;
 	}
 
