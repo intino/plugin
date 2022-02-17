@@ -27,8 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.jetbrains.jps.intino.compiler.Directories.GEN;
-import static org.jetbrains.jps.intino.compiler.Directories.RES;
+import static org.jetbrains.jps.intino.compiler.Directories.*;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 
 public abstract class IntinoBuilder extends ModuleLevelBuilder {
@@ -43,7 +42,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 
 	protected void finish(CompileContext context, ModuleChunk chunk, OutputConsumer outputConsumer, Map<ModuleBuildTarget, String> finalOutputs, List<OutputItem> outputItems) throws IOException {
 		Map<ModuleBuildTarget, List<String>> generationOutputs = getStubGenerationOutputs(chunk);
-		Map<ModuleBuildTarget, List<OutputItem>> compiled = processCompiledFiles(context, chunk, generationOutputs, generationOutputs.get(chunk.representativeTarget()).get(0), outputItems);
+		Map<ModuleBuildTarget, List<OutputItem>> compiled = processCompiledFiles(context, chunk, generationOutputs, generationOutputs.get(chunk.representativeTarget()), outputItems);
 		commit(context, chunk, outputConsumer, finalOutputs, compiled);
 	}
 
@@ -146,7 +145,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	private Map<ModuleBuildTarget, List<OutputItem>> processCompiledFiles(CompileContext context,
 																		  ModuleChunk chunk,
 																		  Map<ModuleBuildTarget, List<String>> generationOutputs,
-																		  String compilerOutput,
+																		  List<String> compilerOutput,
 																		  List<OutputItem> successfullyCompiled) throws IOException {
 		ProjectDescriptor pd = context.getProjectDescriptor();
 		final Map<ModuleBuildTarget, List<OutputItem>> compiled = new THashMap<>();
@@ -159,13 +158,14 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	private void processOutputItem(CompileContext context,
 								   ModuleChunk chunk,
 								   Map<ModuleBuildTarget, List<String>> generationOutputs,
-								   String compilerOutput, ProjectDescriptor pd,
+								   List<String> compilerOutputs,
+								   ProjectDescriptor pd,
 								   Map<ModuleBuildTarget, List<OutputItem>> compiled,
 								   OutputItem item) throws IOException {
 		if (Utils.IS_TEST_MODE || LOG.isDebugEnabled()) LOG.info("compiled=" + item);
 		final JavaSourceRootDescriptor rd = pd.getBuildRootIndex().findJavaRootDescriptor(context, new File(item.getSourcePath()));
 		if (rd != null) {
-			ensureCorrectOutput(chunk, item, generationOutputs, compilerOutput, rd.target);
+			ensureCorrectOutput(chunk, item, generationOutputs, compilerOutputs, rd.target);
 			List<OutputItem> items = compiled.computeIfAbsent(rd.target, k -> new ArrayList<>());
 			if (new File(item.getOutputPath()).exists())
 				items.add(new OutputItem(item.getOutputPath(), item.getSourcePath()));
@@ -177,7 +177,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	private void ensureCorrectOutput(ModuleChunk chunk,
 									 OutputItem item,
 									 Map<ModuleBuildTarget, List<String>> generationOutputs,
-									 String compilerOutput,
+									 List<String> compilerOutput,
 									 @NotNull ModuleBuildTarget srcTarget) throws IOException {
 		if (chunk.getModules().size() > 1 && !srcTarget.equals(chunk.representativeTarget())) {
 			File output = new File(item.getSourcePath());
@@ -187,29 +187,39 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 				return;
 			}
 			File correctRoot = new File(srcTargetOutput);
-			File correctOutput = new File(correctRoot, FileUtil.getRelativePath(new File(compilerOutput), output));
+			File correctOutput = new File(correctRoot, FileUtil.getRelativePath(new File(compilerOutput.get(0)), output));
 			FileUtil.rename(output, correctOutput);
 			correctOutput.getPath();
 		}
 	}
 
 	private Map<ModuleBuildTarget, List<String>> getStubGenerationOutputs(ModuleChunk chunk) {
-		Map<ModuleBuildTarget, List<String>> generationOutputs = new HashMap<>();
-		File targetRoot = new File(getGenDir(chunk.getModules().iterator().next()));
-		targetRoot.mkdirs();
 		final ModuleBuildTarget buildTarget = chunk.getTargets().iterator().next();
-		add(generationOutputs, buildTarget, targetRoot.getPath());
-		File resourcesFileRoot = getResourcesDirectory(chunk.getModules().iterator().next());
-		resourcesFileRoot.mkdirs();
-		add(generationOutputs, buildTarget, resourcesFileRoot.getPath());
+		Map<ModuleBuildTarget, List<String>> generationOutputs = new HashMap<>();
+		File genRoot = new File(getGenDir(chunk.getModules().iterator().next()));
+		genRoot.mkdirs();
+		add(generationOutputs, buildTarget, genRoot.getPath());
+		File resRoot = getResourcesDirectory(chunk.getModules().iterator().next());
+		resRoot.mkdirs();
+		add(generationOutputs, buildTarget, resRoot.getPath());
+		File srcRoot = new File(getSrcDir(chunk.getModules().iterator().next()));
+		add(generationOutputs, buildTarget, srcRoot.getPath());
 		return generationOutputs;
 	}
 
 	protected String getGenDir(JpsModule module) {
+		return getDir(module, GEN);
+	}
+
+	protected String getSrcDir(JpsModule module) {
+		return getDir(module, SRC);
+	}
+
+	protected String getDir(JpsModule module, String name) {
 		for (JpsModuleSourceRoot moduleSourceRoot : module.getSourceRoots())
-			if (GEN.equals(moduleSourceRoot.getFile().getName())) return moduleSourceRoot.getFile().getAbsolutePath();
+			if (name.equals(moduleSourceRoot.getFile().getName())) return moduleSourceRoot.getFile().getAbsolutePath();
 		File moduleFile = module.getSourceRoots().get(0).getFile().getParentFile();
-		File gen = new File(moduleFile, GEN);
+		File gen = new File(moduleFile, name);
 		gen.mkdir();
 		return gen.getAbsolutePath();
 	}
