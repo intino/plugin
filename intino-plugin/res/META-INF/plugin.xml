@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>5.8.5</version>
+	<version>5.8.6</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>org.jetbrains.idea.maven</depends>

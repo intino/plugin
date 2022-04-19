@@ -57,7 +57,7 @@ public class ImportsResolver {
 		for (Web web : webs) {
 			Module moduleDependency = moduleOf(web.identifier());
 			if (moduleDependency == null) continue;
-			catalog.merge(processModuleDependency(moduleDependency, DependencyScope.COMPILE.name()));
+			catalog.merge(processModuleDependency(moduleDependency, Collections.emptyList(), DependencyScope.COMPILE.name()));
 			web.resolved(true);
 		}
 		return catalog;
@@ -106,7 +106,7 @@ public class ImportsResolver {
 	}
 
 	private DependencyCatalog processModuleDependency(Dependency d, Module moduleDependency) {
-		DependencyCatalog catalog = processModuleDependency(moduleDependency, d.scope());
+		DependencyCatalog catalog = processModuleDependency(moduleDependency, d.excludes(), d.scope());
 		d.effectiveVersion(d.version());
 		d.toModule(true);
 		d.resolved(true);
@@ -114,9 +114,9 @@ public class ImportsResolver {
 	}
 
 	@NotNull
-	private DependencyCatalog processModuleDependency(Module moduleDependency, String scope) {
+	private DependencyCatalog processModuleDependency(Module moduleDependency, List<Dependency.Exclude> excludes, String scope) {
 		DependencyCatalog catalog = new DependencyCatalog();
-		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyTo(moduleDependency, scope);
+		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyWith(moduleDependency, excludes, scope);
 		catalog.merge(moduleDependenciesCatalog);
 		return catalog;
 	}

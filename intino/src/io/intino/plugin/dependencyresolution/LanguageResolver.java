@@ -77,7 +77,7 @@ public class LanguageResolver {
 	}
 
 	private DependencyCatalog resolveModuleLanguage(Module dependency) {
-		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyTo(dependency, "COMPILE");
+		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyWith(dependency, "COMPILE");
 		final Configuration configuration = IntinoUtil.configurationOf(dependency);
 		if (configuration != null) model.language().effectiveVersion(configuration.artifact().version());
 		return catalog;
