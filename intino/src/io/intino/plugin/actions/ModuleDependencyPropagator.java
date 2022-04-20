@@ -82,9 +82,9 @@ public class ModuleDependencyPropagator {
 		try {
 			Map<String, List<String>> libraries = ProgressManager.getInstance().
 					runProcessWithProgressSynchronously(((ThrowableComputable<Map<String, List<String>>, Exception>) this::loadLibraryUpdates),
-							"Calculating Module Updates", true, this.module.getProject());
+							"Calculating module updates", true, this.module.getProject());
 			if (libraries.values().stream().noneMatch(v -> v.size() > 1)) {
-				Notifications.Bus.notify(new Notification("Tara Language", "Dependency update", "The module " + module.getName() + " is  already updated", NotificationType.INFORMATION));
+				Notifications.Bus.notify(new Notification("Intino", "Dependency update", "The module " + module.getName() + " is  already updated", NotificationType.INFORMATION));
 				return Collections.emptyMap();
 			}
 			application.invokeAndWait(() -> {

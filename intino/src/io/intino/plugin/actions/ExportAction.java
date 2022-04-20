@@ -89,6 +89,6 @@ public class ExportAction {
 
 
 	private void notifyError(String message, Module module) {
-		Notifications.Bus.notify(new Notification("Konos", "Elements cannot be generated. ", message, ERROR), module.getProject());
+		Notifications.Bus.notify(new Notification("Intino", "Elements cannot be generated. ", message, ERROR), module.getProject());
 	}
 }

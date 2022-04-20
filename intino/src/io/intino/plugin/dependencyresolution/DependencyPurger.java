@@ -24,7 +24,7 @@ public class DependencyPurger {
 			FileUtils.deleteDirectory(file);
 			LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file.getParentFile());
 		} catch (IOException e) {
-			Notifications.Bus.notify(new Notification("tara", "Dependency purge", "Imposible to remove dependency. Files are open", ERROR));
+			Notifications.Bus.notify(new Notification("Intino", "Dependency purge", "Imposible to remove dependency. Files are open", ERROR));
 		}
 	}
 

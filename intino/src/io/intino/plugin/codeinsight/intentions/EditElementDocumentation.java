@@ -46,7 +46,7 @@ public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 		if (!docFile.exists()) try {
 			docFile.createNewFile();
 		} catch (IOException e) {
-			Notifications.Bus.notify(new Notification("Tara", "Tara", "Error creating documentation file", NotificationType.ERROR), null);
+			Notifications.Bus.notify(new Notification("Intino", "Tara", "Error creating documentation file", NotificationType.ERROR), null);
 		}
 	}
 

@@ -76,7 +76,7 @@ public class LanguageImporter {
 	}
 
 	private void error(Exception e) {
-		Bus.notify(new Notification("Tara Language", "Error connecting with Artifactory.", e.getMessage(), NotificationType.ERROR));
+		Bus.notify(new Notification("Intino", "Error connecting with Artifactory.", e.getMessage(), NotificationType.ERROR));
 	}
 
 	private String effectiveVersionOf(String dsl, String version, LegioConfiguration configuration) {

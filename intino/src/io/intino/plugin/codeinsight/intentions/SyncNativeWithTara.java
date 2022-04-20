@@ -123,11 +123,11 @@ public class SyncNativeWithTara extends PsiElementBaseIntentionAction {
 	}
 
 	private void success(Project project, String aClass) {
-		Notifications.Bus.notify(new Notification("Tara Language", "Synced successfully", aClass, NotificationType.INFORMATION), project);
+		Notifications.Bus.notify(new Notification("Intino", "Synced successfully", aClass, NotificationType.INFORMATION), project);
 	}
 
 	private void error(Project project, String message) {
-		Notifications.Bus.notify(new Notification("Tara Language", "Error syncing", message, NotificationType.ERROR), project);
+		Notifications.Bus.notify(new Notification("Intino", "Error syncing", message, NotificationType.ERROR), project);
 	}
 
 	@Override
