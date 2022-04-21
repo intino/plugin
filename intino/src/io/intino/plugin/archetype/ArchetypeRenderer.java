@@ -16,6 +16,7 @@ import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.PsiUtil;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeGrammar;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import io.intino.plugin.project.LegioConfiguration;
@@ -143,7 +144,7 @@ public class ArchetypeRenderer {
 			if (file.isDirectory() && "gen".equals(file.getName())) return file;
 		final VirtualFile genDirectory = createGenDirectory(module);
 		if (genDirectory == null) return null;
-		PsiTestUtil.addSourceRoot(module, genDirectory, JavaSourceRootType.SOURCE);
+		PsiUtil.addSourceRoot(module, genDirectory, JavaSourceRootType.SOURCE);
 		return genDirectory;
 	}
 
@@ -165,7 +166,7 @@ public class ArchetypeRenderer {
 			if (file.isDirectory() && "gen".equals(file.getName())) return new File(file.getPath());
 		final VirtualFile genDirectory = createGenDirectory(module);
 		if (genDirectory == null) return null;
-		PsiTestUtil.addSourceRoot(module, genDirectory, JavaSourceRootType.SOURCE);
+		PsiUtil.addSourceRoot(module, genDirectory, JavaSourceRootType.SOURCE);
 		return new File(genDirectory.getPath());
 	}
 
