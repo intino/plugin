@@ -1,6 +1,8 @@
 package io.intino.plugin.cesar;
 
 import com.google.gson.reflect.TypeToken;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -53,7 +55,7 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	}
 
 	public static CesarInfo getSafeInstance(Project project) {
-		CesarInfo settings = ServiceManager.getService(project, CesarInfo.class);
+		CesarInfo settings = project.getService(CesarInfo.class);
 		return settings != null ? settings : new CesarInfo();
 	}
 

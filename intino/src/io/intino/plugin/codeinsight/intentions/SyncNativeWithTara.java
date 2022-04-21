@@ -103,7 +103,6 @@ public class SyncNativeWithTara extends PsiElementBaseIntentionAction {
 		return Arrays.asList(importList.getAllImportStatements()).stream().map(PsiElement::getText).collect(Collectors.toSet());
 	}
 
-
 	private Valued findValuedScope(PsiElement element) {
 		return TaraPsiUtil.getContainerByType(element, Valued.class);
 	}

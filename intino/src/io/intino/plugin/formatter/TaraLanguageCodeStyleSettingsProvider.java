@@ -3,10 +3,7 @@ package io.intino.plugin.formatter;
 import com.intellij.application.options.IndentOptionsEditor;
 import com.intellij.application.options.SmartIndentOptionsEditor;
 import com.intellij.lang.Language;
-import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
-import com.intellij.psi.codeStyle.DisplayPriority;
-import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider;
+import com.intellij.psi.codeStyle.*;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
@@ -41,10 +38,10 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 					"SPACE_BEFORE_COMMA",
 					"SPACE_BEFORE_SEMICOLON");
 			consumer.showCustomOption(TaraCodeStyleSettings.class, "SPACE_AROUND_EQ_IN_NAMED_PARAMETER",
-					MessageProvider.message("formatter.around.eq.in.named.parameter"), SPACES_AROUND_OPERATORS);
+					MessageProvider.message("formatter.around.eq.in.named.parameter"), CodeStyleSettingsCustomizableOptions.getInstance().SPACES_AROUND_OPERATORS);
 			consumer.showCustomOption(TaraCodeStyleSettings.class, "SPACE_AROUND_EQ_IN_KEYWORD_ARGUMENT",
-					MessageProvider.message("formatter.around.eq.in.keyword.argument"), SPACES_AROUND_OPERATORS);
-			consumer.showCustomOption(TaraCodeStyleSettings.class, "SPACE_WITHIN_BRACES", MessageProvider.message("formatter.braces"), SPACES_WITHIN);
+					MessageProvider.message("formatter.around.eq.in.keyword.argument"), CodeStyleSettingsCustomizableOptions.getInstance().SPACES_AROUND_OPERATORS);
+			consumer.showCustomOption(TaraCodeStyleSettings.class, "SPACE_WITHIN_BRACES", MessageProvider.message("formatter.braces"), CodeStyleSettingsCustomizableOptions.getInstance().SPACES_WITHIN);
 		} else if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
 			consumer.showStandardOptions("BLANK_LINES_AFTER_IMPORTS");
 			consumer.renameStandardOption("BLANK_LINES_AFTER_IMPORTS", MessageProvider.message("formatter.around.top.level.imports"));

@@ -1,5 +1,6 @@
 package org.jetbrains.jps.intino.compiler.tara;
 
+import com.intellij.openapi.diagnostic.LogLevel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import org.apache.log4j.Level;
@@ -49,7 +50,7 @@ public class TaraBuilder extends IntinoBuilder {
 
 	public TaraBuilder() {
 		super(BuilderCategory.SOURCE_GENERATOR);
-		LOG.setLevel(Level.WARN);
+		LOG.setLevel(LogLevel.WARNING);
 		builderName = "Tara compiler";
 	}
 
@@ -97,6 +98,7 @@ public class TaraBuilder extends IntinoBuilder {
 		return isCompileJavaIncrementally(context);
 	}
 
+	@NotNull
 	@Override
 	public List<String> getCompilableFileExtensions() {
 		return Collections.singletonList(TARA_EXTENSION);

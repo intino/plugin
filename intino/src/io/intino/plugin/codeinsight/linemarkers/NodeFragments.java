@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class NodeFragments extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("", element -> {
-		if (!Node.class.isInstance(element)) return null;
+		if (!(element instanceof Node)) return null;
 		List<NavigatablePsiElement> references = getFragmentNodes((Node) element);
 		@NonNls String pattern;
 		if (references.isEmpty()) return null;
@@ -35,7 +35,7 @@ public class NodeFragments extends JavaLineMarkerProvider {
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!Node.class.isInstance(element)) return;
+			if (!(element instanceof Node)) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to elements is not possible during index update");
 				return;
@@ -43,22 +43,19 @@ public class NodeFragments extends JavaLineMarkerProvider {
 			List<NavigatablePsiElement> references = getFragmentNodes((Node) element);
 			references.remove(element);
 			if (references.isEmpty()) return;
-
 			DefaultPsiElementListCellRenderer renderer = new DefaultPsiElementListCellRenderer();
-			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[references.size()]), "Fragment of " + (((Node) element).name()), "Fragment of " + (((Node) element).name()), renderer);
+			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[0]), "Fragment of " + (((Node) element).name()), "Fragment of " + (((Node) element).name()), renderer);
 		}
 	});
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
-		Node node = (Node) element;
-		final List<NavigatablePsiElement> fragmentNodes = getFragmentNodes(node);
+		final List<NavigatablePsiElement> fragmentNodes = getFragmentNodes((Node) element);
 		if (fragmentNodes.size() > 1) {
-			final Icon icon = AllIcons.Gutter.Unique;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(element, element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			return new LineMarkerInfo<>(element, element.getTextRange(), AllIcons.Gutter.Unique, type.getTooltip(),
+					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, element::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 
@@ -96,7 +93,6 @@ public class NodeFragments extends JavaLineMarkerProvider {
 				final ItemPresentation presentation = ((NavigationItem) element).getPresentation();
 				return presentation != null ? presentation.getLocationString() : null;
 			}
-
 			return null;
 		}
 
@@ -105,6 +101,4 @@ public class NodeFragments extends JavaLineMarkerProvider {
 			return 0;
 		}
 	}
-
-
 }

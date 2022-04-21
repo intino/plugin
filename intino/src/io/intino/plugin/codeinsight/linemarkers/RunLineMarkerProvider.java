@@ -16,6 +16,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
+import com.vladsch.flexmark.util.data.DataKey;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Map;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
@@ -55,9 +57,8 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	@NotNull
 	private LineMarkerInfo<PsiElement> createLineMarkerInfo(@NotNull PsiElement element, Info info, DefaultActionGroup actionGroup, Function<PsiElement, String> tooltipProvider) {
-		return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), info.icon,
-				tooltipProvider, null,
-				GutterIconRenderer.Alignment.CENTER) {
+		final PsiElement psiElement = leafOf(element);
+		return new LineMarkerInfo<>(psiElement, element.getTextRange(), info.icon, tooltipProvider, null, GutterIconRenderer.Alignment.CENTER, psiElement::getText) {
 			@NotNull
 			@Override
 			public GutterIconRenderer createGutterRenderer() {

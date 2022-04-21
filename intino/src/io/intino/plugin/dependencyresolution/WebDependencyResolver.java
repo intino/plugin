@@ -1,6 +1,7 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.ProjectUtil;
@@ -86,7 +87,7 @@ public class WebDependencyResolver {
 
 	private void notifyError(String message) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		if (balloon == null) balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		List<String> lines = Arrays.asList(message.split("\n"));
 		for (int i = 0; i <= lines.size() / 5; i++) {
 			StringBuilder choppedMessage = new StringBuilder();

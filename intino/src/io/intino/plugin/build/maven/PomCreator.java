@@ -3,6 +3,7 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.LanguageLevelUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
@@ -91,14 +92,17 @@ class PomCreator {
 		fillMavenId(builder);
 		final String[] languageLevel = {"1.8"};
 		final Application application = ApplicationManager.getApplication();
-		if (application.isReadAccessAllowed())
-			languageLevel[0] = JpsJavaSdkType.complianceOption(getEffectiveLanguageLevel(module).toJavaVersion());
-		else application.runReadAction((Computable<String>) () ->
-				languageLevel[0] = JpsJavaSdkType.complianceOption(getEffectiveLanguageLevel(module).toJavaVersion()));
+		if (application.isReadAccessAllowed()) languageLevel[0] = languageLevel();
+		else application.runReadAction((Computable<String>) () -> languageLevel[0] = languageLevel());
 		builder.add("sdk", languageLevel[0]);
 		fillFramework(build, builder);
 		writePom(pom, builder.toFrame(), new PomTemplate());
 		return pom;
+	}
+
+	@NotNull
+	private String languageLevel() {
+		return JpsJavaSdkType.complianceOption(LanguageLevelUtil.getEffectiveLanguageLevel(module).toJavaVersion());
 	}
 
 	@NotNull

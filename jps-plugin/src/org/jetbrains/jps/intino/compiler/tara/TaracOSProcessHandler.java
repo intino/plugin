@@ -2,6 +2,7 @@ package org.jetbrains.jps.intino.compiler.tara;
 
 import com.intellij.execution.process.BaseOSProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
+import com.intellij.openapi.diagnostic.LogLevel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
@@ -35,7 +36,7 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 
 	TaracOSProcessHandler(Process process, String cmd, String charset, Consumer<String> statusUpdater) {
 		super(process, cmd, Charset.forName(charset));
-		LOG.setLevel(Level.ALL);
+		LOG.setLevel(LogLevel.ALL);
 		this.statusUpdater = statusUpdater;
 	}
 

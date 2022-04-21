@@ -29,7 +29,7 @@ public class JavaHelper {
 	private static final Logger LOG = Logger.getInstance(JavaHelper.class.getName());
 
 	public static JavaHelper getJavaHelper(Project project) {
-		JavaHelper service = ServiceManager.getService(project, JavaHelper.class);
+		JavaHelper service = project.getService(JavaHelper.class);
 		return service == null ? new JavaHelper() : service;
 	}
 

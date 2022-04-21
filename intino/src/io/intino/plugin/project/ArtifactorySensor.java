@@ -38,18 +38,18 @@ public class ArtifactorySensor {
 	private void languageVersions(String language) {
 		final List<String> versions = modelBuilderConnector.dslVersions(language);
 		if (!versions.isEmpty())
-			properties.setValues(LanguageLibrary + language, versions.toArray(new String[0]));
+			properties.setList(LanguageLibrary + language, versions);
 	}
 
 	private void boxBuilderVersions() {
 		final List<String> versions = modelBuilderConnector.boxBuilderVersions();
 		if (!versions.isEmpty())
-			properties.setValues(BoxBuilder, versions.toArray(new String[0]));
+			properties.setList(BoxBuilder, versions);
 	}
 
 	private void modelBuilderVersions() {
 		final List<String> versions = modelBuilderConnector.modelBuilderVersions();
-		if (!versions.isEmpty()) properties.setValues(ModelBuilder, versions.toArray(new String[0]));
+		if (!versions.isEmpty()) properties.setList(ModelBuilder, versions);
 	}
 
 	@SafeVarargs

@@ -20,20 +20,21 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import static com.intellij.icons.AllIcons.Gutter.OverridenMethod;
+
 public class TaraFacetOverriddenNode extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("", element -> {
-		if (!Node.class.isInstance(element)) return null;
+		if (!(element instanceof Node)) return null;
 		TaraNode reference = getOverriddenNode((Node) element);
-		String start = "Node overridden by facet in ";
 		@NonNls String pattern;
 		if (reference == null) return null;
 		pattern = reference.getNavigationElement().getContainingFile().getName();
-		return GutterTooltipHelper.getTooltipText(List.of(reference), start, false, pattern);
+		return GutterTooltipHelper.getTooltipText(List.of(reference), "Node overridden by facet in ", false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!Node.class.isInstance(element)) return;
+			if (!(element instanceof Node)) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to implementation classes is not possible during index update");
 				return;
@@ -48,25 +49,20 @@ public class TaraFacetOverriddenNode extends JavaLineMarkerProvider {
 	);
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
-		if (!Node.class.isInstance(element) || !(TaraPsiUtil.getContainerOf(element) instanceof Aspect))
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
+		if (!(element instanceof Node) || !(TaraPsiUtil.getContainerOf(element) instanceof Aspect))
 			return super.getLineMarkerInfo(element);
 		Node node = (Node) element;
 		if (isOverridden(node)) {
-			final Icon icon = AllIcons.Gutter.OverridenMethod;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(element, element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			return new LineMarkerInfo<>(element, element.getTextRange(), OverridenMethod, type.getTooltip(), type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, element::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 
 	private TaraNode getOverriddenNode(Node inner) {
 		Node container = TaraPsiUtil.getContainerNodeOf((PsiElement) inner);
 		if (container == null) return null;
-		for (Node containerNode : container.components())
-			if (isOverridden(inner, containerNode))
-				return (TaraNode) containerNode;
-		return null;
+		return (TaraNode) container.components().stream().filter(containerNode -> isOverridden(inner, containerNode)).findFirst().orElse(null);
 	}
 
 	private boolean isOverridden(Node node) {

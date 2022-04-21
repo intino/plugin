@@ -1,5 +1,6 @@
 package org.jetbrains.jps.intino.compiler.konos;
 
+import com.intellij.openapi.diagnostic.LogLevel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import org.apache.log4j.Level;
@@ -44,7 +45,7 @@ public class KonosBuilder extends IntinoBuilder {
 
 	public KonosBuilder() {
 		super(BuilderCategory.SOURCE_GENERATOR);
-		LOG.setLevel(Level.WARN);
+		LOG.setLevel(LogLevel.WARNING);
 		builderName = "Konos compiler";
 	}
 

@@ -14,7 +14,7 @@ import java.util.Map;
 public abstract class TaraElementFactory {
 
 	public static TaraElementFactory getInstance(Project project) {
-		return ServiceManager.getService(project, TaraElementFactory.class);
+		return project.getService(TaraElementFactory.class);
 	}
 
 	public abstract Node createNode(String name);

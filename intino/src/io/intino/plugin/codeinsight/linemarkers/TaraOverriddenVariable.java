@@ -16,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.function.Supplier;
 
+import static com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment.LEFT;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOverriddenVariable;
 
 public class TaraOverriddenVariable extends JavaLineMarkerProvider {
@@ -53,8 +55,7 @@ public class TaraOverriddenVariable extends JavaLineMarkerProvider {
 		if (isOverridden(variable)) {
 			final Icon icon = AllIcons.Gutter.OverridingMethod;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), icon, type.getTooltip(), type.getNavigationHandler(), LEFT, variable::name);
 		} else return super.getLineMarkerInfo(element);
 	}
 

@@ -48,16 +48,15 @@ public class TaraToNative extends JavaLineMarkerProvider {
 	);
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Rule))
 			return super.getLineMarkerInfo(element);
-		Rule rule = (Rule) element;
-		PsiElement reference = ReferenceManager.resolveRule(rule);
+		PsiElement reference = ReferenceManager.resolveRule((Rule) element);
 		if (reference != null) {
-			final Icon icon = AllIcons.Gutter.ImplementedMethod;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			final PsiElement leaf = leafOf(element);
+			return new LineMarkerInfo<>(leaf, element.getTextRange(), AllIcons.Gutter.ImplementedMethod, type.getTooltip(),
+					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, leaf::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 
@@ -66,5 +65,4 @@ public class TaraToNative extends JavaLineMarkerProvider {
 		while (leaf.getFirstChild() != null) leaf = leaf.getFirstChild();
 		return leaf;
 	}
-
 }

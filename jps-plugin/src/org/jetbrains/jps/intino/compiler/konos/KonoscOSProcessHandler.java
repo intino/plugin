@@ -2,6 +2,7 @@ package org.jetbrains.jps.intino.compiler.konos;
 
 import com.intellij.execution.process.BaseOSProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
+import com.intellij.openapi.diagnostic.LogLevel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
@@ -39,7 +40,7 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 
 	KonoscOSProcessHandler(Process process, String commandLine, Consumer<String> statusUpdater) {
 		super(process, commandLine, StandardCharsets.UTF_8);
-		LOG.setLevel(Level.ALL);
+		LOG.setLevel(LogLevel.ALL);
 		this.statusUpdater = statusUpdater;
 	}
 

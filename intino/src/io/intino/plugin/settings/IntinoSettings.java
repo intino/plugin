@@ -29,7 +29,7 @@ public class IntinoSettings implements PersistentStateComponent<io.intino.plugin
 	private List<ArtifactoryCredential> artifactories = null;
 
 	public static io.intino.plugin.settings.IntinoSettings getSafeInstance(Project project) {
-		io.intino.plugin.settings.IntinoSettings settings = ServiceManager.getService(project, io.intino.plugin.settings.IntinoSettings.class);
+		io.intino.plugin.settings.IntinoSettings settings = project.getService(io.intino.plugin.settings.IntinoSettings.class);
 		return settings != null ? settings : new io.intino.plugin.settings.IntinoSettings();
 	}
 

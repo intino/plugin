@@ -14,6 +14,7 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -33,9 +34,9 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inLanguageName() {
-		extend(CompletionType.BASIC, LegioFilters.inModelLanguage, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inModelLanguage, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resolve(parameters, resultSet, Languages);
 					}
@@ -44,17 +45,17 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inLanguageVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inLanguageVersion, new CompletionProvider<CompletionParameters>() {
-					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
-											   @NotNull CompletionResultSet resultSet) {
-						final Module module = moduleOf(parameters.getOriginalFile());
-						if (!IntinoModuleType.isIntino(module)) return;
-						final Node container = (Node) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
-						if (container == null) return;
-						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
-						if (name == null) return;
-						final String[] values = PropertiesComponent.getInstance().getValues(LanguageLibrary + name.values().get(0).toString());
+		extend(CompletionType.BASIC, LegioFilters.inLanguageVersion, new CompletionProvider<>() {
+			public void addCompletions(@NotNull CompletionParameters parameters,
+									   @NotNull ProcessingContext context,
+									   @NotNull CompletionResultSet resultSet) {
+				final Module module = moduleOf(parameters.getOriginalFile());
+				if (!IntinoModuleType.isIntino(module)) return;
+				final Node container = (Node) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
+				if (container == null) return;
+				final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
+				if (name == null) return;
+				final @Nullable List<String> values = PropertiesComponent.getInstance().getList(LanguageLibrary + name.values().get(0).toString());
 						if (values == null) return;
 						for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 					}
@@ -65,7 +66,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	private void inBoxVersion() {
 		extend(CompletionType.BASIC, LegioFilters.inBoxVersion, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resolve(parameters, resultSet, BoxBuilder);
 					}
@@ -76,7 +77,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	private void inBoxLanguage() {
 		extend(CompletionType.BASIC, LegioFilters.inBoxLanguage, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resultSet.addElement(LookupElementBuilder.create("Konos"));
 					}
@@ -85,9 +86,9 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inModelSdkVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inModelSDKVersion, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inModelSDKVersion, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resolve(parameters, resultSet, ModelBuilder);
 					}
@@ -96,9 +97,9 @@ public class LegioCompletionContributor extends CompletionContributor {
 	}
 
 	private void inImportVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inDependencyVersion, new CompletionProvider<CompletionParameters>() {
+		extend(CompletionType.BASIC, LegioFilters.inDependencyVersion, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resolveDependency(parameters, resultSet);
 					}
@@ -135,7 +136,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 	private void resolve(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet resultSet, String tag) {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		if (!IntinoModuleType.isIntino(module)) return;
-		final String[] values = PropertiesComponent.getInstance().getValues(tag);
+		final @Nullable List<String> values = PropertiesComponent.getInstance().getList(tag);
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);

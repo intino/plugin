@@ -81,7 +81,7 @@ public class IntinoRunContextAction extends RunContextAction {
 				final Editor editor = CommonDataKeys.EDITOR.getData(dataContext);
 				producers.sort(NAME_COMPARATOR);
 				final ListPopup popup =
-						JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>(ExecutionBundle.message("configuration.action.chooser.title"), producers) {
+						JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>("Choose Configuration to Run", producers) {
 							@Override
 							@NotNull
 							public String getTextFor(final ConfigurationFromContext producer) {
@@ -94,7 +94,7 @@ public class IntinoRunContextAction extends RunContextAction {
 							}
 
 							@Override
-							public PopupStep onChosen(final ConfigurationFromContext producer, final boolean finalChoice) {
+							public PopupStep<?> onChosen(final ConfigurationFromContext producer, final boolean finalChoice) {
 								perform(producer);
 								return FINAL_CHOICE;
 							}
@@ -150,7 +150,7 @@ public class IntinoRunContextAction extends RunContextAction {
 		if (LangDataKeys.MODULE.getData(dataContext) == null)
 			dataContext.put(LangDataKeys.MODULE, ModuleUtilCore.findModuleForPsiElement(runConfiguration));
 		dataContext.put(Location.DATA_KEY, PsiLocation.fromPsiElement(runConfiguration));
-		return ConfigurationContext.getFromContext(dataContext);
+		return ConfigurationContext.getFromContext(dataContext, ActionPlaces.UNKNOWN);
 	}
 
 	@NotNull

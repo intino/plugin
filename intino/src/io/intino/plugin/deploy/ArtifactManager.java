@@ -1,6 +1,7 @@
 package io.intino.plugin.deploy;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.MessageType;
@@ -136,7 +137,7 @@ public class ArtifactManager {
 
 	private void notifyError(String error) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		if (balloon == null) balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		balloon.createNotification(error, MessageType.ERROR).setImportant(false).notify(null);
 	}
 

@@ -21,13 +21,12 @@ import java.util.List;
 public class TaraOverriddenNode extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("TaraOverridenNode", element -> {
-		if (!Node.class.isInstance(element)) return null;
+		if (!(element instanceof Node)) return null;
 		PsiElement reference = (PsiElement) getOverriddenNode((Node) element);
-		String start = "Overrides element in";
 		@NonNls String pattern;
 		if (reference == null) return null;
 		pattern = reference.getNavigationElement().getContainingFile().getName();
-		return GutterTooltipHelper.getTooltipText(List.of(reference), start, false, pattern);
+		return GutterTooltipHelper.getTooltipText(List.of(reference), "Overrides element in", false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
@@ -45,14 +44,13 @@ public class TaraOverriddenNode extends JavaLineMarkerProvider {
 	});
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
 		Node node = (Node) element;
 		if (isOverridden(node)) {
-			final Icon icon = AllIcons.Gutter.OverridingMethod;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			final PsiElement leaf = leafOf(element);
+			return new LineMarkerInfo<>(leaf, element.getTextRange(), AllIcons.Gutter.OverridingMethod, type.getTooltip(), type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, leaf::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 
@@ -62,8 +60,7 @@ public class TaraOverriddenNode extends JavaLineMarkerProvider {
 		Node parent = node.parent();
 		while (parent != null) {
 			for (Node parentVar : parent.components())
-				if (isOverridden(inner, parentVar))
-					return parentVar;
+				if (isOverridden(inner, parentVar)) return parentVar;
 			parent = parent.parent();
 		}
 		return null;

@@ -73,7 +73,7 @@ public class FacetApplyMarker extends JavaLineMarkerProvider {
 	}
 
 	@Override
-	public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
+	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
 		Node node = (Node) element;
 		if (node.appliedAspects().isEmpty()) return null;
@@ -83,9 +83,9 @@ public class FacetApplyMarker extends JavaLineMarkerProvider {
 			if (reference != null) break;
 		}
 		if (reference != null) {
-			final Icon icon = AllIcons.Gutter.ImplementedMethod;
-			return new LineMarkerInfo(leafOf(element), element.getTextRange(), icon, markerType.getTooltip(),
-					markerType.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			final PsiElement leaf = leafOf(element);
+			return new LineMarkerInfo<>(leaf, element.getTextRange(), AllIcons.Gutter.ImplementedMethod, markerType.getTooltip(),
+					markerType.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, leaf::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 

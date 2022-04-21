@@ -1,6 +1,7 @@
 package io.intino.plugin.actions;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
@@ -44,7 +45,7 @@ public class ArchetypeGeneration extends AnAction {
 
 	private void notifySuccess(Project project) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		if (balloon == null) balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		balloon.createNotification("Archetype reloaded", MessageType.INFO).setImportant(false).notify(project);
 	}
 

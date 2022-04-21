@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
@@ -28,6 +29,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 		if (!isProcessElement(element)) return null;
 		InputStream stream = this.getClass().getResourceAsStream("/process_modeler.html");
 		if (stream == null) return null;
+		close(stream);
 		return "Edit process...";
 	}, new LineMarkerNavigator() {
 		@Override
@@ -41,10 +43,10 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
 		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
 		if (isProcessElement(element)) {
-			final Icon icon = IntinoIcons.BOX_PROCESS;
 			final MarkerType type = markerType;
-			return new LineMarkerInfo<>(leafOf(element), element.getTextRange(), icon, type.getTooltip(),
-					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT);
+			final PsiElement leaf = leafOf(element);
+			return new LineMarkerInfo<>(leaf, element.getTextRange(), IntinoIcons.BOX_PROCESS, type.getTooltip(),
+					type.getNavigationHandler(), GutterIconRenderer.Alignment.LEFT, leaf::getText);
 		} else return super.getLineMarkerInfo(element);
 	}
 
@@ -102,5 +104,13 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	@Nullable
 	private Node node(PsiElement e) {
 		return e instanceof Node ? (Node) e : TaraPsiUtil.getContainerNodeOf(e);
+	}
+
+	private void close(InputStream stream) {
+		try {
+			stream.close();
+		} catch (IOException e) {
+			logger.error(e);
+		}
 	}
 }

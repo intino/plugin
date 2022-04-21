@@ -1,6 +1,5 @@
 package io.intino.plugin.project.view;
 
-import com.intellij.CommonBundle;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
@@ -91,7 +90,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 			String target = file.getCanonicalPath();
 			if (target == null) {
 				data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES);
-				data.setTooltip(CommonBundle.message("vfs.broken.link"));
+				data.setTooltip("Broken link");
 			} else data.setTooltip(FileUtil.toSystemDependentName(target));
 		}
 	}

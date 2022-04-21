@@ -9,6 +9,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.LegioFileCreator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class DependencyTreeWindowFactory implements ToolWindowFactory, DumbAware
 
 	@Override
 	public boolean shouldBeAvailable(@NotNull Project project) {
-		return Arrays.stream(ModuleManager.getInstance(project).getModules()).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration);
+		return Arrays.stream(ModuleManager.getInstance(project).getModules()).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module).get() != null);
 	}
 
 }

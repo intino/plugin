@@ -2,6 +2,7 @@ package io.intino.plugin.actions.box;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -84,13 +85,13 @@ public class BoxElementsGenerationAction extends IntinoAction {
 
 	private void notify(Module module) {
 		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		if (balloon == null) balloon = NotificationGroup.balloonGroup("Intino");
+		if (balloon == null) balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
 		balloon.createNotification(module.getName() + " Web elements " + "reloaded", MessageType.INFO).setImportant(false).notify(module.getProject());
 	}
 
 
 	private void notifyError(String message, Module module) {
-		Notifications.Bus.notify(new Notification("Konos", "Elements cannot be generated. ", message, ERROR), module.getProject());
+		Notifications.Bus.notify(new Notification("Intino", "Elements cannot be generated. ", message, ERROR), module.getProject());
 	}
 
 }
