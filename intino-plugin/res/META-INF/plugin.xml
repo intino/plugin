@@ -6,6 +6,7 @@
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
 	<depends>org.jetbrains.idea.maven</depends>
+	<depends>Git4Idea</depends>w
 
 	<description><![CDATA[
         intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:
