@@ -6,10 +6,7 @@ import com.intellij.openapi.module.Module;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,8 +60,19 @@ public class WebModelingServer extends RestService {
 	}
 
 	@Override
+	public boolean isAccessible(@NotNull HttpRequest request) {
+		return true;
+	}
+
+	@Override
 	protected boolean isMethodSupported(@NotNull HttpMethod method) {
 		return method == HttpMethod.GET || method == HttpMethod.POST;
+	}
+
+	@NotNull
+	@Override
+	protected OriginCheckResult isOriginAllowed(@NotNull HttpRequest request) {
+		return OriginCheckResult.ASK_CONFIRMATION;
 	}
 
 	@Override
@@ -82,6 +90,7 @@ public class WebModelingServer extends RestService {
 	public String execute(@NotNull QueryStringDecoder decoder, @NotNull FullHttpRequest req, @NotNull ChannelHandlerContext context) throws IOException {
 		Map<String, List<String>> parameters = decoder.parameters();
 		String process = process(parameters);
+		System.out.println("Executing " + req.method().name() + " " + process + " with path " + decoder.path());
 		if (process == null) return null;
 		if (decoder.path().endsWith("/process")) {
 			if (!processes.containsKey(process) && file(parameters) != null) add(process, file(parameters));
@@ -91,7 +100,7 @@ public class WebModelingServer extends RestService {
 //				reload()
 			}
 		} else remove(process);
-		return null;
+		return "OK";
 	}
 
 	private File file(Map<String, List<String>> parameters) {

@@ -36,7 +36,7 @@ public class LegioFileCreator {
 	}
 
 	@NotNull
-	private File legioFile() {
+	public File legioFile() {
 		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
 		if (moduleDir == null)
 			moduleDir = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()).getParentFile(), true);

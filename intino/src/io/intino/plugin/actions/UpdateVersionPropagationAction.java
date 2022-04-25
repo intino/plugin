@@ -56,13 +56,11 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			ConfirmationDialog confirmationDialog = new ConfirmationDialog(project,
 					"Do you want to distribute new version of the updated module?",
-					"Release updated module.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			confirmationDialog.setDoNotAskOption(null);
+					"Release Updated Module.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
 			response.set(confirmationDialog.showAndGet());
 		});
 		return response.get();
 	}
-
 
 	@Override
 	public void update(AnActionEvent e) {

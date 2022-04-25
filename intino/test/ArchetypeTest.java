@@ -4,6 +4,10 @@ import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
 
 public class ArchetypeTest {
 
@@ -30,5 +34,11 @@ public class ArchetypeTest {
 	@Test
 	public void relationExtractor() {
 		System.out.println(new FileRelationsExtractor(new File("/Users/oroncal/workspace/b.cfe/gestioncomercial/.archetype")).sharedDirectoriesWithOwner("data-hub-ng"));
+	}
+
+	@Test
+	public void name() throws IOException {
+		final byte[] bytes = Files.readAllBytes(Path.of("/Users/oroncal/Downloads/save_black_24dp.svg"));
+		System.out.println(new String(Base64.getMimeEncoder().encode((bytes))));
 	}
 }

@@ -10,6 +10,7 @@ import com.intellij.ui.content.ContentFactory;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.LegioFileCreator;
+import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -26,6 +27,7 @@ public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware 
 
 	@Override
 	public boolean shouldBeAvailable(@NotNull Project project) {
-		return Arrays.stream(ModuleManager.getInstance(project).getModules()).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module).get() != null);
+		final boolean b = Arrays.stream(ModuleManager.getInstance(project).getModules()).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module).legioFile().exists());
+		return b || SystemUtils.IS_OS_WINDOWS;
 	}
 }

@@ -1,12 +1,13 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>5.8.7</version>
+	<version>5.8.8</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
 	<depends>org.jetbrains.idea.maven</depends>
-	<depends>Git4Idea</depends>w
+	<depends>com.intellij.uiDesigner</depends>
+	<depends>Git4Idea</depends>
 
 	<description><![CDATA[
         intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:

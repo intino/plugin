@@ -5,6 +5,8 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
@@ -134,26 +136,15 @@ public class AccessorsPublisher {
 	}
 
 	private void notifySuccess(Configuration conf, String app) {
-		final NotificationGroup balloon = NotificationGroupManager.getInstance().getNotificationGroup("Intino");
-		balloon.createNotification("Accessors generated and uploaded", message(), INFORMATION, (n, e) -> {
-			StringSelection selection = new StringSelection(newDependency(conf, app));
-			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			clipboard.setContents(selection, selection);
+		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
+		balloon.createNotification("Accessors generated and uploaded", message(), INFORMATION).addAction(new AnAction() {
+			@Override
+			public void actionPerformed(@NotNull AnActionEvent e) {
+				StringSelection selection = new StringSelection(newDependency(conf, app));
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
+			}
 		}).setImportant(true).notify(module.getProject());
-	}
-
-	private void notify(String message, NotificationType type) {
-		Bus.notify(
-				new Notification("Konos", message, module.getName(), type), module.getProject());
-	}
-
-
-	private void write(Path file, String text) {
-		try {
-			Files.write(file, text.getBytes(StandardCharsets.UTF_8));
-		} catch (IOException e) {
-			notifyError(e.getMessage());
-		}
 	}
 
 	@NotNull
@@ -182,7 +173,7 @@ public class AccessorsPublisher {
 
 	private void notifyError(String message) {
 		final String result = log.toString();
-		Bus.notify(new Notification("Konos", "Accessor cannot be published. ", message + "\n" + result, ERROR), module.getProject());
+		Bus.notify(new Notification("Intino", "Accessor cannot be published. ", message + "\n" + result, ERROR), module.getProject());
 	}
 
 }
