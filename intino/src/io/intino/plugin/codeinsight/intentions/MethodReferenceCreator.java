@@ -23,7 +23,7 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
-import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
 
 import java.util.*;

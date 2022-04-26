@@ -14,18 +14,18 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/intino-plugin</outputDirectory>
-        <testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
-        <directory>../out/build/intino-plugin</directory>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>res</directory>
-            </resource>
-        </resources>
-        <plugins>
-        </plugins>
-    </build>
+		<outputDirectory>../out/production/intino-interface</outputDirectory>
+		<testOutputDirectory>../out/test/intino-interface</testOutputDirectory>
+		<directory>../out/build/intino-interface</directory>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>res</directory>
+			</resource>
+		</resources>
+		<plugins>
+		</plugins>
+	</build>
     <repositories>
         <repository>
             <id>siani-maven</id>

@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.configuration;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.ProjectUtil;
@@ -40,8 +40,7 @@ public class LegioFileCreator {
 		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
 		if (moduleDir == null)
 			moduleDir = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()).getParentFile(), true);
-		final File destination = new File(moduleDir.getPath(), LegioFileType.LEGIO_FILE);
-		return destination;
+		return new File(moduleDir.getPath(), LegioFileType.LEGIO_FILE);
 	}
 
 	private Frame frame() {

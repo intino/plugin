@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.plugin.messages.MessageProvider;
-import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 

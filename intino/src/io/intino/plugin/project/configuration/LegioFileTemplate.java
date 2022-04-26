@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.configuration;
 
 import io.intino.itrules.RuleSet;
 import io.intino.itrules.Template;

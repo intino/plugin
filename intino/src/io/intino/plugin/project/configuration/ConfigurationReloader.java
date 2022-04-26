@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.configuration;
 
 import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -8,6 +8,7 @@ import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import org.jetbrains.annotations.NotNull;
 

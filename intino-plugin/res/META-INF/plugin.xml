@@ -126,7 +126,7 @@
 		<codeStyleSettingsProvider implementation="io.intino.plugin.formatter.TaraCodeStyleSettingsProvider"/>
 		<langCodeStyleSettingsProvider
 				implementation="io.intino.plugin.formatter.TaraLanguageCodeStyleSettingsProvider"/>
-		<postStartupActivity implementation="io.intino.plugin.project.IntinoModuleStarter"/>
+		<postStartupActivity implementation="io.intino.plugin.project.module.IntinoModuleStarter"/>
 		<preloadingActivity implementation="io.intino.plugin.project.ApplicationInitializedListener"/>
 
 		<!--<statementUpDownMover implementation="TaraNodeMover" id="node" order="before line"/>-->
@@ -142,7 +142,7 @@
 		<extendWordSelectionHandler implementation="io.intino.plugin.archetype.lang.psi.ArchetypeSelectionHandler"/>
 		<extendWordSelectionHandler implementation="io.intino.plugin.lang.psi.TaraSelectionHandler"/>
 		<basicWordSelectionFilter implementation="io.intino.plugin.lang.psi.TaraBasicWordSelectionFilter"/>
-		<moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.IntinoModuleType"/>
+		<moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.module.IntinoModuleType"/>
 		<httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
 		<codeInsight.lineMarkerProvider language="Tara"
@@ -181,7 +181,7 @@
 		<copyPastePreProcessor implementation="io.intino.plugin.file.LegioDependencyPasteProcessor"/>
 		<problemFileHighlightFilter
 				implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
-		<moduleBuilder builderClass="io.intino.plugin.project.IntinoModuleBuilder"/>
+		<moduleBuilder builderClass="io.intino.plugin.project.module.IntinoModuleBuilder"/>
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
 		<codeInsight.lineMarkerProvider language="Tara"
@@ -295,7 +295,7 @@
 				  topic="com.intellij.compiler.server.CustomBuilderMessageHandler"/>
 		<listener class="io.intino.plugin.codeinsight.languageinjection.imports.ImportsSaverService"
 				  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
-		<listener class="io.intino.plugin.project.IntinoModuleStarter"
+		<listener class="io.intino.plugin.project.module.IntinoModuleStarter"
 				  topic="com.intellij.openapi.project.ModuleListener"/>
 		<listener class="io.intino.plugin.project.ConfigurationListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>

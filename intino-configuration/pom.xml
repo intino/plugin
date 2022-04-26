@@ -14,11 +14,11 @@
     </properties>
 
     <build>
-        <outputDirectory>../out/production/intino-plugin</outputDirectory>
-        <testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
-        <directory>../out/build/intino-plugin</directory>
-        <sourceDirectory>src</sourceDirectory>
-    </build>
+		<outputDirectory>../out/production/intino-configuration</outputDirectory>
+		<testOutputDirectory>../out/test/intino-configuration</testOutputDirectory>
+		<directory>../out/build/intino-configuration</directory>
+		<sourceDirectory>src</sourceDirectory>
+	</build>
 
     <repositories>
         <repository>

@@ -14,7 +14,7 @@ import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoModuleType;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;

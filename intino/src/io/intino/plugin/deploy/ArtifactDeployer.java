@@ -15,7 +15,6 @@ import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
 import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.archetype.FileRelationsExtractor;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.LegioConfiguration;
@@ -23,8 +22,9 @@ import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
@@ -103,29 +103,8 @@ public class ArtifactDeployer {
 			if (r.minMemory() != 0) requirements.minMemory(r.minMemory());
 			if (r.maxMemory() != 0) requirements.maxMemory(r.maxMemory());
 			if (r.minHdd() != 0) requirements.hdd(r.minHdd());
-			if (r.sync() != null) {
-				File archetypeFile = archetypeFile();
-				Map<String, String> servers = r.sync().moduleServer();
-				if (archetypeFile.exists()) {
-					Map<String, List<String>> syncFileToModule = new FileRelationsExtractor(archetypeFile).sharedDirectoriesWithOwner(module.getName());
-					syncFileToModule.entrySet().forEach(e -> e.setValue(modulesToServers(servers, e.getValue())));
-					requirements.syncFileToServer(syncFileToModule);
-				}
-			}
 		}
 		return requirements;
-	}
-
-	private List<String> modulesToServers(Map<String, String> servers, List<String> modules) {
-		Set<String> set = new HashSet<>();
-		for (String s : modules) {
-			if (servers.containsKey(s)) set.add(servers.get(s));
-		}
-		return new ArrayList<>(set);
-	}
-
-	private File archetypeFile() {
-		return new File(module.getProject().getBasePath(), ".archetype");
 	}
 
 	private List<Parameter> extractParameters(RunConfiguration configuration) {

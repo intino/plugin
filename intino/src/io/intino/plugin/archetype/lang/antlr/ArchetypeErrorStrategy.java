@@ -3,8 +3,6 @@ package io.intino.plugin.archetype.lang.antlr;
 import org.antlr.v4.runtime.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Logger;
-
 public class ArchetypeErrorStrategy implements ANTLRErrorStrategy {
 	private static Token currentError;
 

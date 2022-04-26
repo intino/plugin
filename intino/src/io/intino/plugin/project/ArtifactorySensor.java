@@ -23,7 +23,7 @@ public class ArtifactorySensor {
 		this.properties = PropertiesComponent.getInstance();
 	}
 
-	void update(String language) {
+	public void update(String language) {
 		if (language != null) languageVersions(language);
 		updateBuilders();
 	}

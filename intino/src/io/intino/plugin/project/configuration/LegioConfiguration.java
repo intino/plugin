@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.configuration;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -28,6 +28,7 @@ import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import io.intino.plugin.project.configuration.model.LegioRepository;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;

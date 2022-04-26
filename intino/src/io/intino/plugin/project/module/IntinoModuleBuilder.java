@@ -1,15 +1,20 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.module;
 
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
+import com.intellij.ide.util.projectWizard.ModuleWizardStep;
+import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.MavenConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.java.JpsJavaExtensionService;
@@ -44,6 +49,11 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	@Override
 	public ModuleType getModuleType() {
 		return IntinoModuleType.getModuleType();
+	}
+
+	@Override
+	public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
+		return super.createWizardSteps(wizardContext, modulesProvider);
 	}
 
 	@Override

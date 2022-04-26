@@ -13,7 +13,7 @@ import io.intino.magritte.lang.model.Aspect;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.messages.MessageProvider;
-import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;

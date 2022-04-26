@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.module;
 
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;

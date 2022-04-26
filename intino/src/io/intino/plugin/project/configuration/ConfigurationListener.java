@@ -1,4 +1,4 @@
-package io.intino.plugin.project;
+package io.intino.plugin.project.configuration;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;

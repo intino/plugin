@@ -11,7 +11,7 @@ import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
