@@ -20,7 +20,7 @@ import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

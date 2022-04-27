@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>5.8.8</version>
+	<version>5.9.0</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -297,7 +297,7 @@
 				  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
 		<listener class="io.intino.plugin.project.module.IntinoModuleStarter"
 				  topic="com.intellij.openapi.project.ModuleListener"/>
-		<listener class="io.intino.plugin.project.ConfigurationListener"
+		<listener class="io.intino.plugin.project.configuration.ConfigurationListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
 		<listener class="io.intino.plugin.actions.itrules.ItrFileDocumentManagerListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>

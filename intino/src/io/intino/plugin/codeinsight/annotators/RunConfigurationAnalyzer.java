@@ -10,7 +10,7 @@ import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.fix.AddArgumentFix;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

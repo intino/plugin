@@ -5,7 +5,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

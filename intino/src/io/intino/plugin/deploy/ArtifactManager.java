@@ -16,8 +16,8 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
 import io.intino.plugin.project.Safe;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import javax.swing.*;

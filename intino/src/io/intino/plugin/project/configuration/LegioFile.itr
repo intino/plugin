@@ -1,13 +1,15 @@
 def type(legio & empty)
 	dsl Legio
 
-	Artifact(groupId = "org.example", version = "1.0.0") $name
+	Artifact(groupId = "[$groupId?org.example]", version = "1.0.0") $name
 		Imports
 			Test(groupId = "junit", artifactId = "junit", version = "4.13")
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
 
 	Repository(identifier = "intino-maven")
 		Release("https://artifactory.intino.io/artifactory/releases")
+
+	RunConfiguration local
 end
 
 def type(legio) !type(empty)

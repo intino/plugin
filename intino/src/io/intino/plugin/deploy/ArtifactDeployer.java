@@ -17,7 +17,7 @@ import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;

@@ -16,7 +16,7 @@ import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileTemplate;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.toolwindows.output.IntinoTopics;

@@ -17,7 +17,7 @@ import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import org.jetbrains.annotations.NotNull;
 

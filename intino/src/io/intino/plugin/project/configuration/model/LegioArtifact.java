@@ -19,7 +19,7 @@ import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraNodeImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;

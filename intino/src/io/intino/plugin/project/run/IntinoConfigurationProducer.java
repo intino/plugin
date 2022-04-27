@@ -23,7 +23,7 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.Safe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

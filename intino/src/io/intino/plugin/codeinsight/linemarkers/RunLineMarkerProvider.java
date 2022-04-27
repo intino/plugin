@@ -20,7 +20,7 @@ import com.vladsch.flexmark.util.data.DataKey;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.plugin.project.run.IntinoRunContextAction;
 import org.jetbrains.annotations.NotNull;
@@ -45,11 +45,11 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		final Info info = createInfo(ModuleProvider.moduleOf(element), element);
 		if (info == null) return null;
 		final DefaultActionGroup actionGroup = new DefaultActionGroup("Run Actions", true);
-		actionGroup.getTemplatePresentation().setVisible(true);
-		actionGroup.getTemplatePresentation().setEnabled(true);
+//		actionGroup.getTemplatePresentation().setVisible(true);
+//		actionGroup.getTemplatePresentation().setEnabled(true);
 		for (AnAction action : info.actions) actionGroup.add(new LineMarkerActionWrapper(element, action));
-		Function<PsiElement, String> tooltipProvider = element1 -> {
-			final String value = info.tooltipProvider.apply(element1);
+		Function<PsiElement, String> tooltipProvider = e -> {
+			final String value = info.tooltipProvider.apply(e);
 			return value.length() == 0 ? null : value;
 		};
 		return createLineMarkerInfo(element, info, actionGroup, tooltipProvider);
@@ -94,10 +94,6 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 		if (runnerClass == null) return null;
 		final List<Executor> executors = Executor.EXECUTOR_EXTENSION_NAME.getExtensionList();
 		final RunContextAction[] actions = new RunContextAction[]{new IntinoRunContextAction(executors.get(0), runConfiguration), new IntinoRunContextAction(executors.get(1), runConfiguration)};
-		for (RunContextAction action : actions) {
-			action.getTemplatePresentation().setEnabled(true);
-			action.getTemplatePresentation().setVisible(true);
-		}
 		return new Info(Run, element -> join(mapNotNull(actions, a -> getText(a, runnerClass)), "\n"), actions);
 	}
 

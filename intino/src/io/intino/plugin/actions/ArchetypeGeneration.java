@@ -20,7 +20,7 @@ import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.plugin.archetype.ArchetypeRenderer;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;

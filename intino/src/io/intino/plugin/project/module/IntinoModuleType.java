@@ -10,10 +10,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
+
 public class IntinoModuleType extends JavaModuleType {
 
 	@SuppressWarnings("WeakerAccess")
 	public static final String INTINO_MODULE_OPTION_NAME = "io.intino.tara.isIntinoModule";
+	public static final String INTINO_GROUPID_OPTION_NAME = "io.intino.groupId";
 	public static final String TARA_MODULE_OPTION_NAME = "io.intino.tara.isTaraModule";
 	private static final String TARA_MODULE = "TARA_MODULE";
 
@@ -30,7 +33,17 @@ public class IntinoModuleType extends JavaModuleType {
 	}
 
 	private static boolean isIntinoModule(Module module) {
-		return "true".equals(module.getOptionValue(TARA_MODULE_OPTION_NAME)) || "true".equals(module.getOptionValue(INTINO_MODULE_OPTION_NAME));
+		return module.getOptionValue(TARA_MODULE_OPTION_NAME) != null || module.getOptionValue(INTINO_MODULE_OPTION_NAME) != null;
+	}
+
+	public static Type type(Module module) {
+		String optionValue = module.getOptionValue(INTINO_MODULE_OPTION_NAME);
+		if (optionValue != null && optionValue.equals("true")) optionValue = Business.name();
+		return optionValue != null ? Type.valueOf(optionValue) : null;
+	}
+
+	public static String groupId(Module module) {
+		return module.getOptionValue(INTINO_GROUPID_OPTION_NAME);
 	}
 
 	@NotNull
@@ -49,5 +62,9 @@ public class IntinoModuleType extends JavaModuleType {
 	@Override
 	public Icon getNodeIcon(@Deprecated boolean isOpened) {
 		return IntinoIcons.MODEL_16;
+	}
+
+	public enum Type {
+		Business, Amidas, Susmus, Datahub, Archetype
 	}
 }

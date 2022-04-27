@@ -23,7 +23,7 @@ import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.toolwindows.factory.components.Element;
 import io.intino.plugin.toolwindows.factory.components.FactoryPanel;
 import io.intino.plugin.toolwindows.factory.components.Operation;

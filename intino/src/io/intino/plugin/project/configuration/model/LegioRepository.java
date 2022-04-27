@@ -3,7 +3,7 @@ package io.intino.plugin.project.configuration.model;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 

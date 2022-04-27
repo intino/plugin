@@ -12,7 +12,7 @@ import io.intino.Configuration.Repository;
 import io.intino.magritte.dsl.Meta;
 import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.DependencyResolutionException;

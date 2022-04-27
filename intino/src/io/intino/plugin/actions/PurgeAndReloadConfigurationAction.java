@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 
 public class PurgeAndReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override

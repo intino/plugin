@@ -7,7 +7,7 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 

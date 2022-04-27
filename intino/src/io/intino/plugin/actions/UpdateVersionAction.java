@@ -5,7 +5,7 @@ import com.intellij.openapi.project.DumbAware;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 
 import static io.intino.plugin.build.AbstractArtifactFactory.ProcessResult.Retry;

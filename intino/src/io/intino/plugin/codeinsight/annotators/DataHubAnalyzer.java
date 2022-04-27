@@ -6,7 +6,7 @@ import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Lev
 import io.intino.plugin.annotator.TaraAnnotator;
 import io.intino.plugin.annotator.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.project.Safe.safe;

@@ -65,7 +65,8 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public Configuration init() {
-		this.vFile = new LegioFileCreator(module).getOrCreate();
+		new ModuleTemplateDeployer(module).deploy();
+		this.vFile = new LegioFileCreator(module).get();
 		this.legioFile = legioFile();
 		this.dependencyAuditor = new DependencyAuditor(module);
 		try {

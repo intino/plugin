@@ -3,7 +3,6 @@ package io.intino.plugin.dependencyresolution;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.module.Module;
-import com.intellij.psi.PsiFile;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.project.IntinoDirectory;
 

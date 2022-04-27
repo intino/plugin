@@ -3,7 +3,7 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration.Artifact;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

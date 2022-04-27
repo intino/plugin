@@ -20,7 +20,7 @@ import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 

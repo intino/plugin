@@ -26,7 +26,7 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 

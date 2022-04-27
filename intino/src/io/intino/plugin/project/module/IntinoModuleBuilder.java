@@ -21,10 +21,16 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 
 public class IntinoModuleBuilder extends JavaModuleBuilder {
+
+	private IntinoModuleType.Type intinoModuleType;
+	private String groupId;
 
 	@Override
 	public String getPresentableName() {
@@ -47,13 +53,16 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	}
 
 	@Override
-	public ModuleType getModuleType() {
+	public ModuleType<?> getModuleType() {
 		return IntinoModuleType.getModuleType();
 	}
 
 	@Override
 	public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
-		return super.createWizardSteps(wizardContext, modulesProvider);
+		final ModuleWizardStep[] wizardSteps = super.createWizardSteps(wizardContext, modulesProvider);
+		final List<ModuleWizardStep> moduleWizardSteps = new ArrayList<>(Arrays.asList(wizardSteps));
+		moduleWizardSteps.add(new IntinoWizardStep(this));
+		return moduleWizardSteps.toArray(new ModuleWizardStep[0]);
 	}
 
 	@Override
@@ -84,12 +93,21 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
-		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, "true");
+		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
+		module.setOption(IntinoModuleType.INTINO_GROUPID_OPTION_NAME, groupId);
 		register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 	}
 
 	@Override
 	public int getWeight() {
 		return 90;
+	}
+
+	public void setIntinoModuleType(IntinoModuleType.Type selected) {
+		this.intinoModuleType = selected;
+	}
+
+	public void setGroupId(String selected) {
+		this.groupId = selected;
 	}
 }

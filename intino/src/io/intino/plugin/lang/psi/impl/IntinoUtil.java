@@ -18,6 +18,7 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.intino.Configuration;
+import io.intino.alexandria.logger.Logger;
 import io.intino.magritte.Language;
 import io.intino.magritte.lang.model.*;
 import io.intino.magritte.lang.semantics.Constraint;
@@ -417,9 +418,13 @@ public class IntinoUtil {
 	}
 
 	private static TaraNode[] components(TaraModel file) {
-		Application application = ApplicationManager.getApplication();
-		if (application.isReadAccessAllowed()) return PsiTreeUtil.getChildrenOfType(file, TaraNode.class);
-		return application.<TaraNode[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraNode.class));
+		try {
+			Application application = ApplicationManager.getApplication();
+			if (application.isReadAccessAllowed()) return PsiTreeUtil.getChildrenOfType(file, TaraNode.class);
+			return application.<TaraNode[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraNode.class));
+		} catch (RuntimeException e) {
+			return new TaraNode[0];
+		}
 	}
 
 	public static PsiDirectory createResourceRoot(Module module, String name) {

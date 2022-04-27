@@ -7,7 +7,7 @@ import io.intino.Configuration;
 import io.intino.Configuration.RunConfiguration;
 import io.intino.plugin.lang.file.StashFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;

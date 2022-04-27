@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 
 import java.io.File;

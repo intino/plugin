@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 

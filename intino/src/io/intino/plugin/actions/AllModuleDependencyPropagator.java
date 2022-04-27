@@ -15,7 +15,7 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.dialog.UpdateVersionDialog;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioBox;
 

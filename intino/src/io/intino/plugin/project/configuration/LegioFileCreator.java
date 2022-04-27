@@ -29,10 +29,27 @@ public class LegioFileCreator {
 		return null;
 	}
 
-	VirtualFile getOrCreate() {
+	VirtualFile getOrCreate(String groupId) {
 		final File legioFile = legioFile();
 		if (legioFile.exists()) return findFileByIoFile(legioFile, true);
-		return VfsUtil.findFileByIoFile(write(new LegioFileTemplate().render(frame()), legioFile).toFile(), true);
+		return VfsUtil.findFileByIoFile(create(legioFile, groupId), true);
+	}
+
+	public void create(String legioContent) {
+		create(legioContent, legioFile());
+	}
+
+	@NotNull
+	public File create(File legioFile, String groupId) {
+		return create(new LegioFileTemplate().render(frame(groupId)), legioFile).toFile();
+	}
+
+	private Path create(String content, File destination) {
+		try {
+			return Files.write(destination.toPath(), content.getBytes());
+		} catch (IOException ignored) {
+		}
+		return destination.toPath();
 	}
 
 	@NotNull
@@ -43,15 +60,7 @@ public class LegioFileCreator {
 		return new File(moduleDir.getPath(), LegioFileType.LEGIO_FILE);
 	}
 
-	private Frame frame() {
-		return new FrameBuilder("legio", "empty").add("name", module.getName()).toFrame();
-	}
-
-	private Path write(String legio, File destiny) {
-		try {
-			return Files.write(destiny.toPath(), legio.getBytes());
-		} catch (IOException ignored) {
-		}
-		return destiny.toPath();
+	private Frame frame(String groupId) {
+		return new FrameBuilder("legio", "empty").add("groupId", groupId).add("name", module.getName()).toFrame();
 	}
 }

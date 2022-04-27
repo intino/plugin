@@ -11,7 +11,6 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.testFramework.PsiTestUtil;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
@@ -19,7 +18,7 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.PsiUtil;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeGrammar;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
-import io.intino.plugin.project.LegioConfiguration;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
