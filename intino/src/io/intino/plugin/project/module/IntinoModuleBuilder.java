@@ -1,20 +1,34 @@
 package io.intino.plugin.project.module;
 
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.projectView.impl.ProjectTreeStructure;
+import com.intellij.ide.projectView.impl.ProjectViewImpl;
+import com.intellij.ide.projectView.impl.ProjectViewToolWindowFactory;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
+import com.intellij.ide.util.treeView.smartTree.TreeStructureUtil;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindowFactory;
+import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.IntinoDirectory;
+import io.intino.plugin.project.configuration.LegioFileCreator;
 import io.intino.plugin.project.configuration.MavenConfiguration;
+import io.intino.plugin.project.configuration.ModuleTemplateDeployer;
+import io.intino.plugin.project.view.TaraTreeStructureProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.java.JpsJavaExtensionService;
@@ -70,7 +84,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		return true;
 	}
 
-	public void setupRootModel(ModifiableRootModel rootModel) throws ConfigurationException {
+	public void setupRootModel(@NotNull ModifiableRootModel rootModel) throws ConfigurationException {
 		super.setupRootModel(rootModel);
 		final ContentEntry contentEntry = rootModel.getContentEntries()[0];
 		final File gen = new File(contentEntry.getFile().getPath(), "gen");
@@ -95,7 +109,18 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		final Module module = rootModel.getModule();
 		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
 		module.setOption(IntinoModuleType.INTINO_GROUPID_OPTION_NAME, groupId);
-		register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
+
+	}
+
+	@Override
+	public @Nullable Module commitModule(@NotNull Project project, @Nullable ModifiableModuleModel model) {
+		final Module module = super.commitModule(project, model);
+		new ModuleTemplateDeployer(module).deploy();
+		final VirtualFile file = new LegioFileCreator(module).get();
+		FileEditorManager.getInstance(project).openFile(file, true);
+		final Configuration configuration = register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
+		configuration.reload();
+		return module;
 	}
 
 	@Override

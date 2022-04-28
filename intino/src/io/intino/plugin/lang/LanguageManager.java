@@ -123,7 +123,7 @@ public class LanguageManager {
 		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
-		Notifications.Bus.notify(new Notification("Language Reload", "", "Language " + dsl + " reloaded", NotificationType.INFORMATION), project);
+		Notifications.Bus.notify(new Notification("Intino", "", "Language " + dsl + " reloaded", NotificationType.INFORMATION), project);
 	}
 
 	@SuppressWarnings("WeakerAccess")

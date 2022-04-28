@@ -1,6 +1,9 @@
 package io.intino.plugin.project.configuration;
 
+import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -23,10 +26,9 @@ public class ModuleTemplateDeployer {
 	private final Module module;
 	private final VirtualFile srcRoot;
 
-
 	public ModuleTemplateDeployer(Module module) {
 		this.module = module;
-		srcRoot = IntinoUtil.getSrcRoot(module);
+		this.srcRoot = IntinoUtil.getSrcRoot(module);
 	}
 
 	public void deploy() {
@@ -37,19 +39,21 @@ public class ModuleTemplateDeployer {
 			legioFileCreator.getOrCreate(groupId);
 			return;
 		}
-		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("version", "1.0.0");
+		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("$version", "1.0.0");
 		final ZipInputStream zipInputStream = new ZipInputStream(template(realUrl));
 		Map<String, String> files = extract(zipInputStream);
-		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace(".", File.separator));
+		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
 		srcDirectory.mkdirs();
-		legioFileCreator.create(files.remove("artifact.legio").replace("$groupId", groupId));
+		legioFileCreator.create(files.remove("artifact.legio").replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
 			try {
-				Files.write(new File(srcDirectory, k).toPath(), v.getBytes(StandardCharsets.UTF_8));
+				Files.write(new File(srcDirectory, k).toPath(), v.replace("$package", groupId + "." + module.getName().replace("-", "").toLowerCase()).getBytes(StandardCharsets.UTF_8));
 			} catch (IOException e) {
 				Logger.error(e);
 			}
 		});
+		final VirtualFile file = VfsUtil.findFile(srcDirectory.toPath(), true);
+		ProjectView.getInstance(module.getProject()).select(file, file, true);
 	}
 
 	private Map<String, String> extract(ZipInputStream zipInputStream) {

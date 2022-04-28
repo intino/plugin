@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
-
 	public static final String ID = "Intino Console";
 
 	public static ToolWindow getInstance(Project project) {

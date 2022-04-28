@@ -65,14 +65,13 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public Configuration init() {
-		new ModuleTemplateDeployer(module).deploy();
-		this.vFile = new LegioFileCreator(module).get();
-		this.legioFile = legioFile();
 		this.dependencyAuditor = new DependencyAuditor(module);
 		try {
 			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
+					vFile = new LegioFileCreator(module).get();
+					legioFile = legioFile();
 					legioFile.components().forEach(resolver::resolve);
 					final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
 					reloader.reloadInterfaceBuilder();

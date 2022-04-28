@@ -24,4 +24,7 @@ public class IntinoWizardPanel {
 		return IntinoModuleType.Type.Archetype;
 	}
 
+	public String groupId() {
+		return groupId.getText();
+	}
 }

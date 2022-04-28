@@ -21,5 +21,6 @@ public class IntinoWizardStep extends ModuleWizardStep {
 	@Override
 	public void updateDataModel() {
 		builder.setIntinoModuleType(step.selected());
+		builder.setGroupId(step.groupId());
 	}
 }

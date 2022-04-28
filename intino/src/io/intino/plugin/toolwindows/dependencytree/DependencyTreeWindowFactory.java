@@ -16,13 +16,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-
 public class DependencyTreeWindowFactory implements ToolWindowFactory, DumbAware {
 
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		Content content = ContentFactory.SERVICE.getInstance().
-				createContent(new DependencyTreeToolWindow(project), "", false);
+		Content content = ContentFactory.SERVICE.getInstance().createContent(new DependencyTreeToolWindow(project), "", false);
 		toolWindow.getContentManager().addContent(content);
 		toolWindow.getContentManager().setSelectedContent(content, false);
 	}
@@ -32,5 +30,4 @@ public class DependencyTreeWindowFactory implements ToolWindowFactory, DumbAware
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
 		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module).get() != null);
 	}
-
 }

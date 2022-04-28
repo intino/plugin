@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
@@ -59,7 +60,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
 			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
-			final VirtualFile moduleFile = com.intellij.openapi.project.ProjectUtil.guessModuleDir(module);
+			final VirtualFile moduleFile = ProjectUtil.guessModuleDir(module);
 			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
 			publish(module);
 		};
