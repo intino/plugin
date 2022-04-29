@@ -109,7 +109,6 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		final Module module = rootModel.getModule();
 		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
 		module.setOption(IntinoModuleType.INTINO_GROUPID_OPTION_NAME, groupId);
-
 	}
 
 	@Override

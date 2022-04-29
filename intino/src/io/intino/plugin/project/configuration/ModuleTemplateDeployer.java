@@ -36,7 +36,8 @@ public class ModuleTemplateDeployer {
 		final String groupId = IntinoModuleType.groupId(module);
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module);
 		if (type == null || Business.equals(type)) {
-			legioFileCreator.getOrCreate(groupId);
+			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
+			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
 			return;
 		}
 		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("$version", "1.0.0");
