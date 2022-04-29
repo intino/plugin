@@ -37,6 +37,7 @@ public class IntinoModuleType extends JavaModuleType {
 	}
 
 	public static Type type(Module module) {
+		if (module == null) return Business;
 		String optionValue = module.getOptionValue(INTINO_MODULE_OPTION_NAME);
 		if (optionValue != null && optionValue.equals("true")) optionValue = Business.name();
 		return optionValue != null ? Type.valueOf(optionValue) : null;

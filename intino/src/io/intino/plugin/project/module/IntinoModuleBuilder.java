@@ -1,13 +1,8 @@
 package io.intino.plugin.project.module;
 
-import com.intellij.ide.projectView.ProjectView;
-import com.intellij.ide.projectView.impl.ProjectTreeStructure;
-import com.intellij.ide.projectView.impl.ProjectViewImpl;
-import com.intellij.ide.projectView.impl.ProjectViewToolWindowFactory;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.ide.util.treeView.smartTree.TreeStructureUtil;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
@@ -19,14 +14,12 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import io.intino.plugin.project.configuration.ModuleTemplateDeployer;
-import io.intino.plugin.project.view.TaraTreeStructureProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
@@ -114,12 +107,16 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	@Override
 	public @Nullable Module commitModule(@NotNull Project project, @Nullable ModifiableModuleModel model) {
 		final Module module = super.commitModule(project, model);
+		createIntinoFiles(project, module);
+		return module;
+	}
+
+	private void createIntinoFiles(@NotNull Project project, Module module) {
 		new ModuleTemplateDeployer(module).deploy();
 		final VirtualFile file = new LegioFileCreator(module).get();
 		FileEditorManager.getInstance(project).openFile(file, true);
 		final Configuration configuration = register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 		configuration.reload();
-		return module;
 	}
 
 	@Override
