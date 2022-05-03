@@ -66,7 +66,7 @@
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
 			<artifactId>message</artifactId>
-			<version>3.0.3</version>
+			<version>3.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
@@ -203,6 +203,12 @@
 			<groupId>io.intino.itrules</groupId>
 			<artifactId>reader-itr</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.antlr</groupId>
+					<artifactId>antlr4</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,4 +1,4 @@
-// Generated from /Users/oroncal/workspace/intino-plugin/intino/src/io/intino/plugin/archetype/lang/antlr/ArchetypeGrammar.g4 by ANTLR 4.9.1
+// Generated from /Users/oroncal/workspace/intino/intino/src/io/intino/plugin/archetype/lang/antlr/ArchetypeGrammar.g4 by ANTLR 4.10.1
 package io.intino.plugin.archetype.lang.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;

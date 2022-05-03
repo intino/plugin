@@ -329,13 +329,6 @@
 		<action id="NewBoxFile" class="io.intino.plugin.actions.CreateBoxFileAction">
 			<add-to-group group-id="NewGroup" anchor="first"/>
 		</action>
-		<action id="IntinoGenerate"
-				class="io.intino.plugin.actions.box.BoxElementsGenerationAction"
-				text="Generate Web Elements Code"
-				description="Generates web elements code">
-			<keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>
-			<add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
-		</action>
 		<action id="PurgeAndReloadConfigurationAction"
 				class="io.intino.plugin.actions.PurgeAndReloadConfigurationAction"
 				text="Purge and Reload Legio Configuration"
@@ -359,7 +352,14 @@
 				class="io.intino.plugin.actions.ReloadConfigurationAction" text="Reload Legio Configuration"
 				description="Reload configuration of project modules">
 			<keyboard-shortcut first-keystroke="control alt E" keymap="$default"/>
-			<!--<add-to-group group-id="intino"/>-->
+			<add-to-group group-id="intino"/>
+		</action>
+		<action id="IntinoGenerate"
+				class="io.intino.plugin.actions.box.BoxElementsGenerationAction"
+				text="Generate Web Elements Code"
+				description="Generates web elements code">
+			<keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>
+			<add-to-group group-id="ToolbarMakeGroup" anchor="first"/>
 		</action>
 		<action id="JoinToLegio" class="io.intino.plugin.actions.JoinToLegioAction"
 				text="Join to Intino"

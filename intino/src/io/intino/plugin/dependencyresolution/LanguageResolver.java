@@ -105,7 +105,7 @@ public class LanguageResolver {
 			if (frameworkCoors == null) return Collections.emptyMap();
 			Aether aether = new Aether(remotes(), localRepository);
 			String[] coors = frameworkCoors.split(":");
-			List<Artifact> resolve = aether.resolve(new DefaultArtifact(coors[0], coors[1], "jar", coors[2]), JavaScopes.COMPILE);
+			List<Artifact> resolve = aether.resolve(new DefaultArtifact(coors[0], coors[1].toLowerCase(), "jar", coors[2]), JavaScopes.COMPILE);
 			return toMap(resolve, DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
 			return Collections.emptyMap();
@@ -153,8 +153,8 @@ public class LanguageResolver {
 		if (isMagritteLibrary(language)) return magritteID(version);
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
-		else try {
-			Manifest manifest = new JarFile(languageFile).getManifest();
+		else try (JarFile jarFile = new JarFile(languageFile)) {
+			Manifest manifest = jarFile.getManifest();
 			final Attributes tara = manifest.getAttributes("tara");
 			if (tara == null) return null;
 			return tara.getValue("framework");

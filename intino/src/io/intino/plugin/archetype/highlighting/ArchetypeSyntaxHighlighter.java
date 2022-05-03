@@ -18,6 +18,7 @@ public class ArchetypeSyntaxHighlighter extends SyntaxHighlighterBase implements
 	public static final TextAttributesKey KEYWORD = TextAttributesKey.createTextAttributesKey("Archetype_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
 	public static final TextAttributesKey IDENTIFIER = TextAttributesKey.createTextAttributesKey("Archetype_IDENTIFIER", DefaultLanguageHighlighterColors.CONSTANT);
 	public static final TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey("Archetype_STRING", DefaultLanguageHighlighterColors.NUMBER);
+	private static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("Tara_TARA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
 	static final TextAttributesKey ANNOTATION = createTextAttributesKey("Archetype_ANNOTATION", DefaultLanguageHighlighterColors.METADATA);
 
 	private static final Map<IElementType, TextAttributesKey> KEYS;
@@ -28,7 +29,7 @@ public class ArchetypeSyntaxHighlighter extends SyntaxHighlighterBase implements
 		KEYS.put(ArchetypeTypes.PLUS, KEYWORD);
 		KEYS.put(ArchetypeTypes.MINUS, KEYWORD);
 		KEYS.put(ArchetypeTypes.STAR, KEYWORD);
-
+		KEYS.put(COMMENT, LINE_COMMENT);
 		KEYS.put(ArchetypeTypes.ANNOTATION, ANNOTATION);
 
 		KEYS.put(ArchetypeTypes.IDENTIFIER_KEY, IDENTIFIER);
