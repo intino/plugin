@@ -1,5 +1,6 @@
 package io.intino.plugin.project.module;
 
+import com.amazonaws.services.simpleworkflow.model.transform.ActivityTypeInfoJsonUnmarshaller;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProgressIndicator;

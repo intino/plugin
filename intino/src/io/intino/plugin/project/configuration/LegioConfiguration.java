@@ -104,6 +104,7 @@ public class LegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> {
+				if (legioFile == null) return;
 				FileDocumentManager instance = FileDocumentManager.getInstance();
 				Document document = instance.getDocument(legioFile.getVirtualFile());
 				if (document != null) instance.saveDocument(document);
@@ -112,33 +113,35 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void reload() {
-		if (reloading.get()) return;
-		reloading.set(true);
-		refresh();
-		if (module.isDisposed() || module.getProject().isDisposed()) return;
-		try {
-			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-						 @Override
-						 public void run(@NotNull ProgressIndicator indicator) {
-							 try {
-								 reloading.set(true);
-								 if (legioFile == null) legioFile = legioFile();
-								 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
-								 reloader.reloadInterfaceBuilder();
-								 reloader.reloadDependencies();
-								 reloader.reloadRunConfigurations();
-								 save();
-								 reloading.set(false);
-							 } catch (Throwable ignored) {
-								 reloading.set(false);
+		synchronized (reloading) {
+			if (reloading.get()) return;
+			reloading.set(true);
+			refresh();
+			if (module.isDisposed() || module.getProject().isDisposed()) return;
+			try {
+				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+							 @Override
+							 public void run(@NotNull ProgressIndicator indicator) {
+								 try {
+									 reloading.set(true);
+									 if (legioFile == null) legioFile = legioFile();
+									 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
+									 reloader.reloadInterfaceBuilder();
+									 reloader.reloadDependencies();
+									 reloader.reloadRunConfigurations();
+									 save();
+									 reloading.set(false);
+								 } catch (Throwable ignored) {
+									 reloading.set(false);
+								 }
 							 }
 						 }
-					 }
-			);
-		} catch (Throwable e) {
-			LOG.error(e);
+				);
+			} catch (Throwable e) {
+				LOG.error(e);
+			}
+			reloading.set(false);
 		}
-		reloading.set(false);
 	}
 
 	public void reloadDependencies() {

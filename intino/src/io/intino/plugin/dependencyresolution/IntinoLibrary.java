@@ -37,8 +37,4 @@ public class IntinoLibrary {
 	ModifiableModel model() {
 		return modifiableModel;
 	}
-
-	boolean isValid() {
-		return table != null;
-	}
 }

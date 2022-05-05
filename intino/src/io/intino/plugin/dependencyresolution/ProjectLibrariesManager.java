@@ -22,10 +22,8 @@ public class ProjectLibrariesManager {
 	}
 
 	public void register(DependencyCatalog catalog) {
-		if (!table.isValid()) return;
 		final Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) registerCatalog(catalog);
-		else application.invokeLater(() -> application.runWriteAction(() -> registerCatalog(catalog)));
+		application.runWriteAction(() -> registerCatalog(catalog));
 	}
 
 	public void registerSources(Dependency dependency) {
@@ -46,12 +44,10 @@ public class ProjectLibrariesManager {
 
 	private void registerCatalog(DependencyCatalog catalog) {
 		Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed())
-			application.runWriteAction(() -> {
-				catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
-				if (table.model().isChanged()) table.model().commit();
-			});
-		else application.invokeLater(() -> application.runWriteAction(() -> {
+		if (application.isWriteAccessAllowed()) {
+			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
+			if (table.model().isChanged()) table.model().commit();
+		} else application.invokeLater(() -> application.runWriteAction(() -> {
 			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
 			if (table.model().isChanged()) table.model().commit();
 		}));

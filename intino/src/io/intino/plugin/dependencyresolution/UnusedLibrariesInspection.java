@@ -30,10 +30,10 @@ public class UnusedLibrariesInspection {
 		List<Library> toRemove = intinoLibrary.libraries().stream().filter(library -> !isUsed(library)).collect(Collectors.toList());
 		if (!toRemove.isEmpty()) {
 			Application application = ApplicationManager.getApplication();
-			application.invokeLater(() -> application.runWriteAction(() -> {
+			application.runWriteAction(() -> {
 				toRemove.forEach(model::removeLibrary);
 				model.commit();
-			}));
+			});
 		}
 	}
 

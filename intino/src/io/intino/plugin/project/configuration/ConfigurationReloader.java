@@ -2,6 +2,8 @@ package io.intino.plugin.project.configuration;
 
 import com.intellij.execution.RunManager;
 import com.intellij.execution.application.ApplicationConfiguration;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import io.intino.Configuration;
@@ -84,6 +86,12 @@ public class ConfigurationReloader {
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolveWeb(webDependencies(artifactDependencies)));
 		new DependencyConflictResolver().resolve(dependencies);
+		final Application application = ApplicationManager.getApplication();
+		if (application.isWriteAccessAllowed()) register(dependencies);
+		else application.invokeLater(() -> register(dependencies));
+	}
+
+	private void register(DependencyCatalog dependencies) {
 		new ProjectLibrariesManager(module.getProject()).register(dependencies);
 		new ModuleLibrariesManager(module).merge(dependencies);
 		new UnusedLibrariesInspection(module.getProject()).cleanUp();

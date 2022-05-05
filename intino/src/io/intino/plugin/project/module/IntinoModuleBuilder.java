@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 
 public class IntinoModuleBuilder extends JavaModuleBuilder {
@@ -114,7 +115,12 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	private void createIntinoFiles(@NotNull Project project, Module module) {
 		new ModuleTemplateDeployer(module).deploy();
 		final VirtualFile file = new LegioFileCreator(module).get();
-		FileEditorManager.getInstance(project).openFile(file, true);
+		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
+		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
+		loadConfiguration(module);
+	}
+
+	private void loadConfiguration(Module module) {
 		final Configuration configuration = register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 		configuration.reload();
 	}
