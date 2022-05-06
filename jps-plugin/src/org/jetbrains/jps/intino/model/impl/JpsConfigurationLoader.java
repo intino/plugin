@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFACE;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.ARCHETYPE;
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
@@ -63,6 +64,7 @@ class JpsConfigurationLoader {
 			conf.parameters = parameters.getOrDefault(KonosBuildConstants.PARAMETERS, "");
 			conf.parentInterface = parameters.getOrDefault(PARENT_INTERFACE, "");
 			conf.library = parameters.getOrDefault(LIBRARY, "");
+			conf.archetype = parameters.getOrDefault(ARCHETYPE, "");
 		} catch (IOException ignored) {
 		}
 	}

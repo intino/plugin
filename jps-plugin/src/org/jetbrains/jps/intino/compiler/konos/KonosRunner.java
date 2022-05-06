@@ -36,7 +36,7 @@ class KonosRunner {
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
 		loadClassPath(paths.get(INTINO_PROJECT_PATH), moduleName);
 		LOG.info("args file: " + argsFile.getAbsolutePath());
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), Charset.forName(encoding)))) {
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(argsFile.toPath()), Charset.forName(encoding)))) {
 			writer.write(SRC_FILE + NL);
 			for (Map.Entry<String, Boolean> file : sources.entrySet())
 				writer.write(file.getKey() + "#" + file.getValue() + NL);
@@ -72,6 +72,7 @@ class KonosRunner {
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
 		if (!conf.parentInterface.isEmpty()) writer.write(PARENT_INTERFACE + NL + conf.parentInterface + NL);
 		if (!conf.library.isEmpty()) writer.write(LIBRARY + NL + conf.library + NL);
+		if (!conf.archetype.isEmpty()) writer.write(ARCHETYPE + NL + conf.archetype + NL);
 		if (!conf.languageGenerationPackage.isEmpty())
 			writer.write(LANGUAGE_GENERATION_PACKAGE + NL + conf.languageGenerationPackage + NL);
 		writer.write(BOX_GENERATION_PACKAGE + NL + conf.boxGenerationPackage + NL);
@@ -98,6 +99,7 @@ class KonosRunner {
 				getJavaExecutable(), "io.intino.konos.KonoscRunner", Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final KonoscOSProcessHandler handler = new KonoscOSProcessHandler(process, String.join(" ", cmd), statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
+			@NotNull
 			@Override
 			public Future<?> executeTask(@NotNull Runnable task) {
 				return SharedThreadPool.getInstance().submit(task);

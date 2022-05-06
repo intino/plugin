@@ -26,6 +26,7 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String parameters = "";
 	public String parentInterface = "";
 	public String library = "";
+	public String archetype = "";
 
 
 	@NotNull
