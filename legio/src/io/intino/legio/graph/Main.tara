@@ -26,6 +26,7 @@ Concept:{1..1}:Named Artifact
 		var string organization
 		var string organizationUrl
 	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
+	Concept:{0..1} Archetype extends Artifact.Imports.Dependency
 	Concept:{0..1} Imports
 		Concept Dependency
 			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive

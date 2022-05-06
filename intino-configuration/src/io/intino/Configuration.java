@@ -47,6 +47,8 @@ public interface Configuration {
 
 		Artifact.Dependency.DataHub datahub();
 
+		Artifact.Dependency.Archetype archetype();
+
 		List<Artifact.Dependency> dependencies();
 
 		List<Artifact.WebComponent> webComponents();
@@ -209,6 +211,9 @@ public interface Configuration {
 			}
 
 			interface DataHub extends Dependency {
+			}
+
+			interface Archetype extends Dependency {
 			}
 
 			interface Web extends Dependency {
