@@ -210,8 +210,9 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return;
 		renderModel(parent, module, cache, (LegioConfiguration) configuration);
-		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);
 		renderDataHub(parent, module, cache, (LegioConfiguration) configuration);
+		renderArchetype(parent, module, cache, (LegioConfiguration) configuration);
+		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);
 		tree.updateUI();
 	}
 
@@ -235,6 +236,11 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	private void renderDataHub(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
 		Dependency.DataHub safe = safe(() -> configuration.artifact().datahub());
+		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(cache, safe));
+	}
+
+	private void renderArchetype(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+		Dependency.Archetype safe = safe(() -> configuration.artifact().archetype());
 		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(cache, safe));
 	}
 

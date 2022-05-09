@@ -82,6 +82,8 @@ public class ConfigurationReloader {
 		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
 		Artifact.Dependency.DataHub datahub = artifact.datahub();
 		if (datahub != null) artifactDependencies.add(datahub);
+		Artifact.Dependency.Archetype archetype = artifact.archetype();
+		if (archetype != null) artifactDependencies.add(archetype);
 		if (!artifactDependencies.isEmpty())
 			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
 		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolveWeb(webDependencies(artifactDependencies)));

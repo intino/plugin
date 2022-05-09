@@ -118,9 +118,9 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public Dependency.Archetype archetype() {
-		Node dataHub = TaraPsiUtil.componentOfType(node, "DataHub");
-		if (dataHub == null) return null;
-		return new LegioArchetype(this, dependencyAuditor, (TaraNode) dataHub);
+		Node archetype = TaraPsiUtil.componentOfType(node, "Archetype");
+		if (archetype == null) return null;
+		return new LegioArchetype(this, dependencyAuditor, (TaraNode) archetype);
 	}
 
 	@Override
@@ -350,9 +350,9 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 		if (box != null) builder += KonosBuildConstants.BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
 		Dependency.DataHub datahub = datahub();
-		if (datahub != null) builder += LIBRARY + EQ + datahub.identifier();
+		if (datahub != null) builder += LIBRARY + EQ + datahub.identifier() + "\n";
 		Dependency.Archetype archetype = archetype();
-		if (datahub != null) builder += ARCHETYPE + EQ + archetype.identifier();
+		if (archetype != null) builder += ARCHETYPE + EQ + archetype.identifier() + "\n";
 		return builder.getBytes();
 	}
 
