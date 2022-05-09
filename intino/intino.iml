@@ -52,6 +52,7 @@
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.8.9" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.8.9" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:3.1.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: org.kuali.common:kuali-threads:1.0.9" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.6.4" level="project" />
@@ -119,8 +120,7 @@
     <orderEntry type="library" name="Maven: org.cactoos:cactoos:0.16" level="project" />
     <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.54" level="project" />
     <orderEntry type="library" name="Maven: io.intino.itrules:engine:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: io.intino.itrules:reader-itr:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.6" level="project" />
+    <orderEntry type="library" name="Maven: io.intino.itrules:reader-itr:1.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.13.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: es.nitaur.markdown:txtmark:0.16" level="project" />
