@@ -32,9 +32,11 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
-import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
-import static io.intino.konos.compiler.shared.KonosBuildConstants.PARAMETERS;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.GENERATION_PACKAGE;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE_VERSION;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.OUT_DSL;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.OUT_DSL_VERSION;
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
@@ -112,6 +114,13 @@ public class LegioArtifact implements Configuration.Artifact {
 		Node dataHub = TaraPsiUtil.componentOfType(node, "DataHub");
 		if (dataHub == null) return null;
 		return new LegioDataHub(this, dependencyAuditor, (TaraNode) dataHub);
+	}
+
+	@Override
+	public Dependency.Archetype archetype() {
+		Node dataHub = TaraPsiUtil.componentOfType(node, "DataHub");
+		if (dataHub == null) return null;
+		return new LegioArchetype(this, dependencyAuditor, (TaraNode) dataHub);
 	}
 
 	@Override
@@ -341,7 +350,9 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 		if (box != null) builder += KonosBuildConstants.BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
 		Dependency.DataHub datahub = datahub();
-		if (datahub != null) builder += LIBRARY + EQ + datahub().identifier();
+		if (datahub != null) builder += LIBRARY + EQ + datahub.identifier();
+		Dependency.Archetype archetype = archetype();
+		if (datahub != null) builder += ARCHETYPE + EQ + archetype.identifier();
 		return builder.getBytes();
 	}
 

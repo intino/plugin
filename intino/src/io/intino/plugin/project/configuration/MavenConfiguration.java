@@ -192,6 +192,11 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
+			public Dependency.Archetype archetype() {
+				return null;
+			}
+
+			@Override
 			public List<Dependency> dependencies() {
 				return null;
 			}
