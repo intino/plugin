@@ -50,6 +50,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public void build(FinishCallback callback) {
+		if (configuration.artifact() == null) return;
 		boolean distributed = isDistributed(configuration.artifact());
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
 			if (hasChanges()) {
