@@ -65,6 +65,16 @@ public class ArtifactoryConnector {
 			public String url() {
 				return "https://repo.maven.apache.org/maven2/";
 			}
+
+			@Override
+			public String user() {
+				return null;
+			}
+
+			@Override
+			public String password() {
+				return null;
+			}
 		};
 	}
 

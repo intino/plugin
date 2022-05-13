@@ -414,6 +414,10 @@ public interface Configuration {
 
 		String url();
 
+		String user();
+
+		String password();
+
 		interface Release extends Repository {
 		}
 
