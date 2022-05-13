@@ -113,8 +113,8 @@
           <element id="library" level="project" name="Maven: io.intino.alexandria:message:3.0.5" />
           <element id="library" level="project" name="Maven: org.antlr:antlr4-runtime:4.10.1" />
           <element id="library" level="project" name="Maven: io.intino.itrules:reader-itr:1.1.0" />
-          <element id="library" level="project" name="Maven: commons-io:commons-io:2.4" />
           <element id="library" level="project" name="Maven: io.intino.konos:konos-builder-constants:1.1.0" />
+          <element id="library" level="project" name="Maven: commons-io:commons-io:2.11.0" />
         </element>
       </element>
     </root>

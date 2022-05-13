@@ -76,15 +76,21 @@ public class ImportsResolver {
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
 			if (auditor.isModified(((LegioDependency) d).node()) || mustReload) {
-				Module moduleDependency = moduleOf(d);
-				if (moduleDependency != null) {
-					DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
-					catalog.merge(newDeps);
-					cache.put(d.identifier(), newDeps.dependencies());
-				} else if (!(d instanceof Web)) {
+				if (!(d instanceof Web)) {
 					DependencyCatalog newDeps = processLibraryDependency(d);
+					if (newDeps.dependencies().isEmpty()) {
+						Module moduleDependency = moduleOf(d);
+						if (moduleDependency != null) newDeps = processModuleDependency(d, moduleDependency);
+					}
 					catalog.merge(newDeps);
 					cache.put(d.identifier(), newDeps.dependencies());
+				} else {
+					Module moduleDependency = moduleOf(d);
+					if (moduleDependency != null) {
+						DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
+						catalog.merge(newDeps);
+						cache.put(d.identifier(), newDeps.dependencies());
+					}
 				}
 			} else {
 				List<DependencyCatalog.Dependency> deps = cache.get(d.identifier());
