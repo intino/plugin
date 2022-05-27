@@ -1,15 +1,11 @@
 package io.intino.plugin.project.module;
 
 import com.intellij.util.ui.UIUtil;
-import com.siyeh.ig.ui.UiUtils;
 import io.intino.alexandria.logger.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class IntinoWizardPanel {
 	private JRadioButton business;
@@ -20,6 +16,12 @@ public class IntinoWizardPanel {
 	private JPanel root;
 	private JTextField groupId;
 	private JPanel diagramBox;
+	private JPanel boxPanel;
+	private JPanel modelPanel;
+	private JButton conceptsButton;
+	private JButton sentinelsButton;
+	private JButton agendaButton;
+	private JPanel aaa;
 
 
 	public IntinoWizardPanel() {
