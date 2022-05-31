@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
@@ -32,6 +33,10 @@ import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
 public class LegioFileCreator {
 	private final Module module;
 	private final List<Components> components;
+
+	public LegioFileCreator(Module module) {
+		this(module, Collections.emptyList());
+	}
 
 	public LegioFileCreator(Module module, List<Components> components) {
 		this.module = module;
