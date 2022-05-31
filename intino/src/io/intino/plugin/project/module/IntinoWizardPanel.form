@@ -142,7 +142,7 @@
                   <color color="-4473925"/>
                 </border>
                 <children>
-                  <component id="1885a" class="javax.swing.JButton" binding="conceptsButton" default-binding="true">
+                  <component id="1885a" class="javax.swing.JButton" binding="modelButton">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -150,7 +150,7 @@
                       <text value="Concepts"/>
                     </properties>
                   </component>
-                  <component id="1ee45" class="javax.swing.JButton" default-binding="true">
+                  <component id="1ee45" class="javax.swing.JButton" binding="metaModelButton">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -160,7 +160,7 @@
                   </component>
                 </children>
               </grid>
-              <grid id="5ee93" binding="aaa" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="5ee93" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="30" bottom="0" right="30"/>
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -176,7 +176,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="de59b" class="javax.swing.JButton" default-binding="true">
+                      <component id="de59b" class="javax.swing.JButton" binding="webUIButton">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                             <minimum-size width="50" height="-1"/>
@@ -244,7 +244,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="3033b" class="javax.swing.JButton" default-binding="true">
+                      <component id="3033b" class="javax.swing.JButton" binding="EventSourcingButton">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
                             <minimum-size width="50" height="-1"/>
@@ -276,7 +276,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="1b923" class="javax.swing.JButton" default-binding="true">
+                      <component id="1b923" class="javax.swing.JButton" binding="APIRESTServiceButton">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                             <minimum-size width="50" height="-1"/>
@@ -308,7 +308,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="6ebc9" class="javax.swing.JButton" default-binding="true">
+                      <component id="6ebc9" class="javax.swing.JButton" binding="workflowButton">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                             <minimum-size width="100" height="-1"/>

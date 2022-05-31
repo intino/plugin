@@ -68,4 +68,6 @@ public class IntinoModuleType extends JavaModuleType {
 	public enum Type {
 		Business, Amidas, Susmus, Datahub, Archetype
 	}
+
+
 }
