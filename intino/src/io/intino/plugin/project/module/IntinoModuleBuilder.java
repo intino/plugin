@@ -39,6 +39,7 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	private IntinoModuleType.Type intinoModuleType;
 	private String groupId;
+	private List<IntinoWizardPanel.Components> components;
 
 	@Override
 	public String getPresentableName() {
@@ -113,8 +114,8 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	}
 
 	private void createIntinoFiles(@NotNull Project project, Module module) {
-		new ModuleTemplateDeployer(module).deploy();
-		final VirtualFile file = new LegioFileCreator(module).get();
+		new ModuleTemplateDeployer(module, components).deploy();
+		final VirtualFile file = new LegioFileCreator(module, components).get();
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
 		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
 		loadConfiguration(module);
@@ -136,5 +137,9 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	public void setGroupId(String selected) {
 		this.groupId = selected;
+	}
+
+	public void setStartingComponents(List<IntinoWizardPanel.Components> components) {
+		this.components = components;
 	}
 }

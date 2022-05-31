@@ -10,7 +10,6 @@ import io.intino.plugin.settings.IntinoSettings;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -83,7 +82,7 @@ public class ArtifactoryConnector {
 		try {
 			for (Configuration.Repository repo : repositories) {
 				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/");
-				final String result = new String(read(connect(url)).toByteArray());
+				final String result = new String(read(connect(url)));
 				if (result.isEmpty()) continue;
 				langs.addAll(extractLanguages(result));
 			}
@@ -101,7 +100,7 @@ public class ArtifactoryConnector {
 				return proteoVersions();
 			for (Configuration.Repository repo : repositories) {
 				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
-				final String mavenMetadata = new String(read(connect(url)).toByteArray());
+				final String mavenMetadata = read(connect(url));
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
 		} catch (Throwable ignored) {
@@ -115,7 +114,7 @@ public class ArtifactoryConnector {
 			for (Configuration.Repository repo : repositories) {
 				String spec = repo.url() + (repo.url().endsWith("/") ? "" : "/") + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml";
 				URL url = new URL(spec);
-				final String mavenMetadata = read(connect(repo.identifier(), url)).toString();
+				final String mavenMetadata = read(connect(repo.identifier(), url));
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
 		} catch (Throwable ignored) {
@@ -149,12 +148,12 @@ public class ArtifactoryConnector {
 			connection.setReadTimeout(2000);
 			return connection.getInputStream();
 		} catch (Throwable e) {
-			return null;
+			return InputStream.nullInputStream();
 		}
 	}
 
 	private List<String> extractLanguages(String result) {
-		if (result == null || result.isEmpty() || !result.contains("<pre><a")) return Collections.emptyList();
+		if (result == null || !result.contains("<pre><a")) return Collections.emptyList();
 		result = result.substring(result.indexOf("<pre><a"), result.lastIndexOf("</pre"));
 		final List<String> languages = new ArrayList<>(Arrays.asList(result.split("\n")));
 		languages.remove(0);
@@ -164,7 +163,7 @@ public class ArtifactoryConnector {
 	public List<String> boxBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/konos/builder/maven-metadata.xml");
-			return extractVersions(read(connect(url)).toString());
+			return extractVersions(read(connect(url)));
 		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
@@ -173,7 +172,7 @@ public class ArtifactoryConnector {
 	public List<String> modelBuilderVersions() {
 		try {
 			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/tara/builder/maven-metadata.xml");
-			return extractVersions(read(connect(url)).toString());
+			return extractVersions(read(connect(url)));
 		} catch (Throwable e) {
 			return Collections.emptyList();
 		}
@@ -181,7 +180,7 @@ public class ArtifactoryConnector {
 
 	private List<String> proteoVersions() throws Throwable {
 		URL url = new URL(TARA_BUILDER_REPOSITORY + "/" + Proteo.GROUP_ID.replace(".", "/") + "/" + Proteo.ARTIFACT_ID + "/maven-metadata.xml");
-		final String mavenMetadata = read(connect(url)).toString();
+		final String mavenMetadata = read(connect(url));
 		return extractVersions(mavenMetadata);
 	}
 
@@ -193,15 +192,11 @@ public class ArtifactoryConnector {
 		return Arrays.stream(metadata.trim().split("\n")).map(String::trim).collect(Collectors.toList());
 	}
 
-	private ByteArrayOutputStream read(InputStream stream) throws Throwable {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		if (stream == null) return baos;
-		try (stream) {
-			byte[] byteChunk = new byte[4096];
-			int n;
-			while ((n = stream.read(byteChunk)) > 0)
-				baos.write(byteChunk, 0, n);
-		}
-		return baos;
+	private String read(InputStream stream) throws Throwable {
+		if (stream== null) return "";
+		byte[] bytes = stream.readAllBytes();
+		stream.close();
+		return new String(bytes);
+
 	}
 }

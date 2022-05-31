@@ -14,7 +14,6 @@ public class ArtifactorySensor {
 	public static final String LanguageLibrary = "tara.dsl.";
 	public static final String BoxBuilder = "konos.builder";
 	public static final String ModelBuilder = "model.builder";
-	private static boolean buildersUpdated = false;
 	private final PropertiesComponent properties;
 	private final ArtifactoryConnector modelBuilderConnector;
 
@@ -29,10 +28,8 @@ public class ArtifactorySensor {
 	}
 
 	private void updateBuilders() {
-		if (buildersUpdated) return;
 		boxBuilderVersions();
 		modelBuilderVersions();
-		buildersUpdated = true;
 	}
 
 	private void languageVersions(String language) {

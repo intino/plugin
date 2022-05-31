@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class LegioConfiguration implements Configuration {
 			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
-					vFile = new LegioFileCreator(module).get();
+					vFile = new LegioFileCreator(module, Collections.emptyList()).get();
 					legioFile = legioFile();
 					legioFile.components().forEach(resolver::resolve);
 					final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);

@@ -2,20 +2,18 @@ package io.intino.plugin.project.configuration;
 
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
+import io.intino.plugin.project.module.IntinoWizardPanel;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,16 +23,18 @@ public class ModuleTemplateDeployer {
 	private static final String url = "https://artifactory.intino.io/artifactory/infrastructure-templates/io/intino/$type/$version/$type-$version.zip";
 	private final Module module;
 	private final VirtualFile srcRoot;
+	private List<IntinoWizardPanel.Components> components;
 
-	public ModuleTemplateDeployer(Module module) {
+	public ModuleTemplateDeployer(Module module, List<IntinoWizardPanel.Components> components) {
 		this.module = module;
 		this.srcRoot = IntinoUtil.getSrcRoot(module);
+		this.components = components;
 	}
 
 	public void deploy() {
 		final IntinoModuleType.Type type = IntinoModuleType.type(module);
 		final String groupId = IntinoModuleType.groupId(module);
-		final LegioFileCreator legioFileCreator = new LegioFileCreator(module);
+		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
 		if (type == null || Business.equals(type)) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
 			ProjectView.getInstance(module.getProject()).select(legio, legio, true);

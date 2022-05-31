@@ -6,7 +6,7 @@ public class Version implements Comparable<Version> {
 	public enum Level {Minor, Medium, Mayor}
 
 	private static final String SNAPSHOT = "-SNAPSHOT";
-	private String version;
+	private final String version;
 
 	public Version(String version) throws IntinoException {
 		if (version == null)

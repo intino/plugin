@@ -1,6 +1,7 @@
 package io.intino.plugin.project.module;
 
 import com.intellij.ui.JBColor;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
+import static io.intino.plugin.project.module.IntinoWizardPanel.Components.Model;
 
 public class IntinoWizardPanel {
 	private final List<JButton> componentsButtons;
@@ -37,8 +39,8 @@ public class IntinoWizardPanel {
 
 	public IntinoWizardPanel() {
 		componentsButtons = List.of(modelButton, metaModelButton, sentinelsButton, agendaButton, webUIButton, EventSourcingButton, APIRESTServiceButton, workflowButton);
+		componentsButtons.forEach(b -> b.setFocusable(false));
 		initDiagramPanel();
-
 	}
 
 	private void initDiagramPanel() {
@@ -81,7 +83,7 @@ public class IntinoWizardPanel {
 	}
 
 	private Color selectedBackground(JButton source) {
-		return source.getName().contains("Concept") ? modelColor : boxColor;
+		return source.getText().contains("Concept") ? modelColor : boxColor;
 	}
 
 	public JPanel panel() {
@@ -98,10 +100,17 @@ public class IntinoWizardPanel {
 
 
 	public List<Components> components() {
-		return componentsButtons.stream()
+		List<Components> components = componentsButtons.stream()
 				.filter(AbstractButton::isSelected)
-				.map(b -> Components.valueOf(firstUpperCase(b.getName().replace("Button", ""))))
+				.map(b -> Components.valueOf(makeUp(b)))
 				.collect(Collectors.toList());
+		if (components.contains(Model) && components.contains(Components.MetaModel)) components.remove(Model);
+		return components;
+	}
+
+	@NotNull
+	private String makeUp(JButton b) {
+		return firstUpperCase(b.getText().replace("Concepts", "Model").replace(" ", ""));
 	}
 
 	public String groupId() {
@@ -112,6 +121,6 @@ public class IntinoWizardPanel {
 	}
 
 	public enum Components {
-		Model, Metamodel, sentinels, agenda, webUI, EventSourcing, APIRESTService, workflow
+		Model, MetaModel, Sentinels, Agenda, WebUI, EventSourcing, APIRESTService, Workflow
 	}
 }
