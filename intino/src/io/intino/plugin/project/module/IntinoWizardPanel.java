@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class IntinoWizardPanel {
 	private JRadioButton amidas;
 	private JRadioButton sumus;
 	private JRadioButton datahub;
-	private JRadioButton arquetype;
+	private JRadioButton archetype;
 	private JPanel root;
 	private JTextField groupId;
 	private JPanel diagramBox;
@@ -41,6 +42,15 @@ public class IntinoWizardPanel {
 		componentsButtons = List.of(modelButton, metaModelButton, sentinelsButton, agendaButton, webUIButton, EventSourcingButton, APIRESTServiceButton, workflowButton);
 		componentsButtons.forEach(b -> b.setFocusable(false));
 		initDiagramPanel();
+		initRadioButtons();
+	}
+
+	private void initRadioButtons() {
+		business.addChangeListener(changeEvent -> {
+			boxPanel.setEnabled(business.isSelected());
+			modelPanel.setEnabled(business.isSelected());
+			componentsButtons.forEach(b -> b.setEnabled(business.isSelected()));
+		});
 	}
 
 	private void initDiagramPanel() {
@@ -100,6 +110,7 @@ public class IntinoWizardPanel {
 
 
 	public List<Components> components() {
+		if (!business.isSelected()) return Collections.emptyList();
 		List<Components> components = componentsButtons.stream()
 				.filter(AbstractButton::isSelected)
 				.map(b -> Components.valueOf(makeUp(b)))

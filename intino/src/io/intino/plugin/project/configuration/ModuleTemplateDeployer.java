@@ -5,9 +5,12 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.alexandria.logger.Logger;
+import io.intino.magritte.dsl.Meta;
+import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.IntinoWizardPanel;
+import io.intino.plugin.project.module.IntinoWizardPanel.Components;
 
 import java.io.*;
 import java.net.URL;
@@ -18,14 +21,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
+import static io.intino.plugin.project.module.IntinoWizardPanel.Components.MetaModel;
 
 public class ModuleTemplateDeployer {
 	private static final String url = "https://artifactory.intino.io/artifactory/infrastructure-templates/io/intino/$type/$version/$type-$version.zip";
 	private final Module module;
 	private final VirtualFile srcRoot;
-	private List<IntinoWizardPanel.Components> components;
+	private List<Components> components;
 
-	public ModuleTemplateDeployer(Module module, List<IntinoWizardPanel.Components> components) {
+	public ModuleTemplateDeployer(Module module, List<Components> components) {
 		this.module = module;
 		this.srcRoot = IntinoUtil.getSrcRoot(module);
 		this.components = components;
@@ -35,6 +39,9 @@ public class ModuleTemplateDeployer {
 		final IntinoModuleType.Type type = IntinoModuleType.type(module);
 		final String groupId = IntinoModuleType.groupId(module);
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
+		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
+		srcDirectory.mkdirs();
+		if (components.contains(Components.Model) || components.contains(MetaModel)) writeModelFile(srcDirectory);
 		if (type == null || Business.equals(type)) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
 			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
@@ -43,8 +50,6 @@ public class ModuleTemplateDeployer {
 		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("$version", "1.0.0");
 		final ZipInputStream zipInputStream = new ZipInputStream(template(realUrl));
 		Map<String, String> files = extract(zipInputStream);
-		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
-		srcDirectory.mkdirs();
 		legioFileCreator.create(files.remove("artifact.legio").replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
 			try {
@@ -55,6 +60,17 @@ public class ModuleTemplateDeployer {
 		});
 		final VirtualFile file = VfsUtil.findFile(srcDirectory.toPath(), true);
 		ProjectView.getInstance(module.getProject()).select(file, file, true);
+	}
+
+	private void writeModelFile(File srcDirectory) {
+		File model = new File(srcDirectory, "model");
+		model.mkdirs();
+		File taraModel = new File(model, "Model.tara");
+		try {
+			Files.writeString(taraModel.toPath(), "dsl " + (components.contains(Components.Model) ? Proteo.class.getSimpleName() : Meta.class.getSimpleName()) + "\n\n\n");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Map<String, String> extract(ZipInputStream zipInputStream) {
