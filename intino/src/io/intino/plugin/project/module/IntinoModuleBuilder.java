@@ -15,6 +15,9 @@ import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.Configuration;
+import io.intino.itrules.Template;
+import io.intino.itrules.TemplateEngine;
+import io.intino.itrules.readers.ItrRuleSetReader;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.LegioFileCreator;
@@ -31,6 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;

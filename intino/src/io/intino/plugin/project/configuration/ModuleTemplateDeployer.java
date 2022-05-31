@@ -1,19 +1,26 @@
 package io.intino.plugin.project.configuration;
 
+import com.amazonaws.util.StringInputStream;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.alexandria.logger.Logger;
+import io.intino.itrules.FrameBuilder;
+import io.intino.itrules.TemplateEngine;
+import io.intino.itrules.parser.ITRulesSyntaxError;
+import io.intino.itrules.readers.ItrRuleSetReader;
 import io.intino.magritte.dsl.Meta;
 import io.intino.magritte.dsl.Proteo;
+import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
-import io.intino.plugin.project.module.IntinoWizardPanel;
 import io.intino.plugin.project.module.IntinoWizardPanel.Components;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -27,7 +34,7 @@ public class ModuleTemplateDeployer {
 	private static final String url = "https://artifactory.intino.io/artifactory/infrastructure-templates/io/intino/$type/$version/$type-$version.zip";
 	private final Module module;
 	private final VirtualFile srcRoot;
-	private List<Components> components;
+	private final List<Components> components;
 
 	public ModuleTemplateDeployer(Module module, List<Components> components) {
 		this.module = module;
@@ -36,20 +43,27 @@ public class ModuleTemplateDeployer {
 	}
 
 	public void deploy() {
-		final IntinoModuleType.Type type = IntinoModuleType.type(module);
+		IntinoModuleType.Type type = IntinoModuleType.type(module);
+		if (type == null) type = Business;
+		ProjectView projectView = ProjectView.getInstance(module.getProject());
 		final String groupId = IntinoModuleType.groupId(module);
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
 		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
+		final VirtualFile srcVDirectory = VfsUtil.findFile(srcDirectory.toPath(), true);
 		srcDirectory.mkdirs();
+		Map<String, String> files = download(type);
 		if (components.contains(Components.Model) || components.contains(MetaModel)) writeModelFile(srcDirectory);
-		if (type == null || Business.equals(type)) {
+		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(srcDirectory, files.get("box.itr"));
+		if (Business.equals(type)) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
-			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
+			projectView.select(legio, legio, true);
 			return;
 		}
-		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("$version", "1.0.0");
-		final ZipInputStream zipInputStream = new ZipInputStream(template(realUrl));
-		Map<String, String> files = extract(zipInputStream);
+		writeInfrastructureFiles(groupId, legioFileCreator, srcDirectory, files);
+		projectView.select(srcVDirectory, srcVDirectory, true);
+	}
+
+	private void writeInfrastructureFiles(String groupId, LegioFileCreator legioFileCreator, File srcDirectory, Map<String, String> files) {
 		legioFileCreator.create(files.remove("artifact.legio").replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
 			try {
@@ -58,8 +72,29 @@ public class ModuleTemplateDeployer {
 				Logger.error(e);
 			}
 		});
-		final VirtualFile file = VfsUtil.findFile(srcDirectory.toPath(), true);
-		ProjectView.getInstance(module.getProject()).select(file, file, true);
+	}
+
+	@NotNull
+	private Map<String, String> download(IntinoModuleType.Type type) {
+		final String realUrl = url.replace("$type", type.name().toLowerCase(Locale.ROOT)).replace("$version", "1.0.0");
+		final ZipInputStream zipInputStream = new ZipInputStream(template(realUrl));
+		return extract(zipInputStream);
+	}
+
+	private void writeBoxFile(File srcDirectory, String boxItr) {
+		try {
+			TemplateEngine engine = new TemplateEngine(new ItrRuleSetReader(new StringInputStream(boxItr)).read(Charset.defaultCharset()).ruleset(), new TemplateEngine.Configuration(Locale.ROOT, TemplateEngine.Configuration.LineSeparator.LF));
+			FrameBuilder frameBuilder = new FrameBuilder("box");
+			components.forEach(component -> frameBuilder.add(component.name(), new FrameBuilder(component.name()).toFrame()));
+			String result = engine.render(frameBuilder.toFrame());
+			File box = new File(srcDirectory, "box");
+			box.mkdirs();
+			File boxFile = new File(box, "Box." + KonosFileType.instance().getDefaultExtension());
+			Files.writeString(boxFile.toPath(), result);
+		} catch (IOException | ITRulesSyntaxError e) {
+			Logger.error(e);
+		}
+
 	}
 
 	private void writeModelFile(File srcDirectory) {
@@ -69,7 +104,7 @@ public class ModuleTemplateDeployer {
 		try {
 			Files.writeString(taraModel.toPath(), "dsl " + (components.contains(Components.Model) ? Proteo.class.getSimpleName() : Meta.class.getSimpleName()) + "\n\n\n");
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			Logger.error(e);
 		}
 	}
 
