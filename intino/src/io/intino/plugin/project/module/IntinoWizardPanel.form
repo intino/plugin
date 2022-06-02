@@ -280,7 +280,7 @@
                           </grid>
                         </constraints>
                         <properties>
-                          <text value="API REST service"/>
+                          <text value="API REST Service"/>
                         </properties>
                       </component>
                     </children>

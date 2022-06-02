@@ -80,6 +80,7 @@ public class LegioConfiguration implements Configuration {
 					reloader.reloadArtifactoriesMetaData();
 					loadRemoteProcessesInfo();
 					inited = true;
+					save();
 				}
 			});
 		} catch (Throwable ignored) {
@@ -244,6 +245,8 @@ public class LegioConfiguration implements Configuration {
 
 	@NotNull
 	private File confFile() {
-		return new File(IntinoDirectory.artifactsDirectory(module.getProject()).getPath(), module.getName() + ".conf");
+		File file = IntinoDirectory.artifactsDirectory(module.getProject());
+		file.mkdirs();
+		return new File(file.getPath(), module.getName() + ".conf");
 	}
 }

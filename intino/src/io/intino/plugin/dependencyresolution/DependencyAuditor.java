@@ -98,7 +98,9 @@ public class DependencyAuditor {
 	}
 
 	private File auditionFile() {
-		return new File(IntinoDirectory.auditDirectory(module.getProject()), module.getName());
+		File directory = IntinoDirectory.auditDirectory(module.getProject());
+		directory.mkdirs();
+		return new File(directory, module.getName());
 	}
 
 	private static class DependencyItem {

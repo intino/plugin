@@ -25,8 +25,9 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String languageGenerationPackage = "";
 	public String parameters = "";
 	public String parentInterface = "";
-	public String library = "";
+	public String datahub = "";
 	public String archetype = "";
+	public String dependencies = "";
 
 
 	@NotNull

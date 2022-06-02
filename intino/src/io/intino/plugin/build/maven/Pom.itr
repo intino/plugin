@@ -39,6 +39,18 @@ def type(pom)
 				$resourceTestDirectory...[$NL]
 			</testResources>]
 			<plugins>
+				<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>6.5.3</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			    <plugin>
                       <artifactId>maven-clean-plugin</artifactId>
                       <version>3.0.0</version>

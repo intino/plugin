@@ -18,12 +18,18 @@ import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.IntinoWizardPanel.Components;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -45,7 +51,6 @@ public class ModuleTemplateDeployer {
 	public void deploy() {
 		IntinoModuleType.Type type = IntinoModuleType.type(module);
 		if (type == null) type = Business;
-		ProjectView projectView = ProjectView.getInstance(module.getProject());
 		final String groupId = IntinoModuleType.groupId(module);
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
 		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
@@ -56,11 +61,15 @@ public class ModuleTemplateDeployer {
 		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(srcDirectory, files.get("box.itr"));
 		if (Business.equals(type)) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
-			projectView.select(legio, legio, true);
+			ProjectView.getInstance(module.getProject()).refresh();
+			ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
+			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
 			return;
 		}
+
 		writeInfrastructureFiles(groupId, legioFileCreator, srcDirectory, files);
-		projectView.select(srcVDirectory, srcVDirectory, true);
+		ProjectView.getInstance(module.getProject()).refresh();
+		ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
 	}
 
 	private void writeInfrastructureFiles(String groupId, LegioFileCreator legioFileCreator, File srcDirectory, Map<String, String> files) {

@@ -15,9 +15,13 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.intino.konos.compiler.shared.KonosBuildConstants.LIBRARY;
-import static io.intino.konos.compiler.shared.KonosBuildConstants.PARENT_INTERFACE;
-import static io.intino.konos.compiler.shared.KonosBuildConstants.ARCHETYPE;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.ARTIFACT_ID;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.GROUP_ID;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE_GENERATION_PACKAGE;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.LEVEL;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.VERSION;
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
@@ -63,8 +67,9 @@ class JpsConfigurationLoader {
 			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
 			conf.parameters = parameters.getOrDefault(KonosBuildConstants.PARAMETERS, "");
 			conf.parentInterface = parameters.getOrDefault(PARENT_INTERFACE, "");
-			conf.library = parameters.getOrDefault(LIBRARY, "");
+			conf.datahub = parameters.getOrDefault(DATAHUB, "");
 			conf.archetype = parameters.getOrDefault(ARCHETYPE, "");
+			conf.dependencies = parameters.getOrDefault(CURRENT_DEPENDENCIES, "");
 		} catch (IOException ignored) {
 		}
 	}

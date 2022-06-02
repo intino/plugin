@@ -91,8 +91,8 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
 					"Are you sure to debug this process?",
-					"Change Process status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			confirmationDialog.setDoNotAskOption(null);
+					"Change Process Status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
+			confirmationDialog.setDoNotAskOption((com.intellij.openapi.ui.DoNotAskOption) null);
 			response.set(confirmationDialog.showAndGet());
 		});
 		return response.get();

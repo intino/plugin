@@ -85,7 +85,7 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
 					"Are you sure to restart this process?",
 					"Restart Process", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			confirmationDialog.setDoNotAskOption(null);
+			confirmationDialog.setDoNotAskOption((com.intellij.openapi.ui.DoNotAskOption) null);
 			response.set(confirmationDialog.showAndGet());
 		});
 		return response.get();

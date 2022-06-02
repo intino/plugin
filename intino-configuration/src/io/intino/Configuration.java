@@ -31,6 +31,8 @@ public interface Configuration {
 
 		String name();
 
+		void name(String newName);
+
 		String version();
 
 		String description();

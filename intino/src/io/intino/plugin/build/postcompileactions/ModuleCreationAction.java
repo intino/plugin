@@ -11,14 +11,15 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindowManager;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class ModuleCreationAction extends PostCompileAction {
 
 	private final String webModule;
 	private final String uiVersion;
-	private LegioConfiguration configuration;
+	private final LegioConfiguration configuration;
 
 	public ModuleCreationAction(Module module, List<String> parameters) {
 		this(module, parameters.get(1), parameters.size() > 2 ? parameters.get(2) : "LATEST");
@@ -103,29 +104,29 @@ public class ModuleCreationAction extends PostCompileAction {
 		for (Configuration.Artifact.Dependency.Web webDependency : configuration.artifact().webDependencies())
 			if (webDependency.groupId().equals(webConf.artifact().groupId()) &&
 					webDependency.artifactId().equals(webConf.artifact().name()) &&
-					webDependency.version().equals(webConf.artifact().version()))
-				return;
-		configuration.artifact().addDependencies(webDependency(webConf.artifact()));
+					webDependency.version().equals(webConf.artifact().version())) return;
+		configuration.artifact().addDependencies(webDependency());
+		ToolWindowManager.getInstance(module.getProject()).getToolWindow("Intino Console").show(null);
 		webConf.reload();
 	}
 
 	@NotNull
-	private Configuration.Artifact.Dependency.Web webDependency(Configuration.Artifact webArtifact) {
+	private Configuration.Artifact.Dependency.Web webDependency() {
 		return new Configuration.Artifact.Dependency.Web() {
 
 			@Override
 			public String groupId() {
-				return webArtifact.groupId();
+				return configuration.artifact().groupId();
 			}
 
 			@Override
 			public String artifactId() {
-				return webArtifact.name();
+				return camelCaseToSnakeCase().format(webModule).toString();
 			}
 
 			@Override
 			public String version() {
-				return webArtifact.version();
+				return configuration.artifact().version();
 			}
 
 			@Override

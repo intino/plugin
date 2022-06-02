@@ -3,7 +3,6 @@ package org.jetbrains.jps.intino.compiler.konos;
 import com.intellij.openapi.diagnostic.LogLevel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
-import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
@@ -84,8 +83,8 @@ public class KonosBuilder extends IntinoBuilder {
 		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, files(toCompile), encoding, paths);
 		final KonoscOSProcessHandler handler = runner.runKonosCompiler(context);
 		processMessages(chunk, context, handler);
-		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return CHUNK_REBUILD_REQUIRED;
 		if (handler.shouldRetry()) return ABORT;
+		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return ABORT;
 		finish(context, chunk, outputConsumer, finalOutputs, handler.getSuccessfullyCompiled());
 		context.processMessage(new CustomBuilderMessage(KONOSC, REFRESH_MESSAGE, chunk.getName() + REFRESH_BUILDER_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 		context.setDone(1);

@@ -10,9 +10,10 @@ import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.magritte.compiler.shared.TaraBuildConstants;
-import org.apache.log4j.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
+import org.jetbrains.jps.incremental.messages.BuildMessage.Kind;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.OutputItem;
@@ -110,14 +111,18 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 			lineInt = 0;
 			columnInt = 0;
 		}
-		BuildMessage.Kind kind = category.equals(ERROR)
-				? BuildMessage.Kind.ERROR
-				: category.equals(WARNING)
-				? BuildMessage.Kind.WARNING
-				: BuildMessage.Kind.INFO;
-		CompilerMessage compilerMessage = new CompilerMessage(KONOSC, kind, message, url, -1, -1, -1, lineInt, columnInt);
+		CompilerMessage compilerMessage = new CompilerMessage(KONOSC, kindFrom(category), message, url, -1, -1, -1, lineInt, columnInt);
 		if (LOG.isDebugEnabled()) LOG.debug("Message: " + compilerMessage);
 		compilerMessages.add(compilerMessage);
+	}
+
+	@NotNull
+	private Kind kindFrom(String category) {
+		return category.equals(ERROR) || category.equals("rebuild_needed")
+				? Kind.ERROR
+				: category.equals(WARNING)
+				? Kind.WARNING
+				: Kind.INFO;
 	}
 
 	private void processCompiledItems() {
@@ -150,22 +155,22 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 			String msg = unParsedBuffer.toString();
 			if (msg.contains(KonosBuildConstants.NO_KONOS)) {
 				msg = "Cannot compile Konos files: no Konos library is defined for module '" + moduleName + "'";
-				messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.INFO, msg));
+				messages.add(new CompilerMessage(KONOSC, Kind.INFO, msg));
 			}
 		}
 		final int exitValue = getProcess().exitValue();
 		if (exitValue != 0) {
 			for (BuildMessage message : messages)
-				if (message.getKind() == BuildMessage.Kind.ERROR)
+				if (message.getKind() == Kind.ERROR)
 					return messages;
-			messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.ERROR, "Internal Konosc error:" + exitValue));
+			messages.add(new CompilerMessage(KONOSC, Kind.ERROR, "Internal Konosc error:" + exitValue));
 		}
 		return messages;
 	}
 
 	boolean shouldRetry() {
 		for (BuildMessage message : compilerMessages) {
-			if (message.getKind() == BuildMessage.Kind.ERROR) {
+			if (message.getKind() == Kind.ERROR) {
 //				LOG.debug("Error message: " + message);
 				return true;
 			}

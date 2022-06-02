@@ -24,6 +24,7 @@ import io.intino.plugin.project.configuration.model.LegioDependency.*;
 import io.intino.plugin.project.module.ModuleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,16 +33,19 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.ARTIFACT_ID;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.GROUP_ID;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.LANGUAGE;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.LEVEL;
+import static io.intino.konos.compiler.shared.KonosBuildConstants.VERSION;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.GENERATION_PACKAGE;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE_VERSION;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.OUT_DSL;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.OUT_DSL_VERSION;
+import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class LegioArtifact implements Configuration.Artifact {
@@ -73,6 +77,12 @@ public class LegioArtifact implements Configuration.Artifact {
 	}
 
 	@Override
+	public void name(String newName) {
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> node.name(newName));
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
+	}
+
+	@Override
 	public String version() {
 		return version == null ? version = parameterValue(node, "version", 1) : version;
 	}
@@ -91,7 +101,7 @@ public class LegioArtifact implements Configuration.Artifact {
 	public void version(String newVersion) {
 		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
 			io.intino.magritte.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
-			if (version != null) version.substituteValues(Collections.singletonList(newVersion));
+			if (version != null) version.substituteValues(singletonList(newVersion));
 		});
 		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
 	}
@@ -128,6 +138,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
+		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).collect(toList()));
 		List<Dependency> dependencies = new ArrayList<>();
 		for (Node dependency : nodes) {
 			if (((TaraNode) dependency).simpleType().equals("Compile"))
@@ -350,9 +361,16 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 		if (box != null) builder += KonosBuildConstants.BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
 		Dependency.DataHub datahub = datahub();
-		if (datahub != null) builder += LIBRARY + EQ + datahub.identifier() + "\n";
+		if (datahub != null) builder += DATAHUB + EQ + datahub.identifier() + "\n";
+		if (datahub != null)
+			builder += "library" + EQ + datahub.identifier() + "\n";//FIXME added by retro-compatibility
 		Dependency.Archetype archetype = archetype();
 		if (archetype != null) builder += ARCHETYPE + EQ + archetype.identifier() + "\n";
+		List<String> dependencies = dependencies().stream()
+				.filter(d -> d.scope().equalsIgnoreCase(JavaScopes.COMPILE) && d.groupId().startsWith("io.intino"))
+				.map(Dependency::identifier)
+				.collect(toList());
+		if (!dependencies.isEmpty()) builder += CURRENT_DEPENDENCIES + EQ + String.join(",", dependencies) + "\n";
 		return builder.getBytes();
 	}
 

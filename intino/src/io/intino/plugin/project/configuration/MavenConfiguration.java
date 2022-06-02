@@ -62,6 +62,11 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
+			public void name(String newName) {
+
+			}
+
+			@Override
 			public String version() {
 				return null;
 			}
