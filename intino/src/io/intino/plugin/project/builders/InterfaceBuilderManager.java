@@ -47,7 +47,7 @@ public class InterfaceBuilderManager {
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
-	public static String minimunVersion = "8.5.1";
+	public static String minimunVersion = "9.3.0";
 
 	public String load(Module module, String version) {
 		String effectiveVersion = version;
