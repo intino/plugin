@@ -37,7 +37,8 @@ import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
 import static io.intino.plugin.project.module.IntinoWizardPanel.Components.MetaModel;
 
 public class ModuleTemplateDeployer {
-	private static final String url = "https://artifactory.intino.io/artifactory/infrastructure-templates/io/intino/$type/$version/$type-$version.zip";
+	public static final String Artifactory = "https://artifactory.intino.io/artifactory/";
+	private static final String url = Artifactory + "infrastructure-templates/io/intino/$type/$version/$type-$version.zip";
 	private final Module module;
 	private final VirtualFile srcRoot;
 	private final List<Components> components;
@@ -54,26 +55,26 @@ public class ModuleTemplateDeployer {
 		final String groupId = IntinoModuleType.groupId(module);
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
 		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
-		final VirtualFile srcVDirectory = VfsUtil.findFile(srcDirectory.toPath(), true);
+		final VirtualFile srcVDirectory = VfsUtil.findFileByIoFile(srcDirectory, true);
 		srcDirectory.mkdirs();
 		Map<String, String> files = download(type);
 		if (components.contains(Components.Model) || components.contains(MetaModel)) writeModelFile(srcDirectory);
 		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(srcDirectory, files.get("box.itr"));
-		if (Business.equals(type)) {
+		if (Business.equals(type) || files.isEmpty()) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
 			ProjectView.getInstance(module.getProject()).refresh();
 			ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
 			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
 			return;
 		}
-
 		writeInfrastructureFiles(groupId, legioFileCreator, srcDirectory, files);
 		ProjectView.getInstance(module.getProject()).refresh();
 		ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
 	}
 
 	private void writeInfrastructureFiles(String groupId, LegioFileCreator legioFileCreator, File srcDirectory, Map<String, String> files) {
-		legioFileCreator.create(files.remove("artifact.legio").replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
+		String artifactContent = files.remove("artifact.legio");
+		legioFileCreator.create(artifactContent.replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
 			try {
 				Files.write(new File(srcDirectory, k).toPath(), v.replace("$package", groupId + "." + module.getName().replace("-", "").toLowerCase()).getBytes(StandardCharsets.UTF_8));
@@ -134,8 +135,7 @@ public class ModuleTemplateDeployer {
 	private InputStream template(String url) {
 		try {
 			return new BufferedInputStream(new URL(url).openStream());
-		} catch (IOException e) {
-			Logger.error(e);
+		} catch (IOException ignored) {
 		}
 		return InputStream.nullInputStream();
 	}

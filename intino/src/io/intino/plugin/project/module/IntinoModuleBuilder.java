@@ -15,9 +15,6 @@ import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.Configuration;
-import io.intino.itrules.Template;
-import io.intino.itrules.TemplateEngine;
-import io.intino.itrules.readers.ItrRuleSetReader;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.LegioFileCreator;
@@ -34,7 +31,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
@@ -96,18 +92,23 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 			final VirtualFile intinoVfile = VfsUtil.findFileByIoFile(IntinoDirectory.of(rootModel.getProject()), true);
 			if (intinoVfile != null) contentEntry.addExcludeFolder(intinoVfile);
 		}
-		if (contentEntry.getFile().findChild(".idea") != null) {
-			VirtualFile baseDirectory = VfsUtil.findFileByIoFile(new File(rootModel.getProject().getBasePath()), true);
-			if (baseDirectory != null) {
-				final VirtualFile ideaVDirectory = baseDirectory.findChild(".idea");
-				if (ideaVDirectory != null) contentEntry.addExcludeFolder(ideaVDirectory);
-			}
-		}
+		excludeDirectory(rootModel, contentEntry, ".idea");
+		excludeDirectory(rootModel, contentEntry, ".intino");
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
 		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
 		module.setOption(IntinoModuleType.INTINO_GROUPID_OPTION_NAME, groupId);
+	}
+
+	private void excludeDirectory(@NotNull ModifiableRootModel rootModel, ContentEntry contentEntry, String directory) {
+		if (VfsUtil.refreshAndFindChild(contentEntry.getFile(), directory) != null) {
+			VirtualFile baseDirectory = VfsUtil.findFileByIoFile(new File(rootModel.getProject().getBasePath()), true);
+			if (baseDirectory != null) {
+				final VirtualFile vDirectory = baseDirectory.findChild(directory);
+				if (vDirectory != null) contentEntry.addExcludeFolder(vDirectory);
+			}
+		}
 	}
 
 	@Override
