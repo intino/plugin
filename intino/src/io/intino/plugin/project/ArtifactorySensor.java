@@ -15,10 +15,10 @@ public class ArtifactorySensor {
 	public static final String BoxBuilder = "konos.builder";
 	public static final String ModelBuilder = "model.builder";
 	private final PropertiesComponent properties;
-	private final ArtifactoryConnector modelBuilderConnector;
+	private final ArtifactoryConnector artifactory;
 
 	public ArtifactorySensor(List<Repository> repositories) {
-		this.modelBuilderConnector = new ArtifactoryConnector(by(repositories));
+		this.artifactory = new ArtifactoryConnector(by(repositories));
 		this.properties = PropertiesComponent.getInstance();
 	}
 
@@ -33,19 +33,19 @@ public class ArtifactorySensor {
 	}
 
 	private void languageVersions(String language) {
-		final List<String> versions = modelBuilderConnector.dslVersions(language);
+		final List<String> versions = artifactory.dslVersions(language);
 		if (!versions.isEmpty())
 			properties.setList(LanguageLibrary + language, versions);
 	}
 
 	private void boxBuilderVersions() {
-		final List<String> versions = modelBuilderConnector.boxBuilderVersions();
+		final List<String> versions = artifactory.boxBuilderVersions();
 		if (!versions.isEmpty())
 			properties.setList(BoxBuilder, versions);
 	}
 
 	private void modelBuilderVersions() {
-		final List<String> versions = modelBuilderConnector.modelBuilderVersions();
+		final List<String> versions = artifactory.modelBuilderVersions();
 		if (!versions.isEmpty()) properties.setList(ModelBuilder, versions);
 	}
 

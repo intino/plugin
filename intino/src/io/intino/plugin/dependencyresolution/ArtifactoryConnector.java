@@ -171,7 +171,7 @@ public class ArtifactoryConnector {
 
 	public List<String> modelBuilderVersions() {
 		try {
-			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/tara/builder/maven-metadata.xml");
+			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/magritte/builder/maven-metadata.xml");
 			return extractVersions(read(connect(url)));
 		} catch (Throwable e) {
 			return Collections.emptyList();
