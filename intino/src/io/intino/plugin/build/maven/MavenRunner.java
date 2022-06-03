@@ -35,12 +35,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.project.Safe.safe;
-import static java.util.Arrays.asList;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
@@ -126,8 +126,11 @@ public class MavenRunner {
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
 		generalSettings.setOutputLevel(ERROR);
 		generalSettings.setPrintErrorStackTraces(false);
+		ArrayList<String> goals = new ArrayList<>();
+		Collections.addAll(goals, phases);
+		goals.add(1, "verify");
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), asList(phases), Collections.emptyList());
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), goals, Collections.emptyList());
 		synchronized (monitor) {
 			ApplicationManager.getApplication().invokeLater(() -> {
 				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
