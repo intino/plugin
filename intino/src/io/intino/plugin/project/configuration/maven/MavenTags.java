@@ -20,6 +20,7 @@ public interface MavenTags {
 	String OUT_DSL = "tara.out.language";
 	String INTERFACE_VERSION = "tara.interface.version";
 	String INTERFACE_NAME = "tara.interface.name";
-	String GENERATION_PACKAGE = "tara.generation.package";
+	String MODEL_GENERATION_PACKAGE = "tara.generation.package";
+	String INTINO_GENERATION_PACKAGE = "generation.package";
 	String OUT_DSL_VERSION = "tara.out.dsl.version";
 }

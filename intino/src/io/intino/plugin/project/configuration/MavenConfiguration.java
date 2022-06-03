@@ -91,7 +91,7 @@ public class MavenConfiguration implements Configuration {
 				return new Code() {
 					@Override
 					public String generationPackage() {
-						return maven.getProperties().getProperty(MavenTags.GENERATION_PACKAGE);
+						return maven.getProperties().getProperty(MavenTags.INTINO_GENERATION_PACKAGE);
 					}
 
 					@Override

@@ -90,7 +90,7 @@ public class IntinoUtil {
 		final Module module = ModuleProvider.moduleOf(element);
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "";
-		return safe(() -> conf.artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "") + ".model";
+		return safe(() -> conf.artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "." + conf.artifact().code().modelPackage());
 	}
 
 	public static boolean isTest(PsiElement dir, Module module) {
