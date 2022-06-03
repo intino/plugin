@@ -95,7 +95,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 	private Frame buildFrame(Expression expression, io.intino.magritte.Language language, Module module) {
 		Valued valued = getContainerByType(expression, Valued.class);
 		if (valued == null) return null;
-		String workingPackage = IntinoUtil.graphPackage(expression).isEmpty() ? module.getName() : IntinoUtil.graphPackage(expression);
+		String workingPackage = IntinoUtil.modelPackage(expression).isEmpty() ? module.getName() : IntinoUtil.modelPackage(expression);
 		FrameBuilder builder = new FrameBuilder()
 				.put(Parameter.class, new NativeParameterAdapter(module, workingPackage, language))
 				.put(Variable.class, new NativeVariableAdapter(module, workingPackage, language))

@@ -18,7 +18,7 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.intino.Configuration;
-import io.intino.alexandria.logger.Logger;
+import io.intino.Configuration.Artifact.Code;
 import io.intino.magritte.Language;
 import io.intino.magritte.lang.model.*;
 import io.intino.magritte.lang.semantics.Constraint;
@@ -85,12 +85,12 @@ public class IntinoUtil {
 		return LanguageManager.getLanguage(file.getVirtualFile() == null ? file.getOriginalFile() : file);
 	}
 
-	public static String graphPackage(@NotNull PsiElement element) {
+	public static String modelPackage(@NotNull PsiElement element) {
 		if (!(element.getContainingFile() instanceof TaraModel)) return "";
 		final Module module = ModuleProvider.moduleOf(element);
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "";
-		return safe(() -> conf.artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "") + ".graph";
+		return safe(() -> conf.artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "") + ".model";
 	}
 
 	public static boolean isTest(PsiElement dir, Module module) {
@@ -124,10 +124,13 @@ public class IntinoUtil {
 		return language.generationPackage();
 	}
 
-	public static String graphPackage(@NotNull Module module) {
+	public static String modelPackage(@NotNull Module module) {
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "";
-		return safe(() -> conf.artifact().code().generationPackage()) + ".graph";
+		return safe(() -> {
+			Code code = conf.artifact().code();
+			return code.generationPackage() + "." + code.modelPackage();
+		});
 	}
 
 	public static Configuration.Artifact.Model.Level level(@NotNull PsiElement element) {

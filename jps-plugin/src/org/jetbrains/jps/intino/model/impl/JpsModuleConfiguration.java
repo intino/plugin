@@ -16,7 +16,7 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String languageVersion = "";
 	public String outDsl = "";
 
-	public String generationPackage = "";
+	public String modelGenerationPackage = "";
 	public String boxGenerationPackage = "";
 
 	public String groupId = "";

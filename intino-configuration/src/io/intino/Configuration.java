@@ -144,6 +144,14 @@ public interface Configuration {
 				return "lib";
 			}
 
+			default String modelPackage() {
+				return "model";
+			}
+
+			default String boxPackage() {
+				return "box";
+			}
+
 			String nativeLanguage();
 		}
 

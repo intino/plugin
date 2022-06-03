@@ -3,6 +3,7 @@ package io.intino.plugin.codeinsight.intentions.dialog;
 import com.intellij.psi.PsiElement;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +18,6 @@ import java.util.Properties;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.getResourcesRoot;
-import static io.intino.plugin.lang.psi.impl.IntinoUtil.graphPackage;
 
 public class CreateStringValues extends JDialog {
 	private static final String PROPERTIES = ".properties";
@@ -35,7 +35,7 @@ public class CreateStringValues extends JDialog {
 	private GridBagConstraints constraints = new GridBagConstraints();
 
 	public CreateStringValues(PsiElement element, String key) {
-		this.outputDsl = graphPackage(element);
+		this.outputDsl = IntinoUtil.modelPackage(element);
 		this.OKButton.addActionListener(e -> onOK());
 		this.newLanguage.addActionListener(e -> onNewLanguage());
 		this.cancelButton.addActionListener(e -> onCancel());

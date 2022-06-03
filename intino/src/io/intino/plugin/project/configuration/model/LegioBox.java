@@ -55,7 +55,7 @@ public class LegioBox implements Configuration.Artifact.Box {
 	@Override
 	public String targetPackage() {
 		String targetPackage = parameterValue(node, "targetPackage");
-		return targetPackage == null ? artifact.code().generationPackage() + ".box" : targetPackage;
+		return targetPackage == null ? artifact.code().generationPackage() + "." + artifact.code().boxPackage() : targetPackage;
 	}
 
 	@Override

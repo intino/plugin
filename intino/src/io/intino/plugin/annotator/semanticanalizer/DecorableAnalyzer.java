@@ -27,7 +27,7 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 
 	public DecorableAnalyzer(TaraNode node) {
 		this.node = node;
-		modelPackage = IntinoUtil.graphPackage(node).toLowerCase();
+		modelPackage = IntinoUtil.modelPackage(node).toLowerCase();
 	}
 
 	@Override

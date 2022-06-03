@@ -348,7 +348,7 @@ public class LegioArtifact implements Configuration.Artifact {
 				VERSION + EQ + version() + "\n" +
 				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + "\n" : "") +
 				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + "\n" +
-				GENERATION_PACKAGE + EQ + code().generationPackage() + "\n";
+				GENERATION_PACKAGE + EQ + code().generationPackage() + "." + code().modelPackage() + "\n";
 
 		if (model != null) {
 			builder += LANGUAGE + EQ + model.language().name() + "\n" +
@@ -359,11 +359,11 @@ public class LegioArtifact implements Configuration.Artifact {
 			if (model.language().generationPackage() != null)
 				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
 		}
-		if (box != null) builder += KonosBuildConstants.BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
+		if (box != null) builder += BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
 		Dependency.DataHub datahub = datahub();
 		if (datahub != null) builder += DATAHUB + EQ + datahub.identifier() + "\n";
 		if (datahub != null)
-			builder += "library" + EQ + datahub.identifier() + "\n";//FIXME added by retro-compatibility
+			builder += "library" + EQ + datahub.identifier() + "\n";//FIXME added by retro-compatibility. remove in future
 		Dependency.Archetype archetype = archetype();
 		if (archetype != null) builder += ARCHETYPE + EQ + archetype.identifier() + "\n";
 		List<String> dependencies = dependencies().stream()

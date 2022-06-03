@@ -45,6 +45,6 @@ public class JavaNativeImplementationToTara extends RelatedItemLineMarkerProvide
 	}
 
 	private String outPackage(@NotNull PsiElement element) {
-		return IntinoUtil.graphPackage(element).isEmpty() ? ModuleProvider.moduleOf(element).getName() : IntinoUtil.graphPackage(element);
+		return IntinoUtil.modelPackage(element).isEmpty() ? ModuleProvider.moduleOf(element).getName() : IntinoUtil.modelPackage(element);
 	}
 }

@@ -37,7 +37,7 @@ public class VariableRuleClassAnalyzer extends TaraAnalyzer {
 	public VariableRuleClassAnalyzer(TaraRuleContainer ruleContainer) {
 		this.variable = TaraPsiUtil.getContainerByType(ruleContainer, Variable.class);
 		this.rule = ruleContainer.getRule();
-		workingPackage = IntinoUtil.graphPackage(ruleContainer);
+		workingPackage = IntinoUtil.modelPackage(ruleContainer);
 		rulesPackage = workingPackage.toLowerCase() + (isNative() ? NATIVES_PACKAGE : RULES_PACKAGE);
 	}
 

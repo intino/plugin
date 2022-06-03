@@ -68,7 +68,7 @@ class TaraRunner {
 		if (!conf.groupId.isEmpty()) writer.write(GROUP_ID + NL + conf.groupId + NL);
 		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
-		writer.write(GENERATION_PACKAGE + NL + (conf.generationPackage.isEmpty() ? conf.outDsl : conf.generationPackage) + ".model" + NL);
+		writer.write(GENERATION_PACKAGE + NL + (conf.modelGenerationPackage.isEmpty() ? conf.outDsl : conf.modelGenerationPackage) + NL);
 	}
 
 	private void writePaths(List<String> paths, Writer writer) throws IOException {

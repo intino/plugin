@@ -31,7 +31,7 @@ public class OutDefinedReferenceSolver extends TaraReferenceSolver {
 	public OutDefinedReferenceSolver(@NotNull PsiElement element, TextRange range) {
 		super(element, range);
 		this.module = ModuleProvider.moduleOf(element);
-		this.outputDsl = IntinoUtil.graphPackage(element);
+		this.outputDsl = IntinoUtil.modelPackage(element);
 	}
 
 	@Override

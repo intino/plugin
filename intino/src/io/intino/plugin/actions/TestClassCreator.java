@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.plugin.lang.psi.impl.IntinoUtil.graphPackage;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.modelPackage;
 
 class TestClassCreator {
 
@@ -36,7 +36,7 @@ class TestClassCreator {
 		map.put("NAME", newName);
 		final Language language = LanguageManager.getLanguage(module.getProject(), dsl);
 		map.put("APPLICATION", dsl);
-		map.put("WORKING_PACKAGE", graphPackage(module));
+		map.put("WORKING_PACKAGE", modelPackage(module));
 		if (language != null) map.put("PLATFORM", language.metaLanguage());
 		return map;
 	}
