@@ -16,8 +16,10 @@ class LegioCode implements Configuration.Artifact.Code {
 
 	@Override
 	public String generationPackage() {
-		if (code == null) return (artifact.groupId() + "." + artifact.name()).replace("-", "").replace("_", "");
-		return parameterValue(code, "targetPackage", 0);
+		String defaultPackage = (artifact.groupId() + "." + artifact.name()).replace("-", "").replace("_", "");
+		if (code == null) return defaultPackage;
+		String targetPackage = parameterValue(code, "targetPackage", 0);
+		return targetPackage != null ? targetPackage : defaultPackage;
 	}
 
 	@Override
