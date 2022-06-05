@@ -159,6 +159,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
+		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).collect(toList()));
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
 				map(d -> new LegioWeb(this, dependencyAuditor, (TaraNode) d)).

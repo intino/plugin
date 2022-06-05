@@ -11,28 +11,28 @@ import java.util.List;
 
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.NothingDone;
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresReload;
-import static io.intino.plugin.project.Safe.safeList;
+import static io.intino.plugin.project.Safe.safe;
 
 
-public class ConfigurationParameterCreationAction extends PostCompileAction {
-	private final String name;
+public class MainClassCreationAction extends PostCompileAction {
+	private final String qualifiedName;
 
-	public ConfigurationParameterCreationAction(Module module, List<String> parameters) {
+	public MainClassCreationAction(Module module, List<String> parameters) {
 		this(module, parameters.get(1));
 	}
 
-	public ConfigurationParameterCreationAction(Module module, String name) {
+	public MainClassCreationAction(Module module, String qualifiedName) {
 		super(module);
-		this.name = name;
+		this.qualifiedName = qualifiedName;
 	}
 
 	@Override
 	public FinishStatus execute() {
-		if (name == null) return NothingDone;
+		if (qualifiedName == null) return NothingDone;
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof LegioConfiguration)) return NothingDone;
-		if (safeList(() -> configuration.artifact().parameters()).stream().noneMatch(p -> name.equals(p.name()))) {
-			((LegioArtifact) configuration.artifact()).addParameters(name);
+		if (safe(() -> configuration.artifact().packageConfiguration().mainClass()) == null) {
+			((LegioArtifact) configuration.artifact()).packageConfiguration().mainClass(qualifiedName);
 			return RequiresReload;
 		}
 		return NothingDone;

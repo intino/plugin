@@ -10,6 +10,7 @@ import com.intellij.psi.tree.IElementType;
 import io.intino.magritte.lang.model.*;
 import io.intino.magritte.lang.model.Primitive.Reference;
 import io.intino.plugin.lang.psi.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,7 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public class TaraPsiUtil {
 
@@ -73,7 +76,17 @@ public class TaraPsiUtil {
 	}
 
 	public static List<Node> componentsOfType(NodeContainer node, String type) {
-		return node == null ? Collections.emptyList() : node.components().stream().filter(c -> ((TaraNode) c).simpleType().equals(type)).collect(Collectors.toList());
+		return node != null ?
+				getComponentsOfType(node, type) :
+				Collections.emptyList();
+	}
+
+	@NotNull
+	private static List<Node> getComponentsOfType(NodeContainer node, String type) {
+		List<Node> nodes = node.components().stream().filter(c -> ((TaraNode) c).simpleType().equals(type)).collect(Collectors.toList());
+		if (node instanceof TaraNode)
+			nodes.addAll(stream(((TaraNode) node).getChildren()).filter(c -> c instanceof TaraNode && ((TaraNode) c).simpleType().equals(type)).map(c -> (Node) c).collect(toList()));
+		return nodes;
 	}
 
 	public static Node componentOfType(NodeContainer node, String type) {

@@ -46,6 +46,8 @@ public class IntinoWizardPanel {
 
 
 	public IntinoWizardPanel() {
+		groupId.requestFocus();
+		errorLabel.setVisible(false);
 		templatesAvailable = areTemplatesAvailable();
 		componentsButtons = List.of(modelButton, metaModelButton, sentinelsButton, agendaButton, webUIButton, EventSourcingButton, APIRESTServiceButton, workflowButton);
 		infrastructureButtons = List.of(amidas, sumus, datahub, archetype);

@@ -18,6 +18,7 @@ public class PostCompileActionFactory {
 		if (type.equals(CONFIGURATION_DEPENDENCY.name()))
 			return new ConfigurationDependencyCreationAction(module, parameters);
 		if (type.equals(MODULE.name())) return new ModuleCreationAction(module, parameters);
+		if (type.equals(MAIN_CLASS.name())) return new MainClassCreationAction(module, parameters);
 		return null;
 	}
 }

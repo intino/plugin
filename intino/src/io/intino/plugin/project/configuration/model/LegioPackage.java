@@ -3,12 +3,14 @@ package io.intino.plugin.project.configuration.model;
 import io.intino.Configuration;
 import io.intino.magritte.lang.model.Aspect;
 import io.intino.magritte.lang.model.Node;
+import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
 
@@ -91,6 +93,16 @@ public class LegioPackage implements Configuration.Artifact.Package {
 		Aspect runnable = aspects.stream().filter(a -> a.type().contains("Runnable")).findFirst().orElse(null);
 		String mainClass = parameterValue(runnable, "mainClass", 0);
 		return mainClass == null ? read(() -> parameterValue(node, "mainClass")) : mainClass;
+	}
+
+	public void mainClass(String qualifiedName) {
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
+			if (this.node.appliedAspects().isEmpty()) this.node.applyAspect("Runnable");
+		});
+		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
+			TaraAspectApply runnable = (TaraAspectApply) this.node.appliedAspects().get(0);
+			runnable.addParameter("mainClass", 0, List.of(qualifiedName));
+		});
 	}
 
 	@Override

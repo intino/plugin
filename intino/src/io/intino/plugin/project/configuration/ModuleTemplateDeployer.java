@@ -26,10 +26,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -62,14 +59,23 @@ public class ModuleTemplateDeployer {
 		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(srcDirectory, files.get("box.itr"));
 		if (Business.equals(type) || files.isEmpty()) {
 			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
-			ProjectView.getInstance(module.getProject()).refresh();
-			ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
-			ProjectView.getInstance(module.getProject()).select(legio, legio, true);
+			refreshProjectView(srcVDirectory, legio);
 			return;
 		}
 		writeInfrastructureFiles(groupId, legioFileCreator, srcDirectory, files);
 		ProjectView.getInstance(module.getProject()).refresh();
 		ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
+	}
+
+	private void refreshProjectView(VirtualFile srcVDirectory, VirtualFile legio) {
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				ProjectView.getInstance(module.getProject()).refresh();
+				ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
+				ProjectView.getInstance(module.getProject()).select(legio, legio, true);
+			}
+		}, 3000);
 	}
 
 	private void writeInfrastructureFiles(String groupId, LegioFileCreator legioFileCreator, File srcDirectory, Map<String, String> files) {

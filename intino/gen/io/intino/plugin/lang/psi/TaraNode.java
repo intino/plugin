@@ -20,6 +20,6 @@ public interface TaraNode extends TaraPsiElement, Node, Iconable, Navigatable {
 
 	String simpleType();
 
-	void applyAspect(String aspect);
+	TaraAspectApply applyAspect(String aspect);
 
 }

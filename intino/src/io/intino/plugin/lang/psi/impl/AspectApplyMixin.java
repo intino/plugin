@@ -40,9 +40,9 @@ public class AspectApplyMixin extends ASTWrapperPsiElement {
 		return fullType;
 	}
 
-	public void addParameter(String name, int position, String extension, int line, int column, List<Object> values) {
+	public void addParameter(String name, int position, List<Object> values) {
 		final TaraElementFactory factory = TaraElementFactory.getInstance(this.getProject());
-		Map<String, String> params = new HashMap();
+		Map<String, String> params = new HashMap<>();
 		params.put(name, String.join(" ", toString(values)));
 		final Parameters newParameters = factory.createExplicitParameters(params);
 		final TaraParameters parameters = ((TaraAspectApply) this).getParameters();

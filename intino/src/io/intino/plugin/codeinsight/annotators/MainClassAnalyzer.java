@@ -15,7 +15,7 @@ import static io.intino.plugin.MessageProvider.message;
 
 class MainClassAnalyzer extends TaraAnalyzer {
 	private final Node packageNode;
-	private Module module;
+	private final Module module;
 
 	MainClassAnalyzer(Node node, Module module) {
 		this.packageNode = node;

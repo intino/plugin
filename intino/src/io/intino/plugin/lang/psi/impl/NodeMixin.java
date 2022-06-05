@@ -37,7 +37,8 @@ import static io.intino.magritte.lang.model.Node.ANONYMOUS;
 import static io.intino.magritte.lang.model.Tag.Abstract;
 import static io.intino.magritte.lang.model.Tag.Terminal;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 public class NodeMixin extends ASTWrapperPsiElement {
@@ -463,7 +464,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 
 	public void addParameter(String name, String facet, int position, String metric, int line, int column, List<Object> values) {
 		final TaraElementFactory factory = TaraElementFactory.getInstance(this.getProject());
-		Map<String, String> params = new HashMap();
+		Map<String, String> params = new HashMap<>();
 		params.put(name, String.join(" ", toString(values, metric)));
 		final Parameters newParameters = factory.createExplicitParameters(params);
 		final Parameters parameters = parametersAnchor(facet);
@@ -478,14 +479,19 @@ public class NodeMixin extends ASTWrapperPsiElement {
 		}
 	}
 
-	public void applyAspect(String type) {
+	public TaraAspectApply applyAspect(String type) {
 		final TaraElementFactory factory = TaraElementFactory.getInstance(this.getProject());
 		if (appliedAspects().isEmpty()) {
 			final PsiElement anchor = anchor();
 			final PsiElement psiElement = getSignature().addAfter(factory.createWhiteSpace(), anchor);
-			getSignature().addAfter(factory.createAspects(type), psiElement);
-		} else
-			getSignature().addAfter(factory.createFacet(type), (PsiElement) getSignature().appliedAspects().get(getSignature().appliedAspects().size() - 1));
+			TaraAspects aspects = factory.createAspects(type);
+			getSignature().addAfter(aspects, psiElement);
+			return aspects.getAspectApplyList().get(0);
+		} else {
+			TaraAspectApply aspectApply = factory.createAspectApply(type);
+			getSignature().addAfter(aspectApply, (PsiElement) getSignature().appliedAspects().get(getSignature().appliedAspects().size() - 1));
+			return aspectApply;
+		}
 	}
 
 	@Nullable

@@ -86,7 +86,7 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		return PsiTreeUtil.getChildOfType(file, TaraNode.class).getSignature().getAspects();
 	}
 
-	public TaraAspectApply createFacet(String type) {
+	public TaraAspectApply createAspectApply(String type) {
 		final TaraModelImpl file = createDummyFile(
 				CONCEPT_DUMMY + " as " + type + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"

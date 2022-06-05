@@ -1,6 +1,5 @@
 package io.intino.plugin.lang.psi;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import io.intino.magritte.lang.model.Node;
@@ -31,7 +30,7 @@ public abstract class TaraElementFactory {
 
 	public abstract TaraVariable createVariable(String name, Primitive type);
 
-	public abstract TaraAspectApply createFacet(String type);
+	public abstract TaraAspectApply createAspectApply(String type);
 
 	public abstract TaraAspects createAspects(String type);
 

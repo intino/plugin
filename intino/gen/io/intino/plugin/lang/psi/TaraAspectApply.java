@@ -6,6 +6,8 @@ import io.intino.magritte.lang.model.Aspect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public interface TaraAspectApply extends TaraPsiElement, Aspect, Navigatable {
 
 	@NotNull
@@ -14,4 +16,5 @@ public interface TaraAspectApply extends TaraPsiElement, Aspect, Navigatable {
 	@Nullable
 	TaraParameters getParameters();
 
+	void addParameter(String name, int position, List<Object> values);
 }
