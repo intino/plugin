@@ -67,7 +67,10 @@ public class AddArgumentFix extends WithLiveTemplateFix implements IntentionActi
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		commit(file, editor);
 		int lineNumber = editor.getDocument().getLineNumber(((TaraNode) node).getLastChild().getTextRange().getEndOffset());
-		if (editor.getDocument().getLineCount() <= lineNumber + 1) addNewLine((TaraNode) node);
+		if (editor.getDocument().getLineCount() <= lineNumber + 1) {
+			addNewLine((TaraNode) node);
+			commit(file, editor);
+		}
 		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, lineNumber + 2);
 		TemplateManager.getInstance(file.getProject()).startTemplate(componentEditor, createTemplate(file));
 		commit(file, componentEditor);
