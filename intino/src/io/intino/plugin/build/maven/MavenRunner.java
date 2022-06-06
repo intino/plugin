@@ -128,7 +128,6 @@ public class MavenRunner {
 		generalSettings.setPrintErrorStackTraces(false);
 		ArrayList<String> goals = new ArrayList<>();
 		Collections.addAll(goals, phases);
-		goals.add(1, "verify");
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
 		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), goals, Collections.emptyList());
 		synchronized (monitor) {
