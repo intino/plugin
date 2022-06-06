@@ -31,8 +31,10 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.moduleRoot;
 import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
 import static io.intino.plugin.project.module.IntinoWizardPanel.Components.MetaModel;
+import static java.io.File.separator;
 
 public class ModuleTemplateDeployer {
 	public static final String Artifactory = "https://artifactory.intino.io/artifactory/";
@@ -40,52 +42,56 @@ public class ModuleTemplateDeployer {
 	private final Module module;
 	private final VirtualFile srcRoot;
 	private final List<Components> components;
-	private final StarterContext starterContext;
+	private final boolean gorosFramework;
+	private final LegioFileCreator legioFileCreator;
+	private final String groupId;
 
-	public ModuleTemplateDeployer(Module module, List<Components> components) {
-		this(module, components, null);
-	}
-
-	public ModuleTemplateDeployer(Module module, List<Components> components, StarterContext starterContext) {
+	public ModuleTemplateDeployer(Module module, List<Components> components, StarterContext starterContext, boolean gorosFramework) {
 		this.module = module;
 		this.srcRoot = IntinoUtil.getSrcRoot(module);
 		this.components = components;
-		this.starterContext = starterContext;
+		this.gorosFramework = gorosFramework;
+		this.legioFileCreator = new LegioFileCreator(module, components);
+		this.groupId = starterContext.getGroup();
 	}
 
 	public void deploy() {
 		IntinoModuleType.Type type = IntinoModuleType.type(module);
 		if (type == null) type = Business;
-		final String groupId = starterContext.getGroup();
-		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
-		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
-		final VirtualFile srcVDirectory = VfsUtil.findFileByIoFile(srcDirectory, true);
-		srcDirectory.mkdirs();
+		final File packageDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", separator) + separator + module.getName().replace("-", ""));
+		packageDirectory.mkdirs();
+		final VirtualFile packageVDirectory = VfsUtil.findFileByIoFile(packageDirectory, true);
 		Map<String, String> files = download(type);
-		if (components.contains(Components.Model) || components.contains(MetaModel)) writeModelFile(srcDirectory);
-		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(srcDirectory, files.get("box.itr"));
-		if (Business.equals(type) || files.isEmpty()) {
-			final VirtualFile legio = legioFileCreator.getOrCreate(groupId);
-			refreshProjectView(srcVDirectory, legio);
-			return;
+		writeModelAndBox(packageDirectory, files);
+		if (Business.equals(type) || files.isEmpty())
+			refreshView(packageVDirectory, legioFileCreator.getOrCreate(groupId));
+		else {
+			writeInfrastructureFiles(packageDirectory, files);
+			refreshView(packageVDirectory);
 		}
-		writeInfrastructureFiles(groupId, legioFileCreator, srcDirectory, files);
-		ProjectView.getInstance(module.getProject()).refresh();
-		ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
+		if (gorosFramework) addModernizationToModule();
 	}
 
-	private void refreshProjectView(VirtualFile srcVDirectory, VirtualFile legio) {
+	private void writeModelAndBox(File packageDirectory, Map<String, String> files) {
+		if (components.contains(Components.Model) || components.contains(MetaModel)) writeModelFile(packageDirectory);
+		if (components.stream().anyMatch(c -> c.ordinal() > 1)) writeBoxFile(packageDirectory, files.get("box.itr"));
+	}
+
+	private void refreshView(VirtualFile... files) {
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
-				ProjectView.getInstance(module.getProject()).refresh();
-				ProjectView.getInstance(module.getProject()).select(srcVDirectory, srcVDirectory, true);
-				ProjectView.getInstance(module.getProject()).select(legio, legio, true);
+				projectView().refresh();
+				Arrays.stream(files).forEach(f -> projectView().select(f, f, true));
 			}
-		}, 3000);
+		}, 4000);
 	}
 
-	private void writeInfrastructureFiles(String groupId, LegioFileCreator legioFileCreator, File srcDirectory, Map<String, String> files) {
+	private ProjectView projectView() {
+		return ProjectView.getInstance(module.getProject());
+	}
+
+	private void writeInfrastructureFiles(File srcDirectory, Map<String, String> files) {
 		String artifactContent = files.remove("artifact.legio");
 		legioFileCreator.create(artifactContent.replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
@@ -95,6 +101,24 @@ public class ModuleTemplateDeployer {
 				Logger.error(e);
 			}
 		});
+	}
+
+	private void addModernizationToModule() {
+		try {
+			File file = new File(moduleRoot(module), "modernization.goros");
+			file.getParentFile().mkdirs();
+			Files.writeString(file.toPath(), ("<modernization>\n" +
+					"\t<platform></platform>\n" +
+					"\t<model></model>\n" +
+					"\t<project name=\"$project\" package=\"\" directory=\"\"/>\n" +
+					"\t<module name=\"$module\"/>\n" +
+					"\t<definitions excluded=\"\"/>\n" +
+					"</modernization>").replace("$project", module.getProject().getName()).replace("$module", module.getName()));
+			VirtualFile vFile = VfsUtil.findFileByIoFile(file, true);
+			if (vFile != null) vFile.refresh(true, false);
+		} catch (IOException ignored) {
+
+		}
 	}
 
 	@NotNull
@@ -117,7 +141,6 @@ public class ModuleTemplateDeployer {
 		} catch (IOException | ITRulesSyntaxError e) {
 			Logger.error(e);
 		}
-
 	}
 
 	private void writeModelFile(File srcDirectory) {

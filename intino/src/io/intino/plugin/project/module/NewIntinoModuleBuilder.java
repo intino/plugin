@@ -2,10 +2,8 @@ package io.intino.plugin.project.module;
 
 import com.intellij.ide.highlighter.ModuleFileType;
 import com.intellij.ide.projectWizard.ProjectSettingsStep;
-import com.intellij.ide.starters.local.GeneratorAsset;
-import com.intellij.ide.starters.local.Starter;
-import com.intellij.ide.starters.local.StarterModuleBuilder;
-import com.intellij.ide.starters.local.StarterPack;
+import com.intellij.ide.starters.local.*;
+import com.intellij.ide.starters.local.wizard.StarterInitialStep;
 import com.intellij.ide.starters.local.wizard.StarterLibrariesStep;
 import com.intellij.ide.starters.shared.StarterLanguage;
 import com.intellij.ide.starters.shared.StarterProjectType;
@@ -23,6 +21,8 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.dsl.builder.Panel;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.IntinoDirectory;
@@ -44,11 +44,14 @@ import java.util.List;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
+import static java.io.File.separator;
 
 public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 	private IntinoModuleType.Type intinoModuleType;
 	private List<IntinoWizardPanel.Components> components;
+
+	private boolean gorosFramework = false;
 
 	@Override
 	public int getWeight() {
@@ -159,27 +162,32 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	}
 
 	private void excludeDirectory(@NotNull ModifiableRootModel rootModel, ContentEntry contentEntry, String directory) {
-		if (VfsUtil.refreshAndFindChild(contentEntry.getFile(), directory) != null) {
-			VirtualFile baseDirectory = VfsUtil.findFileByIoFile(new File(rootModel.getProject().getBasePath()), true);
-			if (baseDirectory != null) {
-				final VirtualFile vDirectory = baseDirectory.findChild(directory);
-				if (vDirectory != null) contentEntry.addExcludeFolder(vDirectory);
-			}
+		if (VfsUtil.refreshAndFindChild(contentEntry.getFile(), directory) == null) return;
+		VirtualFile baseDirectory = VfsUtil.findFileByIoFile(new File(rootModel.getProject().getBasePath()), true);
+		if (baseDirectory != null) {
+			final VirtualFile vDirectory = baseDirectory.findChild(directory);
+			if (vDirectory != null) contentEntry.addExcludeFolder(vDirectory);
 		}
+	}
+
+	@NotNull
+	@Override
+	protected StarterInitialStep createOptionsStep(@NotNull StarterContextProvider contextProvider) {
+		return new GorosSupportStep(contextProvider);
 	}
 
 	@Override
 	public @Nullable Module commitModule(@NotNull Project project, @Nullable ModifiableModuleModel model) {
 		setName(getStarterContext().getArtifact());
-		setContentEntryPath(project.getBasePath() + File.separator + getName());
-		setModuleFilePath(project.getBasePath() + File.separator + getName() + File.separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
+		setContentEntryPath(project.getBasePath() + separator + getName());
+		setModuleFilePath(project.getBasePath() + separator + getName() + separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
 		final Module module = super.commitModule(project, model);
 		createIntinoFiles(project, module);
 		return module;
 	}
 
 	private void createIntinoFiles(@NotNull Project project, Module module) {
-		new ModuleTemplateDeployer(module, components, getStarterContext()).deploy();
+		new ModuleTemplateDeployer(module, components, getStarterContext(), gorosFramework).deploy();
 		final VirtualFile file = new LegioFileCreator(module, components).get();
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
 		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
@@ -198,5 +206,19 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 	public void setStartingComponents(List<IntinoWizardPanel.Components> components) {
 		this.components = components;
+	}
+
+	private class GorosSupportStep extends StarterInitialStep {
+		public GorosSupportStep(@NotNull StarterContextProvider contextProvider) {
+			super(contextProvider);
+		}
+
+		@Override
+		protected void addFieldsAfter(@NotNull Panel layout) {
+			layout.row("", row -> {
+				row.checkBox("Support Goros framework").getComponent().addActionListener(actionEvent -> gorosFramework = ((JBCheckBox) actionEvent.getSource()).isSelected());
+				return null;
+			});
+		}
 	}
 }

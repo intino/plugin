@@ -67,8 +67,6 @@
 						serviceImplementation="io.intino.plugin.lang.psi.impl.TaraElementFactoryImpl"/>
 		<projectService serviceInterface="io.intino.plugin.codeinsight.JavaHelper"
 						serviceImplementation="io.intino.plugin.codeinsight.JavaHelper$Impl"/>
-		<framework.type implementation="io.intino.plugin.frameworks.GorosFrameworkType"/>
-
 		<projectStructureDetector implementation="io.intino.plugin.project.module.IntinoProjectStructureDetector"/>
 		<lang.commenter language="Tara" implementationClass="io.intino.plugin.lang.TaraCommenter"/>
 		<languageInjector implementation="io.intino.plugin.codeinsight.languageinjection.TaraLanguageInjector"/>
