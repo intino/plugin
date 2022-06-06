@@ -2,9 +2,13 @@ package io.intino.plugin.build;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.server.CustomBuilderMessageHandler;
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.FileStatusManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
@@ -24,6 +28,7 @@ import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresRelo
 public class KonosCompilerListener implements CustomBuilderMessageHandler {
 	private static final String KONOS_PATTERN = "!?*.konos";
 	private final Project project;
+	private static final Logger Log = Logger.getInstance(KonosCompilerListener.class.getName());
 
 	public KonosCompilerListener(Project project) {
 		this.project = project;
@@ -50,11 +55,12 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 			if (finishStatus.contains(RequiresReload)) IntinoUtil.configurationOf(module[0]).reload();
 		}
 		if (KONOSC.equals(builderId) && REFRESH_MESSAGE.equals(messageType)) {
+			System.out.println("Finishing compile...");
 			final String[] parameters = messageText.split(REFRESH_BUILDER_MESSAGE_SEPARATOR);
 			File directory = new File(parameters[parameters.length - 1]);
 			refreshOut(directory);
-			refreshDirectory(new File(directory.getParentFile(), "res"));
 			refreshDirectory(new File(directory.getParentFile(), "src"));
+			refreshDirectory(new File(directory.getParentFile(), "res"));
 		}
 	}
 
@@ -80,9 +86,14 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> m.getName().equals(module)).findFirst().orElse(null);
 	}
 
-	private void refreshDirectory(File res) {
-		VirtualFile resDir = VfsUtil.findFileByIoFile(res, true);
-		if (resDir == null || !resDir.isValid()) return;
-		resDir.refresh(true, true);
+	private void refreshDirectory(File dir) {
+		VirtualFile vDir = VfsUtil.findFileByIoFile(dir, true);
+		if (vDir == null || !vDir.isValid()) return;
+		Log.info("Refreshing " + dir.getName() + "...");
+		System.out.println("Refreshing " + dir.getName() + "...");
+		vDir.refresh(true, true);
+		FileStatusManager.getInstance(project).fileStatusesChanged();
+		FileDocumentManager.getInstance().reloadFiles(vDir);
+		ProjectView.getInstance(project).refresh();
 	}
 }

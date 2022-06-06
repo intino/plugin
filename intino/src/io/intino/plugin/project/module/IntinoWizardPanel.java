@@ -125,8 +125,8 @@ public class IntinoWizardPanel {
 
 	public IntinoModuleType.Type selected() {
 		if (business.isSelected()) return IntinoModuleType.Type.Business;
-		if (amidas.isSelected()) return IntinoModuleType.Type.Amidas;
-		if (sumus.isSelected()) return IntinoModuleType.Type.Susmus;
+		if (amidas.isSelected()) return IntinoModuleType.Type.Federation;
+		if (sumus.isSelected()) return IntinoModuleType.Type.DataAnalitic;
 		if (datahub.isSelected()) return IntinoModuleType.Type.Datahub;
 		return IntinoModuleType.Type.Archetype;
 	}

@@ -83,12 +83,18 @@ public class KonosBuilder extends IntinoBuilder {
 		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, files(toCompile), encoding, paths);
 		final KonoscOSProcessHandler handler = runner.runKonosCompiler(context);
 		processMessages(chunk, context, handler);
-		if (handler.shouldRetry()) return ABORT;
-		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return ABORT;
+		if (handler.shouldRetry() || checkChunkRebuildNeeded(context, handler.shouldRetry())) {
+			refresh(context, chunk);
+			return ABORT;
+		}
 		finish(context, chunk, outputConsumer, finalOutputs, handler.getSuccessfullyCompiled());
-		context.processMessage(new CustomBuilderMessage(KONOSC, REFRESH_MESSAGE, chunk.getName() + REFRESH_BUILDER_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
+		refresh(context, chunk);
 		context.setDone(1);
 		return OK;
+	}
+
+	private void refresh(CompileContext context, ModuleChunk chunk) {
+		context.processMessage(new CustomBuilderMessage(KONOSC, REFRESH_MESSAGE, chunk.getName() + REFRESH_BUILDER_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 	}
 
 	@NotNull
