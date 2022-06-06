@@ -2,6 +2,7 @@ package io.intino.plugin.project.configuration;
 
 import com.amazonaws.util.StringInputStream;
 import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.starters.local.StarterContext;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -39,17 +40,23 @@ public class ModuleTemplateDeployer {
 	private final Module module;
 	private final VirtualFile srcRoot;
 	private final List<Components> components;
+	private final StarterContext starterContext;
 
 	public ModuleTemplateDeployer(Module module, List<Components> components) {
+		this(module, components, null);
+	}
+
+	public ModuleTemplateDeployer(Module module, List<Components> components, StarterContext starterContext) {
 		this.module = module;
 		this.srcRoot = IntinoUtil.getSrcRoot(module);
 		this.components = components;
+		this.starterContext = starterContext;
 	}
 
 	public void deploy() {
 		IntinoModuleType.Type type = IntinoModuleType.type(module);
 		if (type == null) type = Business;
-		final String groupId = IntinoModuleType.groupId(module);
+		final String groupId = starterContext.getGroup();
 		final LegioFileCreator legioFileCreator = new LegioFileCreator(module, components);
 		final File srcDirectory = new File(srcRoot.toNioPath().toFile(), groupId.replace("-", "").replace(".", File.separator) + File.separator + module.getName().replace("-", ""));
 		final VirtualFile srcVDirectory = VfsUtil.findFileByIoFile(srcDirectory, true);

@@ -1,6 +1,15 @@
 package io.intino.plugin.project.module;
 
-import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
+import com.intellij.ide.highlighter.ModuleFileType;
+import com.intellij.ide.projectWizard.ProjectSettingsStep;
+import com.intellij.ide.starters.local.GeneratorAsset;
+import com.intellij.ide.starters.local.Starter;
+import com.intellij.ide.starters.local.StarterModuleBuilder;
+import com.intellij.ide.starters.local.StarterPack;
+import com.intellij.ide.starters.local.wizard.StarterLibrariesStep;
+import com.intellij.ide.starters.shared.StarterLanguage;
+import com.intellij.ide.starters.shared.StarterProjectType;
+import com.intellij.ide.starters.shared.StarterSettings;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -30,16 +39,27 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 
-public class IntinoModuleBuilder extends JavaModuleBuilder {
+public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 	private IntinoModuleType.Type intinoModuleType;
-	private String groupId;
 	private List<IntinoWizardPanel.Components> components;
+
+	@Override
+	public int getWeight() {
+		return 2000;
+	}
+
+	@NotNull
+	@Override
+	public String getBuilderId() {
+		return "intino";
+	}
 
 	@Override
 	public String getPresentableName() {
@@ -61,11 +81,43 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		return "Intino project";
 	}
 
+	@NotNull
+	@Override
+	protected List<StarterProjectType> getProjectTypes() {
+		return List.of();
+	}
+
+	@NotNull
+	@Override
+	protected List<StarterLanguage> getLanguages() {
+		return List.of(StarterSettings.getJAVA_STARTER_LANGUAGE());
+	}
+
+	@NotNull
+	@Override
+	protected StarterPack getStarterPack() {
+		return new StarterPack(getBuilderId(), List.of(new Starter("intino", "intino", getDependencyConfig("/starters/intino.pom"), Collections.emptyList())));
+	}
+
+	@NotNull
+	@Override
+	public List<Class<? extends ModuleWizardStep>> getIgnoredSteps() {
+		return List.of(StarterLibrariesStep.class, ProjectSettingsStep.class);
+	}
+
+	@NotNull
+	@Override
+	protected List<GeneratorAsset> getAssets(@NotNull Starter starter) {
+		return List.of();
+	}
+
+	@NotNull
 	@Override
 	public ModuleType<?> getModuleType() {
 		return IntinoModuleType.getModuleType();
 	}
 
+	@NotNull
 	@Override
 	public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
 		final ModuleWizardStep[] wizardSteps = super.createWizardSteps(wizardContext, modulesProvider);
@@ -75,17 +127,22 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 	}
 
 	@Override
-	public boolean isAvailable() {
-		return true;
+	protected void setupModule(@NotNull Module module) throws ConfigurationException {
+		getStarterContext().setStarter(getStarterContext().getStarterPack().getStarters().get(0));
+		getStarterContext().setStarterDependencyConfig(loadDependencyConfig().get(getStarterContext().getStarter().getId()));
+		super.setupModule(module);
 	}
 
-	public void setupRootModel(@NotNull ModifiableRootModel rootModel) throws ConfigurationException {
+	public void setupRootModel(@NotNull ModifiableRootModel rootModel) {
 		super.setupRootModel(rootModel);
 		final ContentEntry contentEntry = rootModel.getContentEntries()[0];
 		final File gen = new File(contentEntry.getFile().getPath(), "gen");
+		final File src = new File(contentEntry.getFile().getPath(), "src");
 		final File res = new File(contentEntry.getFile().getPath(), "res");
+		src.mkdir();
 		gen.mkdir();
 		res.mkdir();
+		final VirtualFile srcVfile = VfsUtil.findFileByIoFile(src, true);
 		final VirtualFile genVfile = VfsUtil.findFileByIoFile(gen, true);
 		final VirtualFile resVfile = VfsUtil.findFileByIoFile(res, true);
 		if (contentEntry.getFile().findChild(IntinoDirectory.INTINO) != null) {
@@ -94,11 +151,11 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		}
 		excludeDirectory(rootModel, contentEntry, ".idea");
 		excludeDirectory(rootModel, contentEntry, ".intino");
+		contentEntry.addSourceFolder(srcVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", false));
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
 		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
-		module.setOption(IntinoModuleType.INTINO_GROUPID_OPTION_NAME, groupId);
 	}
 
 	private void excludeDirectory(@NotNull ModifiableRootModel rootModel, ContentEntry contentEntry, String directory) {
@@ -113,13 +170,16 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 
 	@Override
 	public @Nullable Module commitModule(@NotNull Project project, @Nullable ModifiableModuleModel model) {
+		setName(getStarterContext().getArtifact());
+		setContentEntryPath(project.getBasePath() + File.separator + getName());
+		setModuleFilePath(project.getBasePath() + File.separator + getName() + File.separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
 		final Module module = super.commitModule(project, model);
 		createIntinoFiles(project, module);
 		return module;
 	}
 
 	private void createIntinoFiles(@NotNull Project project, Module module) {
-		new ModuleTemplateDeployer(module, components).deploy();
+		new ModuleTemplateDeployer(module, components, getStarterContext()).deploy();
 		final VirtualFile file = new LegioFileCreator(module, components).get();
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
 		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
@@ -131,17 +191,9 @@ public class IntinoModuleBuilder extends JavaModuleBuilder {
 		configuration.reload();
 	}
 
-	@Override
-	public int getWeight() {
-		return 90;
-	}
 
 	public void setIntinoModuleType(IntinoModuleType.Type selected) {
 		this.intinoModuleType = selected;
-	}
-
-	public void setGroupId(String selected) {
-		this.groupId = selected;
 	}
 
 	public void setStartingComponents(List<IntinoWizardPanel.Components> components) {

@@ -6,9 +6,9 @@ import javax.swing.*;
 
 public class IntinoWizardStep extends ModuleWizardStep {
 	private final IntinoWizardPanel step;
-	private final IntinoModuleBuilder builder;
+	private final NewIntinoModuleBuilder builder;
 
-	public IntinoWizardStep(IntinoModuleBuilder builder) {
+	public IntinoWizardStep(NewIntinoModuleBuilder builder) {
 		this.builder = builder;
 		step = new IntinoWizardPanel();
 	}
@@ -22,6 +22,5 @@ public class IntinoWizardStep extends ModuleWizardStep {
 	public void updateDataModel() {
 		builder.setIntinoModuleType(step.selected());
 		builder.setStartingComponents(step.components());
-		builder.setGroupId(step.groupId());
 	}
 }

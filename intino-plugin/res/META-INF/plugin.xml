@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>5.11.0</version>
+	<version>6.0.0</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -69,7 +69,7 @@
 						serviceImplementation="io.intino.plugin.codeinsight.JavaHelper$Impl"/>
 		<framework.type implementation="io.intino.plugin.frameworks.GorosFrameworkType"/>
 
-		<projectStructureDetector implementation="io.intino.plugin.project.module.TaraProjectStructureDetector"/>
+		<projectStructureDetector implementation="io.intino.plugin.project.module.IntinoProjectStructureDetector"/>
 		<lang.commenter language="Tara" implementationClass="io.intino.plugin.lang.TaraCommenter"/>
 		<languageInjector implementation="io.intino.plugin.codeinsight.languageinjection.TaraLanguageInjector"/>
 
@@ -182,7 +182,7 @@
 		<copyPastePreProcessor implementation="io.intino.plugin.file.LegioDependencyPasteProcessor"/>
 		<problemFileHighlightFilter
 				implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
-		<moduleBuilder builderClass="io.intino.plugin.project.module.IntinoModuleBuilder"/>
+		<moduleBuilder builderClass="io.intino.plugin.project.module.NewIntinoModuleBuilder"/>
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
 		<codeInsight.lineMarkerProvider language="Tara"

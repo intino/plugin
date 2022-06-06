@@ -43,9 +43,6 @@ public class IntinoModuleType extends JavaModuleType {
 		return optionValue != null ? Type.valueOf(optionValue) : null;
 	}
 
-	public static String groupId(Module module) {
-		return module.getOptionValue(INTINO_GROUPID_OPTION_NAME);
-	}
 
 	@NotNull
 	@Override

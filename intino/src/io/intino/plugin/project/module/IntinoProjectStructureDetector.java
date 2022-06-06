@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class TaraProjectStructureDetector extends ProjectStructureDetector {
+public class IntinoProjectStructureDetector extends ProjectStructureDetector {
 
 	private static final Logger LOG = Logger.getInstance("#TaraProjectStructureDetector");
 

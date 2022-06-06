@@ -28,7 +28,6 @@ public class IntinoWizardPanel {
 	private JRadioButton datahub;
 	private JRadioButton archetype;
 	private JPanel root;
-	private JTextField groupId;
 	private JPanel diagramBox;
 	private JPanel boxPanel;
 	private JPanel modelPanel;
@@ -46,7 +45,6 @@ public class IntinoWizardPanel {
 
 
 	public IntinoWizardPanel() {
-		groupId.requestFocus();
 		errorLabel.setVisible(false);
 		templatesAvailable = areTemplatesAvailable();
 		componentsButtons = List.of(modelButton, metaModelButton, sentinelsButton, agendaButton, webUIButton, EventSourcingButton, APIRESTServiceButton, workflowButton);
@@ -147,10 +145,6 @@ public class IntinoWizardPanel {
 	@NotNull
 	private String makeUp(JButton b) {
 		return firstUpperCase(b.getText().replace("Concepts", "Model").replace(" ", ""));
-	}
-
-	public String groupId() {
-		return groupId.getText();
 	}
 
 	private void createUIComponents() {
