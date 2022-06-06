@@ -55,7 +55,6 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 			if (finishStatus.contains(RequiresReload)) IntinoUtil.configurationOf(module[0]).reload();
 		}
 		if (KONOSC.equals(builderId) && REFRESH_MESSAGE.equals(messageType)) {
-			System.out.println("Finishing compile...");
 			final String[] parameters = messageText.split(REFRESH_BUILDER_MESSAGE_SEPARATOR);
 			File directory = new File(parameters[parameters.length - 1]);
 			refreshOut(directory);
@@ -89,8 +88,6 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 	private void refreshDirectory(File dir) {
 		VirtualFile vDir = VfsUtil.findFileByIoFile(dir, true);
 		if (vDir == null || !vDir.isValid()) return;
-		Log.info("Refreshing " + dir.getName() + "...");
-		System.out.println("Refreshing " + dir.getName() + "...");
 		vDir.refresh(true, true);
 		FileStatusManager.getInstance(project).fileStatusesChanged();
 		FileDocumentManager.getInstance().reloadFiles(vDir);
