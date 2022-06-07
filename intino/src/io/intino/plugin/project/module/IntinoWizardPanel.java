@@ -83,6 +83,7 @@ public class IntinoWizardPanel {
 
 				@Override
 				public void mouseClicked(MouseEvent mouseEvent) {
+					if (!business.isSelected()) return;
 					JButton source = (JButton) mouseEvent.getSource();
 					source.setSelected(!source.isSelected());
 					button.setBackground(source.isSelected() ?
@@ -101,12 +102,14 @@ public class IntinoWizardPanel {
 
 				@Override
 				public void mouseEntered(MouseEvent mouseEvent) {
+					if (!business.isSelected()) return;
 					button.setBackground(selectedBackground((JButton) mouseEvent.getSource()));
 
 				}
 
 				@Override
 				public void mouseExited(MouseEvent mouseEvent) {
+					if (!business.isSelected()) return;
 					JButton source = (JButton) mouseEvent.getSource();
 					if (!source.isSelected()) button.setBackground(new JBColor(defaultColor, defaultColor));
 				}
