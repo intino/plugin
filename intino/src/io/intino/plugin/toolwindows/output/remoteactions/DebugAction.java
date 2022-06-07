@@ -1,13 +1,11 @@
 package io.intino.plugin.toolwindows.output.remoteactions;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
@@ -15,7 +13,6 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
-import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoIcons;
@@ -24,6 +21,8 @@ import io.intino.plugin.toolwindows.output.IntinoConsoleAction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
@@ -77,8 +76,7 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 					status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
 				}
-			} catch (BadRequest | InternalServerError bd) {
-				Logger.error(bd);
+			} catch (BadRequest | InternalServerError ignored) {
 			}
 			inProcess = false;
 			update(e);
@@ -99,7 +97,12 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	}
 
 	public void update() {
-		update(this.getTemplatePresentation());
+		try {
+			final @NotNull DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
+			update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
+		} catch (TimeoutException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

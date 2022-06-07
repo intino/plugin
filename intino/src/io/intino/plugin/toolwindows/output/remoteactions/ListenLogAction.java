@@ -1,9 +1,8 @@
 package io.intino.plugin.toolwindows.output.remoteactions;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
@@ -20,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static io.intino.alexandria.logger.Logger.Level;
@@ -90,9 +91,13 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	public void update() {
-		update(this.getTemplatePresentation());
+		try {
+			final @NotNull DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
+			update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
+		} catch (TimeoutException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
-
 	private void update(Presentation p) {
 		if (selectedProcess == null || inProcess) p.setEnabled(false);
 		else {

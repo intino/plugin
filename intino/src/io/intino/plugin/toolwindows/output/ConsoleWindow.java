@@ -157,7 +157,7 @@ public class ConsoleWindow {
 		eastGroup.addSeparator();
 		eastGroup.addAll(consoleView.createConsoleActions());
 		final ActionToolbar westToolbar = ActionManager.getInstance().createActionToolbar("IntinoConsole", westGroup, false);
-		final ActionToolbar eastToolbar = ActionManager.getInstance().createActionToolbar("IntinoConsole", eastGroup, false);
+		final ActionToolbar eastToolbar = ActionManager.getInstance().createActionToolbar("IntinoEastToolbarConsole", eastGroup, false);
 		westToolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
 		ui.add(westToolbar.getComponent(), BorderLayout.WEST);

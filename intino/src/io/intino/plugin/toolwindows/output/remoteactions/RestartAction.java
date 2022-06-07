@@ -1,10 +1,8 @@
 package io.intino.plugin.toolwindows.output.remoteactions;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
@@ -20,6 +18,8 @@ import io.intino.plugin.toolwindows.output.IntinoConsoleAction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
@@ -98,7 +98,12 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 	}
 
 	public void update() {
-		update(this.getTemplatePresentation());
+		try {
+			final @NotNull DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
+			update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
+		} catch (TimeoutException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void update(Presentation p) {
