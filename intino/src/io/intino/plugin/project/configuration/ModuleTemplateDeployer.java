@@ -6,6 +6,7 @@ import com.intellij.ide.starters.local.StarterContext;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.TemplateEngine;
@@ -101,6 +102,7 @@ public class ModuleTemplateDeployer {
 				Logger.error(e);
 			}
 		});
+		VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 	}
 
 	private void addModernizationToModule() {
