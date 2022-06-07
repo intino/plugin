@@ -23,15 +23,15 @@ class ArchetypeAnalyzer extends TaraAnalyzer {
 	@Override
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
-		final Artifact.Dependency.DataHub dependency = findDataHubNode();
+		final Artifact.Dependency.Archetype dependency = findArchetype();
 		if (dependency == null || !dependency.resolved())
 			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 	}
 
 
-	private Artifact.Dependency.DataHub findDataHubNode() {
+	private Artifact.Dependency.Archetype findArchetype() {
 		if (configuration == null) return null;
-		return safe(() -> configuration.artifact().datahub());
+		return safe(() -> configuration.artifact().archetype());
 	}
 
 }
