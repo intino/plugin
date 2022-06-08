@@ -21,6 +21,8 @@ import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
+import io.intino.plugin.project.configuration.model.LegioDistribution;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -54,6 +56,10 @@ public class ExportAction {
 	}
 
 	private void runBoxExports(FactoryPhase factoryPhase, Module module, LegioConfiguration configuration, ProgressIndicator indicator) {
+		if (factoryPhase == FactoryPhase.DISTRIBUTE && !hasDistribution(configuration)) {
+			notifyError("Distribution repository not found", module);
+			return;
+		}
 		Configuration.Artifact.Box box = configuration.artifact().box();
 		if (box != null) {
 			final String version = box.version();
@@ -70,6 +76,17 @@ public class ExportAction {
 			} catch (IntinoException e) {
 				notifyError(e.getMessage(), module);
 			}
+		}
+	}
+
+	private boolean hasDistribution(LegioConfiguration configuration) {
+		LegioDistribution distribution = configuration.artifact().distribution();
+		if (distribution == null) return false;
+		try {
+			if (new Version(configuration.artifact().version()).isSnapshot()) return distribution.snapshot() != null;
+			return distribution.release() != null;
+		} catch (IntinoException e) {
+			return false;
 		}
 	}
 
