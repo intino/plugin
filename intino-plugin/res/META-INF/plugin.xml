@@ -149,6 +149,7 @@
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ArchetypeAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ModelAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DataHubAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
