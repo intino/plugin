@@ -71,7 +71,10 @@ class KonosRunner {
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
 		if (!conf.parentInterface.isEmpty()) writer.write(PARENT_INTERFACE + NL + conf.parentInterface + NL);
-		if (!conf.datahub.isEmpty()) writer.write(DATAHUB + NL + conf.datahub + NL);
+		if (!conf.datahub.isEmpty()) {
+			writer.write(DATAHUB + NL + conf.datahub + NL);
+			writer.write("library" + NL + conf.datahub + NL);
+		}
 		if (!conf.archetype.isEmpty()) writer.write(ARCHETYPE + NL + conf.archetype + NL);
 		if (!conf.dependencies.isEmpty()) writer.write(CURRENT_DEPENDENCIES + NL + conf.dependencies + NL);
 		if (!conf.languageGenerationPackage.isEmpty())
