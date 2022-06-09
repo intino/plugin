@@ -96,9 +96,13 @@ Concept:{1..1}:Named Artifact
 		Aspect MacOS with Runnable
         	var string macIcon
         	var string resourceDirectory = empty
-
         Aspect Windows with Runnable
         	var string windowsIcon
+		Aspect LinuxService with Runnable
+			var string user
+			var RunConfiguration runConfiguration
+			var boolean restartOnFailure
+			var integer managementPort
 
 	has Parameter
 	Concept:{0..1} Distribution

@@ -290,6 +290,8 @@ public interface Configuration {
 		}
 
 		interface Package {
+			LinuxService linuxService();
+
 			enum Mode {
 				ModulesAndLibrariesExtracted, LibrariesLinkedByManifest, ModulesAndLibrariesLinkedByManifest
 			}
@@ -330,6 +332,16 @@ public interface Configuration {
 
 			interface Windows {
 				String icon();
+			}
+
+			interface LinuxService {
+				String user();
+
+				RunConfiguration runConfiguration();
+
+				boolean restartOnFailure();
+
+				int managementPort();
 			}
 		}
 

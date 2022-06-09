@@ -16,10 +16,12 @@ import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Artifact.Package.LinuxService;
 import io.intino.Configuration.Deployment;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.git.GitUtil;
+import io.intino.plugin.build.linuxservice.LinuxServiceGenerator;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
@@ -135,8 +137,8 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
-		buildLanguage(module, phase, indicator);
-		buildArtifact(module, phase, indicator);
+		buildLanguage(phase, indicator);
+		buildArtifact(phase, indicator);
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {
 			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
 			GitCommandResult gitCommandResult = GitUtil.tagCurrentAndPush(module, tag);
@@ -146,12 +148,16 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	private void buildArtifact(Module module, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
+	private void buildArtifact(FactoryPhase phase, ProgressIndicator indicator) throws IOException {
 		updateProgressIndicator(indicator, message("artifact.action", firstUpperCase().format(phase.gerund().toLowerCase()).toString()));
 		new MavenRunner(module).executeArtifact(phase);
+		LinuxService linuxService = configuration.artifact().packageConfiguration().linuxService();
+		if (linuxService != null && configuration.artifact().packageConfiguration().isRunnable())
+			new LinuxServiceGenerator((LegioConfiguration) configuration, linuxService).generate();
+
 	}
 
-	private void buildLanguage(Module module, FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
+	private void buildLanguage(FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
 		if (checker.shouldDistributeLanguage(lifeCyclePhase, module) && hasModelFiles(module)) {
 			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 			buildLanguage(module);

@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
-import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
-import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.*;
 
 public class LegioPackage implements Configuration.Artifact.Package {
 	private final LegioArtifact artifact;
@@ -114,5 +113,47 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	@Override
 	public Windows windowsConfiguration() {//TODO
 		return null;
+	}
+
+	@Override
+	public LinuxService linuxService() {
+		if (node == null) return null;
+		List<Aspect> aspects = node.appliedAspects();
+		if (aspects == null || aspects.isEmpty()) return null;
+		Aspect linuxService = aspects.stream().filter(a -> a.type().contains("LinuxService")).findFirst().orElse(null);
+		if (linuxService == null) return null;
+		return new LegioPackageAsLinuxService(linuxService, artifact);
+	}
+
+	public static class LegioPackageAsLinuxService implements LinuxService {
+		private final Aspect node;
+		private final Configuration.Artifact artifact;
+
+		public LegioPackageAsLinuxService(Aspect node, Configuration.Artifact artifact) {
+			this.node = node;
+			this.artifact = artifact;
+		}
+
+		@Override
+		public String user() {
+			return read(() -> parameterValue(node, "user", 0));
+		}
+
+		@Override
+		public Configuration.RunConfiguration runConfiguration() {
+			Node runConfiguration = read(() -> referenceParameterValue(node.parameters(), "runConfiguration", 1));
+			if (runConfiguration == null) return null;
+			return new LegioRunConfiguration((LegioArtifact) artifact, runConfiguration);
+		}
+
+		@Override
+		public boolean restartOnFailure() {
+			return Boolean.parseBoolean(read(() -> parameterValue(node, "restartOnFailure", 2)));
+		}
+
+		@Override
+		public int managementPort() {
+			return Integer.parseInt(read(() -> parameterValue(node, "managementPort", 3)));
+		}
 	}
 }

@@ -136,6 +136,10 @@ public class TaraPsiUtil {
 	public static Node referenceParameterValue(Node node, String name, int position) {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
+		return referenceParameterValue(parameters, name, position);
+	}
+
+	public static Node referenceParameterValue(List<Parameter> parameters, String name, int position) {
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		if (parameter != null && !parameter.values().isEmpty()) {
 			Object o = parameter.values().get(0);
