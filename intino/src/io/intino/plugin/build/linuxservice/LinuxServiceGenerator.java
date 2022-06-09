@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesExtracted;
 import static java.io.File.separator;
@@ -23,12 +24,13 @@ public class LinuxServiceGenerator {
 	private final LegioConfiguration configuration;
 	private final Configuration.Artifact.Package.LinuxService linuxService;
 	private final String artifactName;
+	private final List<String> messages;
 
-	public LinuxServiceGenerator(LegioConfiguration configuration, Configuration.Artifact.Package.LinuxService linuxService) {
+	public LinuxServiceGenerator(LegioConfiguration configuration, Configuration.Artifact.Package.LinuxService linuxService, List<String> messages) {
 		this.configuration = configuration;
 		this.linuxService = linuxService;
 		this.artifactName = configuration.artifact().name();
-
+		this.messages = messages;
 	}
 
 	public void generate() {
@@ -40,6 +42,7 @@ public class LinuxServiceGenerator {
 			Files.writeString(sysconfigFile(dir), new ServiceTemplate().render(builder.add("sysconfig").toFrame()));
 			Files.writeString(serviceFile(dir), new ServiceTemplate().render(builder.add("service").toFrame()));
 			Files.writeString(new File(dir, "README.txt").toPath(), readMe());
+			messages.add("Linux Service configuration created in out/build directory");
 		} catch (IOException e) {
 			Logger.error(e);
 		}
@@ -74,13 +77,13 @@ public class LinuxServiceGenerator {
 				.add("mainClass", artifact.packageConfiguration().mainClass());
 		if (linuxService.restartOnFailure()) builder.add("restart", "Restart");
 		if (artifact.packageConfiguration().mode() != ModulesAndLibrariesExtracted)
-			builder.add("directory", directoryFrame(artifact));
+			builder.add("dependencies", directoryFrame(artifact));
 		return builder;
 	}
 
 	@NotNull
 	private Frame directoryFrame(LegioArtifact artifact) {
-		return new FrameBuilder("directory")
+		return new FrameBuilder("dependencies")
 				.add("artifact", artifact.name())
 				.add("directory", classPathPrefix(artifact))
 				.toFrame();

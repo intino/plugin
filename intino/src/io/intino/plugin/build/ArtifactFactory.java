@@ -209,7 +209,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void processSuccessMessages() {
 		final String message = String.join("\n", successMessages);
-		notify(module.getProject(), module.getName(), message);
+		if (!message.isEmpty()) notify(module.getProject(), module.getName(), message);
 		String notificationMessage = MessageProvider.message(checker.shouldDistributeLanguage(phase, module) ? "success.language.publish.message" : "success.publish.message", configuration.artifact().name(), phase.participle());
 		if (phase.equals(FactoryPhase.DEPLOY))
 			notificationMessage = "Deployment of " + configuration.artifact().name() + " requested";

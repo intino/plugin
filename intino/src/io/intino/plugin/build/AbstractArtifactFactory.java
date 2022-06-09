@@ -153,8 +153,7 @@ public abstract class AbstractArtifactFactory {
 		new MavenRunner(module).executeArtifact(phase);
 		LinuxService linuxService = configuration.artifact().packageConfiguration().linuxService();
 		if (linuxService != null && configuration.artifact().packageConfiguration().isRunnable())
-			new LinuxServiceGenerator((LegioConfiguration) configuration, linuxService).generate();
-
+			new LinuxServiceGenerator((LegioConfiguration) configuration, linuxService, successMessages).generate();
 	}
 
 	private void buildLanguage(FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
