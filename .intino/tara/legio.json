@@ -10,5 +10,6 @@
   "RunConfiguration.finalArguments": [],
   "LevelArtifact.Model.outDSL": [
     "import io.intino.legio.graph.Artifact;"
-  ]
+  ],
+  "Artifact.Code.targetPackage": []
 }

@@ -1,4 +1,4 @@
-package io.intino.legio.graph.rules;
+package io.intino.legio.model.rules;
 
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.rules.NodeRule;

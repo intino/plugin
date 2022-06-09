@@ -1,4 +1,4 @@
-package io.intino.legio.graph.functions;
+package io.intino.legio.model.functions;
 
 import java.util.Map;
 

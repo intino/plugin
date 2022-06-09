@@ -1,5 +1,5 @@
 def.file
-/Users/oroncal/workspace/intino/legio/src/io/intino/legio/graph/Main.tara#true
+/Users/oroncal/workspace/intino/legio/src/io/intino/legio/model/Main.tara#true
 
 project
 intino
@@ -34,7 +34,7 @@ model
 version
 3.2.0
 working.package
-io.intino.legio.graph
+io.intino.legio.model
 make
 false
 test.module

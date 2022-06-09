@@ -1,9 +1,9 @@
-package io.intino.legio.graph;
+package io.intino.legio.model;
 
 
 import io.intino.magritte.framework.Graph;
 
-public class LegioGraph extends io.intino.legio.graph.AbstractGraph {
+public class LegioGraph extends AbstractGraph {
 
 	public LegioGraph(Graph graph) {
 		super(graph);
