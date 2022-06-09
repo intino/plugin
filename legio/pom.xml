@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <tara.level>Product</tara.level>
+        <tawra.level>Product</tawra.level>
         <generation.package>io.intino.legio</generation.package>
         <tara.generation.package>io.intino.legio.model</tara.generation.package>
         <tara.language>Proteo</tara.language>

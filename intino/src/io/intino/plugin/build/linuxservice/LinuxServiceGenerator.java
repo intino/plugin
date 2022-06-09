@@ -22,7 +22,7 @@ import static java.io.File.separator;
 public class LinuxServiceGenerator {
 	private final LegioConfiguration configuration;
 	private final Configuration.Artifact.Package.LinuxService linuxService;
-	private String artifactName;
+	private final String artifactName;
 
 	public LinuxServiceGenerator(LegioConfiguration configuration, Configuration.Artifact.Package.LinuxService linuxService) {
 		this.configuration = configuration;
@@ -37,8 +37,8 @@ public class LinuxServiceGenerator {
 		dir.mkdirs();
 		try {
 			FrameBuilder builder = frame();
-			Files.writeString(serviceFile(dir), new ServiceTemplate().render(builder.add("service").toFrame()));
 			Files.writeString(sysconfigFile(dir), new ServiceTemplate().render(builder.add("sysconfig").toFrame()));
+			Files.writeString(serviceFile(dir), new ServiceTemplate().render(builder.add("service").toFrame()));
 			Files.writeString(new File(dir, "README.txt").toPath(), readMe());
 		} catch (IOException e) {
 			Logger.error(e);

@@ -1,18 +1,19 @@
 def type(service)
-	[Unit]
+	$[Unit]
     Description=$artifact service
     After=syslog.target
     After=network.target
 
-    [Service]
+    $[Service]
     Type=forking
     UMask=077
-    EnvironmentFile=/etc/sysconfig/crm
+    EnvironmentFile=/etc/sysconfig/$artifact
     ExecStart=/usr/sbin/daemonize -a -u $$JAVA_USER -o $$JAVA_STDOUT -e $$JAVA_STDERR -c $$JAVA_APPDIR $$JAVA_BIN $$ARG1 $$ARG2 $$ARG3
     ExecStop=/bin/kill -TERM $MAINPID
     TimeoutSec=300
 	[$restart+firstUpperCase=on-failure]
-    [Install]
+
+    $[Install]
     WantedBy=multi-user.target
 end
 
@@ -25,7 +26,7 @@ def type(sysconfig)
     JAVA_BIN="/usr/bin/java"
     JAVA_APPDIR="/opt/$artifact"
     ARG1="-Dfile.encoding=UTF-8 --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED"
-    ARG2="[-Xms$minMemory~m] [-Xmx$maxMemory~m] -Djava.io.tmpdir=/home/$user/tmp -Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=$managementPort -Dcom.sun.management.jmxremote.rmi.port=$managementPort -Dcom.sun.management.jmxremote.local.only=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -XX:+StartAttachListener"
+    ARG2="[-Xms$minMemory~m ][-Xmx$maxMemory~m ]-Djava.io.tmpdir=/home/$user/tmp -Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=$managementPort -Dcom.sun.management.jmxremote.rmi.port=$managementPort -Dcom.sun.management.jmxremote.local.only=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -XX:+StartAttachListener"
     ARG3="--class-path /opt/$artifact/$artifact.jar[$dependencies] $mainClass $parameter...[ ]"
 end
 
