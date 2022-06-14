@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.project.builders.InterfaceBuilderManager.INTINO_RELEASES;
-import static io.intino.plugin.project.builders.ModelBuilderManager.TARA_BUILDER_REPOSITORY;
+import static io.intino.plugin.project.builders.IntinoArtifactory.INTINO_RELEASES;
+
 
 public class ArtifactoryConnector {
 	public static final String MAVEN_URL = "https://repo1.maven.org/maven2/";
@@ -179,7 +179,7 @@ public class ArtifactoryConnector {
 	}
 
 	private List<String> proteoVersions() throws Throwable {
-		URL url = new URL(TARA_BUILDER_REPOSITORY + "/" + Proteo.GROUP_ID.replace(".", "/") + "/" + Proteo.ARTIFACT_ID + "/maven-metadata.xml");
+		URL url = new URL(INTINO_RELEASES + "/" + Proteo.GROUP_ID.replace(".", "/") + "/" + Proteo.ARTIFACT_ID + "/maven-metadata.xml");
 		final String mavenMetadata = read(connect(url));
 		return extractVersions(mavenMetadata);
 	}
