@@ -64,7 +64,7 @@ public class LinuxServiceGenerator {
 				"Put " + name + ".service in '/etc/systemd/system/'. You need root access\n" +
 				"Put " + name + " in '/etc/sysconfig/'. You need " + linuxService.user() + " access\n" +
 				"Execute the command 'systemctl daemon-reload'. You need root access\n" +
-				"Now you can start service with command 'service " + name + " start";
+				"Now you can start service with command 'sudo systemctl start " + name;
 	}
 
 	private FrameBuilder frame() {

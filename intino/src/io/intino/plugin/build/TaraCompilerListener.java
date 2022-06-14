@@ -1,5 +1,6 @@
 package io.intino.plugin.build;
 
+import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.ide.SaveAndSyncHandler;
@@ -42,7 +43,7 @@ public class TaraCompilerListener implements com.intellij.compiler.server.Custom
 	public TaraCompilerListener(Project project) {
 		this.project = project;
 		try {
-			fillResourcePatterns(new CompilerConfigurationImpl(project));
+			fillResourcePatterns((CompilerConfigurationImpl) CompilerConfiguration.getInstance(project));
 		} catch (Throwable e) {
 			LOG.error(e);
 		}
