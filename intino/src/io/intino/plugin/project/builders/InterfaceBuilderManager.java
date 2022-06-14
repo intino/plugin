@@ -2,20 +2,18 @@ package io.intino.plugin.project.builders;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.util.net.HttpConfigurable;
 import com.jcabi.aether.Aether;
+import io.intino.Configuration;
 import io.intino.magritte.Language;
 import io.intino.magritte.dsl.Tara;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -35,43 +33,49 @@ import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
-	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	public static final String BOX_LANGUAGE = "Konos";
 	public static final String GROUP_ID = "io.intino.konos";
 	public static final String ARTIFACT_ID = "builder";
 	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class.getName());
 	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
-	private static final Aether aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
+	private final Aether aether;
 	public static String minimunVersion = "8.5.1";
+	private final Module module;
+	private final List<Configuration.Repository> repositories;
 
-	public String load(Module module, String version) {
+	public InterfaceBuilderManager(Module module, List<Configuration.Repository> repositories) {
+		this.module = module;
+		this.repositories = repositories;
+		aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
+	}
+
+	public String load(String version) {
 		String effectiveVersion = version;
 		if (version.equals("LATEST")) {
 			List<String> versions = new ArtifactoryConnector(Collections.emptyList()).boxBuilderVersions();
 			effectiveVersion = versions.get(versions.size() - 1);
 		}
 		if (isLoaded(effectiveVersion)) {
-			downloadAndSaveClassPath(module, effectiveVersion);
+			downloadAndSaveClassPath(effectiveVersion);
 			Logger.getInstance(InterfaceBuilderManager.class).info("Konos " + version + " is already downloaded");
 			return effectiveVersion;
 		}
-		downloadAndSaveClassPath(module, version);
-		loadLanguage(module, version, effectiveVersion);
+		downloadAndSaveClassPath(version);
+		loadLanguage(version, effectiveVersion);
 		return effectiveVersion;
 	}
 
-	private void downloadAndSaveClassPath(Module module, String version) {
-		if (isDownloaded(version) && classpathContains(module, version)) return;
+	private void downloadAndSaveClassPath(String version) {
+		if (isDownloaded(version) && classpathContains(version)) return;
 		List<Artifact> artifacts = konosLibrary(version);
 		if (!artifacts.isEmpty()) saveClassPath(module, librariesOf(artifacts));
 	}
 
-	private boolean classpathContains(Module module, String version) {
+	private boolean classpathContains(String version) {
 		try {
 			Path path = InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
 			if (!path.toFile().exists()) return false;
@@ -83,7 +87,7 @@ public class InterfaceBuilderManager {
 		return false;
 	}
 
-	private void loadLanguage(Module module, String version, String effectiveVersion) {
+	private void loadLanguage(String version, String effectiveVersion) {
 		if (!isSuitable(effectiveVersion)) return;
 		if (isLoaded(effectiveVersion)) return;
 		final ClassLoader classLoader;
@@ -111,7 +115,8 @@ public class InterfaceBuilderManager {
 	private Language loadLanguage(ClassLoader classLoader) {
 		try {
 			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").getConstructors()[0].newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | InvocationTargetException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException |
+				 InvocationTargetException e) {
 			return null;
 		}
 	}
@@ -123,18 +128,6 @@ public class InterfaceBuilderManager {
 	@NotNull
 	private File mainArtifact(String version) {
 		return new File(LOCAL_REPOSITORY, "io/intino/konos/builder/" + version + "/" + "builder-" + version + ".jar");
-	}
-
-	public void purge(String version) {
-		final List<Artifact> artifacts = konosLibrary(version);
-		for (Artifact artifact : artifacts) {
-			final File file = artifact.getFile();
-			if (file != null && file.exists()) file.delete();
-		}
-	}
-
-	private File pathOf(Artifact artifact) {
-		return artifact.getFile();
 	}
 
 	private List<Artifact> konosLibrary(String version) {
@@ -190,26 +183,15 @@ public class InterfaceBuilderManager {
 	}
 
 	@NotNull
-	private static Collection<RemoteRepository> collectRemotes() {
-		Collection<RemoteRepository> remotes = new ArrayList<>();
+	private Collection<RemoteRepository> collectRemotes() {
+		Repositories repositoryManager = new Repositories(module);
+		List<RemoteRepository> remotes = repositoryManager.map(repositories);
 		try {
 			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
 		} catch (MalformedURLException ignored) {
 		}
-		remotes.add(new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		remotes.add(new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		remotes.forEach(InterfaceBuilderManager::addProxies);
+		if (remotes.stream().noneMatch(r -> r.getUrl().equals(IntinoArtifactory.INTINO_RELEASES)))
+			remotes.add(repositoryManager.intino(UPDATE_POLICY_DAILY));
 		return remotes;
-	}
-
-	private static void addProxies(RemoteRepository r) {
-		final HttpConfigurable proxyConf = HttpConfigurable.getInstance();
-		if (proxyConf.isHttpProxyEnabledForUrl(r.getUrl()))
-			r.setProxy(new Proxy("http", proxyConf.PROXY_HOST, proxyConf.PROXY_PORT, auth(proxyConf)));
-	}
-
-	@Nullable
-	private static Authentication auth(HttpConfigurable proxyConf) {
-		return proxyConf.getProxyLogin() != null && !proxyConf.getProxyLogin().isEmpty() ? new Authentication(proxyConf.getProxyLogin(), proxyConf.getPlainProxyPassword()) : null;
 	}
 }

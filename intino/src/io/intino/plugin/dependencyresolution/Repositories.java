@@ -1,9 +1,13 @@
 package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.util.net.HttpConfigurable;
 import io.intino.Configuration.Repository;
+import io.intino.plugin.project.builders.IntinoArtifactory;
 import io.intino.plugin.settings.IntinoSettings;
+import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.repository.Authentication;
+import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 
@@ -36,6 +40,7 @@ public class Repositories {
 			repository.setPolicy(true, new RepositoryPolicy().setEnabled(false).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
 			repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
 		}
+		addProxies(repository);
 		return repository;
 	}
 
@@ -43,10 +48,28 @@ public class Repositories {
 		return new RemoteRepository("maven-central", "default", MAVEN_URL).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
 	}
 
+	public RemoteRepository intino(String updatePolicy) {
+		RemoteRepository repo = new RemoteRepository("intino-maven", "default", IntinoArtifactory.INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
+		addProxies(repo);
+		return repo;
+	}
+
 	private Authentication provideAuthentication(String mavenId) {
 		return IntinoSettings.getSafeInstance(module.getProject()).artifactories().stream().
 				filter(c -> c.serverId.equals(mavenId)).findFirst().
 				map(c -> new Authentication(c.username, c.password)).
 				orElse(null);
+	}
+
+	private static void addProxies(RemoteRepository r) {
+		final HttpConfigurable proxyConf = HttpConfigurable.getInstance();
+		if (proxyConf.isHttpProxyEnabledForUrl(r.getUrl()))
+			r.setProxy(new Proxy("http", proxyConf.PROXY_HOST, proxyConf.PROXY_PORT, auth(proxyConf)));
+	}
+
+
+	@Nullable
+	private static Authentication auth(HttpConfigurable proxyConf) {
+		return proxyConf.getProxyLogin() != null && !proxyConf.getProxyLogin().isEmpty() ? new Authentication(proxyConf.getProxyLogin(), proxyConf.getPlainProxyPassword()) : null;
 	}
 }

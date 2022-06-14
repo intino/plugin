@@ -55,7 +55,7 @@ public class LanguageResolver {
 		if (model == null) return new DependencyCatalog();
 		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
 		final DependencyCatalog libraries = languageFramework();
-		new ModelBuilderManager(module.getProject(), model).resolveBuilder();
+		new ModelBuilderManager(module, repositories, model).resolveBuilder();
 		return libraries;
 	}
 

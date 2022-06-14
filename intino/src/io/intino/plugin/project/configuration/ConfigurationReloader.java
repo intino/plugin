@@ -45,7 +45,7 @@ public class ConfigurationReloader {
 	void reloadInterfaceBuilder() {
 		final Artifact.Box box = safe(artifact::box);
 		if (box != null && box.version() != null)
-			box.effectiveVersion(new InterfaceBuilderManager().load(module, box.version()));
+			box.effectiveVersion(new InterfaceBuilderManager(module, repositories).load(box.version()));
 	}
 
 	void reloadRunConfigurations() {
