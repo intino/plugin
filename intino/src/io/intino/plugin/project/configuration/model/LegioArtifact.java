@@ -395,7 +395,7 @@ public class LegioArtifact implements Configuration.Artifact {
 				LOG.info("Owner interface: Language not found; " + (language == null ? "language null" : "generationPackage null"));
 				return null;
 			}
-			final String workingPackage = language.generationPackage().replace(".graph", "");
+			final String workingPackage = language.generationPackage().replace(".model", "").replace(".graph", "");
 			final String languageId = LanguageResolver.languageId(language.name(), language.effectiveVersion());
 			if (languageId == null) {
 				LOG.error("Owner interface: LanguageId = null;" + language.name() + "," + language.effectiveVersion());
