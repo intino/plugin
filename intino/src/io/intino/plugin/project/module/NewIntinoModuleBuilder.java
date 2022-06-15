@@ -8,6 +8,7 @@ import com.intellij.ide.starters.local.wizard.StarterLibrariesStep;
 import com.intellij.ide.starters.shared.StarterLanguage;
 import com.intellij.ide.starters.shared.StarterProjectType;
 import com.intellij.ide.starters.shared.StarterSettings;
+import com.intellij.ide.starters.shared.StarterTestRunner;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -64,6 +65,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		return "intino";
 	}
 
+	@NotNull
 	@Override
 	public String getPresentableName() {
 		return "Intino";
@@ -79,6 +81,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		return getBigIcon();
 	}
 
+	@NotNull
 	@Override
 	public String getDescription() {
 		return "Intino project";
@@ -106,6 +109,12 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	@Override
 	public List<Class<? extends ModuleWizardStep>> getIgnoredSteps() {
 		return List.of(StarterLibrariesStep.class, ProjectSettingsStep.class);
+	}
+
+	@NotNull
+	@Override
+	protected List<StarterTestRunner> getTestFrameworks() {
+		return Collections.emptyList();
 	}
 
 	@NotNull
