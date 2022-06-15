@@ -2,6 +2,7 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.jcabi.aether.Aether;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
@@ -32,13 +33,15 @@ public class ImportsResolver {
 	private final Aether aether;
 	private final DependencyAuditor auditor;
 	private final String updatePolicy;
+	private final ProgressIndicator indicator;
 	private boolean mustReload;
 
-	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository> repositories) {
+	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository> repositories, ProgressIndicator indicator) {
 		this.module = module;
 		this.repositories = repositories;
 		this.auditor = auditor;
 		this.updatePolicy = updatePolicy;
+		this.indicator = indicator;
 		this.aether = new Aether(collectRemotes(), localRepository());
 		this.mustReload = false;
 	}
@@ -75,6 +78,7 @@ public class ImportsResolver {
 		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
+			if (indicator != null) indicator.setText("Resolving import " + d.identifier() + "...");
 			if (auditor.isModified(((LegioDependency) d).node()) || mustReload) {
 				if (!(d instanceof Web)) {
 					DependencyCatalog newDeps = processLibraryDependency(d);

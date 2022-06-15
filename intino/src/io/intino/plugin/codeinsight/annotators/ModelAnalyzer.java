@@ -26,8 +26,8 @@ class ModelAnalyzer extends TaraAnalyzer {
 		String generationPackage = configuration.artifact().code().generationPackage();
 		String modelPackage = configuration.artifact().code().modelPackage();
 		JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(configuration.module().getProject());
-		PsiPackage oldPacakge = javaPsiFacade.findPackage(generationPackage + ".graph");
-		if (oldPacakge != null && !modelPackage.equals("graph"))
+		PsiPackage oldPackage = javaPsiFacade.findPackage(generationPackage + ".graph");
+		if (oldPackage != null && !modelPackage.equals("graph"))
 			results.put(((TaraNode) node).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.model.in.old.package")));
 	}
 }

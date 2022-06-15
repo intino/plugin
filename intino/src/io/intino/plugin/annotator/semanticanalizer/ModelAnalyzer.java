@@ -21,7 +21,7 @@ import java.util.List;
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class ModelAnalyzer extends TaraAnalyzer {
-	private TaraModel model;
+	private final TaraModel model;
 
 	public ModelAnalyzer(TaraModel model) {
 		this.model = model;

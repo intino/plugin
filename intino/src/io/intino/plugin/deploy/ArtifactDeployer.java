@@ -50,7 +50,7 @@ public class ArtifactDeployer {
 			try {
 				deploy(destination);
 				waitASecond();
-				success.add("Deployment to " + destination.server().name() + " requested");
+				success.add("Requested deployment to " + destination.server().name());
 			} catch (IntinoException e) {
 				errors.add(e);
 				if (e instanceof FatalIntinoException) return new DeployResult.Fail(errors);

@@ -74,8 +74,10 @@ public class LegioConfiguration implements Configuration {
 					vFile = new LegioFileCreator(module, Collections.emptyList()).get();
 					legioFile = legioFile();
 					legioFile.components().forEach(resolver::resolve);
-					final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
+					final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
+					indicator.setText("Resolving box builder...");
 					reloader.reloadInterfaceBuilder();
+					indicator.setText("Reloading language...");
 					reloader.reloadLanguage();
 					reloader.reloadArtifactoriesMetaData();
 					loadRemoteProcessesInfo();
@@ -121,19 +123,21 @@ public class LegioConfiguration implements Configuration {
 			refresh();
 			if (module.isDisposed() || module.getProject().isDisposed()) return;
 			try {
-				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-							 @Override
-							 public void run(@NotNull ProgressIndicator indicator) {
-								 try {
-									 reloading.set(true);
-									 if (legioFile == null) legioFile = legioFile();
-									 final ConfigurationReloader reloader = reloader(UPDATE_POLICY_DAILY);
-									 reloader.reloadInterfaceBuilder();
-									 reloader.reloadDependencies();
-									 reloader.reloadRunConfigurations();
-									 save();
-									 reloading.set(false);
-								 } catch (Throwable ignored) {
+				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact...", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+					@Override
+					public void run(@NotNull ProgressIndicator indicator) {
+						try {
+							reloading.set(true);
+							if (legioFile == null) legioFile = legioFile();
+							final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
+							indicator.setText("Reloading box builder...");
+							reloader.reloadInterfaceBuilder();
+							indicator.setText("Resolving imports...");
+							reloader.reloadDependencies();
+							reloader.reloadRunConfigurations();
+							save();
+							reloading.set(false);
+						} catch (Throwable ignored) {
 									 reloading.set(false);
 								 }
 							 }
@@ -148,6 +152,11 @@ public class LegioConfiguration implements Configuration {
 
 	public void reloadDependencies() {
 		reloader(UPDATE_POLICY_ALWAYS).reloadDependencies();
+	}
+
+	@NotNull
+	private ConfigurationReloader reloader(ProgressIndicator indicator, String policy) {
+		return new ConfigurationReloader(module, dependencyAuditor, LegioConfiguration.this, policy, indicator);
 	}
 
 	@NotNull
@@ -166,8 +175,10 @@ public class LegioConfiguration implements Configuration {
 											  public void run(@NotNull ProgressIndicator indicator) {
 												  reloading.set(true);
 												  if (legioFile == null) legioFile = legioFile();
-												  final ConfigurationReloader reloader = reloader(UPDATE_POLICY_ALWAYS);
+												  final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_ALWAYS);
+												  indicator.setText("Reloading box builder...");
 												  reloader.reloadInterfaceBuilder();
+												  indicator.setText("Resolving imports...");
 												  reloader.reloadDependencies();
 												  save();
 												  reloading.set(false);

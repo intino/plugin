@@ -6,6 +6,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
+import com.intellij.openapi.progress.ProgressIndicator;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
@@ -31,6 +32,7 @@ public class ConfigurationReloader {
 	private final Artifact.Model model;
 	private final List<Repository> repositories;
 	private final Module module;
+	private ProgressIndicator indicator;
 
 	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy) {
 		this.module = module;
@@ -40,6 +42,12 @@ public class ConfigurationReloader {
 		this.artifact = configuration.artifact();
 		this.repositories = this.configuration.repositories();
 		this.model = safe(artifact::model);
+		this.indicator = null;
+	}
+
+	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy, ProgressIndicator indicator) {
+		this(module, auditor, configuration, updatePolicy);
+		this.indicator = indicator;
 	}
 
 	void reloadInterfaceBuilder() {
@@ -85,8 +93,8 @@ public class ConfigurationReloader {
 		Artifact.Dependency.Archetype archetype = artifact.archetype();
 		if (archetype != null) artifactDependencies.add(archetype);
 		if (!artifactDependencies.isEmpty())
-			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolve(artifactDependencies));
-		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories).resolveWeb(webDependencies(artifactDependencies)));
+			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories, indicator).resolve(artifactDependencies));
+		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories, indicator).resolveWeb(webDependencies(artifactDependencies)));
 		new DependencyConflictResolver().resolve(dependencies);
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) register(dependencies);
