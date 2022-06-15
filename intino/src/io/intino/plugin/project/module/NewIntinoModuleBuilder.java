@@ -17,6 +17,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
@@ -26,7 +27,9 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.dsl.builder.Panel;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import io.intino.plugin.project.configuration.ModuleTemplateDeployer;
@@ -38,6 +41,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 
 import javax.swing.*;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +57,11 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	private List<IntinoWizardPanel.Components> components;
 
 	private boolean gorosFramework = false;
+
+	public NewIntinoModuleBuilder() {
+		super();
+	}
+
 
 	@Override
 	public int getWeight() {
@@ -70,7 +79,6 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	public String getPresentableName() {
 		return "Intino";
 	}
-
 
 	public Icon getBigIcon() {
 		return IntinoIcons.LOGO_16;
@@ -135,7 +143,26 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		final ModuleWizardStep[] wizardSteps = super.createWizardSteps(wizardContext, modulesProvider);
 		final List<ModuleWizardStep> moduleWizardSteps = new ArrayList<>(Arrays.asList(wizardSteps));
 		moduleWizardSteps.add(new IntinoWizardStep(this));
+		if (!wizardContext.isCreatingNewProject()) {
+			final String suggestedGroup = suggestGroup(modulesProvider);
+			if (suggestedGroup != null) getStarterContext().setGroup(suggestedGroup);
+			final Path projectFileDirectory = suggestLocation(modulesProvider);
+			if (projectFileDirectory != null) wizardContext.setProjectFileDirectory(projectFileDirectory, true);
+		}
 		return moduleWizardSteps.toArray(new ModuleWizardStep[0]);
+	}
+
+	private String suggestGroup(ModulesProvider provider) {
+		final Module module = Arrays.stream(provider.getModules()).filter(m -> IntinoUtil.configurationOf(m) instanceof LegioConfiguration).findFirst().orElse(null);
+		if (module != null) return IntinoUtil.configurationOf(module).artifact().groupId();
+		return null;
+	}
+
+	private @Nullable Path suggestLocation(ModulesProvider modulesProvider) {
+		final Module module = modulesProvider.getModules()[0];
+		if (module == null) return null;
+		final VirtualFile virtualFile = ProjectUtil.guessProjectDir(module.getProject());
+		return virtualFile.toNioPath();
 	}
 
 	@Override

@@ -15,7 +15,6 @@ import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -33,6 +32,7 @@ import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.dependencyresolution.Repositories.LOCAL;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class InterfaceBuilderManager {
@@ -40,7 +40,6 @@ public class InterfaceBuilderManager {
 	public static final String GROUP_ID = "io.intino.konos";
 	public static final String ARTIFACT_ID = "builder";
 	private static final Logger logger = Logger.getInstance(InterfaceBuilderManager.class.getName());
-	private static final File LOCAL_REPOSITORY = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
 	private final Aether aether;
 	public static String minimunVersion = "8.5.1";
@@ -50,7 +49,7 @@ public class InterfaceBuilderManager {
 	public InterfaceBuilderManager(Module module, List<Configuration.Repository> repositories) {
 		this.module = module;
 		this.repositories = repositories;
-		aether = new Aether(collectRemotes(), LOCAL_REPOSITORY);
+		aether = new Aether(collectRemotes(), LOCAL);
 	}
 
 	public String load(String version) {
@@ -127,7 +126,7 @@ public class InterfaceBuilderManager {
 
 	@NotNull
 	private File mainArtifact(String version) {
-		return new File(LOCAL_REPOSITORY, "io/intino/konos/builder/" + version + "/" + "builder-" + version + ".jar");
+		return new File(LOCAL, "io/intino/konos/builder/" + version + "/" + "builder-" + version + ".jar");
 	}
 
 	private List<Artifact> konosLibrary(String version) {
@@ -186,12 +185,10 @@ public class InterfaceBuilderManager {
 	private Collection<RemoteRepository> collectRemotes() {
 		Repositories repositoryManager = new Repositories(module);
 		List<RemoteRepository> remotes = repositoryManager.map(repositories);
-		try {
-			remotes.add(new RemoteRepository("local", "default", LOCAL_REPOSITORY.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY)));
-		} catch (MalformedURLException ignored) {
-		}
-		if (remotes.stream().noneMatch(r -> r.getUrl().equals(IntinoArtifactory.INTINO_RELEASES)))
+		remotes.add(repositoryManager.local());
+		if (remotes.stream().noneMatch(r -> r.getUrl().equals(Repositories.INTINO_RELEASES)))
 			remotes.add(repositoryManager.intino(UPDATE_POLICY_DAILY));
+		remotes.add(repositoryManager.maven(UPDATE_POLICY_DAILY));
 		return remotes;
 	}
 }

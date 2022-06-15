@@ -3,7 +3,7 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.net.HttpConfigurable;
 import io.intino.Configuration.Repository;
-import io.intino.plugin.project.builders.IntinoArtifactory;
+import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.repository.Authentication;
@@ -11,6 +11,8 @@ import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import static io.intino.Configuration.Repository.Snapshot;
@@ -20,7 +22,8 @@ import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWA
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class Repositories {
-
+	public static final File LOCAL = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	public static final String INTINO_RELEASES = "https://artifactory.intino.io/artifactory/releases";
 	private final Module module;
 
 	public Repositories(Module module) {
@@ -49,9 +52,18 @@ public class Repositories {
 	}
 
 	public RemoteRepository intino(String updatePolicy) {
-		RemoteRepository repo = new RemoteRepository("intino-maven", "default", IntinoArtifactory.INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
+		RemoteRepository repo = new RemoteRepository("intino-maven", "default", INTINO_RELEASES).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(updatePolicy));
 		addProxies(repo);
 		return repo;
+	}
+
+	public RemoteRepository local() {
+		try {
+			return new RemoteRepository("local", "default", LOCAL.toURI().toURL().toString()).setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
+		} catch (MalformedURLException e) {
+			Logger.error(e);
+			return null;
+		}
 	}
 
 	private Authentication provideAuthentication(String mavenId) {

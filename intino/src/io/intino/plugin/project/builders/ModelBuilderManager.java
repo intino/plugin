@@ -25,13 +25,14 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
+import static io.intino.plugin.dependencyresolution.Repositories.LOCAL;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 
 public class ModelBuilderManager {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
 
-	private final File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	private final Project project;
 	@NotNull
 	private final Module module;
@@ -51,19 +52,20 @@ public class ModelBuilderManager {
 			final List<String> paths = librariesOf(artifacts);
 			saveClassPath(paths);
 		} catch (DependencyResolutionException e) {
-			Notifications.Bus.notify(new Notification("Intino", "Dependecies not found", e.getMessage(), NotificationType.ERROR), null);
+			Notifications.Bus.notify(new Notification("Intino", "Dependency not found", e.getMessage(), NotificationType.ERROR), null);
 		}
 	}
 
 	private List<Artifact> artifacts() throws DependencyResolutionException {
-		return new Aether(repos(), localRepository).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
+		return new Aether(repos(), LOCAL).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
 	}
 
 	@NotNull
 	private List<RemoteRepository> repos() {
 		Repositories repositoryManager = new Repositories(module);
 		List<RemoteRepository> repos = repositoryManager.map(repositories);
-		if (repos.stream().noneMatch(r -> r.getUrl().equals(IntinoArtifactory.INTINO_RELEASES)))
+		repos.add(repositoryManager.maven(UPDATE_POLICY_DAILY));
+		if (repos.stream().noneMatch(r -> r.getUrl().equals(INTINO_RELEASES)))
 			repos.add(repositoryManager.intino(UPDATE_POLICY_DAILY));
 		return repos;
 	}

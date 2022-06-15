@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.project.builders.IntinoArtifactory.INTINO_RELEASES;
+import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
 
 
 public class ArtifactoryConnector {
