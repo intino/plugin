@@ -104,6 +104,10 @@ public class LegioConfiguration implements Configuration {
 		return parent != null && new File(parent, LegioFileType.LEGIO_FILE).exists();
 	}
 
+	public boolean isReloading() {
+		return reloading.get();
+	}
+
 	public void refresh() {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
@@ -117,27 +121,28 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void reload() {
+		if (reloading.get()) return;
 		synchronized (reloading) {
-			if (reloading.get()) return;
 			reloading.set(true);
 			refresh();
 			if (module.isDisposed() || module.getProject().isDisposed()) return;
 			try {
 				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact...", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-					@Override
-					public void run(@NotNull ProgressIndicator indicator) {
-						try {
-							reloading.set(true);
-							if (legioFile == null) legioFile = legioFile();
-							final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
-							indicator.setText("Reloading box builder...");
-							reloader.reloadInterfaceBuilder();
-							indicator.setText("Resolving imports...");
-							reloader.reloadDependencies();
-							reloader.reloadRunConfigurations();
-							save();
-							reloading.set(false);
-						} catch (Throwable ignored) {
+							 @Override
+							 public void run(@NotNull ProgressIndicator indicator) {
+								 try {
+									 reloading.set(true);
+									 if (legioFile == null) legioFile = legioFile();
+									 final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
+									 indicator.setText("Reloading box builder...");
+									 reloader.reloadInterfaceBuilder();
+									 indicator.setText("Resolving imports...");
+									 reloader.reloadDependencies();
+									 reloader.reloadRunConfigurations();
+									 save();
+									 refresh();
+									 reloading.set(false);
+								 } catch (Throwable ignored) {
 									 reloading.set(false);
 								 }
 							 }

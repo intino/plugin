@@ -52,6 +52,11 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	public void build(FinishCallback callback) {
 		if (configuration.artifact() == null) return;
 		boolean distributed = isDistributed(configuration.artifact());
+		if (configuration.isReloading()) {
+			errorMessages.add("Artifact cannot be " + phase.participle() + " during reloading");
+			notifyErrors();
+			return;
+		}
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
 			if (hasChanges()) {
 				errorMessages.add("Module has changes. Please commit them and retry.");

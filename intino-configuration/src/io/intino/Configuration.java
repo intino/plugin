@@ -15,6 +15,10 @@ public interface Configuration {
 		return false;
 	}
 
+	default boolean isReloading() {
+		return false;
+	}
+
 	default void reload() {
 	}
 
