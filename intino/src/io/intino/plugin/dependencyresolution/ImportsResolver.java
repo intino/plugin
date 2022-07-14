@@ -23,6 +23,7 @@ import org.sonatype.aether.util.filter.ExclusionsDependencyFilter;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
@@ -34,6 +35,7 @@ public class ImportsResolver {
 	private final DependencyAuditor auditor;
 	private final String updatePolicy;
 	private final ProgressIndicator indicator;
+	private final ResolutionCache cache;
 	private boolean mustReload;
 
 	public ImportsResolver(@Nullable Module module, DependencyAuditor auditor, String updatePolicy, List<Repository> repositories, ProgressIndicator indicator) {
@@ -44,6 +46,8 @@ public class ImportsResolver {
 		this.indicator = indicator;
 		this.aether = new Aether(collectRemotes(), localRepository());
 		this.mustReload = false;
+		this.cache = ResolutionCache.instance(module.getProject());
+
 	}
 
 	public DependencyCatalog resolve(List<Dependency> dependencies) {
@@ -75,29 +79,12 @@ public class ImportsResolver {
 	}
 
 	private DependencyCatalog processDependencies(List<Dependency> dependencies) {
-		ResolutionCache cache = ResolutionCache.instance(module.getProject());
 		DependencyCatalog catalog = new DependencyCatalog();
 		for (Dependency d : dependencies) {
 			if (indicator != null) indicator.setText("Resolving import " + d.identifier() + "...");
-			if (auditor.isModified(((LegioDependency) d).node()) || mustReload) {
-				if (!(d instanceof Web)) {
-					DependencyCatalog newDeps = processLibraryDependency(d);
-					if (newDeps.dependencies().isEmpty()) {
-						Module moduleDependency = moduleOf(d);
-						if (moduleDependency != null) newDeps = processModuleDependency(d, moduleDependency);
-					}
-					catalog.merge(newDeps);
-					cache.put(d.identifier(), newDeps.dependencies());
-				} else {
-					Module moduleDependency = moduleOf(d);
-					if (moduleDependency != null) {
-						DependencyCatalog newDeps = processModuleDependency(d, moduleDependency);
-						catalog.merge(newDeps);
-						cache.put(d.identifier(), newDeps.dependencies());
-					}
-				}
-			} else {
-				List<DependencyCatalog.Dependency> deps = cache.get(d.identifier());
+			if (auditor.isModified(((LegioDependency) d).node()) || mustReload) processDependency(catalog, d);
+			else {
+				List<DependencyCatalog.Dependency> deps = cache.get(cacheId(d));
 				if (deps != null && !deps.isEmpty() && (moduleOf(d) != null || existFiles(deps))) {
 					catalog.addAll(deps);
 					d.resolved(true);
@@ -109,6 +96,30 @@ public class ImportsResolver {
 		}
 		cache.save();
 		return catalog;
+	}
+
+	private void processDependency(DependencyCatalog catalog, Dependency d) {
+		if (d instanceof Web) webImport(catalog, d);
+		else javaImport(catalog, d);
+	}
+
+	private void javaImport(DependencyCatalog catalog, Dependency d) {
+		DependencyCatalog newDeps = processLibraryDependency(d);
+		if (newDeps.dependencies().isEmpty()) {
+			Module moduleDependency = moduleOf(d);
+			if (moduleDependency != null) newDeps = processModuleDependency(d, moduleDependency);
+		}
+		catalog.merge(newDeps);
+		cache.put(cacheId(d), newDeps.dependencies());
+	}
+
+	private void webImport(DependencyCatalog catalog, Dependency d) {
+		Module dependantModule = moduleOf(d);
+		if (dependantModule != null) {
+			DependencyCatalog newDeps = processModuleDependency(d, dependantModule);
+			catalog.merge(newDeps);
+			cache.put(d.identifier(), newDeps.dependencies());
+		}
 	}
 
 	private boolean existFiles(List<DependencyCatalog.Dependency> dependencies) {
@@ -129,6 +140,12 @@ public class ImportsResolver {
 		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyWith(moduleDependency, excludes, scope);
 		catalog.merge(moduleDependenciesCatalog);
 		return catalog;
+	}
+
+	@NotNull
+	private String cacheId(Dependency d) {
+		String excludes = d.excludes().stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(Collectors.joining("|"));
+		return d.identifier() + (excludes.isEmpty() ? "" : "#" + excludes);
 	}
 
 	private DependencyCatalog processLibraryDependency(Dependency d) {

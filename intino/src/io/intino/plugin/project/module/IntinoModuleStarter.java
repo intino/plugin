@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
 import com.intellij.refactoring.openapi.impl.JavaRenameRefactoringImpl;
@@ -21,9 +21,12 @@ import io.intino.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
-public class IntinoModuleStarter implements ModuleListener, com.intellij.openapi.startup.StartupActivity {
+import static com.intellij.openapi.util.io.FileUtilRt.getExtension;
+
+public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 
 	@Override
 	public void runActivity(@NotNull Project project) {
@@ -61,13 +64,13 @@ public class IntinoModuleStarter implements ModuleListener, com.intellij.openapi
 	public void modulesRenamed(@NotNull Project project, @NotNull List<? extends Module> modules, @NotNull Function<? super Module, String> oldNameProvider) {
 		for (Module module : modules) {
 			final Configuration conf = IntinoUtil.configurationOf(module);
-			if (conf != null && conf.artifact().model() != null && conf.artifact().model().level().isSolution())
-				ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
-					final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-					progressIndicator.setText("Refactoring java");
-					progressIndicator.setIndeterminate(true);
-					runRefactor(project, module.getName(), oldNameProvider.fun(module));
-				}, "Refactoring java", true, project, null);
+			if (conf == null) return;
+			ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
+				final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
+				progressIndicator.setText("Refactoring java");
+				progressIndicator.setIndeterminate(true);
+				runRefactor(project, conf, module.getName(), oldNameProvider.fun(module));
+			}, "Refactoring java", true, project, null);
 		}
 	}
 
@@ -81,20 +84,22 @@ public class IntinoModuleStarter implements ModuleListener, com.intellij.openapi
 		}
 	}
 
-	private void runRefactor(Project project, String newName, String oldName) {
+	private void runRefactor(Project project, Configuration conf, String newName, String oldName) {
+		String oldPackage = conf.artifact().code().generationPackage();
+		conf.artifact().name(newName);
 		final JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(project);
-		final PsiPackage aPackage = psiFacade.findPackage(oldName);
+		final PsiPackage aPackage = psiFacade.findPackage(oldPackage);
 		if (aPackage != null) {
 			final JavaRenameRefactoringImpl refactoring = new JavaRenameRefactoringImpl(project, aPackage, newName.toLowerCase(), false, false);
 			refactoring.doRefactoring(refactoring.findUsages());
 		}
-		final File miscDirectory = LanguageManager.getTaraLocalDirectory(project);
-		if (!miscDirectory.exists()) return;
-		final File[] files = miscDirectory.listFiles();
+		final File taraDir = LanguageManager.getTaraLocalDirectory(project);
+		if (!taraDir.exists()) return;
+		final File[] files = taraDir.listFiles();
 		if (files == null) return;
-		for (File file : files)
-			if (file.getName().startsWith(oldName + "."))
-				file.renameTo(new File(miscDirectory, newName + "." + FileUtilRt.getExtension(file.getName())));
-
+		Arrays.stream(files)
+				.filter(file -> file.getName().startsWith(oldName + "."))
+				.findFirst()
+				.ifPresent(file -> file.renameTo(new File(taraDir, newName + "." + getExtension(file.getName()))));
 	}
 }

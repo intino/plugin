@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows.remote;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
-	public static final String ID = "Intino Build";
+public class RemoteWindowFactory implements ToolWindowFactory, DumbAware {
+	public static final String ID = "Remote";
 
 	public static ToolWindow getInstance(Project project) {
 		return ToolWindowManager.getInstance(project).getToolWindow(ID);
@@ -26,10 +26,10 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
 
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		OutputWindow window = new OutputWindow(project);
-		toolWindow.setTitle("Intino Build");
+		RemoteWindow remoteWindow = new RemoteWindow(project);
+		toolWindow.setTitle("Remote");
 		toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().
-				createContent(window.content(), "", false));
+				createContent(remoteWindow.content(), "", false));
 	}
 
 	@Override

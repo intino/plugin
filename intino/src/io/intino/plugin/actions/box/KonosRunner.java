@@ -20,8 +20,8 @@ import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 
 import java.io.*;
@@ -39,12 +39,10 @@ public class KonosRunner {
 	private static final char NL = '\n';
 	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
-	private final Module module;
 	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
 
 	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException, IntinoException {
-		this.module = module;
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
 		Path path = InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
 		if (!path.toFile().exists())

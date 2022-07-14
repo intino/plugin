@@ -19,7 +19,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
@@ -63,7 +62,6 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				notifyErrors();
 				return;
 			}
-
 //			if (hasSnapshotDependencies()) {
 //				errorMessages.add("A release version must not have SNAPSHOT dependencies.");
 //				notifyErrors();
@@ -165,10 +163,6 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void task(Runnable runnable) {
 		ProgressManager.getInstance().runProcess(runnable, null);
-	}
-
-	private <T> T task(Computable<T> runnable) {
-		return ProgressManager.getInstance().runProcess(runnable, null);
 	}
 
 	private void withSyncTask(String title, Runnable runnable) {

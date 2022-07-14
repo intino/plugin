@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.1.3</version>
+	<version>6.1.4</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -187,7 +187,7 @@
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.InterfaceToJavaImplementation"/>
 		<consoleActionsPostProcessor
-				implementation="io.intino.plugin.toolwindows.output.ConsoleActionsProcessor"/>
+				implementation="io.intino.plugin.toolwindows.remote.ConsoleActionsProcessor"/>
 
 		<lang.parserDefinition language="Itrules"
 							   implementationClass="io.intino.plugin.itrules.lang.parser.ItrulesParserDefinition"/>
@@ -201,7 +201,11 @@
 									   implementationClass="io.intino.plugin.archetype.highlighting.ArchetypeSyntaxHighlighterFactory"/>
 		<treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
 		<!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
-		<toolWindow id="Intino Console"
+		<toolWindow id="Remote"
+					icon="/icons/intino/intino-13.png"
+					anchor="bottom"
+					factoryClass="io.intino.plugin.toolwindows.remote.RemoteWindowFactory"/>
+		<toolWindow id="Intino Build"
 					icon="/icons/intino/intino-13.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.output.ConsoleWindowFactory"/>

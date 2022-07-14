@@ -14,7 +14,7 @@ import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
+import io.intino.plugin.toolwindows.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
 
 public class LanguageFileDocumentManagerListener implements FileDocumentManagerListener {

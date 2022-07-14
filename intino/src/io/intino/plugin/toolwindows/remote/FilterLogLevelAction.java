@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows.remote;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import io.intino.alexandria.logger.Logger;
-import io.intino.plugin.toolwindows.output.remoteactions.ListenLogAction;
+import io.intino.plugin.toolwindows.remote.remoteactions.ListenLogAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

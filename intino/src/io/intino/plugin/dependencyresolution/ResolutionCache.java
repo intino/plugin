@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ResolutionCache extends HashMap<String, List<DependencyCatalog.Dependency>> {
-	private static Map<String, ResolutionCache> cache = new HashMap<>();
+	private static final Map<String, ResolutionCache> cache = new HashMap<>();
 	private final Project project;
 
 	private ResolutionCache(Project project) {

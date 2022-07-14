@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows.remote;
 
 import com.intellij.execution.actions.ConsoleActionsPostProcessor;
 import com.intellij.execution.ui.ConsoleView;

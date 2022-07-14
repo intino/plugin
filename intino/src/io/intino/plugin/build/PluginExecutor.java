@@ -18,13 +18,14 @@ import com.jcabi.aether.Aether;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
+import io.intino.plugin.PluginLauncher.Phase;
 import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.plugin.toolwindows.output.ConsoleWindow;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
-import io.intino.plugin.toolwindows.output.MavenListener;
+import io.intino.plugin.toolwindows.IntinoTopics;
+import io.intino.plugin.toolwindows.remote.MavenListener;
+import io.intino.plugin.toolwindows.remote.RemoteWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.sonatype.aether.artifact.Artifact;
@@ -104,7 +105,7 @@ public class PluginExecutor {
 					.moduleDirectory(new File(manager.getContentRootUrls()[0]))
 					.moduleStructure(new PluginLauncher.ModuleStructure(srcDirectories(module), resourceDirectories(module), outDirectory()))
 					.systemProperties(new PluginLauncher.SystemProperties(mavenHome(), sdkHome()))
-					.invokedPhase(PluginLauncher.Phase.valueOf(phase.name()))
+					.invokedPhase(Phase.valueOf(phase.name()))
 					.notifier(new PluginLauncher.Notifier() {
 						@Override
 						public void notify(String text) {
@@ -138,7 +139,7 @@ public class PluginExecutor {
 
 	private void connectLogger(PipedOutputStream out) {
 		try {
-			publish(ConsoleWindow.CLEAR);
+			publish(RemoteWindow.CLEAR);
 			PipedInputStream stream = new PipedInputStream(out);
 			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
 			String line;

@@ -8,8 +8,8 @@ import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
-import io.intino.plugin.toolwindows.output.IntinoRemoteConsoleListener;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
+import io.intino.plugin.toolwindows.IntinoTopics;
+import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

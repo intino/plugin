@@ -16,7 +16,6 @@ import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
 import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,10 +71,8 @@ public class WebDependencyResolver {
 	private void run(File pom) {
 		try {
 			final MavenRunner mavenRunner = new MavenRunner(module);
-			final InvocationResult result = mavenRunner.invokeMaven(pom, nodeInstalled() ? "-Dskip.npm" : "", "generate-resources");
+			final InvocationResult result = mavenRunner.invokeMavenWithConfigurationAndOptions(pom, nodeInstalled() ? "-Dskip.npm" : "", "generate-resources");
 			processResult(mavenRunner, pom, result);
-		} catch (MavenInvocationException e) {
-			notifyError(message("error.resolving.web.dependencies", e.getMessage()));
 		} catch (IntinoException e) {
 			notifyError(e.getMessage());
 		}

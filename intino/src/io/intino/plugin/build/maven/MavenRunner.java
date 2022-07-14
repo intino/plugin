@@ -20,14 +20,15 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
-import io.intino.plugin.toolwindows.output.IntinoTopics;
-import io.intino.plugin.toolwindows.output.MavenListener;
+import io.intino.plugin.toolwindows.IntinoTopics;
+import io.intino.plugin.toolwindows.remote.MavenListener;
 import org.apache.maven.shared.invoker.*;
 import org.apache.maven.shared.utils.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -45,11 +46,11 @@ import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLe
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
+	private static final Object monitor = new Object();
 	private final Module module;
 	private final InvocationOutputHandler handler;
 	private final String output = "";
 
-	private static final Object monitor = new Object();
 
 	public MavenRunner(Module module) {
 		this.module = module;
@@ -122,7 +123,10 @@ public class MavenRunner {
 	}
 
 	public synchronized InvocationResult invokeMavenWithConfiguration(File pom, String... phases) {
-		DefaultInvocationResult result = new DefaultInvocationResult();
+		return invokeMavenWithConfigurationAndOptions(pom, null, phases);
+	}
+
+	public synchronized InvocationResult invokeMavenWithConfigurationAndOptions(File pom, String mvnOptions, String... phases) {
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
 		generalSettings.setOutputLevel(ERROR);
 		generalSettings.setPrintErrorStackTraces(false);
@@ -130,6 +134,7 @@ public class MavenRunner {
 		Collections.addAll(goals, phases);
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
 		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), goals, Collections.emptyList());
+		DefaultInvocationResult result = new DefaultInvocationResult();
 		synchronized (monitor) {
 			ApplicationManager.getApplication().invokeLater(() -> {
 				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
@@ -149,7 +154,9 @@ public class MavenRunner {
 					public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
 					}
 				});
-				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, null, callback);
+				MavenRunnerSettings runnerSettings = new MavenRunnerSettings();
+				runnerSettings.setVmOptions(mvnOptions);
+				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, callback);
 			}, ModalityState.NON_MODAL);
 			try {
 				monitor.wait();
@@ -157,17 +164,6 @@ public class MavenRunner {
 			}
 		}
 		return result;
-	}
-
-	public InvocationResult invokeMaven(File pom, String mavenOpts, String... phases) throws MavenInvocationException {
-		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		InvocationRequest request = new DefaultInvocationRequest().setPomFile(pom).setGoals(Collections.singletonList(phases[phases.length - 1]));
-		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
-		if (mavenHome == null) return null;
-		configure(request, mavenHome, mavenOpts);
-		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
-		addLogger(invoker);
-		return invoker.execute(request);
 	}
 
 	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) {

@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output.remoteactions;
+package io.intino.plugin.toolwindows.remote.remoteactions;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
@@ -12,10 +12,11 @@ import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.cesar.CesarAccessor;
-import io.intino.plugin.toolwindows.output.ConsoleWindow;
-import io.intino.plugin.toolwindows.output.IntinoConsoleAction;
-import io.intino.plugin.toolwindows.output.Log;
+import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
+import io.intino.plugin.toolwindows.remote.Log;
+import io.intino.plugin.toolwindows.remote.RemoteWindow;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	private final Icon LogIcon = AllIcons.Debugger.Console;
 	private final CesarAccessor cesarAccessor;
 	private final Consumer<Log> console;
+	private final DataContext dataContext;
 	private ProcessInfo selectedProcess;
 	private boolean ignited = false;
 	private boolean inProcess = false;
@@ -38,7 +40,8 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	public ListenLogAction(List<ProcessInfo> infos, CesarAccessor cesarAccessor, Consumer<Log> console) {
 		this.cesarAccessor = cesarAccessor;
 		this.console = console;
-		selectedProcess = infos.isEmpty() ? null : infos.get(0);
+		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
+		this.dataContext = dataContext();
 		this.level = Level.TRACE;
 		final Presentation p = getTemplatePresentation();
 		p.setIcon(LogIcon);
@@ -55,7 +58,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
 		inProcess = true;
 		new Thread(this::stop).start();
-		console.accept(new Log(ConsoleWindow.CLEAR, Level.DEBUG));
+		console.accept(new Log(RemoteWindow.CLEAR, Level.DEBUG));
 		selectedProcess = newProcess;
 		inProcess = false;
 		update();
@@ -63,7 +66,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 
 	public void onLevelChange(Level level) {
 		this.level = level;
-		console.accept(new Log(ConsoleWindow.CLEAR, Level.DEBUG));
+		console.accept(new Log(RemoteWindow.CLEAR, Level.DEBUG));
 		if (!currentLog.isEmpty()) console.accept(new Log(currentLog, level));
 	}
 
@@ -91,13 +94,9 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	public void update() {
-		try {
-			final @NotNull DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
-			update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
-		} catch (TimeoutException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
+		update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
 	}
+
 	private void update(Presentation p) {
 		if (selectedProcess == null || inProcess) p.setEnabled(false);
 		else {
@@ -138,10 +137,22 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 			Logger.getInstance(ListenLogAction.class.getName()).error(e.getMessage(), e);
 		}
 		if (processLog != null) {
-			console.accept(new Log(ConsoleWindow.CLEAR, Level.DEBUG));
+			console.accept(new Log(RemoteWindow.CLEAR, Level.DEBUG));
 			console.accept(new Log(processLog, level));
 			ignited = true;
 			currentLog = processLog;
 		}
+	}
+
+
+	@Nullable
+	private DataContext dataContext() {
+		DataContext dataContext = null;
+		try {
+			dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
+		} catch (TimeoutException | ExecutionException e) {
+			io.intino.alexandria.logger.Logger.error(e);
+		}
+		return dataContext;
 	}
 }

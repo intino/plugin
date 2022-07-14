@@ -30,9 +30,9 @@ public class CreateStringValues extends JDialog {
 	private JButton cancelButton;
 	private JButton newLanguage;
 	private JPanel valuesPanel;
-	private Map<JComponent, JBTextField> fields = new LinkedHashMap<>();
-	private File messagesDirectory;
-	private GridBagConstraints constraints = new GridBagConstraints();
+	private final Map<JComponent, JBTextField> fields = new LinkedHashMap<>();
+	private final File messagesDirectory;
+	private final GridBagConstraints constraints = new GridBagConstraints();
 
 	public CreateStringValues(PsiElement element, String key) {
 		this.outputDsl = IntinoUtil.modelPackage(element);

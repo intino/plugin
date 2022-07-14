@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output.remoteactions;
+package io.intino.plugin.toolwindows.remote.remoteactions;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -13,8 +13,9 @@ import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.cesar.CesarAccessor;
-import io.intino.plugin.toolwindows.output.IntinoConsoleAction;
+import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +31,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	private final List<ProcessInfo> infos;
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
+	private final DataContext dataContext;
 	private ProcessInfo selectedProcess;
 	private ProcessStatus status;
 	private boolean inProcess = false;
@@ -40,6 +42,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
 		this.cesarAccessor = cesarAccessor;
 		this.status = selectedProcess == null ? null : this.cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+		this.dataContext = dataContext();
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(Run);
 		templatePresentation.setDisabledIcon(AnimatedIcon.Default.INSTANCE);
@@ -100,12 +103,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	public void update() {
-		try {
-			final @NotNull DataContext dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
-			update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
-		} catch (TimeoutException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
+		update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
 	}
 
 	public void update(Presentation presentation) {
@@ -123,5 +121,17 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 				presentation.setDescription(status.running() ? "Stop process" : "Run process");
 			}
 		}
+	}
+
+
+	@Nullable
+	private DataContext dataContext() {
+		DataContext dataContext = null;
+		try {
+			dataContext = DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(1000);
+		} catch (TimeoutException | ExecutionException e) {
+			io.intino.alexandria.logger.Logger.error(e);
+		}
+		return dataContext;
 	}
 }

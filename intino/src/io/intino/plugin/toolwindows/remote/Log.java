@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows.remote;
 
 import io.intino.alexandria.logger.Logger;
 

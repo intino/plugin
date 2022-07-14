@@ -1,4 +1,4 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows.remote;
 
 import java.util.EventListener;
 

@@ -1,8 +1,10 @@
-package io.intino.plugin.toolwindows.output;
+package io.intino.plugin.toolwindows;
 
 import com.intellij.util.messages.Topic;
 import io.intino.plugin.actions.LegioListener;
 import io.intino.plugin.toolwindows.factory.IntinoFileListener;
+import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
+import io.intino.plugin.toolwindows.remote.MavenListener;
 
 public class IntinoTopics {
 
