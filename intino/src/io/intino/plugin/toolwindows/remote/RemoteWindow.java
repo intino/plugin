@@ -21,6 +21,7 @@ import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.cesar.CesarInfo;
+import io.intino.plugin.cesar.CesarServerInfoDownloader;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.remoteactions.DebugAction;
 import io.intino.plugin.toolwindows.remote.remoteactions.ListenLogAction;
@@ -60,8 +61,11 @@ public class RemoteWindow {
 	}
 
 	public void reload(Project project) {
-		ApplicationManager.getApplication().invokeAndWait(() ->
-				CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView));
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+					new CesarServerInfoDownloader().download(project);
+					CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView);
+				}
+		);
 	}
 
 	public JPanel content() {
@@ -99,9 +103,9 @@ public class RemoteWindow {
 		operationActions.add(new StartStopAction(server.processes(), server.type(), cesarAccessor));
 		operationActions.add(new DebugAction(server.processes(), server.type(), cesarAccessor));
 		((ComboBox<Object>) processesBoxPanel.getComponent(0)).addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.DESELECTED) {
+			if (e.getStateChange() == ItemEvent.DESELECTED)
 				operationActions.forEach(a -> a.onProcessChange(null, null));
-			} else if (e.getStateChange() == ItemEvent.SELECTED) {
+			else if (e.getStateChange() == ItemEvent.SELECTED) {
 				String newProcess = e.getItemSelectable().getSelectedObjects()[0].toString();
 				List<ProcessInfo> processes = CesarInfo.getSafeInstance(project).serversInfo().get(server.name()).processes();
 				operationActions.forEach(IntinoConsoleAction::onChanging);
