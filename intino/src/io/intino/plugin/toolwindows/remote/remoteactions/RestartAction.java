@@ -10,6 +10,8 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.alexandria.exceptions.NotFound;
+import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
@@ -75,7 +77,7 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 			try {
 				cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), true, false);
-			} catch (BadRequest | InternalServerError ignored) {
+			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
 			}
 			inProcess = false;
 			update(e);

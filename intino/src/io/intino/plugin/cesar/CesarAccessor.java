@@ -4,6 +4,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.alexandria.exceptions.NotFound;
+import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.ApiAccessor;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
@@ -41,7 +43,7 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getProcess(server, id);
-		} catch (BadRequest | InternalServerError e) {
+		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
 			return null;
 		}
 	}
@@ -56,7 +58,7 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getProcessStatus(server, id);
-		} catch (BadRequest | InternalServerError e) {
+		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
 			return null;
 		}
 	}
@@ -66,7 +68,17 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getServer(server);
-		} catch (BadRequest | InternalServerError e) {
+		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
+			return null;
+		}
+	}
+
+	public List<ServerInfo> servers() {
+		try {
+			checkCredentials();
+			if (accessor == null) return null;
+			return accessor.getServers();
+		} catch (InternalServerError | Unauthorized e) {
 			return null;
 		}
 	}
@@ -76,7 +88,7 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.getProcesses(server);
-		} catch (InternalServerError e) {
+		} catch (InternalServerError | Unauthorized e) {
 			return Collections.emptyList();
 		}
 	}
@@ -86,7 +98,7 @@ public class CesarAccessor {
 			checkCredentials();
 			if (accessor == null) return null;
 			return accessor.postBot(text, TimeZone.getDefault().getID()).raw();
-		} catch (InternalServerError e) {
+		} catch (InternalServerError | Unauthorized e) {
 			return "Error executing command: " + e.getMessage();
 		}
 	}
@@ -112,13 +124,13 @@ public class CesarAccessor {
 
 	private ApiAccessor createAccessor() {
 		if (credentials == null) return null;
-		return new ApiAccessor(urlOf(credentials.getKey().trim()), 1000, credentials.getValue());
+		return new ApiAccessor(urlOf(credentials.getKey().trim()), 500, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {
 		try {
 			return getSafeInstance(this.project).cesar();
-		} catch (IntinoException e) {
+		} catch (IntinoException ignored) {
 		}
 		return null;
 	}

@@ -10,9 +10,11 @@ import java.io.OutputStream;
 public class SOCKSTunnel {
 	private static final com.intellij.openapi.diagnostic.Logger LOG = com.intellij.openapi.diagnostic.Logger.getInstance(ArtifactManager.class.getName());
 	private static final File SSH_DIRECTORY = new File(System.getProperty("user.home") + File.separator + ".ssh");
-	private String user, password, server;
-	private int serverPort;
-	private int proxyPort;
+	private final String user;
+	private final String password;
+	private final String server;
+	private final int serverPort;
+	private final int proxyPort;
 
 	public SOCKSTunnel(String user, String password, String server, int serverPort, int proxyPort) {
 		this.user = user;

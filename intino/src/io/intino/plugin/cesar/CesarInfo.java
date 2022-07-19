@@ -1,10 +1,7 @@
 package io.intino.plugin.cesar;
 
 import com.google.gson.reflect.TypeToken;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -16,7 +13,6 @@ import io.intino.cesar.box.schemas.ProcessInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +34,7 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	}
 
 	public void serversInfo(Map<String, ServerInfo> infos) {
-		Map<String, ServerInfo> current = new LinkedHashMap<>(serversInfo());
-		current.putAll(infos);
-		myState.serversInfo = Json.gsonReader().toJson(current);
+		myState.serversInfo = Json.gsonReader().toJson(infos);
 	}
 
 	@Nullable

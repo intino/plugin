@@ -13,6 +13,8 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.alexandria.exceptions.NotFound;
+import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
@@ -34,15 +36,15 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
-	private ProcessInfo selectedProcess;
+	private ProcessInfo process;
 	private ProcessStatus status;
 	private boolean inProcess = false;
 
 	public DebugAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
 		this.serverType = serverType;
 		this.cesarAccessor = cesarAccessor;
-		selectedProcess = infos.isEmpty() ? null : infos.get(0);
-		status = selectedProcess == null ? null : this.cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+		process = infos.isEmpty() ? null : infos.get(0);
+		status = process == null ? null : this.cesarAccessor.processStatus(process.server().name(), process.id());
 		dataContext = dataContext();
 		final Presentation presentation = getTemplatePresentation();
 		presentation.setIcon(AllIcons.Actions.StartDebugger);
@@ -59,7 +61,7 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
 		inProcess = true;
 		new Thread(() -> {
-			selectedProcess = newProcess;
+			process = newProcess;
 			status = newProcessStatus;
 			inProcess = false;
 			update();
@@ -72,15 +74,15 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 		boolean sure = askAndContinue(e);
 		if (!sure) return;
 		new Thread(() -> {
-			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+			status = cesarAccessor.processStatus(process.server().name(), process.id());
 			try {
-				Boolean success = cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), status.running(), true);
+				Boolean success = cesarAccessor.accessor().postProcessStatus(process.server().name(), process.id(), status.running(), true);
 				if (success) {
 					status.running(!status.running());
-					status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + status.debugPort(), NotificationType.INFORMATION), null);
+					status = cesarAccessor.processStatus(process.server().name(), process.id());
+					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + process.debugPort(), NotificationType.INFORMATION), null);
 				}
-			} catch (BadRequest | InternalServerError ignored) {
+			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
 			}
 			inProcess = false;
 			update(e);
@@ -122,10 +124,10 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	}
 
 	private void update(Presentation presentation) {
-		if (selectedProcess == null || inProcess) presentation.setEnabled(false);
+		if (process == null || inProcess) presentation.setEnabled(false);
 		else {
 			if (status == null)
-				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+				status = cesarAccessor.processStatus(process.server().name(), process.id());
 			if (status == null) presentation.setEnabled(false);
 			else {
 				if (status.debug()) presentation.setIcon(AllIcons.Actions.RestartDebugger);

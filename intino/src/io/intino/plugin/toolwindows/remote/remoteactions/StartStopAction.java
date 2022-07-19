@@ -9,6 +9,8 @@ import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.alexandria.exceptions.NotFound;
+import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoIcons;
@@ -76,7 +78,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 			try {
 				Boolean success = cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), !status.running(), false);
 				if (success) status.running(!status.running());
-			} catch (BadRequest | InternalServerError bd) {
+			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
 			}
 			inProcess = false;
 			update(e);
@@ -89,7 +91,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
 					"Are you sure to " + (status.running() ? "stop" : "start") + " this process?",
-					"Change Process status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
+					"Change Process Status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
 			confirmationDialog.setDoNotAskOption(null);
 			response.set(confirmationDialog.showAndGet());
 		});

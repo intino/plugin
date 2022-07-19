@@ -22,7 +22,6 @@ import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.cesar.CesarInfo;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
-import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.remoteactions.DebugAction;
 import io.intino.plugin.toolwindows.remote.remoteactions.ListenLogAction;
 import io.intino.plugin.toolwindows.remote.remoteactions.RestartAction;
@@ -30,6 +29,8 @@ import io.intino.plugin.toolwindows.remote.remoteactions.StartStopAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -38,6 +39,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static io.intino.plugin.toolwindows.IntinoTopics.REMOTE_CONSOLE;
 
 public class RemoteWindow {
 	public static final String CLEAR = "##clear##";
@@ -52,15 +55,29 @@ public class RemoteWindow {
 		this.project = project;
 		remoteConsoleViews = new ArrayList<>();
 		cesarAccessor = new CesarAccessor(project);
-		reload(project);
-		subscribeToEvents(project);
+		subscribeToEvents();
+		myToolWindowContent.addAncestorListener(new AncestorListener() {
+			@Override
+			public void ancestorAdded(AncestorEvent ancestorEvent) {
+				tabs.removeAll();
+				reload();
+			}
+
+			@Override
+			public void ancestorRemoved(AncestorEvent ancestorEvent) {
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent ancestorEvent) {
+			}
+		});
 	}
 
-	private void subscribeToEvents(Project project) {
-		project.getMessageBus().connect().subscribe(IntinoTopics.REMOTE_CONSOLE, () -> reload(project));
+	private void subscribeToEvents() {
+		project.getMessageBus().connect().subscribe(REMOTE_CONSOLE, this::reload);
 	}
 
-	public void reload(Project project) {
+	public void reload() {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 					new CesarServerInfoDownloader().download(project);
 					CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView);
@@ -87,7 +104,10 @@ public class RemoteWindow {
 
 	private void createServerView(CesarInfo.ServerInfo server) {
 		ConsoleViewImpl consoleView = (ConsoleViewImpl) createConsoleView();
-		JComponent processesBoxPanel = createProcessesCombo(server.processes(), e -> refreshServerView(server));
+		JComponent processesBoxPanel = createProcessesCombo(server.processes(), e -> {
+			new CesarServerInfoDownloader().download(project);
+			refreshServerView(CesarInfo.getSafeInstance(project).serversInfo().get(server.name()));
+		});
 		JPanel container = new JPanel(new BorderLayout());
 		container.add(processesBoxPanel, BorderLayout.NORTH);
 		final JComponent ui = new RunContentDescriptor(consoleView, null, new JPanel(new BorderLayout()), server.name()).getComponent();

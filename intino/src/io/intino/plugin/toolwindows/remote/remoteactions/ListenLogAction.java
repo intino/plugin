@@ -8,6 +8,8 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
+import io.intino.alexandria.exceptions.NotFound;
+import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.IntinoIcons;
@@ -133,7 +135,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 		String processLog = null;
 		try {
 			processLog = cesarAccessor.accessor().getProcessLog(selectedProcess.server().name(), selectedProcess.id(), 1).replace("\\n", "\n");
-		} catch (BadRequest | InternalServerError e) {
+		} catch (BadRequest | InternalServerError | Unauthorized | NotFound e) {
 			Logger.getInstance(ListenLogAction.class.getName()).error(e.getMessage(), e);
 		}
 		if (processLog != null) {
