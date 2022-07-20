@@ -34,8 +34,9 @@ import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -45,15 +46,12 @@ import static io.intino.plugin.toolwindows.IntinoTopics.REMOTE_CONSOLE;
 public class RemoteWindow {
 	public static final String CLEAR = "##clear##";
 	private final Project project;
-	private final List<ConsoleView> remoteConsoleViews;
-	private final Map<String, Consumer<Log>> consoleConsumers = new HashMap<>();
 	private final CesarAccessor cesarAccessor;
 	private JPanel myToolWindowContent;
 	private JTabbedPane tabs;
 
 	public RemoteWindow(Project project) {
 		this.project = project;
-		remoteConsoleViews = new ArrayList<>();
 		cesarAccessor = new CesarAccessor(project);
 		subscribeToEvents();
 		myToolWindowContent.addAncestorListener(new AncestorListener() {
@@ -79,8 +77,8 @@ public class RemoteWindow {
 
 	public void reload() {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-					new CesarServerInfoDownloader().download(project);
-					CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView);
+			new CesarServerInfoDownloader().download(project);
+			CesarInfo.getSafeInstance(project).serversInfo().values().stream().forEach(this::refreshServerView);
 				}
 		);
 	}
@@ -153,8 +151,6 @@ public class RemoteWindow {
 		ui.add(westToolbar.getComponent(), BorderLayout.WEST);
 		ui.add(eastToolbar.getComponent(), BorderLayout.EAST);
 		tabs.addTab(server.name(), container);
-		remoteConsoleViews.add(consoleView);
-		consoleConsumers.put(server.name(), consoleConsumer);
 	}
 
 	private ConsoleView createConsoleView() {
@@ -204,6 +200,10 @@ public class RemoteWindow {
 
 	private String compactLog(Message message) {
 		String compactedMessage = message.remove("level").toString();
+		compactedMessage = compactedMessage
+				.replaceFirst("ts: ", "")
+				.replaceFirst("source: ", "")
+				.replaceFirst("message: ", "");
 		return compactedMessage.substring(compactedMessage.indexOf("\n") + 1);
 	}
 

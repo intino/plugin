@@ -79,7 +79,7 @@ public class CesarAccessor {
 			if (accessor == null) return null;
 			return accessor.getServers();
 		} catch (InternalServerError | Unauthorized e) {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
@@ -124,7 +124,7 @@ public class CesarAccessor {
 
 	private ApiAccessor createAccessor() {
 		if (credentials == null) return null;
-		return new ApiAccessor(urlOf(credentials.getKey().trim()), 500, credentials.getValue());
+		return new ApiAccessor(urlOf(credentials.getKey().trim()), 1500, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {
