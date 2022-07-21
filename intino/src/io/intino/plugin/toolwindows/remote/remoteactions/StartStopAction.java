@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
-import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
@@ -13,24 +12,23 @@ import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
-import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.icons.AllIcons.Actions.Suspend;
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
+import static com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT;
 
 public class StartStopAction extends AnAction implements DumbAware, IntinoConsoleAction {
-	@NotNull
-	private final List<ProcessInfo> infos;
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
@@ -39,7 +37,6 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	private boolean inProcess = false;
 
 	public StartStopAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
-		this.infos = infos;
 		this.serverType = serverType;
 		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
 		this.cesarAccessor = cesarAccessor;
@@ -88,13 +85,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	private boolean askAndContinue(@NotNull AnActionEvent e) {
 		if (!serverType.equals(Configuration.Server.Type.Pro)) return true;
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
-					"Are you sure to " + (status.running() ? "stop" : "start") + " this process?",
-					"Change Process Status", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			confirmationDialog.setDoNotAskOption(null);
-			response.set(confirmationDialog.showAndGet());
-		});
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(Objects.requireNonNull(e.getData(PROJECT)), "Are you sure to " + (status.running() ? "stop" : "start") + " this process?", "Change Process Status").showAndGet()));
 		return response.get();
 	}
 

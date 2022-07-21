@@ -2,20 +2,16 @@ package io.intino.plugin.project.configuration;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.magritte.Language;
 import io.intino.magritte.dsl.Meta;
 import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.file.LegioFileType;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.ArtifactorySensor;
-import io.intino.plugin.project.builders.InterfaceBuilderManager;
-import io.intino.plugin.project.module.IntinoWizardPanel;
 import io.intino.plugin.project.module.IntinoWizardPanel.Components;
-import io.intino.plugin.toolwindows.factory.components.Mode;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -23,9 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 
 import static com.intellij.openapi.vfs.VfsUtil.findFileByIoFile;
 import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
@@ -74,10 +68,8 @@ public class LegioFileCreator {
 
 	@NotNull
 	public File legioFile() {
-		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
-		if (moduleDir == null)
-			moduleDir = VfsUtil.findFileByIoFile(new File(module.getModuleFilePath()).getParentFile(), true);
-		return new File(moduleDir.getPath(), LegioFileType.LEGIO_FILE);
+		File root = IntinoUtil.moduleRoot(module);
+		return new File(root, LegioFileType.LEGIO_FILE);
 	}
 
 	private Frame frame(String groupId) {

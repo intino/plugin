@@ -34,8 +34,8 @@ public class SelectDestinationsDialog {
 		createUIComponents();
 	}
 
-	List showAndGet() {
-		final List[] destinations = new List[]{new ArrayList<>()};
+	List<Deployment> showAndGet() {
+		final List<Deployment>[] destinations = new ArrayList[]{new ArrayList<Deployment>()};
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			String[] options = new String[]{"Cancel", "Accept"};
 			int option = JOptionPane.showOptionDialog(parent, deploymentsPanel, "Select destinations for " + artifact,

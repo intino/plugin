@@ -12,14 +12,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.ConfirmationDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Artifact.Package.LinuxService;
 import io.intino.Configuration.Deployment;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.build.linuxservice.LinuxServiceGenerator;
 import io.intino.plugin.build.maven.MavenRunner;
@@ -48,7 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static io.intino.Configuration.Server.Type.Dev;
 import static io.intino.Configuration.Server.Type.Pre;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
@@ -187,19 +185,16 @@ public abstract class AbstractArtifactFactory {
 
 	protected boolean askForReleaseDistribute() {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			response.set(new ConfirmationDialog(module.getProject(),
-					"You aren't in master branch. Changes will be merged into master and pushed. Do you want to continue?",
-					"Release Distribution. Are You Sure to Distribute a Release Version?", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
-		});
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(project,
+				"You aren't in master branch. Changes will be merged into master and pushed. Do you want to continue?",
+				"Release Distribution. Are You Sure to Distribute a Release Version?").showAndGet()));
 		return response.get();
 	}
 
 	private boolean askForSnapshotBuild() {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new ConfirmationDialog(module.getProject(),
-				"Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
-				"This Version Already Exists", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet()));
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(project, "Do you want to upgrade artifact to a new SNAPSHOT version and retry?",
+				"This Version Already Exists").showAndGet()));
 		return response.get();
 	}
 
@@ -291,8 +286,8 @@ public abstract class AbstractArtifactFactory {
 
 	private boolean askForDeploy(Module module, LegioConfiguration conf) {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new ConfirmationDialog(module.getProject(),
-				"Are you sure?", "You are going to deploy " + conf.artifact().name(), IntinoIcons.INTINO_16, STATIC_SHOW_CONFIRMATION).showAndGet()));
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(module.getProject(),
+				"You are going to deploy " + conf.artifact().name(), "Are you sure?").showAndGet()));
 		return response.get();
 	}
 

@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
-import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
 import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
@@ -15,7 +14,7 @@ import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.alexandria.logger.Logger;
 import io.intino.cesar.box.schemas.ProcessInfo;
 import io.intino.cesar.box.schemas.ProcessStatus;
-import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
-
 public class RestartAction extends AnAction implements DumbAware, IntinoConsoleAction {
-	@NotNull
-	private final List<ProcessInfo> infos;
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
@@ -39,7 +34,6 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 	private boolean inProcess = false;
 
 	public RestartAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
-		this.infos = infos;
 		this.serverType = serverType;
 		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
 		this.cesarAccessor = cesarAccessor;
@@ -88,11 +82,9 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 		if (!serverType.equals(Configuration.Server.Type.Pro)) return true;
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			ConfirmationDialog confirmationDialog = new ConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
+			response.set(new IntinoConfirmationDialog(e.getData(CommonDataKeys.PROJECT),
 					"Are you sure to restart this process?",
-					"Restart Process", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			confirmationDialog.setDoNotAskOption((com.intellij.openapi.ui.DoNotAskOption) null);
-			response.set(confirmationDialog.showAndGet());
+					"Restart Process").showAndGet());
 		});
 		return response.get();
 	}

@@ -6,9 +6,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.ConfirmationDialog;
 import io.intino.Configuration;
-import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
@@ -16,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static io.intino.plugin.project.Safe.safe;
 
 public class UpdateVersionPropagationAction extends UpdateVersionAction {
@@ -53,12 +50,10 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 
 	private boolean askForDistributeNewReleases(Project project) {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			ConfirmationDialog confirmationDialog = new ConfirmationDialog(project,
-					"Do you want to distribute new version of the updated module?",
-					"Release Updated Module.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION);
-			response.set(confirmationDialog.showAndGet());
-		});
+		ApplicationManager.getApplication().invokeAndWait(() ->
+				response.set(new IntinoConfirmationDialog(project,
+						"Do you want to distribute new version of the updated module?",
+						"Release Updated Module.").showAndGet()));
 		return response.get();
 	}
 

@@ -122,4 +122,7 @@
     </group>
     <group name="plugin" />
   </component>
+  <component name="uidesigner-configuration">
+    <option name="COPY_FORMS_RUNTIME_TO_OUTPUT" value="false" />
+  </component>
 </project>

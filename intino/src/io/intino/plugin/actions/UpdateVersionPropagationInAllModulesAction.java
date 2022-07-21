@@ -6,8 +6,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.ConfirmationDialog;
-import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
@@ -18,7 +16,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.intellij.openapi.vcs.VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION;
 import static io.intino.plugin.project.Safe.safe;
 
 public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAction {
@@ -44,7 +41,7 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 						upgrade(e.getKey(), e.getValue());
 						distribute(e.getKey().module());
 					}
-				} catch (Exception ex) {
+				} catch (Exception ignored) {
 				}
 			}
 		}
@@ -79,11 +76,9 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 
 	private boolean askForDistributeNewReleases(Project project) {
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			response.set(new ConfirmationDialog(project,
-					"Do you want to distribute new version of the updated modules? Only *Non Runnable* artifacts will be distributed",
-					"Release updated modules.", IntinoIcons.INTINO_80, STATIC_SHOW_CONFIRMATION).showAndGet());
-		});
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(project,
+				"Do you want to distribute new version of the updated modules? Only *Non Runnable* artifacts will be distributed",
+				"Release Updated Modules.").showAndGet()));
 		return response.get();
 	}
 }

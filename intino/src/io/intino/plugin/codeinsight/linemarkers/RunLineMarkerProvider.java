@@ -16,7 +16,6 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
-import com.vladsch.flexmark.util.data.DataKey;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.Map;
 
 import static com.intellij.icons.AllIcons.RunConfigurations.TestState.Run;
 import static com.intellij.openapi.actionSystem.ActionPlaces.STATUS_BAR_PLACE;
@@ -99,7 +97,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 	private String getText(@NotNull AnAction action, @NotNull PsiElement element) {
 		DataContext parent = getContext();
-		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT.getName(), element, parent);
+		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT, element, parent);
 		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
 		ApplicationManager.getApplication().invokeLater(() -> action.update(event));
 		Presentation presentation = event.getPresentation();
