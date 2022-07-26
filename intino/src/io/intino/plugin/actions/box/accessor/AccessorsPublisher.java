@@ -1,9 +1,6 @@
 package io.intino.plugin.actions.box.accessor;
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationGroupManager;
-import com.intellij.notification.NotificationType;
+import com.intellij.notification.*;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -12,6 +9,7 @@ import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
+import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.configuration.LegioConfiguration;
@@ -19,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -136,15 +135,18 @@ public class AccessorsPublisher {
 	}
 
 	private void notifySuccess(Configuration conf, String app) {
-		NotificationGroup balloon = NotificationGroup.findRegisteredGroup("Intino");
-		balloon.createNotification("Accessors generated and uploaded", message(), INFORMATION).addAction(new AnAction() {
-			@Override
-			public void actionPerformed(@NotNull AnActionEvent e) {
-				StringSelection selection = new StringSelection(newDependency(conf, app));
-				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(selection, selection);
-			}
-		}).setImportant(true).notify(module.getProject());
+		NotificationGroup.findRegisteredGroup("Intino")
+				.createNotification("Accessors generated and uploaded", "", INFORMATION)
+				.setImportant(true)
+				.setIcon(IntinoIcons.ICON_13)
+				.addAction(new NotificationAction("Copy maven dependency") {
+					@Override
+					public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+						StringSelection selection = new StringSelection(newDependency(conf, app));
+						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+						clipboard.setContents(selection, selection);
+					}
+				}).notify(module.getProject());
 	}
 
 	@NotNull
