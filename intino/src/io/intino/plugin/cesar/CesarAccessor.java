@@ -31,7 +31,13 @@ public class CesarAccessor {
 	public CesarAccessor(Project project) {
 		this.project = project;
 		this.credentials = credentials();
-		this.accessor = createAccessor();
+		this.accessor = createAccessor(1500);
+	}
+
+	public CesarAccessor(Project project, int timeoutMillis) {
+		this.project = project;
+		this.credentials = credentials();
+		this.accessor = createAccessor(timeoutMillis);
 	}
 
 	public ApiAccessor accessor() {
@@ -50,7 +56,7 @@ public class CesarAccessor {
 
 	private void checkCredentials() {
 		this.credentials = credentials();
-		this.accessor = createAccessor();
+		this.accessor = createAccessor(1500);
 	}
 
 	public ProcessStatus processStatus(String server, String id) {
@@ -122,9 +128,9 @@ public class CesarAccessor {
 		}
 	}
 
-	private ApiAccessor createAccessor() {
+	private ApiAccessor createAccessor(int timeoutMillis) {
 		if (credentials == null) return null;
-		return new ApiAccessor(urlOf(credentials.getKey().trim()), 1500, credentials.getValue());
+		return new ApiAccessor(urlOf(credentials.getKey().trim()), timeoutMillis, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {

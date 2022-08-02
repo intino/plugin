@@ -29,7 +29,7 @@ public class CesarBot {
 	public CesarBot(Project project) {
 		CesarBot.project = project;
 		setConsoleStyle();
-		cesarAccessor = new CesarAccessor(project);
+		cesarAccessor = new CesarAccessor(project, 10_000);
 		cesarAccessor.subscribeToNotifications(message -> {
 			String trim = message.trim();
 			insertMessage("cesar", trim.substring(trim.lastIndexOf("#") + 1));
