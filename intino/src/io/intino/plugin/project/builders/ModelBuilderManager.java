@@ -57,7 +57,7 @@ public class ModelBuilderManager {
 	}
 
 	private List<Artifact> artifacts() throws DependencyResolutionException {
-		return new Aether(repos(), LOCAL).resolve(new DefaultArtifact("io.intino.magritte:builder:" + model.sdkVersion()), JavaScopes.COMPILE);
+		return new Aether(repos(), LOCAL).resolve(new DefaultArtifact(model.sdk() + ":" + model.sdkVersion()), JavaScopes.COMPILE);
 	}
 
 	@NotNull

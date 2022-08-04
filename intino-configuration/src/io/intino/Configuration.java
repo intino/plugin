@@ -125,6 +125,8 @@ public interface Configuration {
 
 			String sdkVersion();
 
+			String sdk();
+
 			interface Language {
 
 				String name();

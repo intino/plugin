@@ -16,9 +16,11 @@ public class ArtifactorySensor {
 	public static final String ModelBuilder = "model.builder";
 	private final PropertiesComponent properties;
 	private final ArtifactoryConnector artifactory;
+	private final String modelSdk;
 
-	public ArtifactorySensor(List<Repository> repositories) {
+	public ArtifactorySensor(List<Repository> repositories, String modelSdk) {
 		this.artifactory = new ArtifactoryConnector(by(repositories));
+		this.modelSdk = modelSdk;
 		this.properties = PropertiesComponent.getInstance();
 	}
 
@@ -34,18 +36,16 @@ public class ArtifactorySensor {
 
 	private void languageVersions(String language) {
 		final List<String> versions = artifactory.dslVersions(language);
-		if (!versions.isEmpty())
-			properties.setList(LanguageLibrary + language, versions);
+		if (!versions.isEmpty()) properties.setList(LanguageLibrary + language, versions);
 	}
 
 	private void boxBuilderVersions() {
 		final List<String> versions = artifactory.boxBuilderVersions();
-		if (!versions.isEmpty())
-			properties.setList(BoxBuilder, versions);
+		if (!versions.isEmpty()) properties.setList(BoxBuilder, versions);
 	}
 
 	private void modelBuilderVersions() {
-		final List<String> versions = artifactory.modelBuilderVersions();
+		final List<String> versions = artifactory.modelBuilderVersions(modelSdk);
 		if (!versions.isEmpty()) properties.setList(ModelBuilder, versions);
 	}
 

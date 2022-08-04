@@ -169,9 +169,9 @@ public class ArtifactoryConnector {
 		}
 	}
 
-	public List<String> modelBuilderVersions() {
+	public List<String> modelBuilderVersions(String modelSdk) {
 		try {
-			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/magritte/builder/maven-metadata.xml");
+			URL url = new URL(INTINO_RELEASES + "/" + modelSdk.replace(".", "/").replace(":", "/") + "/maven-metadata.xml");
 			return extractVersions(read(connect(url)));
 		} catch (Throwable e) {
 			return Collections.emptyList();
@@ -193,7 +193,7 @@ public class ArtifactoryConnector {
 	}
 
 	private String read(InputStream stream) throws Throwable {
-		if (stream== null) return "";
+		if (stream == null) return "";
 		byte[] bytes = stream.readAllBytes();
 		stream.close();
 		return new String(bytes);

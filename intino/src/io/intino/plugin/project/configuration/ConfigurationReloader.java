@@ -68,7 +68,7 @@ public class ConfigurationReloader {
 	}
 
 	void reloadArtifactoriesMetaData() {
-		new ArtifactorySensor(configuration.repositories()).update(safe(() -> configuration.artifact().model().language().name(), null));
+		new ArtifactorySensor(configuration.repositories(), safe(() -> configuration.artifact().model().sdk())).update(safe(() -> configuration.artifact().model().language().name(), null));
 	}
 
 	void reloadDependencies() {

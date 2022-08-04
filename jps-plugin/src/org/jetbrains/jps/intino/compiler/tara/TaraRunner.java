@@ -14,11 +14,14 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
 import org.jetbrains.jps.service.SharedThreadPool;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.jar.JarFile;
 
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
@@ -37,7 +40,7 @@ class TaraRunner {
 		argsFile = FileUtil.createTempFile("ideaTaraToCompile", ".txt", false);
 		loadClassPath(paths.get(4), moduleName);
 		LOG.info("args file: " + argsFile.getAbsolutePath());
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), Charset.forName(encoding)))) {
+		try (Writer writer = Files.newBufferedWriter(argsFile.toPath(), Charset.forName(encoding))) {
 			writer.write(SRC_FILE + NL);
 			for (Map.Entry<String, Boolean> file : sources.entrySet())
 				writer.write(file.getKey() + "#" + file.getValue() + NL);
@@ -91,9 +94,10 @@ class TaraRunner {
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
-				getJavaExecutable(), "io.intino.magritte.TaracRunner", Collections.emptyList(), classpath, vmParams, programParams);
+				getJavaExecutable(), mainClass(), Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, String.join(" ", cmd), encoding, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
+			@NotNull
 			@Override
 			public Future<?> executeTask(@NotNull Runnable task) {
 				return SharedThreadPool.getInstance().submit(task);
@@ -102,6 +106,16 @@ class TaraRunner {
 		handler.startNotify();
 		handler.waitFor();
 		return handler;
+	}
+
+	private String mainClass() {
+		try (JarFile jarFile = new JarFile(new File(classpath.get(0)))) {
+			String mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+			return mainClass != null ? mainClass : "io.intino.magritte.TaracRunner";
+		} catch (IOException e) {
+			LOG.warn("Main class not found in " + classpath.get(0));
+			return "io.intino.magritte.TaracRunner";
+		}
 	}
 
 	private String getJavaExecutable() {

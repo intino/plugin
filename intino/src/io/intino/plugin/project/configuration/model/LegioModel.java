@@ -39,7 +39,12 @@ public class LegioModel implements Configuration.Artifact.Model {
 	}
 
 	public String sdkVersion() {
-		return TaraPsiUtil.parameterValue(node, "sdk", 2);
+		return TaraPsiUtil.parameterValue(node, "sdkVersion", 2);
+	}
+
+	@Override
+	public String sdk() {
+		return TaraPsiUtil.parameterValue(node, "sdk", 3);
 	}
 
 	@Override

@@ -9,7 +9,8 @@ Concept:{1..1}:Named Artifact
 		Concept:{1..1} Model
 			var string language
 			var string version
-			var string sdk
+			var string sdkVersion
+			var string sdk = "io.intino.magritte:builder"
 			var string effectiveVersion = "" is private
 			var string outLanguage = 'self.graph().artifact().name$()'
 		sub Platform

@@ -183,6 +183,11 @@ public class MavenConfiguration implements Configuration {
 					public String sdkVersion() {
 						return null;
 					}
+
+					@Override
+					public String sdk() {
+						return null;
+					}
 				};
 			}
 
