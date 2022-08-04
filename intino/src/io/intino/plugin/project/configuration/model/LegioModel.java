@@ -44,7 +44,8 @@ public class LegioModel implements Configuration.Artifact.Model {
 
 	@Override
 	public String sdk() {
-		return TaraPsiUtil.parameterValue(node, "sdk", 3);
+		String sdk = TaraPsiUtil.parameterValue(node, "sdk", 3);
+		return sdk != null ? sdk : "io.intino.magritte:builder";
 	}
 
 	@Override
