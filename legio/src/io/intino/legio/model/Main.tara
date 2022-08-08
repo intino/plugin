@@ -13,6 +13,7 @@ Concept:{1..1}:Named Artifact
 			var string sdk = "io.intino.magritte:builder"
 			var string effectiveVersion = "" is private
 			var string outLanguage = 'self.graph().artifact().name$()'
+			var word[]:{ExcludeFrameworkCode ExcludeLanguageCode} exclude = empty
 		sub Platform
 		sub Product
 		sub Solution

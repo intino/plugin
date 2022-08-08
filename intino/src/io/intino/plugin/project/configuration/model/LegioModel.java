@@ -7,6 +7,7 @@ import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.project.Safe.safeList;
 
@@ -46,6 +47,12 @@ public class LegioModel implements Configuration.Artifact.Model {
 	public String sdk() {
 		String sdk = TaraPsiUtil.parameterValue(node, "sdk", 3);
 		return sdk != null ? sdk : "io.intino.magritte:builder";
+	}
+
+	@Override
+	public List<ExcludedPhases> excludedPhases() {
+		List<String> excludedPhases = TaraPsiUtil.parameterValues(node, "excludedPhases");
+		return excludedPhases.stream().map(ExcludedPhases::valueOf).collect(Collectors.toList());
 	}
 
 	@Override

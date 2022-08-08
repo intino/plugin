@@ -115,6 +115,10 @@ public interface Configuration {
 				}
 			}
 
+			enum ExcludedPhases {
+				ExcludeFrameworkCode, ExcludeLanguageCode
+			}
+
 			Language language();
 
 			String outLanguage();
@@ -126,6 +130,8 @@ public interface Configuration {
 			String sdkVersion();
 
 			String sdk();
+
+			List<ExcludedPhases> excludedPhases();
 
 			interface Language {
 

@@ -7,6 +7,9 @@ import org.jetbrains.jps.model.JpsElementChildRole;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;
 
+import java.util.Collections;
+import java.util.List;
+
 public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguration> implements JpsElement {
 
 	static final JpsElementChildRole<JpsModuleConfiguration> ROLE = JpsElementChildRoleBase.create("tara-conf");
@@ -15,6 +18,7 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 	public String language = "";
 	public String languageVersion = "";
 	public String outDsl = "";
+	public List<Integer> excludedPhases = Collections.emptyList();
 
 	public String modelGenerationPackage = "";
 	public String boxGenerationPackage = "";

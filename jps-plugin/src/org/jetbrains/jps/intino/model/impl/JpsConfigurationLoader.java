@@ -12,6 +12,7 @@ import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,7 @@ class JpsConfigurationLoader {
 			conf.languageVersion = parameters.getOrDefault(LANGUAGE_VERSION, "");
 			conf.level = parameters.getOrDefault(LEVEL, "");
 			conf.outDsl = parameters.getOrDefault(OUT_DSL, "");
+			conf.excludedPhases = Arrays.stream(parameters.getOrDefault(EXCLUDED_PHASES, "").split(" ")).map(Integer::parseInt).collect(Collectors.toList());
 			conf.modelGenerationPackage = parameters.get(TaraBuildConstants.GENERATION_PACKAGE);
 			conf.boxGenerationPackage = parameters.get(KonosBuildConstants.BOX_GENERATION_PACKAGE);
 			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
@@ -84,6 +86,7 @@ class JpsConfigurationLoader {
 		conf.language = props.getOrDefault(TARA + LANGUAGE, "");
 		conf.languageVersion = props.getOrDefault(TARA + LANGUAGE_VERSION, "");
 		conf.outDsl = props.getOrDefault(TARA + OUT_DSL, "");
+		conf.excludedPhases = Arrays.stream(props.getOrDefault(TARA + EXCLUDED_PHASES, "").split(",")).map(Integer::parseInt).collect(Collectors.toList());
 		conf.modelGenerationPackage = props.getOrDefault(TARA + GENERATION_PACKAGE, props.getOrDefault(TARA + OUT_DSL, ""));
 	}
 }

@@ -52,6 +52,7 @@ public class LegioArtifact implements Configuration.Artifact {
 	private static final com.intellij.openapi.diagnostic.Logger LOG = com.intellij.openapi.diagnostic.Logger.getInstance(LegioArtifact.class.getName());
 
 	public static final String EQ = "=";
+	public static final String NL = "\n";
 	private final LegioConfiguration root;
 	private final DependencyAuditor dependencyAuditor;
 	private final TaraNode node;
@@ -344,34 +345,36 @@ public class LegioArtifact implements Configuration.Artifact {
 		Model model = model();
 		String parent = parent(model);
 		Box box = box();
-		String builder = GROUP_ID + EQ + groupId() + "\n" +
-				ARTIFACT_ID + EQ + name() + "\n" +
-				VERSION + EQ + version() + "\n" +
-				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + "\n" : "") +
-				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + "\n" +
-				GENERATION_PACKAGE + EQ + code().generationPackage() + "." + code().modelPackage() + "\n";
+		String builder = GROUP_ID + EQ + groupId() + NL +
+				ARTIFACT_ID + EQ + name() + NL +
+				VERSION + EQ + version() + NL +
+				(parent != null ? KonosBuildConstants.PARENT_INTERFACE + EQ + parent + NL : "") +
+				PARAMETERS + EQ + parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL +
+				GENERATION_PACKAGE + EQ + code().generationPackage() + "." + code().modelPackage() + NL;
 
 		if (model != null) {
-			builder += LANGUAGE + EQ + model.language().name() + "\n" +
-					LANGUAGE_VERSION + EQ + model.language().version() + "\n" +
-					OUT_DSL + EQ + model.outLanguage() + "\n" +
-					OUT_DSL_VERSION + EQ + model.outLanguageVersion() + "\n";
-			if (model.level() != null) builder += LEVEL + EQ + model.level().name() + "\n";
+			builder += LANGUAGE + EQ + model.language().name() + NL +
+					LANGUAGE_VERSION + EQ + model.language().version() + NL +
+					OUT_DSL + EQ + model.outLanguage() + NL +
+					OUT_DSL_VERSION + EQ + model.outLanguageVersion() + NL;
+			if (!model.excludedPhases().isEmpty())
+				builder += EXCLUDED_PHASES + EQ + model.excludedPhases().stream().map(e -> String.valueOf(e.ordinal() + 8)).collect(Collectors.joining(" ")) + NL;
+			if (model.level() != null) builder += LEVEL + EQ + model.level().name() + NL;
 			if (model.language().generationPackage() != null)
-				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + "\n";
+				builder += KonosBuildConstants.LANGUAGE_GENERATION_PACKAGE + EQ + model.language().generationPackage() + NL;
 		}
-		if (box != null) builder += BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + "\n";
+		if (box != null) builder += BOX_GENERATION_PACKAGE + EQ + box().targetPackage() + NL;
 		Dependency.DataHub datahub = datahub();
-		if (datahub != null) builder += DATAHUB + EQ + datahub.identifier() + "\n";
+		if (datahub != null) builder += DATAHUB + EQ + datahub.identifier() + NL;
 		if (datahub != null)
-			builder += "library" + EQ + datahub.identifier() + "\n";//FIXME added by retro-compatibility. remove in future
+			builder += "library" + EQ + datahub.identifier() + NL;//FIXME added by retro-compatibility. remove in future
 		Dependency.Archetype archetype = archetype();
-		if (archetype != null) builder += ARCHETYPE + EQ + archetype.identifier() + "\n";
+		if (archetype != null) builder += ARCHETYPE + EQ + archetype.identifier() + NL;
 		List<String> dependencies = dependencies().stream()
 				.filter(d -> d.scope().equalsIgnoreCase(JavaScopes.COMPILE) && d.groupId().startsWith("io.intino"))
 				.map(Dependency::identifier)
 				.collect(toList());
-		if (!dependencies.isEmpty()) builder += CURRENT_DEPENDENCIES + EQ + String.join(",", dependencies) + "\n";
+		if (!dependencies.isEmpty()) builder += CURRENT_DEPENDENCIES + EQ + String.join(",", dependencies) + NL;
 		return builder.getBytes();
 	}
 
