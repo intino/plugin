@@ -188,6 +188,11 @@ public class MavenConfiguration implements Configuration {
 					public String sdk() {
 						return null;
 					}
+
+					@Override
+					public List<ExcludedPhases> excludedPhases() {
+						return List.of();
+					}
 				};
 			}
 
