@@ -13,6 +13,8 @@ final_outputpath
 /Users/oroncal/workspace/intino-plugin/out/production/legio/
 resources
 /Users/oroncal/workspace/intino-plugin/legio/res
+excluded_phases
+8
 tara.path
 /Users/oroncal/.m2
 tara.project.path
