@@ -54,9 +54,8 @@ public class LanguageResolver {
 	public DependencyCatalog resolve() {
 		if (model == null) return new DependencyCatalog();
 		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
-		final DependencyCatalog libraries = languageFramework();
 		new ModelBuilderManager(module, repositories, model).resolveBuilder();
-		return libraries;
+		return !model.excludedPhases().contains(Model.ExcludedPhases.ExcludeFrameworkCode) ? languageFramework() : new DependencyCatalog();
 	}
 
 	private DependencyCatalog languageFramework() {

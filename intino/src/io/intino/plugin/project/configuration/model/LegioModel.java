@@ -51,8 +51,8 @@ public class LegioModel implements Configuration.Artifact.Model {
 
 	@Override
 	public List<ExcludedPhases> excludedPhases() {
-		List<String> excludedPhases = TaraPsiUtil.parameterValues(node, "excludedPhases");
-		return excludedPhases.stream().map(ExcludedPhases::valueOf).collect(Collectors.toList());
+		List<String> excludedPhases = TaraPsiUtil.parameterValues(node, "exclude", 4);
+		return excludedPhases == null ? List.of() : excludedPhases.stream().map(ExcludedPhases::valueOf).collect(Collectors.toList());
 	}
 
 	@Override

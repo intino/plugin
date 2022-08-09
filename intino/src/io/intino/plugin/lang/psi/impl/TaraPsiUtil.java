@@ -114,12 +114,30 @@ public class TaraPsiUtil {
 				parameterValueFromPosition(parameters, position, name);
 	}
 
+	public static List<String> parameterValues(Node node, String name, int position) {
+		if (node == null) return null;
+		List<Parameter> parameters = node.parameters();
+		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
+		return parameter != null ?
+				read(parameter::values).stream().map(s -> clean(s.toString())).collect(toList()) :
+				parameterValuesFromPosition(parameters, position, name);
+	}
+
 	@Nullable
 	private static String parameterValueFromPosition(List<Parameter> parameters, int position, String name) {
 		return parameters.size() > position ? read(() -> {
 			Parameter parameter = parameters.get(position);
 			if (parameter.name() != null && !parameter.name().isEmpty() && !parameter.name().equals(name)) return null;
 			return clean(parameter.values().get(0).toString());
+		}) : null;
+	}
+
+	@Nullable
+	private static List<String> parameterValuesFromPosition(List<Parameter> parameters, int position, String name) {
+		return parameters.size() > position ? read(() -> {
+			Parameter parameter = parameters.get(position);
+			if (parameter.name() != null && !parameter.name().isEmpty() && !parameter.name().equals(name)) return null;
+			return parameter.values().stream().map(s -> clean(s.toString())).collect(toList());
 		}) : null;
 	}
 
@@ -153,12 +171,6 @@ public class TaraPsiUtil {
 		return null;
 	}
 
-
-	public static List<String> parameterValues(Node node, String name) {
-		if (node == null) return Collections.emptyList();
-		Parameter parameter = node.parameters().stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null ? parameter.values().stream().map(Object::toString).collect(Collectors.toList()) : Collections.emptyList();
-	}
 
 	public static <T> T read(Computable<T> t) {
 		Application application = ApplicationManager.getApplication();

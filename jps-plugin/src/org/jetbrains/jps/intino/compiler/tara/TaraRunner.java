@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 
@@ -71,6 +72,8 @@ class TaraRunner {
 		if (!conf.groupId.isEmpty()) writer.write(GROUP_ID + NL + conf.groupId + NL);
 		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
+		if (!conf.excludedPhases.isEmpty())
+			writer.write(EXCLUDED_PHASES + NL + conf.excludedPhases.stream().map(Object::toString).collect(Collectors.joining(" ")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + (conf.modelGenerationPackage.isEmpty() ? conf.outDsl : conf.modelGenerationPackage) + NL);
 	}
 

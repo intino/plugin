@@ -386,37 +386,25 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private String calculateParent(Model model) {
 		try {
-			LOG.warn("Owner interface: Searching");
-			if (node == null || model == null) {
-				LOG.info("Owner interface: Model not found; " + (node == null ? "node null" : "model null"));
-				return null;
-			}
+			if (node == null || model == null) return null;
 			Module module = ModuleProvider.moduleOf(node);
 			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
 			Model.Language language = model.language();
-			if (language == null || language.generationPackage() == null) {
-				LOG.info("Owner interface: Language not found; " + (language == null ? "language null" : "generationPackage null"));
-				return null;
-			}
+			if (language == null || language.generationPackage() == null) return null;
 			final String workingPackage = language.generationPackage().replace(".model", "").replace(".graph", "");
 			final String languageId = LanguageResolver.languageId(language.name(), language.effectiveVersion());
 			if (languageId == null) {
-				LOG.error("Owner interface: LanguageId = null;" + language.name() + "," + language.effectiveVersion());
 				return null;
 			}
 			String artifact = languageId.split(":")[1];
 			final String parentBoxName = parentBoxName(workingPackage, artifact);
-			LOG.info("Owner interface: parentBoxName = " + parentBoxName);
 
 			PsiClass aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName, allScope(module.getProject())));
 			if (aClass == null)
 				aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName(workingPackage, language.name()), allScope(module.getProject())));
 			if (aClass != null) {
 				String qualifiedName = aClass.getQualifiedName();
-				if (qualifiedName == null) {
-					LOG.warn("Owner interface cannot be collected. QualifiedName = null");
-					return null;
-				}
+				if (qualifiedName == null) return null;
 				return qualifiedName.substring(0, qualifiedName.length() - 3);
 			}
 		} catch (IndexNotReadyException e) {
@@ -425,7 +413,6 @@ public class LegioArtifact implements Configuration.Artifact {
 			e.printStackTrace();
 			LOG.error(e.getMessage());
 		}
-		LOG.warn("Owner interface cannot be collected. aClass = null");
 		return null;
 	}
 

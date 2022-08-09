@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
+
 public class DependencyAuditor {
 	private static final com.intellij.openapi.diagnostic.Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(DependencyAuditor.class.getName());
 	private static final DependencyItem defaultItem = new DependencyItem("");
@@ -26,7 +28,7 @@ public class DependencyAuditor {
 
 	public boolean isModified(TaraNode node) {
 		if (node == null) return true;
-		int hashcode = node.getSignature().hashcode();
+		int hashcode = read(() -> node.getSignature().hashcode());
 		return !map.containsKey(hashcode);
 	}
 
