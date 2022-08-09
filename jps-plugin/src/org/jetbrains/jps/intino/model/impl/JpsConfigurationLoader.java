@@ -63,7 +63,9 @@ class JpsConfigurationLoader {
 			conf.languageVersion = parameters.getOrDefault(LANGUAGE_VERSION, "");
 			conf.level = parameters.getOrDefault(LEVEL, "");
 			conf.outDsl = parameters.getOrDefault(OUT_DSL, "");
-			conf.excludedPhases = Arrays.stream(parameters.getOrDefault(EXCLUDED_PHASES, "").split(" ")).map(Integer::parseInt).collect(Collectors.toList());
+			String excludedPhases = parameters.getOrDefault(EXCLUDED_PHASES, "");
+			if (excludedPhases != null && !excludedPhases.isEmpty())
+				conf.excludedPhases = Arrays.stream(excludedPhases.split(" ")).map(Integer::parseInt).collect(Collectors.toList());
 			conf.modelGenerationPackage = parameters.get(TaraBuildConstants.GENERATION_PACKAGE);
 			conf.boxGenerationPackage = parameters.get(KonosBuildConstants.BOX_GENERATION_PACKAGE);
 			conf.languageGenerationPackage = parameters.getOrDefault(LANGUAGE_GENERATION_PACKAGE, "");
