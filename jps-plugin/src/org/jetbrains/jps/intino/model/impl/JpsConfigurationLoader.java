@@ -86,7 +86,9 @@ class JpsConfigurationLoader {
 		conf.language = props.getOrDefault(TARA + LANGUAGE, "");
 		conf.languageVersion = props.getOrDefault(TARA + LANGUAGE_VERSION, "");
 		conf.outDsl = props.getOrDefault(TARA + OUT_DSL, "");
-		conf.excludedPhases = Arrays.stream(props.getOrDefault(TARA + EXCLUDED_PHASES, "").split(",")).map(Integer::parseInt).collect(Collectors.toList());
+		String phases = props.getOrDefault(TARA + EXCLUDED_PHASES, "");
+		if (phases != null && !phases.isEmpty())
+			conf.excludedPhases = Arrays.stream(phases.split(",")).map(Integer::parseInt).collect(Collectors.toList());
 		conf.modelGenerationPackage = props.getOrDefault(TARA + GENERATION_PACKAGE, props.getOrDefault(TARA + OUT_DSL, ""));
 	}
 }

@@ -148,7 +148,6 @@ Concept:CheckDuplicatedArguments RunConfiguration
 	var string mainClass = ""
 	var string vmOptions = ""
 	has Argument
-	var function:FinalArguments finalArguments = @finalArguments is private
 
 Concept:Named Server
 	var word:{Dev Pre Pro Demo} type
