@@ -70,7 +70,7 @@ class StashEditor implements TextEditor {
 	@NotNull
 	@Override
 	public String getName() {
-		return "Stash editor";
+		return "Stash Editor";
 	}
 
 	@NotNull

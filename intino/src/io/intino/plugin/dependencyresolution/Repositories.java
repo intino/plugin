@@ -67,7 +67,7 @@ public class Repositories {
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
-		return IntinoSettings.getSafeInstance(module.getProject()).artifactories().stream().
+		return IntinoSettings.getInstance(module.getProject()).artifactories().stream().
 				filter(c -> c.serverId.equals(mavenId)).findFirst().
 				map(c -> new Authentication(c.username, c.password)).
 				orElse(null);

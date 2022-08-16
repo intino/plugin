@@ -21,7 +21,7 @@ public class DependencyTreeWindowFactory implements ToolWindowFactory, DumbAware
 
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		Content content = ContentFactory.SERVICE.getInstance().createContent(new DependencyTreeToolWindow(project), "", false);
+		Content content = ContentFactory.getInstance().createContent(new DependencyTreeToolWindow(project), "", false);
 		toolWindow.getContentManager().addContent(content);
 		toolWindow.getContentManager().setSelectedContent(content, false);
 	}

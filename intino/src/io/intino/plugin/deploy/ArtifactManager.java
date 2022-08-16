@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
+import static io.intino.plugin.settings.IntinoSettings.getInstance;
 
 public class ArtifactManager {
 	private final Module module;
@@ -106,7 +106,7 @@ public class ArtifactManager {
 	}
 
 	private ServerInfo serverOf(ProcessInfo system) throws IntinoException {
-		final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+		final Map.Entry<String, String> cesar = getInstance(module.getProject()).cesar();
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
@@ -117,7 +117,7 @@ public class ArtifactManager {
 	}
 
 	private ProcessInfo getProcess(LegioConfiguration configuration) throws IntinoException {
-		final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+		final Map.Entry<String, String> cesar = getInstance(module.getProject()).cesar();
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {

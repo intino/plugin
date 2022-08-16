@@ -1,7 +1,7 @@
 package io.intino.plugin.settings;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -23,14 +23,18 @@ import java.util.stream.Collectors;
 				@Storage(value = "$PROJECT_CONFIG_DIR$/IntinoSettings.xml")
 		}
 )
-public class IntinoSettings implements PersistentStateComponent<io.intino.plugin.settings.IntinoSettings.State> {
-
+public class IntinoSettings implements PersistentStateComponent<IntinoSettings.State>, Disposable {
 	private final State myState = new State();
 	private List<ArtifactoryCredential> artifactories = null;
 
-	public static io.intino.plugin.settings.IntinoSettings getSafeInstance(Project project) {
-		io.intino.plugin.settings.IntinoSettings settings = project.getService(io.intino.plugin.settings.IntinoSettings.class);
-		return settings != null ? settings : new io.intino.plugin.settings.IntinoSettings();
+	@Override
+	public void dispose() {
+
+	}
+
+	public static IntinoSettings getInstance(Project project) {
+		IntinoSettings settings = project.getService(IntinoSettings.class);
+		return settings != null ? settings : new IntinoSettings();
 	}
 
 	public void saveState() {

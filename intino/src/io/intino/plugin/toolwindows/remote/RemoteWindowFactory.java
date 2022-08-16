@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class RemoteWindowFactory implements ToolWindowFactory, DumbAware {
-	public static final String ID = "Remote";
+	public static final String ID = "Intino Remote";
 
 	public static ToolWindow getInstance(Project project) {
 		return ToolWindowManager.getInstance(project).getToolWindow(ID);
@@ -28,8 +28,7 @@ public class RemoteWindowFactory implements ToolWindowFactory, DumbAware {
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		RemoteWindow remoteWindow = new RemoteWindow(project);
 		toolWindow.setTitle("Remote");
-		toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().
-				createContent(remoteWindow.content(), "", false));
+		toolWindow.getContentManager().addContent(ContentFactory.getInstance().createContent(remoteWindow.content(), "", false));
 	}
 
 	@Override

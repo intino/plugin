@@ -193,7 +193,7 @@ public class PluginExecutor {
 	}
 
 	private Authentication provideAuthentication(String mavenId) {
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(module.getProject());
+		final IntinoSettings settings = IntinoSettings.getInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(mavenId))
 				return new Authentication(credential.username, credential.password);

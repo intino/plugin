@@ -6,7 +6,6 @@ import io.intino.plugin.lang.psi.TaraNode;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import org.sonatype.aether.repository.Authentication;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
@@ -18,7 +17,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 	public LegioRepository(LegioConfiguration configuration, Node node) {
 		this.configuration = configuration;
 		this.node = node;
-		this.settings = IntinoSettings.getSafeInstance(configuration.module().getProject());
+		this.settings = IntinoSettings.getInstance(configuration.module().getProject());
 
 	}
 

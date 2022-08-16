@@ -28,7 +28,7 @@ public class IntinoSettingsComponent implements Configurable {
 	private IntinoSettingsPanel intinoSettingsPanel;
 
 	public IntinoSettingsComponent(Project project) {
-		this.settings = IntinoSettings.getSafeInstance(project);
+		this.settings = IntinoSettings.getInstance(project);
 		this.project = project;
 		CompilerConfigurationImpl instance = (CompilerConfigurationImpl) CompilerConfigurationImpl.getInstance(project);
 		List<String> patterns = Arrays.asList(instance.getResourceFilePatterns());

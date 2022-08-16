@@ -54,7 +54,7 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	private void sendReport(Project project, String reportTitle, String reportDescription, String type) {
 		IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId("io.intino.plugin"));
 		final Properties properties = createErrorProperties(plugin, reportTitle, reportDescription, type);
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(project);
+		final IntinoSettings settings = IntinoSettings.getInstance(project);
 		PivotalLoggingEventSubmitter submitter = new PivotalLoggingEventSubmitter(properties, settings.trackerProjectId(), settings.trackerApiToken());
 		submitter.submit();
 	}

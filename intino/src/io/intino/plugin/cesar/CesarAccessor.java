@@ -19,7 +19,7 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
-import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
+import static io.intino.plugin.settings.IntinoSettings.getInstance;
 
 public class CesarAccessor {
 	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
@@ -135,7 +135,7 @@ public class CesarAccessor {
 
 	private Map.Entry<String, String> credentials() {
 		try {
-			return getSafeInstance(this.project).cesar();
+			return getInstance(this.project).cesar();
 		} catch (IntinoException ignored) {
 		}
 		return null;

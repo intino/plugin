@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.plugin.deploy.ArtifactManager.urlOf;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.plugin.settings.IntinoSettings.getSafeInstance;
+import static io.intino.plugin.settings.IntinoSettings.getInstance;
 import static java.util.stream.Collectors.toList;
 
 public class ArtifactDeployer {
@@ -66,7 +66,7 @@ public class ArtifactDeployer {
 			if (aPackage == null) throw new FatalIntinoException("Package configuration not found");
 			if (!aPackage.isRunnable())
 				throw new FatalIntinoException("Packaging must be runnable and have Main Class");
-			final Map.Entry<String, String> cesar = getSafeInstance(module.getProject()).cesar();
+			final Map.Entry<String, String> cesar = getInstance(module.getProject()).cesar();
 			if (deployment.server() == null)
 				throw new IntinoException("Server " + deployment.server().name() + " not found");
 			List<Configuration.Parameter> incorrectParameters = incorrectParameters(deployment.runConfiguration().finalArguments());
@@ -136,7 +136,7 @@ public class ArtifactDeployer {
 	}
 
 	private Artifactory credentials(Artifactory artifactory) {
-		final IntinoSettings settings = getSafeInstance(module.getProject());
+		final IntinoSettings settings = getInstance(module.getProject());
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(artifactory.id()))
 				artifactory.user(credential.username).password(credential.password);

@@ -246,7 +246,7 @@ public abstract class AbstractArtifactFactory {
 		Artifact artifact = configuration.artifact();
 		if (includeDistribution(phase)) {
 			if (safe(() -> artifact.distribution().onBitbucket()) != null) {
-				String bitbucketToken = IntinoSettings.getSafeInstance(module.getProject()).bitbucketToken();
+				String bitbucketToken = IntinoSettings.getInstance(module.getProject()).bitbucketToken();
 				if (bitbucketToken == null || bitbucketToken.isEmpty())
 					throw new IntinoException("Bitbucket token not found. Please, set it on Intino Settings");
 				new BitbucketDeployer(configuration, bitbucketToken).execute();

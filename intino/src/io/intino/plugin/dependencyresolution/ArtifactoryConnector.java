@@ -38,7 +38,7 @@ public class ArtifactoryConnector {
 	public ArtifactoryConnector(Project project, List<Configuration.Repository> repositories) {
 		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
-		if (project != null) credentials = IntinoSettings.getSafeInstance(project).artifactories();
+		if (project != null) credentials = IntinoSettings.getInstance(project).artifactories();
 		else credentials = new ArrayList<>();
 	}
 

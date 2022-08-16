@@ -17,8 +17,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
+
 public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
-	public static final String ID = "Intino Build";
+	public static final String ID = "Intino Console";
 
 	public static ToolWindow getInstance(Project project) {
 		return ToolWindowManager.getInstance(project).getToolWindow(ID);
@@ -27,14 +29,16 @@ public class ConsoleWindowFactory implements ToolWindowFactory, DumbAware {
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		OutputWindow window = new OutputWindow(project);
-		toolWindow.setTitle("Intino Build");
-		toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().
-				createContent(window.content(), "", false));
+		toolWindow.setTitle("Console");
+		toolWindow.getContentManager().addContent(ContentFactory.getInstance().createContent(window.content(), "", false));
 	}
 
 	@Override
 	public boolean isApplicable(@NotNull Project project) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).get() != null);
+		return modules.length == 0 ?
+				IntinoDirectory.of(project).exists() :
+				Arrays.stream(modules).anyMatch(module -> configurationOf(module) instanceof LegioConfiguration ||
+						new LegioFileCreator(module, Collections.emptyList()).get() != null);
 	}
 }

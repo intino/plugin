@@ -151,7 +151,7 @@ public class WebArtifactResolver {
 
 
 	private Authentication provideAuthentication(String mavenId) {
-		final IntinoSettings settings = IntinoSettings.getSafeInstance(project);
+		final IntinoSettings settings = IntinoSettings.getInstance(project);
 		for (ArtifactoryCredential credential : settings.artifactories())
 			if (credential.serverId.equals(mavenId))
 				return new Authentication(credential.username, credential.password);

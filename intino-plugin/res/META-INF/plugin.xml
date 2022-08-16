@@ -201,11 +201,11 @@
 									   implementationClass="io.intino.plugin.archetype.highlighting.ArchetypeSyntaxHighlighterFactory"/>
 		<treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
 		<!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
-		<toolWindow id="Remote"
+		<toolWindow id="Intino Remote"
 					icon="/icons/intino/intino-13.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.remote.RemoteWindowFactory"/>
-		<toolWindow id="Intino Build"
+		<toolWindow id="Intino Console"
 					icon="/icons/intino/intino-13.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.output.ConsoleWindowFactory"/>
@@ -225,6 +225,11 @@
 					icon="/icons/files/stash-16.png"
 					anchor="left"
 					factoryClass="io.intino.plugin.toolwindows.store.IntinoStoreWindowFactory"/>
+		<toolWindow id="Intino Metamodel"
+					icon="/icons/files/stash-16.png"
+					anchor="bottom"
+					factoryClass="io.intino.plugin.toolwindows.metamodel.IntinoMetamodelWindowFactory"/>
+
 		<intentionAction>
 			<className>io.intino.plugin.codeinsight.intentions.FromBodyToExplicitParameters</className>
 			<category>Move To parameters</category>
