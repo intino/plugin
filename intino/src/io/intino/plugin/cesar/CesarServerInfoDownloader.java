@@ -20,6 +20,7 @@ public class CesarServerInfoDownloader {
 		List<Configuration> configurations = Arrays.stream(ModuleManager.getInstance(project).getModules()).map(IntinoUtil::configurationOf).filter(obj -> obj instanceof LegioConfiguration).collect(Collectors.toList());
 		List<Configuration.Server> localServers = configurations.stream().map(Configuration::servers).flatMap(Collection::stream).filter(distinctByKey(Configuration.Server::name)).collect(Collectors.toList());
 		List<ServerInfo> servers = accessor.servers();
+		if (servers == null) return;
 		CesarInfo.getSafeInstance(project).serversInfo(localServers.stream()
 				.filter(s -> servers.stream().anyMatch(s2 -> s2.alias().equals(s.name()) || s2.id().equals(s.name())))
 				.collect(Collectors.toMap(Configuration.Server::name,

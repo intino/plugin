@@ -18,9 +18,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.util.messages.MessageBusConnection;
+import io.intino.magritte.lang.model.Node;
+import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
+import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.TaraLanguage;
+import io.intino.plugin.lang.psi.MetaIdentifier;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +34,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import java.util.List;
+
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.write;
 
 public class MetamodelWindow {
 	private static final Logger LOG = Logger.getInstance(MetamodelWindow.class);
@@ -45,6 +54,9 @@ public class MetamodelWindow {
 		editor = (EditorEx) EditorFactory.getInstance().createViewer(document, project);
 		editor.setHighlighter(new LexerEditorHighlighter(new TaraSyntaxHighlighter(), editor.getColorsScheme()));
 		editor.getSelectionModel().setSelection(0, document.getTextLength());
+		GridConstraints constraints = new GridConstraints();
+		constraints.setFill(GridConstraints.FILL_BOTH);
+		root.add(editor.getComponent(), constraints);
 		activeListener();
 	}
 
@@ -53,12 +65,10 @@ public class MetamodelWindow {
 	}
 
 	public void refreshRootElement() {
-		System.out.println("refreshRootElement();");
 	}
 
 	public PsiElement getRootElement() {
-		System.out.println("refreshRootElement();");
-		return null;
+		return elementAtCaret;
 	}
 
 	public void selectElementAtCaret() {
@@ -66,10 +76,7 @@ public class MetamodelWindow {
 	}
 
 	public void selectElementAtCaret(@Nullable Editor editor) {
-		if (editor == null) {
-			debug("selectElementAtCaret: Can't select element, editor is null");
-			return;
-		}
+		if (editor == null) return;
 		PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
 		if (psiFile == null || !psiFile.getLanguage().is(TaraLanguage.INSTANCE)) return;
 		Language selectedLanguage = psiFile.getLanguage();
@@ -82,13 +89,24 @@ public class MetamodelWindow {
 			if (elementAtCaret.getParent().getChildren().length == 0) elementAtCaret = elementAtCaret.getParent();
 		}
 		if (elementAtCaret != null && elementAtCaret != getSelectedElement() && isMetaIdentifier(elementAtCaret)) {
-			debug("new element at caret " + elementAtCaret + ", current root=" + getRootElement());
 			setSelectedElement(elementAtCaret);
+			updateEditor(psiFile);
+		}
+	}
+
+	private void updateEditor(PsiFile psiFile) {
+		Node node = TaraPsiUtil.getContainerNodeOf(elementAtCaret);
+		if (node == null) return;
+		List<String> types = node.types();
+		io.intino.magritte.Language lang = LanguageManager.getLanguage(psiFile);
+		if (lang != null && !types.isEmpty()) {
+			Documentation doc = lang.doc(types.stream().filter(t -> !t.contains(":")).findFirst().orElse(types.get(0)));
+			if (doc != null) write(() -> document.setText("dsl " + lang.languageName() + "\n\n" + doc.description()));
 		}
 	}
 
 	private boolean isMetaIdentifier(PsiElement element) {
-		return false;
+		return element instanceof MetaIdentifier || element.getParent() instanceof MetaIdentifier;
 	}
 
 	private PsiElement getSelectedElement() {
@@ -223,6 +241,5 @@ public class MetamodelWindow {
 		public void dispose() {
 			stop();
 		}
-
 	}
 }

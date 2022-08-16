@@ -16,7 +16,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-	<idea-version since-build="221.3427.89"/>
+	<idea-version since-build="222.3345.118"/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>
@@ -226,7 +226,7 @@
 					anchor="left"
 					factoryClass="io.intino.plugin.toolwindows.store.IntinoStoreWindowFactory"/>
 		<toolWindow id="Intino Metamodel"
-					icon="/icons/files/stash-16.png"
+					icon="/icons/intino/intino-13.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.metamodel.IntinoMetamodelWindowFactory"/>
 
