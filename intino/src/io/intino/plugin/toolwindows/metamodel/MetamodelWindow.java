@@ -101,7 +101,7 @@ public class MetamodelWindow {
 		io.intino.magritte.Language lang = LanguageManager.getLanguage(psiFile);
 		if (lang != null && !types.isEmpty()) {
 			Documentation doc = lang.doc(types.stream().filter(t -> !t.contains(":")).findFirst().orElse(types.get(0)));
-			if (doc != null) write(() -> document.setText("dsl " + lang.languageName() + "\n\n" + doc.description()));
+			if (doc != null) write(() -> document.setText("dsl " + lang.metaLanguage() + "\n\n" + doc.description()));
 		}
 	}
 
