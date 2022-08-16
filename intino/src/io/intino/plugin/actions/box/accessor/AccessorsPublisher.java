@@ -2,7 +2,6 @@ package io.intino.plugin.actions.box.accessor;
 
 import com.intellij.notification.*;
 import com.intellij.notification.Notifications.Bus;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -17,15 +16,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +35,6 @@ public class AccessorsPublisher {
 	private static final Logger LOG = Logger.getInstance("Publishing Accessor:");
 	private static final String ACCESSOR = "-accessor";
 	private final Module module;
-	private final StringBuilder log = new StringBuilder();
 	private final File root;
 	private final LegioConfiguration conf;
 
@@ -54,7 +49,7 @@ public class AccessorsPublisher {
 			for (File serviceDirectory : Objects.requireNonNull(root.listFiles(File::isDirectory))) {
 				File[] sources = serviceDirectory.listFiles();
 				if (sources == null || sources.length == 0) return;
-				mvn(serviceDirectory, conf, "install");
+				mvn(serviceDirectory, "install");
 			}
 			FileUtils.deleteDirectory(root);
 		} catch (IOException e) {
@@ -68,7 +63,7 @@ public class AccessorsPublisher {
 			for (File serviceDirectory : Objects.requireNonNull(root.listFiles(File::isDirectory))) {
 				File[] sources = serviceDirectory.listFiles();
 				if (sources == null || sources.length == 0) return;
-				mvn(serviceDirectory, conf, "deploy");
+				mvn(serviceDirectory, "deploy");
 			}
 			FileUtils.deleteDirectory(root);
 		} catch (IOException e) {
@@ -76,9 +71,9 @@ public class AccessorsPublisher {
 		}
 	}
 
-	private void mvn(File serviceDirectory, Configuration conf, String goal) throws IOException {
+	private void mvn(File serviceDirectory, String goal) throws IOException {
 		String[] name = serviceDirectory.getName().split("#");
-		final File pom = createPom(serviceDirectory, name[0], accessorGroupId(), accessorArtifactId(name[1]), conf.artifact().version());
+		final File pom = generatePom(serviceDirectory, name[0], name[1]);
 		final InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
@@ -88,17 +83,31 @@ public class AccessorsPublisher {
 		notifySuccess(this.conf, name[1]);
 	}
 
-	private File createPom(File root, String serviceType, String group, String artifact, String version) {
-		final FrameBuilder builder = new FrameBuilder("pom").add("group", group).add("artifact", artifact).add("version", version);
+	private File generatePom(File root, String serviceType, String artifact) {
+		final File pomFile = new File(root, "pom.xml");
+		if (pomFile.exists()) fillVersions(serviceType, pomFile);
+		else createPom(serviceType, artifact, pomFile);
+		return pomFile;
+	}
+
+	@Deprecated
+	private void createPom(String serviceType, String artifact, File pomFile) {
+		final FrameBuilder builder = new FrameBuilder("pom").add("group", accessorGroupId()).add("artifact", accessorArtifactId(artifact)).add("version", conf.artifact().version());
 		conf.repositories().forEach(r -> buildRepoFrame(builder, r, false, r instanceof Configuration.Repository.Snapshot));
 		if (safe(() -> conf.artifact().distribution().release()) != null)
 			buildRepoFrame(builder, conf.artifact().distribution().release(), true, false);
 		if (safe(() -> conf.artifact().distribution().snapshot()) != null)
 			buildRepoFrame(builder, conf.artifact().distribution().snapshot(), true, true);
 		builder.add("dependency", new FrameBuilder(serviceType).add("value", "").add("version", versionOf(serviceType)).toFrame());
-		final File pomFile = new File(root, "pom.xml");
 		write(builder, pomFile);
-		return pomFile;
+	}
+
+	private void fillVersions(String serviceType, File pomFile) {
+		try {
+			Files.writeString(pomFile.toPath(), Files.readString(pomFile.toPath()).replace("$" + serviceType, versionOf(serviceType)));
+		} catch (IOException e) {
+			LOG.error(e);
+		}
 	}
 
 	private String versionOf(String serviceType) {
@@ -150,11 +159,6 @@ public class AccessorsPublisher {
 	}
 
 	@NotNull
-	private String message() {
-		return "<a href=\"#\">Copy maven dependency</a>";
-	}
-
-	@NotNull
 	private String newDependency(Configuration conf, String app) {
 		return "<dependency>\n" +
 				"    <groupId>" + accessorGroupId() + "</groupId>\n" +
@@ -174,8 +178,7 @@ public class AccessorsPublisher {
 	}
 
 	private void notifyError(String message) {
-		final String result = log.toString();
-		Bus.notify(new Notification("Intino", "Accessor cannot be published. ", message + "\n" + result, ERROR), module.getProject());
+		Bus.notify(new Notification("Intino", "Accessor cannot be published. ", message + "\n", ERROR), module.getProject());
 	}
 
 }

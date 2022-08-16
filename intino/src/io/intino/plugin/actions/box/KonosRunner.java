@@ -14,6 +14,7 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
+import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.file.KonosFileType;
@@ -31,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
+import static io.intino.plugin.project.Safe.safe;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KonosRunner {
@@ -68,6 +70,14 @@ public class KonosRunner {
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(BOX_GENERATION_PACKAGE + NL + conf.artifact().box().targetPackage() + NL);
 		writer.write(COMPILATION_MODE + NL + mode.name() + NL);
+		if (safe(() -> conf.artifact().distribution().snapshot()) != null) {
+			final Configuration.Repository snapshot = conf.artifact().distribution().snapshot();
+			writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
+		}
+		if (safe(() -> conf.artifact().distribution().release()) != null) {
+			final Configuration.Repository release = conf.artifact().distribution().release();
+			writer.write(SNAPSHOT_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+		}
 	}
 
 	private void writePaths(Map<String, String> paths, Writer writer) throws IOException {
