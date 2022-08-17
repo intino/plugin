@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.3.0</version>
+	<version>6.3.1</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -88,7 +88,7 @@
 		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.NodeAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.DSLDeclarationAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.AnnotationsAnnotator"/>
+		<!--		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.AnnotationsAnnotator"/>-->
 		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
 
 		<completion.contributor language="Tara"
