@@ -20,6 +20,7 @@ import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
 import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.javaValidName;
+import static io.intino.plugin.project.Safe.safe;
 
 public class DecorableAnalyzer extends TaraAnalyzer {
 	private final TaraNode node;
@@ -36,6 +37,8 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 		if (!node.is(Tag.Decorable)) return;
 		Module module = ModuleProvider.moduleOf(node);
 		if (module == null) return;
+		String builder = safe(() -> IntinoUtil.configurationOf(module).artifact().model().sdk());
+		if (builder != null && !builder.contains("magritte")) return;
 		PsiClass aClass = JavaPsiFacade.getInstance(node.getProject()).findClass(modelPackage + "." + format(node.name()), moduleScope(module));
 		if (aClass == null) {
 			results.put(node.getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
