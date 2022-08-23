@@ -181,7 +181,6 @@ public abstract class AbstractArtifactFactory {
 		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
 		}
-		wi
 	}
 
 	protected boolean askForReleaseDistribute() {
