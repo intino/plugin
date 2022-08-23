@@ -63,7 +63,6 @@ public abstract class AbstractArtifactFactory {
 	final Project project;
 	final Configuration configuration;
 	final String startingBranch;
-
 	List<String> errorMessages = new ArrayList<>();
 	List<String> successMessages = new ArrayList<>();
 	FactoryPhaseChecker checker = new FactoryPhaseChecker();
@@ -225,8 +224,7 @@ public abstract class AbstractArtifactFactory {
 	private void cleanBuildDirectory() {
 		final CompilerModuleExtension moduleExtension = CompilerModuleExtension.getInstance(module);
 		if (moduleExtension == null || moduleExtension.getCompilerOutputUrl() == null) return;
-		File outDirectory = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", "").replace("production", "build"));
-		File build = new File(outDirectory, "build");
+		File build = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", "").replace("production" + File.separator, "build" + File.separator));
 		try {
 			if (build.exists()) FileUtils.cleanDirectory(build);
 		} catch (IOException e) {

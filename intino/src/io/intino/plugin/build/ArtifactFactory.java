@@ -38,10 +38,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.TerminalWindow.runCommand;
 import static io.intino.plugin.build.FactoryPhaseChecker.collectModuleDependencies;
@@ -97,16 +97,11 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void compileUI() {
-		final List<String> webModules = webModules(module);
-		webModules.forEach(m -> runCommand(module.getProject(), m, "npm run build"));
+		webDependencies(module).forEach(m -> runCommand(module.getProject(), m, "npm run build"));
 	}
 
-	public List<String> webModules(Module module) {
-		List<String> webModules = new ArrayList<>();
-		for (Module dependency : collectModuleDependencies(module, new HashSet<>()))
-			if (ModuleTypeWithWebFeatures.isAvailable(dependency))
-				webModules.add(ModuleUtil.getModuleDirPath(dependency));
-		return webModules;
+	public List<String> webDependencies(Module module) {
+		return collectModuleDependencies(module, new HashSet<>()).stream().filter(ModuleTypeWithWebFeatures::isAvailable).map(ModuleUtil::getModuleDirPath).collect(Collectors.toList());
 	}
 
 	private boolean hasChanges() {
