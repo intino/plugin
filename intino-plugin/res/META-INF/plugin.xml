@@ -6,6 +6,7 @@
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
 	<depends>org.jetbrains.idea.maven</depends>
+	<depends>org.jetbrains.plugins.terminal</depends>
 	<depends>com.intellij.uiDesigner</depends>
 	<depends>Git4Idea</depends>
 

@@ -12,6 +12,8 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -37,7 +39,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 
+import static io.intino.plugin.TerminalWindow.runCommand;
+import static io.intino.plugin.build.FactoryPhaseChecker.collectModuleDependencies;
 import static io.intino.plugin.build.git.GitUtil.currentBranch;
 import static io.intino.plugin.project.Safe.safe;
 
@@ -55,6 +60,9 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			errorMessages.add("Artifact cannot be " + phase.participle() + " during reloading");
 			notifyErrors();
 			return;
+		}
+		if (!checker.webServiceIsCompiled(module)) {
+			compileUI();
 		}
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
 			if (hasChanges()) {
@@ -88,6 +96,19 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			else compilerManager.make(scope, processArtifact(callback));
 		}
 	}
+
+	private void compileUI() {
+		final String workingDir = webModule(module);
+		if (workingDir != null) runCommand(module.getProject(), workingDir, "npm run build");
+	}
+
+
+	public String webModule(Module module) {
+		for (Module dependency : collectModuleDependencies(module, new HashSet<>()))
+			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) return ModuleUtil.getModuleDirPath(module);
+		return null;
+	}
+
 
 	private boolean hasChanges() {
 		return Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
