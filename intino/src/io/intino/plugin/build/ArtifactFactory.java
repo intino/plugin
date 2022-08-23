@@ -27,6 +27,7 @@ import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
+import io.intino.plugin.build.AbstractArtifactFactory.ProcessResult;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
@@ -102,13 +103,11 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		if (workingDir != null) runCommand(module.getProject(), workingDir, "npm run build");
 	}
 
-
 	public String webModule(Module module) {
 		for (Module dependency : collectModuleDependencies(module, new HashSet<>()))
-			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) return ModuleUtil.getModuleDirPath(module);
+			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) return ModuleUtil.getModuleDirPath(dependency);
 		return null;
 	}
-
 
 	private boolean hasChanges() {
 		return Arrays.stream(ModuleRootManager.getInstance(module).getContentRoots()).anyMatch(vf -> GitUtil.isModified(module, vf));
@@ -162,7 +161,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				if (!(configuration instanceof LegioConfiguration)) return;
-				AbstractArtifactFactory.ProcessResult result = process(indicator);
+				ProcessResult result = process(indicator);
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
 				if (!result.equals(ProcessResult.Retry)) {

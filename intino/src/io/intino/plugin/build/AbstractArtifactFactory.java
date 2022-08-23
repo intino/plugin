@@ -95,6 +95,7 @@ public abstract class AbstractArtifactFactory {
 		try {
 			checker.check(phase, module, configuration);
 			if (mavenNeeded(phase, configuration)) {
+				cleanBuildDirectory();
 				ProcessResult result = runMavenPhases(indicator);
 				if (!result.equals(ProcessResult.Done)) return result;
 				bitbucket(phase, configuration);
@@ -180,8 +181,8 @@ public abstract class AbstractArtifactFactory {
 		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
 		}
+		wi
 	}
-
 
 	protected boolean askForReleaseDistribute() {
 		AtomicBoolean response = new AtomicBoolean(false);
@@ -220,6 +221,18 @@ public abstract class AbstractArtifactFactory {
 
 	protected boolean isHotFixBranch() {
 		return startingBranch.toLowerCase().startsWith("hotfix");
+	}
+
+	private void cleanBuildDirectory() {
+		final CompilerModuleExtension moduleExtension = CompilerModuleExtension.getInstance(module);
+		if (moduleExtension == null || moduleExtension.getCompilerOutputUrl() == null) return;
+		File outDirectory = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", "").replace("production", "build"));
+		File build = new File(outDirectory, "build");
+		try {
+			if (build.exists()) FileUtils.cleanDirectory(build);
+		} catch (IOException e) {
+			Logger.getInstance(AbstractArtifactFactory.class.getName()).error(e);
+		}
 	}
 
 	private void cleanWebOutputs(Module module) {
