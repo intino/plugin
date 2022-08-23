@@ -27,7 +27,6 @@ import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.MessageProvider;
-import io.intino.plugin.build.AbstractArtifactFactory.ProcessResult;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
@@ -39,8 +38,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import static io.intino.plugin.TerminalWindow.runCommand;
 import static io.intino.plugin.build.FactoryPhaseChecker.collectModuleDependencies;
@@ -61,9 +62,6 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			errorMessages.add("Artifact cannot be " + phase.participle() + " during reloading");
 			notifyErrors();
 			return;
-		}
-		if (!checker.webServiceIsCompiled(module)) {
-			compileUI();
 		}
 		if (includeDistribution(phase) && !distributed && !isSnapshot()) {
 			if (hasChanges()) {
@@ -99,14 +97,16 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void compileUI() {
-		final String workingDir = webModule(module);
-		if (workingDir != null) runCommand(module.getProject(), workingDir, "npm run build");
+		final List<String> webModules = webModules(module);
+		webModules.forEach(m -> runCommand(module.getProject(), m, "npm run build"));
 	}
 
-	public String webModule(Module module) {
+	public List<String> webModules(Module module) {
+		List<String> webModules = new ArrayList<>();
 		for (Module dependency : collectModuleDependencies(module, new HashSet<>()))
-			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) return ModuleUtil.getModuleDirPath(dependency);
-		return null;
+			if (ModuleTypeWithWebFeatures.isAvailable(dependency))
+				webModules.add(ModuleUtil.getModuleDirPath(dependency));
+		return webModules;
 	}
 
 	private boolean hasChanges() {
@@ -161,6 +161,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				if (!(configuration instanceof LegioConfiguration)) return;
+				if (!checker.webServiceIsCompiled(module)) {
+					indicator.setText("Building UI services");
+					compileUI();
+				}
 				ProcessResult result = process(indicator);
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));

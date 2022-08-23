@@ -51,7 +51,7 @@ public class IntinoFactoryView extends JPanel {
 	IntinoFactoryView(Project project) {
 		this.project = project;
 		this.lastAction = Instant.now();
-		project.getMessageBus().connect().subscribe(LafManagerListener.TOPIC, source -> {
+		project.getMessageBus().connect().subscribe(LafManagerListener.TOPIC, (LafManagerListener) source -> {
 			mode("darcula".equalsIgnoreCase(source.getCurrentLookAndFeel().getName()));
 			source.repaintUI();
 		});
