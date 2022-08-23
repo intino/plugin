@@ -92,7 +92,7 @@ public abstract class AbstractArtifactFactory {
 	private ProcessResult processArtifact(ProgressIndicator indicator) {
 		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
-			checker.check(phase, module, configuration);
+			checker.check(phase, configuration);
 			if (mavenNeeded(phase, configuration)) {
 				cleanBuildDirectory();
 				ProcessResult result = runMavenPhases(indicator);

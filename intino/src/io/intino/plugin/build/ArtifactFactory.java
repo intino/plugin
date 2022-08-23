@@ -75,7 +75,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 //				return;
 //			}
 			try {
-				checker.check(phase, module, configuration);
+				checker.check(phase, configuration);
 				if (startingBranch != null && !isHotFixBranch() && !isInMasterBranch() && !askForReleaseDistribute())
 					return;
 				if (startingBranch != null && !isHotFixBranch() && !isInMasterBranch()) checkoutMasterAndMerge();

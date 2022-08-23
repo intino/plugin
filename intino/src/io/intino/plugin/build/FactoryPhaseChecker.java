@@ -21,14 +21,13 @@ import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.project.Safe.safe;
 
 public class FactoryPhaseChecker {
-	void check(FactoryPhase phase, Module module, Configuration configuration) throws IntinoException {
+	void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
 		if (!(configuration instanceof LegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
 		if (safe(() -> ((LegioConfiguration) configuration).artifact().packageConfiguration()) == null)
 			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))
 			throw new IntinoException(message("distribution.repository.not.found"));
-		if (!webServiceIsCompiled(module)) throw new IntinoException(message("web.service.not.packaged"));
 	}
 
 	public boolean webServiceIsCompiled(Module module) {
