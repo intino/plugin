@@ -22,11 +22,11 @@ public class TerminalWindow {
 		try {
 			final ShellTerminalWidget widget = terminalView.createLocalShellWidget(workingDir, "npm");
 			widget.executeCommand(command);
-			while (widget.hasRunningCommands()) {
-				try {
-					Thread.currentThread().wait(1000);
-				} catch (InterruptedException e) {
-				}
+			try {
+				widget.getTtyConnector().waitFor();
+			} catch (InterruptedException e) {
+				Logger.getInstance(TerminalWindow.class).info(e);
+
 			}
 
 		} catch (IOException e) {
