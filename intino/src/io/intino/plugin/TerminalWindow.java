@@ -1,7 +1,6 @@
 package io.intino.plugin;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -46,9 +45,5 @@ public class TerminalWindow {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private static void withSyncTask(String title, Runnable runnable, Project project) {
-		ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, title, false, project);
 	}
 }
