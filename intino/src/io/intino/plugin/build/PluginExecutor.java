@@ -12,8 +12,6 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import com.jcabi.aether.Aether;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.MessageProvider;
@@ -23,8 +21,6 @@ import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.plugin.toolwindows.IntinoTopics;
-import io.intino.plugin.toolwindows.remote.MavenListener;
 import io.intino.plugin.toolwindows.remote.RemoteWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -171,25 +167,13 @@ public class PluginExecutor {
 		return remotes;
 	}
 
-	private RemoteRepository repository(Repository remote) {
-		final RemoteRepository repository = new RemoteRepository(remote.identifier(), "default", remote.url()).setAuthentication(provideAuthentication(remote.identifier()));
-		repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS));
-		return repository;
-	}
-
 	@NotNull
 	private File localRepository() {
 		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
 	}
 
 	private void publish(String line) {
-		if (module.getProject().isDisposed()) return;
-		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MessageBusConnection connect = messageBus.connect();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
-		mavenListener.println(line);
-		connect.deliverImmediately();
-		connect.disconnect();
+		Logger.getInstance(this.getClass()).info(line);
 	}
 
 	private Authentication provideAuthentication(String mavenId) {

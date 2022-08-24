@@ -1,3 +1,19 @@
+def type(pom) type(deployFile)
+	<?xml version="1.0" encoding="UTF-8"?>
+	<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+		<groupId>$groupId+lowercase</groupId>
+		<artifactId>$artifactId+lowercase</artifactId>
+		<name>$artifactId+lowercase</name>
+		<version>$version</version>
+
+		<repositories>
+				$repository+release...[$NL]
+		</repositories>
+	</project>
+end
+
 def type(pom)
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -18,20 +34,20 @@ def type(pom)
 		[<developers>
 			$developer...[$NL]
 		</developers>]
-		<properties>
+		[<properties>
 			<maven.compiler.source>$sdk</maven.compiler.source>
 			<maven.compiler.target>$sdk</maven.compiler.target>
 			<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 			<sonar.language>java</sonar.language>
 			<sonar.login></sonar.login>
 			<sonar.password></sonar.password>
-		</properties>
+		</properties>]
 
 		<build>
-			<testSourceDirectory>test</testSourceDirectory>
+			[<testSourceDirectory>test</testSourceDirectory>
 			<outputDirectory>$outDirectory</outputDirectory>
 			<testOutputDirectory>$testOutDirectory</testOutputDirectory>
-			<directory>$buildDirectory~$artifactId+lowercase</directory>
+			<directory>$buildDirectory~$artifactId+lowercase</directory>]
 			[<resources>
 				$resourceDirectory...[$NL]
 			</resources>]

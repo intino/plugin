@@ -7,12 +7,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Key;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import io.intino.Configuration;
+import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.utils.FileSystemUtils;
 import io.intino.plugin.build.FactoryPhase;
@@ -20,9 +17,7 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
-import io.intino.plugin.toolwindows.IntinoTopics;
-import io.intino.plugin.toolwindows.remote.MavenListener;
-import org.apache.maven.shared.invoker.*;
+import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.utils.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -30,7 +25,6 @@ import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,58 +32,53 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Properties;
 
 import static io.intino.plugin.MessageProvider.message;
+import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
-import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
 
 public class MavenRunner {
 	private static final Object monitor = new Object();
 	private final Module module;
-	private final InvocationOutputHandler handler;
 	private final String output = "";
 
 
 	public MavenRunner(Module module) {
 		this.module = module;
-		handler = defaultHandler();
+	}
+
+	public void executeLanguage(Configuration conf) throws IOException, IntinoException {
+		Configuration.Repository languageRepository = repository(conf);
+		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
+		Configuration.Artifact artifact = conf.artifact();
+		final File jar = new File(fileOfLanguage(artifact));
+		final File pom = new File(jar.getParentFile(), "pom.xml");
+		String pomContent = languagePom(languageRepository, artifact);
+		Files.writeString(pom.toPath(), pomContent);
+		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact, jar), "deploy:deploy-file");
+		if (result != null && result.getExitCode() != 0)
+			throwException(result, "error.publishing.language", DISTRIBUTE);
+		else if (result == null)
+			throw new IOException(message("error.publishing.language", DISTRIBUTE, "Maven HOME not found"));
+	}
+
+	private static String languagePom(Configuration.Repository languageRepository, Configuration.Artifact artifact) {
+		return new PomTemplate().render(new FrameBuilder("pom", "deployFile")
+				.add("groupId", "tara.dsl")
+				.add("artifactId", artifact.model().outLanguage())
+				.add("version", artifact.version())
+				.add("repository", new FrameBuilder("repository", "release").add("name", languageRepository.identifier()).add("url", languageRepository.url())));
 	}
 
 	@NotNull
-	private InvocationOutputHandler defaultHandler() {
-		return this::publish;
-	}
-
-	private void publish(String line) {
-		if (module.getProject().isDisposed()) return;
-		final MessageBus messageBus = module.getProject().getMessageBus();
-		final MavenListener mavenListener = messageBus.syncPublisher(IntinoTopics.BUILD_CONSOLE);
-		mavenListener.println(line);
-		final MessageBusConnection connect = messageBus.connect();
-		connect.deliverImmediately();
-		connect.disconnect();
-	}
-
-	public void executeLanguage(Configuration conf) throws MavenInvocationException, IOException, IntinoException {
-		Configuration.Repository languageRepository = repository(conf);
-		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
-		InvocationRequest request = new DefaultInvocationRequest().setGoals(Collections.singletonList("deploy:deploy-file"));
-		Configuration.Artifact artifact = conf.artifact();
-		request.setMavenOpts("-Durl=" + languageRepository.url() + " " +
+	private static String mavenOpts(Configuration.Repository languageRepository, Configuration.Artifact artifact, File jar) {
+		return "-Durl=" + languageRepository.url() + " " +
 				"-DrepositoryId=" + languageRepository.identifier() + " " +
 				"-DgroupId=tara.dsl " +
 				"-DartifactId=" + artifact.model().outLanguage() + " " +
 				"-Dversion=" + artifact.version() + " " +
-				"-Dfile=" + fileOfLanguage(artifact));
-		final Properties properties = new Properties();
-		request.setProperties(properties);
-		final InvocationResult result = invokeMaven(request);
-		if (result != null && result.getExitCode() != 0)
-			throwException(result, "error.publishing.language", FactoryPhase.DISTRIBUTE);
-		else if (result == null)
-			throw new IOException(message("error.publishing.language", FactoryPhase.DISTRIBUTE, "Maven HOME not found"));
+				"-Dfile=" + jar;
 	}
 
 	private Configuration.Repository repository(Configuration configuration) throws IntinoException {
@@ -123,7 +112,7 @@ public class MavenRunner {
 	}
 
 	public synchronized InvocationResult invokeMavenWithConfiguration(File pom, String... phases) {
-		return invokeMavenWithConfigurationAndOptions(pom, null, phases);
+		return invokeMavenWithConfigurationAndOptions(pom, "", phases);
 	}
 
 	public synchronized InvocationResult invokeMavenWithConfigurationAndOptions(File pom, String mvnOptions, String... phases) {
@@ -155,7 +144,7 @@ public class MavenRunner {
 					}
 				});
 				MavenRunnerSettings runnerSettings = new MavenRunnerSettings();
-				runnerSettings.setVmOptions(mvnOptions);
+				runnerSettings.setVmOptions((mvnOptions + " -Djansi.passthrough=true").trim());
 				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, callback);
 			}, ModalityState.NON_MODAL);
 			try {
@@ -172,16 +161,6 @@ public class MavenRunner {
 
 	public String output() {
 		return this.output;
-	}
-
-	private InvocationResult invokeMaven(InvocationRequest request) throws MavenInvocationException {
-		final String ijMavenHome = MavenProjectsManager.getInstance(module.getProject()).getGeneralSettings().getMavenHome();
-		final File mavenHome = resolveMavenHomeDirectory(ijMavenHome);
-		if (mavenHome == null) return null;
-		Invoker invoker = new DefaultInvoker().setMavenHome(mavenHome);
-		addLogger(invoker);
-		configure(request, mavenHome, "");
-		return invoker.execute(request);
 	}
 
 	@NotNull
@@ -203,21 +182,6 @@ public class MavenRunner {
 		if (result.getExecutionException() != null)
 			throw new IOException(message(message, phase.gerund().toLowerCase(), result.getExecutionException().getMessage()), result.getExecutionException());
 		else throw new IOException(message(message, phase.gerund().toLowerCase(), output), new IOException(output));
-	}
-
-	private void addLogger(Invoker invoker) {
-		invoker.setOutputHandler(handler);
-		invoker.setErrorHandler(handler);
-	}
-
-	@SuppressWarnings("ResultOfMethodCallIgnored")
-	private void configure(InvocationRequest request, File mavenHome, String mavenOpts) {
-		final File mvn = new File(mavenHome, "bin" + File.separator + "mvn");
-		mvn.setExecutable(true);
-		if (!mavenOpts.isEmpty()) request.setMavenOpts(mavenOpts);
-		request.setShowErrors(true);
-		final Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
-		if (sdk != null && sdk.getHomePath() != null) request.setJavaHome(new File(sdk.getHomePath()));
 	}
 
 
