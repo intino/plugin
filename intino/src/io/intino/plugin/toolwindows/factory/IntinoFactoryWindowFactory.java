@@ -22,7 +22,7 @@ public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware 
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		IntinoFactoryToolWindow factoryToolWindow = new IntinoFactoryToolWindow(project);
-		Content content = ContentFactory.SERVICE.getInstance().createContent(factoryToolWindow, "", false);
+		Content content = ContentFactory.getInstance().createContent(factoryToolWindow, "", false);
 		toolWindow.getContentManager().addContent(content);
 		toolWindow.getContentManager().setSelectedContent(content, false);
 	}
