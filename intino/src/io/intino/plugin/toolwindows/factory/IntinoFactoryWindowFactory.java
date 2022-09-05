@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware {
 
@@ -30,6 +31,10 @@ public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware 
 	@Override
 	public boolean isApplicable(@NotNull Project project) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).get() != null);
+		return modules.length == 0 ? IntinoDirectory.of(project).exists() : legioFileExists(modules);
+	}
+
+	private static boolean legioFileExists(Module[] modules) {
+		return Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module, List.of()).get() != null);
 	}
 }

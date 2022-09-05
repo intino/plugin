@@ -33,11 +33,7 @@ class TaraRunner {
 	private static File argsFile;
 	private List<String> classpath;
 
-	TaraRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf, boolean isMake,
-			   final Map<String, Boolean> sources,
-			   final String encoding,
-			   final boolean isTest,
-			   List<String> paths) throws IOException {
+	TaraRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf, boolean isMake, final Map<String, Boolean> sources, final String encoding, final boolean isTest, List<String> paths) throws IOException {
 		argsFile = FileUtil.createTempFile("ideaTaraToCompile", ".txt", false);
 		loadClassPath(paths.get(4), moduleName);
 		LOG.info("args file: " + argsFile.getAbsolutePath());
@@ -57,11 +53,11 @@ class TaraRunner {
 	}
 
 	private void loadClassPath(String intinoDirectory, String moduleName) throws IOException {
-		final File classPathFile = new File(intinoDirectory, "compiler.classpath");
-		if (!classPathFile.exists()) new File(intinoDirectory, moduleName);
+		File classPathFile = new File(intinoDirectory, "model" + File.separator + moduleName + File.separator + "compiler.classpath");
+		if (!classPathFile.exists()) classPathFile = new File(intinoDirectory, "compiler.classpath");
 		if (!classPathFile.exists())
 			throw new IOException("Unable to find builder classpath. Please reload configuration");
-		this.classpath = Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).replace("$HOME", System.getProperty("user.home")).split(":"));
+		this.classpath = Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).split(":"));
 	}
 
 	private void fillConfiguration(JpsModuleConfiguration conf, Writer writer) throws IOException {
@@ -96,8 +92,8 @@ class TaraRunner {
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);
-		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
-				getJavaExecutable(), mainClass(), Collections.emptyList(), classpath, vmParams, programParams);
+		List<String> finalClasspath = classpath.stream().map(j -> j.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());
+		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(getJavaExecutable(), mainClass(), Collections.emptyList(), finalClasspath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, String.join(" ", cmd), encoding, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
 			@NotNull
@@ -112,11 +108,12 @@ class TaraRunner {
 	}
 
 	private String mainClass() {
-		try (JarFile jarFile = new JarFile(new File(classpath.get(0)))) {
+		final String mainJar = classpath.get(0).replace("$HOME", System.getProperty("user.home"));
+		try (JarFile jarFile = new JarFile(new File(mainJar))) {
 			String mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
 			return mainClass != null ? mainClass : "io.intino.magritte.TaracRunner";
 		} catch (IOException e) {
-			LOG.warn("Main class not found in " + classpath.get(0));
+			LOG.warn("Main class not found in " + mainJar);
 			return "io.intino.magritte.TaracRunner";
 		}
 	}
