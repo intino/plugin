@@ -90,7 +90,7 @@ public class MavenRunner {
 	public void executeArtifact(FactoryPhase phase) throws IOException {
 		final File pom = new PomCreator(module).frameworkPom(phase);
 		final InvocationResult result = invokeMaven(pom, phase);
-		applyBuildFixes(module, phase);
+		applyBuildFixes(module);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.artifact", phase);
 		else {
 			if (!preservePOM()) pom.delete();
@@ -107,7 +107,7 @@ public class MavenRunner {
 		return safe != null ? safe : false;
 	}
 
-	private void applyBuildFixes(Module module, FactoryPhase phase) {
+	private void applyBuildFixes(Module module) {
 		new BuildFixer(module).apply();
 	}
 

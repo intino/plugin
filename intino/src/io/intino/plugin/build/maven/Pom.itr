@@ -55,18 +55,7 @@ def type(pom)
 				$resourceTestDirectory...[$NL]
 			</testResources>]
 			<plugins>
-				<plugin>
-					<groupId>org.owasp</groupId>
-					<artifactId>dependency-check-maven</artifactId>
-					<version>7.1.0</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>check</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
+				$dependencyCheck
 			    <plugin>
                       <artifactId>maven-clean-plugin</artifactId>
                       <version>3.0.0</version>
@@ -264,6 +253,20 @@ def trigger(moduleDependency)
 	<source>$this</source>
 end
 
+def trigger(dependencyCheck)
+	<plugin>
+		<groupId>org.owasp</groupId>
+		<artifactId>dependency-check-maven</artifactId>
+		<version>7.1.0</version>
+		<executions>
+			<execution>
+				<goals>
+					<goal>check</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
+end
 
 def trigger(resourceDirectory)
 	<resource><directory>$this</directory></resource>

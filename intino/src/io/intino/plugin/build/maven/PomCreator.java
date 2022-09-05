@@ -81,6 +81,7 @@ class PomCreator {
 		builder.add("buildDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "build" + separator);
 		builder.add("outDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "production" + separator);
 		builder.add("build", new FrameBuilder(phase.name().toLowerCase()).add("nodeInstalled", nodeInstalled()).toFrame());
+		if (phase.ordinal() > FactoryPhase.INSTALL.ordinal()) builder.add("dependencyCheck", "dependencyCheck");
 		addRepositories(builder);
 		writePom(pom, builder.toFrame(), new UIAccessorPomTemplate());
 		return pom;
