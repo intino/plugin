@@ -40,6 +40,8 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +59,7 @@ import static io.intino.plugin.project.Safe.safeList;
 import static java.lang.String.join;
 
 public abstract class AbstractArtifactFactory {
+	private static final Logger LOG = Logger.getInstance(AbstractArtifactFactory.class.getName());
 	private static final String JAR_EXTENSION = ".jar";
 	final Module module;
 	final FactoryPhase phase;
@@ -224,13 +227,24 @@ public abstract class AbstractArtifactFactory {
 	private void cleanBuildDirectory() {
 		final CompilerModuleExtension moduleExtension = CompilerModuleExtension.getInstance(module);
 		if (moduleExtension == null || moduleExtension.getCompilerOutputUrl() == null) return;
-		File build = new File(moduleExtension.getCompilerOutputUrl().replaceFirst("file:", "").replace("production" + File.separator, "build" + File.separator));
+		File compilerOutputPath = new File(pathOf(moduleExtension.getCompilerOutputUrl()));
+		File build = new File(compilerOutputPath.getParentFile().getParentFile(), "build" + File.separator + compilerOutputPath.getName());
 		try {
 			if (build.exists()) FileUtils.cleanDirectory(build);
 		} catch (IOException e) {
-			Logger.getInstance(AbstractArtifactFactory.class.getName()).error(e);
+			LOG.error(e);
 		}
 	}
+
+	private String pathOf(String path) {
+		if (path.startsWith("file://")) return path.substring("file://".length());
+		try {
+			return new URL(path).getFile();
+		} catch (MalformedURLException e) {
+			return path;
+		}
+	}
+
 
 	private void cleanWebOutputs(Module module) {
 		final CompilerModuleExtension moduleExtension = CompilerModuleExtension.getInstance(module);

@@ -43,11 +43,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.intellij.openapi.module.EffectiveLanguageLevelUtil.getEffectiveLanguageLevel;
 import static com.intellij.openapi.module.WebModuleTypeBase.WEB_MODULE;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
+import static io.intino.plugin.build.FactoryPhase.INSTALL;
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -71,7 +71,7 @@ class PomCreator {
 	}
 
 	File frameworkPom(FactoryPhase phase) {
-		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile());
+		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile(), phase);
 	}
 
 	private File webPom(File pom, FactoryPhase phase) {
@@ -81,13 +81,12 @@ class PomCreator {
 		builder.add("buildDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "build" + separator);
 		builder.add("outDirectory", relativeToModulePath(pathOf(compilerOutputUrl)) + separator + "production" + separator);
 		builder.add("build", new FrameBuilder(phase.name().toLowerCase()).add("nodeInstalled", nodeInstalled()).toFrame());
-		if (phase.ordinal() > FactoryPhase.INSTALL.ordinal()) builder.add("dependencyCheck", "dependencyCheck");
 		addRepositories(builder);
 		writePom(pom, builder.toFrame(), new UIAccessorPomTemplate());
 		return pom;
 	}
 
-	private File frameworkPom(File pom) {
+	private File frameworkPom(File pom, FactoryPhase phase) {
 		Artifact.Package build = safe(() -> configuration.artifact().packageConfiguration());
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
@@ -97,6 +96,7 @@ class PomCreator {
 		else application.runReadAction((Computable<String>) () -> languageLevel[0] = languageLevel());
 		builder.add("sdk", languageLevel[0]);
 		fillFramework(build, builder);
+		if (phase.ordinal() > INSTALL.ordinal()) builder.add("dependencyCheck", "dependencyCheck");
 		writePom(pom, builder.toFrame(), new PomTemplate());
 		return pom;
 	}

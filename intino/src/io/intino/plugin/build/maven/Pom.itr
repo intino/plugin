@@ -56,31 +56,31 @@ def type(pom)
 			</testResources>]
 			<plugins>
 				$dependencyCheck
-			    <plugin>
-                      <artifactId>maven-clean-plugin</artifactId>
-                      <version>3.0.0</version>
-                      <configuration>
-                        <skip>true</skip>
-                      </configuration>
-                    </plugin>
-			    [$compile<plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
-                    <executions>
-                        <execution>
-                            <id>default-compile</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>compile</goal>
-                            </goals>
-                            <configuration>
-                                <skipMain>true</skipMain>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>]
-			    [
+				<plugin>
+					  <artifactId>maven-clean-plugin</artifactId>
+					  <version>3.0.0</version>
+					  <configuration>
+						<skip>true</skip>
+					  </configuration>
+					</plugin>
+				[$compile<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+							<configuration>
+								<skipMain>true</skipMain>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>]
+				[
 				$extractedLibraries
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -100,16 +100,16 @@ def type(pom)
 										<exclude>org.apache.maven:lib:tests</exclude>
 									</excludes>
 							  	</artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
 							</configuration>
 						</execution>
 					</executions>
@@ -122,25 +122,25 @@ def type(pom)
 						[<finalName>$finalName</finalName>]
 						<archive>
 							<manifest>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
 								<mainClass>$mainClass</mainClass>]
 								[$copyDependencies+classpath]
 							</manifest>
 							<manifestSections>
-                                [<manifestSection>
-                                    <name>parameters</name>
-                                    <manifestEntries>
-                                      $parameter...[$NL]
-                                    </manifestEntries>
-                                </manifestSection>]
-                                [<manifestSection>
-                                    <name>vmoptions</name>
-                                    <manifestEntries>
-                                        <value>$vmOptions</value>
-                                    </manifestEntries>
-                                </manifestSection>]
-                            </manifestSections>
+								[<manifestSection>
+									<name>parameters</name>
+									<manifestEntries>
+									  $parameter...[$NL]
+									</manifestEntries>
+								</manifestSection>]
+								[<manifestSection>
+									<name>vmoptions</name>
+									<manifestEntries>
+										<value>$vmOptions</value>
+									</manifestEntries>
+								</manifestSection>]
+							</manifestSections>
 						</archive>
 					</configuration>
 				</plugin>
@@ -172,7 +172,7 @@ def type(pom)
 							</goals>
 							<configuration>
 								<sources>
-								    <source>test</source>
+									<source>test</source>
 									<source>test-gen</source>
 									$testModuleDependency...[$NL]
 								</sources>
@@ -286,10 +286,10 @@ end
 
 def trigger(developer)
 	 <developer>
-          <name>$name</name>
-          <email>$email</email>
-          <organization>$organization</organization>
-          <organizationUrl>$organizationUrl</organizationUrl>
+		 <name>$name</name>
+		 <email>$email</email>
+		 <organization>$organization</organization>
+		 <organizationUrl>$organizationUrl</organizationUrl>
 	</developer>
 end
 
@@ -305,7 +305,7 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-    <_$key>$this[##$description]</_$key>
+	<_$key>$this[##$description]</_$key>
 end
 
 def type(dependency) trigger(dependency)
@@ -314,25 +314,25 @@ def type(dependency) trigger(dependency)
 		<artifactId>$artifactId</artifactId>
 		<scope>$scope+lowercase</scope>
 		<version>$version</version>
-        [<exclusions>
-		    $exclusion...[$NL]
-        </exclusions>]
+		[<exclusions>
+			$exclusion...[$NL]
+		</exclusions>]
 	</dependency>
 end
 
 def trigger(exclusion)
-    <exclusion>
-        <groupId>$groupId</groupId>
-        <artifactId>$artifactId</artifactId>
-    </exclusion>
+	<exclusion>
+		<groupId>$groupId</groupId>
+		<artifactId>$artifactId</artifactId>
+	</exclusion>
 end
 
 def trigger(scm)
 	<scm>
 		<url>$url</url>
-        <connection>$connection</connection>
-        <developerConnection>$developerConnection</developerConnection>
-        <tag>$tag</tag>
+		<connection>$connection</connection>
+		<developerConnection>$developerConnection</developerConnection>
+		<tag>$tag</tag>
 	</scm>
 
 end
@@ -359,94 +359,94 @@ def type(BSD) trigger(license)
 end
 
 def trigger(osx)
-    <plugin>
-        <groupId>sh.tak.appbundler</groupId>
-        <artifactId>appbundle-maven-plugin</artifactId>
-        <version>1.2.0</version>
-        <configuration>
-            <mainClass>$mainClass</mainClass>
-            [<iconFile>$icon</iconFile>]
-            <jvmVersion>1.8+</jvmVersion>
-        </configuration>
-        <executions>
-            <execution>
-                <phase>package</phase>
-                <goals>
-                    <goal>bundle</goal>
-                </goals>
-            </execution>
-        </executions>
-    </plugin>
+	<plugin>
+		<groupId>sh.tak.appbundler</groupId>
+		<artifactId>appbundle-maven-plugin</artifactId>
+		<version>1.2.0</version>
+		<configuration>
+			<mainClass>$mainClass</mainClass>
+			[<iconFile>$icon</iconFile>]
+			<jvmVersion>1.8+</jvmVersion>
+		</configuration>
+		<executions>
+			<execution>
+				<phase>package</phase>
+				<goals>
+					<goal>bundle</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
 end
 
 def trigger(windows)
-    <plugin>
-        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-        <artifactId>launch4j-maven-plugin</artifactId>
-        <executions>
-            <execution>
-            <id>l4j-clui</id>
-            <phase>package</phase>
-            <goals><goal>launch4j</goal></goals>
-                <configuration>
-                    <headerType>console</headerType>
-                    <outfile>$out$${project.build.finalName}.exe</outfile>
-                    <icon>$icon</icon>
-                    <jar>$out$name+lowercase~/~$name+lowercase~-$version.jar</jar>
-                    <errTitle>$name</errTitle>
-                    <classPath>
-                        <mainClass>$mainClass</mainClass>
-                        <addDependencies>true</addDependencies>
-                        <jarLocation>$prefix</jarLocation>
-                    </classPath>
-                    <jre>
-                        <minVersion>1.8.0</minVersion>
-                        <opts>
-                            <opt>-Djava.endorsed.dirs=./endorsed</opt>
-                        </opts>
-                    </jre>
-                    <versionInfo>
-                        <fileVersion>$version.0</fileVersion>
-                        <txtFileVersion>text</txtFileVersion>
-                        <fileDescription>text</fileDescription>
-                        <copyright>text</copyright>
-                        <productVersion>$version.0</productVersion>
-                        <txtProductVersion>text</txtProductVersion>
-                        <productName>$name</productName>
-                        <internalName>$name</internalName>
-                        <originalFilename>$name.exe</originalFilename>
-                    </versionInfo>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
+	<plugin>
+		<groupId>com.akathist.maven.plugins.launch4j</groupId>
+		<artifactId>launch4j-maven-plugin</artifactId>
+		<executions>
+			<execution>
+			<id>l4j-clui</id>
+			<phase>package</phase>
+			<goals><goal>launch4j</goal></goals>
+				<configuration>
+					<headerType>console</headerType>
+					<outfile>$out$${project.build.finalName}.exe</outfile>
+					<icon>$icon</icon>
+					<jar>$out$name+lowercase~/~$name+lowercase~-$version.jar</jar>
+					<errTitle>$name</errTitle>
+					<classPath>
+						<mainClass>$mainClass</mainClass>
+						<addDependencies>true</addDependencies>
+						<jarLocation>$prefix</jarLocation>
+					</classPath>
+					<jre>
+						<minVersion>1.8.0</minVersion>
+						<opts>
+							<opt>-Djava.endorsed.dirs=./endorsed</opt>
+						</opts>
+					</jre>
+					<versionInfo>
+						<fileVersion>$version.0</fileVersion>
+						<txtFileVersion>text</txtFileVersion>
+						<fileDescription>text</fileDescription>
+						<copyright>text</copyright>
+						<productVersion>$version.0</productVersion>
+						<txtProductVersion>text</txtProductVersion>
+						<productName>$name</productName>
+						<internalName>$name</internalName>
+						<originalFilename>$name.exe</originalFilename>
+					</versionInfo>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
 end
 
 def type(copyDependencies) trigger(classpath)
-    <classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
+	<classpathPrefix>[$classpathPrefix?dependency]/</classpathPrefix>
 end
 
 def trigger(copyDependencies)
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <executions>
-            <execution>
-                <id>copy-dependencies</id>
-                <phase>package</phase>
-                <goals>
-                    <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>[
-                    <outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
-                    <useBaseVersion>false</useBaseVersion>
-                    <includeScope>runtime</includeScope>
-                    <overWriteReleases>false</overWriteReleases>
-                    <overWriteSnapshots>false</overWriteSnapshots>
-                    <overWriteIfNewer>true</overWriteIfNewer>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-dependency-plugin</artifactId>
+		<version>2.10</version>
+		<executions>
+			<execution>
+				<id>copy-dependencies</id>
+				<phase>package</phase>
+				<goals>
+					<goal>copy-dependencies</goal>
+				</goals>
+				<configuration>[
+					<outputDirectory>$${project.build.directory}/$classpathPrefix</outputDirectory>]
+					<useBaseVersion>false</useBaseVersion>
+					<includeScope>runtime</includeScope>
+					<overWriteReleases>false</overWriteReleases>
+					<overWriteSnapshots>false</overWriteSnapshots>
+					<overWriteIfNewer>true</overWriteIfNewer>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
 end
