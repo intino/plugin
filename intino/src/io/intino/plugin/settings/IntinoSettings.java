@@ -91,6 +91,23 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 		myState.cesarUrl = url;
 	}
 
+	public void modelMemory(int memory) {
+		myState.modelMemory = memory;
+	}
+
+	public void boxMemory(int memory) {
+		myState.boxMemory = memory;
+	}
+
+	public int modelMemory() {
+		return myState.modelMemory;
+	}
+
+	public int boxMemory() {
+		return myState.boxMemory;
+	}
+
+
 	@NotNull
 	public Map.Entry<String, String> cesar() throws IntinoException {
 		final String cesar = cesarUrl();
@@ -126,5 +143,11 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 
 		@Tag("bitbucketToken")
 		public String bitbucketToken = "";
+
+		@Tag("modelMemory")
+		public int modelMemory = 1024;
+
+		@Tag("boxMemory")
+		public int boxMemory = 2048;
 	}
 }

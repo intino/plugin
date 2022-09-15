@@ -83,7 +83,7 @@ public class TaraBuilder extends IntinoBuilder {
 		if (conf == null || toCompile.isEmpty()) return NOTHING_DONE;
 		final String encoding = context.getProjectDescriptor().getEncodingConfiguration().getPreferredModuleChunkEncoding(chunk);
 		List<String> paths = collectPaths(chunk, finalOutputs, context.getProjectDescriptor().getProject());
-		TaraRunner runner = new TaraRunner(project.getName(), chunk.getName(), conf, isMake(context), files(toCompile), encoding, chunk.containsTests(), paths);
+		TaraRunner runner = new TaraRunner(project, chunk.getName(), conf, isMake(context), files(toCompile), encoding, chunk.containsTests(), paths);
 		final TaracOSProcessHandler handler = runner.runTaraCompiler(context);
 		processMessages(chunk, context, handler);
 		if (checkChunkRebuildNeeded(context, handler.shouldRetry())) return CHUNK_REBUILD_REQUIRED;

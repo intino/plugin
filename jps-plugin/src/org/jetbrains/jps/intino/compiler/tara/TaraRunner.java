@@ -11,7 +11,9 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 import org.jetbrains.jps.incremental.messages.ProgressMessage;
+import org.jetbrains.jps.intino.model.impl.IntinoJpsCompilerSettings;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.service.SharedThreadPool;
 
 import java.io.File;
@@ -29,12 +31,13 @@ import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
 class TaraRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(TaraRunner.class.getName());
-	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
+	private final int compilerMemory;
 	private List<String> classpath;
 
-	TaraRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf, boolean isMake, final Map<String, Boolean> sources, final String encoding, final boolean isTest, List<String> paths) throws IOException {
+	TaraRunner(final JpsProject project, final String moduleName, JpsModuleConfiguration conf, boolean isMake, final Map<String, Boolean> sources, final String encoding, final boolean isTest, List<String> paths) throws IOException {
 		argsFile = FileUtil.createTempFile("ideaTaraToCompile", ".txt", false);
+		this.compilerMemory = project.getContainer().getChild(IntinoJpsCompilerSettings.ROLE).modelMemory();
 		loadClassPath(paths.get(4), moduleName);
 		LOG.info("args file: " + argsFile.getAbsolutePath());
 		try (Writer writer = Files.newBufferedWriter(argsFile.toPath(), Charset.forName(encoding))) {
@@ -42,7 +45,7 @@ class TaraRunner {
 			for (Map.Entry<String, Boolean> file : sources.entrySet())
 				writer.write(file.getKey() + "#" + file.getValue() + NL);
 			writer.write(NL);
-			writer.write(PROJECT + NL + projectName + NL);
+			writer.write(PROJECT + NL + project.getName() + NL);
 			writer.write(MODULE + NL + moduleName + NL);
 			writePaths(paths, writer);
 			if (conf != null) fillConfiguration(conf, writer);
@@ -89,7 +92,7 @@ class TaraRunner {
 	TaracOSProcessHandler runTaraCompiler(final CompileContext context) throws IOException {
 		List<String> programParams = ContainerUtil.newArrayList(argsFile.getPath());
 		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : ContainerUtil.newArrayList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED");
-		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
+		vmParams.add("-Xmx" + compilerMemory + "m");
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);
 		List<String> finalClasspath = classpath.stream().map(j -> j.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());

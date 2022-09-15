@@ -80,7 +80,7 @@ public class KonosBuilder extends IntinoBuilder {
 		if (toCompile.values().stream().noneMatch(t -> t) && isCompileJavaIncrementally(context)) return NOTHING_DONE;
 		final String encoding = context.getProjectDescriptor().getEncodingConfiguration().getPreferredModuleChunkEncoding(chunk);
 		Map<String, String> paths = collectPaths(chunk, finalOutputs, context.getProjectDescriptor().getProject());
-		KonosRunner runner = new KonosRunner(project.getName(), chunk.getName(), conf, files(toCompile), encoding, paths);
+		KonosRunner runner = new KonosRunner(project, chunk.getName(), conf, files(toCompile), encoding, paths);
 		final KonoscOSProcessHandler handler = runner.runKonosCompiler(context);
 		processMessages(chunk, context, handler);
 		if (handler.shouldRetry() || checkChunkRebuildNeeded(context, handler.shouldRetry())) {

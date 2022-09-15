@@ -28,7 +28,7 @@ public class JpsIntinoExtensionServiceImpl extends JpsIntinoExtensionService {
 
 	@Nullable
 	@Override
-	public TaraJpsCompilerSettings getSettings(@NotNull JpsProject project) {
-		return project.getContainer().getChild(TaraJpsCompilerSettings.ROLE);
+	public IntinoJpsCompilerSettings getSettings(@NotNull JpsProject project) {
+		return project.getContainer().getChild(IntinoJpsCompilerSettings.ROLE);
 	}
 }

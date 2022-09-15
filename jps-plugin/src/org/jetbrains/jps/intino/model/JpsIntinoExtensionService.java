@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
-import org.jetbrains.jps.intino.model.impl.TaraJpsCompilerSettings;
+import org.jetbrains.jps.intino.model.impl.IntinoJpsCompilerSettings;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.service.JpsServiceManager;
@@ -22,5 +22,5 @@ public abstract class JpsIntinoExtensionService {
 	@Nullable
 	public abstract JpsModuleConfiguration getConfiguration(@NotNull JpsModule module, CompileContext context);
 
-	public abstract TaraJpsCompilerSettings getSettings(@NotNull JpsProject project);
+	public abstract IntinoJpsCompilerSettings getSettings(@NotNull JpsProject project);
 }

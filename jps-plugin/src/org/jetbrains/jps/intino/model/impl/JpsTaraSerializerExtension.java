@@ -14,39 +14,36 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 public class JpsTaraSerializerExtension extends JpsModelSerializerExtension {
-	private static final String TARA_MODULE_OPTION_NAME = "io.intino.tara.isTaraModule";
-	private static final String CONFIGURATION_PROVIDER_OPTION_NAME = "io.intino.tara.configuration.provided";
-
+	private static final String TARA_MODULE_OPTION_NAME = "io.intino.tara.isIntinoModule";
 
 	@NotNull
 	@Override
 	public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
-		return singletonList(new TaraSettingsSerializer());
+		return singletonList(new IntinoSettingsSerializer());
 	}
 
 	@Override
 	public void loadModuleOptions(@NotNull JpsModule module, @NotNull Element rootElement) {
-		if (Boolean.parseBoolean(rootElement.getAttributeValue(TARA_MODULE_OPTION_NAME)) && Boolean.parseBoolean(rootElement.getAttributeValue(CONFIGURATION_PROVIDER_OPTION_NAME)))
+		if (rootElement.getAttributeValue(TARA_MODULE_OPTION_NAME) != null)
 			JpsIntinoExtensionService.instance().getOrCreateExtension(module);
 	}
 
-	private static class TaraSettingsSerializer extends JpsProjectExtensionSerializer {
-		private TaraSettingsSerializer() {
-			super(JpsTaraSettings.FILE, JpsTaraSettings.NAME);
+	private static class IntinoSettingsSerializer extends JpsProjectExtensionSerializer {
+		private IntinoSettingsSerializer() {
+			super(JpsIntinoSettings.FILE, JpsIntinoSettings.NAME);
 		}
 
 		@Override
 		public void loadExtension(@NotNull JpsProject project, @NotNull Element componentTag) {
-			JpsTaraSettings settings = XmlSerializer.deserialize(componentTag, JpsTaraSettings.class);
-			TaraJpsCompilerSettings component = new TaraJpsCompilerSettings(settings);
-			project.getContainer().setChild(TaraJpsCompilerSettings.ROLE, component);
+			JpsIntinoSettings settings = XmlSerializer.deserialize(componentTag, JpsIntinoSettings.class);
+			IntinoJpsCompilerSettings component = new IntinoJpsCompilerSettings(settings);
+			project.getContainer().setChild(IntinoJpsCompilerSettings.ROLE, component);
 		}
 
 		@Override
 		public void loadExtensionWithDefaultSettings(@NotNull JpsProject project) {
-			TaraJpsCompilerSettings component = new TaraJpsCompilerSettings(new JpsTaraSettings());
-			project.getContainer().setChild(TaraJpsCompilerSettings.ROLE, component);
+			IntinoJpsCompilerSettings component = new IntinoJpsCompilerSettings(new JpsIntinoSettings());
+			project.getContainer().setChild(IntinoJpsCompilerSettings.ROLE, component);
 		}
-
 	}
 }

@@ -9,7 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 import org.jetbrains.jps.incremental.messages.ProgressMessage;
+import org.jetbrains.jps.intino.model.impl.IntinoJpsCompilerSettings;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
+import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.service.SharedThreadPool;
 
 import java.io.*;
@@ -24,16 +26,17 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 class KonosRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(KonosRunner.class.getName());
-	private static final int COMPILER_MEMORY = 2048;
 	private static final String MINIMUM_VERSION = "8.0.0";
 	private static File argsFile;
+	private final int compilerMemory;
 	private List<String> classpath;
 
-	KonosRunner(final String projectName, final String moduleName, JpsModuleConfiguration conf,
+	KonosRunner(final JpsProject project, final String moduleName, JpsModuleConfiguration conf,
 				final Map<String, Boolean> sources,
 				final String encoding,
 				Map<String, String> paths) throws IOException {
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
+		this.compilerMemory = project.getContainer().getChild(IntinoJpsCompilerSettings.ROLE).boxMemory();
 		loadClassPath(paths.get(INTINO_PROJECT_PATH), moduleName);
 		LOG.info("args file: " + argsFile.getAbsolutePath());
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(argsFile.toPath()), Charset.forName(encoding)))) {
@@ -41,7 +44,7 @@ class KonosRunner {
 			for (Map.Entry<String, Boolean> file : sources.entrySet())
 				writer.write(file.getKey() + "#" + file.getValue() + NL);
 			writer.write(NL);
-			writer.write(PROJECT + NL + projectName + NL);
+			writer.write(PROJECT + NL + project.getName() + NL);
 			writer.write(MODULE + NL + moduleName + NL);
 			writePaths(paths, writer);
 			if (conf != null) fillConfiguration(conf, writer);
@@ -97,7 +100,7 @@ class KonosRunner {
 	KonoscOSProcessHandler runKonosCompiler(final CompileContext context) throws IOException {
 		List<String> programParams = Collections.singletonList(argsFile.getPath());
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : Arrays.asList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED"));
-		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
+		vmParams.add("-Xmx" + compilerMemory + "m");
 		vmParams.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
 				getJavaExecutable(), "io.intino.konos.KonoscRunner", Collections.emptyList(), classpath, vmParams, programParams);
