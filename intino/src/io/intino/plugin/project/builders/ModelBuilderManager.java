@@ -75,7 +75,9 @@ public class ModelBuilderManager {
 		final String home = System.getProperty("user.home");
 		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
 		try {
-			Files.write(new File(IntinoDirectory.modelDirectory(project), module.getName() + File.separator + "compiler.classpath").toPath(), String.join(":", libraries).getBytes());
+			File file = new File(IntinoDirectory.modelDirectory(project), module.getName() + File.separator + "compiler.classpath");
+			file.getParentFile().mkdirs();
+			Files.write(file.toPath(), String.join(":", libraries).getBytes());
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
