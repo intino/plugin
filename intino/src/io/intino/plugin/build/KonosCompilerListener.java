@@ -28,7 +28,6 @@ import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresRelo
 public class KonosCompilerListener implements CustomBuilderMessageHandler {
 	private static final String KONOS_PATTERN = "!?*.konos";
 	private final Project project;
-	private static final Logger Log = Logger.getInstance(KonosCompilerListener.class.getName());
 
 	public KonosCompilerListener(Project project) {
 		this.project = project;
