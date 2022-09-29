@@ -50,7 +50,7 @@ def type(dependency)
 end
 
 def type(factory)
-	Model(language = "$dsl", version = "$dslVersion", sdk = "[$sdk?LATEST]")
+	Model(language = "$dsl", version = "$dslVersion", sdkVersion = "[$sdk?LATEST]")
 end
 
 def type(box)
