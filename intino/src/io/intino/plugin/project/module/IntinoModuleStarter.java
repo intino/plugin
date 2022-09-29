@@ -17,8 +17,10 @@ import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ConfigurationManager;
+import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.annotations.NotNull;
+import tara.dsl.Legio;
 
 import java.io.File;
 import java.util.Arrays;
@@ -64,7 +66,7 @@ public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 	public void modulesRenamed(@NotNull Project project, @NotNull List<? extends Module> modules, @NotNull Function<? super Module, String> oldNameProvider) {
 		for (Module module : modules) {
 			final Configuration conf = IntinoUtil.configurationOf(module);
-			if (conf == null) return;
+			if (!(conf instanceof LegioConfiguration)) return;
 			ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
 				final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
 				progressIndicator.setText("Refactoring java");
@@ -86,6 +88,7 @@ public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 
 	private void runRefactor(Project project, Configuration conf, String newName, String oldName) {
 		String oldPackage = conf.artifact().code().generationPackage();
+		if (oldPackage == null) return;
 		conf.artifact().name(newName);
 		final JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(project);
 		final PsiPackage aPackage = psiFacade.findPackage(oldPackage);
