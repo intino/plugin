@@ -39,6 +39,7 @@ import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
 
 public class MavenRunner {
+	private static final Logger LOG = Logger.getInstance(MavenRunner.class.getName());
 	private static final Object monitor = new Object();
 	private final Module module;
 	private final String output = "";
@@ -88,7 +89,13 @@ public class MavenRunner {
 	}
 
 	public void executeArtifact(FactoryPhase phase) throws IOException {
-		final File pom = new PomCreator(module).frameworkPom(phase);
+		final File pom;
+		try {
+			pom = new PomCreator(module).frameworkPom(phase);
+		} catch (IntinoException e) {
+			LOG.error(e);
+			throw new IOException(message("error.creating.pom"));
+		}
 		final InvocationResult result = invokeMaven(pom, phase);
 		applyBuildFixes(module);
 		if (result != null && result.getExitCode() != 0) throwException(result, "error.publishing.artifact", phase);

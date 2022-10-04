@@ -70,7 +70,7 @@ class PomCreator {
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
-	File frameworkPom(FactoryPhase phase) {
+	File frameworkPom(FactoryPhase phase) throws IntinoException {
 		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile(), phase);
 	}
 
@@ -86,7 +86,7 @@ class PomCreator {
 		return pom;
 	}
 
-	private File frameworkPom(File pom, FactoryPhase phase) {
+	private File frameworkPom(File pom, FactoryPhase phase) throws IntinoException {
 		Artifact.Package build = safe(() -> configuration.artifact().packageConfiguration());
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
@@ -96,9 +96,15 @@ class PomCreator {
 		else application.runReadAction((Computable<String>) () -> languageLevel[0] = languageLevel());
 		builder.add("sdk", languageLevel[0]);
 		fillFramework(build, builder);
-		if (phase.ordinal() > INSTALL.ordinal()) builder.add("dependencyCheck", "dependencyCheck");
+		if (phase.ordinal() > INSTALL.ordinal() && version().isSnapshot())
+			builder.add("dependencyCheck", "dependencyCheck");
 		writePom(pom, builder.toFrame(), new PomTemplate());
 		return pom;
+	}
+
+	@NotNull
+	private Version version() throws IntinoException {
+		return new Version(configuration.artifact().version());
 	}
 
 	@NotNull
@@ -208,7 +214,7 @@ class PomCreator {
 
 	private Configuration.Repository repository() {
 		try {
-			Version version = new Version(configuration.artifact().version());
+			Version version = version();
 			if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot());
 			return safe(() -> configuration.artifact().distribution().release());
 		} catch (IntinoException e) {
