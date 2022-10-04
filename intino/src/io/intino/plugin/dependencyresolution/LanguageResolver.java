@@ -107,6 +107,7 @@ public class LanguageResolver {
 			List<Artifact> resolve = aether.resolve(new DefaultArtifact(coors[0], coors[1].toLowerCase(), "jar", coors[2]), JavaScopes.COMPILE);
 			return toMap(resolve, DependencyScope.COMPILE);
 		} catch (DependencyResolutionException e) {
+			e.printStackTrace();
 			return Collections.emptyMap();
 		}
 	}
