@@ -216,12 +216,16 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	protected boolean isInMasterBranch() {
+	protected boolean isMasterBranch() {
 		return "master".equalsIgnoreCase(startingBranch);
 	}
 
 	protected boolean isHotFixBranch() {
 		return startingBranch.toLowerCase().startsWith("hotfix");
+	}
+
+	protected boolean isSupportBranch() {
+		return startingBranch.toLowerCase().startsWith("support");
 	}
 
 	private void cleanBuildDirectory() {

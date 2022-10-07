@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.refactoring.ui.InfoDialog;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
@@ -76,9 +77,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 //			}
 			try {
 				checker.check(phase, configuration);
-				if (startingBranch != null && !isHotFixBranch() && !isInMasterBranch() && !askForReleaseDistribute())
+				if (startingBranch != null && !isSupportBranch() && !isHotFixBranch() && !isMasterBranch() && !askForReleaseDistribute())
 					return;
-				if (startingBranch != null && !isHotFixBranch() && !isInMasterBranch()) checkoutMasterAndMerge();
+				if (startingBranch != null && !isSupportBranch() && !isHotFixBranch() && !isMasterBranch())
+					checkoutMasterAndMerge();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}
@@ -94,6 +96,12 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
 			else compilerManager.make(scope, processArtifact(callback));
 		}
+		if (isHotFixBranch() || isSupportBranch()) noticeUserAboutChanges();
+	}
+
+	private void noticeUserAboutChanges() {
+		new InfoDialog("You are in " + startingBranch + " branch. Consider rolling these changes into the development branch and the master branch.", project).show();
+
 	}
 
 	private void compileUI() {
