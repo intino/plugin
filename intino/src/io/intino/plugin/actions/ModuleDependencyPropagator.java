@@ -13,7 +13,7 @@ import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.dialog.UpdateVersionDialog;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioBox;
 
@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
-import static io.intino.plugin.project.builders.InterfaceBuilderManager.GROUP_ID;
+import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class ModuleDependencyPropagator {
 	private final Module module;
@@ -53,7 +53,7 @@ public class ModuleDependencyPropagator {
 	}
 
 	private void updateBoxBuilder(Map<String, String> newVersions, String library, String[] identifier) {
-		if (identifier[0].equals(GROUP_ID) && identifier[1].equals(InterfaceBuilderManager.ARTIFACT_ID)) {
+		if (identifier[0].equals(GROUP_ID) && identifier[1].equals(BoxBuilderManager.ARTIFACT_ID)) {
 			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
 				((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
 		}
@@ -105,7 +105,7 @@ public class ModuleDependencyPropagator {
 		if (box != null) {
 			List<String> boxVersions = connector.boxBuilderVersions();
 			if (!box.version().equals(boxVersions.get(boxVersions.size() - 1)))
-				map.put(GROUP_ID + ":" + InterfaceBuilderManager.ARTIFACT_ID + ":" + box.version(), boxVersions);
+				map.put(GROUP_ID + ":" + BoxBuilderManager.ARTIFACT_ID + ":" + box.version(), boxVersions);
 		}
 		configuration.artifact().dependencies().forEach(d -> {
 			String[] split = d.identifier().split(":");

@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.5.0</version>
+	<version>6.6.0</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -83,14 +83,15 @@
 		<lang.braceMatcher language="Tara" implementationClass="io.intino.plugin.codeinsight.TaraBraceMatcher"/>
 		<quoteHandler fileType="Tara" className="io.intino.plugin.codeinsight.TaraQuoteHandler"/>
 
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.ReferenceAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.DecorableAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.ResourceAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.NodeAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.DSLDeclarationAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
-		<!--		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.AnnotationsAnnotator"/>-->
-		<annotator language="Tara" implementationClass="io.intino.plugin.annotator.RuleAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ReferenceAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DecorableAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ResourceAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.NodeAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.DSLDeclarationAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.RuleAnnotator"/>
+		<!--		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.AnnotationsAnnotator"/>-->
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.RuleAnnotator"/>
 
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.TaraNodeCompletionContributor"/>
@@ -148,23 +149,26 @@
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DependencyAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ArchetypeAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ModelAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DataHubAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.BoxVersionAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DependencyAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.ArtifactParametersAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArchetypeAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.ArtifactParameterAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DataHubAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.RunConfigurationAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MainClassAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.BoxVersionAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.LanguageDeclarationAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactParametersAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.DuplicatedRepositoryAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactParameterAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.RunConfigurationAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.MainClassAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactModelAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DuplicatedRepositoryAnnotator"/>
 		<intentionAction>
 			<className>io.intino.plugin.codeinsight.intentions.RemoveFromLocalRepository</className>
 			<category>Remove version from local repository</category>
@@ -181,7 +185,7 @@
 		<errorHandler implementation="io.intino.plugin.errorreporting.LegioErrorReportSubmitter"/>
 		<copyPastePreProcessor implementation="io.intino.plugin.file.LegioDependencyPasteProcessor"/>
 		<problemFileHighlightFilter
-				implementation="io.intino.plugin.codeinsight.annotators.LegioProblemFileHighlightFilter"/>
+				implementation="io.intino.plugin.codeinsight.annotators.legio.LegioProblemFileHighlightFilter"/>
 		<moduleBuilder builderClass="io.intino.plugin.project.module.NewIntinoModuleBuilder"/>
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>

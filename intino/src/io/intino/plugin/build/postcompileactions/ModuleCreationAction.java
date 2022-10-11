@@ -59,7 +59,9 @@ public class ModuleCreationAction extends PostCompileAction {
 		Application application = ApplicationManager.getApplication();
 		application.invokeAndWait(() -> application.runWriteAction(() -> {
 			if (webPsiModule != null) {
-				addWebDependency(IntinoUtil.configurationOf(webPsiModule));
+				Configuration webConf = IntinoUtil.configurationOf(webPsiModule);
+				checkVersion(webConf);
+				addWebDependency(webConf);
 				reload[0] = true;
 				return;
 			}
@@ -82,6 +84,11 @@ public class ModuleCreationAction extends PostCompileAction {
 		return reload[0] ? FinishStatus.RequiresReload : FinishStatus.NothingDone;
 	}
 
+	private void checkVersion(Configuration webConf) {
+		String version = configuration.artifact().version();
+		if (!webConf.artifact().version().equals(version)) webConf.artifact().version(version);
+	}
+
 	private boolean createConfigurationFile(File moduleRoot) throws IOException {
 		Configuration.Artifact artifact = configuration.artifact();
 		FrameBuilder builder = new FrameBuilder("artifact", "legio");
@@ -101,10 +108,11 @@ public class ModuleCreationAction extends PostCompileAction {
 	}
 
 	private void addWebDependency(Configuration webConf) {
-		for (Configuration.Artifact.Dependency.Web webDependency : configuration.artifact().webDependencies())
-			if (webDependency.groupId().equals(webConf.artifact().groupId()) &&
-					webDependency.artifactId().equals(webConf.artifact().name()) &&
-					webDependency.version().equals(webConf.artifact().version())) return;
+		for (Configuration.Artifact.Dependency.Web dep : configuration.artifact().webDependencies())
+			if (dep.groupId().equals(webConf.artifact().groupId()) && dep.artifactId().equals(webConf.artifact().name())) {
+				if (!dep.version().equals(webConf.artifact().version())) dep.version(webConf.artifact().version());
+				return;
+			}
 		configuration.artifact().addDependencies(webDependency());
 		ToolWindowManager.getInstance(module.getProject()).getToolWindow("Intino Console").show(null);
 		webConf.reload();

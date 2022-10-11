@@ -21,7 +21,7 @@ import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 
@@ -46,7 +46,7 @@ public class KonosRunner {
 
 	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException, IntinoException {
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
-		Path path = InterfaceBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
+		Path path = BoxBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
 		if (!path.toFile().exists())
 			throw new IntinoException("Classpath of compiler not found. Please Reload configuration in order to attach it.");
 		this.classpath = Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));

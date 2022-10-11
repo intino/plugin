@@ -22,7 +22,9 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
@@ -32,6 +34,7 @@ import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAIL
 
 public class ModelBuilderManager {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
+	private static Set<String> loadedVersions;
 
 	private final Project project;
 	@NotNull
@@ -44,11 +47,13 @@ public class ModelBuilderManager {
 		this.module = module;
 		this.repositories = repositories;
 		this.model = model;
+		if (loadedVersions == null) loadedVersions = new HashSet<>();
 	}
 
 	public void resolveBuilder() {
 		try {
 			final List<Artifact> artifacts = artifacts();
+			loadedVersions.add(model.sdkVersion());
 			final List<String> paths = librariesOf(artifacts);
 			saveClassPath(paths);
 		} catch (DependencyResolutionException e) {
@@ -58,6 +63,10 @@ public class ModelBuilderManager {
 
 	private List<Artifact> artifacts() throws DependencyResolutionException {
 		return new Aether(repos(), LOCAL).resolve(new DefaultArtifact(model.sdk() + ":" + model.sdkVersion()), JavaScopes.COMPILE);
+	}
+
+	public static boolean exists(String version) {
+		return loadedVersions == null || loadedVersions.contains(version);
 	}
 
 	@NotNull

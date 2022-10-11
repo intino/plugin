@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.annotator.fix.ClassCreationIntention;
+import io.intino.plugin.codeinsight.annotators.fix.ClassCreationIntention;
 import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;

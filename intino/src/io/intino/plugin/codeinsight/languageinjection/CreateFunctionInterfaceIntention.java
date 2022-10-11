@@ -12,7 +12,7 @@ import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.magritte.lang.model.Variable;
 import io.intino.magritte.lang.model.rules.variable.NativeRule;
-import io.intino.plugin.annotator.fix.ClassCreationIntention;
+import io.intino.plugin.codeinsight.annotators.fix.ClassCreationIntention;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraVariableImpl;

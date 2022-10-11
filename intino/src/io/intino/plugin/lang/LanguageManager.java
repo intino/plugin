@@ -18,7 +18,7 @@ import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.BoxBuilderManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 import static io.intino.magritte.dsl.ProteoConstants.META;
 import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
 import static io.intino.plugin.project.Safe.safe;
-import static io.intino.plugin.project.builders.InterfaceBuilderManager.BOX_LANGUAGE;
+import static io.intino.plugin.project.builders.BoxBuilderManager.BOX_LANGUAGE;
 
 public class LanguageManager {
 	public static final String DSL = "dsl";
@@ -64,7 +64,7 @@ public class LanguageManager {
 				if (version == null) version = LATEST;
 			} else if (BOX_LANGUAGE.equals(dslName)) {
 				version = safe(() -> configuration.artifact().box().version());
-				if (version == null) version = InterfaceBuilderManager.minimunVersion;
+				if (version == null) version = BoxBuilderManager.MinimumVersion;
 			} else {
 				version = safe(() -> configuration.artifact().model().language().version());
 				if (version == null) version = LATEST;

@@ -22,8 +22,8 @@ import io.intino.plugin.project.configuration.model.LegioBox;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.project.builders.InterfaceBuilderManager.ARTIFACT_ID;
-import static io.intino.plugin.project.builders.InterfaceBuilderManager.GROUP_ID;
+import static io.intino.plugin.project.builders.BoxBuilderManager.ARTIFACT_ID;
+import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class AllModuleDependencyPropagator {
 	private final Map<Module, LegioConfiguration> modules;

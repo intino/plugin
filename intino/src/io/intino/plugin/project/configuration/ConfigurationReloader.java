@@ -12,7 +12,7 @@ import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.ArtifactorySensor;
-import io.intino.plugin.project.builders.InterfaceBuilderManager;
+import io.intino.plugin.project.builders.BoxBuilderManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class ConfigurationReloader {
 	void reloadInterfaceBuilder() {
 		final Artifact.Box box = safe(artifact::box);
 		if (box != null && box.version() != null)
-			box.effectiveVersion(new InterfaceBuilderManager(module, repositories).load(box.version()));
+			box.effectiveVersion(new BoxBuilderManager(module, repositories).load(box.version()));
 	}
 
 	void reloadRunConfigurations() {

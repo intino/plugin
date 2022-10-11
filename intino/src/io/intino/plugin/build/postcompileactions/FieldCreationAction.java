@@ -40,11 +40,16 @@ public class FieldCreationAction extends PostCompileAction {
 	}
 
 	private void doUpdateFields(PsiClass psiClass) {
-		PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(module.getProject());
-		if (read(() -> Arrays.stream(psiClass.getAllFields()).noneMatch((f) -> name.equalsIgnoreCase(f.getName())))) {
-			PsiField field = read(() -> this.createField(psiClass, elementFactory));
-			write(() -> psiClass.addAfter(field, psiClass.getLBrace().getNextSibling()));
-		}
+		final PsiField existing = read(() -> Arrays.stream(psiClass.getAllFields())
+				.filter(f -> name.equalsIgnoreCase(f.getName())).findFirst().orElse(null));
+		if (existing != null && !read(() -> existing.getType().getPresentableText().equals(type)) && !read(() -> existing.getType().getCanonicalText().equals(type)))
+			write(existing::delete);
+		if (existing == null || !existing.isValid()) createField(psiClass);
+	}
+
+	private void createField(PsiClass psiClass) {
+		PsiField field = read(() -> this.createField(psiClass, JavaPsiFacade.getElementFactory(module.getProject())));
+		write(() -> psiClass.addAfter(field, psiClass.getLBrace().getNextSibling()));
 	}
 
 	private PsiField createField(PsiClass psiClass, PsiElementFactory elementFactory) {
