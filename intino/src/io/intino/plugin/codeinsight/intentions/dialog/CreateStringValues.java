@@ -24,7 +24,7 @@ public class CreateStringValues extends JDialog {
 	private static final String MESSAGES = "messages";
 	private static final String DEFAULT = "Default";
 	private final String outputDsl;
-	private String key;
+	private final String key;
 	private JPanel contentPane;
 	private JButton OKButton;
 	private JButton cancelButton;

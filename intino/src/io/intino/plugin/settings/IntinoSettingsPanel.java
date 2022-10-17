@@ -9,9 +9,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
 
@@ -81,11 +82,11 @@ public class IntinoSettingsPanel {
 	}
 
 	private List<ArtifactoryCredential> createArtifactories() {
-		List<ArtifactoryCredential> credentials = new ArrayList<>();
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		for (int i = 0; i < model.getRowCount(); i++)
-			credentials.add(new ArtifactoryCredential(model.getValueAt(i, 0).toString().trim(), model.getValueAt(i, 1).toString().trim(), model.getValueAt(i, 2).toString().trim()));
-		return credentials;
+		return IntStream.range(0, model.getRowCount())
+				.mapToObj(i -> new ArtifactoryCredential(model.getValueAt(i, 0).toString().trim(),
+						model.getValueAt(i, 1).toString().trim(), model.getValueAt(i, 2).toString().trim()))
+				.collect(Collectors.toList());
 	}
 
 
@@ -106,6 +107,7 @@ public class IntinoSettingsPanel {
 		tableModel.setColumnIdentifiers(ARTIFACTORY_FIELDS);
 		table = new StripeTable(tableModel);
 		table.setEnableAntialiasing(true);
+		table.setAutoscrolls(true);
 		table.getEmptyText().setText("No artifactories");
 		table.setAutoResizeMode(AUTO_RESIZE_LAST_COLUMN);
 		table.getColumn(ARTIFACTORY_FIELDS[0]).setPreferredWidth(150);
@@ -121,10 +123,11 @@ public class IntinoSettingsPanel {
 					if (table.getModel().getRowCount() > 0 && selectedRow < table.getModel().getRowCount())
 						table.addRowSelectionInterval(selectedRow, selectedRow);
 				}).createPanel();
-		tablePanel.setMaximumSize(new Dimension(tablePanel.getWidth(), 200));
-		table.setMaximumSize(new Dimension(table.getWidth(), 200));
-		table.setPreferredSize(new Dimension(table.getWidth(), 200));
-		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 200));
+		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 500));
+		tablePanel.setMaximumSize(new Dimension(tablePanel.getWidth(), 500));
+		tablePanel.setAutoscrolls(true);
+		table.setPreferredSize(new Dimension(table.getWidth(), 500));
+		table.setMaximumSize(new Dimension(table.getWidth(), 500));
 	}
 
 	static class PasswordCellRenderer extends DefaultTableCellRenderer {

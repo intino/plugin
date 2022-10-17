@@ -17,7 +17,6 @@ public class FieldCreationAction extends PostCompileAction {
 	private final boolean isStatic;
 	private final String modifier;
 
-
 	public FieldCreationAction(Module module, List<String> parameters) {
 		this(module, new File(parameters.get(0)), parameters.get(1), parameters.get(2), parameters.get(4), Boolean.parseBoolean(parameters.get(3)));
 	}

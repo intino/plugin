@@ -22,10 +22,7 @@ import io.intino.cesar.box.schemas.ProcessStatus;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.cesar.CesarInfo;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
-import io.intino.plugin.toolwindows.remote.remoteactions.DebugAction;
-import io.intino.plugin.toolwindows.remote.remoteactions.ListenLogAction;
-import io.intino.plugin.toolwindows.remote.remoteactions.RestartAction;
-import io.intino.plugin.toolwindows.remote.remoteactions.StartStopAction;
+import io.intino.plugin.toolwindows.remote.remoteactions.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -77,8 +74,8 @@ public class RemoteWindow {
 
 	public void reload() {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			new CesarServerInfoDownloader().download(project);
-			CesarInfo.getSafeInstance(project).serversInfo().values().stream().forEach(this::refreshServerView);
+					new CesarServerInfoDownloader().download(project);
+					CesarInfo.getSafeInstance(project).serversInfo().values().stream().forEach(this::refreshServerView);
 				}
 		);
 	}
@@ -120,6 +117,8 @@ public class RemoteWindow {
 		operationActions.add(new RestartAction(server.processes(), server.type(), cesarAccessor));
 		operationActions.add(new StartStopAction(server.processes(), server.type(), cesarAccessor));
 		operationActions.add(new DebugAction(server.processes(), server.type(), cesarAccessor));
+		operationActions.add(new ConfigureSshSessionAction(server, cesarAccessor));
+		operationActions.add(new OpenSshSessionAction(server, cesarAccessor));
 		((ComboBox<Object>) processesBoxPanel.getComponent(0)).addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.DESELECTED)
 				operationActions.forEach(a -> a.onProcessChange(null, null));
@@ -135,22 +134,28 @@ public class RemoteWindow {
 				}).start();
 			}
 		});
-		final DefaultActionGroup westGroup = new DefaultActionGroup();
+		final DefaultActionGroup westGroup = getWestGroup(operationActions);
 		final DefaultActionGroup eastGroup = new DefaultActionGroup();
-		westGroup.add((AnAction) operationActions.get(0));
-		westGroup.addSeparator();
-		operationActions.subList(1, operationActions.size()).forEach(a -> westGroup.add((AnAction) a));
 		eastGroup.add(new FilterLogLevelAction((ListenLogAction) operationActions.get(0)));
 		eastGroup.addSeparator();
 		eastGroup.addAll(consoleView.createConsoleActions());
-		final ActionToolbar westToolbar = ActionManager.getInstance().createActionToolbar("IntinoConsole", westGroup, false);
-		final ActionToolbar eastToolbar = ActionManager.getInstance().createActionToolbar("IntinoEastToolbarConsole", eastGroup, false);
+		final ActionToolbar westToolbar = ActionManager.getInstance().createActionToolbar("WestToolbar", westGroup, false);
+		final ActionToolbar eastToolbar = ActionManager.getInstance().createActionToolbar("EastToolbar", eastGroup, false);
 		westToolbar.setTargetComponent(consoleViewComponent);
 		eastToolbar.setTargetComponent(consoleViewComponent);
 		ui.add(consoleViewComponent, BorderLayout.CENTER);
 		ui.add(westToolbar.getComponent(), BorderLayout.WEST);
 		ui.add(eastToolbar.getComponent(), BorderLayout.EAST);
 		tabs.addTab(server.name(), container);
+	}
+
+	@NotNull
+	private static DefaultActionGroup getWestGroup(List<IntinoConsoleAction> operationActions) {
+		final DefaultActionGroup westGroup = new DefaultActionGroup();
+		westGroup.add((AnAction) operationActions.get(0));
+		westGroup.addSeparator();
+		operationActions.subList(1, operationActions.size() - 2).forEach(a -> westGroup.add((AnAction) a));
+		return westGroup;
 	}
 
 	private ConsoleView createConsoleView() {

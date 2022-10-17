@@ -1,6 +1,8 @@
 package io.intino.plugin.actions.box.accessor;
 
-import com.intellij.notification.*;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -77,10 +79,10 @@ public class AccessorsPublisher {
 		final InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
-				throw new IOException("Failed to publish accessor.", result.getExecutionException());
-			else throw new IOException("Failed to publish accessor. Exit code: " + result.getExitCode());
-		} else if (result == null) throw new IOException("Failed to publish accessor. Maven HOME not found");
-		notifySuccess(this.conf, name[1]);
+				throw new IOException("Failed generating accessor.", result.getExecutionException());
+			else throw new IOException("Failed generating accessor. Exit code: " + result.getExitCode());
+		} else if (result == null) throw new IOException("Failed generating accessor. Maven HOME not found");
+		notifySuccess(this.conf, name[1], goal);
 	}
 
 	private File generatePom(File root, String serviceType, String artifact) {
@@ -143,9 +145,9 @@ public class AccessorsPublisher {
 		return builder.toFrame();
 	}
 
-	private void notifySuccess(Configuration conf, String app) {
+	private void notifySuccess(Configuration conf, String app, String goal) {
 		NotificationGroup.findRegisteredGroup("Intino")
-				.createNotification("Accessors generated and uploaded", "", INFORMATION)
+				.createNotification("Accessor for " + app + " generated and " + (goal.equals("install") ? "installed" : "distributed"), "", INFORMATION)
 				.setImportant(true)
 				.setIcon(IntinoIcons.ICON_13)
 				.addAction(new NotificationAction("Copy maven dependency") {

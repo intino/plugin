@@ -1,5 +1,6 @@
 package io.intino.plugin.settings;
 
+import com.google.common.reflect.TypeToken;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
@@ -7,11 +8,14 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
+import io.intino.alexandria.Json;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.TerminalWindow.Tunnel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,6 +111,15 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 		return myState.boxMemory;
 	}
 
+	public Map<String, List<Tunnel>> tunnels() {
+		return Json.gsonReader().fromJson(myState.tunnels, new TypeToken<Map<String, ArrayList<Tunnel>>>() {
+		}.getType());
+	}
+
+	public void tunnels(Map<String, List<Tunnel>> tunnels) {
+		myState.tunnels = Json.gsonWriter().toJson(tunnels);
+	}
+
 
 	@NotNull
 	public Map.Entry<String, String> cesar() throws IntinoException {
@@ -149,5 +162,8 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 
 		@Tag("boxMemory")
 		public int boxMemory = 2048;
+
+		@Tag("tunnels")
+		public String tunnels = "";
 	}
 }
