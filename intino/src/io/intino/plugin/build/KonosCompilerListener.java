@@ -3,7 +3,6 @@ package io.intino.plugin.build;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.server.CustomBuilderMessageHandler;
 import com.intellij.ide.projectView.ProjectView;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -11,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FileStatusManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.Configuration;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
 import io.intino.plugin.build.postcompileactions.PostCompileActionFactory;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -51,7 +51,10 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 					.map(m -> createCompileAction(module, m))
 					.map(a -> a != null ? a.execute() : null)
 					.collect(Collectors.toList());
-			if (finishStatus.contains(RequiresReload)) IntinoUtil.configurationOf(module[0]).reload();
+			Configuration configuration = IntinoUtil.configurationOf(module[0]);
+			if (finishStatus.contains(RequiresReload)) {
+				configuration.reload();
+			}
 		}
 		if (KONOSC.equals(builderId) && REFRESH_MESSAGE.equals(messageType)) {
 			final String[] parameters = messageText.split(REFRESH_BUILDER_MESSAGE_SEPARATOR);

@@ -2,6 +2,8 @@ package io.intino.plugin.project.configuration;
 
 import io.intino.plugin.IntinoException;
 
+import static java.lang.Integer.parseInt;
+
 public class Version implements Comparable<Version> {
 	public enum Level {Minor, Medium, Mayor}
 
@@ -40,20 +42,20 @@ public class Version implements Comparable<Version> {
 	public Version nextSnapshot() throws IntinoException {
 		String v = this.version.replace(SNAPSHOT, "");
 		String[] split = v.split("\\.");
-		split[split.length - 1] = String.valueOf(Integer.parseInt(split[split.length - 1]) + 1);
+		split[split.length - 1] = String.valueOf(parseInt(split[split.length - 1]) + 1);
 		return new Version(String.join(".", split) + SNAPSHOT);
 	}
 
 	public Version nextRelease(Level level) throws IntinoException {
 		String v = this.version.replace(SNAPSHOT, "");
 		String[] split = v.split("\\.");
-		split[split.length - 1 - level.ordinal()] = String.valueOf(Integer.parseInt(split[split.length - 1 - level.ordinal()]) + 1);
+		split[split.length - 1 - level.ordinal()] = String.valueOf(parseInt(split[split.length - 1 - level.ordinal()]) + 1);
 		return new Version(String.join(".", split));
 	}
 
 	public Version next() throws IntinoException {
 		String[] split = version.split("\\.");
-		split[split.length - 1] = String.valueOf(Integer.parseInt(split[split.length - 1]) + 1);
+		split[split.length - 1] = String.valueOf(parseInt(split[split.length - 1]) + 1);
 		return new Version(String.join(".", split));
 	}
 
@@ -66,14 +68,11 @@ public class Version implements Comparable<Version> {
 		String[] thatParts = that.get().split("\\.");
 		int length = Math.max(thisParts.length, thatParts.length);
 		for (int i = 0; i < length; i++) {
-			int thisPart = i < thisParts.length ?
-					Integer.parseInt(thisParts[i]) : 0;
+			int thisPart = i < thisParts.length ? parseInt(thisParts[i]) : 0;
 			int thatPart = i < thatParts.length ?
-					Integer.parseInt(thatParts[i]) : 0;
-			if (thisPart < thatPart)
-				return -1;
-			if (thisPart > thatPart)
-				return 1;
+					parseInt(thatParts[i]) : 0;
+			if (thisPart < thatPart) return -1;
+			if (thisPart > thatPart) return 1;
 		}
 		return 0;
 	}
