@@ -219,7 +219,7 @@
 		<dependency>
 			<groupId>io.intino.ness</groupId>
 			<artifactId>data-hub-terminal-plugin</artifactId>
-			<version>3.2.3</version>
+			<version>4.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

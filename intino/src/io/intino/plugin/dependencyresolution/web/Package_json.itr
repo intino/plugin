@@ -36,10 +36,17 @@ def type(package)
         "dependencies": {
             $dependency...[,$NL]
         }
+        "resolutions" : {
+        	$resolution...[,$NL]
+        }
     }
 end
 
 def trigger(dependency)
+     "$name": "$version"
+end
+
+def trigger(resolution)
      "$name": "$version"
 end
 
