@@ -79,7 +79,7 @@ public class PackageJsonCreator {
 	}
 
 	private Frame resolutionFrameFrom(Artifact.WebResolution resolution) {
-		return new FrameBuilder().add("name", resolution.url()).add("version", resolution.version()).toFrame();
+		return new FrameBuilder().add("name", resolution.name()).add("version", resolution.version()).toFrame();
 	}
 
 

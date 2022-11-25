@@ -268,7 +268,7 @@ public interface Configuration {
 		}
 
 		interface WebResolution {
-			String url();
+			String name();
 
 			String version();
 		}
