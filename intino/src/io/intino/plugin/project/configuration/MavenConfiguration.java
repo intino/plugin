@@ -33,7 +33,7 @@ public class MavenConfiguration implements Configuration {
 	}
 
 	private void startWithMaven(final ModuleMavenCreator mavenizer, Project project) {
-		StartupManager.getInstance(project).registerPostStartupActivity(mavenizer::mavenize);
+		StartupManager.getInstance(project).runAfterOpened(mavenizer::mavenize);
 	}
 
 	@Override

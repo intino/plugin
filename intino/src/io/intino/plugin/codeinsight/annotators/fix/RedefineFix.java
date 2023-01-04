@@ -18,7 +18,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.containers.ContainerUtil;
 import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraElementFactory;
@@ -77,12 +76,12 @@ public class RedefineFix implements IntentionAction {
 		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", "var $TYPE$ $NAME$");
 		template.addVariable("TYPE", "", '"' + parameters[1] + '"', true);
 		template.addVariable("NAME", "", '"' + parameters[0] + '"', false);
-		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
+		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(), true);
 		return template;
 	}
 
-	private static <T extends TemplateContextType> T contextType(Class<T> clazz) {
-		return ContainerUtil.findInstance(TemplateContextType.EP_NAME.getExtensions(), clazz);
+	private static <T extends TemplateContextType> TaraTemplateContext contextType() {
+		return new TaraTemplateContext();
 	}
 
 

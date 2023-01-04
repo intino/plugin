@@ -1,17 +1,22 @@
 package io.intino.plugin.project;
 
 import com.intellij.openapi.application.PreloadingActivity;
-import com.intellij.openapi.progress.ProgressIndicator;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.LegioConfiguration;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ApplicationInitializedListener extends PreloadingActivity {
 
+	@Nullable
 	@Override
-	public void preload(@NotNull ProgressIndicator indicator) {
+	public Object execute(@NotNull Continuation<? super Unit> $completion) {
 		LanguageManager.register(new tara.dsl.Legio());
 		ConfigurationManager.registerProvider(LegioConfiguration.class);
+		return null;
 	}
+
 }

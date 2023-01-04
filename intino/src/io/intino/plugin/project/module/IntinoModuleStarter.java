@@ -20,7 +20,6 @@ import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import org.jetbrains.annotations.NotNull;
-import tara.dsl.Legio;
 
 import java.io.File;
 import java.util.Arrays;
@@ -49,8 +48,8 @@ public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 	}
 
 	@Override
-	public void moduleAdded(@NotNull Project project, @NotNull Module module) {
-		registerIntinoModule(module);
+	public void modulesAdded(@NotNull Project project, @NotNull List<Module> modules) {
+		modules.forEach(this::registerIntinoModule);
 	}
 
 	@Override

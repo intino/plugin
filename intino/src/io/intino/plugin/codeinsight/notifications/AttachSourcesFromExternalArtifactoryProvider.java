@@ -29,9 +29,8 @@ import java.util.*;
 
 public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourcesProvider {
 
-	@NotNull
 	@Override
-	public Collection<AttachSourcesAction> getActions(List<LibraryOrderEntry> orderEntries, PsiFile psiFile) {
+	public @NotNull Collection<? extends AttachSourcesAction> getActions(@NotNull List<? extends LibraryOrderEntry> list, @NotNull PsiFile psiFile) {
 		List<LegioConfiguration> configurations = configurations(psiFile);
 		if (configurations.isEmpty()) return Collections.emptyList();
 		return List.of(new AttachSourcesAction() {
@@ -46,7 +45,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 			}
 
 			@Override
-			public ActionCallback perform(List<LibraryOrderEntry> orderEntries) {
+			public @NotNull ActionCallback perform(@NotNull List<? extends LibraryOrderEntry> orderEntries) {
 				List<LegioConfiguration> configurations = configurations(psiFile);
 				if (configurations.isEmpty()) return ActionCallback.REJECTED;
 				final ActionCallback resultWrapper = new ActionCallback();
@@ -59,7 +58,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		});
 	}
 
-	private List<Artifact> resolveSources(List<LibraryOrderEntry> orderEntries, List<LegioConfiguration> configurations, PsiFile psiFile) {
+	private List<Artifact> resolveSources(List<? extends LibraryOrderEntry> orderEntries, List<LegioConfiguration> configurations, PsiFile psiFile) {
 		try {
 			return ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<List<Artifact>, Exception>) () -> resolveSources(orderEntries.get(0), configurations)), "Downloading Sources", false, psiFile.getProject());
 		} catch (Exception e) {
@@ -67,7 +66,7 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 		}
 	}
 
-	private void attachSources(List<LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact a, PsiFile psiFile) {
+	private void attachSources(List<? extends LibraryOrderEntry> orderEntries, ActionCallback resultWrapper, Artifact a, PsiFile psiFile) {
 		Application application = ApplicationManager.getApplication();
 		application.runWriteAction(() -> {
 			if (a == null) {

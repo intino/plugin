@@ -44,7 +44,7 @@ class CompactImageButton extends ImageButton {
 
 	public void mouseClicked(MouseEvent e) {
 		if (listener == null) return;
-		listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiers()));
+		listener.actionPerformed(new ActionEvent(operation, 0, "Clicked", e.getModifiersEx()));
 	}
 
 	public void mousePressed(MouseEvent e) {

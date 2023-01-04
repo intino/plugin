@@ -17,7 +17,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-	<idea-version since-build="222.3345.118"/>
+	<idea-version since-build="223.4884.69"/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>
@@ -55,7 +55,7 @@
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.TaraNativeImplementationToJava"/>
 		<codeInsight.lineMarkerProvider language="JAVA"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.JavaNativeImplementationToTara"/>
-		<liveTemplateContext implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext"/>
+		<liveTemplateContext implementation="io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext" contextId="Tara"/>
 		<defaultLiveTemplates file="/livetemplates/var.xml"/>
 
 		<gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>

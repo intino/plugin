@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
-import com.intellij.util.containers.ContainerUtil;
+import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +40,7 @@ public class WithLiveTemplateFix {
 	}
 
 
-	protected static <T extends TemplateContextType> T contextType(Class<T> clazz) {
-		return ContainerUtil.findInstance(TemplateContextType.EP_NAME.getExtensions(), clazz);
+	protected static <T extends TemplateContextType> TaraTemplateContext contextType(Class<T> clazz) {
+		return new TaraTemplateContext();
 	}
 }
