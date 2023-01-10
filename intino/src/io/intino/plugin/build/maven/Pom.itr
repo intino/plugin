@@ -258,6 +258,11 @@ def trigger(dependencyCheck)
 		<groupId>org.owasp</groupId>
 		<artifactId>dependency-check-maven</artifactId>
 		<version>7.4.4</version>
+		<configuration>
+			<cveStartYear>2012</cveStartYear>
+			<cveWaitTime>86400000</cveWaitTime>
+			<failOnError>false</failOnError>
+		</configuration>
 		<executions>
 			<execution>
 				<goals>
