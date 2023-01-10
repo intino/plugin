@@ -260,6 +260,7 @@ def trigger(dependencyCheck)
 		<version>7.4.4</version>
 		<configuration>
 			<cveStartYear>2012</cveStartYear>
+			<cveValidForHours>24</cveValidForHours>
 			<failOnError>false</failOnError>
 		</configuration>
 		<executions>
