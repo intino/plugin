@@ -16,6 +16,7 @@ import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.intino.Configuration.Repository.Snapshot;
@@ -34,7 +35,7 @@ public class Repositories {
 
 	public List<RemoteRepository> map(List<Repository> repositories) {
 		Application app = ApplicationManager.getApplication();
-		return app.isReadAccessAllowed() ? read(repositories) : app.<List<RemoteRepository>>runReadAction(() -> read(repositories));
+		return new ArrayList<>(app.isReadAccessAllowed() ? read(repositories) : app.<List<RemoteRepository>>runReadAction(() -> read(repositories)));
 	}
 
 	@NotNull

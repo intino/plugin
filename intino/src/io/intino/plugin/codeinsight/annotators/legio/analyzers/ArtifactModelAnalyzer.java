@@ -69,11 +69,12 @@ public class ArtifactModelAnalyzer extends TaraAnalyzer {
 			return;
 		}
 		checkLanguage(languageName, version, LanguageManager.getLanguage(module.getProject(), languageName, version));
-		checkSdk(configuration.artifact().model().sdkVersion());
+		checkSdk(safe(() -> configuration.artifact().model().sdkVersion()));
 	}
 
 	private void checkSdk(String sdkVersion) {
 		try {
+			if (sdkVersion == null) return;
 			new Version(sdkVersion);
 			String version = IOUtils.readLines(this.getClass().getResourceAsStream("/minimum_sdk.info"), Charset.defaultCharset()).get(0);
 			if (sdkVersion.compareTo(version) < 0)
