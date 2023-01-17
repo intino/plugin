@@ -74,7 +74,8 @@ public class IntinoFactoryView extends JPanel {
 	private void build(Operation operation, int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
-		FactoryPhase phase = phaseOf(operation, (modifiers & ActionEvent.SHIFT_MASK) != 0);
+		int mod = modifiers >= 64 ? modifiers / 64 : modifiers;
+		FactoryPhase phase = phaseOf(operation, (mod & ActionEvent.SHIFT_MASK) != 0);
 		if (phase == null) return;
 		Module module = selectedModule();
 		if (module != null) build(phase, module);

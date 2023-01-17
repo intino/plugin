@@ -184,7 +184,7 @@ public class BoxBuilderManager {
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
 		Repositories repositoryManager = new Repositories(module);
-		List<RemoteRepository> remotes = repositoryManager.map(repositories);
+		List<RemoteRepository> remotes = new ArrayList<>(repositoryManager.map(repositories));
 		remotes.add(repositoryManager.local());
 		if (remotes.stream().noneMatch(r -> r.getUrl().equals(Repositories.INTINO_RELEASES)))
 			remotes.add(repositoryManager.intino(UPDATE_POLICY_DAILY));

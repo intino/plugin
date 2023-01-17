@@ -54,7 +54,7 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 			String name = format(component.name());
 			PsiClass inner = Arrays.stream(aClass.getInnerClasses()).filter(cl -> Objects.equals(cl.getName(), name)).findFirst().orElse(null);
 			if (inner == null) {
-				results.put(((TaraNode) component).getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));
+				results.put(this.node.getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.inner.classes.decorable"), collectFixes()));
 				return;
 			}
 			checkTree(inner, component);

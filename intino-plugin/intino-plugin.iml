@@ -2,7 +2,7 @@
 <module type="PLUGIN_MODULE" version="4">
   <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/res/META-INF/plugin.xml" />
   <component name="ExternalSystem" linkedProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" rootProjectPath="$MODULE_DIR$/../../sandbox/tara/plugin" />
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_17">
     <output url="file://$MODULE_DIR$/../out/production/intino-plugin" />
     <output-test url="file://$MODULE_DIR$/../out/test/intino-plugin" />
     <content url="file://$MODULE_DIR$">

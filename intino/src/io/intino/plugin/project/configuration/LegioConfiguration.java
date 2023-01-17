@@ -73,7 +73,7 @@ public class LegioConfiguration implements Configuration {
 				public void run(@NotNull ProgressIndicator indicator) {
 					vFile = new LegioFileCreator(module, Collections.emptyList()).get();
 					legioFile = legioFile();
-					legioFile.components().forEach(resolver::resolve);
+					ApplicationManager.getApplication().runReadAction(() -> legioFile.components().forEach(resolver::resolve));
 					final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
 					indicator.setText("Resolving box builder...");
 					reloader.reloadInterfaceBuilder();

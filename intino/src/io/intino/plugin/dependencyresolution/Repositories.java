@@ -1,10 +1,13 @@
 package io.intino.plugin.dependencyresolution;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.net.HttpConfigurable;
 import io.intino.Configuration.Repository;
 import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.settings.IntinoSettings;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.Proxy;
@@ -17,7 +20,6 @@ import java.util.List;
 
 import static io.intino.Configuration.Repository.Snapshot;
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
-import static java.util.stream.Collectors.toList;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
@@ -31,7 +33,13 @@ public class Repositories {
 	}
 
 	public List<RemoteRepository> map(List<Repository> repositories) {
-		return repositories.stream().map(this::repository).collect(toList());
+		Application app = ApplicationManager.getApplication();
+		return app.isReadAccessAllowed() ? read(repositories) : app.<List<RemoteRepository>>runReadAction(() -> read(repositories));
+	}
+
+	@NotNull
+	private List<RemoteRepository> read(List<Repository> repositories) {
+		return repositories.stream().map(this::repository).toList();
 	}
 
 	RemoteRepository repository(Repository r) {
