@@ -57,7 +57,7 @@ public class IntinoFactoryView extends JPanel {
 		});
 	}
 
-	private void generateCode(int modifiers) {
+	private void generateCode() {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
 		new BoxElementsGenerationAction().execute(selectedModule());
@@ -104,15 +104,12 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private FactoryPhase phaseOf(Operation operation, boolean shift) {
-		switch (operation) {
-			case PackArtifact:
-				return FactoryPhase.PACKAGE;
-			case DistributeArtifact:
-				return shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
-			case DeployArtifact:
-				return FactoryPhase.DEPLOY;
-		}
-		return null;
+		return switch (operation) {
+			case PackArtifact -> FactoryPhase.PACKAGE;
+			case DistributeArtifact -> shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE;
+			case DeployArtifact -> FactoryPhase.DEPLOY;
+			default -> null;
+		};
 	}
 
 	private boolean isRecurrent() {
@@ -132,7 +129,7 @@ public class IntinoFactoryView extends JPanel {
 
 	private void createFactoryPanel() {
 		factoryContainerPanel = new FactoryPanel(UIUtil.isUnderDarcula() ? Darcula : Light);
-		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode(e.getModifiers()));
+		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode());
 		((FactoryPanel) factoryContainerPanel).addActionListener(ImportPackages, e -> reload(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(BuildArtifact, e -> build());
 		((FactoryPanel) factoryContainerPanel).addActionListener(PackArtifact, e -> build(PackArtifact, e.getModifiers()));
@@ -161,22 +158,22 @@ public class IntinoFactoryView extends JPanel {
 		if (artifact == null) return;
 		Node node;
 		switch (element) {
-			case Src:
+			case Src -> {
 				node = find(artifact, "Code");
 				if (node != null) ((Navigatable) node).navigate(true);
-				break;
-			case Pack:
+			}
+			case Pack -> {
 				node = find(artifact, "Package");
 				if (node != null) ((Navigatable) node).navigate(true);
-				break;
-			case Dist:
+			}
+			case Dist -> {
 				node = find(artifact, "Distribution");
 				if (node != null) ((Navigatable) node).navigate(true);
-				break;
-			default:
+			}
+			default -> {
 				node = find(artifact, element.name());
 				if (node != null) ((Navigatable) node).navigate(true);
-				break;
+			}
 		}
 	}
 
