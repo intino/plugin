@@ -98,7 +98,8 @@ public class IntinoFactoryView extends JPanel {
 	private void exportAccessors(int modifiers) {
 		if (isRecurrent()) return;
 		lastAction = Instant.now();
-		boolean shift = (modifiers & SHIFT_MASK) != 0;
+		int mod = modifiers >= 64 ? modifiers / 64 : modifiers;
+		boolean shift = (mod & SHIFT_MASK) != 0;
 		new ExportAction().execute(selectedModule(), shift ? FactoryPhase.INSTALL : FactoryPhase.DISTRIBUTE);
 	}
 
