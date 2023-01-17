@@ -56,7 +56,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		initProjectTree();
 		project.getMessageBus().connect().subscribe(ProjectTopics.MODULES, new ModuleListener() {
 			@Override
-			public void moduleAdded(@NotNull Project project, @NotNull Module module) {
+			public void modulesAdded(@NotNull Project project, @NotNull List<Module> module) {
 				renderProject(root);
 			}
 
