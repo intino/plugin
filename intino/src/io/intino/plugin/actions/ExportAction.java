@@ -65,7 +65,7 @@ public class ExportAction {
 			final String version = box.version();
 			if (version == null || version.isEmpty()) return;
 			try {
-				File temp = Files.createTempDirectory("konos_accessors").toFile();
+				File temp = Files.createTempDirectory("box_accessors").toFile();
 				KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.getAbsolutePath());
 				konosRunner.runKonosCompiler();
 				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);

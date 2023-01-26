@@ -32,11 +32,12 @@ public class FactoryPhaseChecker {
 
 	public boolean webServiceIsCompiled(Module module) {
 		for (Module dependency : collectModuleDependencies(module, new HashSet<>())) {
-			if (ModuleTypeWithWebFeatures.isAvailable(dependency)) {
-				final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
-				if (extension == null || extension.getCompilerOutputUrl() == null || !new File(pathOf(extension.getCompilerOutputUrl())).exists() || Objects.requireNonNull(new File(pathOf(extension.getCompilerOutputUrl())).list((dir, name) -> !name.startsWith("."))).length == 0)
-					return false;
-			}
+			if (!ModuleTypeWithWebFeatures.isAvailable(dependency)) continue;
+			final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
+			if (extension == null || extension.getCompilerOutputUrl() == null ||
+					!new File(pathOf(extension.getCompilerOutputUrl())).exists() ||
+					Objects.requireNonNull(new File(pathOf(extension.getCompilerOutputUrl())).list((dir, name) -> !name.startsWith("."))).length == 0)
+				return false;
 		}
 		return true;
 	}

@@ -168,6 +168,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 					indicator.setText("Building UI services");
 					compileUI();
 				}
+				if (!checker.webServiceIsCompiled(module)) {
+					errorMessages.add("Impossible to build UI services. Please build them manualy");
+					return;
+				}
 				ProcessResult result = process(indicator);
 				if (indicator.isCanceled()) return;
 				if (callback != null) ApplicationManager.getApplication().invokeLater(() -> callback.onFinish(result));
