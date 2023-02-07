@@ -14,10 +14,7 @@ import io.intino.magritte.lang.model.Variable;
 import io.intino.magritte.lang.model.rules.Suggestion;
 import io.intino.magritte.lang.model.rules.variable.WordRule;
 import io.intino.plugin.lang.TaraLanguage;
-import io.intino.plugin.lang.psi.StringValue;
-import io.intino.plugin.lang.psi.TaraTypes;
-import io.intino.plugin.lang.psi.TaraVariableType;
-import io.intino.plugin.lang.psi.Valued;
+import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.PsiCustomWordRule;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.NotNull;
@@ -25,17 +22,18 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static io.intino.magritte.lang.model.Primitive.*;
+import static io.intino.plugin.project.Safe.safe;
 
 
 public class TaraVariableCompletionContributor extends CompletionContributor {
 
-	private PsiElementPattern.Capture<PsiElement> afterVar = psiElement()
+	private final PsiElementPattern.Capture<PsiElement> afterVar = psiElement()
 			.withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new AfterVarFitFilter()));
 
 	public TaraVariableCompletionContributor() {
 		extend(CompletionType.BASIC, afterVar,
-				new CompletionProvider<CompletionParameters>() {
+				new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -47,7 +45,7 @@ public class TaraVariableCompletionContributor extends CompletionContributor {
 		);
 
 		extend(CompletionType.BASIC, TaraFilters.afterEquals,
-				new CompletionProvider<CompletionParameters>() {
+				new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -89,7 +87,10 @@ public class TaraVariableCompletionContributor extends CompletionContributor {
 
 		private boolean isInAttribute(PsiElement context) {
 			PsiElement parent = context.getParent();
-			while (parent != null && !(parent instanceof Node)) {
+			if (parent instanceof TaraModel) {
+				final ASTNode ctxPreviousNode = safe(() -> context.getPrevSibling().getPrevSibling().getNode());
+				return ctxPreviousNode != null && TaraTypes.VAR.equals(ctxPreviousNode.getElementType());
+			} else while (parent != null && !(parent instanceof Node)) {
 				if (parent instanceof Variable) return true;
 				parent = parent.getParent();
 			}

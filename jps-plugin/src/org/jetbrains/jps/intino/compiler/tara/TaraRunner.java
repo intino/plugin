@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
 
 class TaraRunner {
 	private static final char NL = '\n';

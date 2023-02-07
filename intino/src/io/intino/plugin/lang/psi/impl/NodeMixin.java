@@ -45,7 +45,7 @@ public class NodeMixin extends ASTWrapperPsiElement {
 
 	private String fullType;
 	private String prevType;
-	private Set<Tag> inheritedFlags = new HashSet<>();
+	private final Set<Tag> inheritedFlags = new HashSet<>();
 	private List<String> metaTypes = new ArrayList<>();
 
 	NodeMixin(@NotNull ASTNode node) {

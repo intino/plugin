@@ -29,6 +29,21 @@ public class TaraPsiUtil {
 	private TaraPsiUtil() {
 	}
 
+	public static String simpleType(Node node) {
+		return simpleType(node.type());
+	}
+
+	@NotNull
+	public static String simpleType(String nodeType) {
+		String type = nodeType;
+		if (type.contains(":")) type = type.substring(nodeType.indexOf(":") + 1);
+		if (type.contains(".")) {
+			if (type.endsWith(".")) type = type.substring(0, type.length() - 1);
+			else type = type.substring(type.indexOf(".") + 1);
+		}
+		return type;
+	}
+
 	public static String getIdentifier(Identifier keyNode) {
 		return keyNode != null ? keyNode.getText() : null;
 	}

@@ -169,7 +169,7 @@ public class IntinoUtil {
 		for (Constraint constraint : nodeConstraints)
 			if (constraint instanceof Constraint.Parameter) parameters.add((Constraint.Parameter) constraint);
 			else if (constraint instanceof Constraint.Aspect && hasAspect(node, (Constraint.Aspect) constraint))
-				parameters.addAll(((Constraint.Aspect) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).collect(Collectors.toList()));
+				parameters.addAll(((Constraint.Aspect) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).toList());
 		return parameters;
 	}
 

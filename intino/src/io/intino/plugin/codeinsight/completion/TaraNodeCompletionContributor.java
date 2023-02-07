@@ -31,7 +31,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 											   @NotNull CompletionResultSet resultSet) {
 						if (!(parameters.getPosition().getContext() instanceof MetaIdentifier)) return;
 						final CompletionUtils completionUtils = new CompletionUtils(parameters, resultSet);
-						completionUtils.collectAllowedTypes();
+						completionUtils.collectAllowedComponents();
 					}
 				}
 		);
@@ -45,7 +45,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 											   @NotNull CompletionResultSet resultSet) {
 						if (!(parameters.getPosition().getContext() instanceof MetaIdentifier)) return;
 						final CompletionUtils completionUtils = new CompletionUtils(parameters, resultSet);
-						completionUtils.collectAllowedFacets();
+						completionUtils.collectAllowedAspects();
 					}
 				}
 		);

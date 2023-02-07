@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.magritte.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.builder.shared.TaraBuildConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.ERROR;
-import static io.intino.magritte.compiler.shared.TaraCompilerMessageCategories.WARNING;
+import static io.intino.magritte.builder.shared.TaraCompilerMessageCategories.ERROR;
+import static io.intino.magritte.builder.shared.TaraCompilerMessageCategories.WARNING;
 
 class KonoscOSProcessHandler extends BaseOSProcessHandler {
 	private static final String KONOS_COMPILER_IN_OPERATION = "Konos compiler in operation...";

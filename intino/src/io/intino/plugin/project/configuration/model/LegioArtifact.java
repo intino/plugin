@@ -39,7 +39,7 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.LANGUAGE;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LEVEL;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.VERSION;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;

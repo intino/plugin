@@ -1,7 +1,7 @@
 package org.jetbrains.jps.intino.model.impl;
 
 import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.magritte.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.builder.shared.TaraBuildConstants;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.maven.model.JpsMavenExtensionService;
 import org.jetbrains.jps.maven.model.impl.MavenModuleResourceConfiguration;
@@ -17,13 +17,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.ARTIFACT_ID;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.GROUP_ID;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.LANGUAGE_GENERATION_PACKAGE;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.LEVEL;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.VERSION;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.*;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.ARTIFACT_ID;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.GROUP_ID;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.LANGUAGE;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.LANGUAGE_GENERATION_PACKAGE;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.LEVEL;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.VERSION;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
 
 class JpsConfigurationLoader {
 	private static final String TARA = "tara.";

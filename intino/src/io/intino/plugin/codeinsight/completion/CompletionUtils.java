@@ -18,6 +18,7 @@ import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class CompletionUtils {
 
 	}
 
-	void collectAllowedTypes() {
+	void collectAllowedComponents() {
 		if (language == null) return;
 		Node container = getContainerNodeOf((PsiElement) getContainerNodeOf(parameters.getPosition()));
 		final List<Constraint> nodeConstraints = language.constraints(container == null ? "" : container.resolve().type());
@@ -53,12 +54,23 @@ public class CompletionUtils {
 		List<Constraint> constraints = new ArrayList<>(nodeConstraints);
 		if (container != null)
 			constraints.addAll(constraintsOf(aspectConstraints(nodeConstraints, container.appliedAspects())));
-		List<Constraint.Component> components = constraints.stream().filter(c -> c instanceof Constraint.Component).map(c -> (Constraint.Component) c).collect(toList());
-		components = components.stream().filter(c -> isSizeAccepted(c, container)).collect(toList());
+		List<Constraint.Component> components = new ArrayList<>();
+		if (container != null) {
+			components.addAll(componentConstraints(constraints).stream().filter(c -> isSizeAccepted(c, container)).toList());
+			components.addAll(constraints.stream()
+					.filter(c -> c instanceof Constraint.Aspect && hasAspect(container, (Constraint.Aspect) c))
+					.flatMap(c -> ((Constraint.Aspect) c).constraints().stream().filter(cs -> cs instanceof Constraint.Component).map(cst -> (Constraint.Component) cst))
+					.filter(c -> isSizeAccepted(c, container)).toList());
+		}
 		if (components.isEmpty()) return;
 		List<LookupElementBuilder> elementBuilders = createComponentLookUps(fileName(language, container), components, container);
 		resultSet.addAllElements(elementBuilders);
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);
+	}
+
+	@NotNull
+	private static List<Constraint.Component> componentConstraints(List<Constraint> constraints) {
+		return constraints.stream().filter(c -> c instanceof Constraint.Component).map(c -> (Constraint.Component) c).collect(toList());
 	}
 
 	private List<Constraint> constraintsOf(List<Constraint> constraints) {
@@ -68,7 +80,7 @@ public class CompletionUtils {
 	}
 
 
-	void collectAllowedFacets() {
+	void collectAllowedAspects() {
 		Node node = getContainerNodeOf(parameters.getPosition().getContext());
 		if (language == null) return;
 		List<Constraint> constraints = language.constraints(node == null ? "" : node.resolve().type());
@@ -83,6 +95,7 @@ public class CompletionUtils {
 		if (language == null) return;
 		Node node = getContainerNodeOf((PsiElement) getContainerNodeOf(parameters.getPosition()));
 		if (node == null) return;
+		node.resolve();
 		List<LookupElementBuilder> elementBuilders = buildCompletionForParameters(parameterConstraintsOf(node), node.parameters());
 		resultSet.addAllElements(elementBuilders);
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);
@@ -92,6 +105,7 @@ public class CompletionUtils {
 		if (language == null) return;
 		Node node = getContainerNodeOf(parameters.getPosition());
 		if (node == null) return;
+		node.resolve();
 		List<Constraint.Parameter> constraints = isInAspect() ? aspectParameterConstraintsOf(node) : parameterConstraintsOf(node);
 		List<LookupElementBuilder> elementBuilders = buildCompletionForParameters(constraints, node.parameters());
 		resultSet.addAllElements(elementBuilders);
@@ -103,7 +117,10 @@ public class CompletionUtils {
 	}
 
 	private boolean isSizeAccepted(Constraint.Component component, Node container) {
-		return component.rules().stream().filter(r -> r instanceof Size).allMatch(r -> ((Size) r).max() > container.components().stream().filter(c -> component.type().equals(c.type())).collect(toList()).size());
+		long count = container.components().stream().filter(c -> component.type().equals(c.type()) || shortType(component.type()).equals(c.type())).count();
+		return component.rules().stream()
+				.filter(r -> r instanceof Size)
+				.allMatch(r -> ((Size) r).max() > count);
 	}
 
 	private String fileName(Language language, Node node) {
@@ -113,7 +130,7 @@ public class CompletionUtils {
 	}
 
 	private List<Constraint> aspectConstraints(List<Constraint> nodeConstraints, List<Aspect> aspects) {
-		List<String> facetTypes = aspects.stream().map(Aspect::type).collect(toList());
+		List<String> facetTypes = aspects.stream().map(Aspect::type).toList();
 		List<Constraint> list = new ArrayList<>();
 		if (nodeConstraints == null) return list;
 		for (Constraint constraint : nodeConstraints)
@@ -125,10 +142,10 @@ public class CompletionUtils {
 	private List<LookupElementBuilder> createComponentLookUps(String fileName, List<Constraint.Component> constraints, NodeContainer container) {
 		Set<String> added = new HashSet<>();
 		List<LookupElementBuilder> builders = new ArrayList<>();
-		for (Constraint constraint : constraints)
+		for (Constraint.Component constraint : constraints)
 			if (constraint instanceof Constraint.OneOf)
 				builders.addAll(createElement(fileName, (Constraint.OneOf) constraint, container));
-			else builders.add(createElement(fileName, (Constraint.Component) constraint, container));
+			else builders.add(createElement(fileName, constraint, container));
 		return builders.stream().filter(c -> added.add(c.getLookupString())).collect(toList());
 	}
 
@@ -137,12 +154,11 @@ public class CompletionUtils {
 		return constraints.stream().
 				filter(c -> c instanceof Constraint.Aspect && !hasAspect(node, (Constraint.Aspect) c)).
 				map(c -> createElement(fileName, (Constraint.Aspect) c, node)).filter(l -> added.add(l.getLookupString())). //TODO pasar el container
-				collect(toList());
+						collect(toList());
 	}
 
 	private boolean hasAspect(Node node, Constraint.Aspect c) {
-		for (Aspect aspect : node.appliedAspects()) if (aspect.type().equals(c.type())) return true;
-		return false;
+		return node.appliedAspects().stream().anyMatch(aspect -> aspect.type().equals(c.type()) || aspect.fullType().equals(c.type()));
 	}
 
 	private LookupElementBuilder createElement(String fileName, Constraint.Component constraint, NodeContainer container) {
@@ -179,10 +195,16 @@ public class CompletionUtils {
 		return create(allow.name() + " ").withIcon(IntinoIcons.NODE).withCaseSensitivity(true).withTypeText(allow.type().getName());
 	}
 
-	public static class FakeElement extends FakePsiElement implements NavigatablePsiElement {
 
+	private static String shortType(String type) {
+		final String[] s = type.split("\\.");
+		return s[s.length - 1];
+	}
+
+
+	public static class FakeElement extends FakePsiElement implements NavigatablePsiElement {
 		private final String type;
-		private PsiElement parent;
+		private final PsiElement parent;
 
 		FakeElement(String type, PsiElement parent) {
 			this.type = type;

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR;
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresReload;
 
 public class KonosCompilerListener implements CustomBuilderMessageHandler {

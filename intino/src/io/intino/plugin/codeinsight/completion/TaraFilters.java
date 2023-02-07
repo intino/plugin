@@ -21,16 +21,16 @@ class TaraFilters {
 
 	static final PsiElementPattern.Capture<PsiElement> AfterNewLine = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new AfterNewLinePrimalFilter()));
-	static final PsiElementPattern.Capture<PsiElement> afterNewLineInBody = psiElement().withLanguage(TaraLanguage.INSTANCE)
-			.and(new FilterPattern(new AfterNewLineInBodyFilter()));
 	static final PsiElementPattern.Capture<PsiElement> afterAs = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new AfterAsFilter()))
 			.and(new FilterPattern(new InFacetFilter()));
+	static final PsiElementPattern.Capture<PsiElement> afterNewLineInBody = psiElement().withLanguage(TaraLanguage.INSTANCE)
+			.and(new FilterPattern(new AfterNewLineInBodyFilter())).andNot(afterAs);
 	static final PsiElementPattern.Capture<PsiElement> afterEquals = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new AfterEqualsFilter()));
 	static final PsiElementPattern.Capture<PsiElement> afterNodeIdentifier = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new AfterElementTypeFitFilter(IDENTIFIER_KEY)));
-	static final PsiElementPattern.Capture<PsiElement> inParameterName = psiElement().withLanguage(TaraLanguage.INSTANCE).and(new FilterPattern(new InParameters()));
+	static final PsiElementPattern.Capture<PsiElement> inParameterName = psiElement().withLanguage(TaraLanguage.INSTANCE).and(new FilterPattern(new InParameters())).andNot(afterEquals);
 
 	private TaraFilters() {
 	}

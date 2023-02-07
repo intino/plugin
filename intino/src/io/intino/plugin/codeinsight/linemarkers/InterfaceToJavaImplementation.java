@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static com.intellij.icons.AllIcons.Gutter.ImplementedMethod;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
+import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.simpleType;
 import static io.intino.plugin.project.Safe.safe;
 
 public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider {
@@ -53,15 +54,7 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 		result.add(builder.createLineMarkerInfo(leafOf(element)));
 	}
 
-	private String simpleType(Node node) {
-		String type = node.type();
-		if (type.contains(":")) type = type.substring(node.type().indexOf(":") + 1);
-		if (type.contains(".")) {
-			if (type.endsWith(".")) type = type.substring(0, type.length() - 1);
-			else type = type.indexOf(".") == type.length() ? type : type.substring(type.indexOf(".") + 1);
-		}
-		return type;
-	}
+
 
 	private PsiElement leafOf(@NotNull PsiElement element) {
 		PsiElement leaf = element;

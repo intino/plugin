@@ -25,7 +25,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
 import io.intino.Configuration;
-import io.intino.magritte.compiler.shared.TaraBuildConstants;
+import io.intino.magritte.builder.shared.TaraBuildConstants;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 

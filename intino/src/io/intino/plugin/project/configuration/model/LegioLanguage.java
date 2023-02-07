@@ -14,7 +14,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
-import static io.intino.magritte.compiler.shared.TaraBuildConstants.GENERATION_PACKAGE;
+import static io.intino.magritte.builder.shared.TaraBuildConstants.GENERATION_PACKAGE;
 
 public class LegioLanguage implements Configuration.Artifact.Model.Language {
 	private final LegioModel model;
