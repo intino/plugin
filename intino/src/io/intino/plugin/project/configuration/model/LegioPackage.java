@@ -41,7 +41,7 @@ public class LegioPackage implements Configuration.Artifact.Package {
 
 	@Override
 	public boolean attachSources() {
-		String attachSources = read(() -> parameterValue(node, "attachSources", 2));
+		String attachSources = read(() -> parameterValue(node, "attachSources", 3));
 		return Boolean.parseBoolean(attachSources);
 	}
 
@@ -53,35 +53,35 @@ public class LegioPackage implements Configuration.Artifact.Package {
 
 	@Override
 	public boolean attachDoc() {
-		String attachDoc = read(() -> parameterValue(node, "attachDoc", 3));
+		String attachDoc = read(() -> parameterValue(node, "attachDoc", 4));
 		return Boolean.parseBoolean(attachDoc);
 	}
 
 	@Override
 	public boolean includeTests() {
-		String includeTests = read(() -> parameterValue(node, "includeTests", 4));
+		String includeTests = read(() -> parameterValue(node, "includeTests", 5));
 		return Boolean.parseBoolean(includeTests);
 	}
 
 	@Override
 	public boolean signArtifactWithGpg() {
-		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWithGpg", 5));
+		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWithGpg", 6));
 		return Boolean.parseBoolean(signArtifactWitGpg);
 	}
 
 	@Override
 	public String classpathPrefix() {
-		return read(() -> parameterValue(node, "classpathPrefix", 5));
+		return read(() -> parameterValue(node, "classpathPrefix", 7));
 	}
 
 	@Override
 	public String finalName() {
-		return read(() -> parameterValue(node, "finalName", 7));
+		return read(() -> parameterValue(node, "finalName", 8));
 	}
 
 	@Override
 	public String defaultJVMOptions() {
-		return read(() -> parameterValue(node, "defaultJVMOptions", 8));
+		return read(() -> parameterValue(node, "defaultJVMOptions", 9));
 	}
 
 	@Override

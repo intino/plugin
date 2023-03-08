@@ -58,19 +58,19 @@ import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
 
 
-class PomCreator {
+public class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
 	private final LegioConfiguration configuration;
 	private final Mode packageType;
 
-	PomCreator(Module module) {
+	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
-	File frameworkPom(FactoryPhase phase) throws IntinoException {
+	public File frameworkPom(FactoryPhase phase) throws IntinoException {
 		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile(), phase);
 	}
 
@@ -138,7 +138,8 @@ class PomCreator {
 		if (pack != null) configureBuild(builder, configuration.artifact(), pack);
 		addPlugins(builder);
 		addDependencies(builder);
-		addRepositories(builder);
+		if (ApplicationManager.getApplication().isReadAccessAllowed()) addRepositories(builder);
+		else ApplicationManager.getApplication().runReadAction(() -> addRepositories(builder));
 	}
 
 	private void addPlugins(FrameBuilder builder) {

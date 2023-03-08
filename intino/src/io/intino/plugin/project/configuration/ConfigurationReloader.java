@@ -13,6 +13,7 @@ import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.builders.BoxBuilderManager;
+import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -61,9 +62,7 @@ public class ConfigurationReloader {
 		for (RunConfiguration runConfiguration : runConfigurations) {
 			ApplicationConfiguration configuration = findRunConfiguration(runConfiguration.name());
 			if (configuration != null)
-				configuration.setProgramParameters(runConfiguration.
-						arguments().stream().map(r -> r.name() + "=" + r.value()).
-						collect(Collectors.joining(" ")));
+				configuration.setProgramParameters(((LegioRunConfiguration) runConfiguration).argumentsChain());
 		}
 	}
 

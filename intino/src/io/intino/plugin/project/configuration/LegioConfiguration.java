@@ -21,6 +21,9 @@ import io.intino.Configuration;
 import io.intino.magritte.Resolver;
 import io.intino.magritte.lang.model.Node;
 import io.intino.magritte.lang.model.NodeContainer;
+import io.intino.plugin.IntinoException;
+import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.build.maven.PomCreator;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
 import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.file.LegioFileType;
@@ -46,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
+import static io.intino.plugin.project.Safe.safe;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
@@ -81,6 +85,7 @@ public class LegioConfiguration implements Configuration {
 					reloader.reloadLanguage();
 					reloader.reloadArtifactoriesMetaData();
 					loadRemoteProcessesInfo();
+					if (safe(() -> artifact().packageConfiguration().createMavenPom())) createPom();
 					inited = true;
 					save();
 				}
@@ -139,6 +144,7 @@ public class LegioConfiguration implements Configuration {
 									 indicator.setText("Resolving imports...");
 									 reloader.reloadDependencies();
 									 reloader.reloadRunConfigurations();
+									 if (safe(() -> artifact().packageConfiguration().createMavenPom())) createPom();
 									 save();
 									 refresh();
 									 reloading.set(false);
@@ -152,6 +158,16 @@ public class LegioConfiguration implements Configuration {
 				LOG.error(e);
 			}
 			reloading.set(false);
+		}
+	}
+
+
+	private void createPom() {
+		if (ModuleType.get(module) instanceof WebModuleType) return;
+		try {
+			new PomCreator(module).frameworkPom(FactoryPhase.PACKAGE);
+		} catch (IntinoException e) {
+			LOG.error(e);
 		}
 	}
 
