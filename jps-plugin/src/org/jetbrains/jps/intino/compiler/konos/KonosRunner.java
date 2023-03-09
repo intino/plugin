@@ -2,6 +2,7 @@ package org.jetbrains.jps.intino.compiler.konos;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.Version;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
@@ -26,7 +27,7 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 class KonosRunner {
 	private static final char NL = '\n';
 	private static final Logger LOG = Logger.getInstance(KonosRunner.class.getName());
-	private static final String MINIMUM_VERSION = "8.0.0";
+	private static final Version MINIMUM_VERSION = new Version(8, 0, 0);
 	private static File argsFile;
 	private final int compilerMemory;
 	private List<String> classpath;
@@ -59,8 +60,9 @@ class KonosRunner {
 			throw new IOException("Unable to find builder classpath. Please reload configuration");
 		String text = new String(Files.readAllBytes(classPathFile.toPath()));
 		this.classpath = Arrays.stream(text.split(":")).map(c -> c.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());
-		if (versionOf(new File(classpath.get(0))).compareTo(MINIMUM_VERSION) < 0)
-			throw new IOException("Version of Builder in " + moduleName + " is incompatible with this plugin version. Minimum version: " + MINIMUM_VERSION);
+		Version version = Version.parseVersion(versionOf(new File(classpath.get(0))));
+		if (version== null || version.compareTo(MINIMUM_VERSION) < 0)
+			throw new IOException("Version of Konos Builder in " + moduleName + "(" + versionOf(new File(classpath.get(0))) + ") is incompatible with this plugin version. Minimum version: " + MINIMUM_VERSION);
 	}
 
 	private String versionOf(File file) {

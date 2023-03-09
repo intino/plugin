@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
 			<artifactId>message</artifactId>
-			<version>3.0.5</version>
+			<version>4.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
@@ -88,12 +88,6 @@
 			<artifactId>shifter</artifactId>
 			<version>1.0.5</version>
 		</dependency>
-		<dependency>
-			<groupId>io.intino.alexandria</groupId>
-			<artifactId>zim</artifactId>
-			<version>1.0.7</version>
-		</dependency>
-
 		<dependency>
 			<groupId>tara.dsl</groupId>
 			<artifactId>legio</artifactId>

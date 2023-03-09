@@ -75,7 +75,7 @@ public class RemoteWindow {
 	public void reload() {
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 					new CesarServerInfoDownloader().download(project);
-					CesarInfo.getSafeInstance(project).serversInfo().values().stream().forEach(this::refreshServerView);
+					CesarInfo.getSafeInstance(project).serversInfo().values().forEach(this::refreshServerView);
 				}
 		);
 	}
@@ -212,11 +212,10 @@ public class RemoteWindow {
 		return compactedMessage.substring(compactedMessage.indexOf("\n") + 1);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<Message> toInl(String text) {
-		try {
+		try (MessageReader reader = new MessageReader(text)) {
 			return StreamSupport
-					.stream(((Iterable<Message>) () -> new MessageReader(text).iterator()).spliterator(), false)
+					.stream(reader.spliterator(), false)
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			return Collections.emptyList();
