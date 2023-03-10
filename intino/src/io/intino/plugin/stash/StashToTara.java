@@ -123,7 +123,14 @@ class StashToTara {
 
 	private void writeAspects(Node node) {
 		if (node.layers.size() > 1) write(" as");
-		node.layers.stream().filter(a -> a.contains("#")).map(facet -> " " + facet.split("#")[0]).forEach(this::write);
+		node.layers.stream().skip(1)
+				.map(aspect -> " " + nameOf(aspect))
+				.forEach(this::write);
+	}
+
+	@NotNull
+	private static String nameOf(String aspect) {
+		return aspect.contains("$") ? aspect.substring(aspect.lastIndexOf("$") + 1) : aspect;
 	}
 
 	private void writeVariables(List<Variable> variables, int level) {
