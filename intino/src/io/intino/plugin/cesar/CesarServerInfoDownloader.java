@@ -31,7 +31,7 @@ public class CesarServerInfoDownloader {
 		download(module.getProject(), IntinoUtil.configurationOf(module));
 	}
 
-	private void download(Project project, Configuration configuration) {
+	public void download(Project project, Configuration configuration) {
 		CesarAccessor accessor = new CesarAccessor(project);
 		CesarInfo info = CesarInfo.getSafeInstance(project);
 		info.serversInfo(configuration.servers().stream()

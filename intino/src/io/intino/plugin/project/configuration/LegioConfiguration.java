@@ -97,7 +97,7 @@ public class LegioConfiguration implements Configuration {
 	}
 
 	public void loadRemoteProcessesInfo() {
-		new CesarServerInfoDownloader().download(module);
+		new CesarServerInfoDownloader().download(module.getProject(), this);
 	}
 
 	public Module module() {
