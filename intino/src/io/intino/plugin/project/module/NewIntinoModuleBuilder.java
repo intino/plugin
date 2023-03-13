@@ -11,11 +11,17 @@ import com.intellij.ide.starters.shared.StarterSettings;
 import com.intellij.ide.starters.shared.StarterTestRunner;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
+import com.intellij.openapi.GitRepositoryInitializer;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ContentEntry;
@@ -52,10 +58,8 @@ import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 import static java.io.File.separator;
 
 public class NewIntinoModuleBuilder extends StarterModuleBuilder {
-
 	private IntinoModuleType.Type intinoModuleType;
 	private List<IntinoWizardPanel.Components> components;
-
 	private boolean gorosFramework = false;
 
 	public NewIntinoModuleBuilder() {
@@ -110,8 +114,10 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	@NotNull
 	@Override
 	protected StarterPack getStarterPack() {
-		return new StarterPack(getBuilderId(), List.of(new Starter("intino", "intino", getDependencyConfig("/starters/intino.pom"), Collections.emptyList())));
+		return new StarterPack(getBuilderId(),
+				List.of(new Starter("intino", "intino", getDependencyConfig("/starters/intino.pom"), Collections.emptyList())));
 	}
+
 
 	@NotNull
 	@Override
@@ -168,6 +174,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 	@Override
 	protected void setupModule(@NotNull Module module) throws ConfigurationException {
+		getStarterContext().setGitIntegration(false);
 		getStarterContext().setStarter(getStarterContext().getStarterPack().getStarters().get(0));
 		getStarterContext().setStarterDependencyConfig(loadDependencyConfig().get(getStarterContext().getStarter().getId()));
 		super.setupModule(module);
@@ -219,8 +226,24 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		setContentEntryPath(project.getBasePath() + separator + getName());
 		setModuleFilePath(project.getBasePath() + separator + getName() + separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
 		final Module module = super.commitModule(project, model);
+		withTask(new Task.Backgroundable(module.getProject(), " Setting up git repository", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			@Override
+			public void run(@NotNull ProgressIndicator indicator) {
+				GitRepositoryInitializer.getInstance().initRepository(project, VfsUtil.findFileByIoFile(new File(project.getBasePath()), true), true);
+			}
+		});
 		createIntinoFiles(project, module);
 		return module;
+	}
+
+	private void withTask(Task.Backgroundable runnable) {
+		ProgressManager.getInstance().runProcessWithProgressAsynchronously(runnable, new BackgroundableProcessIndicator(runnable));
+	}
+
+	@NotNull
+	@Override
+	protected List<String> getFilePathsToOpen() {
+		return super.getFilePathsToOpen();//TODO add
 	}
 
 	private void createIntinoFiles(@NotNull Project project, Module module) {
@@ -235,7 +258,6 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		final Configuration configuration = register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 		configuration.reload();
 	}
-
 
 	public void setIntinoModuleType(IntinoModuleType.Type selected) {
 		this.intinoModuleType = selected;

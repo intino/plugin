@@ -111,14 +111,13 @@ public class GitUtil {
 		return builder.toString();
 	}
 
-	@NotNull
-	private static GitCommandResult popStashByIndex(@NotNull Module module, String stashIndex) {
+	private static void popStashByIndex(@NotNull Module module, String stashIndex) {
 		final GitLineHandler handler = new GitLineHandler(module.getProject(), repository(module).getRoot(), GitCommand.STASH);
 		handler.addParameters("pop");
 		handler.addParameters(stashIndex);
 		StringBuilder builder = new StringBuilder();
 		handler.addLineListener(stringBuilderListener(builder));
-		return Git.getInstance().runCommand(handler);
+		Git.getInstance().runCommand(handler);
 	}
 
 

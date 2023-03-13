@@ -13,6 +13,8 @@ public class IntinoWizardStep extends ModuleWizardStep {
 		step = new IntinoWizardPanel();
 	}
 
+
+
 	@Override
 	public JComponent getComponent() {
 		return step.panel();

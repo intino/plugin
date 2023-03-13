@@ -71,7 +71,7 @@ public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 				progressIndicator.setText("Refactoring java");
 				progressIndicator.setIndeterminate(true);
 				runRefactor(project, conf, module.getName(), oldNameProvider.fun(module));
-			}, "Refactoring java", true, project, null);
+			}, "Refactoring Java", true, project, null);
 		}
 	}
 
