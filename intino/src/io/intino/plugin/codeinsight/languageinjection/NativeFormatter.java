@@ -62,8 +62,8 @@ public class NativeFormatter implements TemplateTags {
 		else return language.languageName();
 	}
 
-	private static String buildContainerPathOfExpression(Variable variable, String workingPackage, boolean m0) {
-		return qn(firstNoFeatureAndNamed(variable.container()), workingPackage, m0);
+	private static String buildContainerPathOfExpression(Variable variable, String workingPackage) {
+		return qn(firstNoFeatureAndNamed(variable.container()), workingPackage);
 	}
 
 	private static String buildContainerPathOfExpression(Parameter parameter, String outDsl) {
@@ -92,7 +92,7 @@ public class NativeFormatter implements TemplateTags {
 			final Node scope = node.is(Instance) ? firstNoFeature(node) : firstNoFeatureAndNamed(node);
 			if (scope == null) return "";
 			if (scope.is(Instance)) return getTypeAsScope(scope, scopeLanguage);
-			return qn(scope, workingPackage, false);
+			return qn(scope, workingPackage);
 		} else return null;
 	}
 
@@ -102,7 +102,7 @@ public class NativeFormatter implements TemplateTags {
 			final Node scope = owner.is(Instance) ? firstNoFeature(owner) : firstNoFeatureAndNamed(owner);
 			if (scope == null) return "";
 			if (scope.is(Instance)) return getTypeAsScope(scope, trueWorkingPackage);
-			else return qn(scope, workingPackage, false);
+			else return qn(scope, workingPackage);
 		} else return null;
 	}
 
@@ -216,7 +216,7 @@ public class NativeFormatter implements TemplateTags {
 		context.add(NAME, variable.name());
 		context.add(IMPORTS, imports.toArray(new String[0]));
 		context.add(GENERATED_LANGUAGE, workingPackage);
-		context.add(NATIVE_CONTAINER, buildContainerPathOfExpression(variable, workingPackage, m0));
+		context.add(NATIVE_CONTAINER, buildContainerPathOfExpression(variable, workingPackage));
 		context.add(TYPE, typeFrame(type(variable), variable.isMultiple()));
 		if (!isMultiline) context.add(RETURN, NativeFormatter.getReturn(body));
 	}
@@ -246,7 +246,7 @@ public class NativeFormatter implements TemplateTags {
 
 	private String type(Variable variable) {
 		if (variable.isReference())
-			return QualifiedNameFormatter.qn(variable.destinyOfReference(), workingPackage, false);
+			return QualifiedNameFormatter.qn(variable.destinyOfReference(), workingPackage);
 		if (variable.type().equals(WORD)) return wordType(variable);
 		else if (OBJECT.equals(variable.type()))
 			return variable.rule() == null ? "" : ((NativeObjectRule) variable.rule()).type();

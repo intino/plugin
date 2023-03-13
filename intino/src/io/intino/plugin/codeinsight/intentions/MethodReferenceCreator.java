@@ -139,7 +139,7 @@ public class MethodReferenceCreator {
 
 	private String getReferenceReturnType(Valued valued) {
 		final Node node = ((TaraVariableImpl) valued).destinyOfReference();
-		return QualifiedNameFormatter.qn(node, workingPackage, false);
+		return QualifiedNameFormatter.qn(node, workingPackage);
 	}
 
 	private PsiType getFunctionReturnType() {

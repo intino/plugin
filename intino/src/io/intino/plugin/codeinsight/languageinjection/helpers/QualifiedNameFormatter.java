@@ -17,8 +17,8 @@ public class QualifiedNameFormatter {
 	private QualifiedNameFormatter() {
 	}
 
-	public static String qn(Node node, String workingPackage, boolean m0) {
-		return workingPackage.toLowerCase() + DOT + qualifiedName().format(node.qualifiedName());
+	public static String qn(Node node, String workingPackage) {
+		return (workingPackage == null ? "" : workingPackage.toLowerCase()) + (node == null ? "" : DOT + qualifiedName().format(node.qualifiedName()));
 	}
 
 	public static String cleanQn(String qualifiedName) {

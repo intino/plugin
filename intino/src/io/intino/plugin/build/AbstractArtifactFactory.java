@@ -221,7 +221,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	protected boolean isHotFixBranch() {
-		return startingBranch.toLowerCase().startsWith("hotfix");
+		return startingBranch != null && startingBranch.toLowerCase().startsWith("hotfix");
 	}
 
 	protected boolean isSupportBranch() {

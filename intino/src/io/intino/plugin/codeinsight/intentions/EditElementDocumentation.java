@@ -4,6 +4,8 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 	@Override
@@ -46,21 +49,26 @@ public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 		if (!docFile.exists()) try {
 			docFile.createNewFile();
 		} catch (IOException e) {
-			Notifications.Bus.notify(new Notification("Intino", "Tara", "Error creating documentation file", NotificationType.ERROR), null);
+			Notifications.Bus.notify(new Notification("Intino", "Intino", "Error creating documentation file", NotificationType.ERROR), null);
 		}
 	}
 
 	public String createDialog(DialogBuilder builder, String content) {
-		builder.setTitle("Edit documentation");
-		final JTextArea textArea = new JTextArea(content);
-		textArea.setSize(600, 400);
-		textArea.setMinimumSize(new Dimension(600, 400));
-		builder.setCenterPanel(textArea);
-		builder.setPreferredFocusComponent(textArea);
-		builder.resizable(false);
-		builder.removeAllActions();
-		builder.showModal(true);
-		return textArea.getText();
+		Application application = ApplicationManager.getApplication();
+		AtomicReference<String> text = new AtomicReference<>();
+		application.invokeAndWait(() -> {
+			builder.setTitle("Edit Documentation");
+			final JTextArea textArea = new JTextArea(content);
+			textArea.setSize(600, 400);
+			textArea.setMinimumSize(new Dimension(600, 400));
+			builder.setCenterPanel(textArea);
+			builder.setPreferredFocusComponent(textArea);
+			builder.resizable(false);
+			builder.removeAllActions();
+			builder.showModal(true);
+			text.set(textArea.getText());
+		});
+		return text.get();
 	}
 
 	private String createQn(PsiElement element) {

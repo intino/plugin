@@ -17,22 +17,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.project.Safe.safe;
+
 public class TaraRelatedFilesProvider extends GotoRelatedProvider {
-
 	private static final Logger LOG = Logger.getInstance(TaraRelatedFilesProvider.class.getName());
-
 
 	@NotNull
 	@Override
 	public List<? extends GotoRelatedItem> getItems(@NotNull PsiElement context) {
 		PsiClass psiClass = PsiTreeUtil.getParentOfType(context, PsiClass.class, false);
-		if (psiClass != null)
-			while (psiClass != null) {
-				List<PsiFile> forms = Collections.EMPTY_LIST;
-				if (!forms.isEmpty()) return GotoRelatedItem.createItems(forms, "Tara");
-				psiClass = PsiTreeUtil.getParentOfType(psiClass, PsiClass.class);
-			}
-		else if (context.getContainingFile().getFileType() == TaraFileType.instance())
+		if (psiClass != null) while (psiClass != null) psiClass = PsiTreeUtil.getParentOfType(psiClass, PsiClass.class);
+		else if (TaraFileType.instance().equals(safe(() -> context.getContainingFile().getFileType())))
 			return findClass(context.getContainingFile());
 		return Collections.emptyList();
 	}

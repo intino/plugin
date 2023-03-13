@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
@@ -61,22 +62,20 @@ public class ArtifactModelAnalyzer extends TaraAnalyzer {
 			return;
 		}
 		if ("LATEST".equals(version)) version = language.effectiveVersion();
-		if (version == null || version.isEmpty()) {
-			return;
-		}
+		if (version == null || version.isEmpty()) return;
 		if (((LegioLanguage) language).parameters() == null) {
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.not.found")));
 			return;
 		}
 		checkLanguage(languageName, version, LanguageManager.getLanguage(module.getProject(), languageName, version));
-		checkSdk(safe(() -> configuration.artifact().model().sdkVersion()));
+		checkSdk(safe(() -> configuration.artifact().model() != null ? configuration.artifact().model().sdkVersion() : null));
 	}
 
 	private void checkSdk(String sdkVersion) {
 		try {
 			if (sdkVersion == null) return;
 			new Version(sdkVersion);
-			String version = IOUtils.readLines(this.getClass().getResourceAsStream("/minimum_sdk.info"), Charset.defaultCharset()).get(0);
+			String version = IOUtils.readLines(Objects.requireNonNull(this.getClass().getResourceAsStream("/minimum_sdk.info")), Charset.defaultCharset()).get(0);
 			if (sdkVersion.compareTo(version) < 0)
 				results.put(((TaraNode) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("sdk.minimum.version", version)));
 			if (!ModelBuilderManager.exists(sdkVersion))

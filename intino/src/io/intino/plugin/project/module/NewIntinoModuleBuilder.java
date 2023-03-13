@@ -159,6 +159,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	}
 
 	private @Nullable Path suggestLocation(ModulesProvider modulesProvider) {
+		if (modulesProvider.getModules().length == 0) return null;
 		final Module module = modulesProvider.getModules()[0];
 		if (module == null) return null;
 		final VirtualFile virtualFile = ProjectUtil.guessProjectDir(module.getProject());
