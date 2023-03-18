@@ -101,6 +101,11 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 		return node;
 	}
 
+	@Override
+	public String toString() {
+		return node.getText();
+	}
+
 	public static class LegioExclude implements Exclude {
 		private final LegioDependency dependency;
 		private final TaraNode node;
@@ -119,6 +124,7 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 		public String artifactId() {
 			return parameterValue(node, "artifactId");
 		}
+
 	}
 
 	static class LegioCompile extends LegioDependency implements Configuration.Artifact.Dependency.Compile {

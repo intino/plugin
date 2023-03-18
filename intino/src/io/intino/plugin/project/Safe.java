@@ -6,7 +6,6 @@ import java.util.List;
 public class Safe {
 
 	public interface StringWrapper {
-
 		String value();
 	}
 
