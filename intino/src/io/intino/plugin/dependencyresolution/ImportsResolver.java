@@ -89,6 +89,7 @@ public class ImportsResolver {
 					catalog.addAll(deps);
 					d.resolved(true);
 				} else {
+					d.resolved(false);
 					auditor.invalidate(((LegioDependency) d).node());
 					mustReload = true;
 				}
@@ -119,7 +120,7 @@ public class ImportsResolver {
 			DependencyCatalog newDeps = processModuleDependency(d, dependantModule);
 			catalog.merge(newDeps);
 			cache.put(d.identifier(), newDeps.dependencies());
-		}
+		} else d.resolved(false);
 	}
 
 	private boolean existFiles(List<DependencyCatalog.Dependency> dependencies) {
@@ -152,6 +153,7 @@ public class ImportsResolver {
 		final Map<Artifact, DependencyScope> artifacts = collectArtifacts(d);
 		if (artifacts.isEmpty()) {
 			d.effectiveVersion("");
+			d.resolved(false);
 			return new DependencyCatalog();
 		}
 		DependencyCatalog catalog = new DependencyCatalog();

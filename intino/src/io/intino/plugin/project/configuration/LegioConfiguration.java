@@ -1,5 +1,6 @@
 package io.intino.plugin.project.configuration;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -17,6 +18,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.util.FileContentUtil;
 import io.intino.Configuration;
 import io.intino.magritte.Resolver;
 import io.intino.magritte.lang.model.Node;
@@ -50,6 +52,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
 import static io.intino.plugin.project.Safe.safe;
+import static java.util.Collections.singleton;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
@@ -147,6 +150,8 @@ public class LegioConfiguration implements Configuration {
 									 if (safe(() -> artifact().packageConfiguration().createMavenPom())) createPom();
 									 save();
 									 refresh();
+									 DaemonCodeAnalyzer.getInstance(module.getProject()).restart(legioFile);
+									 FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile.getVirtualFile()), true);
 									 reloading.set(false);
 								 } catch (Throwable ignored) {
 									 reloading.set(false);
