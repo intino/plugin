@@ -18,6 +18,7 @@ import git4idea.push.GitPushParamsImpl;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -75,12 +76,18 @@ public class GitUtil {
 
 	@NotNull
 	public static GitCommandResult pushMaster(@NotNull Module module, String tagMode) {
-		GitLocalBranch localMaster = repository(module).getBranches().findLocalBranch("master");
-		GitRemoteBranch remoteMaster = repository(module).getBranches().getRemoteBranches().stream().filter(r -> r.getNameForRemoteOperations().equals("master")).findFirst().orElse(null);
-		if (remoteMaster == null || localMaster == null)
+		GitLocalBranch localMaster = findMasterLocalBranch(module);
+		GitRemoteBranch remoteMaster = localMaster != null ? localMaster.findTrackedBranch(repository(module)) : null;
+		if (remoteMaster == null)
 			return new GitCommandResult(true, 0, Collections.singletonList("Master branch does not exist"), Collections.emptyList());
 		String spec = localMaster.getFullName() + ":" + remoteMaster.getNameForRemoteOperations();
 		return Git.getInstance().push(repository(module), new GitPushParamsImpl(remoteMaster.getRemote(), spec, true, false, true, tagMode, Collections.emptyList()));
+	}
+
+	@Nullable
+	private static GitLocalBranch findMasterLocalBranch(@NotNull Module module) {
+		GitLocalBranch master = repository(module).getBranches().findLocalBranch("master");
+		return master != null ? master : repository(module).getBranches().findLocalBranch("main");
 	}
 
 	public static GitCommandResult checkoutTo(@NotNull Module module, String branch) {
