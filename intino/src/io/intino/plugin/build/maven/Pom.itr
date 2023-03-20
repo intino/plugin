@@ -310,7 +310,7 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-	<_$key>$this[##$description]</_$key>
+	<$key>[$description?no description]</$key>
 end
 
 def type(dependency) trigger(dependency)
