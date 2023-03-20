@@ -5,7 +5,6 @@ import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
@@ -42,10 +41,9 @@ public class LegioRunConfiguration implements Configuration.RunConfiguration {
 	}
 
 	public String argumentsChain() {
-		StringBuilder builder = new StringBuilder();
-		for (Map.Entry<String, String> argument : finalArguments().entrySet())
-			builder.append("\"").append(argument.getKey()).append("=").append(argument.getValue()).append("\" ");
-		return builder.toString();
+		return finalArguments().entrySet().stream()
+				.filter(argument -> argument.getValue() != null)
+				.map(argument -> "\"" + argument.getKey() + "=" + argument.getValue() + "\" ").collect(Collectors.joining());
 	}
 
 	@Override
