@@ -13,7 +13,6 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jcabi.aether.Aether;
-import io.intino.Configuration.Repository;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
 import io.intino.plugin.PluginLauncher.Phase;
@@ -36,8 +35,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -206,8 +203,7 @@ public class PluginExecutor {
 	}
 
 	private ClassLoader createClassLoader(File[] libraries) {
-		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), PluginExecutor.class.getClassLoader()));
+		return new URLClassLoader(Arrays.stream(libraries).map(PluginExecutor::toURL).toArray(URL[]::new), PluginExecutor.class.getClassLoader());
 	}
 
 	private static URL toURL(File l) {
