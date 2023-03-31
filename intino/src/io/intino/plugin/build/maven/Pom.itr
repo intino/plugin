@@ -127,6 +127,9 @@ def type(pom)
 								<mainClass>$mainClass</mainClass>]
 								[$copyDependencies+classpath]
 							</manifest>
+							[<manifestEntries>
+								<description>$description</description>
+							</manifestEntries>]
 							<manifestSections>
 								[<manifestSection>
 									<name>parameters</name>
