@@ -314,9 +314,9 @@ end
 
 def trigger(parameter)
 	<$name~_name>$name</$name~_name>
-	<$name~description>[$description?no description]</$name~_description>
-	<$name~required>[$required?false]</$name~_required>
-	<$name~defaultValue>[$value]</$name~_defaultValue>
+	<$name~_description>[$description?no description]</$name~_description>
+	<$name~_required>[$required?false]</$name~_required>
+	<$name~_defaultValue>[$value]</$name~_defaultValue>
 end
 
 def type(dependency) trigger(dependency)
