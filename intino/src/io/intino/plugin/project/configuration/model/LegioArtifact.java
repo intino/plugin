@@ -139,7 +139,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
-		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).collect(toList()));
+		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).toList());
 		List<Dependency> dependencies = new ArrayList<>();
 		for (Node dependency : nodes) {
 			if (((TaraNode) dependency).simpleType().equals("Compile"))
@@ -160,7 +160,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
 		if (imports == null) return Collections.emptyList();
 		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
-		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).collect(toList()));
+		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).toList());
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
 				map(d -> new LegioWeb(this, dependencyAuditor, (TaraNode) d)).
@@ -565,7 +565,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 		@Override
 		public String value() {
-			return value == null ? value = parameterValue(node, "value", 1) : value;
+			return value == null ? value = parameterValue(node, "defaultValue", 1) : value;
 		}
 
 		@Override
