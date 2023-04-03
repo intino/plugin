@@ -313,7 +313,10 @@ def type(repository) !type(Distribution) trigger(release)
 end
 
 def trigger(parameter)
-	<$key>[$description?no description]</$key>
+	<$name~_name>$name</$name~_name>
+	<$name~description>[$description?no description]</$name~_description>
+	<$name~required>[$required?false]</$name~_required>
+	<$name~defaultValue>[$defaultValue]</$name~_defaultValue>
 end
 
 def type(dependency) trigger(dependency)

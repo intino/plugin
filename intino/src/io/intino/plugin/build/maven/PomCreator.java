@@ -382,8 +382,9 @@ public class PomCreator {
 	}
 
 	private void addParameter(FrameBuilder frame, Configuration.Parameter parameter) {
-		final FrameBuilder pFrame = new FrameBuilder("parameter").add("key", parameter.name());
+		final FrameBuilder pFrame = new FrameBuilder("parameter").add("name", parameter.name());
 		if (parameter.value() != null) pFrame.add("value", parameter.value());
+		pFrame.add("required", parameter.value() == null);
 		if (parameter.description() != null && !parameter.description().isEmpty())
 			pFrame.add("description", parameter.description());
 		frame.add("parameter", pFrame.toFrame());
