@@ -411,7 +411,7 @@ def trigger(windows)
 						<jarLocation>$prefix</jarLocation>
 					</classPath>
 					<jre>
-						<minVersion>1.8.0</minVersion>
+						<minVersion>11</minVersion>
 						<opts>
 							<opt>-Djava.endorsed.dirs=./endorsed</opt>
 						</opts>
