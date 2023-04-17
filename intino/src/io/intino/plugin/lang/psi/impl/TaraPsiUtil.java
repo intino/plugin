@@ -143,7 +143,9 @@ public class TaraPsiUtil {
 		return parameters.size() > position ? read(() -> {
 			Parameter parameter = parameters.get(position);
 			if (parameter.name() != null && !parameter.name().isEmpty() && !parameter.name().equals(name)) return null;
-			return clean(parameter.values().get(0).toString());
+			Object v = parameter.values().get(0);
+			if (v instanceof EmptyNode) return null;
+			return clean(v.toString());
 		}) : null;
 	}
 

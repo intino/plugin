@@ -428,7 +428,10 @@ public interface Configuration {
 			final Map<String, String> arguments = new HashMap<>();
 			arguments().forEach(a -> arguments.put(a.name(), a.value()));
 			final Artifact artifact = root().artifact();
-			artifact.parameters().stream().filter(parameter -> !arguments.containsKey(parameter.name())).forEach(parameter -> arguments.put(parameter.name(), parameter.value()));
+			artifact.parameters().stream()
+					.filter(p -> !arguments.containsKey(p.name()))
+					.filter(p -> p.value() != null)
+					.forEach(p -> arguments.put(p.name(), p.value()));
 			return arguments;
 		}
 
