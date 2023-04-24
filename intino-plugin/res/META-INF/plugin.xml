@@ -207,11 +207,11 @@
 		<treeStructureProvider implementation="io.intino.plugin.itrules.project.view.ItrulesTreeStructureProvider"/>
 		<!--        <webBrowserUrlProvider implementation="io.intino.plugin.codeinsight.linemarkers.WebBrowserProvider"/>-->
 		<toolWindow id="Intino Remote"
-					icon="/icons/intino/intino-13.png"
+					icon="/icons/intino/intino-13-purple.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.remote.RemoteWindowFactory"/>
 		<toolWindow id="Cesar Bot"
-					icon="/icons/intino/intino-13.png"
+					icon="/icons/intino/cosmos-13.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.cesarbot.CesarBotWindowFactory"/>
 		<toolWindow id="Intino Factory"
@@ -219,15 +219,11 @@
 					anchor="right"
 					factoryClass="io.intino.plugin.toolwindows.factory.IntinoFactoryWindowFactory"/>
 		<toolWindow id="Intino Dependencies"
-					icon="/icons/intino/intino-13.png"
+					icon="/icons/intino/intino-13-grey.png"
 					anchor="right"
 					factoryClass="io.intino.plugin.toolwindows.dependencytree.DependencyTreeWindowFactory"/>
-		<toolWindow id="Intino Store"
-					icon="/icons/files/stash-16.png"
-					anchor="left"
-					factoryClass="io.intino.plugin.toolwindows.store.IntinoStoreWindowFactory"/>
 		<toolWindow id="Intino Metamodel"
-					icon="/icons/intino/intino-13.png"
+					icon="/icons/intino/intino-13-orange.png"
 					anchor="bottom"
 					factoryClass="io.intino.plugin.toolwindows.metamodel.IntinoMetamodelWindowFactory"/>
 

@@ -91,7 +91,7 @@ class TaraRunner {
 
 	TaracOSProcessHandler runTaraCompiler(final CompileContext context) throws IOException {
 		List<String> programParams = ContainerUtil.newArrayList(argsFile.getPath());
-		List<String> vmParams = getJavaVersion().startsWith("1.8") ? new ArrayList<>() : Arrays.asList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED");
+		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : Arrays.asList("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + compilerMemory + "m");
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);
