@@ -9,7 +9,7 @@ import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
 public class CesarBotWindowFactory implements ToolWindowFactory, DumbAware {
-	public static final String ID = "Cesar Bot";
+	public static final String ID = "Cosmos Bot";
 
 	public static ToolWindow getInstance(Project project) {
 		return ToolWindowManager.getInstance(project).getToolWindow(ID);
@@ -18,7 +18,7 @@ public class CesarBotWindowFactory implements ToolWindowFactory, DumbAware {
 	@Override
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		CesarBot cesarBot = new CesarBot(project);
-		toolWindow.setTitle("Cesar Bot");
+		toolWindow.setTitle("Cosmos Bot");
 		toolWindow.getContentManager().addContent(ContentFactory.getInstance().createContent(cesarBot.content(), "", false));
 	}
 }

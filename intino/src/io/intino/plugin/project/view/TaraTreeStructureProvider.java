@@ -63,7 +63,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		if (selected == null) return null;
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
-			if (!result.isEmpty()) return result.toArray(new NodeView[result.size()]);
+			if (!result.isEmpty()) return result.toArray(new NodeView[0]);
 		}
 		return null;
 	}

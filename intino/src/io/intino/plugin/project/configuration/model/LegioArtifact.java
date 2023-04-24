@@ -388,7 +388,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		try {
 			if (node == null || model == null) return null;
 			Module module = ModuleProvider.moduleOf(node);
-			final JavaPsiFacade facade = JavaPsiFacade.getInstance(module.getProject());
+			final JavaPsiFacade facade = JavaPsiFacade.getInstance(root.module().getProject());
 			Model.Language language = model.language();
 			if (language == null || language.generationPackage() == null) return null;
 			final String workingPackage = language.generationPackage().replace(".model", "").replace(".graph", "");

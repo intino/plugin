@@ -14,6 +14,7 @@ import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
@@ -45,7 +46,7 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 	}
 
 	private List<String> collectRequiredParameters() {
-		return configuration.artifact().parameters().stream().filter(p -> p.value() == null).map(Configuration.Parameter::name).collect(Collectors.toList());
+		return configuration.artifact().parameters().stream().filter(p -> p.value() == null).map(Configuration.Parameter::name).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 	@NotNull

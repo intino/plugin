@@ -150,7 +150,7 @@ public class LegioConfiguration implements Configuration {
 									 if (safe(() -> artifact().packageConfiguration().createMavenPom())) createPom();
 									 save();
 									 refresh();
-									 DaemonCodeAnalyzer.getInstance(module.getProject()).restart(legioFile);
+									 restartCodeAnalyzer();
 									 FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile.getVirtualFile()), true);
 									 reloading.set(false);
 								 } catch (Throwable ignored) {
@@ -248,6 +248,14 @@ public class LegioConfiguration implements Configuration {
 		if (((TaraNode) r).simpleType().equals("Snapshot"))
 			return new LegioRepository.LegioSnapshotRepository(this, (TaraNode) r);
 		return null;
+	}
+
+
+	private void restartCodeAnalyzer() {
+		Application application = ApplicationManager.getApplication();
+		DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(module.getProject());
+		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile);
+		else application.runReadAction(() -> codeAnalyzer.restart(legioFile));
 	}
 
 	public TaraModel legioFile() {

@@ -82,7 +82,7 @@ public class AddArgumentFix extends WithLiveTemplateFix implements IntentionActi
 	}
 
 	private Template createTemplate(PsiFile file) {
-		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(TaraPsiUtil.getIndentation((PsiElement) node) + 1));
+		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("argumentMogram", "Tara", createTemplateText(TaraPsiUtil.getIndentation((PsiElement) node) + 1));
 		addComponents(template);
 		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
 		return template;

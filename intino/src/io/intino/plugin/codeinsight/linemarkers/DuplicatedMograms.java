@@ -17,13 +17,12 @@ import io.intino.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NodeFragments extends JavaLineMarkerProvider {
+public class DuplicatedMograms extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("", element -> {
 		if (!(element instanceof Node)) return null;
@@ -31,7 +30,7 @@ public class NodeFragments extends JavaLineMarkerProvider {
 		@NonNls String pattern;
 		if (references.isEmpty()) return null;
 		pattern = references.get(0).getNavigationElement().getContainingFile().getName();
-		return GutterTooltipHelper.getTooltipText(references, "fragment ", false, pattern);
+		return GutterTooltipHelper.getTooltipText(references, "duplicated ", false, pattern);
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
@@ -44,7 +43,7 @@ public class NodeFragments extends JavaLineMarkerProvider {
 			references.remove(element);
 			if (references.isEmpty()) return;
 			DefaultPsiElementListCellRenderer renderer = new DefaultPsiElementListCellRenderer();
-			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[0]), "Fragment of " + (((Node) element).name()), "Fragment of " + (((Node) element).name()), renderer);
+			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[0]), "Duplicated mogram  of " + (((Node) element).name()), "Fragment of " + (((Node) element).name()), renderer);
 		}
 	});
 

@@ -89,6 +89,7 @@ public class ArtifactModelAnalyzer extends TaraAnalyzer {
 
 	private void checkLanguage(String languageName, String version, Language language) {
 		Model model = configuration.artifact().model();
+		if (model == null) return;
 		final Model.Level languageLevel = languageLevel(model);
 		if ((languageLevel == null && !model.level().isPlatform()) || (languageLevel != null && model.level() != null && model.level().compareLevelWith(languageLevel) != 1))
 			results.put((PsiElement) this.modelNode, new AnnotateAndFix(ERROR, message("language.does.not.match", model.level() == null ? "Meta or Proteo" : languageLevel == null ? Meta.class.getSimpleName() : languageLevel.name())));

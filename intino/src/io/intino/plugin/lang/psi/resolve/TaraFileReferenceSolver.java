@@ -24,6 +24,11 @@ public class TaraFileReferenceSolver extends TaraReferenceSolver {
 		return ReferenceManager.resolve((Identifier) myElement.getLastChild());
 	}
 
+	@Override
+	public @NotNull PsiElement getElement() {
+		return super.getElement().getLastChild();
+	}
+
 	@Nullable
 	@Override
 	public PsiElement resolve() {
@@ -36,7 +41,7 @@ public class TaraFileReferenceSolver extends TaraReferenceSolver {
 	@NotNull
 	@Override
 	public Object[] getVariants() {
-		final Set<TaraModel> variants = new LinkedHashSet();
+		final Set<TaraModel> variants = new LinkedHashSet<>();
 		new FileVariantsManager(variants, myElement).resolveVariants();
 		return fillVariants(variants);
 	}

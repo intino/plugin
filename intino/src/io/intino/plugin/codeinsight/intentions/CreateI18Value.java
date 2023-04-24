@@ -19,8 +19,7 @@ public class CreateI18Value extends PsiElementBaseIntentionAction {
 		final CreateStringValues dialog = new CreateStringValues(element, TaraPsiUtil.getContainerByType(element, StringValue.class).getValue());
 		dialog.pack();
 		dialog.setLocationRelativeTo(dialog.getParent());
-		if (ApplicationManager.getApplication().isDispatchThread()) dialog.setVisible(true);
-		else ApplicationManager.getApplication().invokeLater(() -> dialog.setVisible(true));
+		ApplicationManager.getApplication().invokeLater(() -> dialog.setVisible(true));
 	}
 
 	@Override

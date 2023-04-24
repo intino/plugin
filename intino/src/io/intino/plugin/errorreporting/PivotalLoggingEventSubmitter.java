@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,9 +15,11 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class PivotalLoggingEventSubmitter {
 
@@ -25,8 +29,11 @@ public class PivotalLoggingEventSubmitter {
 	private static final Logger LOG = Logger.getInstance(PivotalLoggingEventSubmitter.class.getName());
 	private static final String PLUGIN_ID = "plugin.id";
 	private static final String USER = "user";
+	private static final String OS = "operating.system";
+	private static final String OPEN_PROJECTS = "open.projects";
 	private static final String PLUGIN_VERSION = "plugin.version";
 	private static final String PLUGIN_NAME = "plugin.name";
+	private static final String IDE_VERSION = "ide.version";
 	private static final String REPORT_ADDITIONAL_INFO = "report.additionalInfo";
 	private static final String REPORT_DESCRIPTION = "report.description";
 	private static final String REPORT_TITLE = "report.title";
@@ -110,12 +117,6 @@ public class PivotalLoggingEventSubmitter {
 		return connection;
 	}
 
-	static class SubmitException extends Exception {
-		public SubmitException(String message, Throwable cause) {
-			super(message, cause);
-		}
-	}
-
 	private class PivotalStory {
 		int id;
 		String name = buildName();
@@ -128,16 +129,19 @@ public class PivotalLoggingEventSubmitter {
 
 		private String buildName() {
 			Object title = properties.get(REPORT_TITLE);
-			return "Error " + ErrorNameFactory.next() + " in plugin v." + properties.get(PLUGIN_VERSION).toString().trim() + (title != null ? ": " + title.toString() : "");
+			return "Error " + ErrorNameFactory.next() + " in plugin v." + properties.get(PLUGIN_VERSION).toString().trim() + (title != null ? ": " + title : "");
 		}
 
 		private String buildDescription(String description) {
-			StringBuilder builder = new StringBuilder();
-			builder.append(PLUGIN_ID).append(": ").append(properties.get(PLUGIN_ID)).append("\n");
-			builder.append(USER).append(": ").append(System.getProperty("user.name")).append("\n");
-			builder.append(PLUGIN_NAME).append(": ").append(properties.get(PLUGIN_NAME)).append("\n");
-			builder.append(PLUGIN_VERSION).append(": ").append(properties.get(PLUGIN_VERSION).toString().trim()).append("\n");
-			return builder.append("````\n").append(description).append("````\n").toString();
+			String builder = PLUGIN_ID + ": " + properties.get(PLUGIN_ID) + "\n" +
+					USER + ": " + System.getProperty("user.name") + "\n" +
+					OS + ": " + System.getProperty("os.name") + "\n" +
+					OPEN_PROJECTS + ": " + Arrays.stream(ProjectManager.getInstance().getOpenProjects()).map(Project::getName).collect(Collectors.joining("; ")) + "\n" +
+					IDE_VERSION + ": " + properties.get(IDE_VERSION) + "\n" +
+					PLUGIN_NAME + ": " + properties.get(PLUGIN_NAME) + "\n" +
+					PLUGIN_VERSION + ": " + properties.get(PLUGIN_VERSION).toString().trim() + "\n" +
+					"````\n" + description + "````\n";
+			return builder;
 		}
 
 		String getReportType() {

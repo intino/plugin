@@ -1,6 +1,7 @@
 package io.intino.plugin.errorreporting;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -19,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.Properties;
+
+import static com.intellij.inspectopedia.extractor.InspectopediaExtractor.IDE_VERSION;
 
 public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 	private static final Logger LOG = Logger.getInstance(PluginErrorReportSubmitter.class.getName());
@@ -40,30 +43,16 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 
 	@Override
 	public boolean submit(@NotNull IdeaLoggingEvent[] events, String additionalInfo, @NotNull Component parentComponent, @NotNull Consumer<? super SubmittedReportInfo> consumer) {
-		PluginDescriptor pluginDescriptor = getPluginDescriptor();
-		final Properties reportingProperties = createErrorProperties(pluginDescriptor, null, processEvents(events), additionalInfo);
+		PluginDescriptor plugin = getPluginDescriptor();
+		final Properties reportingProperties = createErrorProperties(plugin, null, processEvents(events), additionalInfo);
 		LOG.debug("Properties read from plugin descriptor: " + reportingProperties);
-		queryPropertiesFile(pluginDescriptor, reportingProperties);
+		queryPropertiesFile(plugin, reportingProperties);
 		LOG.debug("Final properties to be applied: " + reportingProperties);
-		final PivotalLoggingEventSubmitter.SubmitException[] ex = new PivotalLoggingEventSubmitter.SubmitException[]{null};
-		Runnable runnable = getRunnable(reportingProperties);
-		ProgressManager progressManager = ProgressManager.getInstance();
-		progressManager.runProcessWithProgressSynchronously(runnable, PluginErrorReportSubmitterBundle.message("progress.dialog.title"), false, null);
-		if (processExceptions(parentComponent, ex[0]))
-			consumer.consume(new SubmittedReportInfo(null, null, SubmissionStatus.FAILED));
+		ProgressManager.getInstance().runProcessWithProgressSynchronously(getRunnable(reportingProperties), PluginErrorReportSubmitterBundle.message("progress.dialog.title"), false, null);
 		LOG.info("Error submission successful");
 		Messages.showInfoMessage(parentComponent, PluginErrorReportSubmitterBundle.message("successful.dialog.message"), PluginErrorReportSubmitterBundle.message("successful.dialog.title"));
 		consumer.consume(new SubmittedReportInfo(null, null, SubmissionStatus.FAILED));
 		return true;
-	}
-
-	private boolean processExceptions(Component parentComponent, PivotalLoggingEventSubmitter.SubmitException e) {
-		if (e != null) {
-			LOG.info("Error submission failed", e);
-			Messages.showErrorDialog(parentComponent, e.getMessage(), PluginErrorReportSubmitterBundle.message("error.dialog.title"));
-			return true;
-		}
-		return false;
 	}
 
 	private Runnable getRunnable(final Properties reportingProperties) {
@@ -85,24 +74,21 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 		return stream.toString();
 	}
 
-	private Properties createErrorProperties(@NotNull PluginDescriptor pluginDescriptor, String title, String description, String additionalInfo) {
+	private Properties createErrorProperties(@NotNull PluginDescriptor descriptor, String title, String description, String additionalInfo) {
 		Properties properties = new Properties();
-		PluginId descPluginId = pluginDescriptor.getPluginId();
-		if (descPluginId != null && !StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
+		PluginId descPluginId = descriptor.getPluginId();
+		properties.put(IDE_VERSION, ApplicationInfo.getInstance().getMajorVersion() + "." + ApplicationInfo.getInstance().getMinorVersion());
+		if (!StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
 			properties.put(PLUGIN_ID_PROPERTY_KEY, descPluginId.getIdString().trim());
-		if (pluginDescriptor instanceof IdeaPluginDescriptor) {
-			IdeaPluginDescriptor ideaPluginDescriptor = (IdeaPluginDescriptor) pluginDescriptor;
+		if (descriptor instanceof IdeaPluginDescriptor ideaPluginDescriptor) {
 			if (!StringUtil.isEmptyOrSpaces(ideaPluginDescriptor.getName()))
 				properties.put(PLUGIN_NAME_PROPERTY_KEY, ideaPluginDescriptor.getName().trim());
 			String descVersion = ideaPluginDescriptor.getVersion();
 			if (!StringUtil.isEmptyOrSpaces(descVersion))
 				properties.put(PLUGIN_VERSION_PROPERTY_KEY, descVersion.trim());
-			if (description != null)
-				properties.put(REPORT_DESCRIPTION, description);
-			if (title != null)
-				properties.put(REPORT_TITLE, title);
-			if (additionalInfo != null)
-				properties.put(REPORT_ADDITIONAL_INFO, additionalInfo);
+			if (description != null) properties.put(REPORT_DESCRIPTION, description);
+			if (title != null) properties.put(REPORT_TITLE, title);
+			if (additionalInfo != null) properties.put(REPORT_ADDITIONAL_INFO, additionalInfo);
 		}
 		return properties;
 	}
