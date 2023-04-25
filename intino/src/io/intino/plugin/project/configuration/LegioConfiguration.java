@@ -258,6 +258,10 @@ public class LegioConfiguration implements Configuration {
 		else application.runReadAction(() -> codeAnalyzer.restart(legioFile));
 	}
 
+	public VirtualFile legiovFile() {
+		return vFile;
+	}
+
 	public TaraModel legioFile() {
 		Application application = ApplicationManager.getApplication();
 		if (application.isReadAccessAllowed())

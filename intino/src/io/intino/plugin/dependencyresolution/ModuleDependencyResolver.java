@@ -6,8 +6,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
-import edu.emory.mathcs.backport.java.util.Collections;
-import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dependency.Exclude;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
@@ -25,18 +24,18 @@ import static java.util.stream.Collectors.toList;
 
 class ModuleDependencyResolver {
 	DependencyCatalog resolveDependencyWith(Module dependency, String scope) {
-		return resolveDependencyWith(dependency, Collections.emptyList(), scope);
+		return resolveDependencyWith(dependency, List.of(), scope);
 	}
 
-	DependencyCatalog resolveDependencyWith(Module dependency, List<Configuration.Artifact.Dependency.Exclude> excludes, String scope) {
+	DependencyCatalog resolveDependencyWith(Module dependency, List<Exclude> excludes, String scope) {
 		Application application = ApplicationManager.getApplication();
 		if (application.isReadAccessAllowed()) return resolveDependencies(dependency, excludes, scope);
 		else
 			return application.runReadAction((Computable<DependencyCatalog>) () -> resolveDependencies(dependency, excludes, scope));
 	}
 
-	private DependencyCatalog resolveDependencies(Module dependency, List<Configuration.Artifact.Dependency.Exclude> excludes, String scope) {
-		final List<String> excludeQns = excludes.stream().map(e -> e.groupId() + ":" + e.artifactId()).collect(toList());
+	private DependencyCatalog resolveDependencies(Module dependency, List<Exclude> excludes, String scope) {
+		final List<String> excludeQns = excludes.stream().map(e -> e.groupId() + ":" + e.artifactId()).toList();
 		DependencyCatalog catalog = new DependencyCatalog();
 		catalog.add(dependencyFrom((LegioConfiguration) IntinoUtil.configurationOf(dependency), scope));
 		librariesOf(dependency).stream().filter(l -> l.getName() != null && l.getFiles(OrderRootType.CLASSES).length >= 1).forEach(l -> catalog.add(dependencyFrom(l, scope)));

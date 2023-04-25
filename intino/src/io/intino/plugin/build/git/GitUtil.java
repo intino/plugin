@@ -36,7 +36,7 @@ public class GitUtil {
 	}
 
 	private static GitRepository getRepositoryForFile(@NotNull Module module) {
-		return repositoryManager(module).getRepositoryForFile(ProjectUtil.guessModuleDir(module));
+		return repositoryManager(module.getProject()).getRepositoryForFile(ProjectUtil.guessModuleDir(module));
 	}
 
 	public static boolean isModified(Module module, VirtualFile file) {
@@ -68,6 +68,7 @@ public class GitUtil {
 		} else repository.update();
 		return repository.getCurrentBranchName();
 	}
+
 
 	public static GitCommandResult tagCurrentAndPush(@NotNull Module module, String tag) {
 		GitCommandResult result = Git.getInstance().createNewTag(repository(module), tag, soutListener("tagCurrentAndPush" + " " + tag), "HEAD");
@@ -156,8 +157,8 @@ public class GitUtil {
 	}
 
 	@NotNull
-	private static GitRepositoryManager repositoryManager(@NotNull Module module) {
-		return GitRepositoryManager.getInstance(module.getProject());
+	public static GitRepositoryManager repositoryManager(Project project) {
+		return GitRepositoryManager.getInstance(project);
 	}
 
 	@NotNull
@@ -188,5 +189,4 @@ public class GitUtil {
 			return false;
 		}
 	}
-
 }

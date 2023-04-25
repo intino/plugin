@@ -95,6 +95,10 @@ public class DependencyAuditor {
 		map.remove(node.getSignature().hashcode());
 	}
 
+	public void invalidateAll() {
+		map.clear();
+	}
+
 	public void invalidate(String identifier) {
 		map.remove(identifier.hashCode());
 	}

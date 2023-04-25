@@ -293,6 +293,8 @@
 				  topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
 	</applicationListeners>
 	<projectListeners>
+		<listener class="io.intino.plugin.build.git.GitListener"
+				  topic="com.intellij.notification.Notifications"/>
 		<listener class="io.intino.plugin.build.TaraCompilerListener"
 				  topic="com.intellij.compiler.server.CustomBuilderMessageHandler"/>
 		<listener class="io.intino.plugin.build.KonosCompilerListener"
