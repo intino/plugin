@@ -8,9 +8,11 @@ import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Artifact.Dependency.Web;
 import io.intino.Configuration.Repository;
+import io.intino.plugin.IntinoException;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioDependency;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,7 +113,7 @@ public class ImportsResolver {
 			if (moduleDependency != null) newDeps = processModuleDependency(d, moduleDependency);
 		}
 		catalog.merge(newDeps);
-		cache.put(cacheId(d), newDeps.dependencies());
+		addToCache(d, newDeps);
 	}
 
 	private void webImport(DependencyCatalog catalog, Dependency d) {
@@ -119,7 +121,7 @@ public class ImportsResolver {
 		if (dependantModule != null) {
 			DependencyCatalog newDeps = processModuleDependency(d, dependantModule);
 			catalog.merge(newDeps);
-			cache.put(d.identifier(), newDeps.dependencies());
+			addToCache(d, newDeps);
 		} else d.resolved(false);
 	}
 
@@ -141,6 +143,13 @@ public class ImportsResolver {
 		DependencyCatalog moduleDependenciesCatalog = new ModuleDependencyResolver().resolveDependencyWith(moduleDependency, excludes, scope);
 		catalog.merge(moduleDependenciesCatalog);
 		return catalog;
+	}
+
+	private void addToCache(Dependency d, DependencyCatalog newDeps) {
+		try {
+			if (!new Version(d.version()).isSnapshot()) cache.put(cacheId(d), newDeps.dependencies());
+		} catch (IntinoException e) {
+		}
 	}
 
 	@NotNull
@@ -232,6 +241,7 @@ public class ImportsResolver {
 		artifacts.forEach(a -> map.put(a, scope));
 		return map;
 	}
+
 
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {

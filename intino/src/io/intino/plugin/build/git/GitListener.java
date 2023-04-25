@@ -13,6 +13,7 @@ import git4idea.GitCommit;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
 import io.intino.plugin.actions.ReloadConfigurationAction;
+import io.intino.plugin.dependencyresolution.ResolutionCache;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
@@ -60,6 +61,7 @@ public class GitListener implements Notifications {
 	private void invalidateCacheAndReload(LegioConfiguration conf) {
 		if (conf == null) return;
 		conf.dependencyAuditor().invalidateAll();
+		ResolutionCache.instance(project).invalidate();
 		new ReloadConfigurationAction().execute(conf.module());
 	}
 
