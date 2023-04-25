@@ -185,7 +185,7 @@ public interface Configuration {
 			}
 
 			default String name() {
-				return "Legio: " + identifier();
+				return "Intino: " + identifier();
 			}
 
 			String groupId();
