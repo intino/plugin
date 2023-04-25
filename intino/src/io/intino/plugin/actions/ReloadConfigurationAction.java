@@ -2,6 +2,8 @@ package io.intino.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
@@ -24,7 +26,9 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (configuration instanceof LegioConfiguration) {
-			FileDocumentManager.getInstance().saveAllDocuments();
+			Application application = ApplicationManager.getApplication();
+			if (application.isDispatchThread()) FileDocumentManager.getInstance().saveAllDocuments();
+			else application.invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
 			configuration.reload();
 			notifyReload(module);
 		}
