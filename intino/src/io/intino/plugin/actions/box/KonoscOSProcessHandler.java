@@ -3,7 +3,6 @@ package io.intino.plugin.actions.box;
 import com.intellij.execution.process.ProcessIOExecutorService;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.util.Key;
-import com.intellij.util.Consumer;
 import com.intellij.util.io.BaseInputStreamReader;
 import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 public class KonoscOSProcessHandler {
 	private final Process process;
@@ -51,7 +51,7 @@ public class KonoscOSProcessHandler {
 
 		@Override
 		protected void onTextAvailable(@NotNull String text) {
-			statusUpdater.consume(text);
+			statusUpdater.accept(text);
 		}
 
 	}

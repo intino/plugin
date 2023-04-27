@@ -27,8 +27,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,8 +162,7 @@ public class BoxBuilderManager {
 	}
 
 	private ClassLoader createClassLoader(File library) {
-		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
-				new URLClassLoader(new URL[]{toURL(library)}, Tara.class.getClassLoader()));
+		return new URLClassLoader(new URL[]{toURL(library)}, Tara.class.getClassLoader());
 	}
 
 	public static boolean exists(String version) {

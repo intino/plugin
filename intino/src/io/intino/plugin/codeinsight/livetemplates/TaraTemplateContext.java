@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class TaraTemplateContext extends TemplateContextType {
 	public TaraTemplateContext() {
-		super("Tara", "Tara");
+		super("Tara");
 	}
 
 	@Override

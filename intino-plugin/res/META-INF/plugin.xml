@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.8.0</version>
+	<version>6.8.1</version>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
@@ -17,7 +17,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-	<idea-version since-build="223.4884.69"/>
+	<idea-version since-build="231.8109.175"/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>

@@ -18,15 +18,16 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import static com.intellij.inspectopedia.extractor.InspectopediaExtractor.IDE_VERSION;
 
 public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 	private static final Logger LOG = Logger.getInstance(PluginErrorReportSubmitter.class.getName());
 	private static final String ERROR_SUBMITTER_PROPERTIES_PATH = "messages/errorReporter.properties";
 	private static final String PLUGIN_ID_PROPERTY_KEY = "plugin.id";
+	private static final String IDE_VERSION = "ide.version";
+	private static final String IDE_NAME = "ide.name";
 	private static final String PLUGIN_NAME_PROPERTY_KEY = "plugin.name";
 	private static final String PLUGIN_VERSION_PROPERTY_KEY = "plugin.version";
 	private static final String REPORT_ADDITIONAL_INFO = "report.additionalInfo";
@@ -77,6 +78,7 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 	private Properties createErrorProperties(@NotNull PluginDescriptor descriptor, String title, String description, String additionalInfo) {
 		Properties properties = new Properties();
 		PluginId descPluginId = descriptor.getPluginId();
+		properties.put(IDE_NAME, ApplicationInfo.getInstance().getFullApplicationName());
 		properties.put(IDE_VERSION, ApplicationInfo.getInstance().getMajorVersion() + "." + ApplicationInfo.getInstance().getMinorVersion());
 		if (!StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
 			properties.put(PLUGIN_ID_PROPERTY_KEY, descPluginId.getIdString().trim());
@@ -95,14 +97,18 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 
 	private void queryPropertiesFile(@NotNull PluginDescriptor pluginDescriptor, @NotNull Properties properties) {
 		ClassLoader loader = pluginDescriptor.getPluginClassLoader();
-		InputStream stream = loader.getResourceAsStream(ERROR_SUBMITTER_PROPERTIES_PATH);
-		if (stream != null) {
-			LOG.debug("Reading ErrorReporter.properties from file system: " + ERROR_SUBMITTER_PROPERTIES_PATH);
-			try {
-				properties.load(stream);
-			} catch (Exception e) {
-				LOG.info("Could not read in ErrorReporter.properties from file system", e);
+		if (loader == null) return;
+		try (InputStream stream = loader.getResourceAsStream(ERROR_SUBMITTER_PROPERTIES_PATH)) {
+			if (stream != null) {
+				LOG.debug("Reading ErrorReporter.properties from file system: " + ERROR_SUBMITTER_PROPERTIES_PATH);
+				try {
+					properties.load(stream);
+				} catch (Exception e) {
+					LOG.info("Could not read in ErrorReporter.properties from file system", e);
+				}
 			}
+		} catch (IOException e) {
+			LOG.error(e);
 		}
 	}
 

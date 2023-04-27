@@ -48,7 +48,7 @@ public class IntinoModuleStarter implements ModuleListener, StartupActivity {
 	}
 
 	@Override
-	public void modulesAdded(@NotNull Project project, @NotNull List<Module> modules) {
+	public void modulesAdded(@NotNull Project project, @NotNull List<? extends Module> modules) {
 		modules.forEach(this::registerIntinoModule);
 	}
 

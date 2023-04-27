@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.plugins.terminal.ShellTerminalWidget;
-import org.jetbrains.plugins.terminal.TerminalView;
+import org.jetbrains.plugins.terminal.TerminalToolWindowManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,7 +21,7 @@ public class TerminalWindow {
 		ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID);
 		if (window == null) return;
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			ShellTerminalWidget widget = TerminalView.getInstance(project).createLocalShellWidget(System.getProperty("user.home"), "ssh " + server);
+			ShellTerminalWidget widget = TerminalToolWindowManager.getInstance(project).createLocalShellWidget(System.getProperty("user.home"), "ssh " + server);
 			try {
 				widget.executeCommand(buildSshChain(user, server, port, tunnels));
 			} catch (IOException e) {
@@ -43,7 +43,7 @@ public class TerminalWindow {
 	private static void run(Project project, String workingDir, String command) {
 		final ShellTerminalWidget[] widget = new ShellTerminalWidget[1];
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			widget[0] = TerminalView.getInstance(project).createLocalShellWidget(workingDir, command);
+			widget[0] = TerminalToolWindowManager.getInstance(project).createLocalShellWidget(workingDir, command);
 			run(command, widget[0]);
 		});
 		try {

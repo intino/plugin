@@ -18,6 +18,8 @@
 		<testOutputDirectory>../out/test/intino-plugin</testOutputDirectory>
 		<directory>../out/build/intino-plugin</directory>
 		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>test</testSourceDirectory>
+		<resources><resource><directory>res</directory></resource></resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

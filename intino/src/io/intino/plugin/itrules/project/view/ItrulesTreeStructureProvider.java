@@ -9,6 +9,7 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.psi.PsiJavaFile;
 import io.intino.plugin.itrules.lang.psi.ItrulesTemplate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -62,15 +63,17 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 		return model;
 	}
 
-	public Object getData(@NotNull Collection<AbstractTreeNode<?>> selected, @NotNull String dataId) {
+
+	@Override
+	public @Nullable Object getData(@NotNull Collection<? extends AbstractTreeNode<?>> selected, @NotNull String dataId) {
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
-			if (!result.isEmpty()) return result.toArray(new NodeView[result.size()]);
+			if (!result.isEmpty()) return result.toArray(new NodeView[0]);
 		}
 		return null;
 	}
 
-	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode<?>> selected) {
+	private List<NodeView> getNodeTreeViews(Collection<? extends AbstractTreeNode<?>> selected) {
 		return selected.stream().
 				filter(node -> node.getValue() instanceof NodeView).
 				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());

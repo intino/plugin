@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.psi.PsiJavaFile;
 import io.intino.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -59,7 +60,8 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return model;
 	}
 
-	public Object getData(Collection<AbstractTreeNode<?>> selected, String dataId) {
+	@Override
+	public @Nullable Object getData(@NotNull Collection<? extends AbstractTreeNode<?>> selected, @NotNull String dataId) {
 		if (selected == null) return null;
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
@@ -68,7 +70,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return null;
 	}
 
-	private List<NodeView> getNodeTreeViews(Collection<AbstractTreeNode<?>> selected) {
+	private List<NodeView> getNodeTreeViews(Collection<? extends AbstractTreeNode<?>> selected) {
 		return selected.stream().
 				filter(node -> node.getValue() instanceof NodeView).
 				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());

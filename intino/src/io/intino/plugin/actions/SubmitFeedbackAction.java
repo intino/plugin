@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginDescriptor;
 import com.intellij.openapi.extensions.PluginId;
@@ -20,6 +21,8 @@ import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Properties;
+
+import static com.intellij.inspectopedia.extractor.InspectopediaExtractor.IDE_VERSION;
 
 public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	public static final Logger LOG = Logger.getInstance("Config module Action");
@@ -62,6 +65,7 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	private Properties createErrorProperties(PluginDescriptor descriptor, String title, String description, String type) {
 		Properties properties = new Properties();
 		PluginId descPluginId = descriptor.getPluginId();
+		properties.put(IDE_VERSION, ApplicationInfo.getInstance().getMajorVersion() + "." + ApplicationInfo.getInstance().getMinorVersion());
 		if (descPluginId != null && !StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
 			properties.put(PLUGIN_ID_PROPERTY_KEY, descPluginId.getIdString());
 		if (descriptor instanceof IdeaPluginDescriptor) {
