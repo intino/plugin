@@ -8,10 +8,10 @@
             <element id="module-output" name="jps-plugin" />
           </element>
           <element id="archive" name="intino-plugin.jar">
-            <element id="module-output" name="intino" />
             <element id="module-output" name="plugin-interface" />
-            <element id="module-output" name="intino-configuration" />
             <element id="module-output" name="intino-plugin" />
+            <element id="module-output" name="configuration" />
+            <element id="module-output" name="plugin" />
           </element>
           <element id="library" level="project" name="Maven: org.sonatype.aether:aether-impl:1.13.1" />
           <element id="library" level="project" name="Maven: com.esotericsoftware:kryo:4.0.0" />

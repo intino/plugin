@@ -148,7 +148,7 @@ public class MethodReferenceCreator {
 		PsiClass aClass = facade.findClass(workingPackage + ".functions." + ((NativeRule) valued.rule()).interfaceClass(), moduleWithDependenciesScope(module));
 		if (aClass == null)
 			aClass = facade.findClass(languageWorkingPackage + ".functions." + ((NativeRule) valued.rule()).interfaceClass(), moduleWithDependenciesAndLibrariesScope(module));
-		if (aClass == null || !aClass.isInterface()) return PsiType.VOID;
+		if (aClass == null || !aClass.isInterface()) return PsiTypes.voidType();
 		return aClass.getMethods()[0].getReturnType();
 	}
 
