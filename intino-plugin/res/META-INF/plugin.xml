@@ -2,6 +2,7 @@
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
 	<version>6.8.1</version>
+	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
 	<depends>com.intellij.modules.vcs</depends>
