@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class NodeAnalyzer extends TaraAnalyzer {
-
-	private Node node;
+	private final Node node;
 
 	public NodeAnalyzer(Node node) {
 		this.node = node;
@@ -32,6 +31,7 @@ public class NodeAnalyzer extends TaraAnalyzer {
 		try {
 			Language language = IntinoUtil.getLanguage((PsiElement) node);
 			if (language == null) return;
+			node.resolve();
 			new Checker(language).check(node);
 		} catch (SemanticFatalException fatal) {
 			for (SemanticException e : fatal.exceptions()) {

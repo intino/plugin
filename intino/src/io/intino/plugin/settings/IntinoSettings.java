@@ -112,12 +112,12 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 	}
 
 	public Map<String, List<Tunnel>> tunnels() {
-		return Json.gsonReader().fromJson(myState.tunnels, new TypeToken<Map<String, ArrayList<Tunnel>>>() {
+		return Json.fromJson(myState.tunnels, new TypeToken<Map<String, ArrayList<Tunnel>>>() {
 		}.getType());
 	}
 
 	public void tunnels(Map<String, List<Tunnel>> tunnels) {
-		myState.tunnels = Json.gsonWriter().toJson(tunnels);
+		myState.tunnels = Json.toJson(tunnels);
 	}
 
 

@@ -75,7 +75,7 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 
 	private boolean isInstanceReference() {
 		final Language language = IntinoUtil.getLanguage(reference);
-		return language != null && language.instances().keySet().contains(reference.getText());
+		return language != null && language.instances().containsKey(reference.getText());
 	}
 
 	private void setError(PsiReference aReference, Identifier element) {

@@ -28,13 +28,13 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 
 	public Map<String, ServerInfo> serversInfo() {
 		if (myState.serversInfo.equals("{}")) return Collections.emptyMap();
-		Map<String, ServerInfo> map = Json.gsonReader().fromJson(myState.serversInfo, new TypeToken<Map<String, ServerInfo>>() {
+		Map<String, ServerInfo> map = Json.fromJson(myState.serversInfo, new TypeToken<Map<String, ServerInfo>>() {
 		}.getType());
 		return map == null ? Collections.emptyMap() : map;
 	}
 
 	public void serversInfo(Map<String, ServerInfo> infos) {
-		myState.serversInfo = Json.gsonReader().toJson(infos);
+		myState.serversInfo = Json.toJson(infos);
 	}
 
 	@Nullable
