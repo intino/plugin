@@ -1,7 +1,6 @@
 package io.intino.plugin.codeinsight;
 
 import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
@@ -20,17 +19,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-/**
- * @author gregsh
- */
 public class JavaHelper {
 
 	private static final Logger LOG = Logger.getInstance(JavaHelper.class.getName());
 
 	public static JavaHelper getJavaHelper(Project project) {
-		JavaHelper service = project.getService(JavaHelper.class);
-		return service == null ? new JavaHelper() : service;
+		return new JavaHelper.Impl(JavaPsiFacade.getInstance(project));
 	}
 
 	@Nullable

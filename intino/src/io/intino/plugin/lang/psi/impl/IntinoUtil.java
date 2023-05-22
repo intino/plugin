@@ -119,7 +119,7 @@ public class IntinoUtil {
 		if (!(element.getContainingFile() instanceof TaraModel)) return "";
 		final Configuration conf = configurationOf(element);
 		if (conf == null) return "";
-		Configuration.Artifact.Model.Language language = conf.artifact().model().language();
+		Configuration.Artifact.Model.Language language = safe(() -> conf.artifact().model().language());
 		if (language == null) return null;
 		return language.generationPackage();
 	}

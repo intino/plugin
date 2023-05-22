@@ -30,11 +30,7 @@
           <element id="library" level="project" name="Maven: io.intino.itrules:engine:1.0.0" />
           <element id="library" level="project" name="Maven: io.intino.magritte:io:3.0.0" />
           <element id="library" level="project" name="Maven: javax.validation:validation-api:1.1.0.Final" />
-          <element id="library" level="project" name="Maven: javax.websocket:javax.websocket-api:1.1" />
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.3.2" />
-          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpclient:4.5.12" />
-          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.9" />
-          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpmime:4.5.12" />
           <element id="library" level="project" name="Maven: org.apache.maven.shared:maven-dependency-tree:2.1" />
           <element id="library" level="project" name="Maven: org.apache.maven.wagon:wagon-provider-api:2.4" />
           <element id="library" level="project" name="Maven: org.apache.maven:maven-aether-provider:3.0.5" />
@@ -42,21 +38,12 @@
           <element id="library" level="project" name="Maven: org.apache.maven:maven-model-builder:3.0.5" />
           <element id="library" level="project" name="Maven: org.apache.maven:maven-repository-metadata:3.0.5" />
           <element id="library" level="project" name="Maven: org.aspectj:aspectjrt:1.8.2" />
-          <element id="library" level="project" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" />
-          <element id="library" level="project" name="Maven: org.bouncycastle:bcprov-jdk15:1.45" />
           <element id="library" level="project" name="Maven: org.cactoos:cactoos:0.16" />
           <element id="library" level="project" name="Maven: org.codehaus.jackson:jackson-core-asl:1.8.9" />
           <element id="library" level="project" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.8.9" />
           <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-classworlds:2.4" />
           <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-interpolation:1.26" />
           <element id="library" level="project" name="Maven: org.eclipse.aether:aether-util:0.9.0.M2" />
-          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-framework:2.3.22" />
-          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-http-server:2.3.22" />
-          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-http:2.3.22" />
-          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-client:1.16" />
-          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-container-grizzly-client:1.16" />
-          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-core:1.16" />
-          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-spi:1.16" />
           <element id="library" level="project" name="Maven: org.hibernate:hibernate-validator:5.1.2.Final" />
           <element id="library" level="project" name="Maven: org.jboss.logging:jboss-logging:3.1.3.GA" />
           <element id="library" level="project" name="Maven: org.jboss.netty:netty:3.2.5.Final" />
@@ -102,10 +89,6 @@
           <element id="library" level="project" name="Maven: io.intino.itrules:reader-itr:1.1.0" />
           <element id="library" level="project" name="Maven: commons-io:commons-io:2.11.0" />
           <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.15" />
-          <element id="library" level="project" name="Maven: io.intino.alexandria:exceptions:2.1.0" />
-          <element id="library" level="project" name="Maven: io.intino.alexandria:primitives:1.0.5" />
-          <element id="library" level="project" name="Maven: io.intino.alexandria:rest-accessor:2.4.0" />
-          <element id="library" level="project" name="Maven: io.intino:cesar-api-accessor:5.2.4" />
           <element id="library" level="project" name="Maven: io.intino.konos:konos-builder-constants:1.3.0" />
           <element id="library" level="project" name="Maven: io.intino.magritte:builder-constants:3.0.1" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:logger:2.1.0" />
@@ -114,6 +97,24 @@
           <element id="library" level="project" name="Maven: io.intino.alexandria:json:1.2.2" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:message:4.1.0" />
           <element id="library" level="project" name="Maven: io.intino.magritte:language:1.3.4" />
+          <element id="library" level="project" name="Maven: io.intino.alexandria:exceptions:2.1.1" />
+          <element id="library" level="project" name="Maven: io.intino.alexandria:primitives:1.1.2" />
+          <element id="library" level="project" name="Maven: io.intino:cesar-api-accessor:5.4.2" />
+          <element id="library" level="project" name="Maven: jakarta.websocket:jakarta.websocket-api:2.1.0" />
+          <element id="library" level="project" name="Maven: jakarta.websocket:jakarta.websocket-client-api:2.1.0" />
+          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpmime:4.5.14" />
+          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-framework:4.0.0" />
+          <element id="library" level="project" name="Maven: org.bouncycastle:bcprov-jdk15:1.46" />
+          <element id="library" level="project" name="Maven: org.bouncycastle:bcmail-jdk15:1.46" />
+          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-http-server:4.0.0" />
+          <element id="library" level="project" name="Maven: org.glassfish.grizzly:grizzly-http:4.0.0" />
+          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-client:2.1.3" />
+          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-container-grizzly-client:2.1.3" />
+          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-core:2.1.3" />
+          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.16" />
+          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpclient:4.5.14" />
+          <element id="library" level="project" name="Maven: io.intino.alexandria:rest-accessor:3.1.2" />
+          <element id="library" level="project" name="Maven: org.glassfish.tyrus:tyrus-spi:2.1.3" />
         </element>
       </element>
     </root>

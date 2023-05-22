@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.actions.SubmitFeedbackAction.*;
+
 public class PivotalLoggingEventSubmitter {
 
 	private static final String TRACKER = "www.pivotaltracker.com/services/v5/projects/";
@@ -31,9 +33,7 @@ public class PivotalLoggingEventSubmitter {
 	private static final String USER = "user";
 	private static final String OS = "operating.system";
 	private static final String OPEN_PROJECTS = "open.projects";
-	private static final String PLUGIN_VERSION = "plugin.version";
-	private static final String PLUGIN_NAME = "plugin.name";
-	private static final String IDE_VERSION = "ide.version";
+
 	private static final String REPORT_ADDITIONAL_INFO = "report.additionalInfo";
 	private static final String REPORT_DESCRIPTION = "report.description";
 	private static final String REPORT_TITLE = "report.title";
@@ -122,26 +122,25 @@ public class PivotalLoggingEventSubmitter {
 		String name = buildName();
 		String description = buildDescription(PivotalLoggingEventSubmitter.this.properties.get(REPORT_DESCRIPTION).toString());
 		String story_type = getReportType();
-		List<String> labels = Collections.singletonList(PivotalLoggingEventSubmitter.this.properties.get(PLUGIN_NAME).toString());
+		List<String> labels = Collections.singletonList(PivotalLoggingEventSubmitter.this.properties.get(PLUGIN_NAME_PROPERTY_KEY).toString());
 		String current_state = "unstarted";
 		String url;
 		String comment = (String) properties.get(REPORT_ADDITIONAL_INFO);
 
 		private String buildName() {
 			Object title = properties.get(REPORT_TITLE);
-			return "Error " + ErrorNameFactory.next() + " in plugin v." + properties.get(PLUGIN_VERSION).toString().trim() + (title != null ? ": " + title : "");
+			return "Error " + ErrorNameFactory.next() + " in plugin v." + properties.get(PLUGIN_VERSION_PROPERTY_KEY).toString().trim() + (title != null ? ": " + title : "");
 		}
 
 		private String buildDescription(String description) {
-			String builder = PLUGIN_ID + ": " + properties.get(PLUGIN_ID) + "\n" +
+			return PLUGIN_ID + ": " + properties.get(PLUGIN_ID) + "\n" +
 					USER + ": " + System.getProperty("user.name") + "\n" +
 					OS + ": " + System.getProperty("os.name") + "\n" +
 					OPEN_PROJECTS + ": " + Arrays.stream(ProjectManager.getInstance().getOpenProjects()).map(Project::getName).collect(Collectors.joining("; ")) + "\n" +
-					IDE_VERSION + ": " + properties.get(IDE_VERSION) + "\n" +
-					PLUGIN_NAME + ": " + properties.get(PLUGIN_NAME) + "\n" +
-					PLUGIN_VERSION + ": " + properties.get(PLUGIN_VERSION).toString().trim() + "\n" +
+					IDE_VERSION_PROPERTY_KEY + ": " + properties.get(IDE_VERSION_PROPERTY_KEY) + "\n" +
+					PLUGIN_NAME_PROPERTY_KEY + ": " + properties.get(PLUGIN_NAME_PROPERTY_KEY) + "\n" +
+					PLUGIN_VERSION_PROPERTY_KEY + ": " + properties.get(PLUGIN_VERSION_PROPERTY_KEY).toString().trim() + "\n" +
 					"````\n" + description + "````\n";
-			return builder;
 		}
 
 		String getReportType() {

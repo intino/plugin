@@ -23,7 +23,6 @@ import static io.intino.plugin.settings.IntinoSettings.getInstance;
 
 public class CesarAccessor {
 	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
-
 	private final Project project;
 	private ApiAccessor accessor;
 	private Map.Entry<String, String> credentials;

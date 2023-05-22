@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class GitListener implements Notifications {
 	private static final Logger logger = Logger.getInstance(GitListener.class.getName());
@@ -68,8 +67,9 @@ public class GitListener implements Notifications {
 	private LegioConfiguration configurationOf(File artifact) {
 		ModuleManager manager = ModuleManager.getInstance(project);
 		return Arrays.stream(manager.getModules())
-				.map(module -> (LegioConfiguration) IntinoUtil.configurationOf(module))
-				.filter(Objects::nonNull)
+				.map(IntinoUtil::configurationOf)
+				.filter(c -> c instanceof LegioConfiguration)
+				.map(c -> (LegioConfiguration) c)
 				.filter(c -> c.legiovFile().toNioPath().toFile().getAbsolutePath().equals(artifact.getAbsolutePath()))
 				.findFirst().orElse(null);
 	}
