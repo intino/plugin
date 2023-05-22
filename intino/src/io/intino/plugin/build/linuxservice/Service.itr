@@ -21,13 +21,13 @@ def type(sysconfig)
 	# Configz for java service
 
     JAVA_USER="$user"
-    JAVA_STDOUT="/var/log/$user/$artifact.log"
-    JAVA_STDERR="/var/log/$user/$artifact.log"
+    JAVA_STDOUT="/var/log/$user/$artifact+lowercase.log"
+    JAVA_STDERR="/var/log/$user/$artifact+lowercase.log"
     JAVA_BIN="/usr/bin/java"
     JAVA_APPDIR="/opt/$artifact"
     ARG1="-Dfile.encoding=UTF-8 --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED"
     ARG2="[-Xms$minMemory~m ][-Xmx$maxMemory~m ]-Djava.io.tmpdir=/home/$user/tmp -Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=$managementPort -Dcom.sun.management.jmxremote.rmi.port=$managementPort -Dcom.sun.management.jmxremote.local.only=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -XX:+StartAttachListener"
-    ARG3="--class-path /opt/$artifact/$artifact.jar[$dependencies] $mainClass $parameter...[ ]"
+    ARG3="--class-path /opt/$artifact+lowercase/$artifact+lowercase~-$version.jar[$dependencies] $mainClass $parameter...[ ]"
 end
 
 def trigger(parameter)
@@ -35,5 +35,5 @@ def trigger(parameter)
 end
 
 def trigger(dependencies)
-	:/opt/$artifact/[$directory?dependency]/*
+	:/opt/$artifact+lowercase/[$directory?dependency]/*
 end

@@ -154,6 +154,7 @@ Concept:Named Server
 
 Concept Repository
 	var string identifier
+	var word:{Always Daily Never} updatePolicy
 	Concept Type
 		var string url
 		sub:{0..1} Release

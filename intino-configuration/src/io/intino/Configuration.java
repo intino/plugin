@@ -455,6 +455,10 @@ public interface Configuration {
 
 		String password();
 
+		UpdatePolicy updatePolicy();
+
+		enum UpdatePolicy {Always, Daily, Never}
+
 		interface Release extends Repository {
 		}
 

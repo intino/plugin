@@ -247,8 +247,8 @@ public class ImportsResolver {
 	private Collection<RemoteRepository> collectRemotes() {
 		Collection<RemoteRepository> remotes = new ArrayList<>();
 		Repositories repositories = new Repositories(this.module);
-		remotes.add(repositories.maven(updatePolicy));
 		remotes.addAll(repositories.map(this.repositories));
+		remotes.add(repositories.maven(updatePolicy));
 		return remotes;
 	}
 
