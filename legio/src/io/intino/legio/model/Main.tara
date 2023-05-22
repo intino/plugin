@@ -156,9 +156,11 @@ Concept Repository
 	var string identifier
 	Concept Type
 		var string url
-		var word:{Always Daily Never} updatePolicy
+		var word:{Always Daily Never} updatePolicy = Daily
 		sub:{0..1} Release
+			var word:{Always Daily Never} updatePolicy = Daily
 		sub:{0..1} Snapshot
+			var word:{Always Daily Never} updatePolicy = Always
 
 Concept Parameter is component
 	var string name
