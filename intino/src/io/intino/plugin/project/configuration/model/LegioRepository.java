@@ -46,7 +46,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 
 	@Override
 	public UpdatePolicy updatePolicy() {
-		String value = parameterValue(node.container(), "updatePolicy", 1);
+		String value = parameterValue(node, "updatePolicy", 1);
 		try {
 			return value == null ? defaultUpdatePolicy() : UpdatePolicy.valueOf(value);
 		} catch (IllegalArgumentException e) {
