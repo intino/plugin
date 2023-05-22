@@ -148,7 +148,7 @@ public class ImportsResolver {
 	private void addToCache(Dependency d, DependencyCatalog newDeps) {
 		try {
 			if (!new Version(d.version()).isSnapshot()) cache.put(cacheId(d), newDeps.dependencies());
-		} catch (IntinoException e) {
+		} catch (IntinoException ignored) {
 		}
 	}
 
@@ -245,9 +245,8 @@ public class ImportsResolver {
 
 	@NotNull
 	private Collection<RemoteRepository> collectRemotes() {
-		Collection<RemoteRepository> remotes = new ArrayList<>();
 		Repositories repositories = new Repositories(this.module);
-		remotes.addAll(repositories.map(this.repositories));
+		Collection<RemoteRepository> remotes = new ArrayList<>(repositories.map(this.repositories));
 		remotes.add(repositories.maven(updatePolicy));
 		return remotes;
 	}

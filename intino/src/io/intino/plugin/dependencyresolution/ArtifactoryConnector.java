@@ -74,6 +74,11 @@ public class ArtifactoryConnector {
 			public String password() {
 				return null;
 			}
+
+			@Override
+			public UpdatePolicy updatePolicy() {
+				return UpdatePolicy.Daily;
+			}
 		};
 	}
 

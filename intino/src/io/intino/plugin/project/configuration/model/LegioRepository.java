@@ -18,7 +18,6 @@ public abstract class LegioRepository implements Configuration.Repository {
 		this.configuration = configuration;
 		this.node = node;
 		this.settings = IntinoSettings.getInstance(configuration.module().getProject());
-
 	}
 
 	@Override
@@ -46,6 +45,18 @@ public abstract class LegioRepository implements Configuration.Repository {
 	}
 
 	@Override
+	public UpdatePolicy updatePolicy() {
+		String value = parameterValue(node.container(), "updatePolicy", 1);
+		try {
+			return value == null ? defaultUpdatePolicy() : UpdatePolicy.valueOf(value);
+		} catch (IllegalArgumentException e) {
+			return defaultUpdatePolicy();
+		}
+	}
+
+	protected abstract UpdatePolicy defaultUpdatePolicy();
+
+	@Override
 	public String user() {
 		final ArtifactoryCredential repository = repository();
 		return repository == null ? null : repository.username;
@@ -66,11 +77,21 @@ public abstract class LegioRepository implements Configuration.Repository {
 		public LegioReleaseRepository(LegioConfiguration configuration, TaraNode node) {
 			super(configuration, node);
 		}
+
+		@Override
+		protected UpdatePolicy defaultUpdatePolicy() {
+			return UpdatePolicy.Daily;
+		}
 	}
 
 	public static class LegioSnapshotRepository extends LegioRepository implements Configuration.Repository.Snapshot {
 		public LegioSnapshotRepository(LegioConfiguration configuration, TaraNode node) {
 			super(configuration, node);
+		}
+
+		@Override
+		protected UpdatePolicy defaultUpdatePolicy() {
+			return UpdatePolicy.Always;
 		}
 	}
 

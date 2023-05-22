@@ -21,7 +21,6 @@ import java.util.List;
 
 import static io.intino.Configuration.Repository.Snapshot;
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
-import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
 import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class Repositories {
@@ -45,13 +44,10 @@ public class Repositories {
 
 	RemoteRepository repository(Repository r) {
 		final RemoteRepository repository = new RemoteRepository(r.identifier(), "default", r.url()).setAuthentication(provideAuthentication(r.identifier()));
-		if (r instanceof Snapshot) {
-			repository.setPolicy(true, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
-			repository.setPolicy(false, new RepositoryPolicy().setEnabled(false));
-		} else {
-			repository.setPolicy(true, new RepositoryPolicy().setEnabled(false).setUpdatePolicy(UPDATE_POLICY_ALWAYS));
-			repository.setPolicy(false, new RepositoryPolicy().setEnabled(true).setUpdatePolicy(UPDATE_POLICY_DAILY));
-		}
+		String updatePolicy = r.updatePolicy().name().toLowerCase();
+		boolean isSnapshot = r instanceof Snapshot;
+		repository.setPolicy(true, new RepositoryPolicy().setEnabled(isSnapshot).setUpdatePolicy(updatePolicy));
+		repository.setPolicy(false, new RepositoryPolicy().setEnabled(!isSnapshot).setUpdatePolicy(updatePolicy));
 		addProxies(repository);
 		return repository;
 	}
