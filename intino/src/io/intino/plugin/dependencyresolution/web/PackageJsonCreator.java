@@ -20,19 +20,15 @@ public class PackageJsonCreator {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
 	private final Module module;
 	private final Artifact artifact;
-	private final List<Repository> repositories;
 	private final List<Artifact.WebComponent> webComponents;
 	private final List<Artifact.WebResolution> resolutions;
-	private final File destination;
 	private final WebArtifactResolver webArtifactResolver;
 
 	public PackageJsonCreator(Module module, Artifact artifact, List<Repository> repositories, File destination) {
 		this.module = module;
 		this.artifact = artifact;
-		this.repositories = repositories;
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
-		this.destination = destination;
 		this.webArtifactResolver = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination);
 
 	}
