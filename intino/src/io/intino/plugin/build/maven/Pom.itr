@@ -124,7 +124,7 @@ def type(pom)
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
 								<mainClass>$mainClass</mainClass>][
-								<packageName>$package</packageName>][
+								<packageName>$groupId+lowercase</packageName>]
 								[$copyDependencies+classpath]
 							</manifest>
 							[<manifestEntries>
