@@ -7,7 +7,6 @@ def type(pom) type(deployFile)
 		<artifactId>$artifactId+lowercase</artifactId>
 		<name>$artifactId+lowercase</name>
 		<version>$version</version>
-
 		<repositories>
 				$repository+release...[$NL]
 		</repositories>
@@ -124,7 +123,8 @@ def type(pom)
 							<manifest>
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								<addClasspath>[$linkLibraries?false]</addClasspath>[
-								<mainClass>$mainClass</mainClass>]
+								<mainClass>$mainClass</mainClass>][
+								<packageName>$package</packageName>][
 								[$copyDependencies+classpath]
 							</manifest>
 							[<manifestEntries>
