@@ -52,7 +52,7 @@ public class IntinoRunContextAction extends RunContextAction {
 		final RunManagerEx runManager = (RunManagerEx) context.getRunManager();
 		DataContext dataContext = context.getDefaultDataContext();
 		ReadAction.nonBlocking(() -> context.findExisting() != null ? context.findExisting() : context.getConfiguration())
-				.finishOnUiThread(ModalityState.NON_MODAL, existingConfiguration -> perform(runManager, existingConfiguration, dataContext))
+				.finishOnUiThread(ModalityState.nonModal(), existingConfiguration -> perform(runManager, existingConfiguration, dataContext))
 				.submit(AppExecutorUtil.getAppExecutorService());
 	}
 

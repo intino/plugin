@@ -5,8 +5,6 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import io.intino.plugin.file.ItrulesFileType;
@@ -28,7 +26,7 @@ public class ItrFileDocumentManagerListener implements FileDocumentManagerListen
 		if (!project.isInitialized()) return;
 		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
 		if (psiFile != null && psiFile.getModificationStamp() != 0 && psiFile.getFileType().equals(ItrulesFileType.instance()))
-			ApplicationManager.getApplication().invokeLater(() -> generator.createTemplate(project, psiFile.getVirtualFile()), ModalityState.NON_MODAL);
+			ApplicationManager.getApplication().invokeLater(() -> generator.createTemplate(project, psiFile.getVirtualFile()), ModalityState.nonModal());
 	}
 
 }

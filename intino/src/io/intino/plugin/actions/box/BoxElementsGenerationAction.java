@@ -57,7 +57,7 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return;
+		if (!(configuration instanceof LegioConfiguration)||safe(() -> configuration.artifact().box()) == null) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading box elements", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {

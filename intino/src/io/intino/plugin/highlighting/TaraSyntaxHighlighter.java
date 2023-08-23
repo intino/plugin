@@ -17,12 +17,12 @@ import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.ui.JBColor;
-import gnu.trove.THashMap;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
@@ -47,7 +47,7 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	public static final TextAttributesKey UNRESOLVED_ACCESS = createTextAttributesKey("Tara_UNRESOLVED_ACCESS", referenceNotFoundTextAttributes());
 	public static final TextAttributesKey DOCUMENTATION = createTextAttributesKey("Tara_COMMENT", DefaultLanguageHighlighterColors.DOC_COMMENT);
 
-	private static final Map<TextAttributesKey, Pair<String, HighlightSeverity>> DISPLAY_NAMES = new THashMap<>();
+	private static final Map<TextAttributesKey, Pair<String, HighlightSeverity>> DISPLAY_NAMES = new HashMap<>();
 	private static final Map<IElementType, TextAttributesKey> KEYS;
 
 	static {
@@ -65,7 +65,7 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	}
 
 	static {
-		KEYS = new THashMap<>();
+		KEYS = new HashMap<>();
 
 		KEYS.put(METAIDENTIFIER_KEY, META_IDENTIFIER);
 		KEYS.put(DSL, KEYWORD);

@@ -1,10 +1,13 @@
 package io.intino.plugin.toolwindows.factory;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDocumentManager;
@@ -16,6 +19,7 @@ import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LanguageFileDocumentManagerListener implements FileDocumentManagerListener {
 
@@ -29,17 +33,21 @@ public class LanguageFileDocumentManagerListener implements FileDocumentManagerL
 		if (!project.isInitialized()) return;
 		FileViewProvider vp = PsiManagerEx.getInstanceEx(project).getFileManager().findCachedViewProvider(file);
 		if (vp == null || vp.getManager().getProject() != project) return;
-		final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+		final PsiFile psiFile = psiFile(document);
 		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
 			document.addDocumentListener(new DocumentListener() {
-				public void beforeDocumentChange(@NotNull DocumentEvent event) {
-				}
-
 				public void documentChanged(@NotNull DocumentEvent event) {
 					publish(psiFile);
 				}
 			});
 		}
+	}
+
+	@Nullable
+	private PsiFile psiFile(@NotNull Document document) {
+		Application application = ApplicationManager.getApplication();
+		return application.isReadAccessAllowed() ? PsiDocumentManager.getInstance(project).getPsiFile(document) :
+				application.runReadAction((Computable<PsiFile>) () -> PsiDocumentManager.getInstance(project).getPsiFile(document));
 	}
 
 	private void publish(PsiFile file) {

@@ -46,7 +46,7 @@ public class ArchetypeErrorStrategy implements ANTLRErrorStrategy {
 		Token token = recognizer.getCurrentToken();
 		if (currentError == token) return "";
 		else currentError = token;
-		String[] nameList = recognizer.getTokenNames();
+		String[] nameList = ((VocabularyImpl) recognizer.getVocabulary()).getLiteralNames();
 		String message = message(recognizer, token, nameList);
 		System.out.println(message);
 		return message;

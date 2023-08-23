@@ -57,7 +57,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public void build(FinishCallback callback) {
-		if (configuration.artifact() == null) return;
+		if (configuration.artifact() == null || configuration.artifact().name() == null) return;
 		boolean distributed = isDistributed(configuration.artifact());
 		if (configuration.isReloading()) {
 			errorMessages.add("Artifact cannot be " + phase.participle() + " during reloading");
@@ -228,13 +228,13 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	private void saveAll() {
 		Application manager = ApplicationManager.getApplication();
 		if (manager.isWriteAccessAllowed()) FileDocumentManager.getInstance().saveAllDocuments();
-		StoreReloadManager.getInstance().blockReloadingProjectOnExternalChanges();
+		StoreReloadManager.Companion.getInstance(project).blockReloadingProjectOnExternalChanges();
 	}
 
 	private void reloadProject() {
 		SaveAndSyncHandler.getInstance().refreshOpenFiles();
 		VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
-		StoreReloadManager.getInstance().unblockReloadingProjectOnExternalChanges();
+		StoreReloadManager.Companion.getInstance(project).unblockReloadingProjectOnExternalChanges();
 	}
 
 	private void processSuccessMessages() {

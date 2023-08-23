@@ -36,6 +36,7 @@ import static io.intino.magritte.lang.model.Primitive.*;
 
 class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAction {
 
+	@SafeFieldForPreview
 	private Parametrized parametrized;
 
 	public AddRequiredParameterFix(PsiElement element) {

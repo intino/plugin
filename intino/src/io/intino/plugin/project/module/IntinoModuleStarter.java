@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupActivity;
+import com.intellij.openapi.startup.ProjectActivity;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
 import com.intellij.refactoring.openapi.impl.JavaRenameRefactoringImpl;
@@ -19,7 +19,10 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.MavenConfiguration;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Arrays;
@@ -27,17 +30,20 @@ import java.util.List;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getExtension;
 
-public class IntinoModuleStarter implements ModuleListener, StartupActivity {
+public class IntinoModuleStarter implements ModuleListener, ProjectActivity {
 
+	@Nullable
 	@Override
-	public void runActivity(@NotNull Project project) {
+	public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
 		TaraSyntaxHighlighter.setProject(project);
 		addDSLNameToDictionary(project);
 		for (Module module : ModuleManager.getInstance(project).getModules()) {
 			if (module.isLoaded() && project.isInitialized())
 				registerIntinoModule(module);
 		}
+		return continuation;
 	}
+
 
 	private void addDSLNameToDictionary(Project project) {
 		for (Module module : ModuleManager.getInstance(project).getModules()) {

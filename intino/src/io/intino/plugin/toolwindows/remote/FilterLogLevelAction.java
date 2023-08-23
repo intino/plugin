@@ -1,6 +1,7 @@
 package io.intino.plugin.toolwindows.remote;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -16,7 +17,7 @@ import static io.intino.plugin.IntinoIcons.*;
 public class FilterLogLevelAction extends AnAction implements DumbAware {
 	private final ListenLogAction action;
 	private Logger.Level currentLevel;
-	private final Icon[] icons = {ERROR_LOG, WARN_LOG, INFO_LOG, DEBUG_LOG, ALL_LOG};
+	private final Icon[] icons = {ERROR_LOG, WARN_LOG, INFO_LOG, DEBUG_LOG, ALL_LOG, ALL_LOG};
 
 	public FilterLogLevelAction(ListenLogAction action) {
 		this.action = action;
@@ -25,6 +26,11 @@ public class FilterLogLevelAction extends AnAction implements DumbAware {
 		presentation.setText("Filter Log to Level " + nextLevel());
 		presentation.setDescription("Filter log level");
 		presentation.setIcon(AllIcons.Actions.ShortcutFilter);
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
 	}
 
 	@Override

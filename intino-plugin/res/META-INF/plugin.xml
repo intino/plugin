@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.8.6</version>
+	<version>6.8.7</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -18,7 +18,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
     ]]></description>
 
-	<idea-version since-build="231.8109.175"/>
+	<idea-version since-build="232.8660"/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>
@@ -126,8 +126,7 @@
 		<langCodeStyleSettingsProvider
 				implementation="io.intino.plugin.formatter.TaraLanguageCodeStyleSettingsProvider"/>
 		<postStartupActivity implementation="io.intino.plugin.project.module.IntinoModuleStarter"/>
-		<preloadingActivity implementation="io.intino.plugin.project.ApplicationInitializedListener"/>
-
+		<applicationInitializedListener implementation="io.intino.plugin.project.ApplicationInitializedListener"/>
 		<!--<statementUpDownMover implementation="TaraNodeMover" id="node" order="before line"/>-->
 		<!--<psi.referenceContributor implementation="io.intino.plugin.model.psi.resolve.TaraReferenceContributor"/>-->
 		<!--<referenceImporter implementation="TaraReferenceImporter"/>-->
@@ -176,6 +175,7 @@
 		<projectService serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
 		<projectService serviceImplementation="io.intino.plugin.cesar.CesarInfo"/>
 		<projectConfigurable id="io.intino.plugin.settings.IntinoSettingsComponent"
+							 displayName="Intino Settings"
 							 instance="io.intino.plugin.settings.IntinoSettingsComponent"/>
 		<attachSourcesProvider
 				implementation="io.intino.plugin.codeinsight.notifications.AttachSourcesFromExternalArtifactoryProvider"/>
@@ -276,11 +276,11 @@
 			<category>Set documentation</category>
 			<descriptionDirectoryName>EditElementDocumentation</descriptionDirectoryName>
 		</intentionAction>
-		<intentionAction>
-			<className>io.intino.plugin.codeinsight.intentions.CreateI18Value</className>
-			<category>Create i18 value</category>
-			<descriptionDirectoryName>CreateI18Value</descriptionDirectoryName>
-		</intentionAction>
+<!--		<intentionAction>-->
+<!--			<className>io.intino.plugin.codeinsight.intentions.CreateI18Value</className>-->
+<!--			<category>Create i18 value</category>-->
+<!--			<descriptionDirectoryName>CreateI18Value</descriptionDirectoryName>-->
+<!--		</intentionAction>-->
 		<intentionAction>
 			<className>io.intino.plugin.codeinsight.intentions.SyncNativeWithTara</className>
 			<category>Sync native With tara</category>

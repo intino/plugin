@@ -11,8 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +34,8 @@ class LanguageLoader {
 			if (classLoader == null) return null;
 			Class cls = classLoader.loadClass(LANGUAGES_PACKAGE + "." + Format.snakeCasetoCamelCase().format(name).toString());
 			return (Language) cls.getConstructors()[0].newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | Error | InvocationTargetException e) {
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | Error |
+				 InvocationTargetException e) {
 			return null;
 		}
 	}
@@ -66,19 +65,17 @@ class LanguageLoader {
 
 	private static String normalize(String version) {
 		final String[] split = version.split("\\.");
-		String result = "";
-		for (String number : split) result += number.length() == 1 ? "0" + number : number;
-		return result;
+		StringBuilder result = new StringBuilder();
+		for (String number : split) result.append(number.length() == 1 ? "0" + number : number);
+		return result.toString();
 	}
 
 	private static ClassLoader createClassLoader(File jar) {
-		return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> {
-			try {
-				return new URLClassLoader(new URL[]{jar.toURI().toURL()}, LanguageLoader.class.getClassLoader());
-			} catch (MalformedURLException e) {
-				LOG.error(e.getMessage(), e);
-				return null;
-			}
-		});
+		try {
+			return new URLClassLoader(new URL[]{jar.toURI().toURL()}, LanguageLoader.class.getClassLoader());
+		} catch (MalformedURLException e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
 	}
 }

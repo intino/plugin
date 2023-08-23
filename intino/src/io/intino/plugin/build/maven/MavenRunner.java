@@ -153,7 +153,7 @@ public class MavenRunner {
 				MavenRunnerSettings runnerSettings = new MavenRunnerSettings();
 				runnerSettings.setVmOptions((mvnOptions + " -Djansi.passthrough=true").trim());
 				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, callback);
-			}, ModalityState.NON_MODAL);
+			}, ModalityState.nonModal());
 			try {
 				monitor.wait();
 			} catch (InterruptedException e) {

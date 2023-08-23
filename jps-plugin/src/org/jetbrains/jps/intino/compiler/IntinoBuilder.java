@@ -3,7 +3,6 @@ package org.jetbrains.jps.intino.compiler;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
-import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.ModuleChunk;
@@ -148,7 +147,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 																		  List<String> compilerOutput,
 																		  List<OutputItem> successfullyCompiled) throws IOException {
 		ProjectDescriptor pd = context.getProjectDescriptor();
-		final Map<ModuleBuildTarget, List<OutputItem>> compiled = new THashMap<>();
+		final Map<ModuleBuildTarget, List<OutputItem>> compiled = new HashMap<>();
 		for (final OutputItem item : successfullyCompiled)
 			processOutputItem(context, chunk, generationOutputs, compilerOutput, pd, compiled, item);
 		if (Utils.IS_TEST_MODE || LOG.isDebugEnabled()) LOG.info("Chunk " + chunk + " compilation finished");

@@ -12,6 +12,7 @@ import com.intellij.psi.PsiManager;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import org.jetbrains.idea.maven.buildtool.MavenImportSpec;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -34,7 +35,7 @@ public class ModuleMavenCreator {
 		if (pomFile == null) return;
 		MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
 		manager.addManagedFilesOrUnignore(Collections.singletonList(pomFile));
-		manager.importProjects();
+		manager.updateAllMavenProjectsSync(MavenImportSpec.IMPLICIT_IMPORT);
 		manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
 		FileEditorManager.getInstance(module.getProject()).openFile(pomFile, true);
 	}

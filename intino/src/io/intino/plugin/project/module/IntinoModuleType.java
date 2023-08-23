@@ -58,12 +58,12 @@ public class IntinoModuleType extends JavaModuleType {
 
 	@NotNull
 	@Override
-	public Icon getNodeIcon(@Deprecated boolean isOpened) {
+	public Icon getNodeIcon(boolean isOpened) {
 		return IntinoIcons.MODEL_16;
 	}
 
 	public enum Type {
-		Business, Federation, DataAnalitic, Datahub, Archetype
+		Business, Federation, DataAnalytic, Datahub, Archetype
 	}
 
 

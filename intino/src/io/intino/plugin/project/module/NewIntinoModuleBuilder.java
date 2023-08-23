@@ -226,7 +226,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		setContentEntryPath(project.getBasePath() + separator + getName());
 		setModuleFilePath(project.getBasePath() + separator + getName() + separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
 		final Module module = super.commitModule(project, model);
-		withTask(new Task.Backgroundable(module.getProject(), " Setting up git repository", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(project, " Setting up git repository", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				GitRepositoryInitializer.getInstance().initRepository(project, VfsUtil.findFileByIoFile(new File(project.getBasePath()), true), true);
@@ -246,7 +246,8 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		return super.getFilePathsToOpen();//TODO add
 	}
 
-	private void createIntinoFiles(@NotNull Project project, Module module) {
+	private void createIntinoFiles(@NotNull Project project, @Nullable Module module) {
+		if (module == null) return;
 		new ModuleTemplateDeployer(module, components, getStarterContext(), gorosFramework).deploy();
 		final VirtualFile file = new LegioFileCreator(module, components).get();
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);

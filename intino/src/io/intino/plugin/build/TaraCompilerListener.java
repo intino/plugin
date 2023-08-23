@@ -94,7 +94,7 @@ public class TaraCompilerListener implements com.intellij.compiler.server.Custom
 	private void reformatGeneratedCode(VirtualFile outDir) {
 		if (outDir == null || !outDir.isValid()) return;
 		FileDocumentManager.getInstance().saveAllDocuments();
-		StoreReloadManager.getInstance().blockReloadingProjectOnExternalChanges();
+		StoreReloadManager.Companion.getInstance(project).blockReloadingProjectOnExternalChanges();
 		final DataContext result = io.intino.plugin.project.DataContext.getContext();
 		Project project = result != null ? (Project) result.getData(PlatformDataKeys.PROJECT.getName()) : null;
 		if (project == null) return;
@@ -127,7 +127,7 @@ public class TaraCompilerListener implements com.intellij.compiler.server.Custom
 	private void reloadProject(Project project) {
 		SaveAndSyncHandler.getInstance().refreshOpenFiles();
 		VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
-		StoreReloadManager.getInstance().unblockReloadingProjectOnExternalChanges();
+		StoreReloadManager.Companion.getInstance(project).unblockReloadingProjectOnExternalChanges();
 		refreshFiles(project);
 	}
 
