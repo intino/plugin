@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.Application;
@@ -12,6 +13,7 @@ import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.LegioConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 public class ReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override
@@ -20,6 +22,11 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 		if (project == null) return;
 		Module module = e.getData(LangDataKeys.MODULE);
 		if (module != null) execute(module);
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.BGT;
 	}
 
 	@Override

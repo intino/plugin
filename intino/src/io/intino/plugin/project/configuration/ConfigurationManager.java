@@ -36,7 +36,7 @@ public class ConfigurationManager {
 	}
 
 	public static boolean hasExternalProviders() {
-		return providers.size() > 0;
+		return !providers.isEmpty();
 	}
 
 	public static Configuration newExternalProvider(Module module) {
