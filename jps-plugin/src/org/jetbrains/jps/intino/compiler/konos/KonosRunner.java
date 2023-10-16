@@ -57,7 +57,7 @@ class KonosRunner {
 		final File classPathFile = new File(new File(intinoDirectory, "box" + File.separator + moduleName), "compiler.classpath");
 		if (!classPathFile.exists()) new File(intinoDirectory, moduleName);
 		if (!classPathFile.exists())
-			throw new IOException("Unable to find builder classpath. Please reload configuration");
+			throw new IOException("Unable to find builder classpath. Please reload configuration. If the error persists, check your your internet connection and the defined artifactories");
 		String text = new String(Files.readAllBytes(classPathFile.toPath()));
 		this.classpath = Arrays.stream(text.split(":")).map(c -> c.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());
 		Version version = Version.parseVersion(versionOf(new File(classpath.get(0))));

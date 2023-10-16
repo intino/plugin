@@ -58,7 +58,7 @@ class TaraRunner {
 		File classPathFile = new File(intinoDirectory, "model" + File.separator + moduleName + File.separator + "compiler.classpath");
 		if (!classPathFile.exists()) classPathFile = new File(intinoDirectory, "compiler.classpath");
 		if (!classPathFile.exists())
-			throw new IOException("Unable to find builder classpath. Please reload configuration");
+			throw new IOException("Unable to find builder classpath. Please reload configuration. If the error persists, check your your internet connection and the defined artifactories");
 		this.classpath = Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).split(":"));
 	}
 
