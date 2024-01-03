@@ -2,16 +2,14 @@ package io.intino.plugin.codeinsight.intentions;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,10 +18,8 @@ import java.util.List;
 public class RemoveFromLocalRepository extends PsiElementBaseIntentionAction {
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-		Module module = ModuleProvider.moduleOf(element);
-		Node node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
 		DependencyPurger purger = new DependencyPurger();
-		List<Parameter> parameters = node.parameters();
+		List<Parameter> parameters = (element instanceof Mogram ? (Mogram) element : TaraPsiUtil.getContainerNodeOf(element)).parameters();
 		purger.purgeDependency(parameter(parameters, 0).replace(".", ":") + ":" + parameter(parameters, 1) + ":" + parameter(parameters, 2));
 	}
 
@@ -47,15 +43,15 @@ public class RemoveFromLocalRepository extends PsiElementBaseIntentionAction {
 	}
 
 	private boolean isDependency(PsiElement element) {
-		Node node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
-		return node != null && ("Compile".equals(node.type())
-				|| "Test".equals(node.type())
-				|| "Provided".equals(node.type())
-				|| "Runtime".equals(node.type())
-				|| "Artifact.Imports.Compile".equals(node.type())
-				|| "Artifact.Imports.Test".equals(node.type())
-				|| "Artifact.Imports.Provided".equals(node.type())
-				|| "Artifact.Imports.Runtime".equals(node.type()));
+		Mogram mogram = element instanceof Mogram ? (Mogram) element : TaraPsiUtil.getContainerNodeOf(element);
+		return mogram != null && ("Compile".equals(mogram.type())
+				|| "Test".equals(mogram.type())
+				|| "Provided".equals(mogram.type())
+				|| "Runtime".equals(mogram.type())
+				|| "Artifact.Imports.Compile".equals(mogram.type())
+				|| "Artifact.Imports.Test".equals(mogram.type())
+				|| "Artifact.Imports.Provided".equals(mogram.type())
+				|| "Artifact.Imports.Runtime".equals(mogram.type()));
 	}
 
 	private String parameter(List<Parameter> parameters, int index) {

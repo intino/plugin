@@ -20,14 +20,14 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.settings.IntinoSettings;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.Documentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,6 @@ import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.write;
 public class MetamodelWindow {
 	private static final Logger LOG = Logger.getInstance(MetamodelWindow.class);
 	private final Project project;
-	private final EditorEx editor;
 	private final Document document;
 	private final EditorListener listener;
 	private JPanel root;
@@ -51,7 +50,7 @@ public class MetamodelWindow {
 		this.project = project;
 		listener = new EditorListener(project);
 		document = EditorFactory.getInstance().createDocument("");
-		editor = (EditorEx) EditorFactory.getInstance().createViewer(document, project);
+		EditorEx editor = (EditorEx) EditorFactory.getInstance().createViewer(document, project);
 		editor.setHighlighter(new LexerEditorHighlighter(new TaraSyntaxHighlighter(), editor.getColorsScheme()));
 		editor.getSelectionModel().setSelection(0, document.getTextLength());
 		GridConstraints constraints = new GridConstraints();
@@ -95,10 +94,10 @@ public class MetamodelWindow {
 	}
 
 	private void updateEditor(PsiFile psiFile) {
-		Node node = TaraPsiUtil.getContainerNodeOf(elementAtCaret);
-		if (node == null) return;
-		List<String> types = node.types();
-		io.intino.magritte.Language lang = LanguageManager.getLanguage(psiFile);
+		Mogram mogram = TaraPsiUtil.getContainerNodeOf(elementAtCaret);
+		if (mogram == null) return;
+		List<String> types = mogram.types();
+		io.intino.tara.Language lang = LanguageManager.getLanguage(psiFile);
 		if (lang != null && !types.isEmpty()) {
 			Documentation doc = lang.doc(types.stream().filter(t -> !t.contains(":")).findFirst().orElse(types.get(0)));
 			if (doc != null) write(() -> document.setText("dsl " + lang.metaLanguage() + "\n\n" + doc.description()));

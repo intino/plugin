@@ -65,7 +65,7 @@ def type(pom)
 				[$compile<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
+					<version>3.11.0</version>
 					<executions>
 						<execution>
 							<id>default-compile</id>
@@ -84,7 +84,7 @@ def type(pom)
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.5.1</version>
 					<executions>
 						<execution>
 							<phase>package</phase>
@@ -116,7 +116,7 @@ def type(pom)
 				]<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 					<configuration>
 						[<finalName>$finalName</finalName>]
 						<archive>
@@ -152,7 +152,7 @@ def type(pom)
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>1.9.1</version>
+					<version>3.4.0</version>
 					<executions>
 						<execution>
 							<id>add-source</id>
@@ -186,7 +186,7 @@ def type(pom)
 				[$gpgSign<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.5</version>
+					<version>3.1.0</version>
 					<executions>
 					  <execution>
 						<id>sign-artifacts</id>
@@ -200,7 +200,7 @@ def type(pom)
 				[$attachSources<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.3.0</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -213,7 +213,7 @@ def type(pom)
 				[$attachJavaDoc<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.6.2</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -441,7 +441,7 @@ def trigger(copyDependencies)
 	<plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-dependency-plugin</artifactId>
-		<version>2.10</version>
+		<version>3.6.1</version>
 		<executions>
 			<execution>
 				<id>copy-dependencies</id>

@@ -18,13 +18,12 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.PsiUtil;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeGrammar;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
 
@@ -35,9 +34,9 @@ public class ArchetypeRenderer {
 
 	private final String artifactId;
 	private final Module module;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 
-	public ArchetypeRenderer(Module module, LegioConfiguration configuration) {
+	public ArchetypeRenderer(Module module, ArtifactLegioConfiguration configuration) {
 		this.module = module;
 		this.configuration = configuration;
 		this.artifactId = configuration.artifact().name();
@@ -65,37 +64,37 @@ public class ArchetypeRenderer {
 		vDir.refresh(true, true);
 	}
 
-	private Frame frameOf(ArchetypeGrammar.NodeContext node) {
-		String nodeName = node.declaration().IDENTIFIER().toString().replace(".", "_");
+	private Frame frameOf(ArchetypeGrammar.NodeContext mogram) {
+		String nodeName = mogram.declaration().IDENTIFIER().toString().replace(".", "_");
 		FrameBuilder builder = new FrameBuilder("node").
 				add("name", nodeName).
 				add("artifact", artifactId);
-		if (isLeaf(node)) builder.add("leaf");
-		if (isSplitted(node)) {
-			Frame[] splits = node.declaration().splitted().IDENTIFIER().stream().
+		if (isLeaf(mogram)) builder.add("leaf");
+		if (isSplitted(mogram)) {
+			Frame[] splits = mogram.declaration().splitted().IDENTIFIER().stream().
 					map(Object::toString).
 					map(s -> new FrameBuilder("split").add("class", nodeName).add("value", s).toFrame()).toArray(Frame[]::new);
 			builder.add("splitted").add("split", splits);
 		}
 		String parentIn = null;
-		if (isModuleSplit(node)) {
-			if (hasIn(node)) parentIn = node.declaration().LABEL(0).toString().replace("\"", "");
-			node = findNodeModule(node);
-			if (node == null) return null;
+		if (isModuleSplit(mogram)) {
+			if (hasIn(mogram)) parentIn = mogram.declaration().LABEL(0).toString().replace("\"", "");
+			mogram = findNodeModule(mogram);
+			if (mogram == null) return null;
 		}
-		if (node.declaration().parameters() != null)
-			builder.add("parameter", node.declaration().parameters().parameter().stream().
+		if (mogram.declaration().parameters() != null)
+			builder.add("parameter", mogram.declaration().parameters().parameter().stream().
 					map(p -> new FrameBuilder("parameter", type(p.type())).add("value", p.IDENTIFIER().toString()).toFrame()).
 					toArray(Frame[]::new));
-		if (hasIn(node))
-			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + node.declaration().LABEL(0).toString().replace("\"", ""));
+		if (hasIn(mogram))
+			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + mogram.declaration().LABEL(0).toString().replace("\"", ""));
 		else
-			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + node.declaration().IDENTIFIER().toString());
-		if (node.declaration().WITH() != null)
-			builder.add("list").add(type(node.declaration().type())).
-					add("with", node.declaration().LABEL(node.declaration().LABEL().size() - 1).toString());
-		if (node.body() != null && !node.body().node().isEmpty())
-			builder.add("node", node.body().node().stream().map(this::frameOf).toArray(Frame[]::new));
+			builder.add("filePath", (parentIn != null ? parentIn + "/" : "") + mogram.declaration().IDENTIFIER().toString());
+		if (mogram.declaration().WITH() != null)
+			builder.add("list").add(type(mogram.declaration().type())).
+					add("with", mogram.declaration().LABEL(mogram.declaration().LABEL().size() - 1).toString());
+		if (mogram.body() != null && !mogram.body().node().isEmpty())
+			builder.add("node", mogram.body().node().stream().map(this::frameOf).toArray(Frame[]::new));
 		return builder.toFrame();
 	}
 
@@ -177,18 +176,18 @@ public class ArchetypeRenderer {
 		try {
 			packageFolder.mkdirs();
 			File file = javaFile(packageFolder, name);
-			Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));
+			Files.writeString(file.toPath(), text);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
 	private File javaFile(File packageFolder, String name) {
-		return preparedFile(packageFolder, name, "java");
+		return preparedFile(packageFolder, name);
 	}
 
-	private File preparedFile(File packageFolder, String name, String extension) {
-		return new File(packageFolder, prepareName(name) + "." + extension);
+	private File preparedFile(File packageFolder, String name) {
+		return new File(packageFolder, prepareName(name) + "." + "java");
 	}
 
 	private String prepareName(String name) {

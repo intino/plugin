@@ -1,43 +1,43 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentOfType;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioDistribution implements Configuration.Distribution {
 	private final LegioArtifact artifact;
-	private final TaraNode node;
+	private final TaraMogram node;
 
-	public LegioDistribution(LegioArtifact artifact, TaraNode node) {
+	public LegioDistribution(LegioArtifact artifact, TaraMogram node) {
 		this.artifact = artifact;
 		this.node = node;
 	}
 
 	@Override
 	public Configuration.Repository release() {
-		Node artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
+		Mogram artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
 		if (artifactory == null) return null;
-		Node release = TaraPsiUtil.componentOfType(artifactory, "Release");
+		Mogram release = TaraPsiUtil.componentOfType(artifactory, "Release");
 		if (release == null) return null;
-		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraNode) release);
+		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraMogram) release);
 	}
 
 	@Override
 	public Configuration.Repository snapshot() {
-		Node artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
+		Mogram artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
 		if (artifactory == null) return null;
-		Node snapshot = TaraPsiUtil.componentOfType(artifactory, "Snapshot");
+		Mogram snapshot = TaraPsiUtil.componentOfType(artifactory, "Snapshot");
 		if (snapshot == null) return null;
-		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraNode) snapshot);
+		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraMogram) snapshot);
 	}
 
 	@Override
 	public BitBucketDistribution onBitbucket() {
-		Node onBitbucket = componentOfType(node, "OnBitbucket");
+		Mogram onBitbucket = componentOfType(node, "OnBitbucket");
 		if (onBitbucket == null) return null;
 		return new BitBucketDistribution() {
 

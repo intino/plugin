@@ -17,21 +17,25 @@ import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
-import io.intino.plugin.dependencyresolution.*;
+import io.intino.plugin.dependencyresolution.ImportsResolver;
+import io.intino.plugin.dependencyresolution.IntinoLibrary;
+import io.intino.plugin.dependencyresolution.ProjectLibrariesManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.util.*;
+
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
 
 public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourcesProvider {
 
 	@Override
 	public @NotNull Collection<? extends AttachSourcesAction> getActions(@NotNull List<? extends LibraryOrderEntry> list, @NotNull PsiFile psiFile) {
-		List<LegioConfiguration> configurations = configurations(psiFile);
+		List<ArtifactLegioConfiguration> configurations = configurations(psiFile);
 		if (configurations.isEmpty()) return Collections.emptyList();
 		return List.of(new AttachSourcesAction() {
 			@Override
@@ -46,23 +50,23 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 
 			@Override
 			public @NotNull ActionCallback perform(@NotNull List<? extends LibraryOrderEntry> orderEntries) {
-				List<LegioConfiguration> configurations = configurations(psiFile);
+				List<ArtifactLegioConfiguration> configurations = configurations(psiFile);
 				if (configurations.isEmpty()) return ActionCallback.REJECTED;
 				final ActionCallback resultWrapper = new ActionCallback();
-				List<Artifact> sources = resolveSources(orderEntries, configurations, psiFile);
-				if (!sources.isEmpty() && sources.get(0) != null)
-					attachSources(orderEntries, resultWrapper, sources.get(0), psiFile);
+				var sources = resolveSources(orderEntries, configurations, psiFile);
+				if (sources != null && sources.isResolved())
+					attachSources(orderEntries, resultWrapper, sources.getArtifact(), psiFile);
 				else notifyNotFound(resultWrapper, psiFile);
 				return resultWrapper;
 			}
 		});
 	}
 
-	private List<Artifact> resolveSources(List<? extends LibraryOrderEntry> orderEntries, List<LegioConfiguration> configurations, PsiFile psiFile) {
+	private ArtifactResult resolveSources(List<? extends LibraryOrderEntry> orderEntries, List<ArtifactLegioConfiguration> configurations, PsiFile psiFile) {
 		try {
-			return ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<List<Artifact>, Exception>) () -> resolveSources(orderEntries.get(0), configurations)), "Downloading Sources", false, psiFile.getProject());
+			return ProgressManager.getInstance().runProcessWithProgressSynchronously(((ThrowableComputable<ArtifactResult, Exception>) () -> resolveSources(orderEntries.get(0), configurations)), "Downloading Sources", false, psiFile.getProject());
 		} catch (Exception e) {
-			return Collections.emptyList();
+			return null;
 		}
 	}
 
@@ -74,15 +78,10 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 				return;
 			}
 			for (LibraryOrderEntry orderEntry : orderEntries) {
-				DependencyCatalog.Dependency dependency = new DependencyCatalog.Dependency(a.getGroupId() + ":" + a.getArtifactId() + classifier(a) + ":" + a.getVersion() + ":COMPILE", a.getFile(), true);
-				new ProjectLibrariesManager(orderEntry.getOwnerModule().getProject()).registerSources(dependency);
+				new ProjectLibrariesManager(orderEntry.getOwnerModule().getProject()).registerSources(a);
 			}
 		});
 		resultWrapper.setDone();
-	}
-
-	private String classifier(Artifact a) {
-		return a.getClassifier().trim().isEmpty() ? "" : ":" + a.getClassifier();
 	}
 
 	private void notifyNotFound(ActionCallback resultWrapper, PsiFile psiFile) {
@@ -95,29 +94,28 @@ public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourc
 	}
 
 	@NotNull
-	private List<Artifact> resolveSources(LibraryOrderEntry entry, List<LegioConfiguration> configurations) {
+	private ArtifactResult resolveSources(LibraryOrderEntry entry, List<ArtifactLegioConfiguration> configurations) {
 		Module module = configurations.get(0).module();
-		final ImportsResolver resolver = new ImportsResolver(module, new DependencyAuditor(module), RepositoryPolicy.UPDATE_POLICY_ALWAYS, repositoryTypes(configurations), null);
-		List<Artifact> artifacts = new ArrayList<>();
+		final ImportsResolver resolver = new ImportsResolver(module, UPDATE_POLICY_ALWAYS, repositoryTypes(configurations), null);
 		final String libraryName = Objects.requireNonNull(entry.getLibraryName()).replace(IntinoLibrary.INTINO, "");
 		final String[] names = libraryName.split(":");
-		artifacts.add(resolver.sourcesOf(names[0], names[1], names[2]));
-		return artifacts;
+		return resolver.sourcesOf(names[0], names[1], names[2]);
 	}
 
-	private List<LegioConfiguration> configurations(PsiFile psiFile) {
+	private List<ArtifactLegioConfiguration> configurations(PsiFile psiFile) {
 		Project project = psiFile.getProject();
-		List<LegioConfiguration> result = new ArrayList<>();
+		List<ArtifactLegioConfiguration> result = new ArrayList<>();
 		for (OrderEntry each : ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(psiFile.getVirtualFile())) {
 			Configuration configuration = IntinoUtil.configurationOf(each.getOwnerModule());
-			if (configuration instanceof LegioConfiguration) result.add((LegioConfiguration) configuration);
+			if (configuration instanceof ArtifactLegioConfiguration)
+				result.add((ArtifactLegioConfiguration) configuration);
 		}
 		return result;
 	}
 
-	private List<Repository> repositoryTypes(List<LegioConfiguration> configurations) {
+	private List<Repository> repositoryTypes(List<ArtifactLegioConfiguration> configurations) {
 		List<Repository> types = new ArrayList<>();
-		configurations.stream().map(LegioConfiguration::repositories).map(t -> filter(types, t)).forEach(types::addAll);
+		configurations.stream().map(ArtifactLegioConfiguration::repositories).map(t -> filter(types, t)).forEach(types::addAll);
 		return types;
 	}
 

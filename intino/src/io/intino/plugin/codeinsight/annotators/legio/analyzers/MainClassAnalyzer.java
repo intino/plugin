@@ -4,20 +4,20 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.semantics.errorcollector.SemanticNotification;
 
 import static com.intellij.psi.search.GlobalSearchScope.allScope;
 import static io.intino.plugin.MessageProvider.message;
 
 public class MainClassAnalyzer extends TaraAnalyzer {
-	private final Node packageNode;
+	private final Mogram packageNode;
 	private final Module module;
 
-	public MainClassAnalyzer(Node node, Module module) {
+	public MainClassAnalyzer(Mogram node, Module module) {
 		this.packageNode = node;
 		this.module = module;
 	}

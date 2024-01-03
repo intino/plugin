@@ -8,7 +8,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,7 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 	@Override
 	public void execute(Module module) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return;
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 		Version.Level changeLevel = new ModuleDependencyPropagator(module, configuration).execute();
 //		upgrade(module, configuration, changeLevel);
 	}
@@ -38,7 +38,7 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 				boolean ask = askForDistributeNewReleases(module.getProject());
 				if (ask) {
 					try {
-						upgrade((LegioConfiguration) configuration, changeLevel);
+						upgrade((ArtifactLegioConfiguration) configuration, changeLevel);
 						distribute(module);
 					} catch (Exception e) {
 						logger.error(e);

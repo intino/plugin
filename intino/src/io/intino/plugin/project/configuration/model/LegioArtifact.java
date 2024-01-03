@@ -11,20 +11,19 @@ import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.dependencyresolution.DependencyAuditor;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.TaraElementFactory;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.lang.psi.impl.TaraNodeImpl;
+import io.intino.plugin.lang.psi.impl.TaraMogramImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,11 +38,11 @@ import static io.intino.konos.compiler.shared.KonosBuildConstants.LANGUAGE;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.LEVEL;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.VERSION;
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.archetype.Formatters.snakeCaseToCamelCase;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.read;
+import static io.intino.tara.builder.shared.TaraBuildConstants.*;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -53,168 +52,166 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	public static final String EQ = "=";
 	public static final String NL = "\n";
-	private final LegioConfiguration root;
-	private final DependencyAuditor dependencyAuditor;
-	private final TaraNode node;
+	private final ArtifactLegioConfiguration root;
+	private final TaraMogram mogram;
 	private String groupId;
 	private String name;
 	private String version;
 
-	public LegioArtifact(LegioConfiguration root, DependencyAuditor dependencyAuditor, TaraNode node) {
+	public LegioArtifact(ArtifactLegioConfiguration root, TaraMogram mogram) {
 		this.root = root;
-		this.dependencyAuditor = dependencyAuditor;
-		this.node = node;
+		this.mogram = mogram;
 	}
 
 	@Override
 	public String groupId() {
-		return groupId == null ? groupId = parameterValue(node, "groupId", 0) : groupId;
+		return groupId == null ? groupId = parameterValue(mogram, "groupId", 0) : groupId;
 	}
 
 	@Override
 	public String name() {
-		if (node == null) return null;
-		return name == null ? name = node.name() : name;
+		if (mogram == null) return null;
+		return name == null ? name = mogram.name() : name;
 	}
 
 	@Override
 	public void name(String newName) {
-		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> node.name(newName));
-		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
+		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> mogram.name(newName));
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(mogram.getContainingFile()));
 	}
 
 	@Override
 	public String version() {
-		return version == null ? version = parameterValue(node, "version", 1) : version;
+		return version == null ? version = parameterValue(mogram, "version", 1) : version;
 	}
 
 	@Override
 	public String description() {
-		return parameterValue(node, "description", 2);
+		return parameterValue(mogram, "description", 2);
 	}
 
 	@Override
 	public String url() {
-		return parameterValue(node, "url", 2);
+		return parameterValue(mogram, "url", 2);
 	}
 
 	@Override
 	public void version(String newVersion) {
-		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
-			io.intino.magritte.lang.model.Parameter version = node.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(node.parameters().get(1));
+		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> {
+			io.intino.tara.language.model.Parameter version = mogram.parameters().stream().filter(p -> p.name().equals("version")).findFirst().orElse(mogram.parameters().get(1));
 			if (version != null) version.substituteValues(singletonList(newVersion));
 		});
-		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(node.getContainingFile()));
+		ApplicationManager.getApplication().invokeAndWait(() -> IntinoUtil.commitDocument(mogram.getContainingFile()));
 	}
 
 	@Override
 	@NotNull
 	public Code code() {
-		return new LegioCode(this, (TaraNode) TaraPsiUtil.componentOfType(node, "Code"));
+		return new LegioCode(this, (TaraMogram) TaraPsiUtil.componentOfType(mogram, "Code"));
 	}
 
 	@Override
 	@Nullable
 	public Model model() {
-		TaraNode model = (TaraNode) TaraPsiUtil.componentOfType(node, "Model");
+		TaraMogram model = (TaraMogram) TaraPsiUtil.componentOfType(mogram, "Model");
 		return model == null ? null : new LegioModel(this, model);
 	}
 
 	@Override
 	public Dependency.DataHub datahub() {
-		Node dataHub = TaraPsiUtil.componentOfType(node, "DataHub");
+		Mogram dataHub = TaraPsiUtil.componentOfType(mogram, "DataHub");
 		if (dataHub == null) return null;
-		return new LegioDataHub(this, dependencyAuditor, (TaraNode) dataHub);
+		return new LegioDataHub(this, (TaraMogram) dataHub);
 	}
 
 	@Override
 	public Dependency.Archetype archetype() {
-		Node archetype = TaraPsiUtil.componentOfType(node, "Archetype");
+		Mogram archetype = TaraPsiUtil.componentOfType(mogram, "Archetype");
 		if (archetype == null) return null;
-		return new LegioArchetype(this, dependencyAuditor, (TaraNode) archetype);
+		return new LegioArchetype(this, (TaraMogram) archetype);
 	}
 
 	@Override
 	public List<Dependency> dependencies() {
-		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
+		Mogram imports = TaraPsiUtil.componentOfType(mogram, "Imports");
 		if (imports == null) return Collections.emptyList();
-		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
-		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).toList());
+		List<Mogram> nodes = TaraPsiUtil.componentsOf(imports);
+		nodes.addAll(stream(((TaraMogram) imports).getChildren()).filter(c -> c instanceof Mogram).map(c -> (Mogram) c).toList());
 		List<Dependency> dependencies = new ArrayList<>();
-		for (Node dependency : nodes) {
-			if (((TaraNode) dependency).simpleType().equals("Compile"))
-				dependencies.add(new LegioCompile(this, dependencyAuditor, (TaraNode) dependency));
-			else if (((TaraNode) dependency).simpleType().equals("Test"))
-				dependencies.add(new LegioTest(this, dependencyAuditor, (TaraNode) dependency));
-			else if (((TaraNode) dependency).simpleType().equals("Runtime"))
-				dependencies.add(new LegioRuntime(this, dependencyAuditor, (TaraNode) dependency));
-			else if (((TaraNode) dependency).simpleType().equals("Provided"))
-				dependencies.add(new LegioProvided(this, dependencyAuditor, (TaraNode) dependency));
-			else if (((TaraNode) dependency).simpleType().equals("Web"))
-				dependencies.add(new LegioWeb(this, dependencyAuditor, (TaraNode) dependency));
+		for (Mogram dependency : nodes) {
+			if (((TaraMogramImpl) dependency).simpleType().equals("Compile"))
+				dependencies.add(new LegioCompile((TaraMogram) dependency));
+			else if (((TaraMogramImpl) dependency).simpleType().equals("Test"))
+				dependencies.add(new LegioTest((TaraMogram) dependency));
+			else if (((TaraMogramImpl) dependency).simpleType().equals("Runtime"))
+				dependencies.add(new LegioRuntime((TaraMogram) dependency));
+			else if (((TaraMogramImpl) dependency).simpleType().equals("Provided"))
+				dependencies.add(new LegioProvided((TaraMogram) dependency));
+			else if (((TaraMogramImpl) dependency).simpleType().equals("Web"))
+				dependencies.add(new LegioWeb((TaraMogram) dependency));
 		}
 		return dependencies;
 	}
 
 	public List<Dependency.Web> webDependencies() {
-		Node imports = TaraPsiUtil.componentOfType(node, "Imports");
+		Mogram imports = TaraPsiUtil.componentOfType(mogram, "Imports");
 		if (imports == null) return Collections.emptyList();
-		List<Node> nodes = TaraPsiUtil.componentsOf(imports);
-		nodes.addAll(stream(((TaraNode) imports).getChildren()).filter(c -> c instanceof Node).map(c -> (Node) c).toList());
+		List<Mogram> nodes = TaraPsiUtil.componentsOf(imports);
+		nodes.addAll(stream(((TaraMogram) imports).getChildren()).filter(c -> c instanceof Mogram).map(c -> (Mogram) c).toList());
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
-				map(d -> new LegioWeb(this, dependencyAuditor, (TaraNode) d)).
+				map(d -> new LegioWeb((TaraMogram) d)).
 				collect(toList());
 	}
 
 	@Override
 	public List<WebComponent> webComponents() {
-		Node imports = TaraPsiUtil.componentOfType(node, "WebImports");
+		Mogram imports = TaraPsiUtil.componentOfType(mogram, "WebImports");
 		if (imports == null) return Collections.emptyList();
-		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "WebComponent");
+		List<Mogram> nodes = TaraPsiUtil.componentsOfType(imports, "WebComponent");
 		return nodes.stream().
-				map(d -> new LegioWebComponent((TaraNode) d)).
+				map(d -> new LegioWebComponent((TaraMogram) d)).
 				collect(toList());
 	}
 
 	@Override
 	public List<WebResolution> webResolutions() {
-		Node imports = TaraPsiUtil.componentOfType(node, "WebImports");
+		Mogram imports = TaraPsiUtil.componentOfType(mogram, "WebImports");
 		if (imports == null) return Collections.emptyList();
-		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "Resolution");
+		List<Mogram> nodes = TaraPsiUtil.componentsOfType(imports, "Resolution");
 		return nodes.stream().
-				map(d -> new LegioWebResolution((TaraNode) d)).
+				map(d -> new LegioWebResolution((TaraMogram) d)).
 				collect(toList());
 	}
 
 	@Override
 	public List<WebArtifact> webArtifacts() {
-		Node imports = TaraPsiUtil.componentOfType(node, "WebImports");
+		Mogram imports = TaraPsiUtil.componentOfType(mogram, "WebImports");
 		if (imports == null) return Collections.emptyList();
-		List<Node> nodes = TaraPsiUtil.componentsOfType(imports, "WebArtifact");
+		List<Mogram> nodes = TaraPsiUtil.componentsOfType(imports, "WebArtifact");
 		return nodes.stream().
-				map(d -> new LegioWebArtifact((TaraNode) d)).
+				map(d -> new LegioWebArtifact((TaraMogram) d)).
 				collect(toList());
 	}
 
 	@Override
 	public List<Plugin> plugins() {
-		List<Node> plugins = TaraPsiUtil.componentsOfType(node, "IntinoPlugin");
-		return plugins.stream().map(p -> new LegioPlugin((TaraNode) p)).collect(toList());
+		List<Mogram> plugins = TaraPsiUtil.componentsOfType(mogram, "IntinoPlugin");
+		return plugins.stream().map(p -> new LegioPlugin((TaraMogram) p)).collect(toList());
 	}
 
 	@Override
 	@Nullable
 	public Box box() {
-		Node node = TaraPsiUtil.componentOfType(this.node, "Box");
-		return node == null ? null : new LegioBox(this, node);
+		Mogram mogram = TaraPsiUtil.componentOfType(this.mogram, "Box");
+		return mogram == null ? null : new LegioBox(this, mogram);
 	}
 
 	@Override
 	public License license() {
-		final Node licence = TaraPsiUtil.componentOfType(node, "License");
+		final Mogram licence = TaraPsiUtil.componentOfType(mogram, "License");
 		return licence == null ? null : new License() {
-			final Node licenceNode = licence;
+			final Mogram licenceNode = licence;
 
 			public LicenseType type() {
 				if (licenceNode == null) return null;
@@ -228,9 +225,9 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public Scm scm() {
-		final Node scm = TaraPsiUtil.componentOfType(node, "Scm");
+		final Mogram scm = TaraPsiUtil.componentOfType(mogram, "Scm");
 		return (scm == null) ? null : new Scm() {
-			final Node scmNode = scm;
+			final Mogram scmNode = scm;
 
 			@Override
 			public String url() {
@@ -256,7 +253,7 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public List<Developer> developers() {
-		final List<Node> developers = TaraPsiUtil.componentsOfType(node, "Developer");
+		final List<Mogram> developers = TaraPsiUtil.componentsOfType(mogram, "Developer");
 		return developers.stream().map(d -> new Developer() {
 			@Override
 			public String name() {
@@ -288,47 +285,47 @@ public class LegioArtifact implements Configuration.Artifact {
 	@Override
 	@NotNull
 	public List<Parameter> parameters() {
-		List<Node> nodes = TaraPsiUtil.componentsOfType(node, "Parameter");
-		return nodes.stream().map(p -> new LegioParameter(this, (TaraNode) p)).collect(toList());
+		List<Mogram> nodes = TaraPsiUtil.componentsOfType(mogram, "Parameter");
+		return nodes.stream().map(p -> new LegioParameter(this, (TaraMogram) p)).collect(toList());
 	}
 
 	public void addDependencies(Dependency... dependencies) {
 		if (dependencies.length == 0) return;
-		Module module = read(() -> ModuleProvider.moduleOf(node));
-		if (TaraPsiUtil.componentsOfType(node, "Imports").isEmpty()) createImportsNode();
-		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(dependencies).forEach(this::addDependency));
+		Module module = read(() -> ModuleProvider.moduleOf(mogram));
+		if (TaraPsiUtil.componentsOfType(mogram, "Imports").isEmpty()) createImportsNode();
+		writeCommandAction(module.getProject(), mogram.getContainingFile()).run(() -> stream(dependencies).forEach(this::addDependency));
 	}
 
 	public void addParameters(String... parameters) {
 		if (parameters.length == 0) return;
-		Module module = read(() -> ModuleProvider.moduleOf(node));
-		writeCommandAction(module.getProject(), node.getContainingFile()).run(() -> stream(parameters).forEach(this::addParameter));
+		Module module = read(() -> ModuleProvider.moduleOf(mogram));
+		writeCommandAction(module.getProject(), mogram.getContainingFile()).run(() -> stream(parameters).forEach(this::addParameter));
 	}
 
 	@Override
 	@NotNull
 	public LegioPackage packageConfiguration() {
-		return new LegioPackage(this, (TaraNode) TaraPsiUtil.componentOfType(node, "Package"));
+		return new LegioPackage(this, (TaraMogram) TaraPsiUtil.componentOfType(mogram, "Package"));
 	}
 
 	@Override
 	@Nullable
 	public LegioDistribution distribution() {
-		Node distribution = TaraPsiUtil.componentOfType(node, "Distribution");
-		return distribution == null ? null : new LegioDistribution(this, (TaraNode) distribution);
+		Mogram distribution = TaraPsiUtil.componentOfType(mogram, "Distribution");
+		return distribution == null ? null : new LegioDistribution(this, (TaraMogram) distribution);
 	}
 
 	@Override
 	@NotNull
 	public List<Configuration.Deployment> deployments() {
-		return TaraPsiUtil.componentsOfType(node, "Deployment").stream().
-				map(d -> new LegioDeployment(this, (TaraNode) d)).
+		return TaraPsiUtil.componentsOfType(mogram, "Deployment").stream().
+				map(d -> new LegioDeployment(this, (TaraMogram) d)).
 				collect(toList());
 	}
 
 	@Override
 	@NotNull
-	public LegioConfiguration root() {
+	public ArtifactLegioConfiguration root() {
 		return root;
 	}
 
@@ -337,8 +334,8 @@ public class LegioArtifact implements Configuration.Artifact {
 		return null;
 	}
 
-	TaraNode node() {
-		return node;
+	TaraMogram node() {
+		return mogram;
 	}
 
 	public byte[] serialize() {
@@ -386,8 +383,8 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private String calculateParent(Model model) {
 		try {
-			if (node == null || model == null) return null;
-			Module module = ModuleProvider.moduleOf(node);
+			if (mogram == null || model == null) return null;
+			Module module = ModuleProvider.moduleOf(mogram);
 			final JavaPsiFacade facade = JavaPsiFacade.getInstance(root.module().getProject());
 			Model.Language language = model.language();
 			if (language == null || language.generationPackage() == null) return null;
@@ -399,16 +396,15 @@ public class LegioArtifact implements Configuration.Artifact {
 			String artifact = languageId.split(":")[1];
 			final String parentBoxName = parentBoxName(workingPackage, artifact);
 
-			PsiClass aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName, allScope(module.getProject())));
+			PsiClass aClass = DumbService.getInstance(mogram.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName, allScope(module.getProject())));
 			if (aClass == null)
-				aClass = DumbService.getInstance(node.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName(workingPackage, language.name()), allScope(module.getProject())));
+				aClass = DumbService.getInstance(mogram.getProject()).computeWithAlternativeResolveEnabled(() -> facade.findClass(parentBoxName(workingPackage, language.name()), allScope(module.getProject())));
 			if (aClass != null) {
 				String qualifiedName = aClass.getQualifiedName();
 				if (qualifiedName == null) return null;
 				return qualifiedName.substring(0, qualifiedName.length() - 3);
 			}
-		} catch (IndexNotReadyException e) {
-			e.printStackTrace();
+		} catch (IndexNotReadyException ignored) {
 		} catch (Throwable e) {
 			e.printStackTrace();
 			LOG.error(e.getMessage());
@@ -422,49 +418,44 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private void addParameter(String p) {
 		TaraElementFactory factory = factory();
-		Node node = factory.createFullNode("Parameter(name = \"" + p + "\")");
+		Mogram node = factory.createFullMogram("Parameter(name = \"" + p + "\")");
 		node.type("Artifact.Parameter");
-		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
-		final PsiElement last = (PsiElement) this.node.components().get(this.node.components().size() - 1);
-		PsiElement separator = this.node.addAfter(factory.createBodyNewLine(), last);
-		this.node.addAfter((PsiElement) node, separator);
+		((TaraMogramImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		final PsiElement last = (PsiElement) this.mogram.components().get(this.mogram.components().size() - 1);
+		PsiElement separator = this.mogram.addAfter(factory.createBodyNewLine(), last);
+		this.mogram.addAfter((PsiElement) node, separator);
 	}
 
 	private void addDependency(Dependency d) {
-		TaraNode imports = (TaraNode) TaraPsiUtil.componentsOfType(node, "Imports").get(0);
+		TaraMogram imports = (TaraMogram) TaraPsiUtil.componentsOfType(mogram, "Imports").get(0);
 		TaraElementFactory factory = factory();
 		String type = d.scope();
-		Node node = factory.createFullNode(type + "(groupId = \"" + d.groupId() + "\", artifactId = \"" + d.artifactId() + "\", version = \"" + d.version() + "\")");
-		node.type("Artifact.Imports." + type);
-		((TaraNodeImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		Mogram mogram = factory.createFullMogram(type + "(groupId = \"" + d.groupId() + "\", artifactId = \"" + d.artifactId() + "\", version = \"" + d.version() + "\")");
+		mogram.type("Artifact.Imports." + type);
+		((TaraMogramImpl) mogram).getSignature().getLastChild().getPrevSibling().delete();
 		PsiElement last;
 		if (imports.components().isEmpty()) {
 			imports.add(factory.createBodyNewLine(2));
 			last = imports;
 		} else last = (PsiElement) imports.components().get(imports.components().size() - 1);
 		PsiElement separator = imports.addAfter(factory.createBodyNewLine(2), last);
-		imports.addAfter((PsiElement) node, separator);
+		imports.addAfter((PsiElement) mogram, separator);
 	}
 
 	private void createImportsNode() {
 		TaraElementFactory factory = factory();
-		Node node = factory.createFullNode("Imports");
+		Mogram node = factory.createFullMogram("Imports");
 		node.type("Artifact.Imports");
-		final PsiElement last = (PsiElement) this.node.components().get(this.node.components().size() - 1);
-		PsiElement separator = this.node.addAfter(factory.createBodyNewLine(), last);
-		this.node.addAfter((PsiElement) node, separator);
+		final PsiElement last = (PsiElement) this.mogram.components().get(this.mogram.components().size() - 1);
+		PsiElement separator = this.mogram.addAfter(factory.createBodyNewLine(), last);
+		this.mogram.addAfter((PsiElement) node, separator);
 	}
 
 	private TaraElementFactory factory() {
-		return TaraElementFactory.getInstance(this.node.getProject());
+		return TaraElementFactory.getInstance(this.mogram.getProject());
 	}
 
-	private static class LegioWebComponent implements WebComponent {
-		private final TaraNode node;
-
-		LegioWebComponent(TaraNode node) {
-			this.node = node;
-		}
+	private record LegioWebComponent(TaraMogram node) implements WebComponent {
 
 		@Override
 		public String name() {
@@ -477,12 +468,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 	}
 
-	private static class LegioWebResolution implements WebResolution {
-		private final TaraNode node;
-
-		LegioWebResolution(TaraNode node) {
-			this.node = node;
-		}
+	private record LegioWebResolution(TaraMogram node) implements WebResolution {
 
 		@Override
 		public String name() {
@@ -495,12 +481,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 	}
 
-	private static class LegioWebArtifact implements WebArtifact {
-		private final TaraNode node;
-
-		LegioWebArtifact(TaraNode node) {
-			this.node = node;
-		}
+	private record LegioWebArtifact(TaraMogram node) implements WebArtifact {
 
 		@Override
 		public String name() {
@@ -523,12 +504,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 	}
 
-	private static class LegioPlugin implements Plugin {
-		private final TaraNode node;
-
-		public LegioPlugin(TaraNode node) {
-			this.node = node;
-		}
+	private record LegioPlugin(TaraMogram node) implements Plugin {
 
 		@Override
 		public String artifact() {
@@ -548,12 +524,12 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private static class LegioParameter implements Parameter {
 		private final LegioArtifact artifact;
-		private final TaraNode node;
+		private final TaraMogram node;
 		private String name;
 		private String value;
 		private String description;
 
-		public LegioParameter(LegioArtifact artifact, TaraNode node) {
+		public LegioParameter(LegioArtifact artifact, TaraMogram node) {
 			this.artifact = artifact;
 			this.node = node;
 		}
@@ -583,5 +559,4 @@ public class LegioArtifact implements Configuration.Artifact {
 			return artifact;
 		}
 	}
-
 }

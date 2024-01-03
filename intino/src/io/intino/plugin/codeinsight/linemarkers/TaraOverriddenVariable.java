@@ -5,18 +5,16 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.impl.*;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.MethodCellRenderer;
-import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Variable;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment.LEFT;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOverriddenVariable;

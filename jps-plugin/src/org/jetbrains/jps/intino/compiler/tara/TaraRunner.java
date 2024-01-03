@@ -6,7 +6,6 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.cmdline.ClasspathBootstrap;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 import org.jetbrains.jps.incremental.messages.ProgressMessage;
@@ -25,7 +24,7 @@ import java.util.concurrent.Future;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
+import static io.intino.tara.builder.shared.TaraBuildConstants.*;
 
 class TaraRunner {
 	private static final char NL = '\n';
@@ -76,7 +75,6 @@ class TaraRunner {
 	}
 
 	private void writePaths(List<String> paths, Writer writer) throws IOException {
-		writer.write(SEMANTIC_LIB + NL + getIntinoJar(ClasspathBootstrap.getResourceFile(TaraBuilder.class)).getAbsolutePath() + NL);
 		writer.write(OUTPUTPATH + NL + paths.get(0) + NL);
 		writer.write(FINAL_OUTPUTPATH + NL + paths.get(1) + NL);
 		writer.write(RESOURCES + NL + paths.get(2) + NL);
@@ -94,7 +92,7 @@ class TaraRunner {
 		vmParams.add("-Xmx" + compilerMemory + "m");
 		String encoding = System.getProperty("file.encoding");
 		vmParams.add("-Dfile.encoding=" + encoding);
-		List<String> finalClasspath = classpath.stream().map(j -> j.replace("$HOME", System.getProperty("user.home"))).collect(Collectors.toList());
+		List<String> finalClasspath = classpath.stream().map(j -> j.replace("$HOME", System.getProperty("user.home"))).toList();
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(getJavaExecutable(), mainClass(), Collections.emptyList(), finalClasspath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final TaracOSProcessHandler handler = new TaracOSProcessHandler(process, String.join(" ", cmd), encoding, statusUpdater -> context.processMessage(new ProgressMessage(statusUpdater))) {
@@ -113,10 +111,10 @@ class TaraRunner {
 		final String mainJar = classpath.get(0).replace("$HOME", System.getProperty("user.home"));
 		try (JarFile jarFile = new JarFile(new File(mainJar))) {
 			String mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
-			return mainClass != null ? mainClass : "io.intino.magritte.TaracRunner";
+			return mainClass != null ? mainClass : "io.intino.magritte.MagrittecRunner";
 		} catch (IOException e) {
 			LOG.warn("Main class not found in " + mainJar);
-			return "io.intino.magritte.TaracRunner";
+			return "io.intino.magritte.MagrittecRunner";
 		}
 	}
 
@@ -126,12 +124,5 @@ class TaraRunner {
 
 	private String getJavaVersion() {
 		return SystemInfo.JAVA_VERSION;
-	}
-
-	@NotNull
-	private File getIntinoJar(File root) {
-		File parentFile = root.getParentFile();
-		if (!parentFile.exists()) return parentFile;
-		return Arrays.stream(Objects.requireNonNull(parentFile.listFiles())).filter(f -> f.getName().startsWith("language-")).findFirst().orElse(parentFile);
 	}
 }

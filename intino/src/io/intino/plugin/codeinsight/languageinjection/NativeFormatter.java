@@ -7,15 +7,6 @@ import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.FrameBuilderContext;
-import io.intino.magritte.Language;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
-import io.intino.magritte.lang.model.*;
-import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
-import io.intino.magritte.lang.model.rules.variable.NativeReferenceRule;
-import io.intino.magritte.lang.model.rules.variable.NativeRule;
-import io.intino.magritte.lang.model.rules.variable.NativeWordRule;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter;
 import io.intino.plugin.codeinsight.languageinjection.helpers.TemplateTags;
@@ -25,19 +16,28 @@ import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.Language;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
+import io.intino.tara.language.model.*;
+import io.intino.tara.language.model.rules.variable.NativeObjectRule;
+import io.intino.tara.language.model.rules.variable.NativeReferenceRule;
+import io.intino.tara.language.model.rules.variable.NativeRule;
+import io.intino.tara.language.model.rules.variable.NativeWordRule;
+import io.intino.tara.language.semantics.Constraint;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static io.intino.magritte.lang.model.Primitive.*;
-import static io.intino.magritte.lang.model.Tag.Feature;
-import static io.intino.magritte.lang.model.Tag.Instance;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.cleanQn;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qn;
 import static io.intino.plugin.lang.psi.resolve.ReferenceManager.resolveRule;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.tara.language.model.Primitive.*;
+import static io.intino.tara.language.model.Tag.Feature;
+import static io.intino.tara.language.model.Tag.Instance;
 import static java.util.Collections.emptySet;
 
 @SuppressWarnings("Duplicates")
@@ -54,7 +54,7 @@ public class NativeFormatter implements TemplateTags {
 		allImports = new Imports(module.getProject());
 		this.language = language;
 		final Configuration conf = IntinoUtil.configurationOf(module);
-		this.m0 = conf != null && safe(() -> conf.artifact().model().level().isSolution(), false);
+		this.m0 = conf != null && safe(() -> conf.artifact().model().level().isModel(), false);
 	}
 
 	private static String getLanguageScope(Parameter parameter, Language language) {
@@ -87,19 +87,19 @@ public class NativeFormatter implements TemplateTags {
 		return ((NativeRule) variable.rule()).signature();
 	}
 
-	public static String buildContainerPath(Node node, String scopeLanguage, String workingPackage) {
-		if (node != null) {
-			final Node scope = node.is(Instance) ? firstNoFeature(node) : firstNoFeatureAndNamed(node);
+	public static String buildContainerPath(Mogram mogram, String scopeLanguage, String workingPackage) {
+		if (mogram != null) {
+			final Mogram scope = mogram.is(Instance) ? firstNoFeature(mogram) : firstNoFeatureAndNamed(mogram);
 			if (scope == null) return "";
 			if (scope.is(Instance)) return getTypeAsScope(scope, scopeLanguage);
 			return qn(scope, workingPackage);
 		} else return null;
 	}
 
-	private static String buildExpressionContainerPath(String languageWorkingPackage, Node owner, String workingPackage) {
+	private static String buildExpressionContainerPath(String languageWorkingPackage, Mogram owner, String workingPackage) {
 		final String trueWorkingPackage = extractWorkingPackage(languageWorkingPackage, workingPackage);
 		if (owner != null) {
-			final Node scope = owner.is(Instance) ? firstNoFeature(owner) : firstNoFeatureAndNamed(owner);
+			final Mogram scope = owner.is(Instance) ? firstNoFeature(owner) : firstNoFeatureAndNamed(owner);
 			if (scope == null) return "";
 			if (scope.is(Instance)) return getTypeAsScope(scope, trueWorkingPackage);
 			else return qn(scope, workingPackage);
@@ -110,32 +110,32 @@ public class NativeFormatter implements TemplateTags {
 		return scope != null && !scope.isEmpty() ? scope : language;
 	}
 
-	private static String getTypeAsScope(Node scope, String languageWorkingPackage) {
+	private static String getTypeAsScope(Mogram scope, String languageWorkingPackage) {
 		if (languageWorkingPackage == null || scope == null) return "";
 		return languageWorkingPackage.toLowerCase() + QualifiedNameFormatter.DOT + cleanQn(scope.type());
 	}
 
-	private static Node firstNoFeature(NodeContainer owner) {
-		NodeContainer container = owner;
+	private static Mogram firstNoFeature(MogramContainer owner) {
+		MogramContainer container = owner;
 		while (container != null) {
-			if (container instanceof Node && !(container instanceof NodeRoot) && !((Node) container).is(Feature))
-				return (Node) container;
-			if (container.container() instanceof NodeRoot) return (Node) container;
+			if (container instanceof Mogram && !(container instanceof MogramRoot) && !((Mogram) container).is(Feature))
+				return (Mogram) container;
+			if (container.container() instanceof MogramRoot) return (Mogram) container;
 			container = container.container();
 		}
 		return null;
 	}
 
-	private static Node firstNoFeatureAndNamed(NodeContainer owner) {
-		NodeContainer container = owner;
+	private static Mogram firstNoFeatureAndNamed(MogramContainer owner) {
+		MogramContainer container = owner;
 		while (container != null) {
-			if (container instanceof Node && !(container instanceof NodeRoot) && !((Node) container).isAnonymous() &&
-					!((Node) container).is(Feature))
-				return (Node) container;
-			if (container.container() instanceof NodeRoot) return (Node) container;
+			if (container instanceof Mogram && !(container instanceof MogramRoot) && !((Mogram) container).isAnonymous() &&
+					!((Mogram) container).is(Feature))
+				return (Mogram) container;
+			if (container.container() instanceof MogramRoot) return (Mogram) container;
 			container = container.container();
 		}
-		return owner instanceof Node && ((Node) owner).isAnonymous() ? (Node) owner : TaraPsiUtil.getContainerNodeOf((PsiElement) owner);
+		return owner instanceof Mogram && ((Mogram) owner).isAnonymous() ? (Mogram) owner : TaraPsiUtil.getContainerNodeOf((PsiElement) owner);
 	}
 
 	public static String getSignature(PsiClass nativeInterface) {
@@ -246,7 +246,7 @@ public class NativeFormatter implements TemplateTags {
 
 	private String type(Variable variable) {
 		if (variable.isReference())
-			return QualifiedNameFormatter.qn(variable.destinyOfReference(), workingPackage);
+			return QualifiedNameFormatter.qn(variable.targetOfReference(), workingPackage);
 		if (variable.type().equals(WORD)) return wordType(variable);
 		else if (OBJECT.equals(variable.type()))
 			return variable.rule() == null ? "" : ((NativeObjectRule) variable.rule()).type();
@@ -261,7 +261,7 @@ public class NativeFormatter implements TemplateTags {
 	}
 
 	private Set<String> collectImports(Valued valued) {
-		final Node containerOf = TaraPsiUtil.getContainerNodeOf(valued);
+		final Mogram containerOf = TaraPsiUtil.getContainerNodeOf(valued);
 		if (containerOf == null || allImports.get(IntinoUtil.importsFile(valued)) == null ||
 				!allImports.get(IntinoUtil.importsFile(valued)).containsKey(composeQn(valued, containerOf)))
 			return emptySet();
@@ -282,7 +282,7 @@ public class NativeFormatter implements TemplateTags {
 		return set;
 	}
 
-	private String composeQn(Valued valued, Node containerOf) {
+	private String composeQn(Valued valued, Mogram containerOf) {
 		return containerOf.qualifiedName() + "." + valued.name();
 	}
 

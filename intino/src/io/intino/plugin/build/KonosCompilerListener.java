@@ -19,11 +19,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
-import static io.intino.magritte.builder.shared.TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR;
 import static io.intino.plugin.build.PostCompileAction.FinishStatus.RequiresReload;
+import static io.intino.tara.builder.shared.TaraBuildConstants.REFRESH_BUILDER_MESSAGE_SEPARATOR;
 
 public class KonosCompilerListener implements CustomBuilderMessageHandler {
 	private static final String KONOS_PATTERN = "!?*.konos";
@@ -50,7 +49,7 @@ public class KonosCompilerListener implements CustomBuilderMessageHandler {
 					.skip(1)
 					.map(m -> createCompileAction(module, m))
 					.map(a -> a != null ? a.execute() : null)
-					.collect(Collectors.toList());
+					.toList();
 			Configuration configuration = IntinoUtil.configurationOf(module[0]);
 			if (finishStatus.contains(RequiresReload)) {
 				configuration.reload();

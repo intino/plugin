@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 
 public class PurgeAndReloadConfigurationAction extends IntinoAction implements DumbAware {
 	@Override
@@ -23,9 +23,9 @@ public class PurgeAndReloadConfigurationAction extends IntinoAction implements D
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (configuration instanceof LegioConfiguration) {
+		if (configuration instanceof ArtifactLegioConfiguration) {
 			FileDocumentManager.getInstance().saveAllDocuments();
-			((LegioConfiguration) configuration).purgeAndReload();
+			((ArtifactLegioConfiguration) configuration).purgeAndReload();
 			notifyReload(module);
 		}
 

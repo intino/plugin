@@ -6,20 +6,20 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.resolve.*;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static io.intino.magritte.lang.model.Primitive.REFERENCE;
-import static io.intino.magritte.lang.model.Primitive.WORD;
+import static io.intino.tara.language.model.Primitive.REFERENCE;
+import static io.intino.tara.language.model.Primitive.WORD;
 
 public class IdentifierMixin extends ASTWrapperPsiElement {
 
@@ -90,14 +90,14 @@ public class IdentifierMixin extends ASTWrapperPsiElement {
 	}
 
 	private PsiReference createNodeResolver() {
-		return new TaraNodeReferenceSolver(this, getRange());
+		return new TaraMogramReferenceSolver(this, getRange());
 	}
 
 	private PsiReference createResolverForParameter(Parameter parameter) {
 		Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(parameter);
 		if (constraint == null) return null;
 		if (constraint.type().equals(REFERENCE))
-			return new TaraNodeReferenceSolver(this, getRange());
+			return new TaraMogramReferenceSolver(this, getRange());
 		if (constraint.type().equals(WORD) || !Primitive.isPrimitive(constraint.type().getName()))
 			return new TaraWordReferenceSolver(this, getRange(), constraint);
 		return null;
@@ -109,15 +109,15 @@ public class IdentifierMixin extends ASTWrapperPsiElement {
 
 	public PsiElement setName(String name) {
 		Identifier identifier = TaraElementFactoryImpl.getInstance(this.getProject()).createNameIdentifier(name);
-		ASTNode node = identifier.getNode();
-		this.getParent().getNode().replaceChild(getNode(), node);
+		ASTNode mogram = identifier.getNode();
+		this.getParent().getNode().replaceChild(getNode(), mogram);
 		return identifier;
 	}
 
 
 	@Override
 	public Icon getIcon(@IconFlags int i) {
-		return IntinoIcons.NODE;
+		return IntinoIcons.MOGRAM;
 	}
 
 	@Override

@@ -14,8 +14,8 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import io.intino.plugin.actions.ActionUtils;
-import io.intino.plugin.itrules.lang.ItrulesIcons;
 import io.intino.plugin.file.ItrulesFileType;
+import io.intino.plugin.itrules.lang.ItrulesIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

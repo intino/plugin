@@ -5,7 +5,7 @@ import io.intino.Configuration;
 import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,12 +21,12 @@ import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesE
 import static java.io.File.separator;
 
 public class LinuxServiceGenerator {
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final Configuration.Artifact.Package.LinuxService linuxService;
 	private final String artifactName;
 	private final List<String> messages;
 
-	public LinuxServiceGenerator(LegioConfiguration configuration, Configuration.Artifact.Package.LinuxService linuxService, List<String> messages) {
+	public LinuxServiceGenerator(ArtifactLegioConfiguration configuration, Configuration.Artifact.Package.LinuxService linuxService, List<String> messages) {
 		this.configuration = configuration;
 		this.linuxService = linuxService;
 		this.artifactName = configuration.artifact().name();

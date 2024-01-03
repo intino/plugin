@@ -6,7 +6,7 @@ import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public abstract class TaraAnalyzer {
 

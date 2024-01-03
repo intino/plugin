@@ -5,11 +5,11 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -41,14 +41,14 @@ public class AlternativesForReferenceFix implements IntentionAction {
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-		final List<Node> candidates = IntinoUtil.getAllNodesOfFile((TaraModel) file).stream().
+		final List<Mogram> candidates = IntinoUtil.getAllNodesOfFile((TaraModel) file).stream().
 				filter(c -> element.getText().equals(c.name()) && !c.isAnonymous() && !isInAnonymous(c)).
 				collect(Collectors.toList());
 	}
 
-	private boolean isInAnonymous(Node node) {
-		Node aNode = node;
-		while (!(aNode.container() instanceof NodeRoot)) {
+	private boolean isInAnonymous(Mogram node) {
+		Mogram aNode = node;
+		while (!(aNode.container() instanceof MogramRoot)) {
 			if (aNode.isAnonymous()) return true;
 			aNode = aNode.container();
 		}

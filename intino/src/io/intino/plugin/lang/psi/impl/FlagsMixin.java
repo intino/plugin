@@ -7,7 +7,6 @@ import io.intino.plugin.lang.psi.TaraFlags;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FlagsMixin extends ASTWrapperPsiElement {
 
@@ -16,6 +15,6 @@ public class FlagsMixin extends ASTWrapperPsiElement {
 	}
 
 	public List<String> asStringList() {
-		return Collections.unmodifiableList(((TaraFlags) this).getFlagList().stream().map(TaraFlag::getText).collect(Collectors.toList()));
+		return Collections.unmodifiableList(((TaraFlags) this).getFlagList().stream().map(TaraFlag::getText).toList());
 	}
 }

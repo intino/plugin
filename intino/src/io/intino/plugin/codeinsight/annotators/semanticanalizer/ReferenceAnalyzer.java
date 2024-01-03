@@ -13,10 +13,6 @@ import com.intellij.psi.ExternallyAnnotated;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.fix.CreateClassFromMethodReferenceFix;
 import io.intino.plugin.codeinsight.annotators.fix.CreateMetricClassIntention;
@@ -32,8 +28,12 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.resolve.MethodReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.OutDefinedReferenceSolver;
-import io.intino.plugin.lang.psi.resolve.TaraNodeReferenceSolver;
+import io.intino.plugin.lang.psi.resolve.TaraMogramReferenceSolver;
 import io.intino.plugin.messages.MessageProvider;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,8 +41,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.INSTANCE;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.INSTANCE;
 import static java.util.Collections.singletonList;
 
 public class ReferenceAnalyzer extends TaraAnalyzer {
@@ -62,7 +62,7 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 		if (aReference == null) return;
 		final PsiElement resolve = aReference.resolve();
 		if (resolve != null) return;
-		if (isInstanceReference() && aReference instanceof TaraNodeReferenceSolver)
+		if (isInstanceReference() && aReference instanceof TaraMogramReferenceSolver)
 			results.put(reference, new AnnotateAndFix(INSTANCE, MessageProvider.message("node.reference")));
 		else if (TaraPsiUtil.contextOf(reference, TaraVariableType.class) == null || !isConceptReference())
 			setError(aReference, element);
@@ -79,7 +79,7 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 	}
 
 	private void setError(PsiReference aReference, Identifier element) {
-		if (aReference instanceof TaraNodeReferenceSolver) createNodeError(element);
+		if (aReference instanceof TaraMogramReferenceSolver) createNodeError(element);
 		else if (aReference instanceof MethodReferenceSolver) createMethodReferenceError(element);
 		else if (aReference instanceof OutDefinedReferenceSolver) createOutDefinedReferenceError(element);
 		else createGeneralError(element);
@@ -131,8 +131,8 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 	}
 
 	private List<CreateNodeQuickFix> createNewElementFix(Identifier element) {
-		Node node = TaraPsiUtil.getContainerNodeOf(element);
-		if (node != null)
+		Mogram mogram = TaraPsiUtil.getContainerNodeOf(element);
+		if (mogram != null)
 			return singletonList(new CreateNodeQuickFix(element.getText(), (TaraModel) element.getContainingFile()));
 		return Collections.emptyList();
 	}
@@ -150,8 +150,8 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 	}
 
 	private List<AlternativesForReferenceFix> alternativesForReferenceFix(Identifier element) {
-		Node node = TaraPsiUtil.getContainerNodeOf(element);
-		return node != null ? singletonList(new AlternativesForReferenceFix(element)) : Collections.emptyList();
+		Mogram mogram = TaraPsiUtil.getContainerNodeOf(element);
+		return mogram != null ? singletonList(new AlternativesForReferenceFix(element)) : Collections.emptyList();
 	}
 
 	private IntentionAction toIntention(PsiElement node, String message, LocalQuickFix fix) {

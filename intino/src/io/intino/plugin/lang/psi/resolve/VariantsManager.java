@@ -1,32 +1,31 @@
 package io.intino.plugin.lang.psi.resolve;
 
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.Checker;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.rules.variable.ReferenceRule;
-import io.intino.magritte.lang.semantics.Constraint;
-import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.rules.variable.ReferenceRule;
+import io.intino.tara.language.semantics.Constraint;
+import io.intino.tara.language.semantics.constraints.parameter.ReferenceParameter;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 class VariantsManager {
 
-	private final Set<Node> variants = new LinkedHashSet<>();
+	private final Set<Mogram> variants = new LinkedHashSet<>();
 	private final Identifier myElement;
 	private final List<Identifier> context;
 
@@ -35,43 +34,43 @@ class VariantsManager {
 		this.context = solveIdentifierContext();
 	}
 
-	Set<Node> resolveVariants() {
+	Set<Mogram> resolveVariants() {
 		if (hasContext()) addContextVariants();
 		else {
 			addInModelVariants();
 			addImportVariants();
 		}
-		final Node node = TaraPsiUtil.getContainerNodeOf(myElement);
-		if (node == null || node.type() == null) return variants;
+		final Mogram mogram = TaraPsiUtil.getContainerNodeOf(myElement);
+		if (mogram == null || mogram.type() == null) return variants;
 		if (isParentReference((IdentifierReference) myElement.getParent()))
-			variants.removeAll(collectUnacceptableNodes(singletonList(node.type())));
+			collectUnacceptableNodes(singletonList(mogram.type())).forEach(variants::remove);
 		else if (isParameterReference(myElement))
-			variants.removeAll(collectUnacceptableNodes(filterTypes(myElement)));
+			collectUnacceptableNodes(filterTypes(myElement)).forEach(variants::remove);
 		return variants;
 	}
 
 	private List<String> filterTypes(PsiElement element) {
-		final Node node = TaraPsiUtil.getContainerNodeOf(element);
-		check(node);
-		final List<Constraint> constraints = IntinoUtil.constraintsOf(node);
+		final Mogram mogram = TaraPsiUtil.getContainerNodeOf(element);
+		check(mogram);
+		final List<Constraint> constraints = IntinoUtil.constraintsOf(mogram);
 		final Parameter parameter = TaraPsiUtil.getContainerByType(element, Parameter.class);
 		if (constraints == null || parameter == null || parameter.name() == null) return emptyList();
 		Constraint.Parameter constraint = findParameter(constraints, parameter);
-		if (constraint == null && !node.appliedAspects().isEmpty())
-			constraint = searchInFacets(node.appliedAspects(), constraints, parameter);
+		if (constraint == null && !mogram.appliedFacets().isEmpty())
+			constraint = searchInFacets(mogram.appliedFacets(), constraints, parameter);
 		if (constraint == null || !(constraint.rule() instanceof ReferenceRule)) return emptyList();
 		return ((ReferenceRule) constraint.rule()).allowedReferences();
 	}
 
-	private Constraint.Parameter searchInFacets(List<io.intino.magritte.lang.model.Aspect> aspects, List<Constraint> constraints, Parameter parameter) {
+	private Constraint.Parameter searchInFacets(List<io.intino.tara.language.model.Facet> aspects, List<Constraint> constraints, Parameter parameter) {
 		for (Constraint c : constraints)
-			if (c instanceof Constraint.Aspect && facetOf((Constraint.Aspect) c, aspects) != null)
-				return findParameter(((Constraint.Aspect) c).constraints(), parameter);
+			if (c instanceof Constraint.Facet && facetOf((Constraint.Facet) c, aspects) != null)
+				return findParameter(((Constraint.Facet) c).constraints(), parameter);
 		return null;
 	}
 
-	private io.intino.magritte.lang.model.Aspect facetOf(Constraint.Aspect c, List<io.intino.magritte.lang.model.Aspect> aspects) {
-		for (io.intino.magritte.lang.model.Aspect aspect : aspects)
+	private io.intino.tara.language.model.Facet facetOf(Constraint.Facet c, List<io.intino.tara.language.model.Facet> aspects) {
+		for (io.intino.tara.language.model.Facet aspect : aspects)
 			if (aspect.type().equals(c.type())) return aspect;
 		return null;
 	}
@@ -86,7 +85,7 @@ class VariantsManager {
 		return c.name().equals(parameter.name()) || c.isConstraintOf(parameter);
 	}
 
-	private void check(Node node) {
+	private void check(Mogram node) {
 		Checker checker = new Checker(LanguageManager.getLanguage(myElement.getContainingFile()));
 		try {
 			checker.check(node);
@@ -98,13 +97,13 @@ class VariantsManager {
 		return TaraPsiUtil.getContainerByType(element, Parameter.class) != null;
 	}
 
-	private List<Node> collectUnacceptableNodes(List<String> expectedTypes) {
+	private List<Mogram> collectUnacceptableNodes(List<String> expectedTypes) {
 		if (expectedTypes.isEmpty()) return emptyList();
 		return variants.stream().
 				filter(variant -> {
 					variant.resolve();
 					return variant.type() != null && variant.types().stream().noneMatch(t -> expectedTypes.contains(t.split(":")[0]));
-				}).collect(Collectors.toList());
+				}).toList();
 	}
 
 	private boolean hasContext() {
@@ -120,7 +119,7 @@ class VariantsManager {
 		final List<Identifier> aContext = (List<Identifier>) getContext();
 		final List<PsiElement> resolve = ReferenceManager.resolve(aContext.get(aContext.size() - 2));
 		if (resolve.isEmpty()) return;
-		final Node containerNodeOf = TaraPsiUtil.getContainerNodeOf(resolve.get(0));
+		final Mogram containerNodeOf = TaraPsiUtil.getContainerNodeOf(resolve.get(0));
 		if (containerNodeOf == null) return;
 		variants.addAll(containerNodeOf.components());
 	}
@@ -129,8 +128,8 @@ class VariantsManager {
 		TaraModel model = (TaraModel) myElement.getContainingFile();
 		if (model == null) return;
 		model.components().stream().
-				filter(node -> !node.equals(TaraPsiUtil.getContainerNodeOf(myElement))).
-				forEach(node -> resolvePathFor(node, context));
+				filter(mogram -> !mogram.equals(TaraPsiUtil.getContainerNodeOf(myElement))).
+				forEach(mogram -> resolvePathFor(mogram, context));
 		addMainConcepts(model);
 	}
 
@@ -138,8 +137,10 @@ class VariantsManager {
 		Collection<Import> imports = ((TaraModel) myElement.getContainingFile()).getImports();
 		for (Import anImport : imports) {
 			PsiElement resolve = resolveImport(anImport);
-			if (resolve == null || !TaraModel.class.isInstance(resolve)) continue;
-			((TaraModel) resolve).components().stream().filter(node -> !node.equals(TaraPsiUtil.getContainerNodeOf(myElement))).forEach(node -> resolvePathFor(node, context));
+			if (!(resolve instanceof TaraModel)) continue;
+			((TaraModel) resolve).components().stream()
+					.filter(m -> !m.equals(TaraPsiUtil.getContainerNodeOf(myElement)))
+					.forEach(mogram -> resolvePathFor(mogram, context));
 			addMainConcepts((TaraModel) resolve);
 		}
 	}
@@ -151,16 +152,16 @@ class VariantsManager {
 
 	private void addMainConcepts(TaraModel model) {
 		IntinoUtil.getAllNodesOfFile(model).stream().
-				filter(node -> !variants.contains(node) && !node.is(Tag.Component) && !node.is(Tag.Feature)).
-				forEach(node -> resolvePathFor(node, context));
+				filter(mogram -> !variants.contains(mogram) && !mogram.is(Tag.Component) && !mogram.is(Tag.Feature)).
+				forEach(mogram -> resolvePathFor(mogram, context));
 	}
 
-	private void resolvePathFor(Node node, List<Identifier> path) {
-		List<Node> childrenOf = TaraPsiUtil.componentsOf(node);
-		if (node == null || node.type() == null) return;
-		if (path.isEmpty()) variants.add(node);
-		else if (path.get(0).getText().equals(node.name()))
-			for (Node child : childrenOf)
+	private void resolvePathFor(Mogram mogram, List<Identifier> path) {
+		List<Mogram> childrenOf = TaraPsiUtil.componentsOf(mogram);
+		if (mogram == null || mogram.type() == null) return;
+		if (path.isEmpty()) variants.add(mogram);
+		else if (path.get(0).getText().equals(mogram.name()))
+			for (Mogram child : childrenOf)
 				resolvePathFor(child, path.subList(1, path.size()));
 	}
 

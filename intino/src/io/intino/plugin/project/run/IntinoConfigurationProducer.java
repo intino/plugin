@@ -19,12 +19,12 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.intino.Configuration;
 import io.intino.Configuration.RunConfiguration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.Safe;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,9 +39,9 @@ public class IntinoConfigurationProducer extends ApplicationConfigurationProduce
 	@Override
 	protected boolean setupConfigurationFromContext(@NotNull ApplicationConfiguration configuration, @NotNull ConfigurationContext context, Ref<PsiElement> sourceElement) {
 		final PsiElement element = sourceElement.get();
-		final boolean isSuitable = element instanceof TaraNode && ((TaraNode) element).type().equals(RunConfiguration.class.getSimpleName());
+		final boolean isSuitable = element instanceof TaraMogram && ((TaraMogram) element).type().equals(RunConfiguration.class.getSimpleName());
 		if (isSuitable) {
-			final LegioConfiguration legio = (LegioConfiguration) IntinoUtil.configurationOf(element);
+			final ArtifactLegioConfiguration legio = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(element);
 			final PsiClass mainClass = getMainClass(legio, element);
 			if (mainClass == null) return false;
 			configuration.setName(configurationName(element, legio).toLowerCase());
@@ -55,8 +55,7 @@ public class IntinoConfigurationProducer extends ApplicationConfigurationProduce
 		final PsiElement location = context.getPsiLocation();
 		if (location == null) return false;
 		Configuration conf = IntinoUtil.configurationOf(location);
-		if (!(conf instanceof LegioConfiguration)) return false;
-		final LegioConfiguration legio = (LegioConfiguration) conf;
+		if (!(conf instanceof ArtifactLegioConfiguration legio)) return false;
 		final PsiClass aClass = getMainClass(legio, location);
 		if (aClass != null && Objects.equals(JavaExecutionUtil.getRuntimeQualifiedName(aClass), configuration.getMainClassName())) {
 			final PsiMethod method = PsiTreeUtil.getParentOfType(location, PsiMethod.class, false);
@@ -97,20 +96,19 @@ public class IntinoConfigurationProducer extends ApplicationConfigurationProduce
 
 
 	@NotNull
-	private String configurationName(PsiElement location, LegioConfiguration conf) {
+	private String configurationName(PsiElement location, ArtifactLegioConfiguration conf) {
 		return conf.artifact().name() + "-" + name(location);
 	}
 
 	private String name(PsiElement location) {
-		if (location instanceof TaraNode) return ((TaraNode) location).name();
+		if (location instanceof TaraMogram) return ((TaraMogram) location).name();
 		else {
-			final Node node = TaraPsiUtil.getContainerNodeOf(location);
-			if (node == null) return null;
-			return node.name();
+			final Mogram mogram = TaraPsiUtil.getContainerNodeOf(location);
+			return mogram == null ? null : mogram.name();
 		}
 	}
 
-	private PsiClass getMainClass(LegioConfiguration legio, PsiElement runConfigurationNode) {
+	private PsiClass getMainClass(ArtifactLegioConfiguration legio, PsiElement runConfigurationNode) {
 		final Artifact.Package safe = Safe.safe(() -> legio.artifact().packageConfiguration());
 		if (safe == null || !safe.isRunnable()) return null;
 		final JavaPsiFacade facade = JavaPsiFacade.getInstance(runConfigurationNode.getProject());

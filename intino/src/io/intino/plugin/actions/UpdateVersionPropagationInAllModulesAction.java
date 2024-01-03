@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,17 +25,17 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 	}
 
 	public void execute(Project project) {
-		Map<LegioConfiguration, Version.Level> evolvedConfigurations = new AllModuleDependencyPropagator(Arrays.asList(ModuleManager.getInstance(project).getModules())).execute();
-		Map<LegioConfiguration, Version.Level> configurations = evolvedConfigurations.entrySet().stream().
+		Map<ArtifactLegioConfiguration, Version.Level> evolvedConfigurations = new AllModuleDependencyPropagator(Arrays.asList(ModuleManager.getInstance(project).getModules())).execute();
+		Map<ArtifactLegioConfiguration, Version.Level> configurations = evolvedConfigurations.entrySet().stream().
 				filter(c -> !isRunnable(c.getKey()) && hasDistribution(c.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		if (configurations.isEmpty()) return;
 //		upgrade(project, configurations);
 	}
 
-	private void upgrade(Project project, Map<LegioConfiguration, Version.Level> configurations) {
+	private void upgrade(Project project, Map<ArtifactLegioConfiguration, Version.Level> configurations) {
 		boolean ask = askForDistributeNewReleases(project);
 		if (ask) {
-			for (Map.Entry<LegioConfiguration, Version.Level> e : configurations.entrySet()) {
+			for (Map.Entry<ArtifactLegioConfiguration, Version.Level> e : configurations.entrySet()) {
 				try {
 					if (!safe(() -> e.getKey().artifact().packageConfiguration().isRunnable(), false)) {
 						upgrade(e.getKey(), e.getValue());
@@ -47,11 +47,11 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 		}
 	}
 
-	private boolean hasDistribution(LegioConfiguration c) {
+	private boolean hasDistribution(ArtifactLegioConfiguration c) {
 		return safe(() -> c.artifact().distribution().release()) != null;
 	}
 
-	private Boolean isRunnable(LegioConfiguration c) {
+	private Boolean isRunnable(ArtifactLegioConfiguration c) {
 		return safe(() -> c.artifact().packageConfiguration().isRunnable());
 	}
 
@@ -71,7 +71,7 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 
 	private boolean hasLegioModules(Project project) {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).
-				anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration);
+				anyMatch(module -> IntinoUtil.configurationOf(module) instanceof ArtifactLegioConfiguration);
 	}
 
 	private boolean askForDistributeNewReleases(Project project) {

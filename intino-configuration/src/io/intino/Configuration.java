@@ -92,7 +92,7 @@ public interface Configuration {
 		interface Model extends ConfigurationNode {
 
 			enum Level {
-				Solution, Product, Platform;
+				Model, MetaModel, MetaMetaModel;
 
 				public int compareLevelWith(Level type) {
 					return type.ordinal() - this.ordinal();
@@ -102,16 +102,16 @@ public interface Configuration {
 					return type.ordinal() == level;
 				}
 
-				public boolean isSolution() {
-					return Solution.equals(this);
+				public boolean isModel() {
+					return Model.equals(this);
 				}
 
-				public boolean isProduct() {
-					return Product.equals(this);
+				public boolean isMetaModel() {
+					return MetaModel.equals(this);
 				}
 
-				public boolean isPlatform() {
-					return Platform.equals(this);
+				public boolean isMetaMetaModel() {
+					return MetaMetaModel.equals(this);
 				}
 			}
 
@@ -205,10 +205,6 @@ public interface Configuration {
 			void effectiveVersion(String version);
 
 			boolean transitive();
-
-			boolean resolved();
-
-			void resolved(boolean resolved);
 
 			boolean toModule();
 

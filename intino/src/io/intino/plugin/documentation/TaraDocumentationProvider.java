@@ -9,17 +9,17 @@ import com.intellij.notification.Notifications;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.PsiPlainTextFileImpl;
-import io.intino.magritte.Language;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.codeinsight.completion.CompletionUtils.FakeElement;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
+import io.intino.tara.Language;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
+import io.intino.tara.language.model.Facet;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.Documentation;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,14 +55,14 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 			if (facetOf(originalElement) != null)
 				return TaraDocumentationFormatter.doc2Html(null, findDoc(facetOf(originalElement)));
 			else
-				return TaraDocumentationFormatter.doc2Html(null, findDoc(TaraPsiUtil.getContainerByType(originalElement, Node.class)));
+				return TaraDocumentationFormatter.doc2Html(null, findDoc(TaraPsiUtil.getContainerByType(originalElement, Mogram.class)));
 		if (element instanceof MetaIdentifier)
-			return TaraDocumentationFormatter.doc2Html(null, findDoc(TaraPsiUtil.getContainerByType(element, Node.class)));
-		if (element instanceof Node) return ((Node) element).doc();
+			return TaraDocumentationFormatter.doc2Html(null, findDoc(TaraPsiUtil.getContainerByType(element, Mogram.class)));
+		if (element instanceof Mogram) return ((Mogram) element).doc();
 		if (element instanceof FakeElement) return findDoc(((FakeElement) element).getType(), originalElement);
 		if (element instanceof Identifier && TaraPsiUtil.getContainerByType(element, IdentifierReference.class) != null) {
-			final Node resolve = ReferenceManager.resolveToNode(TaraPsiUtil.getContainerByType(element, IdentifierReference.class));
-			return resolve != null ? ((TaraNode) resolve).getSignature().getText() : "";
+			final Mogram resolve = ReferenceManager.resolveToNode(TaraPsiUtil.getContainerByType(element, IdentifierReference.class));
+			return resolve != null ? ((TaraMogram) resolve).getSignature().getText() : "";
 		}
 		if (element instanceof Identifier && TaraPsiUtil.getContainerByType(element, TaraSignature.class) != null)
 			return TaraPsiUtil.getContainerByType(element, TaraSignature.class).getText();
@@ -84,16 +84,16 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 		return text.substring(0, lastIndex[0]) + (text.indexOf("\n", lastIndex[0] + 1) > 0 ? "\n..." : "");
 	}
 
-	private String findDoc(Node container) {
+	private String findDoc(Mogram container) {
 		return findDoc(container.type(), (PsiElement) container);
 	}
 
-	private String findDoc(Aspect aspect) {
+	private String findDoc(Facet aspect) {
 		return findDoc(aspect.type(), (PsiElement) aspect);
 	}
 
-	private Aspect facetOf(PsiElement element) {
-		return TaraPsiUtil.getContainerByType(element, Aspect.class);
+	private Facet facetOf(PsiElement element) {
+		return TaraPsiUtil.getContainerByType(element, Facet.class);
 	}
 
 	private String findDoc(String type, PsiElement anElement) {
@@ -117,12 +117,12 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 		try {
 			return gson.fromJson(new FileReader(docFile), type);
 		} catch (FileNotFoundException e) {
-			Notifications.Bus.notify(new Notification("Tara", "Documentation File not found", "", ERROR), null);
+			Notifications.Bus.notify(new Notification("Intino", "Documentation File not found", "", ERROR), null);
 		}
 		return null;
 	}
 
-	public static boolean saveDocumentation(Map<String, String> doc, File docFile) {
+	public static void saveDocumentation(Map<String, String> doc, File docFile) {
 		Type type = new TypeToken<Map<String, String>>() {
 		}.getType();
 		GsonBuilder builder = new GsonBuilder();
@@ -131,10 +131,8 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 		try {
 			final String content = gson.toJson(doc, type);
 			Files.write(docFile.toPath(), content.getBytes());
-			return true;
 		} catch (IOException e) {
-			Notifications.Bus.notify(new Notification("Tara", "Documentation File not found", "", ERROR), null);
-			return false;
+			Notifications.Bus.notify(new Notification("Intino", "Documentation File not found", "", ERROR), null);
 		}
 
 

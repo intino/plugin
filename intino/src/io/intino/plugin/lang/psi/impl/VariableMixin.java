@@ -8,24 +8,23 @@ import com.intellij.psi.PsiEnumConstant;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.tree.TokenSet;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.model.rules.Size;
-import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.model.rules.Size;
+import io.intino.tara.language.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class VariableMixin extends ASTWrapperPsiElement {
 
-	private Set<Tag> inheritedFlags = new HashSet<>();
+	private final Set<Tag> inheritedFlags = new HashSet<>();
 
 	public VariableMixin(@NotNull ASTNode node) {
 		super(node);
@@ -40,8 +39,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 		ASTNode keyNode = getNode().findChildByType(TaraTypes.IDENTIFIER);
 		if (keyNode != null) {
 			TaraVariable variable = TaraElementFactoryImpl.getInstance(this.getProject()).createVariable(newName, type());
-			ASTNode node = variable.getIdentifier().getNode().copyElement();
-			this.getNode().replaceChild(keyNode, node);
+			this.getNode().replaceChild(keyNode, variable.getIdentifier().getNode().copyElement());
 		}
 		return this;
 	}
@@ -111,7 +109,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 		return new Size(minMax, minMax);
 	}
 
-	public boolean isOverriden() {
+	public boolean isOverridden() {
 		return IntinoUtil.getOverriddenVariable((Variable) this) != null;
 	}
 
@@ -120,7 +118,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 		tags.addAll(inheritedFlags);
 		if (((TaraVariable) this).getFlags() != null)
 			tags.addAll(((TaraVariable) this).getFlags().getFlagList().stream().
-					map(f -> Tag.valueOf(Format.firstUpperCase().format(f.getText()).toString())).collect(Collectors.toList()));
+					map(f -> Tag.valueOf(Format.firstUpperCase().format(f.getText()).toString())).toList());
 		return Collections.unmodifiableList(tags);
 	}
 
@@ -135,14 +133,14 @@ public class VariableMixin extends ASTWrapperPsiElement {
 		return fields.isEmpty() ? "" : fields.substring(2);
 	}
 
-	public Node container() {
+	public Mogram container() {
 		return TaraPsiUtil.getContainerNodeOf(this);
 	}
 
-	public void container(Node container) {
+	public void container(Mogram container) {
 	}
 
-	public Node destinyOfReference() {
+	public Mogram targetOfReference() {
 		if (!isReference()) return null;
 		TaraVariableType type = ((TaraVariable) this).getVariableType();
 		if (type == null || type.getIdentifierReference() == null) return null;

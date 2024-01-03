@@ -1,16 +1,13 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 
 public class LegioServer implements Configuration.Server {
-	private final LegioConfiguration configuration;
-	private final TaraNode node;
+	private final TaraMogram node;
 
-	public LegioServer(LegioConfiguration configuration, TaraNode node) {
-		this.configuration = configuration;
+	public LegioServer(TaraMogram node) {
 		this.node = node;
 	}
 

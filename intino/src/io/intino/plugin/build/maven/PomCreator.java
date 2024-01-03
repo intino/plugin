@@ -24,7 +24,7 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
@@ -60,12 +60,12 @@ import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
 public class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
 	private final Module module;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final Mode packageType;
 
 	public PomCreator(Module module) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
@@ -179,13 +179,13 @@ public class PomCreator {
 		Set<String> dependencies = new HashSet<>();
 		addLevelDependency(builder, dependencies);
 		List<Dependency> moduleDependencies = collectDependencies();
-		for (Dependency dependency : moduleDependencies.stream().filter(d -> !d.scope().equalsIgnoreCase("test")).collect(Collectors.toList())) {
+		for (Dependency dependency : moduleDependencies.stream().filter(d -> !d.scope().equalsIgnoreCase("test")).toList()) {
 			if (dependency.toModule() && isRegistered(dependantModules, dependency) && !allModulesSeparated())
 				addDependantModuleLibraries(builder, dependency, dependencies);
 			else if (dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		}
-		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).collect(Collectors.toList()))
+		for (Dependency dependency : moduleDependencies.stream().filter(d -> d.scope().equalsIgnoreCase("test")).toList())
 			if ((!dependency.toModule() || (dependency.toModule() && allModulesSeparated())) && dependencies.add(dependency.identifier()))
 				builder.add("dependency", createDependencyFrame(dependency));
 		if (!allModulesSeparated())
@@ -247,8 +247,8 @@ public class PomCreator {
 		Module dependantModule = findModuleOf(dependency, dependency.scope().equalsIgnoreCase("test"));
 		if (dependantModule == null) return;
 		final Configuration configuration = IntinoUtil.configurationOf(dependantModule);
-		if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof LegioConfiguration)
-			((LegioConfiguration) configuration).reloadDependencies();
+		if (WEB_MODULE.equals(ModuleType.get(module).getId()) && configuration instanceof ArtifactLegioConfiguration)
+			((ArtifactLegioConfiguration) configuration).reloadDependencies();
 		safeList(() -> configuration.artifact().dependencies()).stream().
 				filter(d -> (!d.toModule()) && !d.scope().equalsIgnoreCase("test") && dependencies.add(d.identifier())).
 				forEach(d -> builder.add("dependency", createDependencyFrame(d)));
@@ -320,7 +320,7 @@ public class PomCreator {
 					resources.add(outDirectory(extension));
 			} else if (!allModulesSeparated()) {
 				List<VirtualFile> roots = getInstance(dependency).getSourceRoots(RESOURCE);
-				resources.addAll(roots.stream().map(VirtualFile::getPath).collect(Collectors.toList()));
+				resources.addAll(roots.stream().map(VirtualFile::getPath).toList());
 			}
 		}
 		return resources;
@@ -330,7 +330,7 @@ public class PomCreator {
 		List<VirtualFile> sourceRoots = getInstance(module).getSourceRoots(TEST_RESOURCE);
 		List<String> list = sourceRoots.stream().map(VirtualFile::getPath).collect(Collectors.toList());
 		for (Module dep : getModuleDependencies(true))
-			list.addAll(getInstance(dep).getSourceRoots(TEST_RESOURCE).stream().map(VirtualFile::getPath).collect(Collectors.toList()));
+			list.addAll(getInstance(dep).getSourceRoots(TEST_RESOURCE).stream().map(VirtualFile::getPath).toList());
 		return list;
 	}
 

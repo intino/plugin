@@ -1,10 +1,10 @@
 package io.intino.legio.model.rules;
 
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.rules.NodeRule;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.rules.NodeRule;
 
 public class MustHaveDistribution implements NodeRule {
-	public boolean accept(Node node) {
+	public boolean accept(Mogram node) {
 		return node.container().components().stream().anyMatch(n -> n.type().contains("Distribution"));
 	}
 

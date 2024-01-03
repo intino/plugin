@@ -1,9 +1,9 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.psi.PsiInvalidElementAccessException;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.tara.language.model.Facet;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,12 +25,12 @@ public interface Signature extends TaraPsiElement {
 	@Nullable
 	MetaIdentifier getType();
 
-	Node parent();
+	Mogram parent();
 
 	@Nullable
 	Parameters getParameters();
 
-	List<? extends Aspect> appliedAspects();
+	List<? extends Facet> appliedFacets();
 
 	@Nullable
 	Tags getTags();

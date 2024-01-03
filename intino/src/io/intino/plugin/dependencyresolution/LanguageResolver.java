@@ -3,128 +3,95 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.jcabi.aether.Aether;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Model;
 import io.intino.Configuration.Repository;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
-import io.intino.magritte.dsl.Tara;
-import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.ModelBuilderManager;
-import io.intino.plugin.project.configuration.model.LegioModel;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
+import io.intino.tara.dsls.Tara;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.stream.Collectors;
 
-import static io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class LanguageResolver {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
-
 	private final Module module;
-	private final DependencyAuditor auditor;
 	private final List<Repository> repositories;
 	private final Model model;
-	private final File localRepository = new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+	private final MavenDependencyResolver resolver;
 	private String version;
 
-	public LanguageResolver(Module module, DependencyAuditor auditor, Model model, String version, List<Repository> repositories) {
+	public LanguageResolver(Module module, Model model, String version, List<Repository> repositories) {
 		this.module = module;
-		this.auditor = auditor;
 		this.repositories = repositories;
 		this.model = model;
 		this.version = version;
+		this.resolver = new MavenDependencyResolver(remotes());
 	}
 
-	public DependencyCatalog resolve() {
-		if (model == null) return new DependencyCatalog();
+	public void resolve() {
+		if (model == null) return;
 		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
 		new ModelBuilderManager(module, repositories, model).resolveBuilder();
-		return !model.excludedPhases().contains(Model.ExcludedPhases.ExcludeFrameworkCode) ? languageFramework() : new DependencyCatalog();
 	}
 
-	private DependencyCatalog languageFramework() {
-		ResolutionCache cache = ResolutionCache.instance(module.getProject());
-		String languageId = languageId(model.language().name(), version);
-		if (!auditor.isModified(((LegioModel) model).node())) {
-			List<Dependency> dependencies = cache.get(languageId);
-			if (dependencies != null && !dependencies.isEmpty()) {
-				model.language().effectiveVersion(version.equalsIgnoreCase("LATEST") ? dependencies.get(0).version : version);
-				return new DependencyCatalog(dependencies);
-			}
-		}
+	public DependencyCatalog languageFramework() {
 		final Module dependency = moduleDependencyOf(this.module, model.language().name(), version);
-		DependencyCatalog catalog = dependency != null ? resolveModuleLanguage(dependency) : resolveLibraryLanguage();
-		cache.put(languageId, catalog.dependencies());
-		cache.save();
-		return catalog;
+		return dependency != null ? resolveLanguageModule(dependency) : resolveLanguageLibrary();
 	}
 
-	private DependencyCatalog resolveModuleLanguage(Module dependency) {
-		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyWith(dependency, "COMPILE");
+	private DependencyCatalog resolveLanguageModule(Module dependency) {
+		DependencyCatalog catalog = new ModuleDependencyResolver().resolveDependencyWith(dependency, JavaScopes.COMPILE);
 		final Configuration configuration = IntinoUtil.configurationOf(dependency);
 		if (configuration != null) model.language().effectiveVersion(configuration.artifact().version());
 		return catalog;
 	}
 
-	private DependencyCatalog resolveLibraryLanguage() {
+	private DependencyCatalog resolveLanguageLibrary() {
 		DependencyCatalog catalog = new DependencyCatalog();
 		if (!LanguageManager.getLanguageFile(model.language().name(), version).exists()) version = importLanguage();
-		final Map<Artifact, DependencyScope> framework = findLanguageFramework(languageId(model.language().name(), version));
+		catalog.addAll(findLanguageFramework(languageId(model.language().name(), version)));
 		model.language().effectiveVersion(version);
-		if (framework.isEmpty()) return catalog;
-		resolveSources(catalog, framework);
+		resolveSources(catalog.dependencies());
 		return catalog;
 	}
 
-	private void resolveSources(DependencyCatalog catalog, Map<Artifact, DependencyScope> framework) {
-		Artifact mainArtifact = framework.keySet().iterator().next();
-		framework.forEach((a, scope) -> catalog.add(new Dependency(a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getBaseVersion() + ":" + scope.name(), a.getFile())));
-		catalog.dependencies().get(0).sources(sourcesOf(mainArtifact));
-		model.language().effectiveVersion(!framework.isEmpty() ? framework.keySet().iterator().next().getBaseVersion() : "");
+	public String frameworkCoors() {
+		return languageId(model.language().name(), version);
 	}
 
-	private Map<Artifact, DependencyScope> findLanguageFramework(String frameworkCoors) {
+	private void resolveSources(List<Dependency> framework) {
+		resolver.resolveSources(framework.get(0).getArtifact());
+	}
+
+	private List<Dependency> findLanguageFramework(String frameworkCoors) {
 		try {
-			if (frameworkCoors == null) return Collections.emptyMap();
-			Aether aether = new Aether(remotes(), localRepository);
+			if (frameworkCoors == null) return Collections.emptyList();
 			String[] coors = frameworkCoors.split(":");
-			List<Artifact> resolve = aether.resolve(new DefaultArtifact(coors[0], coors[1].toLowerCase(), "jar", coors[2]), JavaScopes.COMPILE);
-			return toMap(resolve, DependencyScope.COMPILE);
+			DependencyResult resolved = resolver.resolve(new DefaultArtifact(coors[0], coors[1].toLowerCase(), "jar", coors[2]), JavaScopes.COMPILE);
+			return MavenDependencyResolver.dependenciesFrom(resolved, false);
 		} catch (DependencyResolutionException e) {
-			e.printStackTrace();
-			return Collections.emptyMap();
+			LOG.error(e);
+			return Collections.emptyList();
 		}
-	}
-
-	private boolean sourcesOf(Artifact artifact) {
-		try {
-			DefaultArtifact root = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "sources", "jar", artifact.getVersion());
-			return !new Aether(remotes(), localRepository).resolve(root, JavaScopes.COMPILE).isEmpty();
-		} catch (DependencyResolutionException ignored) {
-			return false;
-		}
-	}
-
-	private Map<Artifact, DependencyScope> toMap(List<Artifact> artifacts, DependencyScope scope) {
-		Map<Artifact, DependencyScope> map = new LinkedHashMap<>();
-		artifacts.forEach(a -> map.put(a, scope));
-		return map;
 	}
 
 	private String importLanguage() {
@@ -140,7 +107,7 @@ public class LanguageResolver {
 	}
 
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
-		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).collect(Collectors.toList());
+		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).toList();
 		for (Module m : modules) {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
 			if (configuration == null || configuration.artifact().model() == null) continue;

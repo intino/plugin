@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class ActionUtils {
 
@@ -26,7 +25,7 @@ public final class ActionUtils {
 		VirtualFile[] files = LangDataKeys.VIRTUAL_FILE_ARRAY.getData(e.getDataContext());
 		if ((files == null) || (files.length == 0)) return Collections.emptyList();
 		final List<VirtualFile> virtualFiles = Arrays.asList(files);
-		return virtualFiles.stream().filter(f -> f.getName().endsWith(extension)).collect(Collectors.toList());
+		return virtualFiles.stream().filter(f -> f.getName().endsWith(extension)).toList();
 	}
 
 	private static void enable(AnActionEvent e) {

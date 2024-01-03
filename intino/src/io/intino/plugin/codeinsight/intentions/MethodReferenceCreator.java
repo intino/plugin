@@ -3,15 +3,6 @@ package io.intino.plugin.codeinsight.intentions;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.*;
 import io.intino.itrules.FrameBuilder;
-import io.intino.magritte.Checker;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.*;
-import io.intino.magritte.lang.model.rules.CustomRule;
-import io.intino.magritte.lang.model.rules.Size;
-import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
-import io.intino.magritte.lang.model.rules.variable.NativeRule;
-import io.intino.magritte.lang.semantics.Constraint;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.codeinsight.languageinjection.helpers.NativeExtractor;
 import io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter;
@@ -25,16 +16,25 @@ import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.Checker;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.*;
+import io.intino.tara.language.model.rules.CustomRule;
+import io.intino.tara.language.model.rules.Size;
+import io.intino.tara.language.model.rules.variable.NativeObjectRule;
+import io.intino.tara.language.model.rules.variable.NativeRule;
+import io.intino.tara.language.semantics.Constraint;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 
 import java.util.*;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension;
 import static com.intellij.pom.java.LanguageLevel.JDK_1_8;
 import static com.intellij.psi.search.GlobalSearchScope.*;
-import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 import static io.intino.plugin.codeinsight.languageinjection.NativeFormatter.buildContainerPath;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.cleanQn;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qnOf;
+import static io.intino.tara.language.model.Primitive.FUNCTION;
 
 public class MethodReferenceCreator {
 	private final Valued valued;
@@ -117,8 +117,8 @@ public class MethodReferenceCreator {
 
 	private String type() {
 		try {
-			Node node = TaraPsiUtil.getContainerNodeOf(valued);
-			if (node != null) new Checker(IntinoUtil.getLanguage(valued)).check(node.resolve());
+			Mogram mogram = TaraPsiUtil.getContainerNodeOf(valued);
+			if (mogram != null) new Checker(IntinoUtil.getLanguage(valued)).check(mogram.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
 		if (valued.flags().contains(Tag.Concept)) return "io.intino.magritte.framework.Concept";
@@ -138,7 +138,7 @@ public class MethodReferenceCreator {
 	}
 
 	private String getReferenceReturnType(Valued valued) {
-		final Node node = ((TaraVariableImpl) valued).destinyOfReference();
+		final Mogram node = ((TaraVariableImpl) valued).targetOfReference();
 		return QualifiedNameFormatter.qn(node, workingPackage);
 	}
 
@@ -211,19 +211,19 @@ public class MethodReferenceCreator {
 	}
 
 	private void resolve(Valued valued) {
-		final List<Node> tree = tree(valued);
 		final Language language = IntinoUtil.getLanguage(valued);
-		if (!tree.isEmpty() && language != null) for (Node node : tree) {
+		if (language == null) return;
+		for (Mogram mogram : tree(valued)) {
 			try {
-				new Checker(language).check(node.resolve());
+				new Checker(language).check(mogram.resolve());
 			} catch (SemanticFatalException ignored) {
 			}
 		}
 	}
 
-	private List<Node> tree(Valued valued) {
-		List<Node> list = new ArrayList<>();
-		Node container = TaraPsiUtil.getContainerNodeOf(valued);
+	private List<Mogram> tree(Valued valued) {
+		List<Mogram> list = new ArrayList<>();
+		Mogram container = TaraPsiUtil.getContainerNodeOf(valued);
 		list.add(container);
 		while ((TaraPsiUtil.getContainerNodeOf((PsiElement) container)) != null) {
 			container = TaraPsiUtil.getContainerNodeOf((PsiElement) container);

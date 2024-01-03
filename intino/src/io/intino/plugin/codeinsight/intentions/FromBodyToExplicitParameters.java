@@ -4,14 +4,14 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.NodeContainer;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Parametrized;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Body;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraVarInit;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.language.model.MogramContainer;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Parametrized;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
@@ -22,15 +22,15 @@ public class FromBodyToExplicitParameters extends ParametersIntentionAction {
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 		Parameter varInit = getContainerByType(element, TaraVarInit.class);
 		if (varInit == null || parameterExists(varInit) || varInit.name() == null || varInit.values() == null) return;
-		final NodeContainer container = varInit.container();
-		((Parametrized) container).addParameter(varInit.name(), varInit.aspect(), getPosition(varInit), varInit.metric(), varInit.line(), varInit.column(), varInit.values());
+		final MogramContainer container = varInit.container();
+		((Parametrized) container).addParameter(varInit.name(), varInit.facet(), getPosition(varInit), varInit.metric(), varInit.line(), varInit.column(), varInit.values());
 		((PsiElement) varInit).getPrevSibling().delete();
 		((PsiElement) varInit).delete();
 		removeEmptyBody(container);
 	}
 
-	private void removeEmptyBody(NodeContainer container) {
-		Body body = ((TaraNode) container).getBody();
+	private void removeEmptyBody(MogramContainer container) {
+		Body body = ((TaraMogram) container).getBody();
 		if (body != null && isEmpty(body)) body.delete();
 	}
 

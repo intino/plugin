@@ -3,7 +3,7 @@ package io.intino.tara.plugin.highlighting;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.openapi.project.Project;
-import io.intino.magritte.Language;
+import io.intino.tara.Language;
 import LanguageManager;
 import TaraTypes;
 import java.util.Collections;

@@ -124,7 +124,7 @@ class StashToTara {
 	private void writeAspects(Node node) {
 		if (node.layers.size() > 1) write(" as");
 		node.layers.stream().skip(1)
-				.map(aspect -> " " + nameOf(aspect))
+				.map(facet -> " " + nameOf(facet))
 				.forEach(this::write);
 	}
 

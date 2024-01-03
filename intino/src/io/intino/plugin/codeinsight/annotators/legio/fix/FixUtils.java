@@ -5,12 +5,12 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.plugin.lang.psi.TaraElementFactory;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 
 public class FixUtils {
 
 
-	static void addNewLine(TaraNode node) {
+	static void addNewLine(TaraMogram node) {
 		if (node.getContainingFile() == null) return;
 		try {
 			if (ApplicationManager.getApplication().isWriteAccessAllowed()) newLine(node);
@@ -21,7 +21,7 @@ public class FixUtils {
 		}
 	}
 
-	private static void newLine(TaraNode node) {
+	private static void newLine(TaraMogram node) {
 		final PsiElement newLine = TaraElementFactory.getInstance(node.getProject()).createNewLine();
 		node.add(newLine.copy());
 		node.add(newLine.copy());

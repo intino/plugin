@@ -5,14 +5,14 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.EmptyNode;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Primitive.Reference;
-import io.intino.magritte.lang.semantics.InstanceContext;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.EmptyMogram;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Primitive.Reference;
+import io.intino.tara.language.semantics.InstanceContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractMap;
@@ -41,15 +41,14 @@ public class ValueMixin extends ASTWrapperPsiElement {
 		else if (element instanceof TaraBooleanValue) return Boolean.parseBoolean(value);
 		else if (element instanceof TaraDoubleValue) return Double.parseDouble(value);
 		else if (element instanceof TaraIntegerValue) return toInt(value);
-		else if (element instanceof TaraTupleValue) {
-			final TaraTupleValue tuple = (TaraTupleValue) element;
+		else if (element instanceof TaraTupleValue tuple)
 			return new AbstractMap.SimpleEntry<>(tuple.getStringValue().getValue(), Double.parseDouble(getText(tuple.getDoubleValue())));
-		} else if (element instanceof TaraEmptyField) return new EmptyNode();
+		else if (element instanceof TaraEmptyField) return new EmptyMogram();
 		else if (element instanceof TaraExpression)
 			return new Primitive.Expression(((TaraExpression) element).getValue());
 		else if (element instanceof IdentifierReference) {
-			Node node = ReferenceManager.resolveToNode((IdentifierReference) element);
-			return node != null ? node : createReference(element);
+			Mogram mogram = ReferenceManager.resolveToNode((IdentifierReference) element);
+			return mogram != null ? mogram : createReference(element);
 		} else if (element instanceof TaraMethodReference) return createMethodReference((TaraMethodReference) element);
 		return "";
 	}

@@ -5,12 +5,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.NodeContainer;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.MogramContainer;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -26,7 +26,7 @@ public class ToBodyParameters extends ParametersIntentionAction {
 		Map<String, String> parametersData = extractParametersData(parameters.getParameters());
 		TaraParameter parameter = TaraPsiUtil.getContainerByType(element, TaraParameter.class);
 		if (parameter == null || parameter.name() == null) return;
-		NodeContainer container = TaraPsiUtil.getContainerByType(parameter, NodeContainer.class);
+		MogramContainer container = TaraPsiUtil.getContainerByType(parameter, MogramContainer.class);
 		if (container == null) return;
 		PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 		parametersData.remove(parameter.name());
@@ -52,8 +52,8 @@ public class ToBodyParameters extends ParametersIntentionAction {
 		return map;
 	}
 
-	private boolean hasBody(NodeContainer container) {
-		return container instanceof TaraNode && ((TaraNode) container).getBody() != null;
+	private boolean hasBody(MogramContainer container) {
+		return container instanceof TaraMogram && ((TaraMogram) container).getBody() != null;
 	}
 
 	private void addNewLine(PsiElement node) {

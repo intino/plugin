@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>6.8.7</version>
+	<version>7.0.0</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -15,7 +15,7 @@
         intino integrates several tools for automated software solutions development and deployment. It supports the creation of software production lines that involves:
         platform and product modeling, a layered architecture (including graphical user interface, rest services, persistence, event sourcing...) and continuous integration based on both source code and artifact repositories.
         intino provides several Domain Specific Languages (dsl): proteo dsl for product modeling, meta dsl for platform modeling,
-        konos dsl for layered architecture modeling and legio dsl for continuos integration modeling.
+        konos dsl for layered architecture modeling and legio dsl for continuous integration modeling.
     ]]></description>
 
 	<idea-version since-build="232.8660"/>
@@ -135,6 +135,16 @@
 		<gotoClassContributor implementation="io.intino.plugin.codeinsight.navigation.TaraGotoClassContributor"/>
 		<spellchecker.support language="Tara"
 							  implementationClass="io.intino.plugin.codeinsight.spelling.TaraSpellcheckerStrategy"/>
+
+		<externalProjectDataService implementation="io.intino.plugin.project.configuration.external.LegioProjectDataService"/>
+		<externalProjectDataService implementation="io.intino.plugin.project.configuration.external.LegioModuleDataService"/>
+		<externalProjectDataService implementation="io.intino.plugin.project.configuration.external.LegioLibraryDataService"/>
+		<externalProjectDataService implementation="io.intino.plugin.project.configuration.external.SourceSetDataService"/>
+		<projectImportBuilder implementation="io.intino.plugin.project.configuration.external.IntinoProjectImportBuilder"/>
+		<projectImportProvider implementation="io.intino.plugin.project.configuration.external.IntinoProjectImportProvider"/>
+		<externalIconProvider implementationClass="io.intino.plugin.project.configuration.external.IntinoIconProvider"/>
+		<externalSystemManager implementation="io.intino.plugin.project.configuration.external.IntinoExternalSystemManager"/>
+
 		<spellchecker.bundledDictionaryProvider
 				implementation="io.intino.plugin.codeinsight.spelling.TaraDictionaryProvider"/>
 		<extendWordSelectionHandler implementation="io.intino.plugin.archetype.lang.psi.ArchetypeSelectionHandler"/>
@@ -174,6 +184,8 @@
 			<descriptionDirectoryName>RemoveFromLocalRepository</descriptionDirectoryName>
 		</intentionAction>
 		<projectService serviceImplementation="io.intino.plugin.settings.IntinoSettings"/>
+		<projectService serviceImplementation="io.intino.plugin.project.configuration.external.settings.IntinoSettings"/>
+		<projectService serviceImplementation="io.intino.plugin.project.configuration.external.settings.IntinoLocalSettings"/>
 		<projectService serviceImplementation="io.intino.plugin.cesar.CesarInfo"/>
 		<projectConfigurable id="io.intino.plugin.settings.IntinoSettingsComponent"
 							 displayName="Intino Settings"

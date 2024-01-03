@@ -1,7 +1,6 @@
 package io.intino.plugin.file;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeLanguage;
 import org.jetbrains.annotations.NotNull;

@@ -3,10 +3,10 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
 
@@ -162,7 +161,7 @@ public class ArtifactoryConnector {
 		result = result.substring(result.indexOf("<pre><a"), result.lastIndexOf("</pre"));
 		final List<String> languages = new ArrayList<>(Arrays.asList(result.split("\n")));
 		languages.remove(0);
-		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).collect(Collectors.toList());
+		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).toList();
 	}
 
 	public List<String> boxBuilderVersions() {
@@ -194,7 +193,7 @@ public class ArtifactoryConnector {
 		metadata = metadata.substring(metadata.indexOf("<versions>")).substring("<versions>".length() + 1);
 		metadata = metadata.substring(0, metadata.indexOf("</versions>"));
 		metadata = metadata.replace("<version>", "").replace("</version>", "");
-		return Arrays.stream(metadata.trim().split("\n")).map(String::trim).collect(Collectors.toList());
+		return Arrays.stream(metadata.trim().split("\n")).map(String::trim).toList();
 	}
 
 	private String read(InputStream stream) throws Throwable {

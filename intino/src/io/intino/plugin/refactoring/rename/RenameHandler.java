@@ -10,7 +10,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference;
 import com.intellij.refactoring.rename.PsiElementRenameHandler;
 import io.intino.plugin.lang.TaraLanguage;
-import io.intino.plugin.lang.psi.resolve.TaraNodeReferenceSolver;
+import io.intino.plugin.lang.psi.resolve.TaraMogramReferenceSolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,13 +28,13 @@ public class RenameHandler extends PsiElementRenameHandler {
 	@Nullable
 	private static PsiElement getPsiElement(final Editor editor) {
 		final PsiReference reference = TargetElementUtil.findReference(editor);
-		if (reference instanceof TaraNodeReferenceSolver) {
-			final ResolveResult[] resolveResults = ((TaraNodeReferenceSolver) reference).multiResolve(false);
+		if (reference instanceof TaraMogramReferenceSolver) {
+			final ResolveResult[] resolveResults = ((TaraMogramReferenceSolver) reference).multiResolve(false);
 			return resolveResults.length > 0 ? resolveResults[0].getElement() : null;
 		} else if (reference instanceof PsiMultiReference)
 			for (PsiReference psiReference : ((PsiMultiReference) reference).getReferences())
-				if (psiReference instanceof TaraNodeReferenceSolver) {
-					final ResolveResult[] resolveResults = ((TaraNodeReferenceSolver) psiReference).multiResolve(false);
+				if (psiReference instanceof TaraMogramReferenceSolver) {
+					final ResolveResult[] resolveResults = ((TaraMogramReferenceSolver) psiReference).multiResolve(false);
 					if (resolveResults.length > 0) return resolveResults[0].getElement();
 				}
 		return null;

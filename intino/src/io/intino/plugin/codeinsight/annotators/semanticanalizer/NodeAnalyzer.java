@@ -1,28 +1,28 @@
 package io.intino.plugin.codeinsight.annotators.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.Checker;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.magritte.lang.model.Element;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticException;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.fix.FixFactory;
-import io.intino.plugin.lang.psi.TaraAspectApply;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraFacetApply;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Element;
+import io.intino.tara.language.model.Facet;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
+import io.intino.tara.language.semantics.errorcollector.SemanticException;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class NodeAnalyzer extends TaraAnalyzer {
-	private final Node node;
+	private final Mogram node;
 
-	public NodeAnalyzer(Node node) {
+	public NodeAnalyzer(Mogram node) {
 		this.node = node;
 	}
 
@@ -35,11 +35,11 @@ public class NodeAnalyzer extends TaraAnalyzer {
 			new Checker(language).check(node);
 		} catch (SemanticFatalException fatal) {
 			for (SemanticException e : fatal.exceptions()) {
-				List<PsiElement> origins = e.origin() != null ? cast(e.origin()) : Collections.singletonList((TaraNode) node);
+				List<PsiElement> origins = e.origin() != null ? cast(e.origin()) : Collections.singletonList((TaraMogram) node);
 				for (PsiElement origin : origins) {
-					if (origin instanceof TaraNode) origin = ((TaraNode) origin).getSignature();
-					else if (origin instanceof NodeRoot) return;
-					else if (origin instanceof Aspect) origin = ((TaraAspectApply) origin).getMetaIdentifier();
+					if (origin instanceof TaraMogram) origin = ((TaraMogram) origin).getSignature();
+					else if (origin instanceof MogramRoot) return;
+					else if (origin instanceof Facet) origin = ((TaraFacetApply) origin).getMetaIdentifier();
 					results.put(origin, annotateAndFix(e, origin));
 				}
 			}

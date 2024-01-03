@@ -1,8 +1,8 @@
 package io.intino.plugin.lang;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.intino.magritte.Language;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
+import io.intino.tara.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class LanguageLoader {
 	private static final Logger LOG = Logger.getInstance(LanguageLoader.class.getName());
@@ -32,9 +31,9 @@ class LanguageLoader {
 			if (!jar.exists()) return null;
 			final ClassLoader classLoader = createClassLoader(jar);
 			if (classLoader == null) return null;
-			Class cls = classLoader.loadClass(LANGUAGES_PACKAGE + "." + Format.snakeCasetoCamelCase().format(name).toString());
+			Class<?> cls = classLoader.loadClass(LANGUAGES_PACKAGE + "." + Format.snakeCasetoCamelCase().format(name).toString());
 			return (Language) cls.getConstructors()[0].newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | Error |
+		} catch (ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException | Error |
 				 InvocationTargetException e) {
 			return null;
 		}
@@ -48,7 +47,7 @@ class LanguageLoader {
 	private static String latestVersion(String languageDirectory) {
 		final File[] versionsArray = new File(languageDirectory).listFiles(File::isDirectory);
 		if (versionsArray == null || versionsArray.length == 0) return "1.0.0";
-		return lastOf(Arrays.stream(versionsArray).map(File::getName).collect(Collectors.toList()));
+		return lastOf(Arrays.stream(versionsArray).map(File::getName).toList());
 	}
 
 	private static String lastOf(List<String> versions) {

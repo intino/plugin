@@ -35,7 +35,7 @@ import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import io.intino.plugin.project.configuration.ModuleTemplateDeployer;
@@ -75,7 +75,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	@NotNull
 	@Override
 	public String getBuilderId() {
-		return "intino";
+		return "Intino";
 	}
 
 	@NotNull
@@ -117,8 +117,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		return new StarterPack(getBuilderId(),
 				List.of(new Starter("intino", "intino", getDependencyConfig("/starters/intino.pom"), Collections.emptyList())));
 	}
-
-
+	
 	@NotNull
 	@Override
 	public List<Class<? extends ModuleWizardStep>> getIgnoredSteps() {
@@ -159,7 +158,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	}
 
 	private String suggestGroup(ModulesProvider provider) {
-		final Module module = Arrays.stream(provider.getModules()).filter(m -> IntinoUtil.configurationOf(m) instanceof LegioConfiguration).findFirst().orElse(null);
+		final Module module = Arrays.stream(provider.getModules()).filter(m -> IntinoUtil.configurationOf(m) instanceof ArtifactLegioConfiguration).findFirst().orElse(null);
 		if (module != null) return IntinoUtil.configurationOf(module).artifact().groupId();
 		return null;
 	}
@@ -249,7 +248,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	private void createIntinoFiles(@NotNull Project project, @Nullable Module module) {
 		if (module == null) return;
 		new ModuleTemplateDeployer(module, components, getStarterContext(), gorosFramework).deploy();
-		final VirtualFile file = new LegioFileCreator(module, components).get();
+		final VirtualFile file = new LegioFileCreator(module, components).getArtifact();
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
 		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
 		loadConfiguration(module);

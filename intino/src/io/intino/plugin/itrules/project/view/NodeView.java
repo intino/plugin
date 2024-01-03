@@ -1,7 +1,5 @@
 package io.intino.plugin.itrules.project.view;
 
-import com.intellij.CommonBundle;
-import com.intellij.ide.IdeDeprecatedMessagesBundle;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;

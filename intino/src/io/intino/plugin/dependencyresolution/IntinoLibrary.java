@@ -5,29 +5,34 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTable.ModifiableModel;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class IntinoLibrary {
 	public static final String INTINO = "Intino: ";
 	private final LibraryTable table;
 	private final ModifiableModel modifiableModel;
 
-	IntinoLibrary(Project project) {
+	public IntinoLibrary(Project project) {
 		this.table = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
 		this.modifiableModel = table.getModifiableModel();
 
 	}
 
-	Library findLibrary(DependencyCatalog.Dependency dependency) {
-		for (Library library : table.getLibraries())
-			if (nameOf(dependency).equals(library.getName())) return library;
-		return null;
+	public static String libraryLabelOf(Artifact artifact) {
+		return INTINO + libraryIdentifierOf(artifact);
 	}
 
-	String nameOf(DependencyCatalog.Dependency dependency) {
-		return INTINO + dependency.groupId() + ":" + dependency.artifactId() + ":" + dependency.version();
+	public static String libraryIdentifierOf(Artifact artifact) {
+		return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+	}
+
+	public static Artifact artifactOf(Library library, String scope) {
+		return new DefaultArtifact(Objects.requireNonNull(library.getName()).replace(INTINO, "") + ":" + scope);
 	}
 
 	List<Library> libraries() {
@@ -36,5 +41,13 @@ public class IntinoLibrary {
 
 	ModifiableModel model() {
 		return modifiableModel;
+	}
+
+	public Library findLibrary(Artifact artifact) {
+		String label = libraryLabelOf(artifact);
+		return Arrays.stream(table.getLibraries())
+				.filter(library -> label.equals(library.getName()))
+				.findFirst()
+				.orElse(null);
 	}
 }

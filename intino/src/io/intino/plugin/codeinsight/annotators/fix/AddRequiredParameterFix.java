@@ -1,38 +1,38 @@
 package io.intino.plugin.codeinsight.annotators.fix;
 
-import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.TemplateImpl;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Parametrized;
-import io.intino.magritte.lang.semantics.Constraint;
-import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
-import io.intino.plugin.lang.psi.TaraAspectApply;
 import io.intino.plugin.lang.psi.TaraElementFactory;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraFacetApply;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Parametrized;
+import io.intino.tara.language.semantics.Constraint;
+import io.intino.tara.language.semantics.constraints.parameter.ReferenceParameter;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static io.intino.magritte.lang.model.Primitive.*;
+import static io.intino.tara.language.model.Primitive.*;
 
 class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAction {
 
@@ -41,11 +41,13 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	public AddRequiredParameterFix(PsiElement element) {
 		try {
-			this.parametrized = element instanceof Node ? (Parametrized) element : (Parametrized) TaraPsiUtil.getContainerOf(element);
+			this.parametrized = element instanceof Mogram ? (Parametrized) element : (Parametrized) TaraPsiUtil.getContainerOf(element);
 		} catch (Throwable e) {
 			this.parametrized = null;
 		}
 	}
+
+
 
 	@Nls
 	@NotNull
@@ -71,21 +73,21 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 		if (this.parametrized == null) return;
 		List<Constraint.Parameter> requires = findConstraints().stream().
 				filter(constraint -> constraint instanceof Constraint.Parameter && ((Constraint.Parameter) constraint).size().isRequired()).
-				map(constraint -> (Constraint.Parameter) constraint).collect(Collectors.toList());
+				map(constraint -> (Constraint.Parameter) constraint).toList();
 		filterPresentParameters(requires);
+		ApplicationManager.getApplication().invokeAndWait(() -> createLiveTemplateFor(requires, file, editor));
 //		cleanSignature(findAnchor(requires));
-		createLiveTemplateFor(requires, file, editor);
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 	}
 
 	private List<Constraint> findConstraints() {
-		final Node node = (Node) this.parametrized;
+		final Mogram node = (Mogram) this.parametrized;
 		final List<Constraint> constraintsOf = new ArrayList<>(IntinoUtil.constraintsOf(node));
 		List<Constraint> aspectConstraints = new ArrayList<>();
 		final List<String> aspects = aspectTypes(node);
 		for (Constraint c : constraintsOf) {
-			if (c instanceof Constraint.Aspect && aspects.contains(((Constraint.Aspect) c).type())) {
-				aspectConstraints.addAll(((Constraint.Aspect) c).constraints());
+			if (c instanceof Constraint.Facet && aspects.contains(((Constraint.Facet) c).type())) {
+				aspectConstraints.addAll(((Constraint.Facet) c).constraints());
 			}
 		}
 		constraintsOf.addAll(aspectConstraints);
@@ -95,21 +97,20 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 //	private void cleanSignature(PsiElement anchor) {
 //		if (hasParameters(anchor)) return;
 //		final TaraFacetApply facet = TaraPsiImplUtil.getContainerByType(anchor, TaraFacetApply.class);
-//		final TaraNode node = TaraPsiImplUtil.getContainerByType(anchor, TaraNode.class);
+//		final TaraNode Mogram = TaraPsiImplUtil.getContainerByType(anchor, TaraMogram.class);
 //		if (facet != null && facet.getParameters() != null) facet.getParameters().delete();
 //		else if (node.getSignature().getParameters() != null) ((TaraNode) parametrized).getSignature().getParameters().delete();
 //
 //	}
 
-	private List<String> aspectTypes(Node node) {
-		return node.resolve().secondaryTypes().stream().map(s -> s.substring(0, s.indexOf(":"))).collect(Collectors.toList());
+	private List<String> aspectTypes(Mogram node) {
+		return node.resolve().secondaryTypes().stream().map(s -> s.substring(0, s.indexOf(":"))).toList();
 	}
 
 	private void createLiveTemplateFor(List<Constraint.Parameter> requires, PsiFile file, Editor editor) {
-		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-		final PsiElement anchor = findAnchor(requires);
+		final PsiElement anchor = ApplicationManager.getApplication().runWriteAction((Computable<PsiElement>) () -> findAnchor(requires));
 		final Editor parameterEditor = positionCursor(file.getProject(), file, anchor);
 		if (parameterEditor == null) return;
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(parameterEditor.getDocument());
@@ -119,10 +120,10 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 	}
 
 	private PsiElement findAnchor(List<Constraint.Parameter> requires) {
-		return requires.isEmpty() || requires.get(0).aspect().isEmpty() ? findAnchor((TaraNode) parametrized) : findAnchor((TaraAspectApply) ((Node) parametrized).appliedAspects().stream().filter(f -> f.type().equals(requires.get(0).aspect())).findFirst().get());
+		return requires.isEmpty() || requires.get(0).facet().isEmpty() ? findAnchor((TaraMogram) parametrized) : findAnchor((TaraFacetApply) ((Mogram) parametrized).appliedFacets().stream().filter(f -> f.type().equals(requires.get(0).facet())).findFirst().get());
 	}
 
-	private PsiElement findAnchor(TaraNode node) {
+	private PsiElement findAnchor(TaraMogram node) {
 		if (!hasParameters(node)) {
 			final PsiElement emptyParameters = TaraElementFactory.getInstance(node.getProject()).createEmptyParameters();
 			return node.getSignature().addAfter(emptyParameters, anchor(node)).getFirstChild();
@@ -132,13 +133,13 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 		}
 	}
 
-	private PsiElement anchor(TaraNode node) {
+	private PsiElement anchor(TaraMogram node) {
 		return node.getSignature().getMetaIdentifier() != null && node.getSignature().getMetaIdentifier().getNextSibling() instanceof TaraRuleContainer ?
 				node.getSignature().getMetaIdentifier().getNextSibling() :
 				node.getSignature().getMetaIdentifier();
 	}
 
-	private PsiElement findAnchor(TaraAspectApply apply) {
+	private PsiElement findAnchor(TaraFacetApply apply) {
 		if (!hasParameters(apply)) {
 			if (apply.getParameters() != null && apply.getParameters().getParameters().isEmpty())
 				return apply.getParameters().getFirstChild();
@@ -151,15 +152,15 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 	}
 
 	private boolean hasParameters(PsiElement element) {
-		final TaraAspectApply aspectApply = TaraPsiUtil.getContainerByType(element, TaraAspectApply.class);
-		return aspectApply != null ? hasParameters(aspectApply) : hasParameters(TaraPsiUtil.getContainerByType(element, TaraNode.class));
+		final TaraFacetApply aspectApply = TaraPsiUtil.getContainerByType(element, TaraFacetApply.class);
+		return aspectApply != null ? hasParameters(aspectApply) : hasParameters(TaraPsiUtil.getContainerByType(element, TaraMogram.class));
 	}
 
-	private boolean hasParameters(TaraAspectApply apply) {
+	private boolean hasParameters(TaraFacetApply apply) {
 		return apply.getParameters() != null && !apply.getParameters().getParameters().isEmpty();
 	}
 
-	private boolean hasParameters(TaraNode node) {
+	private boolean hasParameters(TaraMogram node) {
 		return node.getSignature().getParameters() != null && !node.getSignature().getParameters().getParameters().isEmpty();
 	}
 
@@ -190,7 +191,7 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 		StringBuilder text = new StringBuilder();
 		for (int i = 0; i < requires.size(); i++)
 			text.append(", ").append(requires.get(i).name()).append(" = ").append("$VALUE").append(i).append("$");
-		return !hasParameters(anchor) && (text.length() > 0) ? text.substring(2) : text.toString();
+		return !hasParameters(anchor) && !text.isEmpty() ? text.substring(2) : text.toString();
 	}
 
 	private void filterPresentParameters(List<Constraint.Parameter> requires) {
@@ -208,6 +209,6 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 
 	@Override
 	public boolean startInWriteAction() {
-		return true;
+		return false;
 	}
 }

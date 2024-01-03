@@ -4,13 +4,13 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
 import com.intellij.refactoring.listeners.RefactoringElementListener;
 import com.intellij.refactoring.rename.RenamePsiElementProcessor;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.Identifier;
 import io.intino.plugin.lang.psi.Signature;
 import io.intino.plugin.lang.psi.TaraIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,8 +52,8 @@ public class TaraRenamePsiElementProcessor extends RenamePsiElementProcessor {
 	}
 
 	private String oldQn(PsiElement element) {
-		final Node node = getContainerByType(element.getOriginalElement(), Node.class);
-		return node == null ? "" : node.qualifiedName();
+		final Mogram mogram = getContainerByType(element.getOriginalElement(), Mogram.class);
+		return mogram == null ? "" : mogram.qualifiedName();
 	}
 
 	public static <T> T getContainerByType(PsiElement element, Class<T> tClass) {

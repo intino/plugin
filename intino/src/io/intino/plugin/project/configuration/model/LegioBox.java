@@ -2,10 +2,10 @@ package io.intino.plugin.project.configuration.model;
 
 import com.intellij.openapi.application.ApplicationManager;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
 
 import java.util.Collections;
 
@@ -14,12 +14,12 @@ import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioBox implements Configuration.Artifact.Box {
 	private final LegioArtifact artifact;
-	private final TaraNode node;
+	private final TaraMogram node;
 	private String version;
 
-	public LegioBox(LegioArtifact artifact, Node node) {
+	public LegioBox(LegioArtifact artifact, Mogram node) {
 		this.artifact = artifact;
-		this.node = (TaraNode) node;
+		this.node = (TaraMogram) node;
 	}
 
 	@Override

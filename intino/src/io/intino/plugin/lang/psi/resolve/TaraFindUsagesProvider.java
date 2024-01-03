@@ -6,11 +6,11 @@ import com.intellij.lang.cacheBuilder.WordsScanner;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.TokenSet;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.lexer.TaraLexerAdapter;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +43,7 @@ public class TaraFindUsagesProvider implements FindUsagesProvider {
 	public String getType(@NotNull PsiElement element) {
 		if (getContainerByType(element, Variable.class) != null) return "variable";
 		else if (getContainerByType(element, Parameter.class) != null) return "parameter";
-		else if (element.getParent() instanceof Signature) return getContainerByType(element, TaraNode.class).type();
+		else if (element.getParent() instanceof Signature) return getContainerByType(element, TaraMogram.class).type();
 		return "reference";
 	}
 
@@ -56,8 +56,8 @@ public class TaraFindUsagesProvider implements FindUsagesProvider {
 	@NotNull
 	@Override
 	public String getDescriptiveName(@NotNull PsiElement element) {
-		if (element instanceof TaraNode) {
-			String name = ((Node) element).name();
+		if (element instanceof TaraMogram) {
+			String name = ((Mogram) element).name();
 			return name == null ? ANONYMOUS : name;
 		} else if (element instanceof Identifier) return element.getText();
 		else if (element instanceof TaraModel) return ((TaraModel) element).getName();

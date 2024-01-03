@@ -6,7 +6,6 @@ import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.project.module.ModuleProvider;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class FileVariantsManager {
 
@@ -20,6 +19,6 @@ public class FileVariantsManager {
 
 	public void resolveVariants() {
 		final PsiFile file = myElement.getContainingFile().getOriginalFile();
-		variants.addAll(IntinoUtil.getFilesOfModuleByFileType(ModuleProvider.moduleOf(file), file.getFileType()).stream().collect(Collectors.toList()));
+		variants.addAll(IntinoUtil.getFilesOfModuleByFileType(ModuleProvider.moduleOf(file), file.getFileType()).stream().toList());
 	}
 }

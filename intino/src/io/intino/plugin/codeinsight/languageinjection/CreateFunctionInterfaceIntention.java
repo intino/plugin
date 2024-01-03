@@ -10,14 +10,14 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.model.rules.variable.NativeRule;
 import io.intino.plugin.codeinsight.annotators.fix.ClassCreationIntention;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraVariableImpl;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.model.rules.variable.NativeRule;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

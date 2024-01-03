@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UnusedLibrariesInspection {
 	private final Project project;
@@ -27,7 +26,7 @@ public class UnusedLibrariesInspection {
 	public void cleanUp() {
 		IntinoLibrary intinoLibrary = new IntinoLibrary(project);
 		LibraryTable.ModifiableModel model = intinoLibrary.model();
-		List<Library> toRemove = intinoLibrary.libraries().stream().filter(library -> !isUsed(library)).collect(Collectors.toList());
+		List<Library> toRemove = intinoLibrary.libraries().stream().filter(library -> !isUsed(library)).toList();
 		if (!toRemove.isEmpty()) {
 			Application application = ApplicationManager.getApplication();
 			application.runWriteAction(() -> {

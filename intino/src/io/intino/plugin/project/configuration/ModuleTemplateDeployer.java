@@ -1,6 +1,5 @@
 package io.intino.plugin.project.configuration;
 
-import com.amazonaws.util.StringInputStream;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.starters.local.StarterContext;
 import com.intellij.openapi.module.Module;
@@ -12,18 +11,15 @@ import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.TemplateEngine;
 import io.intino.itrules.parser.ITRulesSyntaxError;
 import io.intino.itrules.readers.ItrRuleSetReader;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.project.module.IntinoWizardPanel.Components;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +28,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.intino.plugin.file.LegioFileType.ARTIFACT_LEGIO;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.moduleRoot;
 import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
 import static io.intino.plugin.project.module.IntinoWizardPanel.Components.MetaModel;
@@ -65,11 +62,12 @@ public class ModuleTemplateDeployer {
 		Map<String, String> files = download(type);
 		writeModelAndBox(packageDirectory, files);
 		if (Business.equals(type) || files.isEmpty())
-			refreshView(packageVDirectory, legioFileCreator.getOrCreate(groupId));
+			refreshView(packageVDirectory, legioFileCreator.getOrCreateArtifact(groupId));
 		else {
 			writeInfrastructureFiles(packageDirectory, files);
 			refreshView(packageVDirectory);
 		}
+		legioFileCreator.createProjectIfNotExist(module.getProject());
 		if (gorosFramework) addModernizationToModule();
 	}
 
@@ -93,8 +91,8 @@ public class ModuleTemplateDeployer {
 	}
 
 	private void writeInfrastructureFiles(File srcDirectory, Map<String, String> files) {
-		String artifactContent = files.remove("artifact.legio");
-		legioFileCreator.create(artifactContent.replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
+		String artifactContent = files.remove(ARTIFACT_LEGIO);
+		legioFileCreator.createArtifact(artifactContent.replace("$groupId", groupId).replace("$namePackage", module.getName().replace("-", "").toLowerCase()).replace("$name", module.getName().toLowerCase()));
 		files.forEach((k, v) -> {
 			try {
 				Files.write(new File(srcDirectory, k).toPath(), v.replace("$package", groupId + "." + module.getName().replace("-", "").toLowerCase()).getBytes(StandardCharsets.UTF_8));
@@ -132,7 +130,7 @@ public class ModuleTemplateDeployer {
 
 	private void writeBoxFile(File srcDirectory, String boxItr) {
 		try {
-			TemplateEngine engine = new TemplateEngine(new ItrRuleSetReader(new StringInputStream(boxItr)).read(Charset.defaultCharset()).ruleset(), new TemplateEngine.Configuration(Locale.ROOT, TemplateEngine.Configuration.LineSeparator.LF));
+			TemplateEngine engine = new TemplateEngine(new ItrRuleSetReader(new ByteArrayInputStream(boxItr.getBytes())).read(Charset.defaultCharset()).ruleset(), new TemplateEngine.Configuration(Locale.ROOT, TemplateEngine.Configuration.LineSeparator.LF));
 			FrameBuilder frameBuilder = new FrameBuilder("box");
 			components.forEach(component -> frameBuilder.add(component.name(), new FrameBuilder(component.name()).toFrame()));
 			String result = engine.render(frameBuilder.toFrame());

@@ -5,8 +5,8 @@ def type(package)
         "description": "",
         "main": "src/App.js",
         "scripts": {
-            "build": "webpack --mode production",
-            "dev": "webpack --mode development --watch"
+            "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
+            "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode development --watch"
         },
         "author": "",
         "license": "ISC",

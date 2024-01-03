@@ -4,10 +4,10 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.plugin.lang.psi.TaraAspectApply;
+import io.intino.plugin.lang.psi.TaraFacetApply;
 import io.intino.plugin.lang.psi.TaraParameter;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -33,10 +33,10 @@ public class ParametersMixin extends ASTWrapperPsiElement {
 		return !parameters.isEmpty() && ((TaraParameter) parameters.iterator().next()).getIdentifier() != null;
 	}
 
-	public TaraAspectApply isInFacet() {
+	public TaraFacetApply isInFacet() {
 		PsiElement aElement = this;
-		while (!(aElement.getParent() instanceof Node) && !(aElement.getParent() instanceof TaraAspectApply))
+		while (!(aElement.getParent() instanceof Mogram) && !(aElement.getParent() instanceof TaraFacetApply))
 			aElement = aElement.getParent();
-		return (aElement.getParent() instanceof TaraAspectApply) ? (TaraAspectApply) aElement.getParent() : null;
+		return (aElement.getParent() instanceof TaraFacetApply) ? (TaraFacetApply) aElement.getParent() : null;
 	}
 }

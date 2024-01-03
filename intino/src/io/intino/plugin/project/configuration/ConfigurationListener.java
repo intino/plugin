@@ -35,6 +35,6 @@ public class ConfigurationListener implements FileDocumentManagerListener {
 
 	private void reloadConfiguration(Module module) {
 		final Configuration configuration = ConfigurationManager.configurationOf(module);
-		if (configuration instanceof LegioConfiguration) configuration.reload();
+		if (configuration instanceof ArtifactLegioConfiguration) configuration.reload();
 	}
 }

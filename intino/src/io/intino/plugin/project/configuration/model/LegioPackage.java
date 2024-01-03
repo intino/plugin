@@ -1,30 +1,31 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.TaraAspectApply;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraFacetApply;
+import io.intino.plugin.lang.psi.TaraMogram;
+import io.intino.plugin.lang.psi.impl.TaraFacetApplyImpl;
+import io.intino.plugin.lang.psi.impl.TaraMogramImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Facet;
+import io.intino.tara.language.model.Mogram;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.*;
 
 public class LegioPackage implements Configuration.Artifact.Package {
 	private final LegioArtifact artifact;
-	private final TaraNode node;
+	private final TaraMogram mogram;
 
-	public LegioPackage(LegioArtifact artifact, TaraNode node) {
+	public LegioPackage(LegioArtifact artifact, TaraMogram mogram) {
 		this.artifact = artifact;
-		this.node = node;
+		this.mogram = mogram;
 	}
 
 	@Override
 	public Mode mode() {
-		String mode = read(() -> parameterValue(node, "mode", 0));
+		String mode = read(() -> parameterValue(mogram, "mode", 0));
 		return mode == null ? Mode.ModulesAndLibrariesLinkedByManifest : Mode.valueOf(mode);
 	}
 
@@ -35,72 +36,68 @@ public class LegioPackage implements Configuration.Artifact.Package {
 
 	@Override
 	public boolean createMavenPom() {
-		String createPOMproject = read(() -> parameterValue(node, "createMavenPom", 1));
-		return Boolean.parseBoolean(createPOMproject);
+		return Boolean.parseBoolean(read(() -> parameterValue(mogram, "createMavenPom", 1)));
 	}
 
 	@Override
 	public boolean attachSources() {
-		String attachSources = read(() -> parameterValue(node, "attachSources", 3));
-		return Boolean.parseBoolean(attachSources);
+		return Boolean.parseBoolean(read(() -> parameterValue(mogram, "attachSources", 3)));
 	}
 
 	@Override
 	public List<String> mavenPlugins() {
-		List<Node> mavenPlugins = TaraPsiUtil.componentsOfType(node, "MavenPlugin");
-		return mavenPlugins.stream().map(n -> read(() -> parameterValue(n, "code", 0).replace("=", ""))).collect(Collectors.toList());
+		List<Mogram> mavenPlugins = TaraPsiUtil.componentsOfType(mogram, "MavenPlugin");
+		return mavenPlugins.stream().map(n -> read(() -> parameterValue(n, "code", 0).replace("=", ""))).toList();
 	}
 
 	@Override
 	public boolean attachDoc() {
-		String attachDoc = read(() -> parameterValue(node, "attachDoc", 4));
+		String attachDoc = read(() -> parameterValue(mogram, "attachDoc", 4));
 		return Boolean.parseBoolean(attachDoc);
 	}
 
 	@Override
 	public boolean includeTests() {
-		String includeTests = read(() -> parameterValue(node, "includeTests", 5));
-		return Boolean.parseBoolean(includeTests);
+		return Boolean.parseBoolean(read(() -> parameterValue(mogram, "includeTests", 5)));
 	}
 
 	@Override
 	public boolean signArtifactWithGpg() {
-		String signArtifactWitGpg = read(() -> parameterValue(node, "signArtifactWithGpg", 6));
-		return Boolean.parseBoolean(signArtifactWitGpg);
+		return Boolean.parseBoolean(read(() -> parameterValue(mogram, "signArtifactWithGpg", 6)));
 	}
 
 	@Override
 	public String classpathPrefix() {
-		return read(() -> parameterValue(node, "classpathPrefix", 7));
+		return read(() -> parameterValue(mogram, "classpathPrefix", 7));
 	}
 
 	@Override
 	public String finalName() {
-		return read(() -> parameterValue(node, "finalName", 8));
+		return read(() -> parameterValue(mogram, "finalName", 8));
 	}
 
 	@Override
 	public String defaultJVMOptions() {
-		return read(() -> parameterValue(node, "defaultJVMOptions", 9));
+		return read(() -> parameterValue(mogram, "defaultJVMOptions", 9));
 	}
 
 	@Override
 	public String mainClass() {
-		if (node == null) return null;
-		List<Aspect> aspects = node.appliedAspects();
+		if (mogram == null) return null;
+		List<Facet> aspects = mogram.appliedFacets();
 		if (aspects == null || aspects.isEmpty()) return null;
-		Aspect runnable = aspects.stream().filter(a -> a.type().contains("Runnable")).findFirst().orElse(null);
+		Facet runnable = aspects.stream().filter(a -> a.type().contains("Runnable")).findFirst().orElse(null);
 		String mainClass = parameterValue(runnable, "mainClass", 0);
-		return mainClass == null ? read(() -> parameterValue(node, "mainClass")) : mainClass;
+		return mainClass == null ? read(() -> parameterValue(mogram, "mainClass")) : mainClass;
 	}
 
 	public void mainClass(String qualifiedName) {
-		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
-			if (this.node.appliedAspects().isEmpty()) this.node.applyAspect("Runnable");
+		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> {
+			if (this.mogram.appliedFacets().isEmpty()) ((TaraMogramImpl) this.mogram).applyFacet("Runnable");
 		});
-		writeCommandAction(node.getProject(), node.getContainingFile()).run(() -> {
-			TaraAspectApply runnable = (TaraAspectApply) this.node.appliedAspects().get(0);
-			runnable.addParameter("mainClass", 0, List.of(qualifiedName));
+		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> {
+			TaraFacetApply runnable = (TaraFacetApply) this.mogram.appliedFacets().get(0);
+			((TaraFacetApplyImpl) runnable).addParameter("mainClass", 0, List.of(qualifiedName));
 		});
 	}
 
@@ -117,19 +114,19 @@ public class LegioPackage implements Configuration.Artifact.Package {
 
 	@Override
 	public LinuxService linuxService() {
-		if (node == null) return null;
-		List<Aspect> aspects = node.appliedAspects();
+		if (mogram == null) return null;
+		List<Facet> aspects = mogram.appliedFacets();
 		if (aspects == null || aspects.isEmpty()) return null;
-		Aspect linuxService = aspects.stream().filter(a -> a.type().contains("LinuxService")).findFirst().orElse(null);
+		Facet linuxService = aspects.stream().filter(a -> a.type().contains("LinuxService")).findFirst().orElse(null);
 		if (linuxService == null) return null;
 		return new LegioPackageAsLinuxService(linuxService, artifact);
 	}
 
 	public static class LegioPackageAsLinuxService implements LinuxService {
-		private final Aspect node;
+		private final Facet node;
 		private final Configuration.Artifact artifact;
 
-		public LegioPackageAsLinuxService(Aspect node, Configuration.Artifact artifact) {
+		public LegioPackageAsLinuxService(Facet node, Configuration.Artifact artifact) {
 			this.node = node;
 			this.artifact = artifact;
 		}
@@ -141,7 +138,7 @@ public class LegioPackage implements Configuration.Artifact.Package {
 
 		@Override
 		public Configuration.RunConfiguration runConfiguration() {
-			Node runConfiguration = read(() -> referenceParameterValue(node.parameters(), "runConfiguration", 1));
+			Mogram runConfiguration = read(() -> referenceParameterValue(node.parameters(), "runConfiguration", 1));
 			if (runConfiguration == null) return null;
 			return new LegioRunConfiguration((LegioArtifact) artifact, runConfiguration);
 		}

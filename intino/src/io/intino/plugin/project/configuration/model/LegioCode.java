@@ -1,15 +1,15 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 class LegioCode implements Configuration.Artifact.Code {
 	private final LegioArtifact artifact;
-	private final TaraNode code;
+	private final TaraMogram code;
 
-	public LegioCode(LegioArtifact artifact, TaraNode code) {
+	public LegioCode(LegioArtifact artifact, TaraMogram code) {
 		this.artifact = artifact;
 		this.code = code;
 	}

@@ -29,7 +29,7 @@ public class PackageJsonCreator {
 		this.artifact = artifact;
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
-		this.webArtifactResolver = new WebArtifactResolver(this.module.getProject(), artifact, repositories, destination);
+		this.webArtifactResolver = new WebArtifactResolver(this.module, artifact, repositories, destination);
 
 	}
 

@@ -7,7 +7,6 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ArtifactorySensor {
 	public static final String Languages = "tara.dsls";
@@ -52,7 +51,7 @@ public class ArtifactorySensor {
 	@SafeVarargs
 	private List<Repository> by(List<Repository> repositories, Class<? extends Repository>... types) {
 		try {
-			return repositories.stream().filter(r -> isType(r, types)).collect(Collectors.toList());
+			return repositories.stream().filter(r -> isType(r, types)).toList();
 		} catch (Throwable ignored) {
 		}
 		return new ArrayList<>();

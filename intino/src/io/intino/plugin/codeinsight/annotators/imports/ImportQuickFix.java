@@ -6,8 +6,8 @@ import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.SmartPsiElementPointer;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -17,7 +17,7 @@ public class ImportQuickFix implements LocalQuickFix, HighPriorityAction {
 	private final String anImport;
 	private final SmartPsiElementPointer<TaraModel> file;
 
-	ImportQuickFix(TaraModel fileDestiny, Node nodeToImport) {
+	ImportQuickFix(TaraModel fileDestiny, Mogram nodeToImport) {
 		this.file = SmartPointerManager.getInstance(fileDestiny.getProject()).createSmartPsiElementPointer(fileDestiny);
 		String fileName = new File(nodeToImport.file()).getName();
 		anImport = fileName.substring(0, fileName.lastIndexOf('.'));

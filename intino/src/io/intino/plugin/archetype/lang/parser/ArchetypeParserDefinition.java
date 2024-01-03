@@ -10,7 +10,6 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeLanguage;
-import io.intino.plugin.archetype.lang.lexer.ArchetypeLexerAdapter;
 import io.intino.plugin.archetype.lang.psi.ArchetypeTemplateImpl;
 import io.intino.plugin.archetype.lang.psi.ArchetypeTypes;
 import org.jetbrains.annotations.NotNull;

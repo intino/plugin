@@ -8,15 +8,16 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPackage;
-import io.intino.magritte.lang.model.*;
 import io.intino.plugin.codeinsight.JavaHelper;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.Rule;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,27 +27,30 @@ import java.util.stream.Collectors;
 
 public class ReferenceManager {
 
-	private ReferenceManager() {
-	}
-
 	@NotNull
 	public static List<PsiElement> resolve(Identifier identifier) {
+		if (identifier.getContainingFile().getFileType().equals(LegioFileType.instance()))
+			return LegioReferenceManager.resolve(identifier);
 		PsiElement reference = internalResolve(identifier);
-		return Collections.singletonList(reference instanceof Node && !(reference instanceof TaraModel) ? ((TaraNode) reference).getSignature().getIdentifier() : reference);
+		return Collections.singletonList(reference instanceof Mogram && !(reference instanceof TaraModel) ? ((TaraMogram) reference).getSignature().getIdentifier() : reference);
 	}
 
 	@Nullable
-	public static Node resolveToNode(IdentifierReference identifierReference) {
+	public static Mogram resolveToNode(IdentifierReference identifierReference) {
 		if (identifierReference == null) return null;
+		if (identifierReference.getContainingFile().getFileType().equals(LegioFileType.instance()))
+			return LegioReferenceManager.resolveToNode(identifierReference);
 		List<? extends Identifier> identifierList = identifierReference.getIdentifierList();
-		return (Node) resolveNode(identifierList.get(identifierList.size() - 1), (List<Identifier>) identifierList);
+		return (Mogram) resolveNode(identifierList.get(identifierList.size() - 1), (List<Identifier>) identifierList);
 	}
 
 	@Nullable
-	public static PsiElement resolve(IdentifierReference identifierReference) {
-		List<? extends Identifier> identifierList = identifierReference.getIdentifierList();
+	public static PsiElement resolve(IdentifierReference ref) {
+		if (ref.getContainingFile().getFileType().equals(LegioFileType.instance()))
+			return LegioReferenceManager.resolve(ref);
+		List<? extends Identifier> identifierList = ref.getIdentifierList();
 		PsiElement reference = resolveNode(identifierList.get(identifierList.size() - 1), (List<Identifier>) identifierList);
-		if (reference instanceof Node) reference = ((TaraNode) reference).getSignature().getIdentifier();
+		if (reference instanceof Mogram) reference = ((TaraMogram) reference).getSignature().getIdentifier();
 		return reference;
 	}
 
@@ -84,34 +88,34 @@ public class ReferenceManager {
 		return tryToResolveAsQN(subPath);
 	}
 
-	private static NodeContainer tryToResolveInBox(TaraModel file, List<Identifier> path) {
-		Node[] roots = getPossibleRoots(file, path.get(0));
+	private static MogramContainer tryToResolveInBox(TaraModel file, List<Identifier> path) {
+		Mogram[] roots = getPossibleRoots(file, path.get(0));
 		if (roots.length == 0) return null;
 		if (roots.length == 1 && path.size() == 1) return roots[0];
-		for (Node possibleRoot : roots) {
+		for (Mogram possibleRoot : roots) {
 			if (possibleRoot.is(Tag.Enclosed)) continue;
-			NodeContainer node = resolvePathInNode(path, possibleRoot);
-			if (node != null) return node;
+			MogramContainer mogram = resolvePathInMogram(path, possibleRoot);
+			if (mogram != null) return mogram;
 		}
 		return null;
 	}
 
-	private static Node[] getPossibleRoots(TaraModel file, Identifier identifier) {
-		Set<Node> set = new LinkedHashSet<>();
+	private static Mogram[] getPossibleRoots(TaraModel file, Identifier identifier) {
+		Set<Mogram> set = new LinkedHashSet<>();
 		if (file.equals(identifier.getContainingFile())) addNodesInContext(identifier, set);
 		if (isVariableReference(identifier)) addNodeSiblings(identifier, set);
 		addRootNodes(file, identifier, set);
-		return set.toArray(new Node[set.size()]);
+		return set.toArray(new Mogram[0]);
 	}
 
 	private static boolean isVariableReference(Identifier identifier) {
 		return TaraPsiUtil.getContainerByType(identifier, Variable.class) != null;
 	}
 
-	private static void addNodeSiblings(Identifier identifier, Set<Node> set) {
-		final NodeContainer container = TaraPsiUtil.getContainerOf(identifier);
+	private static void addNodeSiblings(Identifier identifier, Set<Mogram> set) {
+		final MogramContainer container = TaraPsiUtil.getContainerOf(identifier);
 		if (container == null) return;
-		set.addAll(container.components().stream().filter(node -> areNamesake(identifier, node)).collect(Collectors.toList()));
+		set.addAll(container.components().stream().filter(mogram -> areNamesake(identifier, mogram)).toList());
 	}
 
 	private static PsiElement tryToResolveAsQN(List<Identifier> path) {
@@ -122,34 +126,34 @@ public class ReferenceManager {
 		return (PsiElement) tryToResolveInBox(model, qn);
 	}
 
-	private static void addRootNodes(TaraModel model, Identifier identifier, Set<Node> set) {
-		List<Node> nodes = model.components();
-		set.addAll(nodes.stream().filter(node -> areNamesake(identifier, node)).collect(Collectors.toList()));
+	private static void addRootNodes(TaraModel model, Identifier identifier, Set<Mogram> set) {
+		List<Mogram> nodes = model.components();
+		set.addAll(nodes.stream().filter(mogram -> areNamesake(identifier, mogram)).toList());
 	}
 
-	private static void addNodesInContext(Identifier identifier, Set<Node> set) {
-		Node container = TaraPsiUtil.getContainerNodeOf(identifier);
+	private static void addNodesInContext(Identifier identifier, Set<Mogram> set) {
+		Mogram container = TaraPsiUtil.getContainerNodeOf(identifier);
 		if (container != null && !isExtendsOrParameterReference(identifier) && areNamesake(identifier, container))
 			set.add(container);
 		if (container != null) {
 			collectContextNodes(identifier, set, container);
 			if (isExtendsOrParameterReference(identifier) && container.container() != null) {
-				final Node parent = container.container().parent();
+				final Mogram parent = container.container().parent();
 				if (parent != null) collectParentComponents(identifier, set, parent);
 			}
 		}
 	}
 
-	private static void collectParentComponents(Identifier identifier, Set<Node> set, Node parent) {
-		final Node containerNode = TaraPsiUtil.getContainerNodeOf(identifier);
+	private static void collectParentComponents(Identifier identifier, Set<Mogram> set, Mogram parent) {
+		final Mogram containerNode = TaraPsiUtil.getContainerNodeOf(identifier);
 		set.addAll(parent.components().stream().
 				filter(sibling -> areNamesake(identifier, sibling) && !sibling.equals(containerNode)).
 				collect(Collectors.toList()));
 	}
 
-	private static void collectContextNodes(Identifier identifier, Set<Node> set, Node node) {
-		Node container = node;
-		final Node containerNode = TaraPsiUtil.getContainerNodeOf(identifier);
+	private static void collectContextNodes(Identifier identifier, Set<Mogram> set, Mogram node) {
+		Mogram container = node;
+		final Mogram containerNode = TaraPsiUtil.getContainerNodeOf(identifier);
 		while (container != null) {
 			set.addAll(collectCandidates(container).stream().
 					filter(sibling -> areNamesake(identifier, sibling) && !sibling.equals(containerNode)).
@@ -158,29 +162,28 @@ public class ReferenceManager {
 		}
 	}
 
-	private static List<Node> collectCandidates(Node container) {
-		List<Node> nodes = new ArrayList<>();
-		List<? extends Node> siblings = container.siblings();
-		nodes.addAll(siblings);
-		for (Node node : siblings) nodes.addAll(node.subs());
+	private static List<Mogram> collectCandidates(Mogram container) {
+		List<? extends Mogram> siblings = container.siblings();
+		List<Mogram> nodes = new ArrayList<>(siblings);
+		for (Mogram mogram : siblings) nodes.addAll(mogram.subs());
 		return nodes;
 	}
 
 	private static boolean isExtendsOrParameterReference(Identifier reference) {
 		PsiElement parent = reference.getParent();
-		while (parent != null && !(parent instanceof Signature) && !(parent instanceof Node))
+		while (parent != null && !(parent instanceof Signature) && !(parent instanceof Mogram))
 			parent = parent.getParent();
 		return parent instanceof Signature;
 	}
 
-	private static boolean areNamesake(Identifier identifier, Node node) {
+	private static boolean areNamesake(Identifier identifier, Mogram node) {
 		return identifier.getText().equals(node.name());
 	}
 
-	private static NodeContainer resolvePathInNode(List<Identifier> path, Node node) {
-		Node reference = null;
+	private static MogramContainer resolvePathInMogram(List<Identifier> path, Mogram mogram) {
+		Mogram reference = null;
 		for (Identifier identifier : path) {
-			reference = reference == null ? areNamesake(identifier, node) ? node : null :
+			reference = reference == null ? areNamesake(identifier, mogram) ? mogram : null :
 					findIn(reference, identifier);
 			if (reference == null || reference.is(Tag.Enclosed) && !isLast(identifier, path))
 				return null;
@@ -188,7 +191,7 @@ public class ReferenceManager {
 		return reference;
 	}
 
-	private static Node findIn(Node node, Identifier identifier) {
+	private static Mogram findIn(Mogram node, Identifier identifier) {
 		return IntinoUtil.findComponent(node, identifier.getText());
 	}
 
@@ -211,12 +214,12 @@ public class ReferenceManager {
 		return (PsiElement) searchInImport(path, imports);
 	}
 
-	private static NodeContainer searchInImport(List<Identifier> path, Collection<Import> imports) {
+	private static MogramContainer searchInImport(List<Identifier> path, Collection<Import> imports) {
 		for (Import anImport : imports) {
 			PsiElement resolve = resolveImport(anImport);
 			if (resolve == null || !TaraModel.class.isInstance(resolve.getContainingFile())) continue;
-			NodeContainer node = tryToResolveInBox((TaraModel) resolve.getContainingFile(), path);
-			if (node != null) return node;
+			MogramContainer mogram = tryToResolveInBox((TaraModel) resolve.getContainingFile(), path);
+			if (mogram != null) return mogram;
 		}
 		return null;
 	}
@@ -277,7 +280,7 @@ public class ReferenceManager {
 	private static List<PsiClass> getCandidates(Valued valued, String generatedDSL) {
 		final PsiPackage aPackage = (PsiPackage) JavaHelper.getJavaHelper(valued.getProject()).findPackage(generatedDSL.toLowerCase() + ".natives");
 		if (aPackage == null || valued.name() == null) return Collections.emptyList();
-		return getAllClasses(aPackage).stream().filter(c -> c.getName() != null && c.getName().startsWith(Format.firstUpperCase().format(valued.name()) + "_")).collect(Collectors.toList());
+		return getAllClasses(aPackage).stream().filter(c -> c.getName() != null && c.getName().startsWith(Format.firstUpperCase().format(valued.name()) + "_")).toList();
 	}
 
 	private static List<PsiClass> getAllClasses(PsiPackage aPackage) {

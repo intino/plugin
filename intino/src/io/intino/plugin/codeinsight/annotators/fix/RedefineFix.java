@@ -18,21 +18,21 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraElementFactory;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RedefineFix implements IntentionAction {
-	private final Node node;
+	private final Mogram node;
 	private final String[] parameters;
 
 	public RedefineFix(PsiElement element, String... parameters) {
-		this.node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
+		this.node = element instanceof Mogram ? (Mogram) element : TaraPsiUtil.getContainerNodeOf(element);
 		this.parameters = parameters;
 	}
 
@@ -60,14 +60,14 @@ public class RedefineFix implements IntentionAction {
 		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace();
 		PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-		final Editor bodyEditor = positionCursor(project, file, addLineSeparator(((TaraNode) node)));
+		final Editor bodyEditor = positionCursor(project, file, addLineSeparator(((TaraMogram) node)));
 		if (bodyEditor == null) return;
 		TemplateManager.getInstance(project).startTemplate(bodyEditor, createTemplate(file));
 		PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 		PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(bodyEditor.getDocument());
 	}
 
-	private PsiElement addLineSeparator(TaraNode node) {
+	private PsiElement addLineSeparator(TaraMogram node) {
 		final PsiElement newLineIndent = TaraElementFactory.getInstance(node.getProject()).createBodyNewLine(TaraPsiUtil.getIndentation(node) + 1);
 		return node.add(newLineIndent);
 	}

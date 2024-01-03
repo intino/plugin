@@ -40,7 +40,7 @@ public class IntinoIcons {
 	public static final Icon GOROS_16 = RETINA ? scale(getIcon("/icons/goros/goros-32.png", IntinoIcons.class)) : getIcon("/icons/goros/goros-16.png", IntinoIcons.class);
 
 	public static final Icon MODEL_16 = RETINA ? scale(getIcon("/icons/files/model-32.png", IntinoIcons.class)) : getIcon("/icons/files/model-16.png", IntinoIcons.class);
-	public static final Icon NODE = RETINA ? scale(getIcon("/icons/files/model-32.png", IntinoIcons.class)) : getIcon("/icons/files/model-16.png", IntinoIcons.class);
+	public static final Icon MOGRAM = RETINA ? scale(getIcon("/icons/files/model-32.png", IntinoIcons.class)) : getIcon("/icons/files/model-16.png", IntinoIcons.class);
 	public static final Icon STASH_16 = RETINA ? scale(getIcon("/icons/files/stash-32.png", IntinoIcons.class)) : getIcon("/icons/files/stash-16.png", IntinoIcons.class);
 
 	public static Icon ICON_13 = RETINA ? scale(getIcon("/icons/icon-26.png", IntinoIcons.class)) : getIcon("/icons/icon-13.png", IntinoIcons.class);

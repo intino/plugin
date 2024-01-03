@@ -3,11 +3,11 @@ package io.intino.plugin.codeinsight.languageinjection;
 import com.intellij.openapi.module.Module;
 import io.intino.itrules.Adapter;
 import io.intino.itrules.FrameBuilderContext;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.psi.TaraVariable;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.Variable;
 
 class NativeVariableAdapter implements Adapter<Variable> {
 

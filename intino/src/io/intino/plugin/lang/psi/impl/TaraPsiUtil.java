@@ -1,5 +1,6 @@
 package io.intino.plugin.lang.psi.impl;
 
+import com.intellij.codeInsight.template.impl.EmptyNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -7,16 +8,15 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
-import io.intino.magritte.lang.model.*;
-import io.intino.magritte.lang.model.Primitive.Reference;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.language.model.*;
+import io.intino.tara.language.model.Primitive.Reference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
@@ -29,7 +29,7 @@ public class TaraPsiUtil {
 	private TaraPsiUtil() {
 	}
 
-	public static String simpleType(Node node) {
+	public static String simpleType(Mogram node) {
 		return simpleType(node.type());
 	}
 
@@ -48,16 +48,16 @@ public class TaraPsiUtil {
 		return keyNode != null ? keyNode.getText() : null;
 	}
 
-	public static String getIdentifier(Node element) {
-		if (((TaraNode) element).getSignature().getIdentifier() != null) {
-			ASTNode valueNode = ((TaraNode) element).getSignature().getIdentifier().getNode();
+	public static String getIdentifier(Mogram element) {
+		if (((TaraMogram) element).getSignature().getIdentifier() != null) {
+			ASTNode valueNode = ((TaraMogram) element).getSignature().getIdentifier().getNode();
 			return valueNode.getText();
 		}
 		return null;
 	}
 
-	static Identifier getIdentifierNode(Node element) {
-		return ((TaraNode) element).getSignature().getIdentifier() != null ? ((TaraNode) element).getSignature().getIdentifier() : null;
+	static Identifier getIdentifierNode(Mogram element) {
+		return ((TaraMogram) element).getSignature().getIdentifier() != null ? ((TaraMogram) element).getSignature().getIdentifier() : null;
 	}
 
 	static PsiElement setName(Signature signature, String newName) {
@@ -67,10 +67,10 @@ public class TaraPsiUtil {
 		return signature;
 	}
 
-	static List<Node> getBodyComponents(Body body) {
+	static List<Mogram> getBodyComponents(Body body) {
 		if (body == null) return emptyList();
-		List<Node> nodes = new ArrayList<>();
-		nodes.addAll(body.getNodeList());
+		List<Mogram> nodes = new ArrayList<>();
+		nodes.addAll(body.getMogramList());
 		nodes.addAll(body.getNodeLinks());
 		return nodes;
 	}
@@ -79,49 +79,49 @@ public class TaraPsiUtil {
 		return body != null ? (List<Variable>) body.getVariableList() : emptyList();
 	}
 
-	public static List<Node> componentsOf(Node node) {
-		List<Node> components = new ArrayList<>();
-		if (node != null) {
-			bodyComponents((TaraNode) node, components);
-			final Node parent = node.parent();
+	public static List<Mogram> componentsOf(Mogram mogram) {
+		List<Mogram> components = new ArrayList<>();
+		if (mogram != null) {
+			bodyComponents((TaraMogram) mogram, components);
+			final Mogram parent = mogram.parent();
 			if (parent != null) components.addAll(parent.components());
 			return components;
 		}
 		return emptyList();
 	}
 
-	public static List<Node> componentsOfType(NodeContainer node, String type) {
-		return node != null ?
-				getComponentsOfType(node, type) :
+	public static List<Mogram> componentsOfType(MogramContainer mogram, String type) {
+		return mogram != null ?
+				getComponentsOfType(mogram, type) :
 				Collections.emptyList();
 	}
 
 	@NotNull
-	private static List<Node> getComponentsOfType(NodeContainer node, String type) {
-		List<Node> nodes = node.components().stream().filter(c -> ((TaraNode) c).simpleType().equals(type)).collect(Collectors.toList());
-		if (node instanceof TaraNode)
-			nodes.addAll(stream(((TaraNode) node).getChildren()).filter(c -> c instanceof TaraNode && ((TaraNode) c).simpleType().equals(type)).map(c -> (Node) c).collect(toList()));
+	private static List<Mogram> getComponentsOfType(MogramContainer mogram, String type) {
+		List<Mogram> nodes = new ArrayList<>(mogram.components().stream().filter(c -> ((TaraMogramImpl) c).simpleType().equals(type)).toList());
+		if (mogram instanceof TaraMogram)
+			nodes.addAll(stream(((TaraMogram) mogram).getChildren()).filter(c -> c instanceof TaraMogram && ((TaraMogramImpl) c).simpleType().equals(type)).map(c -> (Mogram) c).toList());
 		return nodes;
 	}
 
-	public static Node componentOfType(NodeContainer node, String type) {
-		return node == null ? null : node.components().stream().filter(c -> ((TaraNode) c).simpleType().equals(type)).findFirst().orElse(null);
+	public static Mogram componentOfType(MogramContainer mogram, String type) {
+		return mogram == null ? null : mogram.components().stream().filter(c -> ((TaraMogramImpl) c).simpleType().equals(type)).findFirst().orElse(null);
 	}
 
-	public static String parameterValue(Node node, String name) {
-		if (node == null) return null;
-		Parameter parameter = node.parameters().stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
+	public static String parameterValue(Mogram mogram, String name) {
+		if (mogram == null) return null;
+		Parameter parameter = mogram.parameters().stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null ? clean(parameter.values().get(0).toString()) : null;
 	}
 
-	public static String parameterValue(Aspect aspect, String name, int position) {
-		if (aspect == null) return null;
-		List<Parameter> parameters = aspect.parameters();
+	public static String parameterValue(Facet facet, String name, int position) {
+		if (facet == null) return null;
+		List<Parameter> parameters = facet.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null ? clean(parameter.values().get(0).toString()) : (parameters.size() > position ? clean(parameters.get(position).values().get(0).toString()) : null);
 	}
 
-	public static String parameterValue(Node node, String name, int position) {
+	public static String parameterValue(Mogram node, String name, int position) {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
@@ -129,9 +129,9 @@ public class TaraPsiUtil {
 				parameterValueFromPosition(parameters, position, name);
 	}
 
-	public static List<String> parameterValues(Node node, String name, int position) {
-		if (node == null) return null;
-		List<Parameter> parameters = node.parameters();
+	public static List<String> parameterValues(Mogram mogram, String name, int position) {
+		if (mogram == null) return null;
+		List<Parameter> parameters = mogram.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null ?
 				read(parameter::values).stream().map(s -> clean(s.toString())).collect(toList()) :
@@ -162,28 +162,28 @@ public class TaraPsiUtil {
 		return string == null ? null : string.replace("\"", "");
 	}
 
-	public static Reference referenceParameterValue(Node node, String name) {
+	public static Reference referenceParameterValue(Mogram node, String name) {
 		if (node == null) return null;
 		Parameter parameter = node.parameters().stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null && !parameter.values().isEmpty() ? (Reference) parameter.values().get(0) : null;
 	}
 
-	public static Node referenceParameterValue(Node node, String name, int position) {
+	public static Mogram referenceParameterValue(Mogram node, String name, int position) {
 		if (node == null) return null;
 		List<Parameter> parameters = node.parameters();
 		return referenceParameterValue(parameters, name, position);
 	}
 
-	public static Node referenceParameterValue(List<Parameter> parameters, String name, int position) {
+	public static Mogram referenceParameterValue(List<Parameter> parameters, String name, int position) {
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		if (parameter != null && !parameter.values().isEmpty()) {
 			Object o = parameter.values().get(0);
-			return o instanceof Reference ? ((Reference) o).reference() : (Node) o;
+			return o instanceof Reference ? ((Reference) o).reference() : (Mogram) o;
 		}
 		if (parameters.size() > position) {
 			parameters.get(position).type(Primitive.REFERENCE);
 			Object o = parameters.get(position).values().get(0);
-			return o instanceof Reference ? ((Reference) o).reference() : (Node) o;
+			return o instanceof Reference ? ((Reference) o).reference() : (Mogram) o;
 		}
 		return null;
 	}
@@ -201,7 +201,7 @@ public class TaraPsiUtil {
 		application.runWriteAction(t);
 	}
 
-	private static void bodyComponents(TaraNode node, List<Node> components) {
+	private static void bodyComponents(TaraMogram node, List<Mogram> components) {
 		if (node.getBody() != null) {
 			components.addAll(getBodyComponents(node.getBody()));
 			removeSubs(components);
@@ -243,32 +243,32 @@ public class TaraPsiUtil {
 		return null;
 	}
 
-	private static void addSubsOfComponent(List<Node> inner) {
-		List<Node> toAdd = new ArrayList<>();
-		for (Node node : inner) toAdd.addAll(node.subs());
+	private static void addSubsOfComponent(List<Mogram> inner) {
+		List<Mogram> toAdd = new ArrayList<>();
+		for (Mogram mogram : inner) toAdd.addAll(mogram.subs());
 		inner.addAll(toAdd);
 	}
 
-	public static List<Node> getNodeReferencesOf(Node node) {
-		return ((TaraNode) node).getBody() == null ? Collections.EMPTY_LIST : ((TaraNode) node).getBody().getNodeLinks();
+	public static List<Mogram> getNodeReferencesOf(Mogram node) {
+		return ((TaraMogram) node).getBody() == null ? Collections.emptyList() : ((TaraMogram) node).getBody().getNodeLinks();
 	}
 
 
-	private static void removeSubs(List<Node> children) {
-		List<Node> list = children.stream().filter(Node::isSub).collect(Collectors.toList());
+	private static void removeSubs(List<Mogram> children) {
+		List<Mogram> list = children.stream().filter(Mogram::isSub).toList();
 		children.removeAll(list);
 	}
 
 	@Nullable
-	public static Node getContainerNodeOf(PsiElement element) {
+	public static Mogram getContainerNodeOf(PsiElement element) {
 		try {
 			if (element == null) return null;
 			PsiElement aElement = element.getOriginalElement();
 			while ((aElement.getParent() != null)
 					&& !(aElement.getParent() instanceof TaraModel)
-					&& !(aElement.getParent() instanceof Node))
+					&& !(aElement.getParent() instanceof Mogram))
 				aElement = aElement.getParent();
-			return (aElement.getParent() != null) ? (Node) aElement.getParent() : null;
+			return (aElement.getParent() != null) ? (Mogram) aElement.getParent() : null;
 		} catch (NullPointerException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
@@ -276,15 +276,15 @@ public class TaraPsiUtil {
 	}
 
 	@Nullable
-	public static NodeContainer getContainerOf(PsiElement element) {
+	public static MogramContainer getContainerOf(PsiElement element) {
 		PsiElement aElement = element;
 		while (aElement != null && aElement.getParent() != null && isNotNodeOrFile(aElement))
 			aElement = aElement.getParent();
-		return (NodeContainer) (aElement != null ? aElement.getParent() : null);
+		return (MogramContainer) (aElement != null ? aElement.getParent() : null);
 	}
 
 	private static boolean isNotNodeOrFile(PsiElement aElement) {
-		return !(aElement.getParent() instanceof TaraModel) && !(aElement.getParent() instanceof Node);
+		return !(aElement.getParent() instanceof TaraModel) && !(aElement.getParent() instanceof Mogram);
 	}
 
 	public static Body getBodyContextOf(PsiElement element) {
@@ -295,13 +295,13 @@ public class TaraPsiUtil {
 		return (Body) aElement.getParent();
 	}
 
-	static Node getParentOf(Node node) {
+	static Mogram getParentOf(Mogram node) {
 		if (node.isSub()) return getContainerNodeOf((PsiElement) node);
-		return ((TaraNode) node).getSignature().parent();
+		return ((TaraMogram) node).getSignature().parent();
 	}
 
 
-	static boolean isAnnotatedAsComponent(Node node) {
+	static boolean isAnnotatedAsComponent(Mogram node) {
 		for (Tag flag : node.flags())
 			if (flag.equals(Tag.Component)) return true;
 		return false;

@@ -14,10 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ItrulesTreeStructureProvider implements TreeStructureProvider {
-
 	private final Project project;
 
 	public ItrulesTreeStructureProvider(Project project) {
@@ -29,7 +27,7 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 	public Collection<AbstractTreeNode<?>> modify(@NotNull AbstractTreeNode<?> parent, @NotNull Collection<AbstractTreeNode<?>> children, ViewSettings settings) {
 		if (parent.getValue() instanceof NodeView) return children;
 		Collection<AbstractTreeNode<?>> result = new LinkedHashSet<>();
-		for (AbstractTreeNode element : children) {
+		for (AbstractTreeNode<?> element : children) {
 			if (element instanceof PsiDirectoryNode) {
 				result.add(element);
 				continue;
@@ -50,8 +48,8 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 	private boolean isTemplateClass(Collection<AbstractTreeNode<?>> children, AbstractTreeNode<?> element) {
 		PsiJavaFile file = (PsiJavaFile) element.getValue();
 		final String javaClassName = FileUtilRt.getNameWithoutExtension(file.getName());
-		for (AbstractTreeNode<?> node : children)
-			if (asItrFile(node) != null && (((ItrulesTemplate) node.getValue()).getPresentableName() + "Template").equals(javaClassName))
+		for (AbstractTreeNode<?> mogram : children)
+			if (asItrFile(mogram) != null && (((ItrulesTemplate) mogram.getValue()).getPresentableName() + "Template").equals(javaClassName))
 				return true;
 		return false;
 	}
@@ -75,8 +73,8 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 
 	private List<NodeView> getNodeTreeViews(Collection<? extends AbstractTreeNode<?>> selected) {
 		return selected.stream().
-				filter(node -> node.getValue() instanceof NodeView).
-				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());
+				filter(mogram -> mogram.getValue() instanceof NodeView).
+				map(mogram -> (NodeView) mogram.getValue())
+				.toList();
 	}
-
 }

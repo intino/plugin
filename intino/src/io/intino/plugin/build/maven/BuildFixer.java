@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.CompilerProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration.Artifact.Package.MacOs;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +23,13 @@ public class BuildFixer {
 	private static final Logger LOG = Logger.getInstance(BuildFixer.class);
 
 	private final File buildDirectory;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final Module module;
 	private Artifact.Package build;
 
 	BuildFixer(Module module) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		this.buildDirectory = new File(buildDirectory(), "build");
 		if (configuration != null)
 			this.build = safe(() -> configuration.artifact().packageConfiguration());

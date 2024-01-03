@@ -1,12 +1,12 @@
 package io.intino.legio.model.rules;
 
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.rules.NodeRule;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.rules.NodeRule;
 
 public class Named implements NodeRule {
 
     @Override
-    public boolean accept(Node node) {
+    public boolean accept(Mogram node) {
         return !node.isAnonymous();
     }
 

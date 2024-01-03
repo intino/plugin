@@ -13,7 +13,7 @@ import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.maven.MavenRunner;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +38,9 @@ public class AccessorsPublisher {
 	private static final String ACCESSOR = "-accessor";
 	private final Module module;
 	private final File root;
-	private final LegioConfiguration conf;
+	private final ArtifactLegioConfiguration conf;
 
-	public AccessorsPublisher(Module module, LegioConfiguration conf, File root) {
+	public AccessorsPublisher(Module module, ArtifactLegioConfiguration conf, File root) {
 		this.module = module;
 		this.conf = conf;
 		this.root = root;

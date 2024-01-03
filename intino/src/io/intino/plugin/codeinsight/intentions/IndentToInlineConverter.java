@@ -9,14 +9,14 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.Body;
 import io.intino.plugin.lang.psi.TaraBody;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.lang.psi.impl.TaraElementFactoryImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,8 +44,8 @@ public class IndentToInlineConverter extends PsiElementBaseIntentionAction imple
 			if (is(leaf, TaraTypes.NEW_LINE_INDENT))
 				replaced.add(leaf.replace(factory.createInlineNewLineIndent()));
 		}
-		for (Node node : body.getNodeList()) {
-			final TaraBody nodeBody = ((TaraNode) node).getBody();
+		for (Mogram mogram : body.getMogramList()) {
+			final TaraBody nodeBody = ((TaraMogram) mogram).getBody();
 			if (nodeBody != null) propagateIndents(replaced, factory, nodeBody);
 		}
 	}

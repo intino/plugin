@@ -4,15 +4,15 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
-import io.intino.magritte.lang.model.Metric;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.model.rules.NodeRule;
-import io.intino.magritte.lang.model.rules.variable.NativeObjectRule;
-import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Metric;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.model.rules.NodeRule;
+import io.intino.tara.language.model.rules.variable.NativeObjectRule;
+import io.intino.tara.language.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.magritte.lang.model.Primitive.FUNCTION;
-import static io.intino.magritte.lang.model.Primitive.OBJECT;
+import static io.intino.tara.language.model.Primitive.FUNCTION;
+import static io.intino.tara.language.model.Primitive.OBJECT;
 import static java.util.Collections.singletonList;
 
 public class OutDefinedReferenceSolver extends TaraReferenceSolver {

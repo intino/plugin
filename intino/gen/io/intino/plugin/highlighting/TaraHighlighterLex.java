@@ -6,9 +6,9 @@ import com.intellij.lexer.FlexLexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import io.intino.magritte.Language;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.TaraTypes;
+import io.intino.tara.Language;
 
 import java.util.Collections;
 import java.util.HashSet;

@@ -5,16 +5,16 @@ import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import io.intino.magritte.Checker;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
-import static io.intino.magritte.lang.model.Tag.Instance;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerNodeOf;
+import static io.intino.tara.language.model.Tag.Instance;
 
 class BodyCompletionProvider extends CompletionProvider<CompletionParameters> {
 
@@ -32,14 +32,14 @@ class BodyCompletionProvider extends CompletionProvider<CompletionParameters> {
 		if (!isDeclaration(getContainerNodeOf(parameters.getPosition().getContext()))) addKeywords(resultSet);
 	}
 
-	private boolean isDeclaration(Node node) {
-		final Node container = check((PsiElement) node);
+	private boolean isDeclaration(Mogram node) {
+		final Mogram container = check((PsiElement) node);
 		return container != null && (node.is(Instance) || container.is(Instance));
 	}
 
-	private Node check(PsiElement node) {
+	private Mogram check(PsiElement node) {
 		Checker checker = new Checker(IntinoUtil.getLanguage(node));
-		final Node container = getContainerNodeOf(node);
+		final Mogram container = getContainerNodeOf(node);
 		if (container == null) return null;
 		try {
 			checker.check(container);

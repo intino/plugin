@@ -12,31 +12,31 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.jcabi.aether.Aether;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.PluginLauncher;
 import io.intino.plugin.PluginLauncher.Phase;
+import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
 import io.intino.plugin.dependencyresolution.Repositories;
-import io.intino.plugin.project.configuration.LegioConfiguration;
-import io.intino.plugin.settings.ArtifactoryCredential;
-import io.intino.plugin.settings.IntinoSettings;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.toolwindows.remote.RemoteWindow;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory;
@@ -48,13 +48,13 @@ public class PluginExecutor {
 	private static final Logger LOG = Logger.getInstance(PluginExecutor.class);
 	private final Module module;
 	private final FactoryPhase phase;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final String artifact;
 	private final String pluginClass;
 	private final List<String> errorMessages;
 	private final ProgressIndicator indicator;
 
-	public PluginExecutor(Module module, FactoryPhase phase, LegioConfiguration configuration, String artifact, String pluginClass, List<String> errorMessages, ProgressIndicator indicator) {
+	public PluginExecutor(Module module, FactoryPhase phase, ArtifactLegioConfiguration configuration, String artifact, String pluginClass, List<String> errorMessages, ProgressIndicator indicator) {
 		this.module = module;
 		this.phase = phase;
 		this.configuration = configuration;
@@ -67,18 +67,17 @@ public class PluginExecutor {
 	public void execute() {
 		try {
 			indicator.setText("Running package plugins");
-			List<Artifact> artifacts = resolve();
-			instantiateAndRun(artifacts);
+			var result = resolve();
+			instantiateAndRun(MavenDependencyResolver.dependenciesFrom(result, false));
 		} catch (DependencyResolutionException e) {
 			errorMessages.add("Intino Plugin " + artifact + " not found");
 		}
 	}
 
-	private void instantiateAndRun(List<Artifact> artifacts) {
+	private void instantiateAndRun(List<Dependency> dependencies) {
 		PipedOutputStream out = new PipedOutputStream();
 		PrintStream logStream = new PrintStream(out);
-		ClassLoader classLoader = createClassLoader(artifacts.stream().map(Artifact::getFile).toArray(File[]::new));
-		if (classLoader == null) return;
+		ClassLoader classLoader = createClassLoader(dependencies.stream().map(d -> d.getArtifact().getFile()).toArray(File[]::new));
 		ModuleRootManager manager = ModuleRootManager.getInstance(module);
 		new Thread(() -> connectLogger(out)).start();
 		try {
@@ -149,48 +148,35 @@ public class PluginExecutor {
 		return new File(pathOf(Objects.requireNonNull(extension.getCompilerOutputUrl())));
 	}
 
-	private List<Artifact> resolve() throws DependencyResolutionException {
-		Aether aether = new Aether(collectRemotes(), localRepository());
+	private DependencyResult resolve() throws DependencyResolutionException {
+		var resolver = new MavenDependencyResolver(collectRemotes());
 		String[] coords = this.artifact.split(":");
-		return aether.resolve(new DefaultArtifact(coords[0], coords[1], "jar", coords[2]), JavaScopes.COMPILE);
+		return resolver.resolve(new DefaultArtifact(coords[0], coords[1], "jar", coords[2]), JavaScopes.COMPILE);
 	}
 
 	@NotNull
-	private Collection<RemoteRepository> collectRemotes() {
-		Collection<RemoteRepository> remotes = new ArrayList<>();
+	private List<RemoteRepository> collectRemotes() {
+		List<RemoteRepository> remotes = new ArrayList<>();
 		Repositories repositories = new Repositories(this.module);
 		remotes.add(repositories.maven(RepositoryPolicy.UPDATE_POLICY_ALWAYS));
 		remotes.addAll(repositories.map(this.configuration.repositories()));
 		return remotes;
 	}
 
-	@NotNull
-	private File localRepository() {
-		return new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-	}
-
 	private void publish(String line) {
 		Logger.getInstance(this.getClass()).info(line);
-	}
-
-	private Authentication provideAuthentication(String mavenId) {
-		final IntinoSettings settings = IntinoSettings.getInstance(module.getProject());
-		for (ArtifactoryCredential credential : settings.artifactories())
-			if (credential.serverId.equals(mavenId))
-				return new Authentication(credential.username, credential.password);
-		return null;
 	}
 
 	private List<File> srcDirectories(Module module) {
 		return ApplicationManager.getApplication().runReadAction((Computable<List<File>>) () -> {
 			final ModuleRootManager manager = getInstance(module);
 			final List<VirtualFile> sourceRoots = manager.getModifiableModel().getSourceRoots(SOURCE);
-			return sourceRoots.stream().map(virtualFile -> new File(virtualFile.getPath())).collect(Collectors.toList());
+			return sourceRoots.stream().map(virtualFile -> new File(virtualFile.getPath())).toList();
 		});
 	}
 
 	private List<File> resourceDirectories(Module module) {
-		return getInstance(module).getSourceRoots(RESOURCE).stream().map(virtualFile -> new File(virtualFile.getPath())).collect(Collectors.toList());
+		return getInstance(module).getSourceRoots(RESOURCE).stream().map(virtualFile -> new File(virtualFile.getPath())).toList();
 	}
 
 	private String pathOf(String path) {

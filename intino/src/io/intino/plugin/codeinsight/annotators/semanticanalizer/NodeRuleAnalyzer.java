@@ -5,10 +5,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.dsl.ProteoConstants;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.rules.custom.Url;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.fix.CreateNodeRuleClassIntention;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
@@ -18,20 +14,24 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.messages.MessageProvider;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.dsls.MetaIdentifiers;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.rules.custom.Url;
 
 import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.plugin.highlighting.TaraSyntaxHighlighter.UNRESOLVED_ACCESS;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class NodeRuleAnalyzer extends TaraAnalyzer {
 
 	private static final String RULES_PACKAGE = ".rules.";
 	private final String rulesPackage;
 	private final Rule rule;
-	private final Node node;
+	private final Mogram node;
 
 	public NodeRuleAnalyzer(TaraRuleContainer ruleContainer) {
-		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Node.class);
+		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Mogram.class);
 		this.rule = ruleContainer.getRule();
 		this.rulesPackage = IntinoUtil.modelPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
 	}
@@ -47,7 +47,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 		}
 		final Module module = module();
 		if (rule.isLambda()) {
-			if (node.type().equalsIgnoreCase(ProteoConstants.ASPECT) || node.type().equalsIgnoreCase(ProteoConstants.META_ASPECT))
+			if (node.type().equalsIgnoreCase(MetaIdentifiers.FACET) || node.type().equalsIgnoreCase(MetaIdentifiers.META_FACET))
 				aspectError();
 			return;
 		} else if (module == null) return;

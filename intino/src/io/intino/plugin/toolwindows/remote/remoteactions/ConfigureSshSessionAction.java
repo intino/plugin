@@ -3,8 +3,7 @@ package io.intino.plugin.toolwindows.remote.remoteactions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.TerminalWindow;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.cesar.CesarInfo;
@@ -44,7 +43,8 @@ public class ConfigureSshSessionAction extends AnAction implements DumbAware, In
 	}
 
 	@Override
-	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
+	public void onApplicationChange(Application application) {
 
 	}
+
 }

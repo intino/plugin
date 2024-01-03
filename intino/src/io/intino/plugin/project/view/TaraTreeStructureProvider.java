@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TaraTreeStructureProvider implements com.intellij.ide.projectView.TreeStructureProvider {
 	private final Project project;
@@ -26,7 +25,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 	public Collection<AbstractTreeNode<?>> modify(@NotNull AbstractTreeNode<?> parent, @NotNull Collection<AbstractTreeNode<?>> children, ViewSettings settings) {
 		if (parent.getValue() instanceof NodeView) return children;
 		Collection<AbstractTreeNode<?>> result = new LinkedHashSet<>();
-		for (AbstractTreeNode element : children) {
+		for (AbstractTreeNode<?> element : children) {
 			if (element instanceof PsiDirectoryNode) {
 				result.add(element);
 				continue;
@@ -40,17 +39,15 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 		return result;
 	}
 
-	private boolean isJavaClass(AbstractTreeNode element) {
+	private boolean isJavaClass(AbstractTreeNode<?> element) {
 		return element.getValue() instanceof PsiJavaFile;
 	}
 
 	private boolean isMethodObjectClass(Collection<AbstractTreeNode<?>> children, AbstractTreeNode<?> element) {
 		PsiJavaFile file = (PsiJavaFile) element.getValue();
 		final String javaClassName = FileUtilRt.getNameWithoutExtension(file.getName());
-		for (AbstractTreeNode node : children)
-			if (asTaraFile(node) != null && ((TaraModel) node.getValue()).getPresentableName().equals(javaClassName))
-				return true;
-		return false;
+		return children.stream()
+				.anyMatch(node -> asTaraFile(node) != null && ((TaraModel) node.getValue()).getPresentableName().equals(javaClassName));
 	}
 
 	private TaraModel asTaraFile(AbstractTreeNode<?> element) {
@@ -62,7 +59,6 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 
 	@Override
 	public @Nullable Object getData(@NotNull Collection<? extends AbstractTreeNode<?>> selected, @NotNull String dataId) {
-		if (selected == null) return null;
 		if (NodeView.DATA_KEY.is(dataId)) {
 			List<NodeView> result = getNodeTreeViews(selected);
 			if (!result.isEmpty()) return result.toArray(new NodeView[0]);
@@ -72,7 +68,7 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 
 	private List<NodeView> getNodeTreeViews(Collection<? extends AbstractTreeNode<?>> selected) {
 		return selected.stream().
-				filter(node -> node.getValue() instanceof NodeView).
-				map(node -> (NodeView) node.getValue()).collect(Collectors.toList());
+				filter(mogram -> mogram.getValue() instanceof NodeView).
+				map(mogram -> (NodeView) mogram.getValue()).toList();
 	}
 }

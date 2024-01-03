@@ -6,19 +6,18 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.rules.variable.ReferenceRule;
-import io.intino.magritte.lang.semantics.Constraint;
-import io.intino.magritte.lang.semantics.constraints.parameter.ReferenceParameter;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.rules.variable.ReferenceRule;
+import io.intino.tara.language.semantics.Constraint;
+import io.intino.tara.language.semantics.constraints.parameter.ReferenceParameter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActionSupport<Parameters, Object, TaraParameter> {
 
@@ -93,18 +92,18 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 		context.showHint(parameters, parameters.getTextRange().getStartOffset(), this);
 	}
 
-	private List<Constraint.Parameter> collectParameterConstraints(List<Constraint> nodeConstraints, TaraAspectApply inFacet) {
+	private List<Constraint.Parameter> collectParameterConstraints(List<Constraint> nodeConstraints, TaraFacetApply inFacet) {
 		List<Constraint> scopeAllows = nodeConstraints;
 		if (inFacet != null) scopeAllows = collectFacetParameterConstraints(nodeConstraints, inFacet.type());
 		return scopeAllows.stream().
 				filter(constraint -> constraint instanceof Constraint.Parameter && ((Constraint.Parameter) constraint).size().isRequired()).
-				map(constraint -> (Constraint.Parameter) constraint).collect(Collectors.toList());
+				map(constraint -> (Constraint.Parameter) constraint).toList();
 	}
 
 	private List<Constraint> collectFacetParameterConstraints(List<Constraint> nodeAllows, String type) {
 		for (Constraint constraint : nodeAllows)
-			if ((constraint instanceof Constraint.Aspect) && ((Constraint.Aspect) constraint).type().equals(type))
-				return ((Constraint.Aspect) constraint).constraints();
+			if ((constraint instanceof Constraint.Facet) && ((Constraint.Facet) constraint).type().equals(type))
+				return ((Constraint.Facet) constraint).constraints();
 		return Collections.emptyList();
 	}
 

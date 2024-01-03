@@ -50,9 +50,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.intino.magritte</groupId>
+			<groupId>io.intino.tara</groupId>
 			<artifactId>builder-constants</artifactId>
-			<version>3.0.1</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.intino.konos</groupId>

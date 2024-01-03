@@ -6,11 +6,11 @@ import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.JavaHelper;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -28,14 +28,14 @@ public class InterfaceToJavaImplementation extends RelatedItemLineMarkerProvider
 
 	@Override
 	protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
-		if (!(element instanceof Node) || (element instanceof TaraModel) || !isInterfaceFile(element) || nodeMap.isEmpty())
+		if (!(element instanceof Mogram) || (element instanceof TaraModel) || !isInterfaceFile(element) || nodeMap.isEmpty())
 			return;
-		Node node = (Node) element;
-		PsiElement destiny = resolveToJavaImplementation(node);
+		Mogram mogram = (Mogram) element;
+		PsiElement destiny = resolveToJavaImplementation(mogram);
 		if (destiny != null) addResult(element, result, destiny);
 	}
 
-	private PsiElement resolveToJavaImplementation(Node node) {
+	private PsiElement resolveToJavaImplementation(Mogram node) {
 		final String type = simpleType(node);
 		String key = type + "#" + node.name();
 		if (node.name().isEmpty()) return null;

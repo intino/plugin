@@ -2,20 +2,20 @@ package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
-import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.lang.psi.TaraMogram;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level;
 
 import static io.intino.plugin.MessageProvider.message;
 
 public class ArtifactModelPackageAnalyzer extends TaraAnalyzer {
-	private final Node node;
-	private final LegioConfiguration configuration;
+	private final Mogram node;
+	private final ArtifactLegioConfiguration configuration;
 
-	public ArtifactModelPackageAnalyzer(Node node, LegioConfiguration configuration) {
+	public ArtifactModelPackageAnalyzer(Mogram node, ArtifactLegioConfiguration configuration) {
 		this.node = node;
 		this.configuration = configuration;
 	}
@@ -28,6 +28,6 @@ public class ArtifactModelPackageAnalyzer extends TaraAnalyzer {
 		JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(configuration.module().getProject());
 		PsiPackage oldPackage = javaPsiFacade.findPackage(generationPackage + ".graph");
 		if (oldPackage != null && !modelPackage.equals("graph"))
-			results.put(((TaraNode) node).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.model.in.old.package")));
+			results.put(((TaraMogram) node).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.model.in.old.package")));
 	}
 }

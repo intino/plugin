@@ -1,8 +1,8 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,9 +11,9 @@ import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioRunConfiguration implements Configuration.RunConfiguration {
 	private final LegioArtifact artifact;
-	private final Node node;
+	private final Mogram node;
 
-	public LegioRunConfiguration(LegioArtifact artifact, Node node) {
+	public LegioRunConfiguration(LegioArtifact artifact, Mogram node) {
 		this.artifact = artifact;
 		this.node = node;
 	}
@@ -58,9 +58,9 @@ public class LegioRunConfiguration implements Configuration.RunConfiguration {
 
 	public static class LegioArgument implements Argument {
 		private final LegioRunConfiguration runConfiguration;
-		private final Node node;
+		private final Mogram node;
 
-		public LegioArgument(LegioRunConfiguration runConfiguration, Node node) {
+		public LegioArgument(LegioRunConfiguration runConfiguration, Mogram node) {
 			this.runConfiguration = runConfiguration;
 			this.node = node;
 		}

@@ -16,7 +16,6 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 
@@ -28,7 +27,7 @@ public class ModuleSelectorDialog extends DialogWrapper {
 	public ModuleSelectorDialog(Project project) {
 		super(project, false);
 		super.setTitle("Select Module");
-		this.modules = Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> IntinoUtil.configurationOf(m) != null).sorted(Comparator.comparing(Module::getName)).collect(Collectors.toList());
+		this.modules = Arrays.stream(ModuleManager.getInstance(project).getModules()).filter(m -> IntinoUtil.configurationOf(m) != null).sorted(Comparator.comparing(Module::getName)).toList();
 		this.centerRelativeToParent();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension dimension = new Dimension((int) (screenSize.getWidth() / 6), (int) (screenSize.getHeight() / 6));

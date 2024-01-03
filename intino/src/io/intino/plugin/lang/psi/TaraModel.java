@@ -3,18 +3,18 @@ package io.intino.plugin.lang.psi;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface TaraModel extends NodeRoot, PsiFile {
+public interface TaraModel extends MogramRoot, PsiFile {
 
 	@NotNull
-	PsiElement addNode(@NotNull Node node) throws IncorrectOperationException;
+	PsiElement addNode(@NotNull Mogram mogram) throws IncorrectOperationException;
 
-	Node addNode(String identifier);
+	Mogram addNode(String identifier);
 
 	Import addImport(String reference);
 

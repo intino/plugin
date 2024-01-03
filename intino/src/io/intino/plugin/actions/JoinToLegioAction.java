@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -7,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
@@ -16,8 +18,8 @@ import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileTemplate;
 import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.plugin.toolwindows.IntinoTopics;
@@ -35,11 +37,15 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.plugin.file.LegioFileType.LEGIO_FILE;
+import static io.intino.plugin.file.LegioFileType.ARTIFACT_LEGIO;
 
 public class JoinToLegioAction extends AnAction implements DumbAware {
 	private static final com.intellij.openapi.diagnostic.Logger logger = com.intellij.openapi.diagnostic.Logger.getInstance(JoinToLegioAction.class);
 
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.BGT;
+	}
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
@@ -59,12 +65,13 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 			else newLegio(module);
 			if (mavenProject != null)
 				MavenProjectsManager.getInstance(module.getProject()).removeManagedFiles(Collections.singletonList(mavenProject.getFile()));
-			ConfigurationManager.register(module, new LegioConfiguration(module)).init();
+			ConfigurationManager.register(module, new ArtifactLegioConfiguration(module)).init();
 			final VirtualFile moduleFile = ProjectUtil.guessModuleDir(module);
 			if (moduleFile != null) VfsUtil.markDirtyAndRefresh(true, true, false, moduleFile.getParent());
 			publish(module);
 		};
 	}
+
 
 	private void publish(Module module) {
 		final MessageBus messageBus = module.getProject().getMessageBus();
@@ -95,8 +102,8 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 		FrameBuilder builder = new FrameBuilder("legio").add("groupId", mavenId.getGroupId()).add("artifactId", mavenId.getArtifactId()).add("version", mavenId.getVersion());
 		maven.getRemoteRepositories().stream().filter(r -> !r.getId().equals("central")).forEach(r ->
 				builder.add("repository", new FrameBuilder(r.getSnapshotsPolicy() != null ? "snapshot" : "release").add("url", r.getUrl()).add("id", r.getId())).toFrame());
-		for (MavenArtifactNode node : maven.getDependencyTree()) {
-			MavenArtifact artifact = node.getArtifact();
+		for (MavenArtifactNode mogram : maven.getDependencyTree()) {
+			MavenArtifact artifact = mogram.getArtifact();
 			builder.add("dependency", new FrameBuilder("dependency").add("type", artifact.getScope() == null ? "compile" : artifact.getScope().toLowerCase()).
 					add("groupId", artifact.getGroupId()).
 					add("artifactId", artifact.getArtifactId()).
@@ -130,7 +137,7 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent e) {
-		final Module module = e.getData(LangDataKeys.MODULE);
+		final Module module = ApplicationManager.getApplication().runReadAction((Computable<? extends Module>) () -> e.getData(LangDataKeys.MODULE));
 		boolean enabled = module != null && !hasLegioFile(module);
 		e.getPresentation().setVisible(enabled);
 		e.getPresentation().setEnabled(enabled);
@@ -144,6 +151,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 
 	@NotNull
 	private File legioFile(Module module) {
-		return new File(IntinoUtil.moduleRoot(module), LEGIO_FILE);
+		return new File(IntinoUtil.moduleRoot(module), ARTIFACT_LEGIO);
 	}
 }

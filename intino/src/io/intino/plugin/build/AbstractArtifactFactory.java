@@ -28,7 +28,7 @@ import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.IntinoTopics;
@@ -86,14 +86,14 @@ public abstract class AbstractArtifactFactory {
 
 	private void processPackagePlugins(ProgressIndicator indicator) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return;
-		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((LegioConfiguration) configuration).artifact().plugins());
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
+		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((ArtifactLegioConfiguration) configuration).artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Artifact.Plugin.Phase.PrePackage).forEach(plugin ->
-				new PluginExecutor(module, phase, (LegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
+				new PluginExecutor(module, phase, (ArtifactLegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
 	}
 
 	private ProcessResult processArtifact(ProgressIndicator indicator) {
-		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		final ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		try {
 			checker.check(phase, configuration);
 			if (mavenNeeded(phase, configuration)) {
@@ -111,13 +111,13 @@ public abstract class AbstractArtifactFactory {
 
 	}
 
-	private boolean mavenNeeded(FactoryPhase phase, LegioConfiguration configuration) {
+	private boolean mavenNeeded(FactoryPhase phase, ArtifactLegioConfiguration configuration) {
 		return phase != DEPLOY || !isDistributed(configuration.artifact());
 	}
 
 	private ProcessResult runMavenPhases(ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
-		LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
 		if (version.isSnapshot()) buildModule(module, configuration, phase, indicator);
 		else {
@@ -137,7 +137,7 @@ public abstract class AbstractArtifactFactory {
 		return phase.ordinal() >= DISTRIBUTE.ordinal();
 	}
 
-	private void buildModule(Module module, LegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
+	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
 		buildLanguage(phase, indicator);
 		buildArtifact(phase, indicator);
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {
@@ -154,7 +154,7 @@ public abstract class AbstractArtifactFactory {
 		new MavenRunner(module).executeArtifact(phase);
 		LinuxService linuxService = configuration.artifact().packageConfiguration().linuxService();
 		if (linuxService != null && configuration.artifact().packageConfiguration().isRunnable())
-			new LinuxServiceGenerator((LegioConfiguration) configuration, linuxService, successMessages).generate();
+			new LinuxServiceGenerator((ArtifactLegioConfiguration) configuration, linuxService, successMessages).generate();
 	}
 
 	private void buildLanguage(FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
@@ -270,7 +270,7 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	private void bitbucket(FactoryPhase phase, LegioConfiguration configuration) throws IntinoException {
+	private void bitbucket(FactoryPhase phase, ArtifactLegioConfiguration configuration) throws IntinoException {
 		Artifact artifact = configuration.artifact();
 		if (includeDistribution(phase)) {
 			if (safe(() -> artifact.distribution().onBitbucket()) != null) {
@@ -284,7 +284,7 @@ public abstract class AbstractArtifactFactory {
 
 	private ProcessResult deploy(ProgressIndicator indicator) throws IntinoException {
 		updateProgressIndicator(indicator, message("publishing.artifact"));
-		LegioConfiguration conf = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		ArtifactLegioConfiguration conf = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(conf.artifact().version());
 		List<Deployment> deployments = collectDeployments(module.getProject(), conf, version.isSnapshot());
 		if (deployments.isEmpty()) return ProcessResult.NothingDone;
@@ -301,7 +301,7 @@ public abstract class AbstractArtifactFactory {
 		}
 	}
 
-	private void publishInBus(LegioConfiguration conf) {
+	private void publishInBus(ArtifactLegioConfiguration conf) {
 		final MessageBus messageBus = module.getProject().getMessageBus();
 		conf.loadRemoteProcessesInfo();
 		final IntinoRemoteConsoleListener mavenListener = messageBus.syncPublisher(IntinoTopics.REMOTE_CONSOLE);
@@ -312,18 +312,18 @@ public abstract class AbstractArtifactFactory {
 
 	}
 
-	private boolean askForDeploy(Module module, LegioConfiguration conf) {
+	private boolean askForDeploy(Module module, ArtifactLegioConfiguration conf) {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(module.getProject(),
 				"You are going to deploy " + conf.artifact().name(), "Are you sure?").showAndGet()));
 		return response.get();
 	}
 
-	private List<Deployment> collectDeployments(Project project, LegioConfiguration conf, boolean snapshot) {
+	private List<Deployment> collectDeployments(Project project, ArtifactLegioConfiguration conf, boolean snapshot) {
 		List<Deployment> deployments = safeList(() -> conf.artifact().deployments()).stream().filter(deployment -> {
 			if (!snapshot) return true;
 			return deployment.server().type().equals(Dev) || deployment.server().type().equals(Pre);
-		}).collect(Collectors.toList());
+		}).toList();
 		if (deployments.isEmpty()) {
 			errorMessages.add("Not Suitable Destinations have been found");
 			return Collections.emptyList();

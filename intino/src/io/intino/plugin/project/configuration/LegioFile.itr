@@ -1,16 +1,21 @@
+def type(legio & project)
+	dsl Legio
+
+	Project("describes here your project") $name
+		Repository("intino-maven")
+			Release("https://artifactory.intino.io/artifactory/releases")
+
+end
+
 def type(legio & empty)
 	dsl Legio
 
-	Artifact(groupId = "[$groupId?org.example]", version = "1.0.0") $name[ as $level+firstUpperCase]
+	Artifact(groupId = "[$groupId?org.example]", version = "1.0.0") $name
 		[$factory]
 		[$box]
 		Imports
 			Test(groupId = "junit", artifactId = "junit", version = "4.13")
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
-
-	Repository(identifier = "intino-maven")
-		Release("https://artifactory.intino.io/artifactory/releases")
-
 	RunConfiguration local
 end
 
@@ -21,7 +26,7 @@ def trigger(model)
 def type(legio) !type(empty)
 	dsl Legio
 
-	Artifact(groupId = "$groupId", version = "$version") $artifactId[ as $level+firstUpperCase]
+	Artifact(groupId = "$groupId", version = "$version") $artifactId
 		[$factory
 		]
 		Imports[
@@ -29,9 +34,6 @@ def type(legio) !type(empty)
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
 		[$distribution...[$NL]]
 
-	[$isIntino
-	Repository(identifier = "intino-maven")
-		Release("https://artifactory.intino.io/artifactory/releases")]
 	[$repository...[$NL]]
 end
 

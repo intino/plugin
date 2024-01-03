@@ -5,8 +5,8 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
-import io.intino.plugin.archetype.lang.psi.ArchetypeTypes;
 import io.intino.plugin.archetype.lang.lexer.ArchetypeLexerAdapter;
+import io.intino.plugin.archetype.lang.psi.ArchetypeTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

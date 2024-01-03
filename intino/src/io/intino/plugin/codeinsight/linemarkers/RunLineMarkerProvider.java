@@ -17,9 +17,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Function;
 import io.intino.plugin.file.LegioFileType;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.plugin.project.run.IntinoRunContextAction;
 import org.jetbrains.annotations.NotNull;
@@ -105,7 +105,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	}
 
 	private PsiClass findRunnerClass(Module module) {
-		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		final ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		if (configuration == null) return null;
 		String qualifiedName = configuration.artifact().packageConfiguration().mainClass();
 		if (qualifiedName == null) return null;
@@ -126,8 +126,8 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 
 	private boolean isRunConfiguration(PsiElement e) {
-		return e.getContainingFile().getFileType().equals(LegioFileType.instance()) && e instanceof TaraNode &&
-				((TaraNode) e).type().equals("RunConfiguration");
+		return e.getContainingFile().getFileType().equals(LegioFileType.instance()) && e instanceof TaraMogram &&
+				((TaraMogram) e).type().equals("RunConfiguration");
 	}
 
 	public static class Info {

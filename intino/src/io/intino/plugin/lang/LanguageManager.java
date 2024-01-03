@@ -12,13 +12,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.intino.Configuration;
-import io.intino.magritte.Language;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.builders.BoxBuilderManager;
+import io.intino.tara.Language;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +30,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.intino.magritte.dsl.ProteoConstants.META;
-import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.builders.BoxBuilderManager.BOX_LANGUAGE;
+import static io.intino.tara.dsls.MetaIdentifiers.META;
+import static io.intino.tara.dsls.MetaIdentifiers.PROTEO;
 
 public class LanguageManager {
 	public static final String DSL = "dsl";
-	public static final String TARA_USER = ".m2";
+	public static final String TARA_REPOSITORY = ".m2";
 	public static final String TARA_LOCAL = ".intino/tara";
 	public static final String JSON = ".json";
 	@SuppressWarnings("WeakerAccess")
@@ -142,7 +143,7 @@ public class LanguageManager {
 	}
 
 	public static File getLanguageDirectory(String dsl) {
-		return new File(getLanguagesDirectory().getPath(), DSL_GROUP_ID.replace(".", File.separator) + File.separator + dsl.toLowerCase());
+		return new File(getLanguagesRepository().getPath(), DSL_GROUP_ID.replace(".", File.separator) + File.separator + dsl.toLowerCase());
 	}
 
 	public static Map<String, Object> getImportedLanguageInfo(String dsl) {
@@ -162,16 +163,8 @@ public class LanguageManager {
 		return tara == null ? createTaraDirectory(baseDir) : new File(tara.getPath());
 	}
 
-	private static VirtualFile getTaraDirectory() {
-		final File baseDir = new File(System.getProperty("user.home"));
-		final File tara = new File(baseDir, TARA_USER);
-		if (!tara.exists()) tara.mkdirs();
-		return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(tara);
-	}
-
-	public static VirtualFile getLanguagesDirectory() {
-		final VirtualFile taraDirectory = getTaraDirectory();
-		final File dslDirectory = new File(taraDirectory.getPath(), "repository");
+	public static VirtualFile getLanguagesRepository() {
+		final File dslDirectory = Repositories.LOCAL;
 		dslDirectory.mkdirs();
 		return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(dslDirectory);
 	}

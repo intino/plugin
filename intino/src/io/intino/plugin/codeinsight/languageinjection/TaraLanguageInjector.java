@@ -9,21 +9,21 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.Template;
-import io.intino.magritte.Checker;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.magritte.lang.model.Primitive.FUNCTION;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
+import static io.intino.tara.language.model.Primitive.FUNCTION;
 
 public class TaraLanguageInjector implements LanguageInjector {
 
@@ -59,10 +59,10 @@ public class TaraLanguageInjector implements LanguageInjector {
 	}
 
 	private void resolve(PsiLanguageInjectionHost host) {
-		final Node node = TaraPsiUtil.getContainerNodeOf(host);
-		if (node != null) try {
-			final io.intino.magritte.Language language = IntinoUtil.getLanguage(host);
-			if (language != null) new Checker(language).check(node.resolve());
+		final Mogram mogram = TaraPsiUtil.getContainerNodeOf(host);
+		if (mogram != null) try {
+			final io.intino.tara.Language language = IntinoUtil.getLanguage(host);
+			if (language != null) new Checker(language).check(mogram.resolve());
 		} catch (SemanticFatalException ignored) {
 		}
 	}
@@ -84,7 +84,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 
 	private String createPrefix(Expression expression) {
 		resolve(expression);
-		final io.intino.magritte.Language language = IntinoUtil.getLanguage(expression.getOriginalElement().getContainingFile());
+		final io.intino.tara.Language language = IntinoUtil.getLanguage(expression.getOriginalElement().getContainingFile());
 		final Module module = moduleOf(expression);
 		if (language == null || module == null) return "";
 		Template template = new ExpressionInjectionTemplate();
@@ -92,7 +92,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 		return prefix.isEmpty() ? defaultPrefix() : prefix;
 	}
 
-	private Frame buildFrame(Expression expression, io.intino.magritte.Language language, Module module) {
+	private Frame buildFrame(Expression expression, io.intino.tara.Language language, Module module) {
 		Valued valued = getContainerByType(expression, Valued.class);
 		if (valued == null) return null;
 		String workingPackage = IntinoUtil.modelPackage(expression).isEmpty() ? module.getName() : IntinoUtil.modelPackage(expression);

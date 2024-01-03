@@ -9,11 +9,11 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 
 	@Override
 	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
-		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
+		if (!(element instanceof Mogram)) return super.getLineMarkerInfo(element);
 		if (isProcessElement(element)) {
 			final MarkerType type = markerType;
 			final PsiElement leaf = leafOf(element);
@@ -74,10 +74,11 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	}
 
 	private String filePath(PsiElement element) {
-		Node node = node(element);
-		if (node == null) return "process.bpmn";
-		if (node.parameters().isEmpty()) return node.name();
-		return node.parameters().get(0).values().get(0).toString();
+		Mogram mogram = mogram(element);
+		if (mogram == null) return "process.bpmn";
+		return mogram.parameters().isEmpty() ?
+				mogram.name() :
+				mogram.parameters().get(0).values().get(0).toString();
 	}
 
 	private void updateWebServer(String processId, Module module, File file) {
@@ -86,7 +87,7 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 
 	private String processId(PsiElement element) {
 		Module module = ModuleProvider.moduleOf(element);
-		return module.getProject().getName() + "-" + module.getName() + "-" + node(element).name();
+		return module.getProject().getName() + "-" + module.getName() + "-" + mogram(element).name();
 	}
 
 	private PsiElement leafOf(@NotNull PsiElement element) {
@@ -96,14 +97,14 @@ public class ProcessLineMarkerProvider extends JavaLineMarkerProvider {
 	}
 
 	private boolean isProcessElement(PsiElement e) {
-		Node node = node(e);
-		return e.getContainingFile().getFileType().equals(KonosFileType.instance()) && node != null &&
-				("Process".equals(node.type()) || "Workflow.Process".equals(node.type()));
+		Mogram mogram = mogram(e);
+		return e.getContainingFile().getFileType().equals(KonosFileType.instance()) && mogram != null &&
+				("Process".equals(mogram.type()) || "Workflow.Process".equals(mogram.type()));
 	}
 
 	@Nullable
-	private Node node(PsiElement e) {
-		return e instanceof Node ? (Node) e : TaraPsiUtil.getContainerNodeOf(e);
+	private Mogram mogram(PsiElement e) {
+		return e instanceof Mogram ? (Mogram) e : TaraPsiUtil.getContainerNodeOf(e);
 	}
 
 	private void close(InputStream stream) {

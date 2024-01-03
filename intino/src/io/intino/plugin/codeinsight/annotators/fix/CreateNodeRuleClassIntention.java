@@ -10,13 +10,13 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Rule;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraRule;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Rule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -27,12 +27,12 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 
 	private static final String RULES_PACKAGE = ".rules";
 	private final Rule rule;
-	private final Node node;
+	private final Mogram node;
 	private String rulesPath;
 
 	public CreateNodeRuleClassIntention(Rule rule) {
 		this.rule = rule;
-		this.node = TaraPsiUtil.getContainerByType((TaraRule) rule, Node.class);
+		this.node = TaraPsiUtil.getContainerByType((TaraRule) rule, Mogram.class);
 		if (node != null) this.rulesPath = IntinoUtil.modelPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
 	}
 

@@ -1,10 +1,10 @@
 package io.intino.plugin.build;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.jcabi.aether.Aether;
 import io.intino.Configuration;
 import io.intino.alexandria.restaccessor.Response;
 import io.intino.alexandria.restaccessor.exceptions.RestfulFailure;
+import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -14,10 +14,11 @@ import org.apache.http.entity.mime.*;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -163,10 +164,11 @@ public class BitbucketDeployer {
 	}
 
 	private File find(String artifact) {
-		Aether aether = new Aether(Collections.emptyList(), new File(System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+		MavenDependencyResolver resolver = new MavenDependencyResolver(Collections.emptyList());
 		try {
-			final List<Artifact> resolve = aether.resolve(new DefaultArtifact(artifact.toLowerCase()), JavaScopes.COMPILE, (node, parents) -> true);
-			return resolve.isEmpty() ? null : resolve.get(0).getFile();
+			DependencyResult resolved = resolver.resolve(new DefaultArtifact(artifact.toLowerCase()), JavaScopes.COMPILE);
+			List<Dependency> dependencies = MavenDependencyResolver.dependenciesFrom(resolved, false);
+			return dependencies.get(0).getArtifact().getFile();
 		} catch (DependencyResolutionException e) {
 			return null;
 		}

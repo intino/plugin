@@ -6,13 +6,13 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.module.IntinoModuleType;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,16 +46,17 @@ public class LegioCompletionContributor extends CompletionContributor {
 
 	private void inLanguageVersion() {
 		extend(CompletionType.BASIC, LegioFilters.inLanguageVersion, new CompletionProvider<>() {
-			public void addCompletions(@NotNull CompletionParameters parameters,
-									   @NotNull ProcessingContext context,
-									   @NotNull CompletionResultSet resultSet) {
-				final Module module = moduleOf(parameters.getOriginalFile());
-				if (!IntinoModuleType.isIntino(module)) return;
-				final Node container = (Node) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
-				if (container == null) return;
-				final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
-				if (name == null) return;
-				final @Nullable List<String> values = PropertiesComponent.getInstance().getList(LanguageLibrary + name.values().get(0).toString());
+					public void addCompletions(@NotNull CompletionParameters parameters,
+											   @NotNull ProcessingContext context,
+											   @NotNull CompletionResultSet resultSet) {
+						final Module module = moduleOf(parameters.getOriginalFile());
+						if (!IntinoModuleType.isIntino(module)) return;
+						final Mogram container = (Mogram) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
+						if (container == null) return;
+						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
+						if (name == null) return;
+						String languageName = name.values().get(0).toString();
+						final @Nullable List<String> values = PropertiesComponent.getInstance().getList(LanguageLibrary + languageName);
 						if (values == null) return;
 						for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 					}
@@ -110,14 +111,14 @@ public class LegioCompletionContributor extends CompletionContributor {
 	private void resolveDependency(CompletionParameters parameters, CompletionResultSet resultSet) {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return;
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 		final List<String> values = new ArtifactoryConnector(module.getProject(), configuration.repositories()).versions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;
 		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);
 	}
 
-	private String artifactFrom(Node node) {
+	private String artifactFrom(Mogram node) {
 		return groupId(node.parameters()) + ":" + artifactId(node.parameters());
 	}
 

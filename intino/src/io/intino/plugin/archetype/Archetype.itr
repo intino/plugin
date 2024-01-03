@@ -50,7 +50,7 @@ def type(archetype)
     }
 end
 
-def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter)
+def type(Mogram & leaf & list & regex) attribute(parameter) trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
@@ -60,7 +60,7 @@ def type(node & leaf & list & regex) attribute(parameter) trigger(relativeGetter
 	}
 end
 
-def type(node & leaf & list) trigger(relativeGetter)
+def type(Mogram & leaf & list) trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
 	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
@@ -70,19 +70,19 @@ def type(node & leaf & list) trigger(relativeGetter)
 	}
 end
 
-def type(node & leaf) attribute(parameter) trigger(relativeGetter)
+def type(Mogram & leaf) attribute(parameter) trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return "$filePath"[$parameter+replace...[]];
 	}
 end
 
-def type(node & leaf) trigger(relativeGetter)
+def type(Mogram & leaf) trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase() {
 		return "$filePath";
 	}
 end
 
-def type(node & leaf & list & regex) trigger(getter)
+def type(Mogram & leaf & list & regex) trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
 	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
 		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
@@ -91,7 +91,7 @@ def type(node & leaf & list & regex) trigger(getter)
 	}
 end
 
-def type(node & leaf & list) trigger(getter)
+def type(Mogram & leaf & list) trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
 	    new File(root, "$filePath"[$parameter+replace...[]]).mkdirs();
 		return java.util.Arrays.stream(new File(root, "$filePath"[$parameter+replace...[]]).listFiles()).
@@ -100,19 +100,19 @@ def type(node & leaf & list) trigger(getter)
 	}
 end
 
-def type(node & leaf) trigger(getter)
+def type(Mogram & leaf) trigger(getter)
 	public File $name+snakeCaseToCamelCase+firstLowerCase([$parameter+signature...[, ]]) {
 		return createParent(new File(root, "$filePath"[$parameter+replace...[]]));
 	}
 end
 
-def type(node & leaf) trigger(getter)
+def type(Mogram & leaf) trigger(getter)
 	public File $name+snakeCaseToCamelCase+firstLowerCase() {
 		return createParent(new File(root, "$filePath"));
 	}
 end
 
-def type(node & splitted) trigger(relativeGetter)
+def type(Mogram & splitted) trigger(relativeGetter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name, split);
 	}
@@ -134,7 +134,7 @@ def type(node) trigger(relativeGetter)
 	}
 end
 
-def type(node & splitted) trigger(getter)
+def type(Mogram & splitted) trigger(getter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, split);
 	}
@@ -161,7 +161,7 @@ def type(node) trigger(getter)
 	}
 end
 
-def type(node & splitted) !type(leaf) trigger(relativeClass)
+def type(Mogram & splitted) !type(leaf) trigger(relativeClass)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 		private final String name;
@@ -203,7 +203,7 @@ def type(node) !type(splitted) !type(leaf) trigger(relativeClass)
 	}
 end
 
-def type(node & splitted) !type(leaf) trigger(class)
+def type(Mogram & splitted) !type(leaf) trigger(class)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 

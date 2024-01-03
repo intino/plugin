@@ -13,11 +13,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.annotators.fix.WithLiveTemplateFix;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,11 +27,11 @@ import static io.intino.plugin.codeinsight.annotators.legio.fix.FixUtils.addNewL
 
 public class AddParameterFix extends WithLiveTemplateFix implements IntentionAction {
 
-	private final Node node;
+	private final Mogram node;
 	private final Map<String, String> requiredParameters;
 
 	public AddParameterFix(PsiElement element, Map<String, String> requiredParameters) {
-		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiUtil.getContainerOf(element);
+		this.node = element instanceof Mogram ? (Mogram) element : (Mogram) TaraPsiUtil.getContainerOf(element);
 		this.requiredParameters = requiredParameters;
 	}
 
@@ -64,13 +64,13 @@ public class AddParameterFix extends WithLiveTemplateFix implements IntentionAct
 		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		commit(file, editor);
-		addNewLine((TaraNode) node);
+		addNewLine((TaraMogram) node);
 		commit(file, editor);
-		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, editor.getDocument().getLineNumber(((TaraNode) node).getTextOffset()) + 1);
+		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, editor.getDocument().getLineNumber(((TaraMogram) node).getTextOffset()) + 1);
 		TemplateManager.getInstance(file.getProject()).startTemplate(componentEditor, createTemplate(file));
 		commit(file, componentEditor);
 		commit(file, editor);
-		addNewLine((TaraNode) node);
+		addNewLine((TaraMogram) node);
 		commit(file, editor);
 	}
 

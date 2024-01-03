@@ -13,11 +13,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.annotators.fix.WithLiveTemplateFix;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,11 +25,11 @@ import java.util.List;
 
 public class AddArgumentFix extends WithLiveTemplateFix implements IntentionAction {
 
-	private final Node node;
+	private final Mogram node;
 	private final List<String> requiredParameters;
 
 	public AddArgumentFix(PsiElement element, List<String> requiredParameters) {
-		this.node = element instanceof Node ? (Node) element : (Node) TaraPsiUtil.getContainerOf(element);
+		this.node = element instanceof Mogram ? (Mogram) element : (Mogram) TaraPsiUtil.getContainerOf(element);
 		this.requiredParameters = requiredParameters;
 	}
 
@@ -64,16 +64,16 @@ public class AddArgumentFix extends WithLiveTemplateFix implements IntentionActi
 		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		commit(file, editor);
-		int lineNumber = editor.getDocument().getLineNumber(((TaraNode) node).getLastChild().getTextRange().getEndOffset());
+		int lineNumber = editor.getDocument().getLineNumber(((TaraMogram) node).getLastChild().getTextRange().getEndOffset());
 		if (editor.getDocument().getLineCount() <= lineNumber + 1) {
-			FixUtils.addNewLine((TaraNode) node);
+			FixUtils.addNewLine((TaraMogram) node);
 			commit(file, editor);
 		}
 		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, lineNumber + 2);
 		TemplateManager.getInstance(file.getProject()).startTemplate(componentEditor, createTemplate(file));
 		commit(file, componentEditor);
 		commit(file, editor);
-		FixUtils.addNewLine((TaraNode) node);
+		FixUtils.addNewLine((TaraMogram) node);
 		commit(file, editor);
 	}
 

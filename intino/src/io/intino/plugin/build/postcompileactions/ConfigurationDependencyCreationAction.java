@@ -101,15 +101,6 @@ public class ConfigurationDependencyCreationAction extends PostCompileAction {
 				return false;
 			}
 
-			@Override
-			public boolean resolved() {
-				return false;
-			}
-
-			@Override
-			public void resolved(boolean resolved) {
-
-			}
 
 			@Override
 			public boolean toModule() {

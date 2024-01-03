@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 
 import java.io.File;
@@ -22,9 +22,9 @@ import static io.intino.plugin.project.Safe.safe;
 
 public class FactoryPhaseChecker {
 	void check(FactoryPhase phase, Configuration configuration) throws IntinoException {
-		if (!(configuration instanceof LegioConfiguration))
+		if (!(configuration instanceof ArtifactLegioConfiguration))
 			throw new IntinoException(message("legio.artifact.not.found"));
-		if (safe(() -> ((LegioConfiguration) configuration).artifact().packageConfiguration()) == null)
+		if (safe(() -> ((ArtifactLegioConfiguration) configuration).artifact().packageConfiguration()) == null)
 			throw new IntinoException(message("packaging.configuration.not.found"));
 		if (noDistributionRepository(phase, configuration))
 			throw new IntinoException(message("distribution.repository.not.found"));
@@ -62,12 +62,12 @@ public class FactoryPhaseChecker {
 
 	boolean shouldDistributeLanguage(FactoryPhase lifeCyclePhase, Module module) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return false;
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return false;
 		if (noDistributionRepository(lifeCyclePhase, configuration)) return false;
 		Configuration.Distribution distribution = safe(() -> configuration.artifact().distribution());
 		if (distribution != null && !distribution.distributeLanguage()) return false;
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
-		return model != null && model.level() != null && !model.level().isSolution() && lifeCyclePhase.mavenActions().contains("deploy");
+		return model != null && model.level() != null && !model.level().isModel() && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {

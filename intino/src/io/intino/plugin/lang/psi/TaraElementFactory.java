@@ -2,10 +2,10 @@ package io.intino.plugin.lang.psi;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Primitive;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Primitive;
 
 import java.util.List;
 import java.util.Map;
@@ -16,11 +16,11 @@ public abstract class TaraElementFactory {
 		return project.getService(TaraElementFactory.class);
 	}
 
-	public abstract Node createNode(String name);
+	public abstract Mogram createNode(String name);
 
-	public abstract Node createFullNode(String code);
+	public abstract Mogram createFullMogram(String code);
 
-	public abstract TaraNode createNode(String name, String type);
+	public abstract TaraMogram createNode(String name, String type);
 
 	public abstract TaraModelImpl createDummyFile(String text);
 
@@ -30,9 +30,9 @@ public abstract class TaraElementFactory {
 
 	public abstract TaraVariable createVariable(String name, Primitive type);
 
-	public abstract TaraAspectApply createAspectApply(String type);
+	public abstract TaraFacetApply createFacetApply(String type);
 
-	public abstract TaraAspects createAspects(String type);
+	public abstract TaraFacets createFacets(String type);
 
 	public abstract TaraImports createImport(String reference);
 

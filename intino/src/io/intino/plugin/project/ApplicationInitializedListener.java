@@ -1,8 +1,8 @@
 package io.intino.plugin.project;
 
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlinx.coroutines.CoroutineScope;
@@ -13,7 +13,7 @@ public class ApplicationInitializedListener implements com.intellij.ide.Applicat
 	@Override
 	public Object execute(@NotNull CoroutineScope asyncScope, @NotNull Continuation<? super Unit> $completion) {
 		LanguageManager.register(new tara.dsl.Legio());
-		ConfigurationManager.registerProvider(LegioConfiguration.class);
+		ConfigurationManager.registerProvider(ArtifactLegioConfiguration.class);
 		return com.intellij.ide.ApplicationInitializedListener.super.execute(asyncScope, $completion);
 	}
 }

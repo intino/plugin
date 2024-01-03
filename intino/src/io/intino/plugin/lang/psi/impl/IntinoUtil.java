@@ -3,11 +3,13 @@ package io.intino.plugin.lang.psi.impl;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.impl.stores.IProjectStore;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -19,15 +21,15 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Code;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.*;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.*;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -57,17 +59,17 @@ public class IntinoUtil {
 		fileDocManager.saveDocument(doc);
 	}
 
-	public static List<Node> findRootNode(PsiElement element, String identifier) {
-		List<Node> result = new ArrayList<>();
+	public static List<Mogram> findRootNode(PsiElement element, String identifier) {
+		List<Mogram> result = new ArrayList<>();
 		for (TaraModel taraFile : getModuleFiles(element.getContainingFile())) {
-			Collection<Node> nodes = taraFile.components();
+			Collection<Mogram> nodes = taraFile.components();
 			extractNodesByName(identifier, result, nodes);
 		}
 		return result;
 	}
 
-	private static void extractNodesByName(String identifier, List<Node> result, Collection<Node> nodes) {
-		result.addAll(nodes.stream().filter(node -> identifier.equals(node.name())).collect(Collectors.toList()));
+	private static void extractNodesByName(String identifier, List<Mogram> result, Collection<Mogram> nodes) {
+		result.addAll(nodes.stream().filter(mogram -> identifier.equals(mogram.name())).toList());
 	}
 
 	public static File moduleRoot(Module module) {
@@ -75,6 +77,11 @@ public class IntinoUtil {
 		if (file != null) return VfsUtil.virtualToIoFile(file);
 		VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
 		return contentRoots.length == 0 ? new File(module.getModuleFilePath()).getParentFile() : VfsUtil.virtualToIoFile(contentRoots[0]);
+	}
+
+	public static File projectRoot(Project project) {
+		IProjectStore store = project.getComponent(IProjectStore.class);
+		return store != null ? store.getProjectBasePath().toFile() : new File(project.getBasePath());
 	}
 
 	@Nullable
@@ -153,14 +160,14 @@ public class IntinoUtil {
 	}
 
 	@Nullable
-	public static List<Constraint> constraintsOf(Node node) {
-		Language language = getLanguage((PsiElement) node);
+	public static List<Constraint> constraintsOf(Mogram mogram) {
+		Language language = getLanguage((PsiElement) mogram);
 		if (language == null) return null;
-		return language.constraints(node.resolve().type());
+		return language.constraints(mogram.resolve().type());
 	}
 
 	@NotNull
-	public static List<Constraint.Parameter> parameterConstraintsOf(Node node) {
+	public static List<Constraint.Parameter> parameterConstraintsOf(Mogram node) {
 		Language language = getLanguage((PsiElement) node);
 		if (language == null) return emptyList();
 		final List<Constraint> nodeConstraints = language.constraints(node.resolve().type());
@@ -168,50 +175,50 @@ public class IntinoUtil {
 		List<Constraint.Parameter> parameters = new ArrayList<>();
 		for (Constraint constraint : nodeConstraints)
 			if (constraint instanceof Constraint.Parameter) parameters.add((Constraint.Parameter) constraint);
-			else if (constraint instanceof Constraint.Aspect && hasAspect(node, (Constraint.Aspect) constraint))
-				parameters.addAll(((Constraint.Aspect) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).toList());
+			else if (constraint instanceof Constraint.Facet && hasAspect(node, (Constraint.Facet) constraint))
+				parameters.addAll(((Constraint.Facet) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).toList());
 		return parameters;
 	}
 
 	@NotNull
-	public static List<Constraint.Parameter> aspectParameterConstraintsOf(Node node) {
+	public static List<Constraint.Parameter> aspectParameterConstraintsOf(Mogram node) {
 		Language language = getLanguage((PsiElement) node);
 		if (language == null) return emptyList();
 		final List<Constraint> nodeConstraints = language.constraints(node.resolve().type());
 		if (nodeConstraints == null) return emptyList();
 		List<Constraint.Parameter> parameters = new ArrayList<>();
 		nodeConstraints.stream().
-				filter(constraint -> constraint instanceof Constraint.Aspect && hasAspect(node, (Constraint.Aspect) constraint)).
-				map(constraint -> ((Constraint.Aspect) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).
+				filter(constraint -> constraint instanceof Constraint.Facet && hasAspect(node, (Constraint.Facet) constraint)).
+				map(constraint -> ((Constraint.Facet) constraint).constraints().stream().filter(c -> c instanceof Constraint.Parameter).map(c -> (Constraint.Parameter) c).
 						collect(Collectors.toList())).forEach(parameters::addAll);
 		return parameters;
 	}
 
-	private static boolean hasAspect(Node node, Constraint.Aspect constraint) {
-		return node.appliedAspects().stream().anyMatch(facet -> facet.fullType().equalsIgnoreCase(constraint.type()));
+	private static boolean hasAspect(Mogram node, Constraint.Facet constraint) {
+		return node.appliedFacets().stream().anyMatch(facet -> facet.fullType().equalsIgnoreCase(constraint.type()));
 	}
 
 	@Nullable
-	public static List<Constraint> constraintsOf(Aspect aspect) {
-		final Node node = TaraPsiUtil.getContainerNodeOf((PsiElement) aspect);
+	public static List<Constraint> constraintsOf(Facet facet) {
+		final Mogram node = TaraPsiUtil.getContainerNodeOf((PsiElement) facet);
 		final List<Constraint> nodeConstraints = constraintsOf(node);
 		if (nodeConstraints == null || nodeConstraints.isEmpty()) return emptyList();
-		return collectAspectConstrains(aspect, nodeConstraints);
+		return collectAspectConstrains(facet, nodeConstraints);
 	}
 
-	private static List<Constraint> collectAspectConstrains(Aspect aspect, List<Constraint> constraints) {
+	private static List<Constraint> collectAspectConstrains(Facet aspect, List<Constraint> constraints) {
 		return constraints.stream().
-				filter(c -> c instanceof Constraint.Aspect && ((Constraint.Aspect) c).type().equals(aspect.fullType())).
+				filter(c -> c instanceof Constraint.Facet && ((Constraint.Facet) c).type().equals(aspect.fullType())).
 				findFirst().
-				map(c -> ((Constraint.Aspect) c).constraints()).
+				map(c -> ((Constraint.Facet) c).constraints()).
 				orElse(emptyList());
 	}
 
 	@Nullable
 	public static TaraVariable getOverriddenVariable(Variable variable) {
-		Node node = TaraPsiUtil.getContainerNodeOf((PsiElement) variable);
-		if (node == null) return null;
-		Node parent = node.parent();
+		Mogram mogram = TaraPsiUtil.getContainerNodeOf((PsiElement) variable);
+		if (mogram == null) return null;
+		Mogram parent = mogram.parent();
 		while (parent != null) {
 			for (Variable parentVar : parent.variables())
 				if (isOverridden(variable, parentVar))
@@ -250,16 +257,16 @@ public class IntinoUtil {
 		return null;
 	}
 
-	public static List<Node> getMainNodesOfFile(TaraModel file) {
-		Set<Node> list = new LinkedHashSet<>();
-		Node[] nodes = components(file);
+	public static List<Mogram> getMainNodesOfFile(TaraModel file) {
+		Set<Mogram> list = new LinkedHashSet<>();
+		Mogram[] nodes = components(file);
 		if (nodes == null) return new ArrayList<>(list);
-		for (Node node : nodes) {
-			list.add(node);
-			list.addAll(node.subs());
+		for (Mogram mogram : nodes) {
+			list.add(mogram);
+			list.addAll(mogram.subs());
 		}
-		List<Node> mainNodes = findMainNodes(file);
-		for (Node main : mainNodes) {
+		List<Mogram> mainNodes = findMainNodes(file);
+		for (Mogram main : mainNodes) {
 			if (list.contains(main)) continue;
 			list.add(main);
 		}
@@ -294,37 +301,37 @@ public class IntinoUtil {
 		return taraFiles;
 	}
 
-	public static List<Node> getAllNodesOfFile(TaraModel model) {
-		Set<Node> all = new HashSet<>();
-		final Node[] rootNodes = components(model);
+	public static List<Mogram> getAllNodesOfFile(TaraModel model) {
+		Set<Mogram> all = new HashSet<>();
+		final Mogram[] rootNodes = components(model);
 		if (rootNodes == null) return emptyList();
-		for (Node include : rootNodes) all.addAll(include.subs());
-		for (Node root : rootNodes) getRecursiveComponentsOf(root, all);
+		for (Mogram include : rootNodes) all.addAll(include.subs());
+		for (Mogram root : rootNodes) getRecursiveComponentsOf(root, all);
 		return new ArrayList<>(all);
 	}
 
-	private static void getRecursiveComponentsOf(Node root, Set<Node> all) {
+	private static void getRecursiveComponentsOf(Mogram root, Set<Mogram> all) {
 		all.add(root);
-		TaraNode[] components = PsiTreeUtil.getChildrenOfType(((TaraNode) root).getBody(), TaraNode.class);
-		if (components != null) for (Node include : components) getRecursiveComponentsOf(include, all);
+		TaraMogram[] components = PsiTreeUtil.getChildrenOfType(((TaraMogram) root).getBody(), TaraMogram.class);
+		if (components != null) for (Mogram include : components) getRecursiveComponentsOf(include, all);
 	}
 
 	@NotNull
-	public static List<Node> getComponentsOf(NodeContainer container) {
-		return TaraPsiUtil.componentsOf((Node) container);
+	public static List<Mogram> getComponentsOf(MogramContainer container) {
+		return TaraPsiUtil.componentsOf((Mogram) container);
 	}
 
 	@Nullable
-	public static Node findComponent(NodeContainer node, String name) {
-		for (Node include : node.components())
+	public static Mogram findComponent(MogramContainer mogram, String name) {
+		for (Mogram include : mogram.components())
 			if (include.name() != null && include.name().equals(name)) return include;
-		if (!(node instanceof Node) || ((Node) node).parent() == null) return null;
-		return findInParentComponents((Node) node, name);
+		if (!(mogram instanceof Mogram) || ((Mogram) mogram).parent() == null) return null;
+		return findInParentComponents((Mogram) mogram, name);
 	}
 
 	@Nullable
-	private static Node findInParentComponents(Node node, String name) {
-		for (Node include : node.parent().components())
+	private static Mogram findInParentComponents(Mogram node, String name) {
+		for (Mogram include : node.parent().components())
 			if (include.name() != null && include.name().equals(name))
 				return include;
 		return null;
@@ -413,20 +420,20 @@ public class IntinoUtil {
 		return null;
 	}
 
-	private static List<Node> findMainNodes(TaraModel file) {
-		final TaraNode[] childrenOfType = components(file);
+	private static List<Mogram> findMainNodes(TaraModel file) {
+		final TaraMogram[] childrenOfType = components(file);
 		if (childrenOfType == null) return emptyList();
-		final List<Node> rootNodes = Arrays.asList(childrenOfType);
-		return rootNodes.stream().filter((node) -> !TaraPsiUtil.isAnnotatedAsComponent(node)).collect(Collectors.toList());
+		final List<Mogram> rootNodes = Arrays.asList(childrenOfType);
+		return rootNodes.stream().filter((node) -> !TaraPsiUtil.isAnnotatedAsComponent(node)).toList();
 	}
 
-	private static TaraNode[] components(TaraModel file) {
+	private static TaraMogram[] components(TaraModel file) {
 		try {
 			Application application = ApplicationManager.getApplication();
-			if (application.isReadAccessAllowed()) return PsiTreeUtil.getChildrenOfType(file, TaraNode.class);
-			return application.<TaraNode[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraNode.class));
+			if (application.isReadAccessAllowed()) return PsiTreeUtil.getChildrenOfType(file, TaraMogram.class);
+			return application.<TaraMogram[]>runReadAction(() -> PsiTreeUtil.getChildrenOfType(file, TaraMogram.class));
 		} catch (RuntimeException e) {
-			return new TaraNode[0];
+			return new TaraMogram[0];
 		}
 	}
 

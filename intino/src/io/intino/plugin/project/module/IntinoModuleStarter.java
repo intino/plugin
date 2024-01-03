@@ -16,8 +16,8 @@ import io.intino.Configuration;
 import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import io.intino.plugin.project.configuration.MavenConfiguration;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
@@ -71,7 +71,7 @@ public class IntinoModuleStarter implements ModuleListener, ProjectActivity {
 	public void modulesRenamed(@NotNull Project project, @NotNull List<? extends Module> modules, @NotNull Function<? super Module, String> oldNameProvider) {
 		for (Module module : modules) {
 			final Configuration conf = IntinoUtil.configurationOf(module);
-			if (!(conf instanceof LegioConfiguration)) return;
+			if (!(conf instanceof ArtifactLegioConfiguration)) return;
 			ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
 				final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
 				progressIndicator.setText("Refactoring java");

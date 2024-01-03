@@ -6,18 +6,18 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Variable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("DataFlowIssue")
 public class TaraElementFactoryImpl extends TaraElementFactory {
 
 	private static final String DUMMY_CONCEPT = "Dummy DummyInstance";
@@ -28,30 +28,30 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		this.project = project;
 	}
 
-	public TaraNode createNode(String name, String type) {
+	public TaraMogram createNode(String name, String type) {
 		final TaraModelImpl file = createDummyFile(
 				type + " " + name + "\n"
 		);
-		return (TaraNode) file.components().iterator().next();
+		return (TaraMogram) file.components().iterator().next();
 	}
 
-	public TaraNode createNode(String name) {
+	public TaraMogram createNode(String name) {
 		final TaraModelImpl file = createDummyFile(
 				"Concept" + " " + name + "\n"
 		);
-		return (TaraNode) file.components().iterator().next();
+		return (TaraMogram) file.components().iterator().next();
 	}
 
-	public TaraNode createFullNode(String text) {
+	public TaraMogram createFullMogram(String text) {
 		final TaraModelImpl file = createDummyFile(text + "\n");
-		return (TaraNode) file.components().iterator().next();
+		return (TaraMogram) file.components().iterator().next();
 	}
 
-	private TaraNode createNodeWithType(String type) {
+	private TaraMogram createNodeWithType(String type) {
 		final TaraModelImpl file = createDummyFile(
 				type + " " + "Dummy" + "\n"
 		);
-		return (TaraNode) file.components().iterator().next();
+		return (TaraMogram) file.components().iterator().next();
 	}
 
 
@@ -73,25 +73,25 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 						"\tvar " + type.getName() + " " + name + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"
 		);
-		Body body = PsiTreeUtil.getChildOfType(file, TaraNode.class).getBody();
+		Body body = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getBody();
 		return body != null ? (TaraVariable) body.getFirstChild().getNextSibling() : null;
 	}
 
 	@Override
-	public TaraAspects createAspects(String type) {
+	public TaraFacets createFacets(String type) {
 		final TaraModelImpl file = createDummyFile(
 				CONCEPT_DUMMY + " as " + type + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"
 		);
-		return PsiTreeUtil.getChildOfType(file, TaraNode.class).getSignature().getAspects();
+		return PsiTreeUtil.getChildOfType(file, TaraMogram.class).getSignature().getFacets();
 	}
 
-	public TaraAspectApply createAspectApply(String type) {
+	public TaraFacetApply createFacetApply(String type) {
 		final TaraModelImpl file = createDummyFile(
 				CONCEPT_DUMMY + " as " + type + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"
 		);
-		return PsiTreeUtil.getChildOfType(file, TaraNode.class).getSignature().getAspects().getAspectApplyList().get(0);
+		return PsiTreeUtil.getChildOfType(file, TaraMogram.class).getSignature().getFacets().getFacetApplyList().get(0);
 	}
 
 	public TaraVariable createResource(String name, String type) {
@@ -100,16 +100,16 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 						"\tvar resource:" + type + " " + name + "\n" +
 						"\tConcept Ontology\n"
 		);
-		Body body = PsiTreeUtil.getChildOfType(file, TaraNode.class).getBody();
+		Body body = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getBody();
 		return body != null ? (TaraVariable) body.getFirstChild().getNextSibling() : null;
 	}
 
 	@Override
-	public PsiElement createMetaWordIdentifier(String module, String node, String name) {
+	public PsiElement createMetaWordIdentifier(String module, String mogram, String name) {
 		final TaraModelImpl file = createDummyFile(
-				node + "(" + node + "." + name + ")" + " Dummy" + "\n"
+				mogram + "(" + mogram + "." + name + ")" + " Dummy" + "\n"
 		);
-		Collection<Parameter> parameters = PsiTreeUtil.getChildOfType(file, TaraNode.class).getSignature().getParameters().getParameters();
+		Collection<Parameter> parameters = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getSignature().getParameters().getParameters();
 		return ((PsiElement) parameters.iterator().next()).getLastChild().getLastChild();
 	}
 
@@ -119,7 +119,7 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 				CONCEPT_DUMMY + "\n" +
 						"\tvar word " + name + "\n" +
 						getWordTypesToString(types));
-		Body body = PsiTreeUtil.getChildOfType(file, TaraNode.class).getBody();
+		Body body = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getBody();
 		return body != null ? (TaraVariable) body.getVariableList().get(0) : null;
 	}
 
@@ -157,8 +157,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				"Form(" + ")" + "DummyInstance\n"
 		);
-		final Node next = file.components().iterator().next();
-		return ((TaraNode) next).getSignature().getParameters();
+		final Mogram next = file.components().iterator().next();
+		return ((TaraMogram) next).getSignature().getParameters();
 	}
 
 	@Override
@@ -166,8 +166,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				"Form(" + (areStrings ? "\"\"" : "") + ")" + "DummyInstance\n"
 		);
-		final Node next = file.components().iterator().next();
-		return ((TaraNode) next).getSignature().getParameters();
+		final Mogram next = file.components().iterator().next();
+		return ((TaraMogram) next).getSignature().getParameters();
 	}
 
 	@Override
@@ -176,8 +176,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				"Dummy(" + parameters + ")" + " DummyInstance\n"
 		);
-		final Node next = file.components().iterator().next();
-		return ((TaraNode) next).getSignature().getParameters();
+		final Mogram next = file.components().iterator().next();
+		return ((TaraMogram) next).getSignature().getParameters();
 	}
 
 	private String buildParameters(String[] names) {
@@ -194,7 +194,7 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 				"Concept(" + assigns + ")" + " DummyInstance\n"
 		);
 		if (file.components().isEmpty()) return null;
-		return ((TaraNode) file.components().get(0)).getSignature().getParameters();
+		return ((TaraMogram) file.components().get(0)).getSignature().getParameters();
 	}
 
 	@Override
@@ -202,8 +202,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				"Dummy(" + "x = 1, y = 2" + ")" + " DummyInstance\n"
 		);
-		final TaraNode node = (TaraNode) file.components().iterator().next();
-		return node.getSignature().getParameters().getNode().getChildren(TokenSet.create(TaraTypes.COMMA))[0].getPsi();
+		final TaraMogram mogram = (TaraMogram) file.components().iterator().next();
+		return mogram.getSignature().getParameters().getNode().getChildren(TokenSet.create(TaraTypes.COMMA))[0].getPsi();
 	}
 
 	private String buildExplicitParameters(Map<String, String> parameters) {
@@ -219,22 +219,22 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				DUMMY_CONCEPT + " is " + flag + "\n"
 		);
-		Node node = file.components().iterator().next();
-		return (TaraFlag) ((TaraNode) node).getSignature().getFlags().getFlagList().get(0);
+		Mogram mogram = file.components().iterator().next();
+		return (TaraFlag) ((TaraMogram) mogram).getSignature().getFlags().getFlagList().get(0);
 	}
 
 	@Override
 	public TaraFlags createFlags(String annotation) {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + " is " + annotation + "\n");
-		Node node = file.components().iterator().next();
-		return (TaraFlags) ((TaraNode) node).getSignature().getFlags();
+		Mogram mogram = file.components().iterator().next();
+		return (TaraFlags) ((TaraMogram) mogram).getSignature().getFlags();
 	}
 
 	@Override
 	public PsiElement createNewLineIndent() {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + "\n\t\tDummy DummyInstance2");
-		TaraNode node = (TaraNode) file.components().iterator().next();
-		return node.getBody().getFirstChild();
+		TaraMogram mogram = (TaraMogram) file.components().iterator().next();
+		return mogram.getBody().getFirstChild();
 	}
 
 	@Override
@@ -243,15 +243,15 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		for (int i = 0; i < level; i++)
 			indents.append("\t");
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + "\n" + indents.toString() + DUMMY_CONCEPT);
-		TaraNode node = (TaraNode) file.components().iterator().next();
-		return node.getBody().getFirstChild();
+		TaraMogram mogram = (TaraMogram) file.components().iterator().next();
+		return mogram.getBody().getFirstChild();
 	}
 
 	@Override
 	public PsiElement createInlineNewLineIndent() {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + " > Dummy DummyInstance2");
-		TaraNode node = (TaraNode) file.components().iterator().next();
-		return node.getBody().getFirstChild();
+		TaraMogram mogram = (TaraMogram) file.components().iterator().next();
+		return mogram.getBody().getFirstChild();
 	}
 
 	@Override
@@ -259,8 +259,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		StringBuilder indents = new StringBuilder();
 		for (int i = 0; i < level; i++) indents.append("\t");
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + "\n" + indents.toString() + DUMMY_CONCEPT + "2\n" + indents.toString().substring(1) + DUMMY_CONCEPT + 3);
-		TaraNode node = (TaraNode) file.components().iterator().next();
-		return node.getBody().getFirstChild();
+		TaraMogram mogram = (TaraMogram) file.components().iterator().next();
+		return mogram.getBody().getFirstChild();
 	}
 
 	@Override
@@ -273,8 +273,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + "\n" +
 				"\t" + DUMMY_CONCEPT + "2\n" +
 				"\t" + DUMMY_CONCEPT + "3");
-		Node node = file.components().iterator().next();
-		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraNode) node).getBody(), LeafPsiElement.class);
+		Mogram mogram = file.components().iterator().next();
+		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraMogram) mogram).getBody(), LeafPsiElement.class);
 		return childrenOfType != null ? childrenOfType[1] : null;
 	}
 
@@ -285,15 +285,15 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + "\n" +
 				indents + DUMMY_CONCEPT + "2\n" +
 				indents + DUMMY_CONCEPT + "3");
-		Node node = file.components().iterator().next();
-		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraNode) node).getBody(), LeafPsiElement.class);
+		Mogram mogram = file.components().iterator().next();
+		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraMogram) mogram).getBody(), LeafPsiElement.class);
 		return childrenOfType != null ? childrenOfType[1] : null;
 	}
 
 	public PsiElement createInlineNewLine() {
 		final TaraModelImpl file = createDummyFile(DUMMY_CONCEPT + " >" + DUMMY_CONCEPT + "2; Dummy DummyInstance3");
-		Node node = file.components().iterator().next();
-		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraNode) node).getBody(), LeafPsiElement.class);
+		Mogram mogram = file.components().iterator().next();
+		LeafPsiElement[] childrenOfType = PsiTreeUtil.getChildrenOfType(((TaraMogram) mogram).getBody(), LeafPsiElement.class);
 		return childrenOfType != null ? childrenOfType[1] : null;
 	}
 
@@ -302,9 +302,9 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				CONCEPT_DUMMY + "\n" +
 						"\tvar function:Dummy dummy " + "= " + quote + formatted(text) + quote + "\n");
-		Node node = PsiTreeUtil.getChildOfType(file, TaraNode.class);
-		if (node == null) return null;
-		Body body = ((TaraNode) node).getBody();
+		Mogram mogram = PsiTreeUtil.getChildOfType(file, TaraMogram.class);
+		if (mogram == null) return null;
+		Body body = ((TaraMogram) mogram).getBody();
 		if (body == null) return null;
 		Variable variable = (Variable) body.getFirstChild().getNextSibling();
 		return ((Valued) variable).getValue().getExpressionList().get(0);
@@ -319,9 +319,9 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 						CONCEPT_DUMMY + "\n" +
 								"\tvar function:Dummy dummy " + "\n" +
 								"\t\t" + quote + "\n" + newIndent + formatted(text, oldIndent, newIndent) + '\n' + newIndent + quote + "\n");
-		TaraNode node = PsiTreeUtil.getChildOfType(file, TaraNode.class);
-		if (node == null) return null;
-		Body body = node.getBody();
+		TaraMogram mogram = PsiTreeUtil.getChildOfType(file, TaraMogram.class);
+		if (mogram == null) return null;
+		Body body = mogram.getBody();
 		if (body == null) return null;
 		Variable variable = (Variable) body.getFirstChild().getNextSibling();
 		return ((Valued) variable).getBodyValue().getExpression();
@@ -334,7 +334,7 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 						"\t" + name + " = " + value + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"
 		);
-		Body body = PsiTreeUtil.getChildOfType(file, TaraNode.class).getBody();
+		Body body = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getBody();
 		return body != null ? (TaraVarInit) body.getFirstChild().getNextSibling() : null;
 	}
 
@@ -343,8 +343,8 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		final TaraModelImpl file = createDummyFile(
 				"Dummy(value = 12 " + value + ")" + " DummyInstance\n"
 		);
-		final Node next = file.components().iterator().next();
-		return ((TaraParameter) ((TaraNode) next).getSignature().getParameters().getParameters().get(0)).getValue().getMetric();
+		final Mogram next = file.components().iterator().next();
+		return ((TaraParameter) ((TaraMogram) next).getSignature().getParameters().getParameters().get(0)).getValue().getMetric();
 	}
 
 	@Override
@@ -354,13 +354,13 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 						"\tvalue = @" + reference + "\n" +
 						"\t" + CONCEPT_DUMMY + "2\n"
 		);
-		Body body = PsiTreeUtil.getChildOfType(file, TaraNode.class).getBody();
+		Body body = PsiTreeUtil.getChildOfType(file, TaraMogram.class).getBody();
 		return body != null ? ((TaraVarInit) body.getFirstChild().getNextSibling()).getValue().getMethodReferenceList().get(0) : null;
 	}
 
 	@Override
 	public TaraValue createTaraValue(List<?> objects) {
-		List<String> array = objects.stream().map(o -> "\"" + o.toString() + "\"").collect(Collectors.toList());
+		List<String> array = objects.stream().map(o -> "\"" + o.toString() + "\"").toList();
 		final TaraVarInit sample = (TaraVarInit) createVarInit("sample", String.join(" ", array));
 		return sample.getValue();
 	}

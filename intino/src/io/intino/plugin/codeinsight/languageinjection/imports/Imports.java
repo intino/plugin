@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Imports {
 
@@ -71,7 +70,7 @@ public class Imports {
 		final Map<String, Set<String>> map = imports.get(module.toLowerCase() + LanguageManager.JSON);
 		if (map == null) return;
 		Map<String, String> qnMap = new HashMap<>();
-		final List<String> collect = map.keySet().stream().filter(qn -> qn.startsWith(old)).collect(Collectors.toList());
+		final List<String> collect = map.keySet().stream().filter(qn -> qn.startsWith(old)).toList();
 		collect.forEach(k -> qnMap.put(k, k.replaceFirst(old, newQn)));
 		for (String key : qnMap.keySet()) {
 			map.put(qnMap.get(key), map.get(key));

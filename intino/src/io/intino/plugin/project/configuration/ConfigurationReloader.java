@@ -8,12 +8,14 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.progress.ProgressIndicator;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ConfigurationReloader {
-	private final DependencyAuditor auditor;
 	private final Configuration configuration;
 	private final String updatePolicy;
 	private final Artifact artifact;
@@ -35,9 +36,8 @@ public class ConfigurationReloader {
 	private final Module module;
 	private ProgressIndicator indicator;
 
-	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy) {
+	public ConfigurationReloader(Module module, Configuration configuration, String updatePolicy) {
 		this.module = module;
-		this.auditor = auditor;
 		this.configuration = configuration;
 		this.updatePolicy = updatePolicy;
 		this.artifact = configuration.artifact();
@@ -46,8 +46,8 @@ public class ConfigurationReloader {
 		this.indicator = null;
 	}
 
-	public ConfigurationReloader(Module module, DependencyAuditor auditor, Configuration configuration, String updatePolicy, ProgressIndicator indicator) {
-		this(module, auditor, configuration, updatePolicy);
+	public ConfigurationReloader(Module module, Configuration configuration, String updatePolicy, ProgressIndicator indicator) {
+		this(module, configuration, updatePolicy);
 		this.indicator = indicator;
 	}
 
@@ -85,16 +85,21 @@ public class ConfigurationReloader {
 	}
 
 	private void resolveJavaDependencies() {
-		DependencyCatalog dependencies = resolveLanguage();
-		List<Artifact.Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
-		Artifact.Dependency.DataHub datahub = artifact.datahub();
-		if (datahub != null) artifactDependencies.add(datahub);
-		Artifact.Dependency.Archetype archetype = artifact.archetype();
-		if (archetype != null) artifactDependencies.add(archetype);
+		DependencyCatalog dependencies = new DependencyCatalog();
+		List<Dependency> artifactDependencies = new ArrayList<>(artifact.dependencies());
+		Dependency.DataHub datahub = artifact.datahub();
+		if (datahub != null) artifactDependencies.add(0, datahub);
+		Dependency.Archetype archetype = artifact.archetype();
+		if (archetype != null) artifactDependencies.add(0, archetype);
+		if (model != null) {
+			String frameworkCoors = resolveLanguage();
+			if (!model.excludedPhases().contains(Artifact.Model.ExcludedPhases.ExcludeFrameworkCode))
+				artifactDependencies.add(0, languageDependency(frameworkCoors.split(":")));
+		}
+		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
 		if (!artifactDependencies.isEmpty())
-			dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories, indicator).resolve(artifactDependencies));
-		dependencies.merge(new ImportsResolver(module, auditor, updatePolicy, repositories, indicator).resolveWeb(webDependencies(artifactDependencies)));
-		new DependencyConflictResolver().resolve(dependencies);
+			dependencies.merge(resolver.resolve(artifactDependencies));
+		dependencies.merge(resolver.resolveWeb(webDependencies(artifactDependencies)));
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) register(dependencies);
 		else application.invokeLater(() -> register(dependencies));
@@ -107,10 +112,10 @@ public class ConfigurationReloader {
 	}
 
 	@NotNull
-	private List<Artifact.Dependency.Web> webDependencies(List<Artifact.Dependency> artifactDependencies) {
+	private List<Dependency.Web> webDependencies(List<Dependency> artifactDependencies) {
 		return artifactDependencies.stream().
-				filter(d -> d instanceof Artifact.Dependency.Web).
-				map(d -> (Artifact.Dependency.Web) d).
+				filter(d -> d instanceof Dependency.Web).
+				map(d -> (Dependency.Web) d).
 				collect(Collectors.toList());
 	}
 
@@ -119,17 +124,79 @@ public class ConfigurationReloader {
 			new WebDependencyResolver(module, artifact, repositories).resolve();
 	}
 
-	private DependencyCatalog resolveLanguage() {
-		if (model == null) return new DependencyCatalog();
+	private String resolveLanguage() {
 		Artifact.Model.Language language = model.language();
 		final String effectiveVersion = language.effectiveVersion();
 		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
-		return new LanguageResolver(module, auditor, model, version, repositories).resolve();
+		LanguageResolver languageResolver = new LanguageResolver(module, model, version, repositories);
+		languageResolver.resolve();
+		return languageResolver.frameworkCoors();
+
+	}
+
+	@NotNull
+	private static Dependency.Compile languageDependency(String[] coors) {
+		return new Dependency.Compile() {
+			@Override
+			public String groupId() {
+				return coors[0];
+			}
+
+			@Override
+			public String artifactId() {
+				return coors[1];
+			}
+
+			@Override
+			public String version() {
+				return coors[2];
+			}
+
+			@Override
+			public void version(String newVersion) {
+
+			}
+
+			@Override
+			public String scope() {
+				return JavaScopes.COMPILE;
+			}
+
+			@Override
+			public List<Exclude> excludes() {
+				return List.of();
+			}
+
+			@Override
+			public String effectiveVersion() {
+				return null;
+			}
+
+			@Override
+			public void effectiveVersion(String version) {
+
+			}
+
+			@Override
+			public boolean transitive() {
+				return false;
+			}
+
+			@Override
+			public boolean toModule() {
+				return false;
+			}
+
+			@Override
+			public void toModule(boolean toModule) {
+
+			}
+		};
 	}
 
 	private ApplicationConfiguration findRunConfiguration(String name) {
 		final List<com.intellij.execution.configurations.RunConfiguration> list = RunManager.getInstance(module.getProject()).
-				getAllConfigurationsList().stream().filter(r -> r instanceof ApplicationConfiguration).collect(Collectors.toList());
+				getAllConfigurationsList().stream().filter(r -> r instanceof ApplicationConfiguration).toList();
 		return (ApplicationConfiguration) list.stream().filter(r -> (r.getName()).equalsIgnoreCase(artifact.name().toLowerCase() + "-" + name)).findFirst().orElse(null);
 	}
 }

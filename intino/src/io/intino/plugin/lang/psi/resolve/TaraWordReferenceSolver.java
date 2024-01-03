@@ -3,15 +3,14 @@ package io.intino.plugin.lang.psi.resolve;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.rules.variable.WordRule;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.IntinoIcons;
+import io.intino.tara.language.model.rules.variable.WordRule;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TaraWordReferenceSolver extends TaraReferenceSolver {
 
@@ -36,10 +35,9 @@ public class TaraWordReferenceSolver extends TaraReferenceSolver {
 	@NotNull
 	@Override
 	public Object[] getVariants() {
-		return ((WordRule) parameterAllow.rule()).words().stream().
-				map(node -> LookupElementBuilder.create(node).withIcon(IntinoIcons.MODEL_16).withTypeText("Word")).
-				collect(Collectors.toList()).
-				toArray();
+		return ((WordRule) parameterAllow.rule()).words().stream()
+				.map(mogram -> LookupElementBuilder.create(mogram).withIcon(IntinoIcons.MODEL_16).withTypeText("Word"))
+				.toArray();
 	}
 
 

@@ -24,10 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -39,12 +39,12 @@ import static com.intellij.execution.actions.ConfigurationFromContext.NAME_COMPA
 
 public class IntinoRunContextAction extends RunContextAction {
 	private final ConfigurationContext context;
-	private final Node runConfiguration;
+	private final Mogram runConfiguration;
 
 	public IntinoRunContextAction(@NotNull Executor executor, PsiElement runConfiguration) {
 		super(executor);
 		this.context = createContext(runConfiguration);
-		this.runConfiguration = (Node) runConfiguration;
+		this.runConfiguration = (Mogram) runConfiguration;
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class IntinoRunContextAction extends RunContextAction {
 	}
 
 	private String collectParameters() {
-		final LegioConfiguration configuration = (LegioConfiguration) configuration();
+		final ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) configuration();
 		if (configuration == null) return "";
 		final List<Configuration.RunConfiguration> runConfigurations = configuration.runConfigurations();
 		for (Configuration.RunConfiguration rc : runConfigurations)

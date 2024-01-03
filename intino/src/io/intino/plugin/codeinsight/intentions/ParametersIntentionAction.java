@@ -3,9 +3,9 @@ package io.intino.plugin.codeinsight.intentions;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Parameters;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public abstract class ParametersIntentionAction extends PsiElementBaseIntentionA
 
 	Parameters getParametersScope(PsiElement element) {
 		PsiElement parent = element.getParent();
-		while (parent != null && !PsiFile.class.isInstance(parent) && !Node.class.isInstance(parent)) {
+		while (parent != null && !(parent instanceof PsiFile) && !(parent instanceof Mogram)) {
 			if (parent instanceof Parameters) return (Parameters) parent;
 			parent = parent.getParent();
 		}

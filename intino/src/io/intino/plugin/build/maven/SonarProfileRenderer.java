@@ -3,7 +3,7 @@ package io.intino.plugin.build.maven;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration.Artifact;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,7 +36,7 @@ public class SonarProfileRenderer {
 	private final Artifact.QualityAnalytics analytics;
 
 	public SonarProfileRenderer(Module module) {
-		final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		final ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		analytics = configuration.artifact().qualityAnalytics();
 		loadDoc();
 	}

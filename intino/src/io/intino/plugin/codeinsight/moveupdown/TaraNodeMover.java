@@ -12,11 +12,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.StringValue;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraPsiElement;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,8 +77,8 @@ public class TaraNodeMover extends StatementUpDownMover {
 		final int startLine = document.getLineNumber(start);
 		final int endLine = document.getLineNumber(end);
 
-		if (elementToMove instanceof Node) {
-			TaraPsiElement scope = (TaraPsiElement) ((Node) elementToMove).container();
+		if (elementToMove instanceof Mogram) {
+			TaraPsiElement scope = (TaraPsiElement) ((Mogram) elementToMove).container();
 			if (destination != null) return new ScopeRange(scope, destination, !down, true);
 		}
 		return new LineRange(startLine, endLine + 1);
@@ -186,13 +186,12 @@ public class TaraNodeMover extends StatementUpDownMover {
 
 	@NotNull
 	private static PsiElement getCommentOrNode(@NotNull final Document document, @NotNull PsiElement destination) {
-		final PsiElement node = PsiTreeUtil.getParentOfType(destination, TaraNode.class, false);
-		if (node == null) return destination;
+		final PsiElement mogram = PsiTreeUtil.getParentOfType(destination, TaraMogram.class, false);
+		if (mogram == null) return destination;
 		if (destination instanceof PsiComment) {
-			if (document.getLineNumber(destination.getTextOffset()) == document.getLineNumber(node.getTextOffset()))
-				destination = node;
-		} else
-			destination = node;
+			if (document.getLineNumber(destination.getTextOffset()) == document.getLineNumber(mogram.getTextOffset()))
+				destination = mogram;
+		} else destination = mogram;
 		return destination;
 	}
 

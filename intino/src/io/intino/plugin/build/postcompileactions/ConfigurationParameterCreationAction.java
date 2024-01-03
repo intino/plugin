@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class ConfigurationParameterCreationAction extends PostCompileAction {
 	public FinishStatus execute() {
 		if (name == null) return NothingDone;
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return NothingDone;
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return NothingDone;
 		if (safeList(() -> configuration.artifact().parameters()).stream().noneMatch(p -> name.equals(p.name()))) {
 			((LegioArtifact) configuration.artifact()).addParameters(name);
 			return RequiresReload;

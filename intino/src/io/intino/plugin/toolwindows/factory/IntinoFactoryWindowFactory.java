@@ -10,12 +10,11 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware {
@@ -35,6 +34,6 @@ public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware 
 	}
 
 	private static boolean legioFileExists(Module[] modules) {
-		return Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module, List.of()).get() != null);
+		return Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof ArtifactLegioConfiguration || new LegioFileCreator(module, List.of()).getArtifact() != null);
 	}
 }

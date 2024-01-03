@@ -6,12 +6,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.vfs.VfsUtil;
-import io.intino.plugin.dependencyresolution.DependencyCatalog.Dependency;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.Dependency;
 
 import java.io.File;
 
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
+import static io.intino.plugin.dependencyresolution.IntinoLibrary.libraryLabelOf;
 
 @SuppressWarnings("Duplicates")
 public class ProjectLibrariesManager {
@@ -26,17 +28,17 @@ public class ProjectLibrariesManager {
 		application.runWriteAction(() -> registerCatalog(catalog));
 	}
 
-	public void registerSources(Dependency dependency) {
+	public void registerSources(Artifact artifact) {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) {
-			Library library = table.findLibrary(dependency);
+			Library library = table.findLibrary(artifact);
 			if (library == null) return;
 			Library.ModifiableModel model = library.getModifiableModel();
-			registerSources(dependency, model);
+			registerSources(artifact, model);
 			model.commit();
 		} else application.invokeLater(() -> application.runWriteAction(() -> {
-			Library.ModifiableModel model = table.findLibrary(dependency).getModifiableModel();
-			registerSources(dependency, model);
+			Library.ModifiableModel model = table.findLibrary(artifact).getModifiableModel();
+			registerSources(artifact, model);
 			model.commit();
 		}));
 
@@ -45,31 +47,33 @@ public class ProjectLibrariesManager {
 	private void registerCatalog(DependencyCatalog catalog) {
 		Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) {
-			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
+			catalog.dependencies().stream().filter(d -> table.findLibrary(d.getArtifact()) == null).forEach(this::registerClasses);
 			if (table.model().isChanged()) table.model().commit();
 		} else application.invokeLater(() -> application.runWriteAction(() -> {
-			catalog.dependencies().stream().filter(d -> !d.isToModule() && table.findLibrary(d) == null).forEach(this::registerClasses);
+			catalog.dependencies().stream().filter(d -> table.findLibrary(d.getArtifact()) == null).forEach(this::registerClasses);
 			if (table.model().isChanged()) table.model().commit();
 		}));
 	}
 
 	private void registerClasses(Dependency dependency) {
 		final LibraryTable.ModifiableModel tableModel = table.model();
-		Library library = tableModel.getLibraryByName(table.nameOf(dependency));
-		if (library == null) library = tableModel.createLibrary(table.nameOf(dependency));
+		Library library = tableModel.getLibraryByName(libraryLabelOf(dependency.getArtifact()));
+		if (library == null) library = tableModel.createLibrary(libraryLabelOf(dependency.getArtifact()));
 		final Library.ModifiableModel libraryModel = library.getModifiableModel();
-		File jar = new File(dependency.jar.getPath()).getAbsoluteFile();
+		File jar = dependency.getArtifact().getFile().getAbsoluteFile();
 		libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(jar), CLASSES);
-		registerSources(dependency, libraryModel);
+		registerSources(dependency.getArtifact(), libraryModel);
 		libraryModel.commit();
 	}
 
-	private void registerSources(Dependency dependency, Library.ModifiableModel libraryModel) {
+	private void registerSources(Artifact dependency, Library.ModifiableModel libraryModel) {
 		File libraryRoot = sourcesFile(dependency);
 		if (libraryRoot.exists()) libraryModel.addRoot(VfsUtil.getUrlForLibraryRoot(libraryRoot), SOURCES);
 	}
 
-	private File sourcesFile(Dependency dependency) {
-		return dependency.jar.getName().endsWith("-sources.jar") ? dependency.jar : new File(dependency.jar.getAbsolutePath().replace(".jar", "-sources.jar"));
+	private File sourcesFile(Artifact dependency) {
+		return dependency.getFile().getName().endsWith("-sources.jar") ?
+				dependency.getFile() :
+				new File(dependency.getFile().getAbsolutePath().replace(".jar", "-sources.jar"));
 	}
 }

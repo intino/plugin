@@ -1,6 +1,6 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
-import io.intino.magritte.lang.model.Metric;
+import io.intino.tara.language.model.Metric;
 import java.util.List;
 
 public enum ${NAME} implements Metric<${TYPE}>{

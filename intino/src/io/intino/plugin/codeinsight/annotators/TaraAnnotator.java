@@ -8,8 +8,8 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
+import io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level;
 
 import java.awt.*;
 import java.util.Arrays;

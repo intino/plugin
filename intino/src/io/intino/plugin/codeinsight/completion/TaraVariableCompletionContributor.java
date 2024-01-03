@@ -2,40 +2,37 @@ package io.intino.plugin.codeinsight.completion;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.util.ProcessingContext;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Variable;
-import io.intino.magritte.lang.model.rules.Suggestion;
-import io.intino.magritte.lang.model.rules.variable.WordRule;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.PsiCustomWordRule;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Variable;
+import io.intino.tara.language.model.rules.Suggestion;
+import io.intino.tara.language.model.rules.variable.WordRule;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static io.intino.magritte.lang.model.Primitive.*;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.tara.language.model.Primitive.*;
 
 
 public class TaraVariableCompletionContributor extends CompletionContributor {
 
-	private final PsiElementPattern.Capture<PsiElement> afterVar = psiElement()
-			.withLanguage(TaraLanguage.INSTANCE)
-			.and(new FilterPattern(new AfterVarFitFilter()));
-
 	public TaraVariableCompletionContributor() {
-		extend(CompletionType.BASIC, afterVar,
+		extend(CompletionType.BASIC, psiElement()
+				.withLanguage(TaraLanguage.INSTANCE)
+				.and(new FilterPattern(new AfterVarFitFilter())),
 				new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						for (Primitive primitive : Primitive.getPrimitives())
 							resultSet.addElement(create(primitive.getName().toLowerCase() + (mustHaveContract(primitive) ? ":" :
@@ -47,7 +44,7 @@ public class TaraVariableCompletionContributor extends CompletionContributor {
 		extend(CompletionType.BASIC, TaraFilters.afterEquals,
 				new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						final Valued valued = TaraPsiUtil.contextOf(parameters.getOriginalPosition(), Valued.class);
 						if (valued == null) return;
@@ -90,7 +87,7 @@ public class TaraVariableCompletionContributor extends CompletionContributor {
 			if (parent instanceof TaraModel) {
 				final ASTNode ctxPreviousNode = safe(() -> context.getPrevSibling().getPrevSibling().getNode());
 				return ctxPreviousNode != null && TaraTypes.VAR.equals(ctxPreviousNode.getElementType());
-			} else while (parent != null && !(parent instanceof Node)) {
+			} else while (parent != null && !(parent instanceof Mogram)) {
 				if (parent instanceof Variable) return true;
 				parent = parent.getParent();
 			}
@@ -99,7 +96,7 @@ public class TaraVariableCompletionContributor extends CompletionContributor {
 
 		TaraVariableType getVariableType(PsiElement element) {
 			PsiElement parent = element.getParent();
-			while (parent != null && !(parent instanceof Node)) {
+			while (parent != null && !(parent instanceof Mogram)) {
 				if (parent instanceof TaraVariableType) return (TaraVariableType) parent;
 				parent = parent.getParent();
 			}

@@ -1,13 +1,12 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.plugin.dependencyresolution.DependencyAuditor;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 
 public class LegioArchetype extends LegioDependency implements Configuration.Artifact.Dependency.Archetype {
 
-	public LegioArchetype(LegioArtifact artifact, DependencyAuditor auditor, TaraNode node) {
-		super(artifact, auditor, node);
+	public LegioArchetype(LegioArtifact artifact, TaraMogram node) {
+		super(node);
 	}
 
 	@Override

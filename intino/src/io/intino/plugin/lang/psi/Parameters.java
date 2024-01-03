@@ -1,7 +1,7 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.pom.Navigatable;
-import io.intino.magritte.lang.model.Parameter;
+import io.intino.tara.language.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -13,6 +13,6 @@ public interface Parameters extends Navigatable, TaraPsiElement {
 
 	boolean areExplicit();
 
-	TaraAspectApply isInFacet();
+	TaraFacetApply isInFacet();
 
 }

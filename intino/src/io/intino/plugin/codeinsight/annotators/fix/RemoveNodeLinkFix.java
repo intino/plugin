@@ -6,15 +6,15 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.plugin.lang.psi.TaraNodeReference;
+import io.intino.plugin.lang.psi.TaraMogramReference;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class RemoveNodeLinkFix implements IntentionAction {
-	private final TaraNodeReference conceptReference;
+	private final TaraMogramReference conceptReference;
 
-	public RemoveNodeLinkFix(@NotNull final TaraNodeReference conceptReference) {
+	public RemoveNodeLinkFix(@NotNull final TaraMogramReference conceptReference) {
 		this.conceptReference = conceptReference;
 	}
 

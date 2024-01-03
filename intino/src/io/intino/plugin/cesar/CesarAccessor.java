@@ -7,9 +7,8 @@ import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.ApiAccessor;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
-import io.intino.cesar.box.schemas.ServerInfo;
+import io.intino.cesar.box.schemas.Application;
+import io.intino.cesar.box.schemas.Server;
 import io.intino.plugin.IntinoException;
 
 import java.util.Collections;
@@ -43,32 +42,12 @@ public class CesarAccessor {
 		return accessor;
 	}
 
-	public ProcessInfo processInfo(String server, String id) {
-		try {
-			checkCredentials();
-			if (accessor == null) return null;
-			return accessor.getProcess(server, id);
-		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
-			return null;
-		}
-	}
-
 	private void checkCredentials() {
 		this.credentials = credentials();
 		this.accessor = createAccessor(1500);
 	}
 
-	public ProcessStatus processStatus(String server, String id) {
-		try {
-			checkCredentials();
-			if (accessor == null) return null;
-			return accessor.getProcessStatus(server, id);
-		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
-			return null;
-		}
-	}
-
-	public ServerInfo server(String server) {
+	public Server server(String server) {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
@@ -78,7 +57,7 @@ public class CesarAccessor {
 		}
 	}
 
-	public List<ServerInfo> servers() {
+	public List<Server> servers() {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
@@ -88,13 +67,23 @@ public class CesarAccessor {
 		}
 	}
 
-	public List<ProcessInfo> processes(String server) {
+	public List<Application> applications(String server) {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.getProcesses(server);
+			return accessor.getJavaApplications(server);
 		} catch (InternalServerError | Unauthorized e) {
 			return Collections.emptyList();
+		}
+	}
+
+	public Application application(String server, String id) {
+		try {
+			checkCredentials();
+			if (accessor == null) return null;
+			return accessor.getApplication(server, id);
+		} catch (BadRequest | InternalServerError | NotFound | Unauthorized e) {
+			return null;
 		}
 	}
 

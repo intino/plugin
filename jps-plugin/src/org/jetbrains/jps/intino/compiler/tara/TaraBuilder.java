@@ -29,9 +29,8 @@ import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static io.intino.magritte.builder.shared.TaraBuildConstants.*;
+import static io.intino.tara.builder.shared.TaraBuildConstants.*;
 import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
 import static org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode.*;
 import static org.jetbrains.jps.intino.compiler.CopyResourcesUtil.copy;
@@ -121,7 +120,7 @@ public class TaraBuilder extends IntinoBuilder {
 		final JpsModuleSourceRoot testSourceRoot = getTestSourceRoot(module);
 		if (chunk.containsTests()) list.add(testSourceRoot != null ? testSourceRoot.getFile().getAbsolutePath() : null);
 		else
-			list.addAll(getSourceRoots(module).stream().map(root -> root.getFile().getAbsolutePath()).collect(Collectors.toList()));
+			list.addAll(getSourceRoots(module).stream().map(root -> root.getFile().getAbsolutePath()).toList());
 		return list;
 	}
 
@@ -132,7 +131,7 @@ public class TaraBuilder extends IntinoBuilder {
 	}
 
 	private List<JpsModuleSourceRoot> getSourceRoots(JpsModule module) {
-		return module.getSourceRoots().stream().filter(root -> root.getRootType().equals(SOURCE) && !((JavaSourceRootProperties) root.getProperties()).isForGeneratedSources()).collect(Collectors.toList());
+		return module.getSourceRoots().stream().filter(root -> root.getRootType().equals(SOURCE) && !((JavaSourceRootProperties) root.getProperties()).isForGeneratedSources()).toList();
 	}
 
 	private JpsModuleSourceRoot getTestSourceRoot(JpsModule module) {
@@ -170,10 +169,6 @@ public class TaraBuilder extends IntinoBuilder {
 	private File testResourcesDirectory(JpsModule module) {
 		final Iterator<JpsTypedModuleSourceRoot<JavaResourceRootProperties>> iterator = module.getSourceRoots(JavaResourceRootType.TEST_RESOURCE).iterator();
 		return iterator.hasNext() ? iterator.next().getFile() : new File(module.getSourceRoots().get(0).getFile().getParentFile(), TEST_RES);
-	}
-
-	@Override
-	public void buildStarted(CompileContext context) {
 	}
 
 	@Override

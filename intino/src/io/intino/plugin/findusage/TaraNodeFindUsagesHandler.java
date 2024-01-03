@@ -5,22 +5,22 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.ModuleProvider;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TaraNodeFindUsagesHandler extends FindUsagesHandler {
-	private final TaraNode node;
+	private final TaraMogram node;
 
-	public TaraNodeFindUsagesHandler(@NotNull Node node) {
+	public TaraNodeFindUsagesHandler(@NotNull Mogram node) {
 		super((PsiElement) node);
-		this.node = (TaraNode) node;
+		this.node = (TaraMogram) node;
 	}
 
 	@NotNull
@@ -54,7 +54,7 @@ public class TaraNodeFindUsagesHandler extends FindUsagesHandler {
 	}
 
 	private Collection collectChildConceptsByType(List<TaraModel> files) {
-		List<Node> list = new ArrayList();
+		List<Mogram> list = new ArrayList();
 		for (TaraModel file : files)
 			list.addAll(IntinoUtil.getMainNodesOfFile(file).stream().
 					filter(cpt -> node.name().equals(cpt.type())).

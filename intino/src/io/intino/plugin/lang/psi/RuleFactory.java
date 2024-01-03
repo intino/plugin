@@ -1,18 +1,17 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.rules.variable.*;
 import io.intino.plugin.lang.psi.impl.PsiCustomWordRule;
 import io.intino.plugin.lang.psi.impl.TaraIdentifierImpl;
 import io.intino.plugin.lang.psi.impl.TaraMetricImpl;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.rules.variable.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RuleFactory {
 
@@ -73,7 +72,7 @@ public class RuleFactory {
 	}
 
 	private static List<String> valuesOf(List<PsiElement> parameters) {
-		return parameters.stream().map(PsiElement::getText).collect(Collectors.toList());
+		return parameters.stream().map(PsiElement::getText).toList();
 	}
 
 	private static String valueOf(List<PsiElement> parameters, List<Class<? extends PsiElement>> classes) {

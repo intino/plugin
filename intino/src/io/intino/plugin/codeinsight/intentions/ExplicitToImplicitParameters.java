@@ -4,17 +4,16 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Parameter;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.lang.psi.Parameters;
 import io.intino.plugin.lang.psi.TaraElementFactory;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Parameter;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ExplicitToImplicitParameters extends ParametersIntentionAction {
 
@@ -32,7 +31,7 @@ public class ExplicitToImplicitParameters extends ParametersIntentionAction {
 		List<String> values = new ArrayList<>();
 		List<Integer> sortedKeys = new ArrayList(map.keySet());
 		Collections.sort(sortedKeys);
-		values.addAll(sortedKeys.stream().map(map::get).collect(Collectors.toList()));
+		values.addAll(sortedKeys.stream().map(map::get).toList());
 		return values.toArray(new String[values.size()]);
 	}
 

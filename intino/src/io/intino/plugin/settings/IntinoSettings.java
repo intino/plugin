@@ -18,7 +18,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @State(
 		name = "Intino.Settings",
@@ -47,7 +46,7 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 
 	public List<ArtifactoryCredential> artifactories() {
 		return artifactories == null ? artifactories = new ArtifactoryCredentialsManager().loadCredentials().stream().
-				filter(c -> !c.serverId.endsWith("-snapshot")).collect(Collectors.toList()) : artifactories;
+				filter(c -> !c.serverId.endsWith("-snapshot")).toList() : artifactories;
 	}
 
 	public void artifactories(List<ArtifactoryCredential> artifactories) {

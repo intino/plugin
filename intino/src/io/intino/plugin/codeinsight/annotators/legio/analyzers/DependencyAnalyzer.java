@@ -2,27 +2,33 @@ package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.libraries.Library;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.dependencyresolution.IntinoLibrary;
+import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
+import io.intino.plugin.dependencyresolution.ModuleLibrariesManager;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.project.LibraryConflictResolver.VersionRange.*;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class DependencyAnalyzer extends TaraAnalyzer {
-	private final Node dependencyNode;
-	private final LegioConfiguration configuration;
+	private final Mogram dependencyNode;
+	private final ArtifactLegioConfiguration configuration;
 	private final Module module;
 
-	public DependencyAnalyzer(Module module, Node node, LegioConfiguration configuration) {
+	public DependencyAnalyzer(Module module, Mogram node, ArtifactLegioConfiguration configuration) {
 		this.module = module;
 		this.dependencyNode = node;
 		this.configuration = configuration;
@@ -32,10 +38,17 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
 		final Artifact.Dependency dependency = findDependencyNode();
-		if (dependency == null || !dependency.resolved())
-			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
+		if (dependency == null || !isResolved(dependency))
+			results.put(((TaraMogram) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 		else if (dependency.toModule() && !hasSameVersion(findModule(dependency), dependency.version()))
-			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.module.dependency.with.different.version")));
+			results.put(((TaraMogram) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.module.dependency.with.different.version")));
+	}
+
+	public boolean isResolved(Artifact.Dependency dependency) {
+		DefaultArtifact artifact = MavenDependencyResolver.artifactOf(dependency);
+		Library library = new IntinoLibrary(module.getProject()).findLibrary(artifact);
+		if (library== null) return false;
+		return new ModuleLibrariesManager(module).isAlreadyAdded(new Dependency(artifact,dependency.scope()));
 	}
 
 	private boolean hasSameVersion(Module module, String version) {
@@ -50,7 +63,7 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 	private Module findModule(Artifact.Dependency dependency) {
 		for (Module m : ModuleRootManager.getInstance(module).getDependencies()) {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
-			if (configuration instanceof LegioConfiguration && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
+			if (configuration instanceof ArtifactLegioConfiguration && configuration.artifact().groupId().equals(dependency.groupId()) && configuration.artifact().name().equals(dependency.artifactId()))
 				return m;
 		}
 		return null;

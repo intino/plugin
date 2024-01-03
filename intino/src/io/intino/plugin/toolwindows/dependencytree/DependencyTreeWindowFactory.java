@@ -10,7 +10,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,6 +29,6 @@ public class DependencyTreeWindowFactory implements ToolWindowFactory, DumbAware
 	@Override
 	public boolean isApplicable(@NotNull Project project) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof LegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).get() != null);
+		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof ArtifactLegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).getArtifact() != null);
 	}
 }

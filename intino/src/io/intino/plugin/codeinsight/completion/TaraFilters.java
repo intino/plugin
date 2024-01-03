@@ -6,10 +6,10 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.psi.tree.IElementType;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nullable;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -81,7 +81,7 @@ class TaraFilters {
 				if (element instanceof PsiElement) {
 					if (prevSibling.getNode().getElementType() == TokenType.WHITE_SPACE && type.equals(prevPrevSibling.getNode().getElementType()))
 						return true;
-					else if (type.equals(prevSibling.getNode().getElementType())) return true;
+					else return type.equals(prevSibling.getNode().getElementType());
 				}
 			}
 			return false;
@@ -171,8 +171,7 @@ class TaraFilters {
 			if (context.getParent() instanceof MetaIdentifier && !new AfterAsFilter().isAcceptable(element, context) && !inAnnotations(context)) {
 				PsiElement contextOf = (PsiElement) getContainerNodeOf(context);
 				if (contextOf == null || contextOf.getPrevSibling() == null) return false;
-				if (!TaraFilters.in(context, Body.class) && (previousNewLine(contextOf) || previousNewLineIndent(contextOf)))
-					return true;
+				return !TaraFilters.in(context, Body.class) && (previousNewLine(contextOf) || previousNewLineIndent(contextOf));
 			}
 			return false;
 		}
@@ -229,7 +228,7 @@ class TaraFilters {
 				ctx = ctx.getPrevSibling();
 			}
 			ctx = ctx.getParent();
-			while (ctx != null && !Node.class.isInstance(ctx)) {
+			while (ctx != null && !(ctx instanceof Mogram)) {
 				if (ctx instanceof TaraFlags) return true;
 				ctx = ctx.getParent();
 			}
@@ -252,7 +251,7 @@ class TaraFilters {
 				ctx = ctx.getPrevSibling();
 			}
 			ctx = ctx.getParent();
-			while (ctx != null && !Node.class.isInstance(ctx)) {
+			while (ctx != null && !(ctx instanceof Mogram)) {
 				if (ctx instanceof TaraAnnotations) return true;
 				ctx = ctx.getParent();
 			}

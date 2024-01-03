@@ -5,18 +5,18 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Tag;
-import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Tag;
+import io.intino.tara.language.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.magritte.lang.model.Primitive.REFERENCE;
+import static io.intino.tara.language.model.Primitive.REFERENCE;
 
 public class ParameterMixin extends ASTWrapperPsiElement {
 
@@ -79,12 +79,12 @@ public class ParameterMixin extends ASTWrapperPsiElement {
 		this.type = type;
 	}
 
-	public String aspect() {
-		TaraAspectApply facetApply = TaraPsiUtil.getContainerByType(this, TaraAspectApply.class);
+	public String facet() {
+		TaraFacetApply facetApply = TaraPsiUtil.getContainerByType(this, TaraFacetApply.class);
 		return facetApply != null ? facetApply.type() : "";
 	}
 
-	public void aspect(String aspect) {
+	public void facet(String aspect) {
 	}
 
 
@@ -156,11 +156,11 @@ public class ParameterMixin extends ASTWrapperPsiElement {
 
 	@Override
 	public String toString() {
-		final Node container = container();
+		final Mogram container = container();
 		return "Parameter " + name() + " in " + (container != null ? container.qualifiedName() : "");
 	}
 
-	public Node container() {
+	public Mogram container() {
 		return TaraPsiUtil.getContainerNodeOf(this);
 	}
 

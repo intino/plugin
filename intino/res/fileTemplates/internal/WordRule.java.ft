@@ -1,6 +1,6 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
-import io.intino.magritte.lang.model.Rule;
+import io.intino.tara.language.model.Rule;
 
 public enum ${NAME} implements Rule<Enum> {
 

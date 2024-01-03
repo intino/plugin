@@ -41,7 +41,7 @@ end
 
 def attribute(this:node) trigger(node)
     <execution>
-        <id>install node and npm</id>
+        <id>install Mogram and npm</id>
         <goals>
             <goal>install-node-and-npm</goal>
         </goals>

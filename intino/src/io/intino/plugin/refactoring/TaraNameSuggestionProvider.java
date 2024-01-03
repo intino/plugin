@@ -4,7 +4,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.SuggestedNameInfo;
 import com.intellij.refactoring.rename.NameSuggestionProvider;
-import io.intino.magritte.lang.model.Node;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +15,8 @@ public class TaraNameSuggestionProvider implements NameSuggestionProvider {
 	@Nullable
 	@Override
 	public SuggestedNameInfo getSuggestedNames(PsiElement element, @Nullable PsiElement nameSuggestionContext, Set<String> result) {
-		if (!(element instanceof Node)) return null;
-		final String name = ((Node) element).name();
+		if (!(element instanceof Mogram)) return null;
+		final String name = ((Mogram) element).name();
 		if (name == null) return null;
 		result.add(toCamelCase(name, true));
 		return SuggestedNameInfo.NULL_INFO;

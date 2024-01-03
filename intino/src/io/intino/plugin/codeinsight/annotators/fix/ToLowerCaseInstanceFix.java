@@ -5,22 +5,22 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class ToLowerCaseInstanceFix extends PsiElementBaseIntentionAction {
 
-	private final TaraNode node;
+	private final TaraMogram mogram;
 
 	public ToLowerCaseInstanceFix(PsiElement element) {
-		this.node = TaraPsiUtil.getContainerByType(element, TaraNode.class);
+		this.mogram = TaraPsiUtil.getContainerByType(element, TaraMogram.class);
 	}
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-		if (node != null) node.name(firstLowerCase(node.name()));
+		if (mogram != null) mogram.name(firstLowerCase(mogram.name()));
 	}
 
 	public static String firstLowerCase(String value) {

@@ -13,7 +13,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.intino.plugin.archetype.Formatters.firstUpperCase;
 import static io.intino.plugin.project.module.IntinoWizardPanel.Components.Model;
@@ -140,7 +139,7 @@ public class IntinoWizardPanel {
 		List<Components> components = componentsButtons.stream()
 				.filter(AbstractButton::isSelected)
 				.map(b -> Components.valueOf(makeUp(b)))
-				.collect(Collectors.toList());
+				.toList();
 		if (components.contains(Model) && components.contains(Components.MetaModel)) components.remove(Model);
 		return components;
 	}

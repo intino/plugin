@@ -9,7 +9,7 @@ import io.intino.plugin.messages.MessageProvider;
 
 import java.util.List;
 
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class HeaderReferenceAnalyzer extends TaraAnalyzer {
 

@@ -4,10 +4,10 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import io.intino.magritte.lang.model.*;
-import io.intino.magritte.lang.model.rules.variable.VariableRule;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.language.model.*;
+import io.intino.tara.language.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.magritte.lang.model.Primitive.EMPTY;
-import static io.intino.magritte.lang.model.Primitive.REFERENCE;
+import static io.intino.tara.language.model.Primitive.EMPTY;
+import static io.intino.tara.language.model.Primitive.REFERENCE;
 
 public class VarInitMixin extends ASTWrapperPsiElement {
 
@@ -88,16 +88,16 @@ public class VarInitMixin extends ASTWrapperPsiElement {
 		this.inferredType = type;
 	}
 
-	public String aspect() {
+	public String facet() {
 		return facet;
 	}
 
-	public void aspect(String aspect) {
+	public void facet(String aspect) {
 		this.facet = aspect;
 	}
 
 	public String toString() {
-		final Node contextOf = container();
+		final Mogram contextOf = container();
 		return "Parameter " + name() + " in " + (contextOf != null ? contextOf.qualifiedName() : "");
 	}
 
@@ -118,9 +118,9 @@ public class VarInitMixin extends ASTWrapperPsiElement {
 		return this.getValue() != null && this.getValue().getChildren().length - (this.getValue().getMetric() != null ? 1 : 0) > 1;
 	}
 
-	public Aspect isInFacet() {
-		final NodeContainer contextOf = TaraPsiUtil.getContainerOf(this);
-		return contextOf instanceof Aspect ? (Aspect) contextOf : null;
+	public Facet isInFacet() {
+		final MogramContainer contextOf = TaraPsiUtil.getContainerOf(this);
+		return contextOf instanceof Facet ? (Facet) contextOf : null;
 	}
 
 	public void name(String name) {
@@ -164,7 +164,7 @@ public class VarInitMixin extends ASTWrapperPsiElement {
 		return null;
 	}
 
-	public Node container() {
+	public Mogram container() {
 		return TaraPsiUtil.getContainerNodeOf(this);
 	}
 

@@ -8,10 +8,10 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 import io.intino.Configuration;
-import io.intino.magritte.Language;
-import io.intino.magritte.dsl.ProteoConstants;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.Language;
+import io.intino.tara.dsls.MetaIdentifiers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +26,7 @@ class TestClassCreator {
 		final PsiDirectory psiDirectory = testDirectory(module);
 		if (psiDirectory == null) return;
 		final Configuration conf = IntinoUtil.configurationOf(module);
-		final PsiClass aClass = JavaDirectoryService.getInstance().createClass(psiDirectory, newName + "Test", "Tara" + (dsl.equals(ProteoConstants.PROTEO) ? "Ontology" : "") + "Test", false, templateParameters(module, conf, dsl, newName));
+		final PsiClass aClass = JavaDirectoryService.getInstance().createClass(psiDirectory, newName + "Test", "Tara" + (dsl.equals(MetaIdentifiers.PROTEO) ? "Ontology" : "") + "Test", false, templateParameters(module, conf, dsl, newName));
 		assert aClass != null;
 		VfsUtil.markDirtyAndRefresh(true, true, true, psiDirectory.getVirtualFile());
 	}

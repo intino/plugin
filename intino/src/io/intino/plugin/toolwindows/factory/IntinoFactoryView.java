@@ -13,7 +13,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.ui.UIUtil;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
 import io.intino.plugin.actions.ReloadConfigurationAction;
@@ -23,10 +22,11 @@ import io.intino.plugin.build.ArtifactFactory;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.toolwindows.factory.components.Element;
 import io.intino.plugin.toolwindows.factory.components.FactoryPanel;
 import io.intino.plugin.toolwindows.factory.components.Operation;
+import io.intino.tara.language.model.Mogram;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,7 +51,7 @@ public class IntinoFactoryView extends JPanel {
 	IntinoFactoryView(Project project) {
 		this.project = project;
 		this.lastAction = Instant.now();
-		project.getMessageBus().connect().subscribe(LafManagerListener.TOPIC, (LafManagerListener) source -> {
+		project.getMessageBus().connect().subscribe(LafManagerListener.TOPIC, source -> {
 			mode("darcula".equalsIgnoreCase(source.getCurrentLookAndFeel().getName()));
 			source.repaintUI();
 		});
@@ -152,32 +152,32 @@ public class IntinoFactoryView extends JPanel {
 
 	private void navigate(Element element, int modifiers) {
 		final Configuration configuration = IntinoUtil.configurationOf(selectedModule());
-		if (!(configuration instanceof LegioConfiguration)) return;
-		TaraModel model = ((LegioConfiguration) configuration).legioFile();
-		final Node artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
+		TaraModel model = ((ArtifactLegioConfiguration) configuration).legioFile();
+		final Mogram artifact = model.components().stream().filter(n -> n.type().endsWith("Artifact")).findAny().orElse(null);
 		if (artifact == null) return;
-		Node node;
+		Mogram mogram;
 		switch (element) {
 			case Src -> {
-				node = find(artifact, "Code");
-				if (node != null) ((Navigatable) node).navigate(true);
+				mogram = find(artifact, "Code");
+				if (mogram != null) ((Navigatable) mogram).navigate(true);
 			}
 			case Pack -> {
-				node = find(artifact, "Package");
-				if (node != null) ((Navigatable) node).navigate(true);
+				mogram = find(artifact, "Package");
+				if (mogram != null) ((Navigatable) mogram).navigate(true);
 			}
 			case Dist -> {
-				node = find(artifact, "Distribution");
-				if (node != null) ((Navigatable) node).navigate(true);
+				mogram = find(artifact, "Distribution");
+				if (mogram != null) ((Navigatable) mogram).navigate(true);
 			}
 			default -> {
-				node = find(artifact, element.name());
-				if (node != null) ((Navigatable) node).navigate(true);
+				mogram = find(artifact, element.name());
+				if (mogram != null) ((Navigatable) mogram).navigate(true);
 			}
 		}
 	}
 
-	private Node find(Node artifact, String type) {
+	private Mogram find(Mogram artifact, String type) {
 		return artifact.components().stream().filter(n -> n.type().endsWith(type)).findAny().orElse(null);
 	}
 

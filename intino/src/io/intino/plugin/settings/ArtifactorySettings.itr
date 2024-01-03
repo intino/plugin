@@ -15,12 +15,6 @@ def type(server)
 		<password>$password</password>
 		<configuration>
             <timeout>5000</timeout>
-            <httpConfiguration>
-              <all>
-                <connectionTimeout>5000</connectionTimeout>
-                <readTimeout>5000</readTimeout>
-              </all>
-            </httpConfiguration>
         </configuration>
 	</server>
 end

@@ -4,7 +4,6 @@ import com.intellij.util.messages.Topic;
 import io.intino.plugin.actions.LegioListener;
 import io.intino.plugin.toolwindows.factory.IntinoFileListener;
 import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
-import io.intino.plugin.toolwindows.remote.MavenListener;
 
 public class IntinoTopics {
 	public static Topic<IntinoRemoteConsoleListener> REMOTE_CONSOLE = new Topic<>("remove-console", IntinoRemoteConsoleListener.class);

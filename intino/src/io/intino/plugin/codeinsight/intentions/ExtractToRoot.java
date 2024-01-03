@@ -5,11 +5,11 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.lang.psi.Signature;
 import io.intino.plugin.lang.psi.TaraSignature;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,8 +22,8 @@ public class ExtractToRoot extends PsiElementBaseIntentionAction {
 
 	@Override
 	public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-		Node node = TaraPsiUtil.getContainerByType(element, Node.class);
-		return element.isWritable() && isInSignature(element) && node != null && !(node.container() instanceof NodeRoot);
+		Mogram mogram = TaraPsiUtil.getContainerByType(element, Mogram.class);
+		return element.isWritable() && isInSignature(element) && mogram != null && !(mogram.container() instanceof MogramRoot);
 	}
 
 	private boolean isInSignature(PsiElement element) {

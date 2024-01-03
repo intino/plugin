@@ -3,10 +3,10 @@ package io.intino.plugin.project.configuration.maven;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import io.intino.Configuration;
-import io.intino.magritte.dsl.Proteo;
-import io.intino.magritte.dsl.ProteoConstants;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.dsls.MetaIdentifiers;
+import io.intino.tara.dsls.Proteo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -251,7 +251,7 @@ public class MavenHelper implements MavenTags {
 
 
 	public SimpleEntry dslMavenId(Module module, String dsl) {
-		if (ProteoConstants.PROTEO.equals(dsl)) return proteoId();
+		if (MetaIdentifiers.PROTEO.equals(dsl)) return proteoId();
 		else if (dsl != null && dsl.equals(dsl()) && importedDSL())
 			return fromImportedInfo(dsl);
 		else return mavenId(parentModule(module, dsl));

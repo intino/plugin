@@ -7,7 +7,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.Key;
 import io.intino.Configuration;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
@@ -15,7 +14,7 @@ import io.intino.plugin.actions.utils.FileSystemUtils;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.utils.cli.CommandLineException;
@@ -110,7 +109,7 @@ public class MavenRunner {
 	}
 
 	private boolean preservePOM() {
-		Boolean safe = safe(() -> ((LegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createMavenPom());
+		Boolean safe = safe(() -> ((ArtifactLegioConfiguration) IntinoUtil.configurationOf(module)).artifact().packageConfiguration().createMavenPom());
 		return safe != null ? safe : false;
 	}
 
@@ -135,10 +134,6 @@ public class MavenRunner {
 			ApplicationManager.getApplication().invokeLater(() -> {
 				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
 					@Override
-					public void startNotified(@NotNull ProcessEvent event) {
-					}
-
-					@Override
 					public void processTerminated(@NotNull ProcessEvent event) {
 						result.exitCode(event.getExitCode());
 						synchronized (monitor) {
@@ -146,9 +141,6 @@ public class MavenRunner {
 						}
 					}
 
-					@Override
-					public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
-					}
 				});
 				MavenRunnerSettings runnerSettings = new MavenRunnerSettings();
 				runnerSettings.setVmOptions((mvnOptions + " -Djansi.passthrough=true").trim());
@@ -156,7 +148,7 @@ public class MavenRunner {
 			}, ModalityState.nonModal());
 			try {
 				monitor.wait();
-			} catch (InterruptedException e) {
+			} catch (InterruptedException ignored) {
 			}
 		}
 		return result;
@@ -211,8 +203,5 @@ public class MavenRunner {
 			this.exitCode = exitCode;
 		}
 
-		void executionException(CommandLineException executionException) {
-			this.executionException = executionException;
-		}
 	}
 }

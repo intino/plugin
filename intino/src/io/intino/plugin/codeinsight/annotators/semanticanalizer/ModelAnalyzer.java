@@ -1,24 +1,24 @@
 package io.intino.plugin.codeinsight.annotators.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.Checker;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Element;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticException;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.fix.FixFactory;
 import io.intino.plugin.errorreporting.TaraRuntimeException;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Element;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
+import io.intino.tara.language.semantics.errorcollector.SemanticException;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class ModelAnalyzer extends TaraAnalyzer {
 	private final TaraModel model;
@@ -38,8 +38,8 @@ public class ModelAnalyzer extends TaraAnalyzer {
 				if (e.origin() == null) throw new TaraRuntimeException("origin = null: " + e.getMessage(), e);
 				List<PsiElement> origins = cast(e.origin());
 				for (PsiElement origin : origins)
-					if (origin instanceof Node && !(origin instanceof NodeRoot)) {
-						origin = ((TaraNode) origin).getSignature();
+					if (origin instanceof Mogram && !(origin instanceof MogramRoot)) {
+						origin = ((TaraMogram) origin).getSignature();
 						results.put(origin, annotateAndFix(e, origin));
 					}
 			}

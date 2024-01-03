@@ -1,6 +1,6 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
-import io.intino.magritte.lang.model.rules.variable.VariableRule;
+import io.intino.tara.language.model.rules.variable.VariableRule;
 
 public class ${NAME} implements VariableRule<${TYPE}>{
 

@@ -3,8 +3,8 @@ package io.intino.plugin.structureview;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import com.intellij.navigation.ItemPresentation;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class FileStructureViewElement extends PsiTreeElementBase<TaraModelImpl> {
 
@@ -22,10 +21,10 @@ class FileStructureViewElement extends PsiTreeElementBase<TaraModelImpl> {
 
 	@NotNull
 	public Collection<StructureViewTreeElement> getChildrenBase() {
-		if (getElement() == null) return Collections.EMPTY_LIST;
-		List<Node> nodes = getElement().components().stream().filter(node -> !node.isReference()).collect(Collectors.toList());
+		if (getElement() == null) return Collections.emptyList();
+		List<Mogram> nodes = getElement().components().stream().filter(mogram -> !mogram.isReference()).toList();
 		List<StructureViewTreeElement> elements = new ArrayList<>(1);
-		elements.addAll(nodes.stream().map(StructureViewElement::new).collect(Collectors.toList()));
+		elements.addAll(nodes.stream().map(StructureViewElement::new).toList());
 		return elements;
 	}
 

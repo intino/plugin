@@ -10,8 +10,7 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
@@ -33,16 +32,16 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	private final CesarAccessor cesarAccessor;
 	private final Consumer<Log> console;
 	private final DataContext dataContext;
-	private ProcessInfo selectedProcess;
+	private Application selectedApplication;
 	private boolean ignited = false;
 	private boolean inProcess = false;
 	private Level level;
 	private String currentLog = "";
 
-	public ListenLogAction(List<ProcessInfo> infos, CesarAccessor cesarAccessor, Consumer<Log> console) {
+	public ListenLogAction(List<Application> apps, CesarAccessor cesarAccessor, Consumer<Log> console) {
 		this.cesarAccessor = cesarAccessor;
 		this.console = console;
-		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
+		this.selectedApplication = apps.isEmpty() ? null : apps.get(0);
 		this.dataContext = dataContext();
 		this.level = Level.TRACE;
 		final Presentation p = getTemplatePresentation();
@@ -53,15 +52,20 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
+	}
+
+	@Override
 	public void onChanging() {
 		inProcess = true;
 	}
 
-	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
+	public void onApplicationChange(Application newApplication) {
 		inProcess = true;
 		new Thread(this::stop).start();
 		console.accept(new Log(RemoteWindow.CLEAR, Level.DEBUG));
-		selectedProcess = newProcess;
+		selectedApplication = newApplication;
 		inProcess = false;
 		update();
 	}
@@ -100,7 +104,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	private void update(Presentation p) {
-		if (selectedProcess == null || inProcess) p.setEnabled(false);
+		if (selectedApplication == null || inProcess) p.setEnabled(false);
 		else {
 			p.setEnabled(true);
 			p.setIcon(ignited ? IntinoIcons.STOP_CONSOLE : LogIcon);
@@ -118,7 +122,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	private void listenLog() {
 		try {
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-			cesarAccessor.accessor().listenLog(selectedProcess.id(), text -> {
+			cesarAccessor.accessor().listenLog(selectedApplication.id(), text -> {
 				int endIndex = text.indexOf("#");
 				if (endIndex < 0) return;
 				int messageStart = text.indexOf("#", endIndex + 1);
@@ -134,7 +138,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	private void initLog() {
 		String processLog = null;
 		try {
-			processLog = cesarAccessor.accessor().getProcessLog(selectedProcess.server().name(), selectedProcess.id(), 1).replace("\\n", "\n");
+			processLog = cesarAccessor.accessor().getApplicationLog(selectedApplication.container(), selectedApplication.id(), 1).replace("\\n", "\n");
 		} catch (BadRequest | InternalServerError | Unauthorized | NotFound e) {
 			Logger.getInstance(ListenLogAction.class.getName()).error(e.getMessage(), e);
 		}

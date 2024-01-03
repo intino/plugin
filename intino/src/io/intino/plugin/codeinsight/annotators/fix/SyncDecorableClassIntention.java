@@ -9,22 +9,22 @@ import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeRoot;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramRoot;
 import org.jetbrains.annotations.NotNull;
 
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.firstUpperCase;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.Format.javaValidName;
 
 public class SyncDecorableClassIntention extends ClassCreationIntention {
-	private final TaraNode node;
+	private final TaraMogram node;
 	private final String graphPackage;
 
-	public SyncDecorableClassIntention(TaraNode node, String graphPackage) {
+	public SyncDecorableClassIntention(TaraMogram node, String graphPackage) {
 		this.node = node;
 		this.graphPackage = graphPackage;
 	}
@@ -81,24 +81,24 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 		return srcClass;
 	}
 
-	private void syncSubClasses(PsiClass srcClass, PsiClass genClass, TaraNode node) {
-		for (Node component : node.components()) {
+	private void syncSubClasses(PsiClass srcClass, PsiClass genClass, TaraMogram node) {
+		for (Mogram component : node.components()) {
 			if (component.isReference()) continue;
 			PsiClass innerGenClass = genClass.findInnerClassByName("Abstract" + validName(component.name()), false);
 			PsiClass innerSrcClass = srcClass.findInnerClassByName(validName(component.name()), false);
 			if (innerGenClass == null) createTree(genClass, component, true);
 			if (innerSrcClass == null) createTree(srcClass, component, false);
-			else syncSubClasses(innerSrcClass, innerGenClass, (TaraNode) component);
+			else syncSubClasses(innerSrcClass, innerGenClass, (TaraMogram) component);
 		}
 	}
 
-	private void createTree(PsiClass context, Node component, boolean isGen) {
+	private void createTree(PsiClass context, Mogram component, boolean isGen) {
 		final JavaPsiFacade facade = JavaPsiFacade.getInstance(context.getProject());
-		final PsiClass psiClass = facade.getElementFactory().createClassFromText(buildClass((TaraNode) component, isGen), context).getInnerClasses()[0];
+		final PsiClass psiClass = facade.getElementFactory().createClassFromText(buildClass((TaraMogram) component, isGen), context).getInnerClasses()[0];
 		context.add(psiClass);
 	}
 
-	private String buildClass(TaraNode component, boolean isGen) {
+	private String buildClass(TaraMogram component, boolean isGen) {
 		return new DecorableTemplate().render(createNodeFrame(component, isGen));
 	}
 
@@ -119,15 +119,15 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 		return new DecorableTemplate().render(createFrame(this.node, true));
 	}
 
-	private Frame createFrame(TaraNode node, boolean gen) {
+	private Frame createFrame(TaraMogram node, boolean gen) {
 		return new FrameBuilder("decorable").add("package", validName(graphPackage)).add(gen ? "nodeGen" : "node", createNodeFrame(node, gen)).toFrame();
 	}
 
-	private Frame createNodeFrame(TaraNode node, boolean gen) {
+	private Frame createNodeFrame(TaraMogram node, boolean gen) {
 		FrameBuilder builder = new FrameBuilder(gen ? "nodeGen" : "node").add("name", validName(node.name()));
-		if (!(node.container() instanceof NodeRoot)) builder.add("inner", "static");
+		if (!(node.container() instanceof MogramRoot)) builder.add("inner", "static");
 		if (node.isAbstract()) builder.add("abstract", "abstract");
-		builder.add(gen ? "nodeGen" : "node", node.components().stream().filter(c -> !c.isReference()).map(c -> createNodeFrame((TaraNode) c, gen)).toArray(Frame[]::new));
+		builder.add(gen ? "nodeGen" : "node", node.components().stream().filter(c -> !c.isReference()).map(c -> createNodeFrame((TaraMogram) c, gen)).toArray(Frame[]::new));
 		return builder.toFrame();
 	}
 

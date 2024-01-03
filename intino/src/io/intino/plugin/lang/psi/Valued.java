@@ -1,16 +1,16 @@
 package io.intino.plugin.lang.psi;
 
 import com.intellij.pom.Navigatable;
-import io.intino.magritte.lang.model.Primitive;
+import io.intino.tara.language.model.Primitive;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static io.intino.magritte.lang.model.Primitive.*;
+import static io.intino.tara.language.model.Primitive.*;
 
-public interface Valued extends Navigatable, TaraPsiElement, io.intino.magritte.lang.model.Valued {
+public interface Valued extends Navigatable, TaraPsiElement, io.intino.tara.language.model.Valued {
 
-	io.intino.magritte.lang.model.Rule rule();
+	io.intino.tara.language.model.Rule rule();
 
 	String name();
 

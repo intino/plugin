@@ -2,14 +2,14 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.NodeRuleAnalyzer;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.VariableRuleClassAnalyzer;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
-import static io.intino.magritte.lang.model.Primitive.OBJECT;
+import static io.intino.tara.language.model.Primitive.OBJECT;
 
 public class RuleAnnotator extends TaraAnnotator {
 

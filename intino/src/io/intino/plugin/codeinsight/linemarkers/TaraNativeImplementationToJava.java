@@ -4,9 +4,9 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Primitive;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
+import io.intino.tara.language.model.Primitive;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

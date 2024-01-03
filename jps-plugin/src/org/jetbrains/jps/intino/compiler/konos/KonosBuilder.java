@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.intino.konos.compiler.shared.KonosBuildConstants.*;
 import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
@@ -120,7 +119,7 @@ public class KonosBuilder extends IntinoBuilder {
 	}
 
 	private List<JpsModuleSourceRoot> getSourceRoots(JpsModule module) {
-		return module.getSourceRoots().stream().filter(root -> root.getRootType().equals(SOURCE) && !((JavaSourceRootProperties) root.getProperties()).isForGeneratedSources()).collect(Collectors.toList());
+		return module.getSourceRoots().stream().filter(root -> root.getRootType().equals(SOURCE) && !((JavaSourceRootProperties) root.getProperties()).isForGeneratedSources()).toList();
 	}
 
 	private void processMessages(ModuleChunk chunk, CompileContext context, KonoscOSProcessHandler handler) {

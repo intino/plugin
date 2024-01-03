@@ -11,7 +11,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN;
@@ -86,7 +85,7 @@ public class IntinoSettingsPanel {
 		return IntStream.range(0, model.getRowCount())
 				.mapToObj(i -> new ArtifactoryCredential(model.getValueAt(i, 0).toString().trim(),
 						model.getValueAt(i, 1).toString().trim(), model.getValueAt(i, 2).toString().trim()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 

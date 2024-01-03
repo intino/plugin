@@ -4,18 +4,17 @@ import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.structureView.TextEditorBasedStructureViewModel;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import com.intellij.psi.PsiFile;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 class StructureViewModel extends TextEditorBasedStructureViewModel implements com.intellij.ide.structureView.StructureViewModel.ElementInfoProvider {
-
 	private final TaraModelImpl taraFile;
-
 
 	StructureViewModel(TaraModelImpl root) {
 		super(root);
 		taraFile = root;
+
 	}
 
 	@NotNull
@@ -46,7 +45,6 @@ class StructureViewModel extends TextEditorBasedStructureViewModel implements co
 
 	@NotNull
 	protected Class[] getSuitableClasses() {
-		return new Class[]{Node.class};
+		return new Class[]{Mogram.class};
 	}
-
 }

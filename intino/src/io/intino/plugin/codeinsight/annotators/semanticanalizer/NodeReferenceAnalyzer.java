@@ -1,22 +1,22 @@
 package io.intino.plugin.codeinsight.annotators.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.Checker;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticException;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticFatalException;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.fix.FixFactory;
-import io.intino.plugin.lang.psi.TaraNodeReference;
+import io.intino.plugin.lang.psi.TaraMogramReference;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.tara.Checker;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.errorcollector.SemanticException;
+import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class NodeReferenceAnalyzer extends TaraAnalyzer {
-	private final TaraNodeReference nodeReference;
+	private final TaraMogramReference nodeReference;
 
-	public NodeReferenceAnalyzer(TaraNodeReference nodeReference) {
+	public NodeReferenceAnalyzer(TaraMogramReference nodeReference) {
 		this.nodeReference = nodeReference;
 	}
 
@@ -31,7 +31,7 @@ public class NodeReferenceAnalyzer extends TaraAnalyzer {
 		}
 	}
 
-	private TaraAnnotator.AnnotateAndFix annotateAndFix(SemanticException e, Node destiny) {
+	private TaraAnnotator.AnnotateAndFix annotateAndFix(SemanticException e, Mogram destiny) {
 		return new TaraAnnotator.AnnotateAndFix(ERROR, e.getMessage(), FixFactory.get(e.key(), (PsiElement) destiny));
 	}
 }

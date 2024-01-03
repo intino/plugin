@@ -1,21 +1,21 @@
 package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
 import io.intino.Configuration.Artifact;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
-import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.lang.psi.TaraMogram;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.project.Safe.safe;
 
 public class DataHubAnalyzer extends TaraAnalyzer {
-	private final Node dependencyNode;
-	private final LegioConfiguration configuration;
+	private final Mogram dependencyNode;
+	private final ArtifactLegioConfiguration configuration;
 
-	public DataHubAnalyzer(Node node, LegioConfiguration configuration) {
+	public DataHubAnalyzer(Mogram node, ArtifactLegioConfiguration configuration) {
 		this.dependencyNode = node;
 		this.configuration = configuration;
 	}
@@ -24,8 +24,8 @@ public class DataHubAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
 		final Artifact.Dependency.DataHub dependency = findDataHubNode();
-		if (dependency == null || !dependency.resolved())
-			results.put(((TaraNode) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
+		if (dependency == null || !new DependencyAnalyzer(configuration.module(), dependencyNode, configuration).isResolved(dependency))
+			results.put(((TaraMogram) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 	}
 
 

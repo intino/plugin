@@ -1,23 +1,25 @@
 package io.intino.plugin.project.builders;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.jcabi.aether.Aether;
 import io.intino.Configuration;
-import io.intino.magritte.Language;
-import io.intino.magritte.dsl.Tara;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
 import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.Version;
+import io.intino.tara.Language;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,26 +30,27 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.intino.plugin.dependencyresolution.MavenDependencyResolver.dependenciesFrom;
 import static io.intino.plugin.dependencyresolution.Repositories.LOCAL;
-import static org.sonatype.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class BoxBuilderManager {
-	public static final String MinimumVersion = "9.7.0";
+	public static final String MinimumVersion = "11.0.0";
 	public static final String BOX_LANGUAGE = "Konos";
 	public static final String GROUP_ID = "io.intino.konos";
 	public static final String ARTIFACT_ID = "builder";
 	private static final Logger logger = Logger.getInstance(BoxBuilderManager.class.getName());
 	private static final Map<String, ClassLoader> loadedVersions = new HashMap<>();
-	private final Aether aether;
 	private final Module module;
 	private final List<Configuration.Repository> repositories;
+	private final MavenDependencyResolver resolver;
 
 	public BoxBuilderManager(Module module, List<Configuration.Repository> repositories) {
 		this.module = module;
 		this.repositories = repositories;
-		aether = new Aether(collectRemotes(), LOCAL);
+		this.resolver = new MavenDependencyResolver(collectRemotes());
 	}
 
 	public String load(String version) {
@@ -61,35 +64,43 @@ public class BoxBuilderManager {
 			Logger.getInstance(BoxBuilderManager.class).info("Konos " + version + " is already downloaded");
 			return effectiveVersion;
 		}
-		downloadAndSaveClassPath(version);
-		loadLanguage(version, effectiveVersion);
+		List<String> libraries = downloadAndSaveClassPath(version);
+		loadLanguage(version, effectiveVersion, libraries);
 		return effectiveVersion;
 	}
 
-	private void downloadAndSaveClassPath(String version) {
-		if (isDownloaded(version) && classpathContains(version)) return;
-		List<Artifact> artifacts = konosLibrary(version);
-		if (!artifacts.isEmpty()) saveClassPath(module, librariesOf(artifacts));
+	private List<String> downloadAndSaveClassPath(String version) {
+		if (isDownloaded(version) && classpathContains(version)) return classpath();
+		try {
+			List<String> paths = librariesOf(konosLibrary(version));
+			saveClassPath(module, paths);
+			return paths;
+		} catch (DependencyResolutionException e) {
+			Notifications.Bus.notify(new Notification("Intino", "Dependency not found", e.getMessage(), NotificationType.ERROR), null);
+			return Collections.emptyList();
+		}
 	}
 
 	private boolean classpathContains(String version) {
-		try {
-			Path path = BoxBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
-			if (!path.toFile().exists()) return false;
-			List<String> classpath = Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));
-			return !classpath.isEmpty() && classpath.get(0).equals(mainArtifact(version).getAbsolutePath());
-		} catch (IOException e) {
-			logger.error(e);
-		}
-		return false;
+		List<String> classpath = classpath();
+		if (classpath == null) return false;
+		return !classpath.isEmpty() && classpath.get(0).equals(mainArtifact(version).getAbsolutePath());
 	}
 
-	private void loadLanguage(String version, String effectiveVersion) {
+	private List<String> classpath() {
+		Path path = BoxBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
+		if (!path.toFile().exists()) return Collections.emptyList();
+		try {
+			return Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));
+		} catch (IOException e) {
+			return Collections.emptyList();
+		}
+	}
+
+	private void loadLanguage(String version, String effectiveVersion, List<String> libraries) {
 		if (!isSuitable(effectiveVersion)) return;
 		if (isLoaded(effectiveVersion)) return;
-		final ClassLoader classLoader;
-		if (isLoaded(effectiveVersion)) classLoader = loadedVersions.get(effectiveVersion);
-		else classLoader = createClassLoader(mainArtifact(effectiveVersion));
+		final ClassLoader classLoader = createClassLoader(libraries.stream().map(File::new));
 		Language language = loadLanguage(classLoader);
 		if (language != null) {
 			LanguageManager.registerBoxLanguage(module.getProject(), language, effectiveVersion);
@@ -127,22 +138,20 @@ public class BoxBuilderManager {
 		return new File(LOCAL, "io/intino/konos/builder/" + version + "/" + "builder-" + version + ".jar");
 	}
 
-	private List<Artifact> konosLibrary(String version) {
-		try {
-			return aether.resolve(new DefaultArtifact(GROUP_ID, ARTIFACT_ID, "jar", version), JavaScopes.COMPILE);
-		} catch (DependencyResolutionException e) {
-			return Collections.emptyList();
-		}
+	private DependencyResult konosLibrary(String version) throws DependencyResolutionException {
+		return resolver.resolve(new DefaultArtifact(GROUP_ID, ARTIFACT_ID, "jar", version), JavaScopes.COMPILE);
 	}
 
-	private List<String> librariesOf(List<Artifact> classpath) {
-		return classpath.stream().map(c -> c.getFile().getAbsolutePath()).collect(Collectors.toList());
+	private List<String> librariesOf(DependencyResult result) {
+		return dependenciesFrom(result, false).stream()
+				.map(d -> d.getArtifact().getFile().getAbsolutePath())
+				.toList();
 	}
 
 	private void saveClassPath(Module module, List<String> paths) {
 		if (paths.isEmpty()) return;
 		final String home = System.getProperty("user.home");
-		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).collect(Collectors.toList());
+		List<String> libraries = paths.stream().map(l -> l.replace(home, "$HOME")).toList();
 		try {
 			File moduleBoxDirectory = new File(IntinoDirectory.boxDirectory(module.getProject()), module.getName());
 			Path path = classpathFile(moduleBoxDirectory);
@@ -153,16 +162,16 @@ public class BoxBuilderManager {
 		}
 	}
 
+	private ClassLoader createClassLoader(Stream<File> libraries) {
+		return new URLClassLoader(libraries.map(this::toURL).toArray(URL[]::new));
+	}
+
 	private URL toURL(File l) {
 		try {
 			return l.toURI().toURL();
 		} catch (MalformedURLException e) {
 			return null;
 		}
-	}
-
-	private ClassLoader createClassLoader(File library) {
-		return new URLClassLoader(new URL[]{toURL(library)}, Tara.class.getClassLoader());
 	}
 
 	public static boolean exists(String version) {
@@ -179,7 +188,7 @@ public class BoxBuilderManager {
 	}
 
 	@NotNull
-	private Collection<RemoteRepository> collectRemotes() {
+	private List<RemoteRepository> collectRemotes() {
 		Repositories repositoryManager = new Repositories(module);
 		List<RemoteRepository> remotes = repositoryManager.map(repositories);
 		remotes.add(repositoryManager.local());

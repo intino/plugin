@@ -18,7 +18,7 @@ import io.intino.plugin.FatalIntinoException;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
@@ -35,12 +35,12 @@ import static java.util.stream.Collectors.toList;
 
 public class ArtifactDeployer {
 	private final Module module;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final List<Deployment> deployments;
 
 	public ArtifactDeployer(Module module, List<Deployment> deployments) {
 		this.module = module;
-		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		this.deployments = deployments;
 	}
 
@@ -72,14 +72,14 @@ public class ArtifactDeployer {
 			List<Configuration.Parameter> incorrectParameters = incorrectParameters(deployment.runConfiguration().finalArguments());
 			if (!incorrectParameters.isEmpty())
 				throw new IntinoException("Parameters missed: " + incorrectParameters.stream().map(Configuration.Parameter::name).collect(Collectors.joining("; ")));
-			new ApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployProcess(createDeployment(aPackage, deployment));
+			new ApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployApplication(createDeployment(aPackage, deployment));
 		} catch (Forbidden | BadRequest | InternalServerError | Unauthorized e) {
 			throw new IntinoException(e.getMessage());
 		}
 	}
 
 	private List<Configuration.Parameter> incorrectParameters(Map<String, String> arguments) {
-		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name()) || arguments.get(p.name()) == null).collect(Collectors.toList());
+		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name()) || arguments.get(p.name()) == null).toList();
 	}
 
 	private ProcessDeployment createDeployment(Artifact.Package packageConfiguration, Deployment destination) {
@@ -93,7 +93,7 @@ public class ArtifactDeployer {
 				artifactoryList(artifactories()).
 				requirements(requirements(destination)).
 				packaging(new ProcessDeployment.Packaging().mainClass(packageConfiguration.mainClass()).parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
-				destinationServer(destination.server().name());
+				computer(destination.server().name());
 	}
 
 	@NotNull

@@ -176,7 +176,7 @@ public class MavenConfiguration implements Configuration {
 					public Level level() {
 						if (maven == null) return null;
 						final String property = maven.getProperties().getProperty(MavenTags.LEVEL);
-						return property == null ? Level.Platform : Level.valueOf(property);
+						return property == null ? Level.MetaMetaModel : Level.valueOf(property);
 					}
 
 					@Override

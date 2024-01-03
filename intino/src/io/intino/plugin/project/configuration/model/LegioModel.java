@@ -1,24 +1,21 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.intino.plugin.project.Safe.safeList;
+import java.util.jar.Attributes;
 
 public class LegioModel implements Configuration.Artifact.Model {
 	private final LegioArtifact artifact;
-	private final TaraNode node;
+	private final TaraMogram mogram;
 	private LegioLanguage language;
 
-	public LegioModel(LegioArtifact artifact, TaraNode node) {
+	public LegioModel(LegioArtifact artifact, TaraMogram mogram) {
 		this.artifact = artifact;
-		this.node = node;
+		this.mogram = mogram;
 	}
 
 	@Override
@@ -29,8 +26,8 @@ public class LegioModel implements Configuration.Artifact.Model {
 
 	@Override
 	public String outLanguage() {
-		if (node == null) return null;
-		String outLanguage = TaraPsiUtil.parameterValue(node, "outLanguage");
+		if (mogram == null) return null;
+		String outLanguage = TaraPsiUtil.parameterValue(mogram, "outLanguage");
 		return outLanguage == null ? artifact.name() : outLanguage;
 	}
 
@@ -40,26 +37,34 @@ public class LegioModel implements Configuration.Artifact.Model {
 	}
 
 	public String sdkVersion() {
-		return TaraPsiUtil.parameterValue(node, "sdkVersion", 2);
+		return TaraPsiUtil.parameterValue(mogram, "sdkVersion", 2);
 	}
 
 	@Override
 	public String sdk() {
-		String sdk = TaraPsiUtil.parameterValue(node, "sdk", 3);
+		String sdk = TaraPsiUtil.parameterValue(mogram, "sdk", 3);
 		return sdk != null ? sdk : "io.intino.magritte:builder";
 	}
 
 	@Override
 	public List<ExcludedPhases> excludedPhases() {
-		List<String> excludedPhases = TaraPsiUtil.parameterValues(node, "exclude", 4);
-		return excludedPhases == null ? List.of() : excludedPhases.stream().map(ExcludedPhases::valueOf).collect(Collectors.toList());
+		List<String> excludedPhases = TaraPsiUtil.parameterValues(mogram, "exclude", 4);
+		return excludedPhases == null ? List.of() : excludedPhases.stream().map(ExcludedPhases::valueOf).toList();
 	}
 
 	@Override
 	public Level level() {
-		List<Aspect> safe = safeList(() -> artifact.node().appliedAspects());
-		if (safe.isEmpty()) return null;
-		return Level.valueOf(safe.get(0).type());
+		Attributes parameters = language().parameters();
+		if (parameters == null) return null;
+		String level = ensureCompatibility(parameters.getValue("level"));
+		return level == null ? Level.MetaModel : Level.values()[Level.valueOf(level).ordinal() - 1];
+	}
+
+	private String ensureCompatibility(String level) {
+		if ("Product".equalsIgnoreCase(level)) return Level.MetaModel.name();
+		if ("Platform".equalsIgnoreCase(level)) return Level.MetaMetaModel.name();
+		if ("Solution".equalsIgnoreCase(level)) return Level.Model.name();
+		return level;
 	}
 
 	@Override
@@ -74,7 +79,7 @@ public class LegioModel implements Configuration.Artifact.Model {
 		return artifact;
 	}
 
-	public TaraNode node() {
-		return node;
+	public TaraMogram node() {
+		return mogram;
 	}
 }

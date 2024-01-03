@@ -13,10 +13,9 @@ import git4idea.GitCommit;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
 import io.intino.plugin.actions.ReloadConfigurationAction;
-import io.intino.plugin.dependencyresolution.ResolutionCache;
 import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -49,7 +48,7 @@ public class GitListener implements Notifications {
 		try {
 			List<GitCommit> history = GitHistoryUtils.history(project, repository.getRoot()).subList(0, numberOfCommits);
 			history.stream()
-					.flatMap(c -> c.getAffectedPaths().stream().filter(fp -> fp.getName().equals(LegioFileType.LEGIO_FILE)).map(FilePath::getIOFile).distinct())
+					.flatMap(c -> c.getAffectedPaths().stream().filter(fp -> fp.getName().equals(LegioFileType.ARTIFACT_LEGIO)).map(FilePath::getIOFile).distinct())
 					.distinct()
 					.forEach(a -> invalidateCacheAndReload(configurationOf(a)));
 		} catch (VcsException e) {
@@ -57,19 +56,17 @@ public class GitListener implements Notifications {
 		}
 	}
 
-	private void invalidateCacheAndReload(LegioConfiguration conf) {
+	private void invalidateCacheAndReload(ArtifactLegioConfiguration conf) {
 		if (conf == null) return;
-		conf.dependencyAuditor().invalidateAll();
-		ResolutionCache.instance(project).invalidate();
 		new ReloadConfigurationAction().execute(conf.module());
 	}
 
-	private LegioConfiguration configurationOf(File artifact) {
+	private ArtifactLegioConfiguration configurationOf(File artifact) {
 		ModuleManager manager = ModuleManager.getInstance(project);
 		return Arrays.stream(manager.getModules())
 				.map(IntinoUtil::configurationOf)
-				.filter(c -> c instanceof LegioConfiguration)
-				.map(c -> (LegioConfiguration) c)
+				.filter(c -> c instanceof ArtifactLegioConfiguration)
+				.map(c -> (ArtifactLegioConfiguration) c)
 				.filter(c -> c.legiovFile().toNioPath().toFile().getAbsolutePath().equals(artifact.getAbsolutePath()))
 				.findFirst().orElse(null);
 	}

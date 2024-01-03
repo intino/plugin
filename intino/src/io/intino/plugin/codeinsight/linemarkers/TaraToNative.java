@@ -15,7 +15,6 @@ import io.intino.plugin.lang.psi.resolve.ReferenceManager;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 

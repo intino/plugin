@@ -22,7 +22,7 @@ import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.builders.BoxBuilderManager;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
 
 import java.io.*;
@@ -44,7 +44,7 @@ public class KonosRunner {
 	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
 
-	public KonosRunner(Module module, LegioConfiguration conf, Mode mode, String outputPath) throws IOException, IntinoException {
+	public KonosRunner(Module module, ArtifactLegioConfiguration conf, Mode mode, String outputPath) throws IOException, IntinoException {
 		argsFile = FileUtil.createTempFile("ideaKonosToCompile", ".txt", false);
 		Path path = BoxBuilderManager.classpathFile(IntinoDirectory.boxDirectory(module));
 		if (!path.toFile().exists())
@@ -63,7 +63,7 @@ public class KonosRunner {
 		}
 	}
 
-	private void fillConfiguration(LegioConfiguration conf, Mode mode, Writer writer) throws IOException {
+	private void fillConfiguration(ArtifactLegioConfiguration conf, Mode mode, Writer writer) throws IOException {
 		writer.write(GROUP_ID + NL + conf.artifact().groupId() + NL);
 		writer.write(ARTIFACT_ID + NL + conf.artifact().name() + NL);
 		writer.write(VERSION + NL + conf.artifact().version() + NL);

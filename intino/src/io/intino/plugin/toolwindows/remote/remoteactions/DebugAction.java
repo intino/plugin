@@ -1,6 +1,6 @@
 package io.intino.plugin.toolwindows.remote.remoteactions;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.icons.AllIcons.Actions;
 import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -10,13 +10,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.ui.AnimatedIcon;
 import io.intino.Configuration;
-import io.intino.alexandria.exceptions.BadRequest;
-import io.intino.alexandria.exceptions.InternalServerError;
-import io.intino.alexandria.exceptions.NotFound;
-import io.intino.alexandria.exceptions.Unauthorized;
+import io.intino.alexandria.exceptions.AlexandriaException;
 import io.intino.alexandria.logger.Logger;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
@@ -35,55 +31,56 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
-	private ProcessInfo process;
-	private ProcessStatus status;
-	private boolean inProcess = false;
+	private final AtomicBoolean isChanging = new AtomicBoolean(false);
+	private Application application;
 
-	public DebugAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
+	public DebugAction(List<Application> applications, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
 		this.serverType = serverType;
 		this.cesarAccessor = cesarAccessor;
-		process = infos.isEmpty() ? null : infos.get(0);
-		status = process == null ? null : this.cesarAccessor.processStatus(process.server().name(), process.id());
+		application = applications.isEmpty() ? null : applications.get(0);
 		dataContext = dataContext();
 		final Presentation presentation = getTemplatePresentation();
-		presentation.setIcon(AllIcons.Actions.StartDebugger);
-		presentation.setText((status != null && status.debug() ? "Restart " : "") + "Debug Remote Process");
+		presentation.setIcon(Actions.StartDebugger);
+		presentation.setText((application != null && application.debugging() ? "Restart " : "") + "Debug Remote Process");
 		presentation.setDisabledIcon(AnimatedIcon.Default.INSTANCE);
-		presentation.setDescription((status != null && status.debug() ? "Restart " : "") + "Debug remote process");
+		presentation.setDescription((application != null && application.debugging() ? "Restart " : "") + "Debug remote process");
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
 	}
 
 	@Override
 	public void onChanging() {
-		inProcess = true;
+		isChanging.set(true);
 	}
 
-	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
-		inProcess = true;
+	public void onApplicationChange(Application application) {
+		isChanging.set(true);
 		new Thread(() -> {
-			process = newProcess;
-			status = newProcessStatus;
-			inProcess = false;
+			this.application = application;
+			isChanging.set(false);
 			update();
 		}).start();
 	}
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
-		inProcess = true;
+		isChanging.set(true);
 		boolean sure = askAndContinue(e);
 		if (!sure) return;
 		new Thread(() -> {
-			status = cesarAccessor.processStatus(process.server().name(), process.id());
+			application = cesarAccessor.application(application.container(), application.id());
 			try {
-				Boolean success = cesarAccessor.accessor().postProcessStatus(process.server().name(), process.id(), status.running(), true);
+				Boolean success = cesarAccessor.accessor().postApplicationStatus(application.container(), application.id(), application.running(), true);
 				if (success) {
-					status.running(!status.running());
-					status = cesarAccessor.processStatus(process.server().name(), process.id());
-					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + process.debugPort(), NotificationType.INFORMATION), null);
+					application = cesarAccessor.application(application.container(), application.id());
+					Notifications.Bus.notify(new Notification("Intino", "Process Debugging started", "Port " + application.debugPort(), NotificationType.INFORMATION), null);
 				}
-			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
+			} catch (AlexandriaException ignored) {
 			}
-			inProcess = false;
+			isChanging.set(false);
 			update(e);
 		}).start();
 	}
@@ -120,15 +117,10 @@ public class DebugAction extends AnAction implements DumbAware, IntinoConsoleAct
 	}
 
 	private void update(Presentation presentation) {
-		if (process == null || inProcess) presentation.setEnabled(false);
+		if (application == null || isChanging.get()) presentation.setEnabled(false);
 		else {
-			if (status == null)
-				status = cesarAccessor.processStatus(process.server().name(), process.id());
-			if (status == null) presentation.setEnabled(false);
-			else {
-				if (status.debug()) presentation.setIcon(AllIcons.Actions.RestartDebugger);
-				else presentation.setIcon(AllIcons.Actions.StartDebugger);
-			}
+			if (application.debugging()) presentation.setIcon(Actions.RestartDebugger);
+			else presentation.setIcon(Actions.StartDebugger);
 		}
 	}
 }

@@ -9,12 +9,12 @@ import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Flags;
-import io.intino.magritte.lang.model.Tag;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.module.IntinoModuleType;
+import io.intino.tara.language.model.Flags;
+import io.intino.tara.language.model.Tag;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -56,7 +56,7 @@ public class TaraAnnotationsCompletionContributor extends CompletionContributor 
 						final Module module = moduleOf(parameters.getOriginalFile());
 						if (!IntinoModuleType.isIntino(module)) return;
 						final Configuration.Artifact.Model.Level level = safe(() -> IntinoUtil.configurationOf(module).artifact().model().level());
-						if (level == null || level.isSolution() || level.isProduct()) return;
+						if (level == null || level.isModel() || level.isMetaModel()) return;
 						addTags(parameters, resultSet);
 					}
 				}

@@ -2,16 +2,16 @@ package io.intino.plugin.project.configuration;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
-import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.module.IntinoWizardPanel.Components;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.openapi.vfs.VfsUtil.findFileByIoFile;
+import static io.intino.plugin.file.LegioFileType.ARTIFACT_LEGIO;
+import static io.intino.plugin.file.LegioFileType.PROJECT_LEGIO;
 import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
 
 public class LegioFileCreator {
@@ -37,28 +39,37 @@ public class LegioFileCreator {
 		this.components = components;
 	}
 
-	public VirtualFile get() {
+	public VirtualFile getArtifact() {
 		final File legioFile = legioFile();
-		if (legioFile.exists()) return findFileByIoFile(legioFile, true);
-		return null;
+		return legioFile.exists() ? findFileByIoFile(legioFile, true) : null;
 	}
 
-	VirtualFile getOrCreate(String groupId) {
-		final File legioFile = legioFile();
-		if (legioFile.exists()) return findFileByIoFile(legioFile, true);
-		return VfsUtil.findFileByIoFile(create(legioFile, groupId), true);
+	public VirtualFile getProject(Project project) {
+		final File legioFile = legioProjectFile(project);
+		return legioFile.exists() ? findFileByIoFile(legioFile, true) : null;
 	}
 
-	public void create(String legioContent) {
-		create(legioContent, legioFile());
+	VirtualFile getOrCreateArtifact(String groupId) {
+		final File legioFile = legioFile();
+		if (legioFile.exists()) return findFileByIoFile(legioFile, true);
+		return VfsUtil.findFileByIoFile(createArtifact(legioFile, groupId), true);
+	}
+
+	public void createArtifact(String legioContent) {
+		write(legioContent, legioFile());
 	}
 
 	@NotNull
-	public File create(File legioFile, String groupId) {
-		return create(new LegioFileTemplate().render(frame(groupId)), legioFile).toFile();
+	public File createArtifact(File legioFile, String groupId) {
+		return write(new LegioFileTemplate().render(frame(groupId)), legioFile).toFile();
 	}
 
-	private Path create(String content, File destination) {
+	public void createProjectIfNotExist(Project project) {
+		File destination = legioProjectFile(project);
+		if (!destination.exists()) write(new LegioFileTemplate().render(projectFrame(project.getName())), destination);
+	}
+
+	private Path write(String content, File destination) {
 		try {
 			return Files.write(destination.toPath(), content.getBytes());
 		} catch (IOException ignored) {
@@ -68,8 +79,17 @@ public class LegioFileCreator {
 
 	@NotNull
 	public File legioFile() {
-		File root = IntinoUtil.moduleRoot(module);
-		return new File(root, LegioFileType.LEGIO_FILE);
+		return new File(IntinoUtil.moduleRoot(module), ARTIFACT_LEGIO);
+	}
+
+	@NotNull
+	public File legioProjectFile(Project project) {
+		return new File(IntinoUtil.projectRoot(project), PROJECT_LEGIO);
+	}
+
+	private Frame projectFrame(String project) {
+		return new FrameBuilder("legio", "project").add("name", project).toFrame();
+
 	}
 
 	private Frame frame(String groupId) {

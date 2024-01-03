@@ -6,11 +6,11 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.codeinsight.annotators.fix.ClassCreationIntention;
 import io.intino.plugin.codeinsight.languageinjection.imports.Imports;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,8 +32,8 @@ public class ConvertToMethodReference extends ClassCreationIntention {
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-		final Node node = getContainerNodeOf(element);
-		if (node == null) return;
+		final Mogram mogram = getContainerNodeOf(element);
+		if (mogram == null) return;
 		final Valued valued = TaraPsiUtil.getContainerByType(element, Valued.class);
 		if (valued == null) return;
 		final String name = valued.name();

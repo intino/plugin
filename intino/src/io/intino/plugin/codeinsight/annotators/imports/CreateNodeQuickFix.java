@@ -1,6 +1,5 @@
 package io.intino.plugin.codeinsight.annotators.imports;
 
-import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateManager;
@@ -56,7 +55,6 @@ public class CreateNodeQuickFix extends WithLiveTemplateFix implements Intention
 	}
 
 	private void createLiveTemplateFor(PsiFile file, Editor editor) {
-		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 		int line = editor.getDocument().getLineCount() - 1;

@@ -22,7 +22,7 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.IntinoAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class BoxElementsGenerationAction extends IntinoAction {
 		Module module = e.getData(LangDataKeys.MODULE);
 		boolean enable = project != null && module != null;
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) enable = false;
+		if (!(configuration instanceof ArtifactLegioConfiguration)) enable = false;
 		else if (safe(() -> configuration.artifact().box()) == null) enable = false;
 		e.getPresentation().setVisible(enable);
 		e.getPresentation().setEnabled(enable);
@@ -57,16 +57,16 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)||safe(() -> configuration.artifact().box()) == null) return;
+		if (!(configuration instanceof ArtifactLegioConfiguration)||safe(() -> configuration.artifact().box()) == null) return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading box elements", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				doExecute(module, (LegioConfiguration) configuration);
+				doExecute(module, (ArtifactLegioConfiguration) configuration);
 			}
 		});
 	}
 
-	private void doExecute(Module module, LegioConfiguration configuration) {
+	private void doExecute(Module module, ArtifactLegioConfiguration configuration) {
 		try {
 			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
 			KonosRunner konosRunner = new KonosRunner(module, configuration, Mode.OnlyElements, null);

@@ -16,11 +16,16 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.plugin.actions.ReloadConfigurationAction;
-import io.intino.plugin.dependencyresolution.DependencyCatalog;
 import io.intino.plugin.dependencyresolution.DependencyPurger;
-import io.intino.plugin.dependencyresolution.ResolutionCache;
+import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -31,12 +36,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
+import static io.intino.plugin.dependencyresolution.MavenDependencyResolver.dependenciesFrom;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.util.Comparator.comparing;
@@ -83,13 +87,12 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		tree.addTreeExpansionListener(new TreeExpansionListener() {
 			@Override
 			public void treeExpanded(TreeExpansionEvent event) {
-				ResolutionCache cache = ResolutionCache.instance(project);
 				final DefaultMutableTreeNode component = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
 				if (component.getUserObject() instanceof String) renderProject(component);
 				if (component.getUserObject() instanceof ModuleNode)
-					renderModule(component, moduleOf(((ModuleNode) component.getUserObject()).name), cache);
+					renderModule(component, moduleOf(((ModuleNode) component.getUserObject()).name));
 				else if (component.getUserObject() instanceof DependencyNode)
-					renderLibrary(component, ((DependencyNode) component.getUserObject()), cache);
+					renderLibrary(component, ((DependencyNode) component.getUserObject()));
 			}
 
 			@Override
@@ -104,23 +107,9 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		Object userObject = ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
 		if (!(userObject instanceof DependencyNode)) return;
 		JBPopupMenu options = new JBPopupMenu("options");
-		JBMenuItem item1 = reloadAction(treePath, (DependencyNode) userObject);
 		JBMenuItem item2 = deleteAndReloadAction(treePath, (DependencyNode) userObject);
-		options.add(item1);
 		options.add(item2);
 		options.show(e.getComponent(), e.getX(), e.getY());
-	}
-
-	private JBMenuItem reloadAction(TreePath treePath, DependencyNode userObject) {
-		JBMenuItem item = new JBMenuItem("Reload cache of this dependency");
-		item.setAction(new AbstractAction("Reload cache of this dependency") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String mavenId = mavenId(userObject);
-				ApplicationManager.getApplication().invokeLater(() -> invalidateAndReload(mavenId, ((DefaultMutableTreeNode) treePath.getLastPathComponent())));
-			}
-		});
-		return item;
 	}
 
 	@NotNull
@@ -138,49 +127,14 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	private void purgeAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
 		new DependencyPurger().purgeDependency(mavenId);
-		invalidateAndReload(mavenId, treeNode);
+		invalidateAndReload(treeNode);
 	}
 
-	private void invalidateAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
-		List<String> deps = firstLevelDependenciesWith(mavenId);
-		ResolutionCache.invalidate(mavenId);
-		deps.forEach(ResolutionCache::invalidate);
+	private void invalidateAndReload(DefaultMutableTreeNode treeNode) {
 		DefaultMutableTreeNode target = treeNode.getAllowsChildren() ? treeNode : ((DefaultMutableTreeNode) treeNode.getParent());
-		DependencyNode dependencyNode = (DependencyNode) target.getUserObject();
-		Module module = dependencyNode.module;
-		((LegioConfiguration) IntinoUtil.configurationOf(module)).dependencyAuditor().invalidate(dependencyNode.identifier());
-		new ReloadConfigurationAction().execute(module);
+		new ReloadConfigurationAction().execute(((DependencyNode) target.getUserObject()).module);
 	}
 
-	private List<String> firstLevelDependenciesWith(String mavenId) {
-		List<String> selected = new ArrayList<>();
-		for (Object module : childrenOf(root)) {
-			for (Object lib : childrenOf((DefaultMutableTreeNode) module))
-				if (containsDependency((DefaultMutableTreeNode) lib, mavenId))
-					selected.add(((DependencyNode) ((DefaultMutableTreeNode) lib).getUserObject()).library);
-		}
-		return selected;
-	}
-
-	@NotNull
-	private List<TreeNode> childrenOf(DefaultMutableTreeNode module) {
-		return Collections.list(module.children());
-	}
-
-	private boolean containsDependency(DefaultMutableTreeNode element, String mavenId) {
-		for (Object o : Collections.list(element.children())) {
-			if (!(((DefaultMutableTreeNode) o).getUserObject() instanceof DependencyNode)) continue;
-			if (mavenIdOf((DefaultMutableTreeNode) o).equals(mavenId)) return true;
-		}
-		return false;
-	}
-
-	private String mavenIdOf(DefaultMutableTreeNode o) {
-		String library = ((DependencyNode) o.getUserObject()).library;
-		return library.substring(0, library.lastIndexOf(":"));
-	}
-
-	@NotNull
 	private String mavenId(DependencyNode userObject) {
 		if (!userObject.label.contains(" ")) return userObject.label;
 		return userObject.label.substring(0, userObject.label.lastIndexOf(" "));
@@ -197,87 +151,94 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	private void renderProject(DefaultMutableTreeNode parent) {
 		parent.removeAllChildren();
 		for (Module module : Arrays.stream(ModuleManager.getInstance(project).getModules()).sorted(comparing(Module::getName)).toArray(Module[]::new)) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new ModuleNode(module.getName()));
-			parent.add(node);
-			node.setAllowsChildren(true);
-			node.add(new DefaultMutableTreeNode(module));
+			DefaultMutableTreeNode mogram = new DefaultMutableTreeNode(new ModuleNode(module.getName()));
+			parent.add(mogram);
+			mogram.setAllowsChildren(true);
+			mogram.add(new DefaultMutableTreeNode(module));
 		}
 		tree.updateUI();
 	}
 
-	private void renderModule(DefaultMutableTreeNode parent, Module module, ResolutionCache cache) {
+	private void renderModule(DefaultMutableTreeNode parent, Module module) {
 		parent.removeAllChildren();
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) return;
-		renderModel(parent, module, cache, (LegioConfiguration) configuration);
-		renderDataHub(parent, module, cache, (LegioConfiguration) configuration);
-		renderArchetype(parent, module, cache, (LegioConfiguration) configuration);
-		renderDependencies(parent, module, cache, (LegioConfiguration) configuration);
+		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
+		MavenDependencyResolver resolver = new MavenDependencyResolver(Repositories.of(module));
+		renderModel(parent, module, resolver, (ArtifactLegioConfiguration) configuration);
+		renderDataHub(parent, module, (ArtifactLegioConfiguration) configuration);
+		renderArchetype(parent, module, (ArtifactLegioConfiguration) configuration);
+		renderDependencies(parent, module, (ArtifactLegioConfiguration) configuration);
 		tree.updateUI();
 	}
 
-	private void renderModel(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+	private void renderModel(DefaultMutableTreeNode parent, Module module, MavenDependencyResolver resolver, ArtifactLegioConfiguration configuration) {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return;
 		Configuration.Artifact.Model.Language language = model.language();
 		if (language.name() == null) return;
 		String languageId = languageId(language.name(), language.version());
-		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
-		if (dependencies != null && !dependencies.isEmpty()) {
-			renderDependency(parent, module, languageId, labelIdentifier(cache, languageId));
+		try {
+			var dependencies = resolver.resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
+			renderDependency(parent, module, languageId, labelIdentifier(dependencies));
+		} catch (DependencyResolutionException ignored) {
 		}
 	}
 
-	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ArtifactLegioConfiguration configuration) {
 		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
-			renderDependency(parent, module, dependency.identifier(), labelIdentifier(cache, dependency));
+			renderDependency(parent, module, dependency.identifier(), labelIdentifier(dependency));
 		}
 	}
 
-	private void renderDataHub(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+	private void renderDataHub(DefaultMutableTreeNode parent, Module module, ArtifactLegioConfiguration configuration) {
 		Dependency.DataHub safe = safe(() -> configuration.artifact().datahub());
-		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(cache, safe));
+		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(safe));
 	}
 
-	private void renderArchetype(DefaultMutableTreeNode parent, Module module, ResolutionCache cache, LegioConfiguration configuration) {
+	private void renderArchetype(DefaultMutableTreeNode parent, Module module, ArtifactLegioConfiguration configuration) {
 		Dependency.Archetype safe = safe(() -> configuration.artifact().archetype());
-		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(cache, safe));
+		if (safe != null) renderDependency(parent, module, safe.identifier(), labelIdentifier(safe));
 	}
 
 	private void renderDependency(DefaultMutableTreeNode parent, Module module, String identifier, String label) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(module, identifier, label));
-		parent.add(node);
-		node.setAllowsChildren(true);
-		node.add(new DefaultMutableTreeNode(module));
+		DefaultMutableTreeNode mogram = new DefaultMutableTreeNode(new DependencyNode(module, identifier, label));
+		parent.add(mogram);
+		mogram.setAllowsChildren(true);
+		mogram.add(new DefaultMutableTreeNode(module));
 	}
 
-	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary, ResolutionCache cache) {
+	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary) {
 		parent.removeAllChildren();
-		List<DependencyCatalog.Dependency> dependencies = cache.get(rootLibrary.library);
-		if (dependencies != null && !dependencies.isEmpty()) {
-			dependencies = dependencies.subList(1, dependencies.size());
-			for (DependencyCatalog.Dependency dep : dependencies) {
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(new DependencyNode(rootLibrary.module, dep.identifier()));
-				parent.add(node);
-				node.setAllowsChildren(false);
+		MavenDependencyResolver resolver = new MavenDependencyResolver(Repositories.of(moduleOf(((ModuleNode) parent.getParent()).name)));
+		try {
+			var result = dependenciesFrom(resolver.resolve(new DefaultArtifact(rootLibrary.library), rootLibrary.scope), false);
+			var dependencies = result.subList(1, result.size());
+			for (org.eclipse.aether.graph.Dependency dep : dependencies) {
+				DefaultMutableTreeNode mogram = new DefaultMutableTreeNode(new DependencyNode(rootLibrary.module, label(dep.getArtifact()) + ":" + dep.getScope()));
+				parent.add(mogram);
+				mogram.setAllowsChildren(false);
 			}
+			tree.updateUI();
+		} catch (DependencyResolutionException ignored) {
 		}
-		tree.updateUI();
 	}
 
 	@NotNull
-	private String labelIdentifier(ResolutionCache cache, Dependency dependency) {
-		List<DependencyCatalog.Dependency> dependencies = cache.get(dependency.identifier());
-		if (dependencies == null || dependencies.isEmpty()) return "";
-		return dependencies.get(0).mavenId() + ":" + dependency.getClass().getInterfaces()[0].getSimpleName();
+	private String labelIdentifier(Dependency dependency) {
+		return dependency.identifier() + ":" + dependency.getClass().getInterfaces()[0].getSimpleName();
 	}
 
 
 	@NotNull
-	private String labelIdentifier(ResolutionCache cache, String languageId) {
-		List<DependencyCatalog.Dependency> dependencies = cache.get(languageId);
-		if (dependencies == null || dependencies.isEmpty()) return "";
-		return dependencies.get(0).mavenId() + ":model";
+	private String labelIdentifier(DependencyResult result) {
+		var dependencies = dependenciesFrom(result, false);
+		Artifact artifact = dependencies.get(0).getArtifact();
+		return label(artifact) + ":model";
+	}
+
+	@NotNull
+	private static String label(Artifact artifact) {
+		return String.join(":", artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
 	}
 
 	private void createUIComponents() {
@@ -341,9 +302,6 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 			return label;
 		}
 
-		String identifier() {
-			return library + ":" + scope;
-		}
 	}
 
 	private static class ModuleNode {

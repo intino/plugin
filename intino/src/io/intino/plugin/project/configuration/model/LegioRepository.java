@@ -1,20 +1,20 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.TaraNode;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.lang.psi.TaraMogram;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
+import io.intino.tara.language.model.Mogram;
 
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public abstract class LegioRepository implements Configuration.Repository {
-	private final LegioConfiguration configuration;
-	private final Node node;
+	private final ArtifactLegioConfiguration configuration;
+	private final Mogram node;
 	private final IntinoSettings settings;
 
-	public LegioRepository(LegioConfiguration configuration, Node node) {
+	public LegioRepository(ArtifactLegioConfiguration configuration, Mogram node) {
 		this.configuration = configuration;
 		this.node = node;
 		this.settings = IntinoSettings.getInstance(configuration.module().getProject());
@@ -40,7 +40,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 		return null;
 	}
 
-	public Node getNode() {
+	public Mogram getNode() {
 		return node;
 	}
 
@@ -74,7 +74,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 	}
 
 	public static class LegioReleaseRepository extends LegioRepository implements Configuration.Repository.Release {
-		public LegioReleaseRepository(LegioConfiguration configuration, TaraNode node) {
+		public LegioReleaseRepository(ArtifactLegioConfiguration configuration, TaraMogram node) {
 			super(configuration, node);
 		}
 
@@ -85,7 +85,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 	}
 
 	public static class LegioSnapshotRepository extends LegioRepository implements Configuration.Repository.Snapshot {
-		public LegioSnapshotRepository(LegioConfiguration configuration, TaraNode node) {
+		public LegioSnapshotRepository(ArtifactLegioConfiguration configuration, TaraMogram node) {
 			super(configuration, node);
 		}
 

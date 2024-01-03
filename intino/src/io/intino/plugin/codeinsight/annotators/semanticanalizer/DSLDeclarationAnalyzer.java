@@ -1,17 +1,17 @@
 package io.intino.plugin.codeinsight.annotators.semanticanalizer;
 
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.magritte.Language;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.fix.FixFactory;
 import io.intino.plugin.lang.psi.TaraDslDeclaration;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.messages.MessageProvider;
+import io.intino.tara.Language;
 
-import static io.intino.magritte.dsl.ProteoConstants.META;
-import static io.intino.magritte.dsl.ProteoConstants.PROTEO;
-import static io.intino.magritte.lang.semantics.errorcollector.SemanticNotification.Level.ERROR;
+import static io.intino.tara.dsls.MetaIdentifiers.META;
+import static io.intino.tara.dsls.MetaIdentifiers.PROTEO;
+import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class DSLDeclarationAnalyzer extends TaraAnalyzer {
 

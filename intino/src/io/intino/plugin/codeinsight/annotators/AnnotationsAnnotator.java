@@ -17,7 +17,7 @@ public class AnnotationsAnnotator extends TaraAnnotator {
 		if (!(element instanceof Annotations) && !(element instanceof Flags)) return;
 		final Configuration.Artifact.Model.Level level = IntinoUtil.level(element);
 		if (level == null) return;
-		if ((element instanceof Annotations && (level.isProduct() || level.isSolution())) || (element instanceof Flags && (level.isSolution())))
+		if ((element instanceof Annotations && (level.isMetaModel() || level.isModel())) || (element instanceof Flags && (level.isModel())))
 			holder.newAnnotation(HighlightSeverity.ERROR, MessageProvider.message("reject.annotations.in.level")).range(element).create();
 	}
 }

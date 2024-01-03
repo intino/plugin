@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public class ReloadConfigurationAction extends IntinoAction implements DumbAware {
@@ -32,7 +32,7 @@ public class ReloadConfigurationAction extends IntinoAction implements DumbAware
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (configuration instanceof LegioConfiguration) {
+		if (configuration instanceof ArtifactLegioConfiguration) {
 			Application application = ApplicationManager.getApplication();
 			if (application.isDispatchThread()) FileDocumentManager.getInstance().saveAllDocuments();
 			else application.invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());

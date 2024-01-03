@@ -12,8 +12,7 @@ import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.alexandria.logger.Logger;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
@@ -29,15 +28,13 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
-	private ProcessInfo selectedProcess;
-	private ProcessStatus status;
-	private boolean inProcess = false;
+	private final AtomicBoolean isChanging = new AtomicBoolean(false);
+	private Application selectedApp;
 
-	public RestartAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
+	public RestartAction(List<Application> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
 		this.serverType = serverType;
-		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
+		this.selectedApp = infos.isEmpty() ? null : infos.get(0);
 		this.cesarAccessor = cesarAccessor;
-		this.status = selectedProcess == null ? null : this.cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 		dataContext = dataContext();
 		final Presentation presentation = getTemplatePresentation();
 		presentation.setText("Rerun Remote Process");
@@ -48,32 +45,35 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 
 	@Override
 	public void onChanging() {
-		inProcess = true;
+		isChanging.set(true);
 	}
 
-	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
-		inProcess = true;
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
+	}
+
+	public void onApplicationChange(Application newApp) {
+		isChanging.set(true);
 		new Thread(() -> {
-			selectedProcess = newProcess;
-			status = newProcessStatus;
-			inProcess = false;
+			selectedApp = newApp;
+			isChanging.set(false);
 			update();
 		}).start();
 	}
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
-		inProcess = true;
+		isChanging.set(true);
 		update(e);
 		boolean sure = askAndContinue(e);
 		if (!sure) return;
 		new Thread(() -> {
-			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 			try {
-				cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), true, false);
+				cesarAccessor.accessor().postApplicationStatus(selectedApp.container(), selectedApp.id(), true, false);
 			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
 			}
-			inProcess = false;
+			isChanging.set(false);
 			update(e);
 		}).start();
 	}
@@ -112,17 +112,15 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 
 	public void update(Presentation p) {
 		p.setVisible(true);
-		if (selectedProcess == null) {
-			p.setVisible(false);
-		} else if (inProcess) {
-			p.setEnabled(false);
-		} else {
-			if (status == null) {
-				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+		if (selectedApp == null) p.setVisible(false);
+		else if (isChanging.get()) p.setEnabled(false);
+		else {
+			if (selectedApp == null) {
+				selectedApp = cesarAccessor.application(selectedApp.container(), selectedApp.id());
 				p.setVisible(false);
 			} else {
 				p.setEnabled(true);
-				p.setVisible(status.running());
+				p.setVisible(selectedApp.running());
 			}
 		}
 	}

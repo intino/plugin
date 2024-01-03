@@ -4,7 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerProjectExtension;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -19,13 +19,13 @@ import static io.intino.plugin.project.Safe.safe;
 import static java.io.File.separator;
 
 public class MavenPostBuildActions {
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 	private final Mode packageType;
 	private final String compilerOutputUrl;
 	private final String buildDirectory;
 
 	public MavenPostBuildActions(Module module) {
-		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null || configuration.artifact() == null ? null : configuration.artifact().packageConfiguration().mode();
 		this.compilerOutputUrl = pathOf(CompilerProjectExtension.getInstance(module.getProject()).getCompilerOutputUrl());
 		this.buildDirectory = this.buildDirectory();

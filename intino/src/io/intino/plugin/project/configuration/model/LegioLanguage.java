@@ -1,10 +1,10 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
-import io.intino.magritte.dsl.Meta;
-import io.intino.magritte.dsl.Proteo;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.dsls.Meta;
+import io.intino.tara.dsls.Proteo;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
-import static io.intino.magritte.builder.shared.TaraBuildConstants.GENERATION_PACKAGE;
+import static io.intino.tara.builder.shared.TaraBuildConstants.GENERATION_PACKAGE;
 
 public class LegioLanguage implements Configuration.Artifact.Model.Language {
 	private final LegioModel model;
@@ -55,7 +55,6 @@ public class LegioLanguage implements Configuration.Artifact.Model.Language {
 		});
 	}
 
-
 	@Override
 	public String generationPackage() {
 		Attributes attributes = parameters();
@@ -65,7 +64,8 @@ public class LegioLanguage implements Configuration.Artifact.Model.Language {
 	public Attributes parameters() {
 		if (model == null) return null;
 		if (isCoreLanguage()) return new Attributes();
-		final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion().isEmpty() ? version() : effectiveVersion());
+		String effectiveVersion = effectiveVersion();
+		final File languageFile = LanguageManager.getLanguageFile(name(), effectiveVersion == null || effectiveVersion.isEmpty() ? version() : effectiveVersion());
 		if (!languageFile.exists()) return null;
 		try {
 			Manifest manifest = new JarFile(languageFile).getManifest();

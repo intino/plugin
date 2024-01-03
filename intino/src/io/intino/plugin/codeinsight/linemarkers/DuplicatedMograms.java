@@ -11,9 +11,9 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeContainer;
 import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramContainer;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 public class DuplicatedMograms extends JavaLineMarkerProvider {
 
 	private final MarkerType markerType = new MarkerType("", element -> {
-		if (!(element instanceof Node)) return null;
-		List<NavigatablePsiElement> references = getFragmentNodes((Node) element);
+		if (!(element instanceof Mogram)) return null;
+		List<NavigatablePsiElement> references = getFragmentNodes((Mogram) element);
 		@NonNls String pattern;
 		if (references.isEmpty()) return null;
 		pattern = references.get(0).getNavigationElement().getContainingFile().getName();
@@ -34,23 +34,23 @@ public class DuplicatedMograms extends JavaLineMarkerProvider {
 	}, new LineMarkerNavigator() {
 		@Override
 		public void browse(MouseEvent e, PsiElement element) {
-			if (!(element instanceof Node)) return;
+			if (!(element instanceof Mogram)) return;
 			if (DumbService.isDumb(element.getProject())) {
 				DumbService.getInstance(element.getProject()).showDumbModeNotification("Navigation to elements is not possible during index update");
 				return;
 			}
-			List<NavigatablePsiElement> references = getFragmentNodes((Node) element);
+			List<NavigatablePsiElement> references = getFragmentNodes((Mogram) element);
 			references.remove(element);
 			if (references.isEmpty()) return;
 			DefaultPsiElementListCellRenderer renderer = new DefaultPsiElementListCellRenderer();
-			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[0]), "Duplicated mogram  of " + (((Node) element).name()), "Fragment of " + (((Node) element).name()), renderer);
+			PsiElementListNavigator.openTargets(e, references.toArray(new NavigatablePsiElement[0]), "Duplicated mogram  of " + (((Mogram) element).name()), "Fragment of " + (((Mogram) element).name()), renderer);
 		}
 	});
 
 	@Override
 	public LineMarkerInfo<?> getLineMarkerInfo(@NotNull final PsiElement element) {
-		if (!(element instanceof Node)) return super.getLineMarkerInfo(element);
-		final List<NavigatablePsiElement> fragmentNodes = getFragmentNodes((Node) element);
+		if (!(element instanceof Mogram)) return super.getLineMarkerInfo(element);
+		final List<NavigatablePsiElement> fragmentNodes = getFragmentNodes((Mogram) element);
 		if (fragmentNodes.size() > 1) {
 			final MarkerType type = markerType;
 			return new LineMarkerInfo<>(element, element.getTextRange(), AllIcons.Gutter.Unique, type.getTooltip(),
@@ -58,20 +58,16 @@ public class DuplicatedMograms extends JavaLineMarkerProvider {
 		} else return super.getLineMarkerInfo(element);
 	}
 
-	private List<NavigatablePsiElement> getFragmentNodes(Node node) {
+	private List<NavigatablePsiElement> getFragmentNodes(Mogram node) {
 		if (node.isAnonymous()) return Collections.emptyList();
-		NodeContainer container = node.container();
+		MogramContainer container = node.container();
 		if (container == null) return Collections.emptyList();
 		return componentsWithSameSignature(container, node).stream().map(c -> (NavigatablePsiElement) c).collect(Collectors.toList());
 	}
 
-	private List<Node> componentsWithSameSignature(NodeContainer container, Node node) {
-		String name = name(node);
-		return container.components().stream().filter(c -> !c.isReference()).filter(component -> name.equals(name(component))).collect(Collectors.toList());
-	}
-
-	private String name(Node node) {
-		return node.name() + (node.isAspect() ? "Aspect" : "");
+	private List<Mogram> componentsWithSameSignature(MogramContainer container, Mogram node) {
+		String name = node.name() + (node.isFacet() ? "Facet" : "");
+		return container.components().stream().filter(c -> !c.isReference()).filter(component -> name.equals(component.name() + (component.isFacet() ? "Facet" : ""))).collect(Collectors.toList());
 	}
 
 	private static class DefaultPsiElementListCellRenderer extends PsiElementListCellRenderer {

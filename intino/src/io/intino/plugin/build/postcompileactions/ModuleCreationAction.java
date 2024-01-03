@@ -18,8 +18,8 @@ import io.intino.alexandria.logger.Logger;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
-import io.intino.plugin.project.configuration.LegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.intino.plugin.archetype.Formatters.camelCaseToSnakeCase;
 import static io.intino.plugin.project.configuration.ConfigurationManager.newExternalProvider;
@@ -39,7 +38,7 @@ public class ModuleCreationAction extends PostCompileAction {
 
 	private final String webModule;
 	private final String uiVersion;
-	private final LegioConfiguration configuration;
+	private final ArtifactLegioConfiguration configuration;
 
 	public ModuleCreationAction(Module module, List<String> parameters) {
 		this(module, parameters.get(1), parameters.size() > 2 ? parameters.get(2) : "LATEST");
@@ -47,7 +46,7 @@ public class ModuleCreationAction extends PostCompileAction {
 
 	public ModuleCreationAction(Module module, String webModule, String uiVersion) {
 		super(module);
-		this.configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		this.webModule = webModule;
 		this.uiVersion = uiVersion;
 	}
@@ -96,7 +95,7 @@ public class ModuleCreationAction extends PostCompileAction {
 		builder.add("artifactId", camelCaseToSnakeCase().format(webModule).toString());
 		builder.add("version", artifact.version());
 		builder.add("uiversion", uiVersion);
-		final List<Repository> repositories = configuration.repositories().stream().filter(r -> r instanceof Repository.Release).collect(Collectors.toList());
+		final List<Repository> repositories = configuration.repositories().stream().filter(r -> r instanceof Repository.Release).toList();
 		for (Repository repository : repositories)
 			builder.add("repository", new FrameBuilder("repository", "release").add("id", repository.identifier()).add("url", repository.url()));
 		File file = new File(moduleRoot, LegioArtifact);
@@ -163,22 +162,12 @@ public class ModuleCreationAction extends PostCompileAction {
 			}
 
 			@Override
-			public boolean resolved() {
-				return false;
-			}
-
-			@Override
 			public boolean transitive() {
 				return false;
 			}
 
 			@Override
 			public void effectiveVersion(String s) {
-
-			}
-
-			@Override
-			public void resolved(boolean b) {
 
 			}
 

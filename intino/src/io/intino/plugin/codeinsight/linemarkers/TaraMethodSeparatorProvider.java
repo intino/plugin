@@ -5,9 +5,9 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.LineMarkersPass;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraModel;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,11 +15,11 @@ public class TaraMethodSeparatorProvider implements LineMarkerProvider {
 	@Nullable
 	@Override
 	public LineMarkerInfo getLineMarkerInfo(@NotNull PsiElement element) {
-		if (!(element instanceof TaraNode) || !isRoot((Node) element)) return null;
+		if (!(element instanceof TaraMogram) || !isRoot((Mogram) element)) return null;
 		return LineMarkersPass.createMethodSeparatorLineMarker(leafOf(element), EditorColorsManager.getInstance());
 	}
 
-	private boolean isRoot(Node element) {
+	private boolean isRoot(Mogram element) {
 		return element.container() instanceof TaraModel;
 	}
 

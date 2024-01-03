@@ -32,7 +32,7 @@ import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.intino.plugin.TerminalWindow.runCommand;
 import static io.intino.plugin.build.FactoryPhaseChecker.collectModuleDependencies;
@@ -109,7 +108,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	public List<String> webDependencies(Module module) {
-		return collectModuleDependencies(module, new HashSet<>()).stream().filter(ModuleTypeWithWebFeatures::isAvailable).map(ModuleUtil::getModuleDirPath).collect(Collectors.toList());
+		return collectModuleDependencies(module, new HashSet<>()).stream().filter(ModuleTypeWithWebFeatures::isAvailable).map(ModuleUtil::getModuleDirPath).toList();
 	}
 
 	private boolean hasChanges() {
@@ -163,7 +162,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		withTask(new Task.Backgroundable(project, firstUpperCase(phase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				if (!(configuration instanceof LegioConfiguration)) return;
+				if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 				if (!checker.webServiceIsCompiled(module)) {
 					indicator.setText("Building UI services");
 					compileUI();
@@ -208,7 +207,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
 		if (model == null) return false;
 		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists() && hasModelFiles(((LegioConfiguration) configuration).module());
+		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists() && hasModelFiles(((ArtifactLegioConfiguration) configuration).module());
 	}
 
 	private boolean hasModelFiles(Module module) {

@@ -6,12 +6,12 @@ import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import io.intino.magritte.lang.model.Node;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraStringValue;
 import io.intino.plugin.lang.psi.TaraValue;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraModelImpl;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class TaraFoldingBuilder extends CustomFoldingBuilder {
 											@NotNull PsiElement root,
 											@NotNull Document document,
 											boolean quick) {
-		for (final Node node : IntinoUtil.getAllNodesOfFile((TaraModelImpl) root)) {
+		for (final Mogram node : IntinoUtil.getAllNodesOfFile((TaraModelImpl) root)) {
 			processNode(descriptors, node);
 			processStrings(descriptors, node);
 		}
@@ -39,7 +39,7 @@ public class TaraFoldingBuilder extends CustomFoldingBuilder {
 
 	@Override
 	protected boolean isCustomFoldingRoot(ASTNode astNode) {
-		return astNode.getPsi() instanceof Node;
+		return astNode.getPsi() instanceof Mogram;
 	}
 
 
@@ -48,36 +48,28 @@ public class TaraFoldingBuilder extends CustomFoldingBuilder {
 		return " ...";
 	}
 
-	private void processNode(@NotNull List<FoldingDescriptor> descriptors, final Node node) {
-		if (((TaraNode) node).getText() != null && ((TaraNode) node).getBody() != null)
-			descriptors.add(new FoldingDescriptor(((TaraNode) node).getBody().getNode(), getRange(node)) {
+	private void processNode(@NotNull List<FoldingDescriptor> descriptors, final Mogram node) {
+		if (((TaraMogram) node).getText() != null && ((TaraMogram) node).getBody() != null)
+			descriptors.add(new FoldingDescriptor(((TaraMogram) node).getBody().getNode(), getRange(node)) {
 				public String getPlaceholderText() {
 					return buildNodeHolderText(node);
 				}
 			});
 	}
 
-	private void processStrings(@NotNull List<FoldingDescriptor> descriptors, Node node) {
+	private void processStrings(@NotNull List<FoldingDescriptor> descriptors, Mogram node) {
 		final StringFoldingBuilder builder = new StringFoldingBuilder();
 		builder.processMultiLineValues(descriptors, node);
 		builder.processMultiValuesParameters(descriptors, node);
 	}
 
-	private String buildNodeHolderText(Node node) {
+	private String buildNodeHolderText(Mogram node) {
 		StringBuilder text = new StringBuilder();
 		node.components().stream().filter(inner -> inner.name() != null).forEach(inner -> text.append(" ").append(inner.name()));
 		return text.toString();
 	}
 
-	private TextRange getRange(Node node) {
-		return new TextRange(((TaraNode) node).getBody().getTextRange().getStartOffset(), ((TaraNode) node).getTextRange().getEndOffset());
-	}
-
-	private TextRange getRange(PsiElement value) {
-		return new TextRange(value.getTextRange().getStartOffset(), lastNoText(value));
-	}
-
-	private int lastNoText(PsiElement value) {
-		return value.getTextRange().getEndOffset() - (value.getText().length() - value.getText().trim().length());
+	private TextRange getRange(Mogram node) {
+		return new TextRange(((TaraMogram) node).getBody().getTextRange().getStartOffset(), ((TaraMogram) node).getTextRange().getEndOffset());
 	}
 }

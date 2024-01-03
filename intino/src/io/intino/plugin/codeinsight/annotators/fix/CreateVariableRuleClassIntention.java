@@ -10,14 +10,14 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Primitive;
-import io.intino.magritte.lang.model.Rule;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraRule;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.Rule;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

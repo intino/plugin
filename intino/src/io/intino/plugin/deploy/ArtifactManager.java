@@ -11,15 +11,14 @@ import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
 import io.intino.cesar.box.ApiAccessor;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessInfo.Server;
-import io.intino.cesar.box.schemas.ServerInfo;
+import io.intino.cesar.box.schemas.Application;
+import io.intino.cesar.box.schemas.Server;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.MessageProvider;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.Safe;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 
 import javax.swing.*;
@@ -46,8 +45,8 @@ public class ArtifactManager {
 
 	public void start() {
 		try {
-			final LegioConfiguration configuration = (LegioConfiguration) IntinoUtil.configurationOf(module);
-			final ProcessInfo system = getProcess(configuration);
+			final ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
+			final Application system = getApplication(configuration);
 			final int proxyPort = nextProxyPort();
 			Channel channel;
 			if ((channel = initTunnel(serverOf(system), proxyPort)) == null) return;
@@ -59,7 +58,7 @@ public class ArtifactManager {
 		}
 	}
 
-	private Channel initTunnel(ServerInfo serverSchema, int proxyPort) {
+	private Channel initTunnel(Server serverSchema, int proxyPort) {
 		String[] options = new String[]{"Cancel", "Accept"};
 		final JPanel panel = userDialog();
 		int option = JOptionPane.showOptionDialog(null, panel, "Management Connection",
@@ -100,29 +99,33 @@ public class ArtifactManager {
 		return "-J-DsocksProxyHost=localhost -J-DsocksProxyPort=" + localProxyPort;
 	}
 
-	private String connectionChain(ProcessInfo system) {
-		final Server runtime = system.server();
-		return runtime.ip();
+	private String connectionChain(Application app) {
+		final String container = app.container();
+		try {
+			return serverOf(app).ip();
+		} catch (IntinoException e) {
+			return null;
+		}
 	}
 
-	private ServerInfo serverOf(ProcessInfo system) throws IntinoException {
+	private Server serverOf(Application app) throws IntinoException {
 		final Map.Entry<String, String> cesar = getInstance(module.getProject()).cesar();
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
-			return new ApiAccessor(url, cesar.getValue()).getServer(system.server().name());
+			return new ApiAccessor(url, cesar.getValue()).getServer(app.container());
 		} catch (BadRequest | InternalServerError | Unauthorized | NotFound e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}
 	}
 
-	private ProcessInfo getProcess(LegioConfiguration configuration) throws IntinoException {
+	private Application getApplication(ArtifactLegioConfiguration configuration) throws IntinoException {
 		final Map.Entry<String, String> cesar = getInstance(module.getProject()).cesar();
 		final URL url = urlOf(Safe.safe(cesar::getKey));
 		if (url == null) throw new IntinoException(MessageProvider.message("cesar.url.not.found"));
 		try {
 			LegioArtifact artifact = configuration.artifact();
-			return new ApiAccessor(url, cesar.getValue()).getProcess(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
+			return new ApiAccessor(url, cesar.getValue()).getApplication(module.getProject().getName(), artifact.groupId() + ":" + artifact.name() + ":" + artifact.version());
 		} catch (BadRequest | InternalServerError | Unauthorized | NotFound e) {
 			throw new IntinoException("Impossible to request Cesar: " + e.getMessage());
 		}

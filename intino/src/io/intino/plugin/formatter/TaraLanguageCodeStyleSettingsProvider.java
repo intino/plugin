@@ -8,9 +8,6 @@ import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
-import static com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.SPACES_AROUND_OPERATORS;
-import static com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.SPACES_WITHIN;
-
 
 public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
 	@NotNull
@@ -92,7 +89,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 			"\n" +
 			"Classifier by\n" +
 			"\tClassification(Node, label = \"Room side\") roomSide\n" +
-			"\t\tOrdinal('item.as(Node.class) != null ? item.as(Node.class).side() : null')\n" +
+			"\t\tOrdinal('item.as(Mogram.class) != null ? item.as(Mogram.class).side() : null')\n" +
 			"\tClassification(Event, \"Month of year\") monthOfYear";
 	@SuppressWarnings("FieldCanBeLocal")
 	private static final String WRAP_SETTINGS_PREVIEW = "dsl Sumus\n" +
@@ -104,7 +101,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 			"\t\t\"\\n\" +\n" +
 			"\t\t\"Classifier by\\n\" +\n" +
 			"\t\t\"\\tClassification(Node, label = \\\"Room side\\\") roomSide\\n\" +\n" +
-			"\t\t\"\\t\\tOrdinal('item.as(Node.class) != null ? item.as(Node.class).side() : null')\\n\" +\n" +
+			"\t\t\"\\t\\tOrdinal('item.as(Mogram.class) != null ? item.as(Mogram.class).side() : null')\\n\" +\n" +
 			"\t\t\"\tClassification(Event, \"Month of year\") monthOfYear";
 	@SuppressWarnings("FieldCanBeLocal")
 	private static final String INDENT_SETTINGS_PREVIEW = "dsl Sumus\n" +
@@ -118,7 +115,7 @@ public class TaraLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSett
 			"\tvar word:[HZG KUE BAD SLZ KIZ WNZ FWE BHK HKB] sensor\n" +
 			"Fact Event\n" +
 			"\tsub HeatingSystem\n" +
-			"\t\tvar Node node\n" +
+			"\t\tvar Mogram node\n" +
 			"\t\tvar double:Wh energy\n" +
 			"\t\tvar double:L volume\n" +
 			"\t\tvar double:°C inputTemperature\n" +

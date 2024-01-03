@@ -13,16 +13,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.CheckUtil;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Aspect;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Rule;
-import io.intino.magritte.lang.model.rules.Size;
-import io.intino.magritte.lang.semantics.Constraint;
 import io.intino.plugin.codeinsight.livetemplates.TaraTemplateContext;
 import io.intino.plugin.lang.psi.TaraElementFactory;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Facet;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Rule;
+import io.intino.tara.language.model.rules.Size;
+import io.intino.tara.language.semantics.Constraint;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,16 +30,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AddRequiredElementFix extends WithLiveTemplateFix implements IntentionAction {
-	private Node node;
+	@SafeFieldForPreview
+	private Mogram mogram;
 
 	public AddRequiredElementFix(PsiElement element) {
 		try {
-			this.node = element instanceof Node ? (Node) element : TaraPsiUtil.getContainerNodeOf(element);
+			this.mogram = element instanceof Mogram ? (Mogram) element : TaraPsiUtil.getContainerNodeOf(element);
 		} catch (Throwable e) {
-			this.node = null;
+			this.mogram = null;
 		}
 	}
 
@@ -63,32 +63,31 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 		try {
 			CheckUtil.checkWritable(file);
 			writable = true;
-		} catch (IncorrectOperationException e) {
-
+		} catch (IncorrectOperationException ignored) {
 		}
-		return file.isValid() && node != null && writable;
+		return file.isValid() && mogram != null && writable;
 	}
 
 	@Override
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
 		List<Constraint.Component> requires = findConstraints().stream().
 				filter(c -> c instanceof Constraint.Component && isRequired((Constraint.Component) c)).
-				map(c -> (Constraint.Component) c).collect(Collectors.toList());
+				map(c -> (Constraint.Component) c).toList();
 		filterPresentElements(requires);
 		createLiveTemplateFor(requires, file, editor);
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 	}
 
 	private boolean isRequired(Constraint.Component component) {
-		List<Rule> sizes = component.rules().stream().filter(r -> r instanceof Size).collect(Collectors.toList());
-		return sizes.size() > 0 && sizes.stream().allMatch(r -> ((Size) r).isRequired());
+		List<Rule> sizes = component.rules().stream().filter(r -> r instanceof Size).toList();
+		return !sizes.isEmpty() && sizes.stream().allMatch(r -> ((Size) r).isRequired());
 	}
 
 	private List<Constraint> findConstraints() {
-		List<Constraint> constraints = IntinoUtil.constraintsOf(node);
+		List<Constraint> constraints = IntinoUtil.constraintsOf(mogram);
 		if (constraints == null) return Collections.emptyList();
 		constraints = new ArrayList<>(constraints);
-		for (Aspect aspect : node.appliedAspects()) {
+		for (Facet aspect : mogram.appliedFacets()) {
 			List<Constraint> collection = IntinoUtil.constraintsOf(aspect);
 			if (collection != null) constraints.addAll(collection);
 		}
@@ -96,8 +95,8 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 	}
 
 	private void filterPresentElements(List<Constraint.Component> requires) {
-		for (Node node : this.node.components()) {
-			Constraint.Component require = findInConstraints(requires, node.type());
+		for (Mogram mogram : this.mogram.components()) {
+			Constraint.Component require = findInConstraints(requires, mogram.type());
 			if (require != null) requires.remove(require);
 		}
 	}
@@ -106,14 +105,14 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
 		IdeDocumentHistory.getInstance(file.getProject()).includeCurrentPlaceAsChangePlace();
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-		addNewLine(editor, (TaraNode) node);
-		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, editor.getDocument().getLineNumber(((TaraNode) node).getTextOffset()) + 1);
+		addNewLine(editor, (TaraMogram) mogram);
+		final Editor componentEditor = positionCursorAtBegining(file.getProject(), file, editor.getDocument().getLineNumber(((TaraMogram) mogram).getTextOffset()) + 1);
 		TemplateManager.getInstance(file.getProject()).startTemplate(componentEditor, createTemplate(requires, file));
-		addNewLine(editor, (TaraNode) node);
+		addNewLine(editor, (TaraMogram) mogram);
 		PsiDocumentManager.getInstance(file.getProject()).doPostponedOperationsAndUnblockDocument(editor.getDocument());
 	}
 
-	private void addNewLine(Editor editor, TaraNode node) {
+	private void addNewLine(Editor editor, TaraMogram node) {
 		final TaraElementFactory factory = TaraElementFactory.getInstance(node.getProject());
 		final PsiElement newLine = factory.createNewLine();
 		node.add(newLine.copy());
@@ -122,7 +121,7 @@ public class AddRequiredElementFix extends WithLiveTemplateFix implements Intent
 	}
 
 	private Template createTemplate(List<Constraint.Component> requires, PsiFile file) {
-		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(requires, TaraPsiUtil.getIndentation((PsiElement) node) + 1));
+		final Template template = TemplateManager.getInstance(file.getProject()).createTemplate("var", "Tara", createTemplateText(requires, TaraPsiUtil.getIndentation((PsiElement) mogram) + 1));
 		addComponents(template, requires);
 		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
 		return template;

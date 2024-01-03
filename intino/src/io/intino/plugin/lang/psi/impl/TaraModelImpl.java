@@ -14,24 +14,22 @@ import com.intellij.psi.impl.source.tree.ChangeUtil;
 import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.Language;
-import io.intino.magritte.Resolver;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.Rule;
-import io.intino.magritte.lang.model.rules.Size;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.*;
+import io.intino.tara.Language;
+import io.intino.tara.Resolver;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.Rule;
+import io.intino.tara.language.model.rules.Size;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
 
 public class TaraModelImpl extends PsiFileBase implements TaraModel {
 
@@ -79,28 +77,28 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 		return getFileType().getIcon();
 	}
 
-	public Node container() {
+	public Mogram container() {
 		return null;
 	}
 
 	@Override
-	public boolean isMetaAspect() {
+	public boolean isMetaFacet() {
 		return false;
 	}
 
 	@Override
 	public List<String> uses() {
-		return getImports().stream().map(anImport -> anImport.getHeaderReference().toString()).collect(Collectors.toList());
+		return getImports().stream().map(anImport -> anImport.getHeaderReference().toString()).toList();
 	}
 
 	@NotNull
 	@Override
-	public List<Node> components() {
+	public List<Mogram> components() {
 		return IntinoUtil.getMainNodesOfFile(this);
 	}
 
-	public Node addNode(String identifier) {
-		return (Node) addNode(TaraElementFactory.getInstance(getProject()).createNode(identifier));
+	public Mogram addNode(String identifier) {
+		return (Mogram) addNode(TaraElementFactory.getInstance(getProject()).createNode(identifier));
 	}
 
 	public Import addImport(String reference) {
@@ -170,13 +168,9 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 	@NotNull
 	public List<Import> getImports() {
 		TaraImports[] taraImports = PsiTreeUtil.getChildrenOfType(this, TaraImports.class);
-		if (taraImports == null) return Collections.EMPTY_LIST;
+		if (taraImports == null) return Collections.emptyList();
 		Import[] imports = PsiTreeUtil.getChildrenOfType(taraImports[0], TaraAnImport.class);
-		return imports != null ? unmodifiableList(Arrays.asList(imports)) : Collections.EMPTY_LIST;
-	}
-
-	private void insertLineBreakBefore(final ASTNode anchorBefore) {
-		getNode().addChild(ASTFactory.whitespace("\n"), anchorBefore);
+		return imports != null ? List.of(imports) : Collections.emptyList();
 	}
 
 	private boolean haveToAddNewLine() {
@@ -186,11 +180,15 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 
 
 	@NotNull
-	public PsiElement addNode(@NotNull Node node) throws IncorrectOperationException {
+	public PsiElement addNode(@NotNull Mogram mogram) throws IncorrectOperationException {
 		if (haveToAddNewLine()) insertLineBreakBefore(null);
-		final TreeElement copy = ChangeUtil.copyToElement((PsiElement) node);
+		final TreeElement copy = ChangeUtil.copyToElement((PsiElement) mogram);
 		getNode().addChild(copy);
 		return copy.getPsi();
+	}
+
+	private void insertLineBreakBefore(final ASTNode anchorBefore) {
+		getNode().addChild(ASTFactory.whitespace("\n"), anchorBefore);
 	}
 
 	public String type() {
@@ -198,16 +196,16 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 	}
 
 	@Override
-	public List<Rule> rulesOf(Node component) {
-		final List<Node> components = components();
-		final TaraNode node = (TaraNode) components.get(components.indexOf(component));
-		final List<TaraRuleContainer> ruleContainerList = node.getSignature().getRuleContainerList();
+	public List<Rule> rulesOf(Mogram component) {
+		final List<Mogram> components = components();
+		final TaraMogram mogram = (TaraMogram) components.get(components.indexOf(component));
+		final List<TaraRuleContainer> ruleContainerList = mogram.getSignature().getRuleContainerList();
 		if (ruleContainerList.isEmpty() || ruleContainerList.get(0) == null) return singletonList(Size.MULTIPLE());
 		return ruleContainerList.stream().map(ruleContainer -> createSize(ruleContainer.getRule())).collect(Collectors.toList());
 
 	}
 
-	private Rule createSize(TaraRule rule) {
+	private Rule<?> createSize(TaraRule rule) {
 		if (rule == null) return Size.MULTIPLE();
 		final TaraRange range = rule.getRange();
 		if (!rule.isLambda() || range == null) return Size.MULTIPLE();
@@ -226,23 +224,10 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 		return Integer.parseInt(psiElement.getText());
 	}
 
-	public <T extends Node> boolean contains(T node) {
+	public <T extends Mogram> boolean contains(T node) {
 		return components().contains(node);
 	}
 
-
-	public String simpleType() {
-		return "";
-	}
-
-	@Override
-	public void stashNodeName(String name) {
-
-	}
-
-
-	public void name(String name) {
-	}
 
 	@Override
 	public Language language() {
@@ -250,7 +235,7 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 	}
 
 	@NotNull
-	public Node resolve() {
+	public Mogram resolve() {
 		Language language = IntinoUtil.getLanguage(this.getOriginalElement());
 		if (language == null) return this;
 		new Resolver(language).resolve(this);

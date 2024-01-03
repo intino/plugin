@@ -11,15 +11,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.model.NodeContainer;
-import io.intino.magritte.lang.model.Variable;
 import io.intino.plugin.documentation.TaraDocumentationProvider;
 import io.intino.plugin.lang.TaraLanguage;
 import io.intino.plugin.lang.psi.Identifier;
-import io.intino.plugin.lang.psi.TaraNode;
+import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.TaraVariable;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.model.MogramContainer;
+import io.intino.tara.language.model.Variable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,13 +74,12 @@ public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 	private String createQn(PsiElement element) {
 		final Variable variable = TaraPsiUtil.getContainerByType(element, Variable.class);
 		if (variable != null) return createVariableQn(variable);
-		final Node node = TaraPsiUtil.getContainerByType(element, Node.class);
-		if (node != null) return createNodeQn(node);
-		return "";
+		final Mogram mogram = TaraPsiUtil.getContainerByType(element, Mogram.class);
+		return mogram != null ? createNodeQn(mogram) : "";
 
 	}
 
-	private String createNodeQn(Node node) {
+	private String createNodeQn(Mogram node) {
 		return node.qualifiedName();
 	}
 
@@ -90,17 +89,17 @@ public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 
 	@Override
 	public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-		return element.getLanguage().equals(TaraLanguage.INSTANCE) && isDocumentable(TaraPsiUtil.getContainerByType(element, Identifier.class));
+		return element.getLanguage().equals(TaraLanguage.INSTANCE) && canBeDocumented(TaraPsiUtil.getContainerByType(element, Identifier.class));
 	}
 
-	private boolean isDocumentable(Identifier identifier) {
+	private boolean canBeDocumented(Identifier identifier) {
 		if (identifier == null) return false;
 		final TaraVariable variable = TaraPsiUtil.getContainerByType(identifier, TaraVariable.class);
 		if (variable != null) return identifier.equals(variable.getIdentifier());
-		final NodeContainer nodeContainer = TaraPsiUtil.getContainerByType(identifier, NodeContainer.class);
+		final MogramContainer nodeContainer = TaraPsiUtil.getContainerByType(identifier, MogramContainer.class);
 		if (nodeContainer != null) {
-			if (nodeContainer instanceof TaraNode)
-				return identifier.equals(((TaraNode) nodeContainer).getSignature().getIdentifier());
+			if (nodeContainer instanceof TaraMogram)
+				return identifier.equals(((TaraMogram) nodeContainer).getSignature().getIdentifier());
 		}
 		return false;
 	}

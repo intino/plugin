@@ -20,7 +20,7 @@ import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioDistribution;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +40,7 @@ public class ExportAction {
 
 	public void execute(Module module, FactoryPhase phase) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof LegioConfiguration)) {
+		if (!(configuration instanceof ArtifactLegioConfiguration)) {
 			Notifications.Bus.notify(new Notification("Intino",
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
 			return;
@@ -49,13 +49,13 @@ public class ExportAction {
 		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				runBoxExports(phase, module, (LegioConfiguration) configuration, indicator);
-				runPlugins(module, phase, (LegioConfiguration) configuration, indicator);
+				runBoxExports(phase, module, (ArtifactLegioConfiguration) configuration, indicator);
+				runPlugins(module, phase, (ArtifactLegioConfiguration) configuration, indicator);
 			}
 		});
 	}
 
-	private void runBoxExports(FactoryPhase factoryPhase, Module module, LegioConfiguration configuration, ProgressIndicator indicator) {
+	private void runBoxExports(FactoryPhase factoryPhase, Module module, ArtifactLegioConfiguration configuration, ProgressIndicator indicator) {
 		if (factoryPhase == FactoryPhase.DISTRIBUTE && !hasDistribution(configuration)) {
 			notifyError("Distribution repository not found", module);
 			return;
@@ -79,7 +79,7 @@ public class ExportAction {
 		}
 	}
 
-	private boolean hasDistribution(LegioConfiguration configuration) {
+	private boolean hasDistribution(ArtifactLegioConfiguration configuration) {
 		LegioDistribution distribution = configuration.artifact().distribution();
 		if (distribution == null) return false;
 		try {
@@ -90,7 +90,7 @@ public class ExportAction {
 		}
 	}
 
-	private void runPlugins(Module module, FactoryPhase factoryPhase, LegioConfiguration configuration, ProgressIndicator indicator) {
+	private void runPlugins(Module module, FactoryPhase factoryPhase, ArtifactLegioConfiguration configuration, ProgressIndicator indicator) {
 		List<Configuration.Artifact.Plugin> intinoPlugins = safeList(() -> configuration.artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Export).forEach(plugin -> {
 			List<String> errorMessages = new ArrayList<>();

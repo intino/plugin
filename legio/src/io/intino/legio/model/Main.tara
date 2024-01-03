@@ -4,29 +4,16 @@ Concept:{1..1}:Named Artifact
 	var string groupId
 	var string version
 	var string description = empty
-	var string url = empty
-	Aspect Level
-		Concept:{1..1} Model
-			var string language
-			var string version
-			var string sdkVersion
-			var string sdk = "io.intino.magritte:builder"
-			var string effectiveVersion = "" is private
-			var string outLanguage = 'self.graph().artifact().name$()'
-			var word[]:{ExcludeFrameworkCode ExcludeLanguageCode} exclude = empty
-		sub Platform
-		sub Product
-		sub Solution
+	Concept:{0..1} Model
+		var string language
+		var string version
+		var string sdkVersion
+		var string sdk = "io.intino.magritte:builder"
+		var string effectiveVersion = "" is private
+		var string outLanguage = 'self.graph().artifact().name$()'
+		var word[]:{ExcludeFrameworkCode ExcludeLanguageCode} exclude = empty
 	Concept:{0..1} License
 		var word:{GPL BSD LGPL} type
-	Concept Scm
-		var string url
-		var string connection
-	Concept Developer
-		var string name
-		var string email
-		var string organization
-		var string organizationUrl
 	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} Archetype extends Artifact.Imports.Dependency
 	Concept:{0..1} Imports
@@ -93,14 +80,14 @@ Concept:{1..1}:Named Artifact
 		var string defaultJVMOptions = ""
 		Concept MavenPlugin
 			var string code
-		Aspect Runnable
+		Facet Runnable
         	var string mainClass
-		Aspect MacOS with Runnable
+		Facet MacOS with Runnable
         	var string macIcon
         	var string resourceDirectory = empty
-        Aspect Windows with Runnable
+        Facet Windows with Runnable
         	var string windowsIcon
-		Aspect LinuxService with Runnable
+		Facet LinuxService with Runnable
 			var string user
 			var RunConfiguration runConfiguration
 			var boolean restartOnFailure
@@ -166,8 +153,21 @@ Concept Parameter is component
 	var string name
 	var string defaultValue = empty
 	var string description = ""
-	Aspect ArchetypeRoot
+	Facet ArchetypeRoot
 
 Concept Argument is component
 	var string name
 	var string value
+
+Concept Project
+	var string description = empty
+	Concept:{0..1} Scm
+		var string url
+		var string connection
+	Concept Developer
+		var string name
+		var string email
+		var string organization
+		var string organizationUrl
+	has Server
+	has Repository

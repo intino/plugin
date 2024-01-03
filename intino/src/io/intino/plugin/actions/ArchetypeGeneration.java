@@ -20,7 +20,7 @@ import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.plugin.archetype.ArchetypeRenderer;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.configuration.LegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
@@ -36,7 +36,7 @@ public class ArchetypeGeneration extends AnAction {
 					if (WebModuleType.is(module, WebModuleTypeBase.getInstance())) continue;
 					Configuration cnf = IntinoUtil.configurationOf(module);
 					if (cnf != null && cnf.artifact().box() != null && cnf.artifact().packageConfiguration().isRunnable())
-						new ArchetypeRenderer(module, (LegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
+						new ArchetypeRenderer(module, (ArtifactLegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}
 				notifySuccess(e.getProject());
 			}

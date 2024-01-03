@@ -8,9 +8,9 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.intino.magritte.lang.model.Node;
 import io.intino.plugin.lang.psi.TaraBody;
 import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ class TaraBlock implements ASTBlock {
 	private static final Spacing NOSPACE = Spacing.createSpacing(0, 0, 0, false, 0);
 	private final Alignment alignment;
 	private final Indent indent;
-	private final ASTNode node;
+	private final ASTNode mogram;
 	private final Wrap wrap;
 	private final TaraBlockContext context;
 	private Alignment myChildAlignment;
@@ -37,10 +37,10 @@ class TaraBlock implements ASTBlock {
 	private static final TokenSet untouchableEndings = TokenSet.create(WHITE_SPACE, CHARACTER, NEWLINE, NEW_LINE_INDENT, QUOTE_END, PARAMETERS, SIZE_RANGE, RIGHT_PARENTHESIS, RIGHT_SQUARE, RIGHT_CURLY, RULE_CONTAINER, COMMA, DOT, AT);
 
 
-	TaraBlock(final ASTNode node, final Alignment alignment, final Indent indent, final Wrap wrap, final TaraBlockContext context) {
+	TaraBlock(final ASTNode mogram, final Alignment alignment, final Indent indent, final Wrap wrap, final TaraBlockContext context) {
 		this.alignment = alignment;
 		this.indent = indent;
-		this.node = node;
+		this.mogram = mogram;
 		this.wrap = wrap;
 		this.context = context;
 	}
@@ -60,7 +60,7 @@ class TaraBlock implements ASTBlock {
 		if (asOneLineSpace(leftBlock, rightBlock, rightType))
 			return ONELINEBREAKSPACING;
 		else if (rightType == EQUALS || leftType == EQUALS) return MINSPACE;
-		else if (isLineSeparatorCharacter(leftBlock, leftType) && rightType == NODE) return MINSPACE;
+		else if (isLineSeparatorCharacter(leftBlock, leftType) && rightType == MOGRAM) return MINSPACE;
 		else if (!untouchableBeginnings.contains(leftType) && !untouchableEndings.contains(rightType))
 			return MINSPACE;
 		return NOSPACE;
@@ -72,7 +72,7 @@ class TaraBlock implements ASTBlock {
 	}
 
 	private boolean asOneLineSpace(TaraBlock leftBlock, TaraBlock rightBlock, IElementType rightType) {
-		return rightType == NODE && rightBlock.getNode().getPsi().getParent() instanceof TaraModel && !isEnoughSeparated(leftBlock);
+		return rightType == mogram && rightBlock.getNode().getPsi().getParent() instanceof TaraModel && !isEnoughSeparated(leftBlock);
 	}
 
 	private boolean isEnoughSeparated(TaraBlock leftBlock) {
@@ -81,12 +81,12 @@ class TaraBlock implements ASTBlock {
 
 	@NotNull
 	public ASTNode getNode() {
-		return node;
+		return mogram;
 	}
 
 	@NotNull
 	public TextRange getTextRange() {
-		return node.getTextRange();
+		return mogram.getTextRange();
 	}
 
 	@NotNull
@@ -116,14 +116,14 @@ class TaraBlock implements ASTBlock {
 	@NotNull
 	@Override
 	public ChildAttributes getChildAttributes(int newChildIndex) {
-		if (newChildIndex > 0 && node.getPsi() instanceof TaraModel) return ChildAttributes.DELEGATE_TO_PREV_CHILD;
+		if (newChildIndex > 0 && mogram.getPsi() instanceof TaraModel) return ChildAttributes.DELEGATE_TO_PREV_CHILD;
 		return new ChildAttributes(indent, alignment);
 	}
 
 	@Override
 	public boolean isIncomplete() {
-		if (!PsiTreeUtil.hasErrorElements(node.getPsi())) {
-			PsiElement element = node.getPsi().getNextSibling();
+		if (!PsiTreeUtil.hasErrorElements(mogram.getPsi())) {
+			PsiElement element = mogram.getPsi().getNextSibling();
 			while (element instanceof PsiWhiteSpace) element = element.getNextSibling();
 			if (element != null) return false;
 		}
@@ -132,7 +132,7 @@ class TaraBlock implements ASTBlock {
 
 	private List<TaraBlock> buildSubBlocks() {
 		List<TaraBlock> blocks = new ArrayList<>();
-		for (ASTNode child = node.getFirstChildNode(); child != null; child = child.getTreeNext()) {
+		for (ASTNode child = mogram.getFirstChildNode(); child != null; child = child.getTreeNext()) {
 			IElementType childType = child.getElementType();
 			if (child.getTextRange().getLength() == 0 || childType == WHITE_SPACE) continue;
 			blocks.add(buildSubBlock(child));
@@ -141,7 +141,7 @@ class TaraBlock implements ASTBlock {
 	}
 
 	private TaraBlock buildSubBlock(ASTNode child) {
-		IElementType parentType = node.getElementType();
+		IElementType parentType = mogram.getElementType();
 		Indent childIndent = Indent.getNoneIndent();
 		if (parentType == BODY) childIndent = Indent.getNormalIndent(false);
 		ASTNode prev = child.getTreePrev();
@@ -158,11 +158,11 @@ class TaraBlock implements ASTBlock {
 	}
 
 	private boolean isIndentNext(ASTNode child) {
-		return PsiTreeUtil.getParentOfType(child.getPsi(), TaraBody.class) instanceof Node;
+		return PsiTreeUtil.getParentOfType(child.getPsi(), TaraBody.class) instanceof Mogram;
 	}
 
 	@Override
 	public boolean isLeaf() {
-		return node.getFirstChildNode() == null;
+		return mogram.getFirstChildNode() == null;
 	}
 }

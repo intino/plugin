@@ -5,13 +5,13 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import io.intino.magritte.Language;
-import io.intino.magritte.lang.model.Node;
-import io.intino.magritte.lang.semantics.Documentation;
 import io.intino.plugin.lang.psi.MetaIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.Language;
+import io.intino.tara.language.model.Mogram;
+import io.intino.tara.language.semantics.Documentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,30 +32,29 @@ public class TaraMetaReferenceSolver extends PsiReferenceBase<PsiElement> implem
 		List<ResolveResult> results = new ArrayList<>();
 		final PsiElement destiny = findDestiny();
 		if (destiny != null) results.add(new PsiElementResolveResult(destiny));
-		return results.toArray(new ResolveResult[results.size()]);
+		return results.toArray(new ResolveResult[0]);
 	}
 
 	@Nullable
 	private PsiElement findDestiny() {
 		Language language = IntinoUtil.getLanguage(myElement);
-		final Node node = TaraPsiUtil.getContainerNodeOf(myElement);
-		if (language == null || node == null) return null;
-		final Documentation doc = language.doc(node.resolve().type());
+		final Mogram mogram = TaraPsiUtil.getContainerNodeOf(myElement);
+		if (language == null || mogram == null) return null;
+		final Documentation doc = language.doc(mogram.resolve().type());
 		if (doc == null) return null;
 		PsiFile file = findFile(doc.file());
 		if (file == null) return null;
-		return (PsiElement) searchNodeIn(IntinoUtil.getAllNodesOfFile((TaraModel) file), node);
+		return (PsiElement) searchNodeIn(IntinoUtil.getAllNodesOfFile((TaraModel) file), mogram);
 	}
 
-	private Node searchNodeIn(List<Node> nodes, Node instance) {
-		if (nodes.isEmpty()) return null;
-		final Document document = PsiDocumentManager.getInstance(myElement.getProject()).getDocument(((PsiElement) nodes.get(0)).getContainingFile());
+	private Mogram searchNodeIn(List<Mogram> mograms, Mogram instance) {
+		if (mograms.isEmpty()) return null;
+		final Document document = PsiDocumentManager.getInstance(myElement.getProject()).getDocument(((PsiElement) mograms.get(0)).getContainingFile());
 		if (document == null) return null;
-		for (Node node : nodes) {
-			if (node != null && instance.type().equals(node.qualifiedName()))
-				return node;
-		}
-		return null;
+		return mograms.stream()
+				.filter(mogram -> mogram != null && instance.type().equals(mogram.qualifiedName()))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Nullable

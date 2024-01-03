@@ -9,7 +9,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
 import io.intino.Configuration;
 import io.intino.alexandria.Json;
-import io.intino.cesar.box.schemas.ProcessInfo;
+import io.intino.cesar.box.schemas.Application;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -61,9 +61,9 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 	public static class ServerInfo {
 		String name;
 		String type;
-		List<ProcessInfo> processes;
+		List<Application> processes;
 
-		public ServerInfo(String name, String type, List<ProcessInfo> processes) {
+		public ServerInfo(String name, String type, List<Application> processes) {
 			this.name = name;
 			this.type = type;
 			this.processes = processes;
@@ -80,7 +80,7 @@ public class CesarInfo implements PersistentStateComponent<CesarInfo.State> {
 			return Configuration.Server.Type.valueOf(type);
 		}
 
-		public List<ProcessInfo> processes() {
+		public List<Application> processes() {
 			return processes != null ? processes : Collections.emptyList();
 		}
 	}

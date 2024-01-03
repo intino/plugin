@@ -116,6 +116,6 @@ public class ModuleDependencyPropagator {
 	}
 
 	private List<String> filter(List<String> versions, String current) {
-		return versions.stream().filter(v -> v.equals(current) || v.compareTo(current) > 0).collect(Collectors.toList());
+		return versions.stream().filter(v -> v.equals(current) || v.compareTo(current) > 0).toList();
 	}
 }

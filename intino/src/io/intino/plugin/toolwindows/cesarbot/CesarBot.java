@@ -37,7 +37,7 @@ public class CesarBot {
 		chatInput.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar() == '\n' && chatInput.getText().length() > 0) {
+				if (e.getKeyChar() == '\n' && !chatInput.getText().isEmpty()) {
 					String query = chatInput.getText();
 					insertMessage("you", query);
 					chatInput.setText("");

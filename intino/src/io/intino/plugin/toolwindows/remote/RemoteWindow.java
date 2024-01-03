@@ -17,8 +17,7 @@ import com.intellij.openapi.ui.ComboBox;
 import io.intino.alexandria.logger.Logger;
 import io.intino.alexandria.message.Message;
 import io.intino.alexandria.message.MessageReader;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.cesar.CesarInfo;
 import io.intino.plugin.cesar.CesarServerInfoDownloader;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static io.intino.plugin.toolwindows.IntinoTopics.REMOTE_CONSOLE;
@@ -92,7 +90,7 @@ public class RemoteWindow {
 	private void refreshServerView(JPanel tab, CesarInfo.ServerInfo serverInfo) {
 		JComboBox<String> comboBox = (JComboBox<String>) ((JPanel) tab.getComponent(0)).getComponent(0);
 		comboBox.removeAllItems();
-		serverInfo.processes().stream().map(ProcessInfo::artifact).forEach(comboBox::addItem);
+		serverInfo.processes().stream().map(Application::artifact).forEach(comboBox::addItem);
 		if (comboBox.getItemCount() > 0) comboBox.setSelectedIndex(0);
 		comboBox.repaint();
 	}
@@ -121,16 +119,16 @@ public class RemoteWindow {
 		operationActions.add(new OpenSshSessionAction(server, cesarAccessor));
 		((ComboBox<Object>) processesBoxPanel.getComponent(0)).addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.DESELECTED)
-				operationActions.forEach(a -> a.onProcessChange(null, null));
+				operationActions.forEach(a -> a.onApplicationChange(null));
 			else if (e.getStateChange() == ItemEvent.SELECTED) {
 				String newProcess = e.getItemSelectable().getSelectedObjects()[0].toString();
-				List<ProcessInfo> processes = CesarInfo.getSafeInstance(project).serversInfo().get(server.name()).processes();
+				List<Application> processes = CesarInfo.getSafeInstance(project).serversInfo().get(server.name()).processes();
 				operationActions.forEach(IntinoConsoleAction::onChanging);
-				ProcessInfo processInfo = processes.stream().filter(p -> p.artifact().equals(newProcess)).findFirst().orElse(null);
+				Application processInfo = processes.stream().filter(p -> p.artifact().equals(newProcess)).findFirst().orElse(null);
 				if (processInfo == null) return;
 				new Thread(() -> {
-					ProcessStatus newProcessStatus = cesarAccessor.processStatus(server.name(), processInfo.id());
-					operationActions.forEach(a -> a.onProcessChange(processInfo, newProcessStatus));
+					Application app = cesarAccessor.application(server.name(), processInfo.id());
+					operationActions.forEach(a -> a.onApplicationChange(app));
 				}).start();
 			}
 		});
@@ -165,11 +163,11 @@ public class RemoteWindow {
 	}
 
 	@NotNull
-	private JPanel createProcessesCombo(List<ProcessInfo> processInfo, ActionListener refreshListener) {
+	private JPanel createProcessesCombo(List<Application> processInfo, ActionListener refreshListener) {
 		ComboBox<Object> processesBox = new ComboBox<>();
 		JButton refresh = new JButton(AllIcons.Actions.Refresh);
 		refresh.addActionListener(refreshListener);
-		if (processInfo != null) processInfo.stream().map(ProcessInfo::artifact).forEach(processesBox::addItem);
+		if (processInfo != null) processInfo.stream().map(Application::artifact).forEach(processesBox::addItem);
 		JPanel container = new JPanel(new BorderLayout());
 		container.add(processesBox);
 		container.add(refresh, BorderLayout.EAST);
@@ -216,7 +214,7 @@ public class RemoteWindow {
 		try (MessageReader reader = new MessageReader(text)) {
 			return StreamSupport
 					.stream(reader.spliterator(), false)
-					.collect(Collectors.toList());
+					.toList();
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}

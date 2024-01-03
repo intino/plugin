@@ -10,8 +10,7 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
-import io.intino.cesar.box.schemas.ProcessInfo;
-import io.intino.cesar.box.schemas.ProcessStatus;
+import io.intino.cesar.box.schemas.Application;
 import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.cesar.CesarAccessor;
 import io.intino.plugin.toolwindows.remote.IntinoConsoleAction;
@@ -32,52 +31,54 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	private final Configuration.Server.Type serverType;
 	private final CesarAccessor cesarAccessor;
 	private final DataContext dataContext;
-	private ProcessInfo selectedProcess;
-	private ProcessStatus status;
-	private boolean inProcess = false;
+	private Application app;
+	private boolean inOperation = false;
 
-	public StartStopAction(List<ProcessInfo> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
+	public StartStopAction(List<Application> infos, Configuration.Server.Type serverType, CesarAccessor cesarAccessor) {
 		this.serverType = serverType;
-		this.selectedProcess = infos.isEmpty() ? null : infos.get(0);
+		this.app = infos.isEmpty() ? null : infos.get(0);
 		this.cesarAccessor = cesarAccessor;
-		this.status = selectedProcess == null ? null : this.cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
 		this.dataContext = dataContext();
 		final Presentation templatePresentation = getTemplatePresentation();
 		templatePresentation.setIcon(Run);
 		templatePresentation.setDisabledIcon(AnimatedIcon.Default.INSTANCE);
-		templatePresentation.setText("Run Remote Process");
-		templatePresentation.setDescription("Run remote process");
+		templatePresentation.setText("Run Remote Application");
+		templatePresentation.setDescription("Run remote application");
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
 	}
 
 	@Override
 	public void onChanging() {
-		inProcess = true;
+		inOperation = true;
 	}
 
-	public void onProcessChange(ProcessInfo newProcess, ProcessStatus newProcessStatus) {
-		inProcess = true;
+	public void onApplicationChange(Application newApp) {
+		inOperation = true;
 		new Thread(() -> {
-			selectedProcess = newProcess;
-			status = newProcessStatus;
-			inProcess = false;
+			app = newApp;
+			inOperation = false;
 			update();
 		}).start();
 	}
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
-		inProcess = true;
+		inOperation = true;
 		update(e);
 		boolean sure = askAndContinue(e);
 		if (!sure) return;
 		new Thread(() -> {
-			status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
+			app = cesarAccessor.application(app.container(), app.id());
 			try {
-				Boolean success = cesarAccessor.accessor().postProcessStatus(selectedProcess.server().name(), selectedProcess.id(), !status.running(), false);
-				if (success) status.running(!status.running());
+				Boolean success = cesarAccessor.accessor().postApplicationStatus(app.container(), app.id(), !app.running(), false);
+				if (success) app.running(!app.running());
 			} catch (BadRequest | InternalServerError | Unauthorized | NotFound ignored) {
 			}
-			inProcess = false;
+			inOperation = false;
 			update(e);
 		}).start();
 	}
@@ -85,7 +86,7 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 	private boolean askAndContinue(@NotNull AnActionEvent e) {
 		if (!serverType.equals(Configuration.Server.Type.Pro)) return true;
 		AtomicBoolean response = new AtomicBoolean(false);
-		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(Objects.requireNonNull(e.getData(PROJECT)), "Are you sure to " + (status.running() ? "stop" : "start") + " this process?", "Change Process Status").showAndGet()));
+		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(Objects.requireNonNull(e.getData(PROJECT)), "Are you sure to " + (app.running() ? "stop" : "start") + " this process?", "Change Application Status").showAndGet()));
 		return response.get();
 	}
 
@@ -101,18 +102,13 @@ public class StartStopAction extends AnAction implements DumbAware, IntinoConsol
 
 	public void update(Presentation presentation) {
 		presentation.setVisible(true);
-		if (selectedProcess == null || inProcess) presentation.setEnabled(false);
+		if (app == null || inOperation) presentation.setEnabled(false);
 		else {
-			if (status == null)
-				status = cesarAccessor.processStatus(selectedProcess.server().name(), selectedProcess.id());
-			if (status == null) presentation.setVisible(false);
-			else {
-				presentation.setEnabled(true);
-				presentation.setVisible(true);
-				presentation.setIcon(status.running() ? Suspend : Run);
-				presentation.setText(status.running() ? "Stop Process" : "Run Process");
-				presentation.setDescription(status.running() ? "Stop process" : "Run process");
-			}
+			presentation.setEnabled(true);
+			presentation.setVisible(true);
+			presentation.setIcon(app.running() ? Suspend : Run);
+			presentation.setText(app.running() ? "Stop Application" : "Run Application");
+			presentation.setDescription(app.running() ? "Stop application" : "Run application");
 		}
 	}
 
