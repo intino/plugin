@@ -12,10 +12,9 @@ import org.jetbrains.annotations.NotNull;
 public class MainClassAnnotator extends TaraAnnotator {
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
 				isPackage((Mogram) element))
-			analyzeAndAnnotate(new MainClassAnalyzer((Mogram) element, ModuleProvider.moduleOf(element)));
+			analyzeAndAnnotate(holder, new MainClassAnalyzer((Mogram) element, ModuleProvider.moduleOf(element)));
 	}
 
 	private boolean isPackage(Mogram element) {

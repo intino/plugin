@@ -4,7 +4,6 @@ import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.lang.annotation.AnnotationBuilder;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
-import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
@@ -15,45 +14,35 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
+import static com.intellij.lang.annotation.HighlightSeverity.*;
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
 public abstract class TaraAnnotator implements Annotator {
 
-	protected AnnotationHolder holder = null;
-
-	public void analyzeAndAnnotate(TaraAnalyzer analyzer) {
+	public void analyzeAndAnnotate(AnnotationHolder holder, TaraAnalyzer analyzer) {
 		analyzer.analyze();
-		annotateAndFix(analyzer.results());
+		annotateAndFix(holder, analyzer.results());
 	}
 
-	public void annotateAndFix(Map<PsiElement, AnnotateAndFix> annotations) {
-		AnnotationBuilder builder;
+	public void annotateAndFix(AnnotationHolder holder, Map<PsiElement, AnnotateAndFix> annotations) {
 		for (Map.Entry<PsiElement, AnnotateAndFix> entry : annotations.entrySet()) {
-			switch (entry.getValue().level()) {
-				case INFO:
-					builder = holder.newAnnotation(HighlightSeverity.INFORMATION, entry.getValue().message()).range(entry.getKey());
-					break;
-				case WARNING:
-					builder = holder.newAnnotation(HighlightSeverity.WARNING, entry.getValue().message()).range(entry.getKey());
-					break;
-				case INSTANCE:
-					builder = createDeclarationAnnotation(entry.getKey(), entry.getValue().message());
-					break;
-				default:
-					builder = holder.newAnnotation(HighlightSeverity.ERROR, entry.getValue().message()).range(entry.getKey());
-					break;
-			}
+			final String message = entry.getValue().message();
+			AnnotationBuilder builder = switch (entry.getValue().level()) {
+				case INFO -> holder.newAnnotation(INFORMATION, message).range(entry.getKey());
+				case WARNING -> holder.newAnnotation(WARNING, message).range(entry.getKey());
+				case INSTANCE -> createDeclarationAnnotation(holder, entry.getKey(), message);
+				default -> holder.newAnnotation(ERROR, message).range(entry.getKey());
+			};
 			if (entry.getValue().textAttributes() != null) builder.textAttributes(entry.getValue().attributes);
-			for (IntentionAction action : entry.getValue().actions()) {
+			for (IntentionAction action : entry.getValue().actions())
 				builder.newFix(action).range(entry.getKey().getTextRange()).registerFix();
-			}
 			builder.create();
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	private AnnotationBuilder createDeclarationAnnotation(PsiElement node, String message) {
-		AnnotationBuilder builder = holder.newAnnotation(HighlightSeverity.WARNING, message).range(node);
+	private AnnotationBuilder createDeclarationAnnotation(AnnotationHolder holder, PsiElement node, String message) {
+		AnnotationBuilder builder = holder.newAnnotation(WARNING, message).range(node);
 		TextAttributesKey root = createTextAttributesKey("node_declaration", new TextAttributes(null, null, null, null, Font.ITALIC));
 		return builder.textAttributes(root);
 	}

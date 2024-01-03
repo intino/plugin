@@ -12,9 +12,8 @@ public class RunConfigurationAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) && isRunConfiguration((Mogram) element))
-			analyzeAndAnnotate(new RunConfigurationAnalyzer((Mogram) element));
+			analyzeAndAnnotate(holder, new RunConfigurationAnalyzer((Mogram) element));
 	}
 
 	private boolean isRunConfiguration(Mogram element) {

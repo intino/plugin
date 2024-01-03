@@ -13,10 +13,9 @@ public class DuplicatedRepositoryAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
 				isRepositoriesNode((Mogram) element))
-			analyzeAndAnnotate(new DuplicatedRepositoryAnalyzer((Mogram) element));
+			analyzeAndAnnotate(holder, new DuplicatedRepositoryAnalyzer((Mogram) element));
 	}
 
 	private boolean isRepositoriesNode(Mogram element) {

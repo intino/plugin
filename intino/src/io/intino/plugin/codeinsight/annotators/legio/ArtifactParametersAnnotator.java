@@ -12,9 +12,8 @@ public class ArtifactParametersAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) && isArtifact((Mogram) element))
-			analyzeAndAnnotate(new ArtifactParametersAnalyzer((Mogram) element));
+			analyzeAndAnnotate(holder, new ArtifactParametersAnalyzer((Mogram) element));
 	}
 
 	private boolean isArtifact(Mogram element) {

@@ -14,12 +14,11 @@ import org.jetbrains.annotations.NotNull;
 public class ArchetypeAnnotator extends TaraAnnotator {
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
 				isDataHub((Mogram) element)) {
 			Configuration configuration = IntinoUtil.configurationOf(element);
 			if (!(configuration instanceof ArtifactLegioConfiguration)) return;
-			analyzeAndAnnotate(new ArchetypeAnalyzer((Mogram) element, (ArtifactLegioConfiguration) configuration));
+			analyzeAndAnnotate(holder, new ArchetypeAnalyzer((Mogram) element, (ArtifactLegioConfiguration) configuration));
 		}
 	}
 

@@ -48,7 +48,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 		final Module module = module();
 		if (rule.isLambda()) {
 			if (node.type().equalsIgnoreCase(MetaIdentifiers.FACET) || node.type().equalsIgnoreCase(MetaIdentifiers.META_FACET))
-				aspectError();
+				facetError();
 			return;
 		} else if (module == null) return;
 
@@ -56,7 +56,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 		if (aClass == null && !isProvided()) error();
 	}
 
-	private void aspectError() {
+	private void facetError() {
 		results.put(rule, new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("reject.aspect.with.size.constraint")));
 	}
 

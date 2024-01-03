@@ -22,11 +22,9 @@ public class ResourceAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		if (!Valued.class.isInstance(element) || ((Valued) element).getValue() == null) return;
-		Valued valued = (Valued) element;
-		this.holder = holder;
+		if (!(element instanceof Valued valued) || ((Valued) element).getValue() == null) return;
 		if (Primitive.RESOURCE.equals(typeOf(valued)))
-			check(valued.getValue() != null ? valued.getValue().getStringValueList() : emptyList(), resources(element));
+			check(holder, valued.getValue() != null ? valued.getValue().getStringValueList() : emptyList(), resources(element));
 	}
 
 	private Primitive typeOf(Valued valued) {
@@ -34,10 +32,10 @@ public class ResourceAnnotator extends TaraAnnotator {
 		return valued.type();
 	}
 
-	private void check(List<TaraStringValue> values, File resources) {
+	private void check(@NotNull AnnotationHolder holder, List<TaraStringValue> values, File resources) {
 		values.stream().
 				filter(v -> resources == null || !resources.exists() || !new File(resources.getPath(), v.getValue()).exists()).
-				forEach(v -> annotateAndFix(Collections.singletonMap(v, new AnnotateAndFix(WARNING, message("warning.resource.not.found")))));
+				forEach(v -> annotateAndFix(holder, Collections.singletonMap(v, new AnnotateAndFix(WARNING, message("warning.resource.not.found")))));
 	}
 
 	private File resources(PsiElement element) {

@@ -18,25 +18,26 @@ public class ReferenceAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		if (!IdentifierReference.class.isInstance(element) && !HeaderReference.class.isInstance(element)) return;
-		this.holder = holder;
-		if (IdentifierReference.class.isInstance(element)) asIdentifierReference((IdentifierReference) element);
-		else if (IdentifierReference.class.isInstance(element) && element.getContext() instanceof TaraMethodReference)
-			asMethodReference((IdentifierReference) element);
-		else if (HeaderReference.class.isInstance(element)) asHeaderReference((HeaderReference) element);
+		if (!(element instanceof IdentifierReference) && !(element instanceof HeaderReference)) return;
+		if (element instanceof IdentifierReference && element.getContext() instanceof TaraMethodReference)
+			asMethodReference(holder, (IdentifierReference) element);
+		else if (element instanceof HeaderReference) asHeaderReference(holder, (HeaderReference) element);
+		else asIdentifierReference(holder, (IdentifierReference) element);
+
 	}
 
-	private void asHeaderReference(HeaderReference reference) {
-		if (!reference.getIdentifierList().isEmpty()) analyzeAndAnnotate(new HeaderReferenceAnalyzer(reference));
+	private void asHeaderReference(AnnotationHolder holder, HeaderReference reference) {
+		if (!reference.getIdentifierList().isEmpty())
+			analyzeAndAnnotate(holder, new HeaderReferenceAnalyzer(reference));
 	}
 
-	private void asIdentifierReference(IdentifierReference reference) {
+	private void asIdentifierReference(AnnotationHolder holder, IdentifierReference reference) {
 		if (!reference.getIdentifierList().isEmpty() && reference.getIdentifierList().get(0).getReference() != null && !isRule(reference))
-			analyzeAndAnnotate(new ReferenceAnalyzer(reference));
+			analyzeAndAnnotate(holder, new ReferenceAnalyzer(reference));
 	}
 
-	private void asMethodReference(IdentifierReference reference) {
-		if (!reference.getIdentifierList().isEmpty()) analyzeAndAnnotate(new ReferenceAnalyzer(reference));
+	private void asMethodReference(AnnotationHolder holder, IdentifierReference reference) {
+		if (!reference.getIdentifierList().isEmpty()) analyzeAndAnnotate(holder, new ReferenceAnalyzer(reference));
 	}
 
 	private boolean isRule(IdentifierReference reference) {

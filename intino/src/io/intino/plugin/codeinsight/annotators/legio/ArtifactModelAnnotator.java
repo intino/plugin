@@ -17,12 +17,11 @@ public class ArtifactModelAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && isLegioFile(element) && isModel((Mogram) element)) {
 			Configuration configuration = IntinoUtil.configurationOf(element);
 			if (!(configuration instanceof ArtifactLegioConfiguration)) return;
-			analyzeAndAnnotate(new ArtifactModelPackageAnalyzer((Mogram) element, (ArtifactLegioConfiguration) configuration));
-			analyzeAndAnnotate(new ArtifactModelAnalyzer((Mogram) element, ModuleProvider.moduleOf(element)));
+			analyzeAndAnnotate(holder, new ArtifactModelPackageAnalyzer((Mogram) element, (ArtifactLegioConfiguration) configuration));
+			analyzeAndAnnotate(holder, new ArtifactModelAnalyzer((Mogram) element, ModuleProvider.moduleOf(element)));
 
 		}
 	}

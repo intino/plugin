@@ -12,9 +12,8 @@ import org.jetbrains.annotations.NotNull;
 public class BoxVersionAnnotator extends TaraAnnotator {
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) && isBox((Mogram) element))
-			analyzeAndAnnotate(new BoxVersionAnalyzer(ModuleProvider.moduleOf(element), (Mogram) element));
+			analyzeAndAnnotate(holder, new BoxVersionAnalyzer(ModuleProvider.moduleOf(element), (Mogram) element));
 	}
 
 	private boolean isBox(Mogram element) {

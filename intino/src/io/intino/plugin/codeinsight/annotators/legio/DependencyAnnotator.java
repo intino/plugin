@@ -15,12 +15,11 @@ import org.jetbrains.annotations.NotNull;
 public class DependencyAnnotator extends TaraAnnotator {
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof Mogram && element.getContainingFile().getName().endsWith("." + LegioFileType.instance().getDefaultExtension()) &&
 				isDependencies((Mogram) element)) {
 			Configuration configuration = IntinoUtil.configurationOf(element);
 			if (!(configuration instanceof ArtifactLegioConfiguration)) return;
-			analyzeAndAnnotate(new DependencyAnalyzer(ModuleProvider.moduleOf(element), (Mogram) element, (ArtifactLegioConfiguration) configuration));
+			analyzeAndAnnotate(holder, new DependencyAnalyzer(ModuleProvider.moduleOf(element), (Mogram) element, (ArtifactLegioConfiguration) configuration));
 		}
 	}
 

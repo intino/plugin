@@ -25,32 +25,31 @@ public class NodeAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
-		if (element instanceof TaraModel) asModel((TaraModel) element);
+		if (element instanceof TaraModel) asModel(holder, (TaraModel) element);
 		else if (element instanceof Mogram && ((Mogram) element).isReference())
-			asNodeReference((TaraMogramReference) element);
-		else if (element instanceof Mogram) asNode((Mogram) element);
+			asNodeReference(holder, (TaraMogramReference) element);
+		else if (element instanceof Mogram) asNode(holder, (Mogram) element);
 	}
 
-	private void asNode(Mogram node) {
+	private void asNode(AnnotationHolder holder, Mogram node) {
 		TaraAnalyzer analyzer = new NodeAnalyzer(node);
-		analyzeAndAnnotate(analyzer);
+		analyzeAndAnnotate(holder, analyzer);
 		if (analyzer.hasErrors()) return;
-		if (node.is(Tag.Instance)) addInstanceAnnotation(node);
+		if (node.is(Tag.Instance)) addInstanceAnnotation(holder, node);
 	}
 
-	private void asModel(TaraModel model) {
+	private void asModel(AnnotationHolder holder, TaraModel model) {
 		TaraAnalyzer analyzer = new ModelAnalyzer(model);
-		analyzeAndAnnotate(analyzer);
+		analyzeAndAnnotate(holder, analyzer);
 	}
 
-	private void asNodeReference(TaraMogramReference nodeReference) {
+	private void asNodeReference(AnnotationHolder holder, TaraMogramReference nodeReference) {
 		TaraAnalyzer analyzer = new NodeReferenceAnalyzer(nodeReference);
-		analyzeAndAnnotate(analyzer);
+		analyzeAndAnnotate(holder, analyzer);
 	}
 
 	@SuppressWarnings("deprecation")
-	private void addInstanceAnnotation(Mogram node) {
+	private void addInstanceAnnotation(AnnotationHolder holder, Mogram node) {
 		TextAttributesKey textAttributes = createTextAttributesKey("node_instance", new TextAttributes(null, null, null, null, Font.ITALIC));
 		final TaraIdentifier identifier = ((TaraMogram) node).getSignature().getIdentifier();
 		if (identifier != null)

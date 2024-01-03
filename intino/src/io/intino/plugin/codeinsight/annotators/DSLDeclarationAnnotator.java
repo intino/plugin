@@ -12,8 +12,7 @@ public class DSLDeclarationAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-		this.holder = holder;
 		if (element instanceof TaraModel && !((TaraModel) element).getName().endsWith("." + StashFileType.instance().getDefaultExtension() + "." + TaraFileType.instance().getDefaultExtension()))
-			analyzeAndAnnotate(new DSLDeclarationAnalyzer((TaraModel) element));
+			analyzeAndAnnotate(holder, new DSLDeclarationAnalyzer((TaraModel) element));
 	}
 }
