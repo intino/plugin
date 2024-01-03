@@ -3,6 +3,7 @@ package io.intino.plugin.lang.psi;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import io.intino.plugin.lang.psi.impl.*;
 
@@ -97,7 +98,7 @@ public interface TaraTypes {
   IElementType NATURAL_VALUE_KEY = new TaraTokenType("NATURAL_VALUE_KEY");
   IElementType NEGATIVE_VALUE_KEY = new TaraTokenType("NEGATIVE_VALUE_KEY");
   IElementType NEWLINE = new TaraTokenType("NEWLINE");
-  IElementType NEW_LINE_INDENT = new TaraTokenType("NEW_LINE_INDENT");
+  IElementType NEW_LINE_INDENT = TokenType.NEW_LINE_INDENT;
   IElementType OBJECT_TYPE = new TaraTokenType("OBJECT_TYPE");
   IElementType PLUS = new TaraTokenType("PLUS");
   IElementType PRIVATE = new TaraTokenType("PRIVATE");
