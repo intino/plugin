@@ -35,7 +35,7 @@ public class ModuleMavenCreator {
 		if (pomFile == null) return;
 		MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
 		manager.addManagedFilesOrUnignore(Collections.singletonList(pomFile));
-		manager.updateAllMavenProjectsSync(MavenImportSpec.IMPLICIT_IMPORT);
+		manager.scheduleUpdateAllMavenProjects(MavenImportSpec.IMPLICIT_IMPORT);
 		manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
 		FileEditorManager.getInstance(module.getProject()).openFile(pomFile, true);
 	}

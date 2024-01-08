@@ -14,6 +14,7 @@ public class ApplicationInitializedListener implements com.intellij.ide.Applicat
 	public Object execute(@NotNull CoroutineScope asyncScope, @NotNull Continuation<? super Unit> $completion) {
 		LanguageManager.register(new tara.dsl.Legio());
 		ConfigurationManager.registerProvider(ArtifactLegioConfiguration.class);
-		return com.intellij.ide.ApplicationInitializedListener.super.execute(asyncScope, $completion);
+		return null;
+//		return com.intellij.ide.ApplicationInitializedListener.super.execute(asyncScope, $completion);
 	}
 }

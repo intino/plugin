@@ -20,7 +20,6 @@
         <tara.out.language>Legio</tara.out.language>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <build>
         <outputDirectory>../out/production/legio</outputDirectory>
         <testOutputDirectory>../out/test/legio</testOutputDirectory>

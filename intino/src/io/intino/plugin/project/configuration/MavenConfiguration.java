@@ -45,7 +45,7 @@ public class MavenConfiguration implements Configuration {
 	public void reload() {
 		final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
 		final MavenProject project = manager.findProject(module);
-		manager.forceUpdateProjects(Collections.singletonList(project));
+		manager.scheduleForceUpdateMavenProjects(Collections.singletonList(project));
 	}
 
 	@Override

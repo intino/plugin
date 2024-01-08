@@ -194,6 +194,10 @@
 					<artifactId>language</artifactId>
 				</exclusion>
 				<exclusion>
+					<groupId>io.intino.magritte</groupId>
+					<artifactId>language</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-api</artifactId>
 				</exclusion>

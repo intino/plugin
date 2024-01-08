@@ -1,5 +1,6 @@
 package io.intino.plugin.project.configuration.external;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.externalSystem.model.DataNode;
 import com.intellij.openapi.externalSystem.model.Key;
 import com.intellij.openapi.externalSystem.model.ProjectKeys;
@@ -7,7 +8,6 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId;
 import com.intellij.openapi.externalSystem.model.project.ProjectData;
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider;
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService;
-import com.intellij.openapi.externalSystem.util.DisposeAwareProjectChange;
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectEx;
@@ -39,14 +39,10 @@ public class LegioProjectDataService extends AbstractProjectDataService<ProjectD
 									  final @NotNull ProjectSystemId externalSystemId,
 									  final @NotNull Project project) {
 		if (!(project instanceof ProjectEx) || newName.equals(project.getName())) return;
-		//TODO Update
-		ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(project) {
-			@Override
-			public void execute() {
-				String oldName = project.getName();
-				((ProjectEx) project).setProjectName(newName);
-				ExternalSystemApiUtil.getSettings(project, externalSystemId).getPublisher().onProjectRenamed(oldName, newName);
-			}
+		ApplicationManager.getApplication().invokeLater(() -> {
+			String oldName = project.getName();
+			((ProjectEx) project).setProjectName(newName);
+			ExternalSystemApiUtil.getSettings(project, externalSystemId).getPublisher().onProjectRenamed(oldName, newName);
 		});
 	}
 

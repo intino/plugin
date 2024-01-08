@@ -14,6 +14,7 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.tara.Language;
+import io.intino.tara.dsls.Tara;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -124,7 +125,7 @@ public class BoxBuilderManager {
 		try {
 			return (Language) classLoader.loadClass(LanguageManager.DSL_GROUP_ID + ".Konos").getConstructors()[0].newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException |
-				 InvocationTargetException e) {
+				 InvocationTargetException | ClassCastException e) {
 			return null;
 		}
 	}
@@ -163,7 +164,8 @@ public class BoxBuilderManager {
 	}
 
 	private ClassLoader createClassLoader(Stream<File> libraries) {
-		return new URLClassLoader(libraries.map(this::toURL).toArray(URL[]::new));
+		URL url = toURL(libraries.iterator().next());
+		return new URLClassLoader(new URL[]{url}, Tara.class.getClassLoader());
 	}
 
 	private URL toURL(File l) {

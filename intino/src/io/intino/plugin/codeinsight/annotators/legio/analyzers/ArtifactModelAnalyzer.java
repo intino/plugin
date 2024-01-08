@@ -5,7 +5,6 @@ import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration.Artifact.Model;
-import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
@@ -23,7 +22,6 @@ import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.Parameter;
 import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
@@ -75,8 +73,6 @@ public class ArtifactModelAnalyzer extends TaraAnalyzer {
 				results.put(((TaraMogram) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("sdk.minimum.version", version)));
 			if (!ModelBuilderManager.exists(sdkVersion))
 				results.put(((TaraMogram) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("sdk.version.not.found")));
-		} catch (IOException e) {
-			Logger.error(e);
 		} catch (IntinoException e) {
 			results.put(((TaraMogram) this.modelNode).getSignature(), new AnnotateAndFix(ERROR, message("sdk.version.not.found")));
 		}

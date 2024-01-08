@@ -2,7 +2,6 @@ package io.intino.plugin.project.configuration.external;
 
 import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.externalSystem.JavaModuleData;
-import com.intellij.externalSystem.JavaProjectDataService;
 import com.intellij.openapi.externalSystem.model.DataNode;
 import com.intellij.openapi.externalSystem.model.Key;
 import com.intellij.openapi.externalSystem.model.project.ModuleData;
@@ -13,11 +12,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.AbstractModule
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LanguageLevelModuleExtension;
-import com.intellij.openapi.roots.LanguageLevelProjectExtension;
-import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Computable;
-import com.intellij.pom.java.LanguageLevel;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +46,6 @@ public class LegioModuleDataService extends AbstractProjectDataService<JavaModul
 						Object var11 = javaModuleNode.getData();
 						Intrinsics.checkNotNullExpressionValue(var11, "javaModuleNode.data");
 						JavaModuleData javaModuleData = (JavaModuleData) var11;
-						this.importLanguageLevel(module, javaModuleData, modelsProvider);
 						this.importTargetBytecodeVersion(module, javaModuleData);
 					}
 				}
@@ -59,26 +53,6 @@ public class LegioModuleDataService extends AbstractProjectDataService<JavaModul
 		}
 	}
 
-	private void importLanguageLevel(Module module, JavaModuleData javaModuleData, IdeModifiableModelsProvider modelsProvider) {
-		ModifiableRootModel var10000 = modelsProvider.getModifiableRootModel(module);
-		Intrinsics.checkNotNullExpressionValue(var10000, "modelsProvider.getModifiableRootModel(module)");
-		LanguageLevelProjectExtension languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(module.getProject());
-		LanguageLevelModuleExtension languageLevelModuleExtension = var10000.getModuleExtension(LanguageLevelModuleExtension.class);
-		LanguageLevel var11 = javaModuleData.getLanguageLevel();
-		if (var11 != null) {
-			LanguageLevel it = var11;
-			JavaProjectDataService.Companion var12 = JavaProjectDataService.Companion;
-			Project var10001 = module.getProject();
-			Intrinsics.checkNotNullExpressionValue(var10001, "module.project");
-			var11 = var12.adjustLevelAndNotify$intellij_java_impl(var10001, it);
-		}
-
-		LanguageLevel languageLevel = var11;
-		var11 = languageLevelProjectExtension.getLanguageLevel();
-		Intrinsics.checkNotNullExpressionValue(var11, "languageLevelProjectExtension.languageLevel");
-		LanguageLevel projectLanguageLevel = var11;
-		languageLevelModuleExtension.setLanguageLevel(languageLevel == projectLanguageLevel ? null : languageLevel);
-	}
 
 	private void importTargetBytecodeVersion(Module module, JavaModuleData javaModuleData) {
 		CompilerConfiguration compilerConfiguration = CompilerConfiguration.getInstance(module.getProject());
