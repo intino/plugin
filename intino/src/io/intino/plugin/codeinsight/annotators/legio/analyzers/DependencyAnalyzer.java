@@ -2,12 +2,10 @@ package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.libraries.Library;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
-import io.intino.plugin.dependencyresolution.IntinoLibrary;
 import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
 import io.intino.plugin.dependencyresolution.ModuleLibrariesManager;
 import io.intino.plugin.lang.psi.TaraMogram;
@@ -46,9 +44,9 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 
 	public boolean isResolved(Artifact.Dependency dependency) {
 		DefaultArtifact artifact = MavenDependencyResolver.artifactOf(dependency);
-		Library library = new IntinoLibrary(module.getProject()).findLibrary(artifact);
-		if (library== null) return false;
-		return new ModuleLibrariesManager(module).isAlreadyAdded(new Dependency(artifact,dependency.scope()));
+		ModuleLibrariesManager moduleLibrariesManager = new ModuleLibrariesManager(module);
+		return moduleLibrariesManager.isAlreadyAdded(new Dependency(artifact, dependency.scope()));
+
 	}
 
 	private boolean hasSameVersion(Module module, String version) {

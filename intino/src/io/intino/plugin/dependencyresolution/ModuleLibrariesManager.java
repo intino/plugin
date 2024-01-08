@@ -3,14 +3,17 @@ package io.intino.plugin.dependencyresolution;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Computable;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.eclipse.aether.graph.Dependency;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
 import static io.intino.plugin.dependencyresolution.IntinoLibrary.INTINO;
@@ -49,16 +52,38 @@ public class ModuleLibrariesManager {
 
 	public boolean isAlreadyAdded(Dependency dependency) {
 		String label = IntinoLibrary.libraryLabelOf(dependency.getArtifact());
+		Module moduleDependency = moduleOf(libraryIdentifierOf(dependency.getArtifact()));
 		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> {
 			ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
 			return Arrays.stream(model.getOrderEntries())
-					.anyMatch(entry -> entry instanceof LibraryOrderEntry && label.equals(((LibraryOrderEntry) entry).getLibraryName()));
+					.anyMatch(entry -> asLibrary(entry, label) || asModuleDependency(entry, moduleDependency));
 		});
+	}
+
+	private boolean asModuleDependency(OrderEntry entry, Module moduleDependency) {
+		return (entry instanceof ModuleOrderEntry m) && Objects.equals(m.getModule(), moduleDependency);
+	}
+
+	private static boolean asLibrary(OrderEntry entry, String label) {
+		return entry instanceof LibraryOrderEntry && label.equals(((LibraryOrderEntry) entry).getLibraryName());
+	}
+
+	private Module moduleOf(String identifier) {
+		String[] names = identifier.split(":");
+		for (Module m : Arrays.stream(ModuleManager.getInstance(module.getProject()).getModules()).filter(module -> !module.equals(this.module)).toList()) {
+			final Configuration configuration = IntinoUtil.configurationOf(m);
+			if (!(configuration instanceof ArtifactLegioConfiguration)) continue;
+			Configuration.Artifact artifact = configuration.artifact();
+			if (names[0].equals(artifact.groupId().toLowerCase()) && names[1].equals(artifact.name().toLowerCase()) && names[2].equalsIgnoreCase(artifact.version()))
+				return m;
+		}
+		return null;
 	}
 
 	private void addLibrary(Dependency dependency) {
 		Library library = table.findLibrary(dependency.getArtifact());
-		if (library != null) addDependency(module, library, DependencyScope.valueOf(dependency.getScope().toUpperCase()), false);
+		if (library != null)
+			addDependency(module, library, DependencyScope.valueOf(dependency.getScope().toUpperCase()), false);
 	}
 
 	private void removeInvalidDependencies(DependencyCatalog catalog) {
@@ -84,7 +109,6 @@ public class ModuleLibrariesManager {
 		return library != null && catalog.dependencies().stream()
 				.anyMatch(dependency -> libraryIdentifierOf(dependency.getArtifact()).equals(library) && scope.equalsIgnoreCase(dependency.getScope()));
 	}
-
 
 
 	private String identifierOf(OrderEntry e) {
