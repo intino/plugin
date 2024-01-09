@@ -16,8 +16,6 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.utils.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
@@ -129,7 +127,7 @@ public class MavenRunner {
 		Collections.addAll(goals, phases);
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
 		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), goals, Collections.emptyList());
-		DefaultInvocationResult result = new DefaultInvocationResult();
+		InvocationResult result = new InvocationResult();
 		synchronized (monitor) {
 			ApplicationManager.getApplication().invokeLater(() -> {
 				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
@@ -184,11 +182,11 @@ public class MavenRunner {
 	}
 
 
-	public static final class DefaultInvocationResult implements InvocationResult {
+	public static final class InvocationResult {
 		private CommandLineException executionException;
 		private int exitCode = -2147483648;
 
-		DefaultInvocationResult() {
+		InvocationResult() {
 		}
 
 		public int getExitCode() {
@@ -203,5 +201,9 @@ public class MavenRunner {
 			this.exitCode = exitCode;
 		}
 
+		public InvocationResult setExecutionException(CommandLineException executionException) {
+			this.executionException = executionException;
+			return this;
+		}
 	}
 }

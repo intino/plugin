@@ -34,7 +34,6 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -103,7 +102,7 @@ public abstract class AbstractArtifactFactory {
 				bitbucket(phase, configuration);
 			}
 			if (phase.equals(DEPLOY)) return deploy(indicator);
-		} catch (MavenInvocationException | IOException | IntinoException e) {
+		} catch (IOException | IntinoException e) {
 			errorMessages.add(e.getMessage());
 			return ProcessResult.Done;
 		}
@@ -115,7 +114,7 @@ public abstract class AbstractArtifactFactory {
 		return phase != DEPLOY || !isDistributed(configuration.artifact());
 	}
 
-	private ProcessResult runMavenPhases(ProgressIndicator indicator) throws MavenInvocationException, IOException, IntinoException {
+	private ProcessResult runMavenPhases(ProgressIndicator indicator) throws IOException, IntinoException {
 		if (!errorMessages.isEmpty()) return ProcessResult.NothingDone;
 		ArtifactLegioConfiguration configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
 		Version version = new Version(configuration.artifact().version());
@@ -137,7 +136,7 @@ public abstract class AbstractArtifactFactory {
 		return phase.ordinal() >= DISTRIBUTE.ordinal();
 	}
 
-	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws MavenInvocationException, IOException {
+	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws IOException {
 		buildLanguage(phase, indicator);
 		buildArtifact(phase, indicator);
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {

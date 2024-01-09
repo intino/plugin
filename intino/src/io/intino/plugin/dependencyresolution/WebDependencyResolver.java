@@ -13,9 +13,9 @@ import io.intino.Configuration.Repository;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.build.maven.MavenRunner.InvocationResult;
 import io.intino.plugin.dependencyresolution.web.PackageJsonCreator;
 import io.intino.plugin.dependencyresolution.web.PomTemplate;
-import org.apache.maven.shared.invoker.InvocationResult;
 
 import java.io.File;
 import java.io.IOException;

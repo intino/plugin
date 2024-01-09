@@ -12,10 +12,10 @@ import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.build.maven.MavenRunner.InvocationResult;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.shared.invoker.InvocationResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
