@@ -5,8 +5,11 @@ import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
+
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 
 public class LegioModel implements Configuration.Artifact.Model {
 	private final LegioArtifact artifact;
@@ -38,6 +41,14 @@ public class LegioModel implements Configuration.Artifact.Model {
 
 	public String sdkVersion() {
 		return TaraPsiUtil.parameterValue(mogram, "sdkVersion", 2);
+	}
+
+	public void sdkVersion(String version) {
+		writeCommandAction(node().getProject(), node().getContainingFile()).run(() -> {
+			if (node() == null) return;
+			node().parameters().stream().filter(p -> p.name().equals("sdkVersion")).findFirst().
+					ifPresent(p -> p.substituteValues(Collections.singletonList(version)));
+		});
 	}
 
 	@Override

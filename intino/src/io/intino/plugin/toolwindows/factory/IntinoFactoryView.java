@@ -11,7 +11,7 @@ import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.pom.Navigatable;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.ui.JBColor;
 import io.intino.Configuration;
 import io.intino.plugin.actions.ExportAction;
 import io.intino.plugin.actions.PurgeAndReloadConfigurationAction;
@@ -128,7 +128,7 @@ public class IntinoFactoryView extends JPanel {
 	}
 
 	private void createFactoryPanel() {
-		factoryContainerPanel = new FactoryPanel(UIUtil.isUnderDarcula() ? Darcula : Light);
+		factoryContainerPanel = new FactoryPanel(JBColor.isBright() ? Light : Darcula);
 		((FactoryPanel) factoryContainerPanel).addActionListener(GenerateCode, e -> generateCode());
 		((FactoryPanel) factoryContainerPanel).addActionListener(ImportPackages, e -> reload(e.getModifiers()));
 		((FactoryPanel) factoryContainerPanel).addActionListener(BuildArtifact, e -> build());

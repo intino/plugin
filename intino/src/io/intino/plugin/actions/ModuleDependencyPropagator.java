@@ -16,11 +16,15 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioBox;
+import io.intino.plugin.project.configuration.model.LegioModel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class ModuleDependencyPropagator {
@@ -43,6 +47,7 @@ public class ModuleDependencyPropagator {
 			if (dependency == null) {
 				change = calculateChange(change, identifier[2], configuration.artifact().box().version());
 				updateBoxBuilder(newVersions, library, identifier);
+				updateModelBuilder(newVersions, library, identifier);
 			} else if (!dependency.version().equals(newVersions.get(library))) {
 				change = calculateChange(change, newVersions.get(library), dependency.version());
 				dependency.version(newVersions.get(library));
@@ -59,17 +64,21 @@ public class ModuleDependencyPropagator {
 		}
 	}
 
+	private void updateModelBuilder(Map<String, String> newVersions, String library, String[] identifier) {
+		String builder = safe(() -> configuration.artifact().model().sdk());
+		if ((identifier[0] + ":" + identifier[1]).equals(builder)) {
+			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
+				((LegioModel) configuration.artifact().model()).sdkVersion(newVersions.get(library));
+		}
+	}
+
 	private Version.Level calculateChange(Version.Level currentChangeLevel, String newVersion, String oldVersion) {
 		Version.Level changeLevel = calculateChangeLevel(oldVersion, newVersion);
 		return currentChangeLevel == null || currentChangeLevel.ordinal() < changeLevel.ordinal() ? changeLevel : currentChangeLevel;
 	}
 
 	private Version.Level calculateChangeLevel(String oldVersion, String newVersion) {
-		try {
-			return new Version(oldVersion).distanceTo(new Version(newVersion));
-		} catch (IntinoException e) {
-			return Version.Level.Minor;
-		}
+		return versionOf(oldVersion).distanceTo(versionOf(newVersion));
 	}
 
 	private Configuration.Artifact.Dependency dependency(String[] library) {
@@ -77,18 +86,18 @@ public class ModuleDependencyPropagator {
 	}
 
 	private Map<String, String> askForNewVersions() {
-		final Map<String, String>[] response = new Map[]{new HashMap<>()};
+		var response = new Map[]{new HashMap<>()};
 		Application application = ApplicationManager.getApplication();
 		try {
 			Map<String, List<String>> libraries = ProgressManager.getInstance().
 					runProcessWithProgressSynchronously(((ThrowableComputable<Map<String, List<String>>, Exception>) this::loadLibraryUpdates),
-							"Calculating module updates", true, this.module.getProject());
+							"Calculating Module Updates", true, this.module.getProject());
 			if (libraries.values().stream().noneMatch(v -> v.size() > 1)) {
 				Notifications.Bus.notify(new Notification("Intino", "Dependency update", "The module " + module.getName() + " is  already updated", NotificationType.INFORMATION));
 				return Collections.emptyMap();
 			}
 			application.invokeAndWait(() -> {
-				UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), "Update Versions of module", libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+				UpdateVersionDialog dialog = new UpdateVersionDialog(module.getProject(), "Update Versions of module", possibleUpdates(libraries));
 				dialog.show();
 				if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) response[0] = dialog.newVersions();
 				else response[0] = Collections.emptyMap();
@@ -96,6 +105,11 @@ public class ModuleDependencyPropagator {
 		} catch (Exception ignored) {
 		}
 		return response[0];
+	}
+
+	@NotNull
+	private static Map<String, List<String>> possibleUpdates(Map<String, List<String>> libraries) {
+		return libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	private Map<String, List<String>> loadLibraryUpdates() {
@@ -107,6 +121,13 @@ public class ModuleDependencyPropagator {
 			if (!box.version().equals(boxVersions.get(boxVersions.size() - 1)))
 				map.put(GROUP_ID + ":" + BoxBuilderManager.ARTIFACT_ID + ":" + box.version(), boxVersions);
 		}
+		Configuration.Artifact.Model model = configuration.artifact().model();
+		if (model != null) {
+			String builder = safe(() -> configuration.artifact().model().sdk());
+			List<String> modelBuilderVersions = connector.modelBuilderVersions(builder);
+			if (!model.sdkVersion().equals(modelBuilderVersions.get(modelBuilderVersions.size() - 1)))
+				map.put(builder + ":" + model.sdkVersion(), modelBuilderVersions);
+		}
 		configuration.artifact().dependencies().forEach(d -> {
 			String[] split = d.identifier().split(":");
 			List<String> versions = connector.versions(split[0] + ":" + split[1]);
@@ -116,6 +137,16 @@ public class ModuleDependencyPropagator {
 	}
 
 	private List<String> filter(List<String> versions, String current) {
-		return versions.stream().filter(v -> v.equals(current) || v.compareTo(current) > 0).toList();
+		Version currentVersion = versionOf(current);
+		return versions.stream().map(ModuleDependencyPropagator::versionOf).filter(Objects::nonNull).filter(v -> v.equals(currentVersion) || v.compareTo(currentVersion) > 0).map(Version::get).toList();
+	}
+
+	@Nullable
+	private static Version versionOf(String current) {
+		try {
+			return new Version(current);
+		} catch (IntinoException e) {
+			return null;
+		}
 	}
 }

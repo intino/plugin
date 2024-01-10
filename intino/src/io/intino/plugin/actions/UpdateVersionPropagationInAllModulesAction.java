@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
@@ -23,6 +24,12 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		execute(e.getData(LangDataKeys.PROJECT));
 	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
+	}
+
 
 	public void execute(Project project) {
 		Map<ArtifactLegioConfiguration, Version.Level> evolvedConfigurations = new AllModuleDependencyPropagator(Arrays.asList(ModuleManager.getInstance(project).getModules())).execute();

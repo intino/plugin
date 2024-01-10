@@ -1,6 +1,5 @@
 package io.intino.plugin.toolwindows.dependencytree;
 
-import com.intellij.ProjectTopics;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -58,7 +57,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		super(true);
 		this.project = project;
 		initProjectTree();
-		project.getMessageBus().connect().subscribe(ProjectTopics.MODULES, new ModuleListener() {
+		project.getMessageBus().connect().subscribe(ModuleListener.TOPIC, new ModuleListener() {
 			@Override
 			public void modulesAdded(@NotNull Project project, @NotNull List<? extends Module> modules) {
 				renderProject(root);
@@ -209,7 +208,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	private void renderLibrary(DefaultMutableTreeNode parent, DependencyNode rootLibrary) {
 		parent.removeAllChildren();
-		MavenDependencyResolver resolver = new MavenDependencyResolver(Repositories.of(moduleOf(((ModuleNode) parent.getParent()).name)));
+		MavenDependencyResolver resolver = new MavenDependencyResolver(Repositories.of(moduleOf(((ModuleNode) ((DefaultMutableTreeNode) parent.getParent()).getUserObject()).name)));
 		try {
 			var result = dependenciesFrom(resolver.resolve(new DefaultArtifact(rootLibrary.library), rootLibrary.scope), false);
 			var dependencies = result.subList(1, result.size());

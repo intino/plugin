@@ -1,5 +1,6 @@
 package io.intino.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
@@ -22,6 +23,12 @@ public class UpdateVersionPropagationAction extends UpdateVersionAction {
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		execute(e.getData(LangDataKeys.MODULE));
+	}
+
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
 	}
 
 	@Override
