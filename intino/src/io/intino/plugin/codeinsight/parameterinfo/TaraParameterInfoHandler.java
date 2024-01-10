@@ -10,7 +10,9 @@ import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.Language;
+import io.intino.tara.language.model.Parameter;
 import io.intino.tara.language.model.Primitive;
+import io.intino.tara.language.model.rules.Size;
 import io.intino.tara.language.model.rules.variable.ReferenceRule;
 import io.intino.tara.language.semantics.Constraint;
 import io.intino.tara.language.semantics.constraints.parameter.ReferenceParameter;
@@ -25,7 +27,7 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 
 	@NotNull
 	@Override
-	public TaraParameter[] getActualParameters(@NotNull Parameters o) {
+	public TaraParameter @NotNull [] getActualParameters(@NotNull Parameters o) {
 		return o.getParameters().toArray(new TaraParameter[0]);
 	}
 
@@ -88,49 +90,47 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 		if (constraints == null) return;
 		List<Constraint.Parameter> parameterConstraints = collectParameterConstraints(constraints, parameters.isInFacet());
 		if (!parameterConstraints.isEmpty())
-			context.setItemsToShow(new Object[]{buildParameterInfo(parameterConstraints)});
+			context.setItemsToShow(parameterConstraints.toArray(Constraint.Parameter[]::new));
 		context.showHint(parameters, parameters.getTextRange().getStartOffset(), this);
 	}
 
 	private List<Constraint.Parameter> collectParameterConstraints(List<Constraint> nodeConstraints, TaraFacetApply inFacet) {
 		List<Constraint> scopeAllows = nodeConstraints;
-		if (inFacet != null) scopeAllows = collectFacetParameterConstraints(nodeConstraints, inFacet.type());
+		if (inFacet != null) scopeAllows = collectFacetParameterConstraints(nodeConstraints, inFacet.fullType());
 		return scopeAllows.stream().
-				filter(constraint -> constraint instanceof Constraint.Parameter && ((Constraint.Parameter) constraint).size().isRequired()).
+				filter(constraint -> constraint instanceof Constraint.Parameter).
 				map(constraint -> (Constraint.Parameter) constraint).toList();
 	}
 
-	private List<Constraint> collectFacetParameterConstraints(List<Constraint> nodeAllows, String type) {
-		for (Constraint constraint : nodeAllows)
+	private List<Constraint> collectFacetParameterConstraints(List<Constraint> constraints, String type) {
+		for (Constraint constraint : constraints)
 			if ((constraint instanceof Constraint.Facet) && ((Constraint.Facet) constraint).type().equals(type))
 				return ((Constraint.Facet) constraint).constraints();
 		return Collections.emptyList();
 	}
 
-	private String[] buildParameterInfo(List<Constraint.Parameter> constraints) {
-		List<String> parameters = new ArrayList<>();
-		for (Constraint.Parameter constraint : constraints) {
-			String parameter = Primitive.REFERENCE.equals(constraint.type()) ?
-					asReferenceParameter(constraint) :
-					asWordParameter(constraint);
-			parameters.add(parameter);
-		}
-		return parameters.toArray(new String[parameters.size()]);
+
+	@NotNull
+	private String parameterInfo(Constraint.Parameter constraint) {
+		return Primitive.REFERENCE.equals(constraint.type()) ?
+				asReferenceParameter(constraint) :
+				asWordParameter(constraint);
 	}
 
 	@NotNull
 	private String asWordParameter(Constraint.Parameter constraint) {
-		return constraint.type().getName().toLowerCase() + (multiple(constraint)) + constraint.name();
+		return constraint.type().getName().toLowerCase() + (size(constraint)) + constraint.name();
 	}
 
 	@NotNull
 	private String asReferenceParameter(Constraint.Parameter constraint) {
-		return presentableText((ReferenceParameter) constraint) + multiple(constraint) + constraint.name();
+		return presentableText((ReferenceParameter) constraint) + size(constraint) + constraint.name();
 	}
 
 	@NotNull
-	private String multiple(Constraint.Parameter constraint) {
-		return constraint.size().max() > 1 ? "[] " : " ";
+	private String size(Constraint.Parameter constraint) {
+		Size size = constraint.size();
+		return "[" + size.min() + ".." + (size.max() == Integer.MAX_VALUE ? "*" : size.max()) + "] ";
 	}
 
 	@NotNull
@@ -150,23 +150,23 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 			context.removeHint();
 			return;
 		}
+		final List<Constraint.Parameter> constraints = Arrays.asList((Constraint.Parameter[]) context.getObjectsToView());
 		int index = ParameterInfoUtils.getCurrentParameterIndex(parameters.getNode(), context.getOffset(), getActualParameterDelimiterType());
-		context.setCurrentParameter(index);
+		Parameter parameter = parameters.getParameters().get(index);
+		Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(parameter);
+		int constraintIndex = constraints.indexOf(constraint);
 		context.setParameterOwner(parameters);
-		final Object[] objectsToView = context.getObjectsToView();
-		context.setHighlightedParameter(index < objectsToView.length && index >= 0 ? objectsToView[index] : null);
+		context.setCurrentParameter(constraintIndex);
+		context.setHighlightedParameter(constraintIndex < constraints.size() && constraintIndex >= 0 ? constraints.get(constraintIndex) : null);
 
 	}
 
 	@Override
-	public void updateUI(Object attributes, @NotNull ParameterInfoUIContext context) {
-		String[] parameters = (String[]) attributes;
-		if (parameters == null) return;
-		StringBuilder builder = new StringBuilder();
-		for (String parameter : parameters)
-			builder.append(", ").append(parameter);
-		int highlightEndOffset = builder.length();
-		context.setupUIComponentPresentation(builder.length() == 0 ? "" : builder.toString().substring(2),
-				0, highlightEndOffset, false, false, false, context.getDefaultParameterColor());
+	public void updateUI(Object parameter, @NotNull ParameterInfoUIContext context) {
+		Constraint.Parameter constraint = (Constraint.Parameter) parameter;
+		String s = parameterInfo(constraint);
+		boolean required = constraint.size().min() > 0;
+		context.setupUIComponentPresentation(s,
+				0, required ? s.length() : 0, false, false, false, context.getDefaultParameterColor());
 	}
 }
