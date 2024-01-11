@@ -15,6 +15,7 @@ import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.TaraRule;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.Primitive;
 import io.intino.tara.language.model.Rule;
 import io.intino.tara.language.model.Variable;
@@ -75,7 +76,6 @@ public class CreateVariableRuleClassIntention extends ClassCreationIntention {
 		Map<String, String> additionalProperties = new HashMap<>();
 		additionalProperties.put("TYPE", getRuleType());
 		Application application = ApplicationManager.getApplication();
-		if (application.isWriteAccessAllowed()) return createClass(destination, className, additionalProperties);
 		return application.runWriteAction((Computable<PsiClass>) () -> createClass(destination, className, additionalProperties));
 	}
 
@@ -86,6 +86,7 @@ public class CreateVariableRuleClassIntention extends ClassCreationIntention {
 	public String getRuleType() {
 		if (variable.type().equals(Primitive.WORD)) return "Enum";
 		if (variable.type().equals(Primitive.RESOURCE)) return "java.io.File";
+		if (variable.type().equals(Primitive.REFERENCE)) return Mogram.class.getName();
 		return variable.type().javaName();
 	}
 

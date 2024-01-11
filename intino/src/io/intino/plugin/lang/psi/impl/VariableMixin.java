@@ -2,10 +2,7 @@ package io.intino.plugin.lang.psi.impl;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiEnumConstant;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.tree.TokenSet;
 import io.intino.Configuration;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
@@ -114,8 +111,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 	}
 
 	public List<Tag> flags() {
-		List<Tag> tags = new ArrayList<>();
-		tags.addAll(inheritedFlags);
+		List<Tag> tags = new ArrayList<>(inheritedFlags);
 		if (((TaraVariable) this).getFlags() != null)
 			tags.addAll(((TaraVariable) this).getFlags().getFlagList().stream().
 					map(f -> Tag.valueOf(Format.firstUpperCase().format(f.getText()).toString())).toList());
@@ -124,13 +120,6 @@ public class VariableMixin extends ASTWrapperPsiElement {
 
 	public void addFlags(Tag... flags) {
 		Collections.addAll(inheritedFlags, flags);
-	}
-
-	private String extractFields(PsiClass psiClass) {
-		String fields = "";
-		for (PsiField psiField : psiClass.getFields())
-			if (psiField instanceof PsiEnumConstant) fields += ", " + psiField.getNameIdentifier().getText();
-		return fields.isEmpty() ? "" : fields.substring(2);
 	}
 
 	public Mogram container() {
@@ -170,8 +159,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 		Value value = ((Valued) this).getValue();
 		Value bodyValue = ((TaraVariable) this).getBodyValue();
 		if (value == null && bodyValue == null) return Collections.emptyList();
-		else if (bodyValue != null) return Value.makeUp(bodyValue.values(), type(), this);
-		else return Value.makeUp(value.values(), type(), this);
+		else return Value.makeUp(Objects.requireNonNullElse(bodyValue, value).values(), type(), this);
 	}
 
 	public String defaultMetric() {

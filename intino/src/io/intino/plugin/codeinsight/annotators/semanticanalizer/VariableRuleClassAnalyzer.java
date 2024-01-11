@@ -73,7 +73,8 @@ public class VariableRuleClassAnalyzer extends TaraAnalyzer {
 
 	private boolean isProvided() {
 		try {
-			return Class.forName(Url.class.getPackage().getName() + "." + Format.reference().format(rule.getText())) != null;
+			Class.forName(Url.class.getPackage().getName() + "." + Format.reference().format(rule.getText()));
+			return true;
 		} catch (ClassNotFoundException e) {
 			return false;
 		}

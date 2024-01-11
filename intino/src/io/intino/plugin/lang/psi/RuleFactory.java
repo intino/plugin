@@ -17,7 +17,7 @@ public class RuleFactory {
 
 
 	@SuppressWarnings("ConstantConditions")
-	public static VariableRule createRule(TaraVariable variable) {
+	public static VariableRule<?> createRule(TaraVariable variable) {
 		final TaraRule rule = variable.getRuleContainer().getRule();
 		if (rule.isLambda() || variable.type().equals(Primitive.OBJECT)) return createLambdaRule(variable.type(), rule);
 		else if (variable.type().equals(Primitive.FUNCTION) || variable.flags().contains(Tag.Reactive))
@@ -28,27 +28,23 @@ public class RuleFactory {
 	}
 
 	@Nullable
-	private static VariableRule createLambdaRule(Primitive type, TaraRule rule) {
+	private static VariableRule<?> createLambdaRule(Primitive type, TaraRule rule) {
 		final List<PsiElement> parameters = Arrays.asList(rule.getChildren());
-		switch (type) {
-			case DOUBLE:
-				return createDoubleRule(rule);
-			case INTEGER:
-				return createIntegerRule(rule);
-			case STRING:
+		return switch (type) {
+			case DOUBLE -> createDoubleRule(rule);
+			case INTEGER -> createIntegerRule(rule);
+			case STRING -> {
 				final String value = valueOf(parameters, Collections.singletonList(StringValue.class));
-				return new StringRule(value.isEmpty() ? "" : value.substring(1, value.length() - 1));
-			case RESOURCE:
-				return new FileRule(valuesOf(parameters));
-			case FUNCTION:
-				return new NativeRule(parameters.get(0).getText(), "", Collections.emptyList());
-			case WORD:
-				return new WordRule(valuesOf(parameters));
-			case OBJECT:
-				return new NativeObjectRule(valuesOf(parameters).get(0));
+				yield new StringRule(value.isEmpty() ? "" : value.substring(1, value.length() - 1));
+			}
+			case RESOURCE -> new FileRule(valuesOf(parameters));
+			case FUNCTION -> new NativeRule(parameters.get(0).getText(), "", Collections.emptyList());
+			case WORD -> new WordRule(valuesOf(parameters));
+			case OBJECT -> new NativeObjectRule(valuesOf(parameters).get(0));
+			default ->
 //			case REFERENCE: TODO
-		}
-		return null;
+					null;
+		};
 	}
 
 	private static VariableRule createIntegerRule(TaraRule rule) {

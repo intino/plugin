@@ -158,7 +158,6 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 		context.setParameterOwner(parameters);
 		context.setCurrentParameter(constraintIndex);
 		context.setHighlightedParameter(constraintIndex < constraints.size() && constraintIndex >= 0 ? constraints.get(constraintIndex) : null);
-
 	}
 
 	@Override

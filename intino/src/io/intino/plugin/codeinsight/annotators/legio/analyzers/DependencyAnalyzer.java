@@ -43,10 +43,13 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 	}
 
 	public boolean isResolved(Artifact.Dependency dependency) {
-		DefaultArtifact artifact = MavenDependencyResolver.artifactOf(dependency);
-		ModuleLibrariesManager moduleLibrariesManager = new ModuleLibrariesManager(module);
-		return moduleLibrariesManager.isAlreadyAdded(new Dependency(artifact, dependency.scope()));
-
+		try {
+			DefaultArtifact artifact = MavenDependencyResolver.artifactOf(dependency);
+			ModuleLibrariesManager moduleLibrariesManager = new ModuleLibrariesManager(module);
+			return moduleLibrariesManager.isAlreadyAdded(new Dependency(artifact, dependency.scope()));
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
 	}
 
 	private boolean hasSameVersion(Module module, String version) {

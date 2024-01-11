@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -28,6 +29,8 @@ import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class ModuleDependencyPropagator {
+	private static final Logger LOG = Logger.getInstance(ModuleDependencyPropagator.class.getName());
+
 	private final Module module;
 	private final Configuration configuration;
 
@@ -42,15 +45,19 @@ public class ModuleDependencyPropagator {
 		Version.Level change = null;
 		if (newVersions.isEmpty()) return null;
 		for (String library : newVersions.keySet()) {
-			String[] identifier = library.split(":");
-			Configuration.Artifact.Dependency dependency = dependency(identifier);
-			if (dependency == null) {
-				change = calculateChange(change, identifier[2], configuration.artifact().box().version());
-				updateBoxBuilder(newVersions, library, identifier);
-				updateModelBuilder(newVersions, library, identifier);
-			} else if (!dependency.version().equals(newVersions.get(library))) {
-				change = calculateChange(change, newVersions.get(library), dependency.version());
-				dependency.version(newVersions.get(library));
+			try {
+				String[] identifier = library.split(":");
+				Configuration.Artifact.Dependency dependency = dependency(identifier);
+				if (dependency == null) {
+					change = calculateChange(change, identifier[2], configuration.artifact().box().version());
+					updateBoxBuilder(newVersions, library, identifier);
+					updateModelBuilder(newVersions, library, identifier);
+				} else if (!dependency.version().equals(newVersions.get(library))) {
+					change = calculateChange(change, newVersions.get(library), dependency.version());
+					dependency.version(newVersions.get(library));
+				}
+			} catch (Throwable e) {
+				LOG.error(e);
 			}
 		}
 		configurationOf(module).reload();
