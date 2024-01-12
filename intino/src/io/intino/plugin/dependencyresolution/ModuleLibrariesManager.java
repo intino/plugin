@@ -76,7 +76,7 @@ public class ModuleLibrariesManager {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
 			if (!(configuration instanceof ArtifactLegioConfiguration)) continue;
 			Configuration.Artifact artifact = configuration.artifact();
-			if (names[0].equals(artifact.groupId().toLowerCase()) && names[1].equals(artifact.name().toLowerCase()) && names[2].equalsIgnoreCase(artifact.version()))
+			if (names[0].equalsIgnoreCase(artifact.groupId()) && names[1].equalsIgnoreCase(artifact.name()) && names[2].equalsIgnoreCase(artifact.version()))
 				return m;
 		}
 		return null;
