@@ -43,7 +43,7 @@ public class FieldCreationAction extends PostCompileAction {
 				.filter(f -> name.equalsIgnoreCase(f.getName())).findFirst().orElse(null));
 		if (existing != null && !read(() -> existing.getType().getPresentableText().equals(type)) && !read(() -> existing.getType().getCanonicalText().equals(type)))
 			write(existing::delete);
-		if (existing == null || !existing.isValid()) createField(psiClass);
+		if (existing == null || read(() -> !existing.isValid())) createField(psiClass);
 	}
 
 	private void createField(PsiClass psiClass) {

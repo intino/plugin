@@ -13,6 +13,8 @@ import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.eclipse.aether.graph.Dependency;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.intellij.openapi.roots.ModuleRootModificationUtil.addDependency;
@@ -106,7 +108,19 @@ public class ModuleLibrariesManager {
 	private boolean isSuitable(OrderEntry e, DependencyCatalog catalog) {
 		String library = identifierOf(e);
 		String scope = scope(e);
-		return library != null && catalog.dependencies().stream()
+		return library != null && (match(catalog.dependencies(), library, scope) || match(catalog.moduleDependencies(), library, scope));
+	}
+
+	private boolean match(Map<Module, String> modules, String library, String scope) {
+		return modules.entrySet().stream().anyMatch(e -> {
+			Configuration.Artifact artifact = IntinoUtil.configurationOf(e.getKey()).artifact();
+			String identifier = String.join(":", artifact.groupId(), artifact.name(), artifact.version());
+			return identifier.equals(library) && scope.equalsIgnoreCase(e.getValue());
+		});
+	}
+
+	private static boolean match(List<Dependency> dependencies, String library, String scope) {
+		return dependencies.stream()
 				.anyMatch(dependency -> libraryIdentifierOf(dependency.getArtifact()).equals(library) && scope.equalsIgnoreCase(dependency.getScope()));
 	}
 

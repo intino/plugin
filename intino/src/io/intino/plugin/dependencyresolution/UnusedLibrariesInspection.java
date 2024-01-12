@@ -11,7 +11,6 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Computable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,20 +26,18 @@ public class UnusedLibrariesInspection {
 		IntinoLibrary intinoLibrary = new IntinoLibrary(project);
 		LibraryTable.ModifiableModel model = intinoLibrary.model();
 		List<Library> toRemove = intinoLibrary.libraries().stream().filter(library -> !isUsed(library)).toList();
-		if (!toRemove.isEmpty()) {
-			Application application = ApplicationManager.getApplication();
-			application.runWriteAction(() -> {
-				toRemove.forEach(model::removeLibrary);
-				model.commit();
-			});
-		}
+		if (toRemove.isEmpty()) return;
+		Application application = ApplicationManager.getApplication();
+		application.runWriteAction(() -> {
+			toRemove.forEach(model::removeLibrary);
+			model.commit();
+		});
 	}
 
 	private boolean isUsed(Library library) {
 		return Arrays.stream(ModuleManager.getInstance(project).getModules()).anyMatch(module -> contains(module, library));
 	}
 
-	@NotNull
 	private boolean contains(Module module, Library lib) {
 		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> {
 			ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
