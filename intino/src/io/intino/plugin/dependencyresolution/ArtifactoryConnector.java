@@ -107,8 +107,8 @@ public class ArtifactoryConnector {
 				final String mavenMetadata = read(connect(url));
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
-		} catch (Throwable ignored) {
-			LOG.info(ignored);
+		} catch (Throwable e) {
+			LOG.info(e);
 		}
 		return Collections.emptyList();
 	}

@@ -58,6 +58,6 @@ public class ArtifactorySensor {
 	}
 
 	private boolean isType(Repository r, Class<? extends Repository>[] types) {
-		return Arrays.stream(types).anyMatch(type -> type.isInstance(r));
+		return types.length == 0 || Arrays.stream(types).anyMatch(type -> type.isInstance(r));
 	}
 }

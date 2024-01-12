@@ -11,7 +11,6 @@ import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
-import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
@@ -67,7 +66,8 @@ public class ConfigurationReloader {
 	}
 
 	void reloadArtifactoriesMetaData() {
-		new ArtifactorySensor(configuration.repositories(), safe(() -> configuration.artifact().model().sdk())).update(safe(() -> configuration.artifact().model().language().name(), null));
+		new ArtifactorySensor(repositories, safe(() -> configuration.artifact().model().sdk()))
+				.update(safe(() -> configuration.artifact().model().language().name(), null));
 	}
 
 	void reloadDependencies() {
@@ -79,9 +79,7 @@ public class ConfigurationReloader {
 	void reloadLanguage() {
 		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
 		if (language == null || language.name() == null) return;
-		final String effectiveVersion = language.effectiveVersion();
-		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
-		LanguageManager.silentReload(this.module.getProject(), language.name(), version);
+		resolveLanguage();
 	}
 
 	private void resolveJavaDependencies() {

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 import static io.intino.plugin.project.Safe.safe;
+import static io.intino.plugin.project.builders.BoxBuilderManager.ARTIFACT_ID;
 import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class ModuleDependencyPropagator {
@@ -47,11 +48,19 @@ public class ModuleDependencyPropagator {
 		for (String library : newVersions.keySet()) {
 			try {
 				String[] identifier = library.split(":");
+				if (identifier.length < 3) continue;
 				Configuration.Artifact.Dependency dependency = dependency(identifier);
 				if (dependency == null) {
-					change = calculateChange(change, identifier[2], configuration.artifact().box().version());
-					updateBoxBuilder(newVersions, library, identifier);
-					updateModelBuilder(newVersions, library, identifier);
+					if (configuration.artifact().box() != null && GROUP_ID.equals(identifier[0]) && ARTIFACT_ID.equals(identifier[1])) {
+						change = calculateChange(change, identifier[2], configuration.artifact().box().version());
+						updateBoxBuilder(newVersions, library, identifier);
+					} else if (configuration.artifact().model() != null) {
+						String[] sdk = configuration.artifact().model().sdk().split(":");
+						if (sdk[0].equals(identifier[0]) && sdk[1].equals(identifier[1])) {
+							change = calculateChange(change, identifier[2], configuration.artifact().model().sdkVersion());
+							updateModelBuilder(newVersions, library, identifier);
+						}
+					}
 				} else if (!dependency.version().equals(newVersions.get(library))) {
 					change = calculateChange(change, newVersions.get(library), dependency.version());
 					dependency.version(newVersions.get(library));
@@ -65,18 +74,13 @@ public class ModuleDependencyPropagator {
 	}
 
 	private void updateBoxBuilder(Map<String, String> newVersions, String library, String[] identifier) {
-		if (identifier[0].equals(GROUP_ID) && identifier[1].equals(BoxBuilderManager.ARTIFACT_ID)) {
-			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
-				((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
-		}
+		if (!newVersions.get(library).equals(configuration.artifact().box().version()))
+			((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
 	}
 
 	private void updateModelBuilder(Map<String, String> newVersions, String library, String[] identifier) {
-		String builder = safe(() -> configuration.artifact().model().sdk());
-		if ((identifier[0] + ":" + identifier[1]).equals(builder)) {
-			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
-				((LegioModel) configuration.artifact().model()).sdkVersion(newVersions.get(library));
-		}
+		if (!newVersions.get(library).equals(configuration.artifact().model().sdkVersion()))
+			((LegioModel) configuration.artifact().model()).sdkVersion(newVersions.get(library));
 	}
 
 	private Version.Level calculateChange(Version.Level currentChangeLevel, String newVersion, String oldVersion) {
@@ -89,7 +93,10 @@ public class ModuleDependencyPropagator {
 	}
 
 	private Configuration.Artifact.Dependency dependency(String[] library) {
-		return configuration.artifact().dependencies().stream().filter(d -> d.groupId().equals(library[0]) && d.artifactId().equals(library[1])).findFirst().orElse(null);
+		return configuration.artifact().dependencies().stream()
+				.filter(d -> d.groupId().equals(library[0]) && d.artifactId().equals(library[1]))
+				.findFirst()
+				.orElse(null);
 	}
 
 	private Map<String, String> askForNewVersions() {
