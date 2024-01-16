@@ -1,5 +1,7 @@
 package io.intino.plugin.project.configuration.model;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
@@ -22,7 +24,7 @@ public abstract class LegioRepository implements Configuration.Repository {
 
 	@Override
 	public String identifier() {
-		return parameterValue(node.container(), "identifier", 0);
+		return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> parameterValue(node.container(), "identifier", 0));
 	}
 
 	@Override
