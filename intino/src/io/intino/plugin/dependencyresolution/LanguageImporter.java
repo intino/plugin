@@ -8,36 +8,39 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.tara.dsls.Meta;
 import io.intino.tara.dsls.Proteo;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.util.artifact.JavaScopes;
 
+import java.util.List;
 import java.util.TreeMap;
 
 import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 
 public class LanguageImporter {
-	private final Configuration configuration;
 	private final Module module;
+	private final Configuration.Artifact.Model model;
 	private final MavenDependencyResolver resolver;
+	private final List<Configuration.Repository> repositories;
 
-	LanguageImporter(Module module, Configuration configuration) {
+
+	public LanguageImporter(Module module, Configuration.Artifact.Model model, List<Configuration.Repository> repositories) {
 		this.module = module;
-		this.configuration = configuration;
-		this.resolver = new MavenDependencyResolver(new Repositories(this.module).map(configuration.repositories()));
+		this.model = model;
+		this.resolver = new MavenDependencyResolver(new Repositories(this.module).map(repositories));
+		this.repositories = repositories;
 	}
 
-	String importLanguage(String dsl, String version) {
-		final String effectiveVersion = effectiveVersionOf(dsl, version, (ArtifactLegioConfiguration) configuration);
-		final boolean done = downloadLanguage(dsl, effectiveVersion);
+	void importLanguage() {
+		String language = model.language().name();
+		final String effectiveVersion = effectiveVersionOf(language, model.language().version());
+		final boolean done = downloadLanguage(language, effectiveVersion);
 		if (done) {
-			configuration.artifact().model().language().effectiveVersion(effectiveVersion);
-			reload(dsl, module.getProject());
+			model.language().effectiveVersion(effectiveVersion);
+			reload(language, module.getProject());
 		}
-		return effectiveVersion;
 	}
 
 	private boolean downloadLanguage(String name, String version) {
@@ -65,10 +68,10 @@ public class LanguageImporter {
 		Bus.notify(new Notification("Intino", "Error connecting with Artifactory.", e.getMessage(), NotificationType.ERROR));
 	}
 
-	private String effectiveVersionOf(String dsl, String version, ArtifactLegioConfiguration configuration) {
+	private String effectiveVersionOf(String dsl, String version) {
 		if (version.equals(LATEST_VERSION)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			new ArtifactoryConnector(configuration.repositories()).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(repositories).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
 			return versions.isEmpty() ? LATEST_VERSION : versions.get(versions.lastKey());
 		}
 		return version;

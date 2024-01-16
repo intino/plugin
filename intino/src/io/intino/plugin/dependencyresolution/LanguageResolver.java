@@ -38,6 +38,7 @@ public class LanguageResolver {
 
 	public void resolve() {
 		if (model == null) return;
+		new LanguageImporter(module, model, repositories).importLanguage();
 		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
 		new ModelBuilderManager(module, repositories, model).resolveBuilder();
 	}
