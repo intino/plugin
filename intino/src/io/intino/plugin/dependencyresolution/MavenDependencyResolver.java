@@ -30,7 +30,6 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 public class MavenDependencyResolver {
-
 	private static RepositorySystem system;
 	private static final String DEFAULT_REPO_LOCAL = String.format("%s/.m2/repository", System.getProperty("user.home"));
 	private static final RemoteRepository DEFAULT_REPO_REMOTE = new RemoteRepository.Builder("central", "default", "https://repo1.maven.org/maven2/").build();

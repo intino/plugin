@@ -56,8 +56,10 @@ public class Repositories {
 				.setAuthentication(provideAuthentication(r.identifier()));
 		String updatePolicy = r.updatePolicy().name().toLowerCase();
 		if (r instanceof Snapshot)
-			builder.setSnapshotPolicy(new RepositoryPolicy(true, updatePolicy, CHECKSUM_POLICY_WARN));
-		else builder.setPolicy(new RepositoryPolicy(true, updatePolicy, CHECKSUM_POLICY_WARN));
+			builder.setSnapshotPolicy(new RepositoryPolicy(true, updatePolicy, CHECKSUM_POLICY_WARN))
+					.setReleasePolicy(new RepositoryPolicy(false, updatePolicy, CHECKSUM_POLICY_WARN));
+		else builder.setReleasePolicy(new RepositoryPolicy(true, updatePolicy, CHECKSUM_POLICY_WARN))
+				.setSnapshotPolicy(new RepositoryPolicy(false, updatePolicy, CHECKSUM_POLICY_WARN));
 		addProxies(builder, r.url());
 		return builder.build();
 	}

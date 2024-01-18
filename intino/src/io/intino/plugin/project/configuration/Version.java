@@ -1,10 +1,14 @@
 package io.intino.plugin.project.configuration;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.intino.plugin.IntinoException;
 
+import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static java.lang.Integer.parseInt;
 
 public class Version implements Comparable<Version> {
+	private static final Logger LOG = getInstance(Version.class.getName());
+
 	public enum Level {Minor, Medium, Mayor}
 
 	private static final String SNAPSHOT = "-SNAPSHOT";
@@ -62,19 +66,23 @@ public class Version implements Comparable<Version> {
 
 	@Override
 	public int compareTo(Version that) {
-		if (that == null)
-			return 1;
-		String[] thisParts = this.get().split("\\.");
-		String[] thatParts = that.get().split("\\.");
-		int length = Math.max(thisParts.length, thatParts.length);
-		for (int i = 0; i < length; i++) {
-			int thisPart = i < thisParts.length ? parseInt(thisParts[i]) : 0;
-			int thatPart = i < thatParts.length ?
-					parseInt(thatParts[i]) : 0;
-			if (thisPart < thatPart) return -1;
-			if (thisPart > thatPart) return 1;
+		try {
+			if (that == null) return 1;
+			String[] thisParts = this.get().substring(0, this.get().contains("-") ? this.get().indexOf("-") : this.get().length()).split("\\.");
+			String[] thatParts = that.get().substring(0, that.get().contains("-") ? that.get().indexOf("-") : that.get().length()).split("\\.");
+			int length = Math.max(thisParts.length, thatParts.length);
+			for (int i = 0; i < length; i++) {
+				int thisPart = i < thisParts.length ? parseInt(thisParts[i]) : 0;
+				int thatPart = i < thatParts.length ?
+						parseInt(thatParts[i]) : 0;
+				if (thisPart < thatPart) return -1;
+				if (thisPart > thatPart) return 1;
+			}
+			return 0;
+		} catch (NumberFormatException e) {
+			LOG.error("Error comparing " + that.get() + " and " + get());
+			return 0;
 		}
-		return 0;
 	}
 
 	@Override

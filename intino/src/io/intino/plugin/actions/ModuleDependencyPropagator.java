@@ -11,9 +11,9 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.ThrowableComputable;
 import io.intino.Configuration;
-import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.dialog.UpdateVersionDialog;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioBox;
@@ -22,18 +22,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.builders.BoxBuilderManager.ARTIFACT_ID;
 import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
+import static java.util.stream.Collectors.toMap;
 
 public class ModuleDependencyPropagator {
 	private static final Logger LOG = Logger.getInstance(ModuleDependencyPropagator.class.getName());
-
 	private final Module module;
 	private final Configuration configuration;
+	private Version.Level change = null;
 
 	public ModuleDependencyPropagator(Module module, Configuration configuration) {
 		this.module = module;
@@ -43,28 +44,13 @@ public class ModuleDependencyPropagator {
 	public Version.Level execute() {
 		if (module == null) return null;
 		Map<String, String> newVersions = askForNewVersions();
-		Version.Level change = null;
+		change = null;
 		if (newVersions.isEmpty()) return null;
 		for (String library : newVersions.keySet()) {
 			try {
 				String[] identifier = library.split(":");
 				if (identifier.length < 3) continue;
-				Configuration.Artifact.Dependency dependency = dependency(identifier);
-				if (dependency == null) {
-					if (configuration.artifact().box() != null && GROUP_ID.equals(identifier[0]) && ARTIFACT_ID.equals(identifier[1])) {
-						change = calculateChange(change, identifier[2], configuration.artifact().box().version());
-						updateBoxBuilder(newVersions, library, identifier);
-					} else if (configuration.artifact().model() != null) {
-						String[] sdk = configuration.artifact().model().sdk().split(":");
-						if (sdk[0].equals(identifier[0]) && sdk[1].equals(identifier[1])) {
-							change = calculateChange(change, identifier[2], configuration.artifact().model().sdkVersion());
-							updateModelBuilder(newVersions, library, identifier);
-						}
-					}
-				} else if (!dependency.version().equals(newVersions.get(library))) {
-					change = calculateChange(change, newVersions.get(library), dependency.version());
-					dependency.version(newVersions.get(library));
-				}
+				propagateChange(library, identifier, newVersions);
 			} catch (Throwable e) {
 				LOG.error(e);
 			}
@@ -73,12 +59,45 @@ public class ModuleDependencyPropagator {
 		return change;
 	}
 
-	private void updateBoxBuilder(Map<String, String> newVersions, String library, String[] identifier) {
+	private void propagateChange(String library, String[] identifier, Map<String, String> newVersions) {
+		Configuration.Artifact.Dependency dependency = dependency(identifier);
+		if (dependency == null) {
+			if (configuration.artifact().box() != null && GROUP_ID.equals(identifier[0]) && ARTIFACT_ID.equals(identifier[1])) {
+				change = calculateChange(change, identifier[2], configuration.artifact().box().version());
+				updateBoxBuilder(newVersions, library);
+			} else {
+				Configuration.Artifact.Model model = configuration.artifact().model();
+				if (model != null) updateModel(library, identifier, newVersions, model);
+			}
+		} else if (!dependency.version().equals(newVersions.get(library))) {
+			change = calculateChange(change, newVersions.get(library), dependency.version());
+			dependency.version(newVersions.get(library));
+		}
+	}
+
+	private void updateModel(String library, String[] identifier, Map<String, String> newVersions, Configuration.Artifact.Model model) {
+		String[] sdk = model.sdk().split(":");
+		if (sdk[0].equals(identifier[0]) && sdk[1].equals(identifier[1])) {
+			change = calculateChange(change, identifier[2], model.sdkVersion());
+			updateModelBuilder(newVersions, library);
+		} else {
+			String[] frameworkCoors = new LanguageResolver(module, model, model.language().effectiveVersion(), configuration.repositories()).frameworkCoors().split(":");
+			if (frameworkCoors[0].equals(identifier[0]) && frameworkCoors[1].equals(identifier[1]))
+				updateModelFramework(newVersions, library);
+		}
+	}
+
+	private void updateBoxBuilder(Map<String, String> newVersions, String library) {
 		if (!newVersions.get(library).equals(configuration.artifact().box().version()))
 			((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
 	}
 
-	private void updateModelBuilder(Map<String, String> newVersions, String library, String[] identifier) {
+	private void updateModelFramework(Map<String, String> newVersions, String library) {
+		if (!newVersions.get(library).equals(configuration.artifact().model().language().version()))
+			((LegioModel) configuration.artifact().model()).language().version(newVersions.get(library));
+	}
+
+	private void updateModelBuilder(Map<String, String> newVersions, String library) {
 		if (!newVersions.get(library).equals(configuration.artifact().model().sdkVersion()))
 			((LegioModel) configuration.artifact().model()).sdkVersion(newVersions.get(library));
 	}
@@ -116,14 +135,17 @@ public class ModuleDependencyPropagator {
 				if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) response[0] = dialog.newVersions();
 				else response[0] = Collections.emptyMap();
 			});
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			LOG.error(e);
 		}
 		return response[0];
 	}
 
 	@NotNull
 	private static Map<String, List<String>> possibleUpdates(Map<String, List<String>> libraries) {
-		return libraries.entrySet().stream().filter(e -> e.getValue().size() > 1).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		return libraries.entrySet().stream()
+				.filter(e -> e.getValue().size() > 1)
+				.collect(toMap(Entry::getKey, Entry::getValue));
 	}
 
 	private Map<String, List<String>> loadLibraryUpdates() {
@@ -141,6 +163,10 @@ public class ModuleDependencyPropagator {
 			List<String> modelBuilderVersions = connector.modelBuilderVersions(builder);
 			if (!model.sdkVersion().equals(modelBuilderVersions.get(modelBuilderVersions.size() - 1)))
 				map.put(builder + ":" + model.sdkVersion(), modelBuilderVersions);
+			String frameworkCoors = new LanguageResolver(module, model, model.language().effectiveVersion(), configuration.repositories()).frameworkCoors();
+			String[] parts = frameworkCoors.split(":");
+			List<String> versions = connector.versions(parts[0] + ":" + parts[1]);
+			if (!versions.isEmpty()) map.put(frameworkCoors, filter(versions, parts[2]));
 		}
 		configuration.artifact().dependencies().forEach(d -> {
 			String[] split = d.identifier().split(":");
@@ -159,7 +185,7 @@ public class ModuleDependencyPropagator {
 	private static Version versionOf(String current) {
 		try {
 			return new Version(current);
-		} catch (IntinoException e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}

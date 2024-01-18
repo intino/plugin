@@ -46,10 +46,9 @@ public class UpdateVersionDialog extends DialogWrapper {
 		table.setEnableAntialiasing(true);
 		table.getEmptyText().setText("No libraries");
 		table.setAutoResizeMode(AUTO_RESIZE_LAST_COLUMN);
+		table.setFillsViewportHeight(true);
 		table.getColumn(FIELDS[0]).setPreferredWidth(250);
 		table.getColumn(FIELDS[1]).setCellEditor(new CustomComboBoxEditor(libraries.values()));
-		table.setMaximumSize(new Dimension(table.getWidth(), 200));
-		table.setPreferredSize(new Dimension(table.getWidth(), 200));
 		JScrollPane tablePanel = ScrollPaneFactory.createScrollPane(table);
 		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 200));
 		return tablePanel;

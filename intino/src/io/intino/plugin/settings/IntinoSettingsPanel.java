@@ -1,6 +1,7 @@
 package io.intino.plugin.settings;
 
 import com.intellij.openapi.ui.StripeTable;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -35,7 +36,6 @@ public class IntinoSettingsPanel {
 
 	IntinoSettingsPanel() {
 		tracker.setBorder(BorderFactory.createTitledBorder("Issue Tracker"));
-		artifactories.setMaximumSize(new Dimension(artifactories.getWidth(), 500));
 		generateButton.addActionListener(e -> {
 			UserPassword dialog = new UserPassword();
 			dialog.pack();
@@ -110,7 +110,9 @@ public class IntinoSettingsPanel {
 		table.getEmptyText().setText("No artifactories");
 		table.setAutoResizeMode(AUTO_RESIZE_LAST_COLUMN);
 		table.getColumn(ARTIFACTORY_FIELDS[0]).setPreferredWidth(150);
+		table.getColumn(ARTIFACTORY_FIELDS[0]).setCellRenderer(new CellRenderer());
 		table.getColumn(ARTIFACTORY_FIELDS[1]).setPreferredWidth(150);
+		table.getColumn(ARTIFACTORY_FIELDS[1]).setCellRenderer(new CellRenderer());
 		table.getColumn(ARTIFACTORY_FIELDS[2]).setCellRenderer(new PasswordCellRenderer());
 		tablePanel = ToolbarDecorator.createDecorator(table)
 				.disableUpAction()
@@ -122,11 +124,7 @@ public class IntinoSettingsPanel {
 					if (table.getModel().getRowCount() > 0 && selectedRow < table.getModel().getRowCount())
 						table.addRowSelectionInterval(selectedRow, selectedRow);
 				}).createPanel();
-		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 500));
-		tablePanel.setMaximumSize(new Dimension(tablePanel.getWidth(), 500));
-		tablePanel.setAutoscrolls(true);
-		table.setPreferredSize(new Dimension(table.getWidth(), 500));
-		table.setMaximumSize(new Dimension(table.getWidth(), 500));
+		table.setFillsViewportHeight(true);
 	}
 
 	static class PasswordCellRenderer extends DefaultTableCellRenderer {
@@ -134,7 +132,19 @@ public class IntinoSettingsPanel {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			JComponent c = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			c.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, JBColor.BLACK));
 			setText(!value.toString().isEmpty() ? ASTERISKS : "");
+			return this;
+		}
+	}
+
+	static class CellRenderer extends DefaultTableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			JComponent c = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			c.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, JBColor.BLACK));
 			return this;
 		}
 	}

@@ -55,9 +55,7 @@ public class ModuleSelectorDialog extends DialogWrapper {
 			group.add(b);
 			b.addActionListener(l -> selected = findModule(l.getActionCommand()));
 		}
-		JScrollPane tablePanel = ScrollPaneFactory.createScrollPane(contentPanel);
-		tablePanel.setPreferredSize(new Dimension(tablePanel.getWidth(), 200));
-		return tablePanel;
+		return ScrollPaneFactory.createScrollPane(contentPanel);
 	}
 
 	private Module findModule(String name) {

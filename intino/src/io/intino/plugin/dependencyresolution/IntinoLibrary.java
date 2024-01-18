@@ -28,7 +28,7 @@ public class IntinoLibrary {
 	}
 
 	public static String libraryIdentifierOf(Artifact artifact) {
-		return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+		return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getBaseVersion();
 	}
 
 	public static Artifact artifactOf(Library library, String scope) {
