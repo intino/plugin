@@ -8,7 +8,7 @@
             <element id="module-output" name="jps-plugin" />
           </element>
           <element id="archive" name="intino-plugin.jar">
-            <element id="module-output" name="plugin-interface" />
+            <element id="module-output" name="builder-interface" />
             <element id="module-output" name="intino-plugin" />
             <element id="module-output" name="configuration" />
             <element id="module-output" name="plugin" />

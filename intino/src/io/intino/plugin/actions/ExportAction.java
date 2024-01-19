@@ -18,7 +18,7 @@ import io.intino.plugin.MessageProvider;
 import io.intino.plugin.actions.box.KonosRunner;
 import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
-import io.intino.plugin.build.PluginExecutor;
+import io.intino.plugin.build.plugins.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
@@ -94,7 +94,7 @@ public class ExportAction {
 		List<Configuration.Artifact.Plugin> intinoPlugins = safeList(() -> configuration.artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Export).forEach(plugin -> {
 			List<String> errorMessages = new ArrayList<>();
-			new PluginExecutor(module, factoryPhase, configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute();
+			new PluginExecutor(module, factoryPhase, configuration, plugin, indicator).execute();
 			if (!errorMessages.isEmpty())
 				Notifications.Bus.notify(new Notification("Intino", MessageProvider.message("error.occurred", "export"), errorMessages.get(0), NotificationType.ERROR), module.getProject());
 		});

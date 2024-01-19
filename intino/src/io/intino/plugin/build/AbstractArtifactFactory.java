@@ -22,6 +22,7 @@ import io.intino.plugin.actions.IntinoConfirmationDialog;
 import io.intino.plugin.build.git.GitUtil;
 import io.intino.plugin.build.linuxservice.LinuxServiceGenerator;
 import io.intino.plugin.build.maven.MavenRunner;
+import io.intino.plugin.build.plugins.PluginExecutor;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
@@ -88,7 +89,7 @@ public abstract class AbstractArtifactFactory {
 		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 		List<Artifact.Plugin> intinoPlugins = safeList(() -> ((ArtifactLegioConfiguration) configuration).artifact().plugins());
 		intinoPlugins.stream().filter(i -> i.phase() == Artifact.Plugin.Phase.PrePackage).forEach(plugin ->
-				new PluginExecutor(module, phase, (ArtifactLegioConfiguration) configuration, plugin.artifact(), plugin.pluginClass(), errorMessages, indicator).execute());
+				new PluginExecutor(module, phase, (ArtifactLegioConfiguration) configuration, plugin, indicator).execute());
 	}
 
 	private ProcessResult processArtifact(ProgressIndicator indicator) {

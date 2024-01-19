@@ -64,8 +64,10 @@ Concept:{1..1}:Named Artifact
 		var string modelSubPackage = "model"
 		var string boxSubPackage = "box"
 	Concept IntinoPlugin
-		var string artifact
-		var string pluginClass
+		var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
+		var string groupId
+		var string artifactId
+		var string version
 		var word:{Export PostCompilation PrePackage PostPackage PostDistribution} phase = PrePackage
 
 	Concept:{0..1} Package

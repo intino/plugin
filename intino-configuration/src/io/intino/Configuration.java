@@ -287,10 +287,19 @@ public interface Configuration {
 			enum Phase {
 				Export, PostCompilation, PrePackage, PostPackage, PostDistribution
 			}
+			default String identifier() {
+				return groupId() + ":" + artifactId() + ":" + version();
+			}
 
-			String artifact();
+			default String name() {
+				return "Intino: " + identifier();
+			}
 
-			String pluginClass();
+			String groupId();
+
+			String artifactId();
+
+			String version();
 
 			default Phase phase() {
 				return Phase.PrePackage;

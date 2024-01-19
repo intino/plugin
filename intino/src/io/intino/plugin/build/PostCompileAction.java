@@ -17,7 +17,7 @@ import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAct
 
 public abstract class PostCompileAction {
 	public enum FinishStatus {
-		NothingDone, RequiresReload
+		NothingDone, RequiresReload, Done, Error
 	}
 
 	protected final Module module;

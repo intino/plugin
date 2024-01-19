@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.intino</groupId>
-    <artifactId>plugin-interface</artifactId>
-    <name>plugin-interface</name>
-    <version>2.5.0</version>
+    <artifactId>builder-interface</artifactId>
+    <name>builder-interface</name>
+    <version>1.0.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,8 +24,22 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
     <repositories>
         <repository>
             <id>intino-maven</id>

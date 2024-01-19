@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.intino.tara.language.model.Primitive.*;
 
@@ -73,7 +74,7 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 		if (this.parametrized == null) return;
 		List<Constraint.Parameter> requires = findConstraints().stream().
 				filter(constraint -> constraint instanceof Constraint.Parameter && ((Constraint.Parameter) constraint).size().isRequired()).
-				map(constraint -> (Constraint.Parameter) constraint).toList();
+				map(constraint -> (Constraint.Parameter) constraint).collect(Collectors.toList());
 		filterPresentParameters(requires);
 		ApplicationManager.getApplication().invokeAndWait(() -> createLiveTemplateFor(requires, file, editor));
 //		cleanSignature(findAnchor(requires));

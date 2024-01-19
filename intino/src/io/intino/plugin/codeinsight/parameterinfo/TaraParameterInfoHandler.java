@@ -152,6 +152,7 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 		}
 		final List<Constraint.Parameter> constraints = Arrays.asList((Constraint.Parameter[]) context.getObjectsToView());
 		int index = ParameterInfoUtils.getCurrentParameterIndex(parameters.getNode(), context.getOffset(), getActualParameterDelimiterType());
+		if (parameters.getParameters().size() <= index) return;
 		Parameter parameter = parameters.getParameters().get(index);
 		Constraint.Parameter constraint = IntinoUtil.parameterConstraintOf(parameter);
 		int constraintIndex = constraints.indexOf(constraint);

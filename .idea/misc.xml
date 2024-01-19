@@ -31,6 +31,7 @@
         <option value="$PROJECT_DIR$/intino-plugin/pom.xml" />
         <option value="$PROJECT_DIR$/intino/pom.xml" />
         <option value="$PROJECT_DIR$/intino-configuration/pom.xml" />
+        <option value="$PROJECT_DIR$/builder-interface/pom.xml" />
       </list>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />

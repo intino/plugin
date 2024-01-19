@@ -507,18 +507,23 @@ public class LegioArtifact implements Configuration.Artifact {
 	private record LegioPlugin(TaraMogram node) implements Plugin {
 
 		@Override
-		public String artifact() {
-			return parameterValue(node, "artifact", 0);
+		public String groupId() {
+			return parameterValue(node, "groupId", 0);
 		}
 
 		@Override
-		public String pluginClass() {
-			return parameterValue(node, "pluginClass", 1);
+		public String artifactId() {
+			return parameterValue(node, "artifactId", 1);
+		}
+
+		@Override
+		public String version() {
+			return parameterValue(node, "version", 2);
 		}
 
 		@Override
 		public Phase phase() {
-			return Phase.valueOf(parameterValue(node, "phase", 2));
+			return Phase.valueOf(parameterValue(node, "phase", 3));
 		}
 	}
 
