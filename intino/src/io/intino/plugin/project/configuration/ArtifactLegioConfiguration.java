@@ -243,7 +243,6 @@ public class ArtifactLegioConfiguration implements Configuration {
 				map(this::repository).
 				collect(Collectors.toList());
 		repositories.addAll(safeList(() -> ConfigurationManager.projectConfigurationOf(module).project().repositories()));
-
 		return repositories;
 	}
 

@@ -127,9 +127,9 @@ public class LegioProject implements ProjectConfiguration.Project {
 
 	private Configuration.Repository repository(Mogram r) {
 		if (((TaraMogramImpl) r).simpleType().equals("Release"))
-			return new LegioRepository.LegioReleaseRepository(null, (TaraMogram) r);
+			return new LegioRepository.LegioReleaseRepository(root, (TaraMogram) r);
 		if (((TaraMogramImpl) r).simpleType().equals("Snapshot"))
-			return new LegioRepository.LegioSnapshotRepository(null, (TaraMogram) r);
+			return new LegioRepository.LegioSnapshotRepository(root, (TaraMogram) r);
 		return null;
 	}
 

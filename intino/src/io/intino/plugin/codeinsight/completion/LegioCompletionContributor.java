@@ -112,9 +112,10 @@ public class LegioCompletionContributor extends CompletionContributor {
 		final Module module = moduleOf(parameters.getOriginalFile());
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
-		final List<String> values = new ArtifactoryConnector(module.getProject(), configuration.repositories()).versions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
+		final List<String> values = new ArtifactoryConnector(module.getProject(), configuration.repositories())
+				.versions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));
 		if (values == null) return;
-		for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
+		values.stream().map(LookupElementBuilder::create).forEach(resultSet::addElement);
 		JavaCompletionSorting.addJavaSorting(parameters, resultSet);
 	}
 
