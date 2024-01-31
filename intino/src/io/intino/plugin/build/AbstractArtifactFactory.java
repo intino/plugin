@@ -140,6 +140,7 @@ public abstract class AbstractArtifactFactory {
 	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws IOException {
 		buildLanguage(phase, indicator);
 		buildArtifact(phase, indicator);
+		indicator.setText("Tagging version...");
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {
 			String tag = configuration.artifact().name().toLowerCase() + "/" + configuration.artifact().version();
 			GitCommandResult gitCommandResult = GitUtil.tagCurrentAndPush(module, tag);
