@@ -11,7 +11,6 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.util.ArrayUtil;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
@@ -130,10 +129,6 @@ public class PluginRunner {
 		map.put(PROJECT_PATH, projectDirectory.getAbsolutePath());
 		map.put(MODULE_PATH, IntinoUtil.moduleRoot(module).getAbsolutePath());
 		VirtualFile resourcesRoot = IntinoUtil.getResourcesRoot(module, false);
-		if (resourcesRoot == null) {
-			final PsiDirectory res = IntinoUtil.createResourceRoot(module, "res");
-			if (res != null) resourcesRoot = res.getVirtualFile();
-		}
 		if (resourcesRoot != null) map.put(RES_PATH, resourcesRoot.getPath());
 		List<VirtualFile> sourceRoots = IntinoUtil.getSourceRoots(module);
 		sourceRoots.stream().filter(f -> new File(f.getPath()).getName().equals("src")).findFirst().ifPresent(src -> map.put(SRC_PATH, src.getPath()));
