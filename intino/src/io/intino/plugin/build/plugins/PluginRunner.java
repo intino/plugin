@@ -116,11 +116,11 @@ public class PluginRunner {
 			if (compilerMessage.getKind().equals(ERROR))
 				throw new IntinoException(compilerMessage.getMessageText());
 		indicator.setText("Executing post compile actions...");
-		handler.postCompileActions().parallelStream().forEach(PostCompileAction::execute);
-//		for (PostCompileAction action : handler.postCompileActions()) {
-//			PostCompileAction.FinishStatus finishStatus = action.execute();
-////			if (finishStatus == PostCompileAction.FinishStatus.Error) break;
-//		}
+		List<PostCompileAction> postCompileActions = handler.postCompileActions();
+		if (!postCompileActions.isEmpty()) {
+			postCompileActions.get(0).execute();
+			postCompileActions.stream().skip(1).parallel().forEach(PostCompileAction::execute);
+		}
 		indicator.setText(null);
 	}
 

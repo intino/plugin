@@ -46,7 +46,7 @@ public class MavenInvokeAction extends PostCompileAction {
 	}
 
 	private void mvn(File pom, Phase phase, String[] coors) throws IOException {
-		final MavenRunner.InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, phase.name().toLowerCase());
+		final MavenRunner.InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, mavenPhase(phase));
 		String gerund = (phase.equals(Phase.INSTALL)) ? "installing" : "distributing";
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)
@@ -54,6 +54,12 @@ public class MavenInvokeAction extends PostCompileAction {
 			else throw new IOException("Failed " + gerund + " artifact. Exit code: " + result.getExitCode());
 		} else if (result == null) throw new IOException("Failed generating accessor. Maven HOME not found");
 		notifySuccess(coors, phase);
+	}
+
+	@NotNull
+	private static String mavenPhase(Phase phase) {
+		if (phase.equals(Phase.DISTRIBUTE)) return "deploy";
+		return phase.name().toLowerCase();
 	}
 
 	private void notifySuccess(String[] coors, Phase goal) {

@@ -24,10 +24,8 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
@@ -117,7 +115,7 @@ public class AccessorsPublisher {
 		if ("rest".equals(serviceType)) artifact = "io.intino.alexandria:rest-accessor";
 		else if ("messaging".equals(serviceType)) artifact = "io.intino.alexandria:terminal-jms";
 		else if ("analytic".equals(serviceType)) artifact = "io.intino.alexandria:led";
-		List<String> versions = new ArtifactoryConnector(conf.repositories()).versions(artifact);
+		List<String> versions = new ArrayList<>(new ArtifactoryConnector(conf.repositories()).versions(artifact));
 		if (versions.isEmpty()) return "";
 		Collections.sort(versions);
 		return versions.get(versions.size() - 1);

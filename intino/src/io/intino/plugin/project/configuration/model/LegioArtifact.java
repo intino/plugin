@@ -406,7 +406,6 @@ public class LegioArtifact implements Configuration.Artifact {
 			}
 		} catch (IndexNotReadyException ignored) {
 		} catch (Throwable e) {
-			e.printStackTrace();
 			LOG.error(e.getMessage());
 		}
 		return null;
