@@ -83,7 +83,7 @@ public class PluginRunner {
 		}
 		if (safe(() -> conf.artifact().distribution().release()) != null) {
 			final Configuration.Repository release = conf.artifact().distribution().release();
-			writer.write(SNAPSHOT_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
 		}
 	}
 
