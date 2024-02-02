@@ -18,7 +18,9 @@
         konos dsl for layered architecture modeling and legio dsl for continuous integration modeling.
     ]]></description>
 	<change-notes>
-		Added goros support
+		Added goros support.
+		Improved dependency resolution.
+		Removed some deprecated api points
 	</change-notes>
 
 	<idea-version since-build="233.13135"/>

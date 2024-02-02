@@ -8,7 +8,7 @@ import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Repository;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemProperties;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -36,19 +36,27 @@ public class PackageJsonCreator {
 	}
 
 	public void extractArtifacts() {
-		if (SystemUtils.IS_OS_WINDOWS) webArtifactResolver.extractArtifacts();
+		if (isWindows()) webArtifactResolver.extractArtifacts();
 	}
 
 	@NotNull
 	private FrameBuilder packageFrame() {
 		List<JsonObject> packages = webArtifactResolver.resolveArtifacts();
 		FrameBuilder builder = baseFrame().add("package");
-		if (SystemUtils.IS_OS_MAC_OSX) builder.add("fsevents", "");
+		if (isMacOS()) builder.add("fsevents", "");
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
 		packages.stream().map(this::resolutionFrameFrom).filter(Objects::nonNull).forEach(frames -> builder.add("resolution", frames));
 		return builder;
+	}
+
+	private static boolean isWindows() {
+		return SystemProperties.getOsName().toLowerCase().startsWith("windows");
+	}
+
+	private static boolean isMacOS() {
+		return SystemProperties.getOsName().toLowerCase().startsWith("mac");
 	}
 
 	@NotNull

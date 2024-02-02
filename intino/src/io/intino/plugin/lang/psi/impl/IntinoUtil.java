@@ -3,7 +3,6 @@ package io.intino.plugin.lang.psi.impl;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.impl.stores.IProjectStore;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -14,6 +13,7 @@ import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.project.ProjectKt;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import com.intellij.psi.search.FileTypeIndex;
@@ -80,8 +80,7 @@ public class IntinoUtil {
 	}
 
 	public static File projectRoot(Project project) {
-		IProjectStore store = project.getComponent(IProjectStore.class);
-		return store != null ? store.getProjectBasePath().toFile() : new File(project.getBasePath());
+		return ProjectKt.getStateStore(project).getProjectBasePath().toFile();
 	}
 
 	@Nullable
@@ -439,6 +438,7 @@ public class IntinoUtil {
 
 	public static PsiDirectory createResourceRoot(Module module, String name) {
 		VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
+		if (moduleDir == null) return null;
 		return createDirectory(read(() -> PsiManager.getInstance(module.getProject()).findDirectory(moduleDir.getParent())), name);
 	}
 }

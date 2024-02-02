@@ -6,9 +6,6 @@ import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.EffectType;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.io.FileUtil;
@@ -16,24 +13,17 @@ import com.intellij.openapi.vfs.VFileProperty;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.RowIcon;
 import com.intellij.util.PlatformIcons;
 import io.intino.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
-
 class NodeView extends PsiFileNode implements Navigatable {
 	static final DataKey<NodeView> DATA_KEY = DataKey.create("form.array");
-	@SuppressWarnings("deprecation")
-	public static final TextAttributesKey ERROR = createTextAttributesKey("ERROR",
-			new TextAttributes(null, null, JBColor.RED, EffectType.WAVE_UNDERSCORE, Font.PLAIN));
 	private final PsiFile taraFile;
 
 	NodeView(Project project, TaraModel psiFile, ViewSettings settings) {
@@ -43,11 +33,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 	}
 
 	public boolean equals(Object object) {
-		if (object instanceof NodeView) {
-			NodeView form = (NodeView) object;
-			return taraFile.equals(form.taraFile);
-		}
-		return false;
+		return object instanceof NodeView form && taraFile.equals(form.taraFile);
 	}
 
 	@Override

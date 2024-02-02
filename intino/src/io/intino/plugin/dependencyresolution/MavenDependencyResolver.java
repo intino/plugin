@@ -21,8 +21,10 @@ import org.eclipse.aether.transport.classpath.ClasspathTransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
+import org.eclipse.aether.util.repository.SimpleResolutionErrorPolicy;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +58,16 @@ public class MavenDependencyResolver {
 	private static void init(String localRepo) {
 		if (system == null) loadService();
 		if (session == null) session = buildSession(localRepo);
+	}
+
+	static void resetSession() {
+		File basedir = session.getLocalRepository().getBasedir();
+		session = null;
+		init(basedir.getAbsolutePath());
+	}
+
+	static void removeResolutionFromSession(String[] coors) {
+		session.getCache().put(session, coors, null);
 	}
 
 	public static List<Dependency> dependenciesFrom(DependencyResult result, boolean includeUnresolved) {
@@ -117,6 +129,7 @@ public class MavenDependencyResolver {
 	private static RepositorySystemSession buildSession(String localRepo) {
 		var session = MavenRepositorySystemUtils.newSession();
 		return session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository(localRepo)))
+				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(ResolutionErrorPolicy.CACHE_DISABLED))
 				.setCache(new DefaultRepositoryCache());
 	}
 }

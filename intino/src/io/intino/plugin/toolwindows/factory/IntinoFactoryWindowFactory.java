@@ -12,7 +12,9 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
+import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,8 +29,9 @@ public class IntinoFactoryWindowFactory implements ToolWindowFactory, DumbAware 
 		toolWindow.getContentManager().setSelectedContent(content, false);
 	}
 
+	@Nullable
 	@Override
-	public boolean isApplicable(@NotNull Project project) {
+	public Object isApplicableAsync(@NotNull Project project, @NotNull Continuation<? super Boolean> $completion) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
 		return modules.length == 0 ? IntinoDirectory.of(project).exists() : legioFileExists(modules);
 	}

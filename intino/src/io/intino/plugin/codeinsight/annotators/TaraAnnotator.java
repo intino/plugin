@@ -5,7 +5,6 @@ import com.intellij.lang.annotation.AnnotationBuilder;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
 import io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level;
@@ -40,11 +39,13 @@ public abstract class TaraAnnotator implements Annotator {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private AnnotationBuilder createDeclarationAnnotation(AnnotationHolder holder, PsiElement node, String message) {
 		AnnotationBuilder builder = holder.newAnnotation(WARNING, message).range(node);
-		TextAttributesKey root = createTextAttributesKey("node_declaration", new TextAttributes(null, null, null, null, Font.ITALIC));
-		return builder.textAttributes(root);
+		TextAttributesKey key = createTextAttributesKey("node_instance");
+		key.getDefaultAttributes().setFontType(Font.ITALIC);
+		key.getDefaultAttributes().setEffectType(null);
+		key.getDefaultAttributes().setEffectColor(null);
+		return builder.textAttributes(key);
 	}
 
 	public static class AnnotateAndFix {

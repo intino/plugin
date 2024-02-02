@@ -65,8 +65,8 @@ public class ProjectLegioConfiguration implements ProjectConfiguration {
 	}
 
 	public boolean isSuitable() {
-		File parent = IntinoUtil.projectRoot(ijProject);
-		return new File(parent, LegioFileType.ARTIFACT_LEGIO).exists();
+		File dir = IntinoUtil.projectRoot(ijProject);
+		return new File(dir, LegioFileType.ARTIFACT_LEGIO).exists();
 	}
 
 	public void loadRemoteProcessesInfo() {
