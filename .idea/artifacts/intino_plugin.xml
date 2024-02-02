@@ -21,7 +21,6 @@
           <element id="library" level="project" name="Maven: org.cactoos:cactoos:0.16" />
           <element id="library" level="project" name="Maven: org.siani.itrules:itrules:1.9.3" />
           <element id="library" level="project" name="Maven: org.sonatype.plexus:plexus-cipher:1.4" />
-          <element id="library" level="project" name="Maven: io.intino.goros:shifter:1.0.5" />
           <element id="library" level="project" name="Maven: es.nitaur.markdown:txtmark:0.16" />
           <element id="library" level="project" name="Maven: javax.inject:javax.inject:1" />
           <element id="library" level="project" name="Maven: org.apache.maven:maven-settings-builder:3.8.1" />
@@ -72,6 +71,7 @@
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.5" />
           <element id="library" level="project" name="Maven: org.antlr:antlr4-runtime:4.12.0" />
           <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.11" />
+          <element id="library" level="project" name="Maven: io.intino.goros:shifter:2.0.0" />
         </element>
       </element>
     </root>

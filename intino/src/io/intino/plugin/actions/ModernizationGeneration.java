@@ -3,6 +3,7 @@ package io.intino.plugin.actions;
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -33,6 +34,11 @@ public class ModernizationGeneration extends AnAction {
 		if (context != null && isGorosFile(context))
 			enable(e);
 		else disable(e);
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return super.getActionUpdateThread();
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>7.1.1</version>
+	<version>7.2.0</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -17,6 +17,9 @@
         intino provides several Domain Specific Languages (dsl): proteo dsl for product modeling, meta dsl for platform modeling,
         konos dsl for layered architecture modeling and legio dsl for continuous integration modeling.
     ]]></description>
+	<change-notes>
+		Added goros support
+	</change-notes>
 
 	<idea-version since-build="233.13135"/>
 	<extensions defaultExtensionNs="com.intellij">

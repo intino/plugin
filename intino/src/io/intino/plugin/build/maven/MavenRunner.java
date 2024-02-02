@@ -41,7 +41,6 @@ public class MavenRunner {
 	private final Module module;
 	private final String output = "";
 
-
 	public MavenRunner(Module module) {
 		this.module = module;
 	}
