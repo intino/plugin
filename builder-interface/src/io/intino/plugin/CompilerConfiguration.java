@@ -132,9 +132,8 @@ public class CompilerConfiguration {
 		return tempDirectory;
 	}
 
-	public CompilerConfiguration tempDirectory(File tempDirectory) {
+	public void setTempDirectory(File tempDirectory) {
 		this.tempDirectory = tempDirectory;
-		return this;
 	}
 
 	public String project() {
