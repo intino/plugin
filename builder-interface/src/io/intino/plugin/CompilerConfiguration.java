@@ -77,7 +77,7 @@ public class CompilerConfiguration {
 		sourceEncoding(encoding);
 		this.model = new ModelConfiguration();
 		try {
-			tempDirectory = Files.createTempDirectory("_konos_").toFile();
+			tempDirectory = Files.createTempDirectory("_intino_").toFile();
 		} catch (IOException e) {
 			LOG.log(java.util.logging.Level.SEVERE, e.getMessage(), e);
 		}
@@ -130,6 +130,11 @@ public class CompilerConfiguration {
 
 	public File getTempDirectory() {
 		return tempDirectory;
+	}
+
+	public CompilerConfiguration tempDirectory(File tempDirectory) {
+		this.tempDirectory = tempDirectory;
+		return this;
 	}
 
 	public String project() {

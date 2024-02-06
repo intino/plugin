@@ -7,6 +7,7 @@ public class BuildConstants {
 	public static final String REFRESH_MESSAGE = "%%refresh%%";
 	public static final String REFRESH_BUILDER_MESSAGE_SEPARATOR = "#";
 	public static final String SRC_PATH = "src.path";
+	public static final String TMP_PATH = "tmp.path";
 	public static final String FINAL_OUTPUTPATH = "final_outputpath";
 	public static final String RES_PATH = "res.path";
 	public static final String SRC_FILE = "def.file";

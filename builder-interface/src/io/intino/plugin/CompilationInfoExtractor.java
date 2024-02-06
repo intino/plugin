@@ -64,6 +64,9 @@ public class CompilationInfoExtractor {
 			case SRC_PATH:
 				configuration.srcDirectory(new File(reader.readLine()));
 				break;
+			case TMP_PATH:
+				configuration.tempDirectory(new File(reader.readLine()));
+				break;
 			case RES_PATH:
 				configuration.resDirectory(new File(reader.readLine()));
 				break;
