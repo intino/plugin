@@ -296,9 +296,7 @@ public abstract class AbstractArtifactFactory {
 			return ProcessResult.Done;
 		} else {
 			String errors = ((DeployResult.Fail) result).errors().stream().map(Throwable::getMessage).collect(Collectors.joining("\n"));
-			if (result instanceof DeployResult.Fail) throw new IntinoException(errors);
-			else
-				throw new IntinoException(String.join("\n", ((DeployResult.DoneWithErrors) result).success()) + "\n" + errors);
+			throw new IntinoException(errors);
 		}
 	}
 

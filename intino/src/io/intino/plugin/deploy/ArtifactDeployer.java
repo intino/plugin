@@ -85,7 +85,8 @@ public class ArtifactDeployer {
 	private ProcessDeployment createDeployment(Artifact.Package packageConfiguration, Deployment destination) {
 		final String classpathPrefix = packageConfiguration.classpathPrefix();
 		return new ProcessDeployment().
-				groupId(configuration.artifact().groupId()).artifactId(configuration.artifact().name().toLowerCase()).version(configuration.artifact().version()).
+				project(module.getProject().getName())
+				.groupId(configuration.artifact().groupId()).artifactId(configuration.artifact().name().toLowerCase()).version(configuration.artifact().version()).
 				vcs(new ProcessDeployment.Vcs().
 						url(safe(() -> GitUtil.repository(module).getRemotes().iterator().next().getFirstUrl())).
 						commit(safe(() -> GitUtil.repository(module).getCurrentRevision()))).
@@ -93,6 +94,7 @@ public class ArtifactDeployer {
 				artifactoryList(artifactories()).
 				requirements(requirements(destination)).
 				packaging(new ProcessDeployment.Packaging().mainClass(packageConfiguration.mainClass()).parameterList(extractParameters(destination.runConfiguration())).classpathPrefix(classpathPrefix == null || classpathPrefix.isEmpty() ? "dependency" : classpathPrefix)).
+				destinationServer(destination.server().name()).
 				computer(destination.server().name());
 	}
 
