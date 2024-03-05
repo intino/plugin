@@ -89,7 +89,7 @@ public class CompilationInfoExtractor {
 				configuration.currentDependencies(Arrays.asList(reader.readLine().split(",")));
 				break;
 			case SNAPSHOT_DISTRIBUTION:
-				configuration.releaseDistributionRepository(confOf(reader.readLine().split("#")));
+				configuration.snapshotDistributionRepository(confOf(reader.readLine().split("#")));
 				break;
 			case RELEASE_DISTRIBUTION:
 				configuration.releaseDistributionRepository(confOf(reader.readLine().split("#")));
