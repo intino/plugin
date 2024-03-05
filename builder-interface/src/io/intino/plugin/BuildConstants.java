@@ -23,6 +23,8 @@ public class BuildConstants {
 	public static final String END_ACTIONS_MESSAGE = "/%postaction%%";
 	public static final String TO_RECOMPILE_END = "/%rc";
 	public static final String MESSAGES_START = "%%m";
+	public static final String ERROR_MESSAGE_START = "%%merror";
+	public static final String ERROR_MESSAGE_END = "/%%merror";
 	public static final String MESSAGES_END = "/%m";
 	public static final String SEPARATOR = "#%%#%%%#%%%%%%%%%#";
 	public static final String PRESENTABLE_MESSAGE = "@#$%@# Presentable:";

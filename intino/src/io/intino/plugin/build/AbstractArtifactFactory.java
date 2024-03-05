@@ -189,7 +189,7 @@ public abstract class AbstractArtifactFactory {
 	protected boolean askForReleaseDistribute() {
 		AtomicBoolean response = new AtomicBoolean(false);
 		ApplicationManager.getApplication().invokeAndWait(() -> response.set(new IntinoConfirmationDialog(project,
-				"You aren't in master branch. Changes will be merged into master and pushed. Do you want to continue?",
+				"You aren't in main branch. Changes will be merged into main and pushed. Do you want to continue?",
 				"Release Distribution. Are You Sure to Distribute a Release Version?").showAndGet()));
 		return response.get();
 	}

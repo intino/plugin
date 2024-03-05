@@ -161,7 +161,7 @@ Concept Argument is component
 	var string name
 	var string value
 
-Concept Project
+Concept:{0..1} Project
 	var string description = empty
 	Concept:{0..1} Scm
 		var string url

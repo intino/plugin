@@ -16,7 +16,6 @@
         <tara.generation.package>io.intino.legio.model</tara.generation.package>
         <tara.language>Proteo</tara.language>
         <tara.language.version>1.0.0</tara.language.version>
-        <tara.excluded_phases>8</tara.excluded_phases>
         <tara.out.language>Legio</tara.out.language>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
