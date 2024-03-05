@@ -106,14 +106,13 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		Object userObject = ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
 		if (!(userObject instanceof DependencyNode)) return;
 		JBPopupMenu options = new JBPopupMenu("options");
-		JBMenuItem item2 = deleteAndReloadAction(treePath, (DependencyNode) userObject);
-		options.add(item2);
+		options.add(deleteAndReloadAction(treePath, (DependencyNode) userObject));
 		options.show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	@NotNull
 	private JBMenuItem deleteAndReloadAction(TreePath treePath, DependencyNode userObject) {
-		JBMenuItem item = new JBMenuItem("Delete from Local Repository and Reload it");
+		JBMenuItem item = new JBMenuItem("Delete from Local Repository, flushed cache, and Reload it");
 		item.setAction(new AbstractAction("Delete from Local Repository and Reload it") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -125,6 +124,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 	}
 
 	private void purgeAndReload(String mavenId, DefaultMutableTreeNode treeNode) {
+		MavenDependencyResolver.resetSession();
 		new DependencyPurger().purgeDependency(mavenId);
 		invalidateAndReload(treeNode);
 	}

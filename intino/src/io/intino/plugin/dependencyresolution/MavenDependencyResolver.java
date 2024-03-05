@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.aether.resolution.ResolutionErrorPolicy.CACHE_DISABLED;
 
 public class MavenDependencyResolver {
 	private static RepositorySystem system;
@@ -60,7 +61,7 @@ public class MavenDependencyResolver {
 		if (session == null) session = buildSession(localRepo);
 	}
 
-	static void resetSession() {
+	public static void resetSession() {
 		File basedir = session.getLocalRepository().getBasedir();
 		session = null;
 		init(basedir.getAbsolutePath());
@@ -129,7 +130,7 @@ public class MavenDependencyResolver {
 	private static RepositorySystemSession buildSession(String localRepo) {
 		var session = MavenRepositorySystemUtils.newSession();
 		return session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository(localRepo)))
-				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(ResolutionErrorPolicy.CACHE_DISABLED))
+				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(CACHE_DISABLED, 0))
 				.setCache(new DefaultRepositoryCache());
 	}
 }
