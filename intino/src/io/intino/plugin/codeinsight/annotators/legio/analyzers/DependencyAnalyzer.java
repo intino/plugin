@@ -1,5 +1,6 @@
 package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import io.intino.Configuration;
@@ -22,6 +23,7 @@ import static io.intino.plugin.project.LibraryConflictResolver.VersionRange.*;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class DependencyAnalyzer extends TaraAnalyzer {
+	private static final com.intellij.openapi.diagnostic.Logger LOG = Logger.getInstance(DependencyAnalyzer.class);
 	private final Mogram dependencyNode;
 	private final ArtifactLegioConfiguration configuration;
 	private final Module module;
