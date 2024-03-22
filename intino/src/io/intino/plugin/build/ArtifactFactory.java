@@ -88,7 +88,8 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 			notifyErrors();
 			return;
 		}
-		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && distributed) process(callback);
+		if (phase == FactoryPhase.DEPLOY && !isSnapshot() && distributed)
+			process(callback, !isSnapshot() && distributed);
 		else {
 			final CompilerManager compilerManager = CompilerManager.getInstance(project);
 			CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
@@ -153,23 +154,25 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private CompileStatusNotification processArtifact(FinishCallback callback) {
 		return (aborted, errors, warnings, compileContext) -> {
-			if (!aborted && errors == 0) process(callback);
+			if (!aborted && errors == 0) process(callback, false);
 		};
 	}
 
-	private void process(FinishCallback callback) {
+	private void process(FinishCallback callback, boolean distributed) {
 		saveAll();
 		withTask(new Task.Backgroundable(project, firstUpperCase(phase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				if (!(configuration instanceof ArtifactLegioConfiguration)) return;
-				if (!checker.webServiceIsCompiled(module)) {
-					indicator.setText("Building UI services");
-					compileUI();
-				}
-				if (!checker.webServiceIsCompiled(module)) {
-					errorMessages.add("Impossible to build UI services. Please build them manualy");
-					return;
+				if (!distributed) {
+					if (!(configuration instanceof ArtifactLegioConfiguration)) return;
+					if (!checker.webServiceIsCompiled(module)) {
+						indicator.setText("Building UI services");
+						compileUI();
+					}
+					if (!checker.webServiceIsCompiled(module)) {
+						errorMessages.add("Impossible to build UI services. Please build them manually");
+						return;
+					}
 				}
 				ProcessResult result = process(indicator);
 				if (indicator.isCanceled()) return;

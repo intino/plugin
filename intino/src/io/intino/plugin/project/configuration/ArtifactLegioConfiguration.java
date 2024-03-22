@@ -186,8 +186,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 	}
 
 	@NotNull
-	private ConfigurationReloader reloader(String updatePolicyDaily) {
-		return new ConfigurationReloader(module, ArtifactLegioConfiguration.this, updatePolicyDaily);
+	private ConfigurationReloader reloader(String updatePolicy) {
+		return new ConfigurationReloader(module, ArtifactLegioConfiguration.this, updatePolicy);
 	}
 
 	public void purgeAndReload() {

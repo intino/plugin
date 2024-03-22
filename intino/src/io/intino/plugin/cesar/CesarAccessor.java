@@ -61,7 +61,7 @@ public class CesarAccessor {
 		try {
 			checkCredentials();
 			if (accessor == null) return null;
-			return accessor.getServers();
+			return accessor.getServers(List.of(project.getName().split("\\.")));
 		} catch (InternalServerError | Unauthorized e) {
 			return Collections.emptyList();
 		}

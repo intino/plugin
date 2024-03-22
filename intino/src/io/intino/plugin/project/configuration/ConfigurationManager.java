@@ -15,7 +15,7 @@ import java.util.Set;
 public class ConfigurationManager {
 
 	private static final Map<Module, Configuration> registeredModules = new HashMap<>();
-	private static Map<Project, ProjectConfiguration> projectConfigurations = new HashMap<>();
+	private static final Map<Project, ProjectConfiguration> projectConfigurations = new HashMap<>();
 	private static final Set<Class<? extends Configuration>> providers = new LinkedHashSet<>();
 
 	public static Configuration register(Module module, Configuration configuration) {

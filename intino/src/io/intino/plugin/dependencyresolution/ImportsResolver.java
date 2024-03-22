@@ -10,6 +10,7 @@ import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Artifact.Dependency.Web;
 import io.intino.Configuration.Repository;
+import io.intino.alexandria.logger.Logger;
 import io.intino.plugin.dependencyresolution.DependencyCatalog.DependencyScope;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
@@ -23,10 +24,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.intino.plugin.dependencyresolution.MavenDependencyResolver.dependenciesFrom;
 
 public class ImportsResolver {
+	private static final com.intellij.openapi.diagnostic.Logger LOG = com.intellij.openapi.diagnostic.Logger.getInstance(ImportsResolver.class.getName());
+
 	private final Module module;
 	private final List<Repository> repositories;
 	private final String updatePolicy;
@@ -51,6 +55,7 @@ public class ImportsResolver {
 			catalog.addAll(dependenciesFrom(result, false));
 		} catch (DependencyResolutionException e) {
 			Notifications.Bus.notify(new Notification("Intino", "Dependency not found", e.getMessage(), NotificationType.ERROR), null);
+			Logger.warn(e.getMessage() + "\n" + repositories.stream().map(this::toString).collect(Collectors.joining("\n")));
 			DependencyResult result = e.getResult();
 			catalog.addAll(dependenciesFrom(result, false));
 		}
@@ -60,6 +65,10 @@ public class ImportsResolver {
 				.filter(Objects::nonNull)
 				.forEach(m -> catalog.add(m, JavaScopes.COMPILE));
 		return catalog;
+	}
+
+	private String toString(Repository r) {
+		return String.join("; ", r.url(), r.identifier(), r.user(), r.password(), r.updatePolicy().name());
 	}
 
 	public DependencyCatalog resolveWeb(List<Web> webs) {
