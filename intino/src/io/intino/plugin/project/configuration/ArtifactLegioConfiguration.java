@@ -63,7 +63,6 @@ public class ArtifactLegioConfiguration implements Configuration {
 	private final Module module;
 	private final Resolver resolver;
 	private final AtomicBoolean reloading = new AtomicBoolean(false);
-	private TaraModel legioFile;
 	private VirtualFile vFile;
 	private boolean ignited = false;
 
@@ -78,7 +77,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
 					vFile = new LegioFileCreator(module, Collections.emptyList()).getArtifact();
-					legioFile = legioFile();
+					TaraModel legioFile = legioFile();
 					ApplicationManager.getApplication().runReadAction(() -> legioFile.components().forEach(resolver::resolve));
 					final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
 					indicator.setText("Resolving box builder...");
@@ -120,6 +119,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> {
+				TaraModel legioFile = legioFile();
 				if (legioFile == null) return;
 				FileDocumentManager instance = FileDocumentManager.getInstance();
 				Document document = instance.getDocument(legioFile.getVirtualFile());
@@ -140,7 +140,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 							 public void run(@NotNull ProgressIndicator indicator) {
 								 try {
 									 reloading.set(true);
-									 if (legioFile == null) legioFile = legioFile();
+									 TaraModel legioFile = legioFile();
 									 final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
 									 indicator.setText("Reloading box builder...");
 									 reloader.reloadInterfaceBuilder();
@@ -200,7 +200,6 @@ public class ArtifactLegioConfiguration implements Configuration {
 											  @Override
 											  public void run(@NotNull ProgressIndicator indicator) {
 												  reloading.set(true);
-												  if (legioFile == null) legioFile = legioFile();
 												  final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_ALWAYS);
 												  indicator.setText("Reloading box builder...");
 												  reloader.reloadInterfaceBuilder();
@@ -218,26 +217,26 @@ public class ArtifactLegioConfiguration implements Configuration {
 	@Override
 	@NotNull
 	public LegioArtifact artifact() {
-		return new LegioArtifact(this, (TaraMogram) TaraPsiUtil.componentOfType(legioFile, "Artifact"));
+		return new LegioArtifact(this, (TaraMogram) TaraPsiUtil.componentOfType(legioFile(), "Artifact"));
 	}
 
 	@Override
 	@NotNull
 	public List<Server> servers() {
-		List<Server> servers = componentsOfType(legioFile, "Server").stream().map(n -> new LegioServer((TaraMogram) n)).collect(Collectors.toList());
+		List<Server> servers = componentsOfType(legioFile(), "Server").stream().map(n -> new LegioServer((TaraMogram) n)).collect(Collectors.toList());
 		servers.addAll(safeList(() -> ConfigurationManager.projectConfigurationOf(module).project().servers()));
 		return servers;
 	}
 
 	public List<RunConfiguration> runConfigurations() {
-		List<Mogram> runConfiguration = componentsOfType(legioFile, "RunConfiguration");
+		List<Mogram> runConfiguration = componentsOfType(legioFile(), "RunConfiguration");
 		return runConfiguration.stream().map(r -> new LegioRunConfiguration(artifact(), r)).collect(Collectors.toList());
 	}
 
 	@Override
 	@NotNull
 	public List<Repository> repositories() {
-		List<Repository> repositories = componentsOfType(legioFile, "Repository").stream().
+		List<Repository> repositories = componentsOfType(legioFile(), "Repository").stream().
 				map(MogramContainer::components).
 				flatMap(Collection::stream).
 				map(this::repository).
@@ -258,8 +257,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 	private void restartCodeAnalyzer() {
 		Application application = ApplicationManager.getApplication();
 		DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(module.getProject());
-		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile);
-		else application.runReadAction(() -> codeAnalyzer.restart(legioFile));
+		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile());
+		else application.runReadAction(() -> codeAnalyzer.restart(legioFile()));
 	}
 
 	public VirtualFile legiovFile() {

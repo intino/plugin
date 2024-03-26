@@ -74,6 +74,9 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 
 	private Artifact.Dependency findDependencyNode() {
 		if (configuration == null) return null;
-		return safeList(() -> configuration.artifact().dependencies()).stream().filter(d -> dependencyNode.equals(((LegioDependency) d).node())).findFirst().orElse(null);
+		return safeList(() -> configuration.artifact().dependencies()).stream()
+				.filter(d -> dependencyNode.equals(((LegioDependency) d).node()))
+				.findFirst()
+				.orElse(null);
 	}
 }
