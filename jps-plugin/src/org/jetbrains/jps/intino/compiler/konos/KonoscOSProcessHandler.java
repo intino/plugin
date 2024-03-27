@@ -163,7 +163,7 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 			for (BuildMessage message : messages)
 				if (message.getKind() == Kind.ERROR)
 					return messages;
-			messages.add(new CompilerMessage(KONOSC, Kind.ERROR, "Internal Konosc error:" + exitValue));
+			messages.add(new CompilerMessage(KONOSC, Kind.ERROR, "Internal Konosc error:" + exitValue + ".\n" + getStdErr()));
 		}
 		return messages;
 	}
@@ -182,7 +182,9 @@ class KonoscOSProcessHandler extends BaseOSProcessHandler {
 		if (getStdErr().length() > 0) {
 			if (Arrays.stream(getStdErr().toString().split("\n")).allMatch(l -> l.startsWith("WARNING:"))) return false;
 			LOG.debug("Non-empty stderr: '" + getStdErr() + "'");
-			LOG.error(getStdErr().toString());
+			String error = getStdErr().toString();
+			compilerMessages.add(new CompilerMessage(KONOSC, Kind.ERROR, "Internal Konosc error:" + error));
+			LOG.error(error);
 			return true;
 		}
 		return false;

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.intino.konos.compiler.shared.KonosBuildConstants.KONOSC;
 import static io.intino.tara.builder.shared.TaraBuildConstants.*;
 import static io.intino.tara.builder.shared.TaraCompilerMessageCategories.ERROR;
 import static io.intino.tara.builder.shared.TaraCompilerMessageCategories.WARNING;
@@ -152,8 +153,7 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 			for (CompilerMessage message : messages)
 				if (message.getKind() == BuildMessage.Kind.ERROR)
 					return messages;
-			messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.ERROR, "Internal Tarac error:" + exitValue));
-		}
+			messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.ERROR, "Internal Tarac error:" + exitValue + ".\n" + getStdErr()));		}
 		return messages;
 	}
 
