@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>io.intino.tara</groupId>
 			<artifactId>language</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>io.intino.magritte</groupId>
 			<artifactId>io</artifactId>
-			<version>4.0.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.resolver</groupId>
@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-settings-builder</artifactId>
-			<version>3.8.1</version>
+			<version>3.9.6</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

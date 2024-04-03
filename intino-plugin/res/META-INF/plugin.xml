@@ -64,7 +64,6 @@
 		<gotoRelatedProvider implementation="io.intino.plugin.codeinsight.TaraRelatedFilesProvider"/>
 		<problemFileHighlightFilter implementation="io.intino.plugin.codeinsight.TaraProblemFileHighlightFilter"/>
 		<compileServer.plugin classpath="jps-plugin.jar"/>
-		<fileEditorProvider implementation="io.intino.plugin.stash.StashEditorProvider"/>
 		<notificationGroup id="Intino" displayType="BALLOON"/>
 		<projectService serviceInterface="io.intino.plugin.lang.psi.TaraElementFactory"
 						serviceImplementation="io.intino.plugin.lang.psi.impl.TaraElementFactoryImpl"/>
