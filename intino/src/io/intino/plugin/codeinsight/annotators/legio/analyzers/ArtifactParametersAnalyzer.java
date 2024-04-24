@@ -36,7 +36,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 
 	@Override
 	public void analyze() {
-		if (configuration.artifact().dsls().isEmpty()) return;
+		if (configuration== null || configuration.artifact().dsls().isEmpty()) return;
 		Map<String, String> dslParameters = collectDslParameters();
 		Map<String, String> notFoundParameters = dslParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, dslParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())

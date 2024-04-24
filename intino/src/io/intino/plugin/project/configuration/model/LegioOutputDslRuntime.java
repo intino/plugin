@@ -9,6 +9,7 @@ import java.util.Collections;
 import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
 import static io.intino.builder.BuildConstants.*;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOrDefault;
+import static io.intino.plugin.project.Safe.safe;
 
 public class LegioOutputDslRuntime implements Configuration.Artifact.Dsl.Runtime {
 	private final LegioOutputDsl outputDsl;
@@ -21,17 +22,17 @@ public class LegioOutputDslRuntime implements Configuration.Artifact.Dsl.Runtime
 
 	@Override
 	public String groupId() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "groupId", 0), outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_GROUP_ID)));
+		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "groupId", 0), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_GROUP_ID))));
 	}
 
 	@Override
 	public String artifactId() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "artifactId", 1), outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_ARTIFACT_ID)));
+		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "artifactId", 1), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_ARTIFACT_ID))));
 	}
 
 	@Override
 	public String version() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "version", 2), outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_VERSION)));
+		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "version", 2), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_VERSION))));
 	}
 
 	@Override
