@@ -18,7 +18,8 @@
         konos dsl for layered architecture modeling and legio dsl for continuous integration modeling.
     ]]></description>
 	<change-notes>
-		Say goodbye to compiler internal error without more info
+		Now DSLs are reflected in Legio configuration.
+		In addition, are presented new file icons and unified builder interface. for all of them
 	</change-notes>
 
 	<idea-version since-build="233.13135"/>
