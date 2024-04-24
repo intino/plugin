@@ -2,7 +2,6 @@ package io.intino.plugin.dependencyresolution;
 
 import io.intino.Configuration.Artifact;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.eclipse.aether.DefaultRepositoryCache;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -130,7 +129,6 @@ public class MavenDependencyResolver {
 	private static RepositorySystemSession buildSession(String localRepo) {
 		var session = MavenRepositorySystemUtils.newSession();
 		return session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository(localRepo)))
-				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(CACHE_DISABLED, 0))
-				.setCache(new DefaultRepositoryCache());
+				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(CACHE_DISABLED, 0));
 	}
 }
