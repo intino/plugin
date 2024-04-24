@@ -50,7 +50,10 @@ public class DslBuilderManager {
 	public void resolveBuilder() {
 		try {
 			Dsl.Builder builder = dsl.builder();
-			final DependencyResult resolution = resolver.resolve(new DefaultArtifact(builder.groupId(), builder.artifactId(), "jar", builder.version()), JavaScopes.COMPILE);
+			DefaultArtifact artifact = new DefaultArtifact(builder.groupId(), builder.artifactId(), "jar", builder.version());
+			if (artifact.getGroupId().isEmpty() || artifact.getArtifactId().isEmpty() || artifact.getVersion().isEmpty())
+				return;
+			final DependencyResult resolution = resolver.resolve(artifact, JavaScopes.COMPILE);
 			saveClassPath(librariesOf(dependenciesFrom(resolution, false)));
 			updateCache(builder);
 		} catch (DependencyResolutionException e) {

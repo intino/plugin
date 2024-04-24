@@ -2,9 +2,6 @@ package io.intino.plugin.lang;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -84,7 +81,6 @@ public class LanguageManager {
 		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
-		Notifications.Bus.notify(new Notification("Intino", "", "Language " + dsl + " reloaded", NotificationType.INFORMATION), project);
 	}
 
 	@SuppressWarnings("WeakerAccess")

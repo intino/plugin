@@ -210,6 +210,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		if (dsls.isEmpty()) return false;
 		for (Configuration.Artifact.Dsl dsl : dsls) {
 			Configuration.Artifact.Dsl.OutputDsl outputDsl = dsl.outputDsl();
+			if (outputDsl == null) continue;
 			File languageFile = LanguageManager.getLanguageFile(outputDsl.name(), outputDsl.version());
 			if (checker.shouldDistributeLanguage(phase, module, dsl) && !languageFile.exists() && hasDslFiles(((ArtifactLegioConfiguration) configuration).module()))
 				return true;

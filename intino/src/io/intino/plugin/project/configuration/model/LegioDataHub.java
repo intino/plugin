@@ -2,6 +2,7 @@ package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraMogram;
+import org.eclipse.aether.util.artifact.JavaScopes;
 
 public class LegioDataHub extends LegioDependency implements Configuration.Artifact.Dependency.DataHub {
 
@@ -11,6 +12,6 @@ public class LegioDataHub extends LegioDependency implements Configuration.Artif
 
 	@Override
 	public String scope() {
-		return "Compile";
+		return JavaScopes.COMPILE;
 	}
 }

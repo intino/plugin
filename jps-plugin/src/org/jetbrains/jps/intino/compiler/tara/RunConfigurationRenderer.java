@@ -95,6 +95,8 @@ public class RunConfigurationRenderer {
 	}
 
 	private void writePaths(IntinoPaths paths, StringWriter writer) {
+		writer.write(PROJECT_PATH + NL + paths.projectPath + NL);
+		writer.write(MODULE_PATH + NL + paths.modulePath + NL);
 		writer.write(OUTPUTPATH + NL + paths.genRoot + NL);
 		writer.write(FINAL_OUTPUTPATH + NL + paths.finalOutput + NL);
 		writer.write(RES_PATH + NL + paths.resRoot + NL);

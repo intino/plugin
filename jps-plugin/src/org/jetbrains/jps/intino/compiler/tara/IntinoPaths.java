@@ -21,6 +21,7 @@ import java.util.Map;
 import static org.jetbrains.jps.intino.compiler.Directories.*;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
+import static org.jetbrains.jps.model.serialization.JpsModelSerializationDataService.getBaseDirectory;
 
 public class IntinoPaths {
 	public String[] srcRoots;
@@ -29,6 +30,8 @@ public class IntinoPaths {
 	public String finalOutput;
 	public String repository;
 	public String intinoConfDirectory;
+	public String projectPath;
+	public String modulePath;
 
 	public static IntinoPaths load(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs, JpsProject project) {
 		IntinoPaths paths = new IntinoPaths();
@@ -40,6 +43,8 @@ public class IntinoPaths {
 		paths.resRoot = chunk.containsTests() ? testResourcesDirectory(module).getPath() : getResourcesDirectory(module).getPath();
 		paths.repository = new File(new File(System.getProperty("user.home")), M2_DIRECTORY).getAbsolutePath();
 		paths.intinoConfDirectory = intinoDirectoryPath(project);
+		paths.projectPath = JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath();
+		paths.modulePath = getBaseDirectory(module).getAbsolutePath();
 		if (chunk.containsTests())
 			paths.srcRoots = new String[]{testSourceRoot != null ? testSourceRoot.getFile().getAbsolutePath() : null};
 		else paths.srcRoots = getSourceRoots(module).stream()
