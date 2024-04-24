@@ -3,6 +3,7 @@ package org.jetbrains.jps.intino.model.impl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.CompileContext;
+import org.jetbrains.jps.incremental.ProjectBuildException;
 import org.jetbrains.jps.intino.model.JpsIntinoExtensionService;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.module.JpsModule;
@@ -23,7 +24,11 @@ public class JpsIntinoExtensionServiceImpl extends JpsIntinoExtensionService {
 	@Nullable
 	@Override
 	public JpsModuleConfiguration getConfiguration(@NotNull JpsModule module, CompileContext context) {
-		return new JpsConfigurationLoader(module, context).load();
+		try {
+			return new JpsConfigurationLoader(module, context).load();
+		} catch (ProjectBuildException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Nullable

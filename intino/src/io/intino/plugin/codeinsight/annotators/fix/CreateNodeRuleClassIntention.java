@@ -33,7 +33,7 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 	public CreateNodeRuleClassIntention(Rule rule) {
 		this.rule = rule;
 		this.node = TaraPsiUtil.getContainerByType((TaraRule) rule, Mogram.class);
-		if (node != null) this.rulesPath = IntinoUtil.modelPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
+		if (node != null) this.rulesPath = IntinoUtil.dslGenerationPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@NotNull

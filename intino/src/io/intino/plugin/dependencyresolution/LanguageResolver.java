@@ -4,15 +4,13 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import io.intino.Configuration;
-import io.intino.Configuration.Artifact.Model;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.Configuration.Repository;
+import io.intino.builder.BuildConstants;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.plugin.project.builders.ModelBuilderManager;
-import io.intino.tara.dsls.Meta;
-import io.intino.tara.dsls.Proteo;
-import io.intino.tara.dsls.Tara;
-import org.jetbrains.annotations.NotNull;
+import io.intino.plugin.project.DslBuilderManager;
+import org.eclipse.aether.graph.Dependency;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,62 +20,59 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import static io.intino.builder.BuildConstants.normalizeForManifest;
+import static io.intino.plugin.project.Safe.safe;
+
 public class LanguageResolver {
 	private static final Logger LOG = Logger.getInstance(LanguageResolver.class);
 	private final Module module;
 	private final List<Repository> repositories;
-	private final Model model;
-	private final String version;
 
-	public LanguageResolver(Module module, Model model, String version, List<Repository> repositories) {
+	public LanguageResolver(Module module, List<Repository> repositories) {
 		this.module = module;
 		this.repositories = repositories;
-		this.model = model;
-		this.version = version;
 	}
 
-	public void resolve() {
-		if (model == null) return;
-		new LanguageImporter(module, model, repositories).importLanguage();
-		LanguageManager.silentReload(this.module.getProject(), model.language().name(), version);
-		new ModelBuilderManager(module, repositories, model).resolveBuilder();
+	public List<Dependency> resolve(Dsl dsl, String version) {
+		if (dsl == null) return null;
+		List<Dependency> languageDependencies = new DslImporter(module, dsl, repositories).importLanguage();
+		LanguageManager.silentReload(this.module.getProject(), dsl.name(), version);
+		new DslBuilderManager(module, repositories, dsl).resolveBuilder();
+		return languageDependencies;
 	}
 
-	public String frameworkCoors() {
-		return languageId(model.language().name(), version);
+	public String runtimeCoors(Dsl dsl, String version) {
+		return runtimeCoors(dsl.name(), version);
 	}
 
 	public static Module moduleDependencyOf(Module languageModule, String language, String version) {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).toList();
 		for (Module m : modules) {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
-			if (configuration == null || configuration.artifact().model() == null) continue;
-			if (language.equalsIgnoreCase(configuration.artifact().model().outLanguage())) return m;
+			if (configuration != null || safe(() -> configuration.artifact().dsls().stream().anyMatch(d -> language.equalsIgnoreCase(d.outputDsl().name())), false))
+				return m;
 		}
 		return null;
 	}
 
-	public static String languageId(String language, String version) {
-		if (isMagritteLibrary(language)) return magritteID(version);
+	public static String runtimeCoors(String language, String version) {
 		final File languageFile = LanguageManager.getLanguageFile(language, version);
 		if (!languageFile.exists()) return null;
 		else try (JarFile jarFile = new JarFile(languageFile)) {
 			Manifest manifest = jarFile.getManifest();
 			final Attributes tara = manifest.getAttributes("tara");
 			if (tara == null) return null;
-			return tara.getValue("framework");
+			String framework = tara.getValue("framework");
+			return framework != null ? framework : coors(tara);
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
 
-	@NotNull
-	private static String magritteID(String version) {
-		return Tara.GROUP_ID + ":" + Tara.ARTIFACT_ID + ":" + version;
-	}
-
-	private static boolean isMagritteLibrary(String language) {
-		return Proteo.class.getSimpleName().equals(language) || Meta.class.getSimpleName().equals(language);
+	private static String coors(Attributes tara) {
+		return String.join(":", tara.getValue(normalizeForManifest(BuildConstants.RUNTIME_GROUP_ID)),
+				tara.getValue(normalizeForManifest(BuildConstants.RUNTIME_ARTIFACT_ID)),
+				tara.getValue(normalizeForManifest(BuildConstants.RUNTIME_VERSION)));
 	}
 }

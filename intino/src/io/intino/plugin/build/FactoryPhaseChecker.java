@@ -60,14 +60,13 @@ public class FactoryPhaseChecker {
 	}
 
 
-	boolean shouldDistributeLanguage(FactoryPhase lifeCyclePhase, Module module) {
+	boolean shouldDistributeLanguage(FactoryPhase lifeCyclePhase, Module module, Configuration.Artifact.Dsl dsl) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof ArtifactLegioConfiguration)) return false;
-		if (noDistributionRepository(lifeCyclePhase, configuration)) return false;
+		if (!(configuration instanceof ArtifactLegioConfiguration) || noDistributionRepository(lifeCyclePhase, configuration))
+			return false;
 		Configuration.Distribution distribution = safe(() -> configuration.artifact().distribution());
 		if (distribution != null && !distribution.distributeLanguage()) return false;
-		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
-		return model != null && model.level() != null && !model.level().isModel() && lifeCyclePhase.mavenActions().contains("deploy");
+		return dsl.outputDsl() != null && lifeCyclePhase.mavenActions().contains("deploy");
 	}
 
 	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {

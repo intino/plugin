@@ -4,25 +4,25 @@ Concept:{1..1}:Named Artifact
 	var string groupId
 	var string version
 	var string description = empty
-	Concept:{0..1} Model
-		var string language
+	Concept:{0..1} License > var word:{GPL BSD LGPL} type
+	Concept Dsl
+		var string name
 		var string version
-		var string sdkVersion
-		var string sdk = "io.intino.magritte:builder"
-		var string effectiveVersion = "" is private
-		var string outLanguage = 'self.graph().artifact().name$()'
-		var word[]:{ExcludeFrameworkCode ExcludeLanguageCode} exclude = empty
-	Concept:{0..1} License
-		var word:{GPL BSD LGPL} type
+		Concept:{0..1} Builder
+			var string groupId = empty
+			var string artifactId = empty
+			var string version = empty
+			var string generationPackage = empty
+			var word[]:{ExcludeCodeBaseGeneration ExcludeLanguageGeneration} exclude = empty
+		Concept:{0..1} OutputDsl
+			var string name = empty
+			Concept:{0..1} Runtime extends Library
+			Concept:{0..1} Builder extends Library
+
 	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} Archetype extends Artifact.Imports.Dependency
 	Concept:{0..1} Imports
-		Concept Dependency
-			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-			var string name = '"Legio: " + self.identifier()' is private reactive
-			var string groupId
-			var string artifactId
-			var string version
+		Concept Dependency extends Library
 			var string effectiveVersion = "" is private
 			var boolean transitive = true
 			var boolean resolved = false is private
@@ -34,11 +34,7 @@ Concept:{1..1}:Named Artifact
 			sub Runtime
 			sub Provided
 			sub Test
-		Concept Web
-			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-			var string groupId
-			var string artifactId
-			var string version
+		Concept Web extends Library
 			var boolean resolved = false is private
 	Concept:{0..1} WebImports
 		var string webDirectory = "lib"
@@ -48,26 +44,11 @@ Concept:{1..1}:Named Artifact
 		Concept WebComponent
 			var string url = ""
 			var string version
-		Concept:Named WebArtifact
-			var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-			var string groupId
-			var string artifactId
-			var string version
-	Concept:{0..1} Box
-		var string language
-		var string version
-		var string sdk = empty
-		var string effectiveVersion = "" is private
-		var string targetPackage = "box"
+		Concept:Named WebArtifact extends Library
+
 	Concept:{0..1} Code
-		var string targetPackage =  'return self.core$().ownerAs(io.intino.legio.model.Artifact.class).groupId() + "." + self.core$().ownerAs(io.intino.legio.model.Artifact.class).name$().replace("-","").replace("_","");'
-		var string modelSubPackage = "model"
-		var string boxSubPackage = "box"
-	Concept IntinoPlugin
-		var string identifier = 'self.groupId() + ":" + self.artifactId() + ":" + self.version()' is private reactive
-		var string groupId
-		var string artifactId
-		var string version
+		var string targetPackage = empty
+	Concept IntinoPlugin extends Library
 		var word:{Export PostCompilation PrePackage PostPackage PostDistribution} phase = PrePackage
 
 	Concept:{0..1} Package
@@ -84,16 +65,17 @@ Concept:{1..1}:Named Artifact
 			var string code
 		Facet Runnable
         	var string mainClass
-		Facet MacOS with Runnable
+		Facet MacOSApp with Runnable
         	var string macIcon
         	var string resourceDirectory = empty
-        Facet Windows with Runnable
+        Facet WindowsApp with Runnable
         	var string windowsIcon
-		Facet LinuxService with Runnable
+		Facet LinuxServiceRPM with Runnable
 			var string user
 			var RunConfiguration runConfiguration
 			var boolean restartOnFailure
 			var integer managementPort
+			var boolean distribute
 
 	has Parameter
 	Concept:{0..1} Distribution
@@ -160,6 +142,11 @@ Concept Parameter is component
 Concept Argument is component
 	var string name
 	var string value
+
+Concept Library is abstract
+	var string groupId
+	var string artifactId
+	var string version
 
 Concept:{0..1} Project
 	var string description = empty

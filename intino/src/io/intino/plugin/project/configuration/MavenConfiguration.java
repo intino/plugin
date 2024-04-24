@@ -111,8 +111,9 @@ public class MavenConfiguration implements Configuration {
 				};
 			}
 
-			public Artifact.Model model() {
-				return new Artifact.Model() {
+			@Override
+			public List<Dsl> dsls() {
+				return List.of(new Dsl() {
 					@Override
 					public Configuration root() {
 						return null;
@@ -124,52 +125,181 @@ public class MavenConfiguration implements Configuration {
 					}
 
 					@Override
-					public Artifact.Model.Language language() {
-						return new Artifact.Model.Language() {
+					public String name() {
+						return maven == null ? null : maven.getProperties().getProperty(MavenTags.DSL);
+					}
+
+					@Override
+					public String version() {
+						return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_VERSION);
+					}
+
+					@Override
+					public String effectiveVersion() {
+						return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_VERSION);
+					}
+
+					@Override
+					public String generationPackage() {
+						return null;
+					}
+
+					@Override
+					public void effectiveVersion(String version) {
+
+					}
+
+					@Override
+					public void version(String version) {
+						new MavenHelper(module).dslVersion(mavenHelper.dslMavenId(module, name()), version);//TODO
+					}
+
+					@Override
+					public Builder builder() {
+						return new Builder() {
 							@Override
-							public String name() {
-								return maven == null ? null : maven.getProperties().getProperty(MavenTags.DSL);
+							public String groupId() {
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_BUILDER_GROUP_ID);
 							}
+
+							@Override
+							public String artifactId() {
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_BUILDER_ARTIFACT_ID);							}
 
 							@Override
 							public String version() {
-								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_VERSION);
-							}
-
-							@Override
-							public String effectiveVersion() {
-								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_VERSION);
-							}
-
-							@Override
-							public void effectiveVersion(String version) {
-
-							}
-
-							@Override
-							public void version(String version) {
-								new MavenHelper(module).dslVersion(mavenHelper.dslMavenId(module, name()), version);//TODO
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_BUILDER_VERSION);
 							}
 
 							@Override
 							public String generationPackage() {
-								return name();
+								if (maven == null) return "";
+								String property = maven.getProperties().getProperty(MavenTags.DSL_BUILDER_GENERATION_PACKAGE);
+								return property == null? name():property;
+							}
+
+							@Override
+							public List<ExcludedPhases> excludedPhases() {
+								return List.of();
+							}
+
+							@Override
+							public void version(String version) {
+
+							}
+
+							@Override
+							public Configuration root() {
+								return null;
+							}
+
+							@Override
+							public ConfigurationNode owner() {
+								return null;
 							}
 						};
 					}
 
 					@Override
-					public String outLanguage() {
-						if (maven == null) return null;
-						final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL);
-						return outDSL != null ? outDSL : "";
+					public Runtime runtime() {
+						return new Runtime() {
+							@Override
+							public String groupId() {
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_RUNTIME_GROUP_ID);
+							}
+
+							@Override
+							public String artifactId() {
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_RUNTIME_ARTIFACT_ID);							}
+
+							@Override
+							public String version() {
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_RUNTIME_VERSION);
+							}
+
+							@Override
+							public void version(String version) {
+
+							}
+
+							@Override
+							public Configuration root() {
+								return null;
+							}
+
+							@Override
+							public ConfigurationNode owner() {
+								return null;
+							}
+						};
 					}
 
 					@Override
-					public String outLanguageVersion() {
-						if (maven == null) return null;
-						final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL_VERSION);
-						return outDSL != null ? outDSL : "";
+					public OutputDsl outputDsl() {
+						return new OutputDsl() {
+							@Override
+							public Configuration root() {
+								return null;
+							}
+
+							@Override
+							public ConfigurationNode owner() {
+								return null;
+							}
+
+							@Override
+							public String name() {
+								if (maven == null) return null;
+								final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL);
+								return outDSL != null ? outDSL : "";
+							}
+
+							@Override
+							public String version() {
+								if (maven == null) return null;
+								final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL_VERSION);
+								return outDSL != null ? outDSL : "";
+							}
+
+							@Override
+							public OutputBuilder builder() {
+								return new OutputBuilder() {
+									@Override
+									public String groupId() {
+										return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_OUTPUT_BUILDER_GROUP_ID);
+									}
+
+									@Override
+									public String artifactId() {
+										return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_OUTPUT_BUILDER_ARTIFACT_ID);							}
+
+									@Override
+									public String version() {
+										return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_OUTPUT_BUILDER_VERSION);
+									}
+
+									@Override
+									public void version(String version) {
+
+									}
+
+									@Override
+									public Configuration root() {
+										return null;
+									}
+
+									@Override
+									public ConfigurationNode owner() {
+										return null;
+									}
+								};
+							}
+
+							@Override
+							public Runtime runtime() {
+								return null;
+							}
+						};
 					}
 
 					@Override
@@ -179,26 +309,8 @@ public class MavenConfiguration implements Configuration {
 						return property == null ? Level.MetaMetaModel : Level.valueOf(property);
 					}
 
-					@Override
-					public String sdkVersion() {
-						return null;
-					}
 
-					@Override
-					public String sdk() {
-						return null;
-					}
-
-					@Override
-					public List<ExcludedPhases> excludedPhases() {
-						return List.of();
-					}
-				};
-			}
-
-			@Override
-			public Box box() {
-				return null;
+				});
 			}
 
 			@Override

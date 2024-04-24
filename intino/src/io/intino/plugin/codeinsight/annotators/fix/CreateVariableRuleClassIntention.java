@@ -36,7 +36,7 @@ public class CreateVariableRuleClassIntention extends ClassCreationIntention {
 		this.rule = rule;
 		this.variable = TaraPsiUtil.getContainerByType((TaraRule) rule, Variable.class);
 		if (variable != null)
-			this.rulesPath = IntinoUtil.modelPackage((PsiElement) variable).toLowerCase() + RULES_PACKAGE;
+			this.rulesPath = IntinoUtil.dslGenerationPackage((PsiElement) variable).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@NotNull

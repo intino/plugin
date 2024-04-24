@@ -46,6 +46,13 @@ public class IntinoIcons {
 	public static Icon ICON_13 = RETINA ? scale(getIcon("/icons/icon-26.png", IntinoIcons.class)) : getIcon("/icons/icon-13.png", IntinoIcons.class);
 	public static Icon ICON_16 = RETINA ? scale(getIcon("/icons/icon-32.png", IntinoIcons.class)) : getIcon("/icons/icon-16.png", IntinoIcons.class);
 
+	public static Icon fileIcon(String dsl) {
+		if (dsl == null || dsl.isEmpty()) return ICON_16;
+		String c = String.valueOf(dsl.charAt(0)).toLowerCase();
+		return RETINA ?
+				scale(getIcon("/icons/files/" + c + "-32.png", IntinoIcons.class)) :
+				getIcon("/icons/files/" + c + "-16.png", IntinoIcons.class);
+	}
 
 	public static class Operations {
 		public static class Dark {

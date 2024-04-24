@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -76,14 +75,12 @@ public class ArtifactLegioConfiguration implements Configuration {
 			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
-					vFile = new LegioFileCreator(module, Collections.emptyList()).getArtifact();
+					vFile = new LegioFileCreator(module, new String[0]).getArtifact();
 					TaraModel legioFile = legioFile();
 					ApplicationManager.getApplication().runReadAction(() -> legioFile.components().forEach(resolver::resolve));
 					final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
-					indicator.setText("Resolving box builder...");
-					reloader.reloadInterfaceBuilder();
-					indicator.setText("Reloading language...");
-					reloader.reloadLanguage();
+					indicator.setText("Resolving dsls...");
+					reloader.reloadDsls();
 					reloader.reloadArtifactoriesMetaData();
 					loadRemoteProcessesInfo();
 					if (Boolean.TRUE.equals(safe(() -> artifact().packageConfiguration().createMavenPom())))
@@ -142,8 +139,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 									 reloading.set(true);
 									 TaraModel legioFile = legioFile();
 									 final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
-									 indicator.setText("Reloading box builder...");
-									 reloader.reloadInterfaceBuilder();
+									 indicator.setText("Resolving dsls...");
+									 reloader.reloadDsls();
 									 indicator.setText("Resolving imports...");
 									 reloader.reloadDependencies();
 									 reloader.reloadRunConfigurations();
@@ -201,8 +198,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 											  public void run(@NotNull ProgressIndicator indicator) {
 												  reloading.set(true);
 												  final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_ALWAYS);
-												  indicator.setText("Reloading box builder...");
-												  reloader.reloadInterfaceBuilder();
+												  indicator.setText("Resolving dsls...");
+												  reloader.reloadDsls();
 												  indicator.setText("Resolving imports...");
 												  reloader.reloadDependencies();
 												  save();
@@ -283,8 +280,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 	public void save() {
 		LegioArtifact artifact = artifact();
 		if (module == null || ModuleType.get(module) instanceof WebModuleType) return;
-		if (artifact.model() != null || artifact.box() != null) try {
-			Files.write(confFile().toPath(), artifact.serialize());
+		if (!artifact.dsls().isEmpty()) try {
+			Files.writeString(confFile().toPath(), new ArtifactSerializer(artifact).serialize());
 		} catch (IOException e) {
 			LOG.error(e);
 		}

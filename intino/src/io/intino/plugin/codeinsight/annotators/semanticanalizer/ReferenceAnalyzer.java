@@ -22,14 +22,12 @@ import io.intino.plugin.codeinsight.annotators.imports.CreateNodeQuickFix;
 import io.intino.plugin.codeinsight.annotators.imports.ImportQuickFix;
 import io.intino.plugin.codeinsight.annotators.imports.TaraReferenceImporter;
 import io.intino.plugin.codeinsight.languageinjection.CreateFunctionInterfaceIntention;
-import io.intino.plugin.highlighting.TaraSyntaxHighlighter;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.resolve.MethodReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.OutDefinedReferenceSolver;
 import io.intino.plugin.lang.psi.resolve.TaraMogramReferenceSolver;
-import io.intino.plugin.messages.MessageProvider;
 import io.intino.tara.Language;
 import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.Primitive;
@@ -41,6 +39,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.intino.plugin.highlighting.TaraSyntaxHighlighter.UNRESOLVED_ACCESS;
+import static io.intino.plugin.messages.MessageProvider.message;
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.INSTANCE;
 import static java.util.Collections.singletonList;
@@ -63,7 +63,7 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 		final PsiElement resolve = aReference.resolve();
 		if (resolve != null) return;
 		if (isInstanceReference() && aReference instanceof TaraMogramReferenceSolver)
-			results.put(reference, new AnnotateAndFix(INSTANCE, MessageProvider.message("node.reference")));
+			results.put(reference, new AnnotateAndFix(INSTANCE, message("node.reference")));
 		else if (TaraPsiUtil.contextOf(reference, TaraVariableType.class) == null || !isConceptReference())
 			setError(aReference, element);
 	}
@@ -86,15 +86,15 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 	}
 
 	private void createGeneralError(Identifier element) {
-		results.put(element, new AnnotateAndFix(ERROR, MessageProvider.message(MESSAGE), TaraSyntaxHighlighter.UNRESOLVED_ACCESS));
+		results.put(element, new AnnotateAndFix(ERROR, message(MESSAGE), UNRESOLVED_ACCESS));
 	}
 
 	private void createNodeError(Identifier element) {
-		results.put(element, new AnnotateAndFix(ERROR, MessageProvider.message(MESSAGE), TaraSyntaxHighlighter.UNRESOLVED_ACCESS, createNodeReferenceFixes(element)));
+		results.put(element, new AnnotateAndFix(ERROR, message(MESSAGE), UNRESOLVED_ACCESS, createNodeReferenceFixes(element)));
 	}
 
 	private void createMethodReferenceError(Identifier element) {
-		results.put(element, new AnnotateAndFix(ERROR, MessageProvider.message(MESSAGE), TaraSyntaxHighlighter.UNRESOLVED_ACCESS, createMethodReferenceFixes(element)));
+		results.put(element, new AnnotateAndFix(ERROR, message(MESSAGE), UNRESOLVED_ACCESS, createMethodReferenceFixes(element)));
 	}
 
 	private void createOutDefinedReferenceError(Identifier element) {
@@ -102,9 +102,9 @@ public class ReferenceAnalyzer extends TaraAnalyzer {
 		if (variable == null) return;
 		Rule rule = TaraPsiUtil.getContainerByType(element, Rule.class);
 		if (rule == null)
-			results.put(element, new AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.rule"), TaraSyntaxHighlighter.UNRESOLVED_ACCESS));
+			results.put(element, new AnnotateAndFix(ERROR, message("error.link.to.rule"), UNRESOLVED_ACCESS));
 		else
-			results.put(element, new AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.rule"), TaraSyntaxHighlighter.UNRESOLVED_ACCESS, collectFixes(variable, rule)));
+			results.put(element, new AnnotateAndFix(ERROR, message("error.link.to.rule"), UNRESOLVED_ACCESS, collectFixes(variable, rule)));
 	}
 
 	private IntentionAction[] collectFixes(Variable variable, Rule rule) {

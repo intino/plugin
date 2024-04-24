@@ -23,26 +23,14 @@ public class IntinoDirectory {
 		return artifacts == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "artifacts")) : new File(artifacts.getPath());
 	}
 
-	public static File auditDirectory(Project project) {
+	public static File dslDirectory(Project project, String dsl) {
 		VirtualFile baseDir = vfOf(project);
-		VirtualFile audit = baseDir.findChild("audit");
-		return audit == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "audit")) : new File(audit.getPath());
+		VirtualFile model = baseDir.findChild(dsl);
+		return model == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, dsl)) : new File(model.getPath());
 	}
 
-	public static File modelDirectory(Project project) {
-		VirtualFile baseDir = vfOf(project);
-		VirtualFile model = baseDir.findChild("model");
-		return model == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "model")) : new File(model.getPath());
-	}
-
-	public static File boxDirectory(Project project) {
-		VirtualFile baseDir = vfOf(project);
-		VirtualFile box = baseDir.findChild("box");
-		return box == null ? VfsUtil.virtualToIoFile(createDirectory(baseDir, "box")) : new File(box.getPath());
-	}
-
-	public static File boxDirectory(Module module) {
-		File file = boxDirectory(module.getProject());
+	public static File dslDirectory(Module module, String dsl) {
+		File file = dslDirectory(module.getProject(), dsl);
 		File moduleBox = new File(file, module.getName());
 		moduleBox.mkdirs();
 		return moduleBox;

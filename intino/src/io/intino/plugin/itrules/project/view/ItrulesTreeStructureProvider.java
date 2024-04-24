@@ -28,15 +28,14 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 		if (parent.getValue() instanceof NodeView) return children;
 		Collection<AbstractTreeNode<?>> result = new LinkedHashSet<>();
 		for (AbstractTreeNode<?> element : children) {
-			if (element instanceof PsiDirectoryNode) {
-				result.add(element);
-				continue;
+			if (element instanceof PsiDirectoryNode) result.add(element);
+			else {
+				ItrulesTemplate itrFile = asItrFile(element);
+				if (isTemplateClass(children, element)) continue;
+				if (itrFile == null && (!isJavaClass(element) || !isTemplateClass(children, element)))
+					result.add(element);
+				else result.add(new NodeView(project, itrFile, settings));
 			}
-			ItrulesTemplate itrFile = asItrFile(element);
-			if (isJavaClass(element) && isTemplateClass(children, element)) continue;
-			if (itrFile == null && (!isJavaClass(element) || !isTemplateClass(children, element)))
-				result.add(element);
-			else result.add(new NodeView(project, itrFile, settings));
 		}
 		return result;
 	}
@@ -46,12 +45,10 @@ public class ItrulesTreeStructureProvider implements TreeStructureProvider {
 	}
 
 	private boolean isTemplateClass(Collection<AbstractTreeNode<?>> children, AbstractTreeNode<?> element) {
+		if (!isJavaClass(element)) return false;
 		PsiJavaFile file = (PsiJavaFile) element.getValue();
 		final String javaClassName = FileUtilRt.getNameWithoutExtension(file.getName());
-		for (AbstractTreeNode<?> mogram : children)
-			if (asItrFile(mogram) != null && (((ItrulesTemplate) mogram.getValue()).getPresentableName() + "Template").equals(javaClassName))
-				return true;
-		return false;
+		return children.stream().anyMatch(mogram -> asItrFile(mogram) != null && (((ItrulesTemplate) mogram.getValue()).getPresentableName() + "Template").equals(javaClassName));
 	}
 
 	private ItrulesTemplate asItrFile(AbstractTreeNode<?> element) {

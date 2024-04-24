@@ -12,7 +12,6 @@ import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.ArtifactorySensor;
-import io.intino.plugin.project.builders.BoxBuilderManager;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.intino.Configuration.Artifact;
+import static io.intino.Configuration.Artifact.Dsl.Builder.ExcludedPhases.ExcludeCodeBaseGeneration;
 import static io.intino.Configuration.RunConfiguration;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -30,7 +30,7 @@ public class ConfigurationReloader {
 	private final Configuration configuration;
 	private final String updatePolicy;
 	private final Artifact artifact;
-	private final Artifact.Model model;
+	private final List<Artifact.Dsl> dsls;
 	private final List<Repository> repositories;
 	private final Module module;
 	private ProgressIndicator indicator;
@@ -41,7 +41,7 @@ public class ConfigurationReloader {
 		this.updatePolicy = updatePolicy;
 		this.artifact = configuration.artifact();
 		this.repositories = this.configuration.repositories();
-		this.model = safe(artifact::model);
+		this.dsls = safe(artifact::dsls);
 		this.indicator = null;
 	}
 
@@ -50,10 +50,8 @@ public class ConfigurationReloader {
 		this.indicator = indicator;
 	}
 
-	void reloadInterfaceBuilder() {
-		final Artifact.Box box = safe(artifact::box);
-		if (box != null && box.version() != null)
-			box.effectiveVersion(new BoxBuilderManager(module, repositories).load(box.version()));
+	void reloadDsls() {
+		dsls.forEach(this::resolve);
 	}
 
 	void reloadRunConfigurations() {
@@ -66,20 +64,17 @@ public class ConfigurationReloader {
 	}
 
 	void reloadArtifactoriesMetaData() {
-		new ArtifactorySensor(repositories, safe(() -> configuration.artifact().model().sdk()))
-				.update(safe(() -> configuration.artifact().model().language().name(), null));
+		ArtifactorySensor sensor = new ArtifactorySensor(repositories);
+		for (Artifact.Dsl dsl : dsls) {
+			sensor.update(dsl);
+
+		}
 	}
 
 	void reloadDependencies() {
 		if (configuration == null || configuration.artifact() == null) return;
 		resolveJavaDependencies();
 		resolveWebDependencies();
-	}
-
-	void reloadLanguage() {
-		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
-		if (language == null || language.name() == null) return;
-		resolveLanguage();
 	}
 
 	private void resolveJavaDependencies() {
@@ -89,18 +84,32 @@ public class ConfigurationReloader {
 		if (datahub != null) artifactDependencies.add(0, datahub);
 		Dependency.Archetype archetype = artifact.archetype();
 		if (archetype != null) artifactDependencies.add(0, archetype);
-		if (model != null) {
-			String frameworkCoors = resolveLanguage();
-			if (!model.excludedPhases().contains(Artifact.Model.ExcludedPhases.ExcludeFrameworkCode))
-				artifactDependencies.add(0, languageDependency(frameworkCoors.split(":")));
+		for (Artifact.Dsl dsl : dsls) {
+			var deps = resolve(dsl);
+			if (!dsl.builder().excludedPhases().contains(ExcludeCodeBaseGeneration))
+				artifactDependencies.add(0, asDependency(new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.effectiveVersion()),JavaScopes.COMPILE));
+			artifactDependencies.add(0, asDependency(language(deps), JavaScopes.PROVIDED));
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
-		if (!artifactDependencies.isEmpty())
-			dependencies.merge(resolver.resolve(artifactDependencies));
+		if (!artifactDependencies.isEmpty()) dependencies.merge(resolver.resolve(artifactDependencies));
 		dependencies.merge(resolver.resolveWeb(webDependencies(artifactDependencies)));
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed()) register(dependencies);
 		else application.invokeLater(() -> register(dependencies));
+	}
+
+	@NotNull
+	private static String language(List<org.eclipse.aether.graph.Dependency> deps) {
+		return deps.stream().map(org.eclipse.aether.graph.Dependency::getArtifact)
+				.filter(d -> d.getArtifactId().equalsIgnoreCase("language"))
+				.findFirst().map(d -> String.join(":", d.getGroupId(), d.getArtifactId(), d.getVersion()))
+				.get();
+	}
+
+	private List<org.eclipse.aether.graph.Dependency> resolve(Artifact.Dsl dsl) {
+		final String effectiveVersion = dsl.effectiveVersion();
+		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? dsl.version() : effectiveVersion;
+		return new LanguageResolver(module, repositories).resolve(dsl, version);
 	}
 
 	private void register(DependencyCatalog dependencies) {
@@ -122,18 +131,9 @@ public class ConfigurationReloader {
 			new WebDependencyResolver(module, artifact, repositories).resolve();
 	}
 
-	private String resolveLanguage() {
-		Artifact.Model.Language language = model.language();
-		final String effectiveVersion = language.effectiveVersion();
-		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? language.version() : effectiveVersion;
-		LanguageResolver languageResolver = new LanguageResolver(module, model, version, repositories);
-		languageResolver.resolve();
-		return languageResolver.frameworkCoors();
-
-	}
-
 	@NotNull
-	private static Dependency.Compile languageDependency(String[] coors) {
+	private static Dependency.Compile asDependency(String coorsText, String scope) {
+		String[] coors = coorsText.split(":");
 		return new Dependency.Compile() {
 			@Override
 			public String groupId() {
@@ -157,7 +157,7 @@ public class ConfigurationReloader {
 
 			@Override
 			public String scope() {
-				return JavaScopes.COMPILE;
+				return scope;
 			}
 
 			@Override
@@ -188,6 +188,16 @@ public class ConfigurationReloader {
 			@Override
 			public void toModule(boolean toModule) {
 
+			}
+
+			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
 			}
 		};
 	}

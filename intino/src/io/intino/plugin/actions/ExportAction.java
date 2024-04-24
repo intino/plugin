@@ -2,7 +2,7 @@ package io.intino.plugin.actions;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -12,9 +12,9 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import io.intino.Configuration;
-import io.intino.konos.compiler.shared.KonosBuildConstants;
+import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.actions.box.KonosRunner;
+import io.intino.plugin.actions.box.DslExportRunner;
 import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.plugins.PluginExecutor;
@@ -39,7 +39,7 @@ public class ExportAction {
 	public void execute(Module module, FactoryPhase phase) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration)) {
-			Notifications.Bus.notify(new Notification("Intino",
+			Bus.notify(new Notification("Intino",
 					phase.gerund() + " exports", "Impossible identify module scope", NotificationType.ERROR));
 			return;
 		}
@@ -47,25 +47,23 @@ public class ExportAction {
 		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				runBoxExports(phase, module, (ArtifactLegioConfiguration) configuration, indicator);
+				runDslExports(phase, module, (ArtifactLegioConfiguration) configuration, indicator);
 				runPlugins(module, phase, (ArtifactLegioConfiguration) configuration, indicator);
 			}
 		});
 	}
 
-	private void runBoxExports(FactoryPhase factoryPhase, Module module, ArtifactLegioConfiguration configuration, ProgressIndicator indicator) {
+	private void runDslExports(FactoryPhase factoryPhase, Module module, ArtifactLegioConfiguration configuration, ProgressIndicator indicator) {
 		if (factoryPhase == FactoryPhase.DISTRIBUTE && !hasDistribution(configuration)) {
 			notifyError("Distribution repository not found", module);
 			return;
 		}
-		Configuration.Artifact.Box box = configuration.artifact().box();
-		if (box != null) {
-			final String version = box.version();
+		for (Configuration.Artifact.Dsl dsl : configuration.artifact().dsls()) {
+			final String version = dsl.version();
 			if (version == null || version.isEmpty()) return;
 			try {
-				File temp = Files.createTempDirectory("box_accessors").toFile();
-				KonosRunner konosRunner = new KonosRunner(module, configuration, KonosBuildConstants.Mode.Accessors, temp.getAbsolutePath());
-				konosRunner.runKonosCompiler();
+				File temp = Files.createTempDirectory(dsl.name() + "_accessors").toFile();
+				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, temp.getAbsolutePath()).runExport();
 				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);
 				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
 				else publisher.publish();
@@ -99,6 +97,6 @@ public class ExportAction {
 
 
 	private void notifyError(String message, Module module) {
-		Notifications.Bus.notify(new Notification("Intino", "Elements cannot be generated. ", message, ERROR), module.getProject());
+		Bus.notify(new Notification("Intino", "Elements cannot be generated. ", message, ERROR), module.getProject());
 	}
 }

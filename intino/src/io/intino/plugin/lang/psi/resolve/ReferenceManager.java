@@ -240,12 +240,12 @@ public class ReferenceManager {
 	}
 
 	private static PsiElement resolveRuleToClass(Rule rule) {
-		return resolveJavaClassReference(rule.getProject(), IntinoUtil.modelPackage(rule).toLowerCase() + ".rules." + rule.getText());
+		return resolveJavaClassReference(rule.getProject(), IntinoUtil.dslGenerationPackage(rule).toLowerCase() + ".rules." + rule.getText());
 	}
 
 	private static PsiElement resolveNativeClass(Rule rule, Project project) {
 		if (rule == null) return null;
-		String aPackage = IntinoUtil.modelPackage(rule) + '.' + "functions";
+		String aPackage = IntinoUtil.dslGenerationPackage(rule) + '.' + "functions";
 		return resolveJavaClassReference(project, aPackage.toLowerCase() + '.' + capitalize(rule.getText()));
 	}
 
@@ -266,7 +266,7 @@ public class ReferenceManager {
 	}
 
 	public static PsiElement resolveTaraNativeImplementationToJava(Valued valued) {
-		String workingPackage = IntinoUtil.modelPackage(valued);
+		String workingPackage = IntinoUtil.dslGenerationPackage(valued);
 		if (ModuleProvider.moduleOf(valued) == null) return null;
 		if (workingPackage.isEmpty())
 			workingPackage = ModuleProvider.moduleOf(valued).getName();

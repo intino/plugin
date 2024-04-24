@@ -40,8 +40,7 @@ public class EditElementDocumentation extends PsiElementBaseIntentionAction {
 		if (docMap == null) docMap = new HashMap<>();
 		final String qn = createQn(element);
 		DialogBuilder builder = new DialogBuilder(project);
-		final String text = createDialog(builder, docMap.get(qn));
-		docMap.put(qn, text);
+		docMap.put(qn, createDialog(builder, docMap.get(qn)));
 		TaraDocumentationProvider.saveDocumentation(docMap, docFile);
 	}
 

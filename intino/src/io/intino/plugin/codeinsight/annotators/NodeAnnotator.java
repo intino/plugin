@@ -38,13 +38,11 @@ public class NodeAnnotator extends TaraAnnotator {
 	}
 
 	private void asModel(AnnotationHolder holder, TaraModel model) {
-		TaraAnalyzer analyzer = new ModelAnalyzer(model);
-		analyzeAndAnnotate(holder, analyzer);
+		analyzeAndAnnotate(holder, new ModelAnalyzer(model));
 	}
 
 	private void asNodeReference(AnnotationHolder holder, TaraMogramReference nodeReference) {
-		TaraAnalyzer analyzer = new NodeReferenceAnalyzer(nodeReference);
-		analyzeAndAnnotate(holder, analyzer);
+		analyzeAndAnnotate(holder, new NodeReferenceAnalyzer(nodeReference));
 	}
 
 	private void addInstanceAnnotation(AnnotationHolder holder, Mogram node) {

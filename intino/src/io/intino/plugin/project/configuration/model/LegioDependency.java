@@ -94,6 +94,16 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 		return mogram.getText();
 	}
 
+	@Override
+	public Configuration root() {
+		return null;
+	}
+
+	@Override
+	public Configuration.ConfigurationNode owner() {
+		return null;
+	}
+
 	public static class LegioExclude implements Exclude {
 		private final TaraMogram node;
 

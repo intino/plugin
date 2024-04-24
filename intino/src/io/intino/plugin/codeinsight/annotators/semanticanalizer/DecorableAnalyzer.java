@@ -4,6 +4,7 @@ import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
+import io.intino.Configuration.Artifact.Dsl.Builder;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
 import io.intino.plugin.codeinsight.annotators.fix.SyncDecorableClassIntention;
 import io.intino.plugin.lang.psi.TaraMogram;
@@ -28,7 +29,7 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 
 	public DecorableAnalyzer(TaraMogram mogram) {
 		this.mogram = mogram;
-		modelPackage = IntinoUtil.modelPackage(mogram).toLowerCase();
+		modelPackage = IntinoUtil.dslGenerationPackage(mogram).toLowerCase();
 	}
 
 	@Override
@@ -37,8 +38,8 @@ public class DecorableAnalyzer extends TaraAnalyzer {
 		if (!mogram.is(Tag.Decorable)) return;
 		Module module = ModuleProvider.moduleOf(mogram);
 		if (module == null) return;
-		String builder = safe(() -> IntinoUtil.configurationOf(module).artifact().model().sdk());
-		if (builder != null && !builder.contains("magritte")) return;
+		Builder builder = safe(() -> IntinoUtil.dsl(mogram).builder());
+		if (builder != null && !builder.groupId().contains("magritte")) return;
 		PsiClass aClass = JavaPsiFacade.getInstance(mogram.getProject()).findClass(modelPackage + "." + format(mogram.name()), moduleScope(module));
 		if (aClass == null) {
 			results.put(mogram.getSignature(), new TaraAnnotator.AnnotateAndFix(ERROR, MessageProvider.message("error.link.to.decorable"), collectFixes()));

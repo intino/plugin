@@ -33,7 +33,7 @@ public class CreateFunctionInterfaceIntention extends ClassCreationIntention {
 		final VirtualFile srcRoot = IntinoUtil.getSrcRoot(ModuleProvider.moduleOf((PsiElement) variable));
 		this.srcDirectory = srcRoot == null ? null : new PsiDirectoryImpl((com.intellij.psi.impl.PsiManagerImpl) ((PsiElement) variable).getManager(), srcRoot);
 		this.module = ModuleProvider.moduleOf((PsiElement) variable);
-		this.destiny = IntinoUtil.findFunctionsDirectory(module, IntinoUtil.modelPackage(((PsiElement) variable).getContainingFile()));
+		this.destiny = IntinoUtil.findFunctionsDirectory(module, IntinoUtil.dslGenerationPackage(((PsiElement) variable).getContainingFile()));
 	}
 
 	@Nls

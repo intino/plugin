@@ -2,7 +2,6 @@ package io.intino.plugin.codeinsight.annotators.legio.analyzers;
 
 import com.intellij.psi.PsiElement;
 import io.intino.Configuration;
-import io.intino.Configuration.Artifact.Model.Level;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.legio.fix.AddParameterFix;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
@@ -10,7 +9,6 @@ import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
-import io.intino.plugin.project.configuration.model.LegioLanguage;
 import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.Parameter;
 
@@ -25,30 +23,29 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.intino.plugin.MessageProvider.message;
-import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
 public class ArtifactParametersAnalyzer extends TaraAnalyzer {
-	private final Mogram artifactNode;
+	private final Mogram artifactMogram;
 	private final ArtifactLegioConfiguration configuration;
 
-	public ArtifactParametersAnalyzer(Mogram node) {
-		this.artifactNode = node;
-		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf((PsiElement) artifactNode);
+	public ArtifactParametersAnalyzer(Mogram mogram) {
+		this.artifactMogram = mogram;
+		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf((PsiElement) artifactMogram);
 	}
 
 	@Override
 	public void analyze() {
-		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
-		if (model == null) return;
-		Map<String, String> languageParameters = collectLanguageParameters();
-		Map<String, String> notFoundParameters = languageParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, languageParameters::get, (a, b) -> b, LinkedHashMap::new));
+		if (configuration.artifact().dsls().isEmpty()) return;
+		Map<String, String> dslParameters = collectDslParameters();
+		Map<String, String> notFoundParameters = dslParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, dslParameters::get, (a, b) -> b, LinkedHashMap::new));
 		if (!notFoundParameters.isEmpty())
-			results.put(((TaraMogram) artifactNode).getSignature(), new AnnotateAndFix(ERROR, message("language.parameters.missing", Level.values()[model.level().ordinal() + 1].name()), new AddParameterFix((PsiElement) artifactNode, notFoundParameters)));
+			results.put(((TaraMogram) artifactMogram).getSignature(),
+					new AnnotateAndFix(ERROR, message("dsl.parameters.missing", "Dsl", new AddParameterFix((PsiElement) artifactMogram, notFoundParameters))));
 	}
 
 	private boolean isDeclared(String parameter) {
-		for (Mogram mogram : artifactNode.components()) {
+		for (Mogram mogram : artifactMogram.components()) {
 			final Parameter parameterNode = nameParameter(mogram);
 			if (mogram.type().endsWith("Parameter") && parameterNode != null && !parameterNode.values().isEmpty() && parameter.equals(parameterNode.values().get(0).toString()))
 				return true;
@@ -62,25 +59,30 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 		return null;
 	}
 
-	private Map<String, String> collectLanguageParameters() {
+	private Map<String, String> collectDslParameters() {
 		Map<String, String> map = new LinkedHashMap<>();
-		LegioLanguage language = (LegioLanguage) configuration.artifact().model().language();
-		final File languageFile = LanguageManager.getLanguageFile(language.name(), language.effectiveVersion());
-		if (!languageFile.exists()) return map;
-		return parameters(languageFile);
+		for (Configuration.Artifact.Dsl dsl : configuration.artifact().dsls()) {
+			final File languageFile = LanguageManager.getLanguageFile(dsl.name(), dsl.effectiveVersion());
+			if (languageFile.exists()) map.putAll(parameters(languageFile));
+		}
+		return map;
 	}
 
 	private Map<String, String> parameters(File languageFile) {
-		Map<String, String> map = new HashMap<>();
-		try {
-			final JarFile jarFile = new JarFile(languageFile);
+		Map<String, String> parameters = new HashMap<>();
+		try (final JarFile jarFile = new JarFile(languageFile)) {
 			final Manifest manifest = jarFile.getManifest();
-			final Attributes framework = manifest.getAttributes("framework");
-			if (framework == null) return map;
-			for (Map.Entry<Object, Object> entry : framework.entrySet())
-				map.put(entry.getKey().toString(), entry.getValue().toString());
+			add(manifest, "framework", parameters);
+			add(manifest, "runtime", parameters);
 		} catch (IOException ignored) {
 		}
-		return map;
+		return parameters;
+	}
+
+	private static void add(Manifest manifest, String name, Map<String, String> map) {
+		final Attributes attributes = manifest.getAttributes(name);
+		if (attributes != null)
+			for (Map.Entry<Object, Object> entry : attributes.entrySet())
+				map.put(entry.getKey().toString(), entry.getValue().toString());
 	}
 }

@@ -13,7 +13,6 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoIcons;
@@ -108,17 +107,6 @@ public class JoinToLegioAction extends AnAction implements DumbAware {
 					add("groupId", artifact.getGroupId()).
 					add("artifactId", artifact.getArtifactId()).
 					add("version", artifact.getVersion()).toFrame());
-		}
-		if (IntinoModuleType.isIntino(module)) {
-			builder.add("isIntino", "");
-			Configuration conf = IntinoUtil.configurationOf(module);
-			Configuration.Artifact.Model model = conf.artifact().model();
-			if (model != null)
-				builder.add("factory", new FrameBuilder("factory").
-						add("level", notNull(model.level().name())).
-						add("workingPackage", notNull(conf.artifact().code().generationPackage())).
-						add("dsl", notNull(model.language().name())).
-						add("dslVersion", model.language().version() == null ? "LATEST" : model.language().version()).toFrame());
 		}
 		return builder.toFrame();
 	}

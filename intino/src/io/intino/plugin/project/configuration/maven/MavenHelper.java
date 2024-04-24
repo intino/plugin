@@ -5,8 +5,6 @@ import com.intellij.openapi.module.ModuleManager;
 import io.intino.Configuration;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import io.intino.tara.dsls.MetaIdentifiers;
-import io.intino.tara.dsls.Proteo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -30,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public class MavenHelper implements MavenTags {
-
 	private final Module module;
 	private final MavenProject mavenProject;
 	private String path;
@@ -52,43 +49,6 @@ public class MavenHelper implements MavenTags {
 		return module == null ? null : MavenProjectsManager.getInstance(module.getProject()).findProject(module);
 	}
 
-	public String snapshotRepository() {
-		if (doc == null) return null;
-		NodeList nodes = doc.getElementsByTagName(REPOSITORY);
-		for (int i = 0; i < nodes.getLength(); i++)
-			if (isSnapshotRepository(nodes.item(i))) return snapshotURL(nodes.item(i));
-		return null;
-	}
-
-	private String snapshotURL(Node item) {
-		for (int i = 0; i < item.getChildNodes().getLength(); i++) {
-			Node child = item.getChildNodes().item(i);
-			if (child.getNodeName().equals(URL)) return child.getTextContent();
-		}
-		return null;
-	}
-
-	private boolean isSnapshotRepository(Node item) {
-		for (int i = 0; i < item.getChildNodes().getLength(); i++) {
-			Node child = item.getChildNodes().item(i);
-			if (child.getNodeName().equals(ID)) return child.getTextContent().toLowerCase().contains("snapshot");
-		}
-		return false;
-	}
-
-	boolean hasProteoDependency() {
-		NodeList dependencies = doc.getElementsByTagName(DEPENDENCY);
-		for (int i = 0; i < dependencies.getLength(); i++)
-			if (isMagritteDependency(dependencies.item(i))) return true;
-		return false;
-	}
-
-	void addProteo() {
-		if (doc == null) return;
-		Node dependencies = doc.getElementsByTagName(DEPENDENCIES).item(0);
-		dependencies.appendChild(createMagritteDependency());
-		commit();
-	}
 
 	public void version(String version) {
 		final Node versionNode = doc.getElementsByTagName(VERSION).item(0);
@@ -150,12 +110,6 @@ public class MavenHelper implements MavenTags {
 		commit();
 	}
 
-	private boolean isMagritteDependency(Node item) {
-		NodeList childNodes = item.getChildNodes();
-		String[] artifactInfo = getArtifactInfo(childNodes);
-		return Proteo.GROUP_ID.equals(artifactInfo[0]) && Proteo.ARTIFACT_ID.equals(artifactInfo[1]);
-	}
-
 	private void commit() {
 		try {
 			doc.getDocumentElement().normalize();
@@ -171,15 +125,6 @@ public class MavenHelper implements MavenTags {
 		}
 
 
-	}
-
-	private Node createMagritteDependency() {
-		Element dependency = doc.createElement(DEPENDENCY);
-		dependency.appendChild(groupId(doc, Proteo.GROUP_ID));
-		dependency.appendChild(artifactId(doc, Proteo.ARTIFACT_ID));
-		dependency.appendChild(version(doc, PROTEO_VERSION));
-		dependency.appendChild(type(doc, PROTEO_TYPE));
-		return dependency;
 	}
 
 	@NotNull
@@ -250,10 +195,8 @@ public class MavenHelper implements MavenTags {
 	}
 
 
-	public SimpleEntry dslMavenId(Module module, String dsl) {
-		if (MetaIdentifiers.PROTEO.equals(dsl)) return proteoId();
-		else if (dsl != null && dsl.equals(dsl()) && importedDSL())
-			return fromImportedInfo(dsl);
+	public SimpleEntry<String, String> dslMavenId(Module module, String dsl) {
+		if (dsl != null && dsl.equals(dsl()) && importedDSL()) return fromImportedInfo(dsl);
 		else return mavenId(parentModule(module, dsl));
 	}
 
@@ -261,31 +204,27 @@ public class MavenHelper implements MavenTags {
 		return true;//TODO
 	}
 
-	private SimpleEntry proteoId() {
-		return new SimpleEntry(Proteo.GROUP_ID, Proteo.ARTIFACT_ID);
-	}
-
-	private SimpleEntry mavenId(Module module) {
-		if (module == null) return new SimpleEntry("", "");
+	private SimpleEntry<String, String> mavenId(Module module) {
+		if (module == null) return new SimpleEntry<>("", "");
 		final MavenProject project = MavenProjectsManager.getInstance(module.getProject()).findProject(module);
-		if (project == null) return new SimpleEntry("", "");
-		return new SimpleEntry(project.getMavenId().getGroupId(), project.getMavenId().getArtifactId());
+		if (project == null) return new SimpleEntry<>("", "");
+		return new SimpleEntry<>(project.getMavenId().getGroupId(), project.getMavenId().getArtifactId());
 	}
 
 	private Module parentModule(Module module, String dsl) {
 		for (Module aModule : ModuleManager.getInstance(module.getProject()).getModules()) {
 			final Configuration conf = IntinoUtil.configurationOf(aModule);
-			if (conf != null && (dsl.equals(conf.artifact().model().outLanguage())))
+			if (conf != null && conf.artifact().dsls().stream().anyMatch(d -> d.name().equals(dsl)))
 				return aModule;
 		}
 		return null;
 	}
 
 	@NotNull
-	private SimpleEntry fromImportedInfo(String dsl) {
+	private SimpleEntry<String, String> fromImportedInfo(String dsl) {
 		final Map<String, Object> info = LanguageManager.getImportedLanguageInfo(dsl);
-		if (info.isEmpty()) return new SimpleEntry("", "");
-		return new SimpleEntry(info.get("groupId"), info.get("artifactId"));
+		if (info.isEmpty()) return new SimpleEntry<>("", "");
+		return new SimpleEntry<>(info.get("groupId").toString(), info.get("artifactId").toString());
 	}
 
 }

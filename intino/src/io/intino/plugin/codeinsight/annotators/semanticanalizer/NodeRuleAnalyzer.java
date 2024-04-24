@@ -33,7 +33,7 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 	public NodeRuleAnalyzer(TaraRuleContainer ruleContainer) {
 		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Mogram.class);
 		this.rule = ruleContainer.getRule();
-		this.rulesPackage = IntinoUtil.modelPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
+		this.rulesPackage = IntinoUtil.dslGenerationPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;
 	}
 
 	@Override

@@ -38,7 +38,7 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
+import static io.intino.plugin.dependencyresolution.LanguageResolver.runtimeCoors;
 import static io.intino.plugin.dependencyresolution.MavenDependencyResolver.dependenciesFrom;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
@@ -163,30 +163,26 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 		MavenDependencyResolver resolver = new MavenDependencyResolver(Repositories.of(module));
-		renderModel(parent, module, resolver, (ArtifactLegioConfiguration) configuration);
+		configuration.artifact().dsls().forEach(dsl -> renderDsl(parent, module, resolver, dsl));
 		renderDataHub(parent, module, (ArtifactLegioConfiguration) configuration);
 		renderArchetype(parent, module, (ArtifactLegioConfiguration) configuration);
 		renderDependencies(parent, module, (ArtifactLegioConfiguration) configuration);
 		tree.updateUI();
 	}
 
-	private void renderModel(DefaultMutableTreeNode parent, Module module, MavenDependencyResolver resolver, ArtifactLegioConfiguration configuration) {
-		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
-		if (model == null) return;
-		Configuration.Artifact.Model.Language language = model.language();
-		if (language.name() == null) return;
-		String languageId = languageId(language.name(), language.version());
+	private void renderDsl(DefaultMutableTreeNode parent, Module module, MavenDependencyResolver resolver, Configuration.Artifact.Dsl dsl) {
+		if (dsl.name() == null) return;
 		try {
-			var dependencies = resolver.resolve(new DefaultArtifact(languageId), JavaScopes.COMPILE);
-			renderDependency(parent, module, languageId, labelIdentifier(dependencies));
+			String runtimeCoors = runtimeCoors(dsl.name(), dsl.version());
+			var dependencies = resolver.resolve(new DefaultArtifact(runtimeCoors), JavaScopes.COMPILE);
+			renderDependency(parent, module, runtimeCoors, dslLabel(dependencies));
 		} catch (DependencyResolutionException ignored) {
 		}
 	}
 
 	private void renderDependencies(DefaultMutableTreeNode parent, Module module, ArtifactLegioConfiguration configuration) {
-		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies())) {
+		for (Dependency dependency : safeList(() -> configuration.artifact().dependencies()))
 			renderDependency(parent, module, dependency.identifier(), labelIdentifier(dependency));
-		}
 	}
 
 	private void renderDataHub(DefaultMutableTreeNode parent, Module module, ArtifactLegioConfiguration configuration) {
@@ -229,10 +225,9 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 
 	@NotNull
-	private String labelIdentifier(DependencyResult result) {
-		var dependencies = dependenciesFrom(result, false);
-		Artifact artifact = dependencies.get(0).getArtifact();
-		return label(artifact) + ":model";
+	private String dslLabel(DependencyResult result) {
+		Artifact artifact = dependenciesFrom(result, false).get(0).getArtifact();
+		return label(artifact) + ":dsl";
 	}
 
 	@NotNull

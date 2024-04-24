@@ -9,8 +9,8 @@
 	<artifactId>jps-plugin</artifactId>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>
@@ -50,14 +50,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.intino.tara</groupId>
-			<artifactId>builder-constants</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.intino.konos</groupId>
-			<artifactId>konos-builder-constants</artifactId>
-			<version>1.3.0</version>
+			<groupId>io.intino</groupId>
+			<artifactId>builder-interface</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 	</dependencies>
 </project>

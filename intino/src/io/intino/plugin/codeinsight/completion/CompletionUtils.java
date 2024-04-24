@@ -7,7 +7,6 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.FakePsiElement;
-import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.Language;
@@ -28,6 +27,7 @@ import java.util.Set;
 
 import static com.intellij.codeInsight.lookup.LookupElementBuilder.create;
 import static com.intellij.openapi.util.io.FileUtil.getNameWithoutExtension;
+import static io.intino.plugin.IntinoIconProvider.icon;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.aspectParameterConstraintsOf;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.parameterConstraintsOf;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerNodeOf;
@@ -162,7 +162,9 @@ public class CompletionUtils {
 	}
 
 	private LookupElementBuilder createElement(String fileName, Constraint.Component constraint, MogramContainer container) {
-		return create(new FakeElement(constraint.type(), (PsiElement) container), lastTypeOf(constraint.type()) + " ").withIcon(IntinoIcons.MOGRAM).withCaseSensitivity(true).withTypeText(fileName);
+		return create(new FakeElement(constraint.type(), (PsiElement) container), lastTypeOf(constraint.type()) + " ")
+				.withIcon(icon((PsiElement) container))
+				.withCaseSensitivity(true).withTypeText(fileName);
 	}
 
 	private List<LookupElementBuilder> createElement(String fileName, Constraint.OneOf constraint, MogramContainer container) {
@@ -176,14 +178,17 @@ public class CompletionUtils {
 	}
 
 	private LookupElementBuilder createElement(String language, Constraint.Facet aspect, MogramContainer container) {
-		return create(new FakeElement(aspect.type(), (PsiElement) container), lastTypeOf(aspect.type()) + " ").withIcon(IntinoIcons.MODEL_16).withCaseSensitivity(true).withTypeText(language);
+		return create(new FakeElement(aspect.type(), (PsiElement) container), lastTypeOf(aspect.type()) + " ")
+				.withIcon(icon((PsiElement) container))
+				.withCaseSensitivity(true).withTypeText(language);
 	}
 
 	private List<LookupElementBuilder> buildCompletionForParameters(List<Constraint.Parameter> constraints, List<Parameter> parameterList) {
 		Set<String> added = new HashSet<>();
 		return constraints.stream().
 				filter(c -> c != null && !contains(parameterList, c.name())).
-				map(this::createElement).filter(l -> added.add(l.getLookupString())).
+				map(c -> createElement(c, parameters.getPosition()))
+				.filter(l -> added.add(l.getLookupString())).
 				collect(toList());
 	}
 
@@ -191,16 +196,17 @@ public class CompletionUtils {
 		return parameters.stream().anyMatch(parameter -> name.equals(parameter.name()));
 	}
 
-	private LookupElementBuilder createElement(Constraint.Parameter allow) {
-		return create(allow.name() + " ").withIcon(IntinoIcons.MOGRAM).withCaseSensitivity(true).withTypeText(allow.type().getName());
+	private LookupElementBuilder createElement(Constraint.Parameter allow, @NotNull PsiElement position) {
+		return create(allow.name() + " ")
+				.withIcon(icon(position))
+				.withCaseSensitivity(true)
+				.withTypeText(allow.type().getName());
 	}
-
 
 	private static String shortType(String type) {
 		final String[] s = type.split("\\.");
 		return s[s.length - 1];
 	}
-
 
 	public static class FakeElement extends FakePsiElement implements NavigatablePsiElement {
 		private final String type;

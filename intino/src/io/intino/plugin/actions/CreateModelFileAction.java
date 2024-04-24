@@ -13,6 +13,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.utils.TaraTemplates;
 import io.intino.plugin.actions.utils.TaraTemplatesFactory;
@@ -37,20 +38,16 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 	}
 
 	@Override
-	protected void buildDialog(Project project, PsiDirectory directory, CreateFileFromTemplateDialog.Builder builder) {
+	protected void buildDialog(@NotNull Project project, @NotNull PsiDirectory directory, CreateFileFromTemplateDialog.Builder builder) {
 		builder.setTitle(MessageProvider.message("new.model.dlg.prompt"));
 		final Module module = ModuleProvider.moduleOf(directory);
 		if (!IntinoModuleType.isIntino(module))
 			throw new IncorrectOperationException(MessageProvider.message("tara.file.error"));
 		final Configuration conf = IntinoUtil.configurationOf(module);
-		Configuration.Artifact.Model model = safe(() -> conf.artifact().model());
-		if (isTest(directory, module)) {
-			if (model != null) builder.addKind(model.outLanguage(), IntinoIcons.MODEL_16, model.outLanguage());
-		} else {
-			Configuration.Artifact.Model.Language language = model.language();
-			if (language != null && !language.name().isEmpty())
-				builder.addKind(language.name(), IntinoIcons.MODEL_16, language.name());
-		}
+		for (Dsl dsl : conf.artifact().dsls())
+			if (isTest(directory, module))
+				builder.addKind(dsl.outputDsl().name(), IntinoIcons.fileIcon(dsl.name()), dsl.outputDsl().name());
+			else builder.addKind(dsl.name(), IntinoIcons.fileIcon(dsl.name()), dsl.name());
 	}
 
 	@Override
@@ -64,7 +61,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 		if (!(data instanceof PsiFile || data instanceof PsiDirectory)) return false;
 		Module module = ModuleProvider.moduleOf(data);
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && safe(() -> configuration.artifact().model().language()) != null;
+		return super.isAvailable(dataContext) && IntinoModuleType.isIntino(module) && Boolean.TRUE.equals(safe(() -> !configuration.artifact().dsls().isEmpty()));
 	}
 
 	@Nullable
@@ -75,12 +72,12 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 
 	@Nullable
 	@Override
-	protected TaraModelImpl doCreate(PsiDirectory directory, String newName, String dsl) throws IncorrectOperationException {
+	protected TaraModelImpl doCreate(PsiDirectory directory, String newName, String templateName) throws IncorrectOperationException {
 		String template = TaraTemplates.getTemplate("FILE");
-		String fileName = newName + "." + TaraFileType.instance().getDefaultExtension();
-		PsiFile file = TaraTemplatesFactory.createFromTemplate(directory, newName, fileName, template, true, "DSL", dsl);
+		String fileName = newName + "." + templateName.toLowerCase() + "." + TaraFileType.instance().getDefaultExtension();
+		PsiFile file = TaraTemplatesFactory.createFromTemplate(directory, newName, fileName, template, true, "DSL", templateName);
 		final Module module = ModuleProvider.moduleOf(directory);
-		if (isTest(directory, module)) TestClassCreator.creteTestClass(module, dsl, newName);
+		if (isTest(directory, module)) TestClassCreator.creteTestClass(module, template, newName);
 		return file instanceof TaraModelImpl ? (TaraModelImpl) file : error(file);
 	}
 
@@ -91,7 +88,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 	}
 
 	@Override
-	protected void postProcess(TaraModelImpl createdElement, String templateName, Map<String, String> customProperties) {
+	protected void postProcess(@NotNull TaraModelImpl createdElement, String templateName, Map<String, String> customProperties) {
 		super.postProcess(createdElement, templateName, customProperties);
 		setCaret(createdElement);
 		createdElement.navigate(true);

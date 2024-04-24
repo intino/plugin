@@ -14,9 +14,6 @@ import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.lang.psi.resolve.ReferenceManager;
-import io.intino.tara.Language;
-import io.intino.tara.dsls.Meta;
-import io.intino.tara.dsls.Proteo;
 import io.intino.tara.language.model.Facet;
 import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.semantics.Documentation;
@@ -33,6 +30,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static com.intellij.notification.NotificationType.ERROR;
+import static io.intino.plugin.project.Safe.safe;
 
 
 public class TaraDocumentationProvider extends AbstractDocumentationProvider {
@@ -97,10 +95,7 @@ public class TaraDocumentationProvider extends AbstractDocumentationProvider {
 	}
 
 	private String findDoc(String type, PsiElement anElement) {
-		final Language language = IntinoUtil.getLanguage(anElement);
-		if (language == null || language instanceof Proteo || language instanceof Meta)
-			return "**No documentation found for " + type + "**";
-		final Documentation doc = language.doc(type);
+		final Documentation doc = safe(() -> IntinoUtil.getLanguage(anElement).doc(type));
 		return doc != null && !doc.description().isEmpty() ? doc.description() : "**No documentation found for " + type + "**";
 	}
 

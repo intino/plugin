@@ -5,8 +5,7 @@ import io.intino.plugin.build.PostCompileAction;
 
 import java.util.List;
 
-import static io.intino.konos.compiler.shared.PostCompileActionMessage.ObjectType.*;
-import static io.intino.plugin.PostCompileActionMessage.ObjectType.INVOKE_MAVEN;
+import static io.intino.builder.PostCompileActionMessage.ObjectType.*;
 
 public class PostCompileActionFactory {
 	public static PostCompileAction get(Module module, String type, List<String> parameters) {
@@ -18,7 +17,7 @@ public class PostCompileActionFactory {
 			return new ConfigurationDependencyCreationAction(module, parameters);
 		if (type.equals(MODULE.name())) return new ModuleCreationAction(module, parameters);
 		if (type.equals(MAIN_CLASS.name())) return new MainClassCreationAction(module, parameters);
-		if (type.equals(INVOKE_MAVEN.name())) return new MavenInvokeAction(module, parameters);
+		if (type.equals(ARTIFACT_BUILD.name())) return new MavenInvokeAction(module, parameters);
 		return null;
 	}
 }

@@ -6,10 +6,14 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.psi.PsiJavaFile;
+import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.file.LegioFileType;
 import io.intino.plugin.lang.psi.TaraModel;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,9 +38,14 @@ public class TaraTreeStructureProvider implements com.intellij.ide.projectView.T
 			if (isJavaClass(element) && isMethodObjectClass(children, element)) continue;
 			if (taraModel == null && (!isJavaClass(element) || !isMethodObjectClass(children, element)))
 				result.add(element);
-			else result.add(new NodeView(project, taraModel, settings));
+			else result.add(new NodeView(project, taraModel, settings, iconOf(taraModel)));
 		}
 		return result;
+	}
+
+	private Icon iconOf(TaraModel taraModel) {
+		if (taraModel.getFileType().equals(LegioFileType.instance())) return LegioFileType.instance().getIcon();
+		return IntinoIcons.fileIcon(IntinoUtil.dslOf(taraModel));
 	}
 
 	private boolean isJavaClass(AbstractTreeNode<?> element) {

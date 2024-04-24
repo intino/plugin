@@ -47,7 +47,7 @@ import static com.intellij.openapi.module.WebModuleTypeBase.WEB_MODULE;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
-import static io.intino.plugin.dependencyresolution.LanguageResolver.languageId;
+import static io.intino.plugin.dependencyresolution.LanguageResolver.runtimeCoors;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.io.File.separator;
@@ -55,7 +55,6 @@ import static org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE;
 import static org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE;
-
 
 public class PomCreator {
 	private static final Logger LOG = Logger.getInstance(PomCreator.class.getName());
@@ -176,8 +175,7 @@ public class PomCreator {
 		Set<Module> dependantModules = collectDependantModules(module, new HashSet<>(), false);
 		if (!allModulesSeparated()) addDependantModuleAsSources(builder, dependantModules);
 		else builder.add("compile", " ");
-		Set<String> dependencies = new HashSet<>();
-		addLevelDependency(builder, dependencies);
+		Set<String> dependencies = new HashSet<>(dslDependencies(builder));
 		List<Dependency> moduleDependencies = collectDependencies();
 		for (Dependency dependency : moduleDependencies.stream().filter(d -> !d.scope().equalsIgnoreCase("test")).toList()) {
 			if (dependency.toModule() && isRegistered(dependantModules, dependency) && !allModulesSeparated())
@@ -232,15 +230,18 @@ public class PomCreator {
 		}
 	}
 
-	private void addLevelDependency(FrameBuilder builder, Set<String> dependencies) {
-		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
-		if (language != null) {
-			final String levelCoors = findLanguageId(language);
-			if (!levelCoors.isEmpty()) {
-				dependencies.add(levelCoors);
-				builder.add("dependency", createDependencyFrame(levelCoors.split(":")));
+	private List<String> dslDependencies(FrameBuilder builder) {
+		List<String> dependencies = new ArrayList<>();
+		for (Artifact.Dsl dsl : configuration.artifact().dsls()) {
+			if (dsl != null) {
+				final String dslCoors = findLanguageId(dsl);
+				if (!dslCoors.isEmpty()) {
+					dependencies.add(dslCoors);
+					builder.add("dependency", createDependencyFrame(dslCoors.split(":")));
+				}
 			}
 		}
+		return dependencies;
 	}
 
 	private void addDependantModuleLibraries(FrameBuilder builder, Dependency dependency, Set<String> dependencies) {
@@ -255,13 +256,10 @@ public class PomCreator {
 		safeList(() -> configuration.artifact().dependencies()).stream().
 				filter(d -> (d.toModule()) && !d.scope().equalsIgnoreCase("test") && dependencies.add(d.identifier())).
 				forEach(d -> addDependantModuleLibraries(builder, d, dependencies));
-		if (safe(() -> configuration.artifact().model()) == null) return;
-		Artifact.Model.Language language = safe(() -> configuration.artifact().model().language());
-		if (language != null) {
-			final String languageID = languageId(language.name(), language.version());
-			if (languageID == null || languageID.isEmpty()) return;
-			builder.add("dependency", createDependencyFrame(languageID.split(":")));
-		}
+		configuration.artifact().dsls().stream()
+				.map(d -> runtimeCoors(d.name(), d.version()))
+				.filter(id -> id != null && !id.isEmpty())
+				.forEach(id -> builder.add("dependency", createDependencyFrame(id.split(":"))));
 	}
 
 	private Module findModuleOf(Dependency dependency, boolean includeTests) {
@@ -373,7 +371,6 @@ public class PomCreator {
 					add("developerConnection", scm.developerConnection()).
 					add("tag", scm.tag()).toFrame());
 		}
-
 	}
 
 	private void addMVOptions(FrameBuilder frame, String jvmOptions) {
@@ -428,24 +425,31 @@ public class PomCreator {
 		}
 	}
 
-	private String findLanguageId(Artifact.Model.Language language) {
+	private String findLanguageId(Artifact.Dsl dsl) {
 		if (allModulesSeparated())
-			return languageId(language.name(), language.version());
-		return LanguageResolver.moduleDependencyOf(module, language.name(), language.version()) != null ? "" : languageId(language.name(), language.version());
+			return runtimeCoors(dsl.name(), dsl.version());
+		return LanguageResolver.moduleDependencyOf(module, dsl.name(), dsl.version()) != null ? "" : runtimeCoors(dsl.name(), dsl.version());
 	}
 
 	private Frame createDependencyFrame(Dependency d) {
-		final FrameBuilder builder = new FrameBuilder("dependency").add("groupId", d.groupId()).
+		final FrameBuilder builder = new FrameBuilder("dependency").
 				add("scope", d.scope()).
+				add("groupId", d.groupId()).
 				add("artifactId", d.artifactId()).
 				add("version", d.version());
 		if (!d.excludes().isEmpty()) for (Dependency.Exclude exclude : d.excludes())
-			builder.add("exclusion", new FrameBuilder("exclusion").add("groupId", exclude.groupId()).add("artifactId", exclude.artifactId()).toFrame());
+			builder.add("exclusion", new FrameBuilder("exclusion")
+					.add("groupId", exclude.groupId())
+					.add("artifactId", exclude.artifactId()).toFrame());
 		return builder.toFrame();
 	}
 
 	private Frame createDependencyFrame(String[] id) {
-		return new FrameBuilder("dependency").add("groupId", id[0].toLowerCase()).add("scope", "compile").add("artifactId", id[1].toLowerCase()).add("version", id[2]).toFrame();
+		return new FrameBuilder("dependency")
+				.add("scope", "compile")
+				.add("groupId", id[0].toLowerCase())
+				.add("artifactId", id[1].toLowerCase())
+				.add("version", id[2]).toFrame();
 	}
 
 	private Frame createRepositoryFrame(Repository repo) {

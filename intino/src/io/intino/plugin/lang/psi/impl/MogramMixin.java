@@ -267,7 +267,7 @@ public class MogramMixin extends ASTWrapperPsiElement {
 	}
 
 	public boolean isTerminal() {
-		Configuration.Artifact.Model.Level level = IntinoUtil.level(this);
+		Configuration.Artifact.Dsl.Level level = IntinoUtil.level(this);
 		return is(Terminal) || (level != null && level.isMetaModel());
 	}
 

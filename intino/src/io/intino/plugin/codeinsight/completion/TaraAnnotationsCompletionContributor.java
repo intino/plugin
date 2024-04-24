@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.filters.position.FilterPattern;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
@@ -19,15 +20,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static io.intino.plugin.lang.psi.TaraTypes.*;
-import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 
 public class TaraAnnotationsCompletionContributor extends CompletionContributor {
 
-	private PsiElementPattern.Capture<PsiElement> afterIs = psiElement().withLanguage(TaraLanguage.INSTANCE)
+	private final PsiElementPattern.Capture<PsiElement> afterIs = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new TaraFilters.AfterIsFitFilter()));
-	private PsiElementPattern.Capture<PsiElement> afterInto = psiElement().withLanguage(TaraLanguage.INSTANCE)
+	private final PsiElementPattern.Capture<PsiElement> afterInto = psiElement().withLanguage(TaraLanguage.INSTANCE)
 			.and(new FilterPattern(new TaraFilters.AfterIntoFitFilter()));
 
 	public TaraAnnotationsCompletionContributor() {
@@ -53,11 +53,9 @@ public class TaraAnnotationsCompletionContributor extends CompletionContributor 
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
-						final Module module = moduleOf(parameters.getOriginalFile());
-						if (!IntinoModuleType.isIntino(module)) return;
-						final Configuration.Artifact.Model.Level level = safe(() -> IntinoUtil.configurationOf(module).artifact().model().level());
-						if (level == null || level.isModel() || level.isMetaModel()) return;
-						addTags(parameters, resultSet);
+						PsiFile originalFile = parameters.getOriginalFile();
+						Configuration.Artifact.Dsl dsl = IntinoUtil.dsl(originalFile);
+						if (dsl.level().isMetaMetaModel()) addTags(parameters, resultSet);
 					}
 				}
 		);

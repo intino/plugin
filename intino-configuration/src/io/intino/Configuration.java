@@ -39,17 +39,23 @@ public interface Configuration {
 
 		String version();
 
+		void version(String newVersion);
+
 		String description();
 
 		String url();
 
-		void version(String newVersion);
+		License license();
 
-		Artifact.Code code();
+		Artifact.Scm scm();
 
-		Artifact.Model model();
+		List<Developer> developers();
 
-		Artifact.Box box();
+		List<Dsl> dsls();
+
+		default Dsl dsl(String name) {
+			return dsls().stream().filter(d -> d.name().equalsIgnoreCase(name)).findFirst().orElse(null);
+		}
 
 		Artifact.Dependency.DataHub datahub();
 
@@ -63,21 +69,17 @@ public interface Configuration {
 
 		List<Artifact.WebArtifact> webArtifacts();
 
+		Artifact.Code code();
+
 		List<Plugin> plugins();
 
-		License license();
-
-		Artifact.Scm scm();
-
-		List<Developer> developers();
-
 		Artifact.QualityAnalytics qualityAnalytics();
-
-		List<Parameter> parameters();
 
 		Package packageConfiguration();
 
 		Distribution distribution();
+
+		List<Parameter> parameters();
 
 		default List<Deployment> deployments() {
 			return Collections.emptyList();
@@ -89,8 +91,7 @@ public interface Configuration {
 			String token();
 		}
 
-		interface Model extends ConfigurationNode {
-
+		interface Dsl extends ConfigurationNode {
 			enum Level {
 				Model, MetaModel, MetaMetaModel;
 
@@ -115,37 +116,51 @@ public interface Configuration {
 				}
 			}
 
-			enum ExcludedPhases {
-				ExcludeFrameworkCode, ExcludeLanguageCode
-			}
+			String name();
 
-			Language language();
-
-			String outLanguage();
-
-			String outLanguageVersion();
+			String version();
 
 			Level level();
 
-			String sdkVersion();
+			String generationPackage();
 
-			String sdk();
+			String effectiveVersion();
 
-			List<ExcludedPhases> excludedPhases();
+			void effectiveVersion(String version);
 
-			interface Language {
+			void version(String version);
+
+			Builder builder();
+
+			Runtime runtime();
+
+			OutputDsl outputDsl();
+
+			interface OutputDsl extends ConfigurationNode {
 
 				String name();
 
 				String version();
 
-				String effectiveVersion();
+				OutputBuilder builder();
 
-				void effectiveVersion(String version);
+				Runtime runtime();
+			}
 
-				void version(String version);
-
+			interface Builder extends Library {
 				String generationPackage();
+
+				List<ExcludedPhases> excludedPhases();
+
+				enum ExcludedPhases {
+					ExcludeCodeBaseGeneration, ExcludeLanguageGeneration
+				}
+			}
+
+			interface OutputBuilder extends Library {
+			}
+
+			interface Runtime extends Library {
 			}
 		}
 
@@ -156,30 +171,10 @@ public interface Configuration {
 				return "lib";
 			}
 
-			default String modelPackage() {
-				return "model";
-			}
-
-			default String boxPackage() {
-				return "box";
-			}
-
 			String nativeLanguage();
 		}
 
-		interface Box extends ConfigurationNode {
-			String language();
-
-			String version();
-
-			String effectiveVersion();
-
-			void effectiveVersion(String version);
-
-			String targetPackage();
-		}
-
-		interface Dependency {
+		interface Dependency extends Library {
 			default String identifier() {
 				return groupId() + ":" + artifactId() + ":" + version();
 			}
@@ -188,11 +183,6 @@ public interface Configuration {
 				return "Intino: " + identifier();
 			}
 
-			String groupId();
-
-			String artifactId();
-
-			String version();
 
 			void version(String newVersion);
 
@@ -238,7 +228,6 @@ public interface Configuration {
 			}
 		}
 
-
 		interface License {
 			enum LicenseType {
 				GLP, BSD, LGPL
@@ -283,10 +272,11 @@ public interface Configuration {
 			String version();
 		}
 
-		interface Plugin {
+		interface Plugin extends Library {
 			enum Phase {
 				Export, PostCompilation, PrePackage, PostPackage, PostDistribution
 			}
+
 			default String identifier() {
 				return groupId() + ":" + artifactId() + ":" + version();
 			}
@@ -295,11 +285,6 @@ public interface Configuration {
 				return "Intino: " + identifier();
 			}
 
-			String groupId();
-
-			String artifactId();
-
-			String version();
 
 			default Phase phase() {
 				return Phase.PrePackage;
@@ -495,4 +480,13 @@ public interface Configuration {
 		String description();
 	}
 
+	interface Library extends ConfigurationNode {
+		String groupId();
+
+		String artifactId();
+
+		String version();
+
+		void version(String version);
+	}
 }

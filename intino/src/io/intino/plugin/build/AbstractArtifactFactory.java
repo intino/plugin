@@ -15,6 +15,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
+import io.intino.Configuration.Artifact.Dsl.OutputDsl;
 import io.intino.Configuration.Artifact.Package.LinuxService;
 import io.intino.Configuration.Deployment;
 import io.intino.plugin.IntinoException;
@@ -35,7 +36,6 @@ import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.File;
@@ -45,6 +45,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -138,7 +139,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws IOException {
-		buildLanguage(phase, indicator);
+		buildLanguages(phase, indicator);
 		buildArtifact(phase, indicator);
 		indicator.setText("Tagging version...");
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {
@@ -158,32 +159,29 @@ public abstract class AbstractArtifactFactory {
 			new LinuxServiceGenerator((ArtifactLegioConfiguration) configuration, linuxService, successMessages).generate();
 	}
 
-	private void buildLanguage(FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
-		if (checker.shouldDistributeLanguage(lifeCyclePhase, module) && hasModelFiles(module)) {
-			updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
-			buildLanguage(module);
+	private void buildLanguages(FactoryPhase lifeCyclePhase, ProgressIndicator indicator) {
+		updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
+		Configuration conf = IntinoUtil.configurationOf(module);
+		for (Artifact.Dsl dsl : conf.artifact().dsls()) {
+			if (!checker.shouldDistributeLanguage(lifeCyclePhase, module, dsl) || !hasDslFiles(module, dsl)) continue;
+			try {
+				File dslFile = dslFilePath(dsl.outputDsl());
+				if (dslFile == null || !dslFile.exists()) {
+					errorMessages.add("Output Dsl " + dsl.name() + " not found. Please compile module to generate it.");
+					return;
+				}
+				LocalFileSystem.getInstance().refreshIoFiles(Set.of(dslFile), true, false, null);
+				new MavenRunner(module).buildLanguage(conf, dsl.outputDsl());
+			} catch (Exception e) {
+				errorMessages.add(e.getMessage());
+			}
 		}
 	}
 
-	private boolean hasModelFiles(Module module) {
+	private boolean hasDslFiles(Module module, Artifact.Dsl dsl) {
 		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
 		if (!srcRoot.exists()) return false;
-		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
-	}
-
-	private void buildLanguage(Module module) {
-		try {
-			Configuration configuration = IntinoUtil.configurationOf(module);
-			File dslFile = dslFilePath(configuration);
-			if (!dslFile.exists()) {
-				errorMessages.add("Language not found");
-				return;
-			}
-			LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(dslFile), true, false, null);
-			new MavenRunner(module).executeLanguage(configuration);
-		} catch (Exception e) {
-			errorMessages.add(e.getMessage());
-		}
+		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{dsl.name() + "." + TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
 	}
 
 	protected boolean askForReleaseDistribute() {
@@ -308,7 +306,6 @@ public abstract class AbstractArtifactFactory {
 		final MessageBusConnection connect = messageBus.connect();
 		connect.deliverImmediately();
 		connect.disconnect();
-
 	}
 
 	private boolean askForDeploy(Module module, ArtifactLegioConfiguration conf) {
@@ -338,11 +335,10 @@ public abstract class AbstractArtifactFactory {
 	}
 
 
-	@NotNull
-	private File dslFilePath(Configuration configuration) {
-		final String outDSL = safe(() -> configuration.artifact().model().outLanguage());
-		return new File(LanguageManager.getLanguageDirectory(outDSL) + File.separator +
-				configuration.artifact().version() + File.separator + outDSL + "-" + configuration.artifact().version() + JAR_EXTENSION);
+	private File dslFilePath(OutputDsl outDsl) {
+		String name = outDsl.name();
+		if (name == null) return null;
+		return new File(LanguageManager.getLanguageDirectory(name) + File.separator + outDsl.version() + File.separator + name + "-" + outDsl.version() + JAR_EXTENSION);
 	}
 
 	private void updateProgressIndicator(ProgressIndicator progressIndicator, String message) {

@@ -13,10 +13,10 @@
         <maven.compiler.target>17</maven.compiler.target>
         <tara.level>MetaModel</tara.level>
         <generation.package>io.intino.legio</generation.package>
-        <tara.generation.package>io.intino.legio.model</tara.generation.package>
         <tara.language>Proteo</tara.language>
         <tara.language.version>1.0.0</tara.language.version>
         <tara.out.language>Legio</tara.out.language>
+        <tara.excluded_phases>8</tara.excluded_phases>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
@@ -99,9 +99,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.intino.magritte</groupId>
-            <artifactId>framework</artifactId>
-            <version>4.0.0</version>
+            <groupId>io.intino.tara</groupId>
+            <artifactId>language</artifactId>
+            <version>1.5.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

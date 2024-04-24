@@ -5,9 +5,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.filters.ElementFilter;
 import com.intellij.psi.filters.position.FilterPattern;
-import io.intino.Configuration.Artifact.Box;
 import io.intino.Configuration.Artifact.Dependency;
-import io.intino.Configuration.Artifact.Model;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.plugin.lang.psi.StringValue;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
@@ -23,16 +22,12 @@ import static io.intino.plugin.lang.TaraLanguage.INSTANCE;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.getContainerByType;
 
 class LegioFilters {
-	static final PsiElementPattern.Capture<PsiElement> inModelLanguage = psiElement().withLanguage(INSTANCE)
-			.and(new FilterPattern(new InLanguageNameFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inLanguageVersion = psiElement().withLanguage(INSTANCE)
-			.and(new FilterPattern(new InLanguageVersionFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inModelSDKVersion = psiElement().withLanguage(INSTANCE)
-			.and(new FilterPattern(new InSDKVersionFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inBoxLanguage = psiElement().withLanguage(INSTANCE)
-			.and(new FilterPattern(new InBoxLanguageFilter()));
-	static final PsiElementPattern.Capture<PsiElement> inBoxVersion = psiElement().withLanguage(INSTANCE)
-			.and(new FilterPattern(new InBoxVersionFilter()));
+	static final PsiElementPattern.Capture<PsiElement> inDslName = psiElement().withLanguage(INSTANCE)
+			.and(new FilterPattern(new InDslNameFilter()));
+	static final PsiElementPattern.Capture<PsiElement> inDslVersion = psiElement().withLanguage(INSTANCE)
+			.and(new FilterPattern(new InDslVersionFilter()));
+	static final PsiElementPattern.Capture<PsiElement> inDslBuilderVersion = psiElement().withLanguage(INSTANCE)
+			.and(new FilterPattern(new InBuilderVersionFilter()));
 	static final PsiElementPattern.Capture<PsiElement> inDependencyVersion = psiElement().withLanguage(INSTANCE)
 			.and(new FilterPattern(new InDependencyVersionFilter()));
 
@@ -52,10 +47,10 @@ class LegioFilters {
 		return element instanceof PsiElement && context.getParent() != null && file instanceof TaraModel && Legio.class.getSimpleName().equals(((TaraModel) file).dsl());
 	}
 
-	private static boolean inModelNode(Mogram node) {
+	private static boolean isNode(Mogram node, Class aClass) {
 		String type = node.type();
 		type = type.contains(".") ? type.substring(type.lastIndexOf(".") + 1) : type;
-		return type.equals(Model.class.getSimpleName()) || type.equals(typeName(Model.class));
+		return type.equals(aClass.getSimpleName()) || type.equals(typeName(aClass));
 	}
 
 	private static boolean inDependencyNode(Mogram node) {
@@ -75,13 +70,13 @@ class LegioFilters {
 		return parameter != null && parameter.name().equals(parameterName);
 	}
 
-	private static class InLanguageNameFilter implements ElementFilter {
+	private static class InDslNameFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
 			final Mogram mogram = TaraPsiUtil.getContainerNodeOf(context);
 			if (mogram == null) return false;
 			check(mogram);
-			return isElementAcceptable(element, context) && inModelNode(mogram) && inParameter(context, "language");
+			return isElementAcceptable(element, context) && isNode(mogram, Dsl.class) && inParameter(context, "name");
 		}
 
 		@Override
@@ -90,13 +85,13 @@ class LegioFilters {
 		}
 	}
 
-	private static class InLanguageVersionFilter implements ElementFilter {
+	private static class InDslVersionFilter implements ElementFilter {
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
 			final Mogram mogram = TaraPsiUtil.getContainerNodeOf(context);
 			if (mogram == null) return false;
 			check(mogram);
-			return isElementAcceptable(element, context) && inModelNode(mogram) && inParameter(context, "version");
+			return isElementAcceptable(element, context) && isNode(mogram, Dsl.class) && inParameter(context, "version");
 		}
 
 		@Override
@@ -105,55 +100,14 @@ class LegioFilters {
 		}
 	}
 
-	private static class InBoxLanguageFilter implements ElementFilter {
-
-		private static boolean inBoxNode(Mogram node) {
-			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
-		}
+	private static class InBuilderVersionFilter implements ElementFilter {
 
 		@Override
 		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
 			final Mogram mogram = TaraPsiUtil.getContainerNodeOf(context);
 			if (mogram == null) return false;
 			check(mogram);
-			return isElementAcceptable(element, context) && inBoxNode(mogram) && inParameter(context, "language");
-		}
-
-		@Override
-		public boolean isClassAcceptable(Class hintClass) {
-			return true;
-		}
-	}
-
-	private static class InBoxVersionFilter implements ElementFilter {
-
-		private static boolean inBoxNode(Mogram node) {
-			return node.type().equals(Box.class.getSimpleName()) || node.type().equals(typeName(Box.class));
-		}
-
-		@Override
-		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Mogram mogram = TaraPsiUtil.getContainerNodeOf(context);
-			if (mogram == null) return false;
-			check(mogram);
-			return isElementAcceptable(element, context) && inBoxNode(mogram) &&
-					(inParameter(context, "version") || inParameter(context, "sdk"));
-		}
-
-		@Override
-		public boolean isClassAcceptable(Class hintClass) {
-			return true;
-		}
-	}
-
-	private static class InSDKVersionFilter implements ElementFilter {
-
-		@Override
-		public boolean isAcceptable(Object element, @Nullable PsiElement context) {
-			final Mogram node = TaraPsiUtil.getContainerNodeOf(context);
-			if (node == null) return false;
-			check(node);
-			return isElementAcceptable(element, context) && inModelNode(node) && inParameter(context, "sdkVersion");
+			return isElementAcceptable(element, context) && isNode(mogram, Dsl.Builder.class) && isNode(mogram.container(), Dsl.class) && inParameter(context, "version");
 		}
 
 		@Override

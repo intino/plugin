@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static io.intino.plugin.project.Safe.safe;
+
 public class VariableMixin extends ASTWrapperPsiElement {
 
 	private final Set<Tag> inheritedFlags = new HashSet<>();
@@ -56,8 +58,8 @@ public class VariableMixin extends ASTWrapperPsiElement {
 	}
 
 	public String scope() {
-		final Configuration conf = IntinoUtil.configurationOf(this);
-		return conf != null ? conf.artifact().model().outLanguage() : "";
+		Configuration.Artifact.Dsl dsl = IntinoUtil.dsl(this);
+		return dsl != null ? safe(() -> dsl.outputDsl().name()) : "";
 	}
 
 	@Nullable

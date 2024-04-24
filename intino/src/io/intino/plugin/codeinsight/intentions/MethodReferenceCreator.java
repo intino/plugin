@@ -47,7 +47,7 @@ public class MethodReferenceCreator {
 		this.valued = valued;
 		this.reference = reference.replace("@", "");
 		module = valued != null ? ModuleProvider.moduleOf(valued) : null;
-		workingPackage = IntinoUtil.modelPackage(valued);
+		workingPackage = IntinoUtil.dslGenerationPackage(valued);
 		languageWorkingPackage = IntinoUtil.languageGraphPackage(valued);
 	}
 

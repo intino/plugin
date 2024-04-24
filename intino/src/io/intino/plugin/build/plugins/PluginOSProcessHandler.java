@@ -9,11 +9,10 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.io.BaseInputStreamReader;
 import com.intellij.util.io.BaseOutputReader;
 import io.intino.Configuration;
-import io.intino.konos.compiler.shared.KonosBuildConstants;
-import io.intino.plugin.OutputItem;
+import io.intino.builder.BuildConstants;
+import io.intino.builder.OutputItem;
 import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.build.postcompileactions.PostCompileActionFactory;
-import io.intino.tara.builder.shared.TaraBuildConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
@@ -27,8 +26,8 @@ import java.util.concurrent.Future;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
 import static com.intellij.util.io.BaseOutputReader.Options.NON_BLOCKING;
-import static io.intino.plugin.BuildConstants.*;
-import static io.intino.plugin.CompilerMessage.WARNING;
+import static io.intino.builder.BuildConstants.*;
+import static io.intino.builder.CompilerMessage.WARNING;
 import static java.nio.charset.Charset.defaultCharset;
 
 public class PluginOSProcessHandler {
@@ -80,7 +79,7 @@ public class PluginOSProcessHandler {
 			indicator.setText(trimmed.substring(PRESENTABLE_MESSAGE.length()));
 			return;
 		}
-		if (TaraBuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
+		if (BuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
 			indicator.setText(null);
 			return;
 		}
@@ -90,8 +89,8 @@ public class PluginOSProcessHandler {
 			else if (trimmed.startsWith(MESSAGES_START)) processMessage();
 			if (trimmed.endsWith(COMPILED_END)) processCompiledItems();
 			if (trimmed.startsWith(BUILD_END)) {
-				if (!postCompileActions.isEmpty()) indicator.setText("Executing post compile actions...");
 				collectPostCompileActionMessages();
+				if (!postCompileActions.isEmpty()) indicator.setText("Executing post compile actions...");
 			}
 		}
 	}
@@ -131,7 +130,7 @@ public class PluginOSProcessHandler {
 			lineInt = 0;
 			columnInt = 0;
 		}
-		BuildMessage.Kind kind = category.equals(io.intino.plugin.CompilerMessage.ERROR)
+		BuildMessage.Kind kind = category.equals(io.intino.builder.CompilerMessage.ERROR)
 				? BuildMessage.Kind.ERROR
 				: category.equals(WARNING)
 				? BuildMessage.Kind.WARNING
@@ -143,7 +142,7 @@ public class PluginOSProcessHandler {
 
 	@Nullable
 	private PostCompileAction createCompileAction(String m) {
-		m = m.replace(KonosBuildConstants.MESSAGE_ACTION_END, "");
+		m = m.replace(BuildConstants.MESSAGE_ACTION_END, "");
 		List<String> split = List.of(m.split(SEPARATOR));
 		return PostCompileActionFactory.get(module, split.get(1), split.subList(2, split.size()));
 	}

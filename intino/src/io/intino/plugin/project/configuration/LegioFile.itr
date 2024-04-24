@@ -11,8 +11,7 @@ def type(legio & empty)
 	dsl Legio
 
 	Artifact(groupId = "[$groupId?org.example]", version = "1.0.0") $name
-		[$factory]
-		[$box]
+		[$dsl...[$NL]]
 		Imports
 			Test(groupId = "junit", artifactId = "junit", version = "4.13")
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
@@ -20,15 +19,11 @@ def type(legio & empty)
 end
 
 
-
-def trigger(model)
-
 def type(legio) !type(empty)
 	dsl Legio
 
 	Artifact(groupId = "$groupId", version = "$version") $artifactId
-		[$factory
-		]
+		[$dsl...[$NL]]
 		Imports[
 			$dependency...[$NL]]
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
@@ -51,12 +46,8 @@ def type(dependency)
 	$type+FirstUpperCase(groupId = "$groupId", artifactId = "$artifactId", version = "$version")
 end
 
-def type(factory)
-	Model(language = "$dsl", version = "$dslVersion", sdkVersion = "[$sdk?LATEST]")
-end
-
-def type(box)
-	Box("Konos", "$version")
+def trigger(dsl)
+	Dsl(name = "$name", version = "$version")
 end
 
 def type(distribution)

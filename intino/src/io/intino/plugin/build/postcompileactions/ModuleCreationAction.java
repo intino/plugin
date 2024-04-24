@@ -167,6 +167,16 @@ public class ModuleCreationAction extends PostCompileAction {
 			}
 
 			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
+			}
+
+			@Override
 			public void effectiveVersion(String s) {
 
 			}

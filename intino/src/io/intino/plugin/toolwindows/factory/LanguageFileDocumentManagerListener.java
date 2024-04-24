@@ -15,7 +15,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
-import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,7 @@ public class LanguageFileDocumentManagerListener implements FileDocumentManagerL
 		FileViewProvider vp = PsiManagerEx.getInstanceEx(project).getFileManager().findCachedViewProvider(file);
 		if (vp == null || vp.getManager().getProject() != project) return;
 		final PsiFile psiFile = psiFile(document);
-		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()) || KonosFileType.instance().equals(psiFile.getFileType()))) {
+		if (psiFile != null && (TaraFileType.instance().equals(psiFile.getFileType()))) {
 			document.addDocumentListener(new DocumentListener() {
 				public void documentChanged(@NotNull DocumentEvent event) {
 					publish(psiFile);

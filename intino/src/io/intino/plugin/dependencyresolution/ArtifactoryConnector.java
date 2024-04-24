@@ -5,8 +5,6 @@ import com.intellij.openapi.project.Project;
 import io.intino.Configuration;
 import io.intino.plugin.settings.ArtifactoryCredential;
 import io.intino.plugin.settings.IntinoSettings;
-import io.intino.tara.dsls.Meta;
-import io.intino.tara.dsls.Proteo;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
-
 
 public class ArtifactoryConnector {
 	public static final String MAVEN_URL = "https://repo1.maven.org/maven2/";
@@ -28,6 +24,9 @@ public class ArtifactoryConnector {
 	private final List<Configuration.Repository> repositories;
 	private final List<ArtifactoryCredential> credentials;
 
+	public ArtifactoryConnector(Configuration.Repository repository) {
+		this(List.of(repository));
+	}
 	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
 		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
@@ -43,6 +42,11 @@ public class ArtifactoryConnector {
 
 	@NotNull
 	private Configuration.Repository.Release mavenRepository() {
+		return repository("maven2","https://repo.maven.apache.org/maven2/");
+	}
+
+	@NotNull
+	public static Configuration.Repository.Release repository(String identifier, String url) {
 		return new Configuration.Repository.Release() {
 			@Override
 			public Configuration root() {
@@ -56,12 +60,12 @@ public class ArtifactoryConnector {
 
 			@Override
 			public String identifier() {
-				return "maven2";
+				return identifier;
 			}
 
 			@Override
 			public String url() {
-				return "https://repo.maven.apache.org/maven2/";
+				return url;
 			}
 
 			@Override
@@ -81,18 +85,16 @@ public class ArtifactoryConnector {
 		};
 	}
 
-	public List<String> languages() {
-		List<String> langs = new ArrayList<>();
+	public List<String> dsls() {
+		List<String> dsls = new ArrayList<>();
 		try {
 			for (Configuration.Repository repo : repositories) {
 				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/");
 				final String result = new String(read(connect(url)));
 				if (result.isEmpty()) continue;
-				langs.addAll(extractLanguages(result));
+				dsls.addAll(extractLanguages(result));
 			}
-			langs.add("Verso");
-			langs.add("Proteo");
-			return langs;
+			return dsls;
 		} catch (Throwable ignored) {
 			return Collections.emptyList();
 		}
@@ -100,8 +102,6 @@ public class ArtifactoryConnector {
 
 	public List<String> dslVersions(String dsl) {
 		try {
-			if (dsl.equals(Proteo.class.getSimpleName()) || dsl.equals(Meta.class.getSimpleName()))
-				return proteoVersions();
 			for (Configuration.Repository repo : repositories) {
 				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
 				final String mavenMetadata = read(connect(url));
@@ -162,30 +162,6 @@ public class ArtifactoryConnector {
 		final List<String> languages = new ArrayList<>(Arrays.asList(result.split("\n")));
 		languages.remove(0);
 		return languages.stream().map(l -> l.substring(l.indexOf("\">") + 2, l.indexOf("/<"))).toList();
-	}
-
-	public List<String> boxBuilderVersions() {
-		try {
-			URL url = new URL(INTINO_RELEASES + "/" + "io/intino/konos/builder/maven-metadata.xml");
-			return extractVersions(read(connect(url)));
-		} catch (Throwable e) {
-			return Collections.emptyList();
-		}
-	}
-
-	public List<String> modelBuilderVersions(String modelSdk) {
-		try {
-			URL url = new URL(INTINO_RELEASES + "/" + modelSdk.replace(".", "/").replace(":", "/") + "/maven-metadata.xml");
-			return extractVersions(read(connect(url)));
-		} catch (Throwable e) {
-			return Collections.emptyList();
-		}
-	}
-
-	private List<String> proteoVersions() throws Throwable {
-		URL url = new URL(INTINO_RELEASES + "/" + Proteo.GROUP_ID.replace(".", "/") + "/" + Proteo.ARTIFACT_ID + "/maven-metadata.xml");
-		final String mavenMetadata = read(connect(url));
-		return extractVersions(mavenMetadata);
 	}
 
 	private List<String> extractVersions(String metadata) {

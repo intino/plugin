@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.BuildConstants.*;
+import static io.intino.builder.BuildConstants.*;
 import static io.intino.plugin.project.Safe.safe;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.jetbrains.jps.incremental.messages.BuildMessage.Kind.ERROR;
@@ -72,7 +72,6 @@ public class PluginRunner {
 		writer.write(VERSION + NL + conf.artifact().version() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + NL);
-		writer.write(LANGUAGE_GENERATION_PACKAGE + NL + conf.artifact().code().modelPackage() + NL);
 		writer.write(INVOKED_PHASE + NL + phase.name() + NL);
 		for (Configuration.Repository repository : conf.repositories())
 			writer.write(REPOSITORY + NL + repository.identifier() + "#" + repository.url() + NL);

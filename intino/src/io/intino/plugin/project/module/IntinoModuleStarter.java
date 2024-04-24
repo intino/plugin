@@ -27,8 +27,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.intellij.openapi.util.io.FileUtilRt.getExtension;
+import static io.intino.plugin.project.Safe.safeList;
 
 public class IntinoModuleStarter implements ModuleListener, ProjectActivity {
 
@@ -46,20 +48,17 @@ public class IntinoModuleStarter implements ModuleListener, ProjectActivity {
 
 
 	private void addDSLNameToDictionary(Project project) {
-		for (Module module : ModuleManager.getInstance(project).getModules()) {
-			final Configuration conf = IntinoUtil.configurationOf(module);
-			if (conf != null && conf.artifact().model() != null && conf.artifact().model().language() != null && conf.artifact().model().language().name() != null)
-				SpellCheckerManager.getInstance(project).acceptWordAsCorrect(conf.artifact().model().language().name(), project);
-		}
+		SpellCheckerManager checkerManager = SpellCheckerManager.getInstance(project);
+		for (Module module : ModuleManager.getInstance(project).getModules())
+			safeList(() -> IntinoUtil.configurationOf(module).artifact().dsls()).stream()
+					.map(Configuration.Artifact.Dsl::name)
+					.filter(Objects::nonNull)
+					.forEach(name -> checkerManager.acceptWordAsCorrect(name, project));
 	}
 
 	@Override
 	public void modulesAdded(@NotNull Project project, @NotNull List<? extends Module> modules) {
 		modules.forEach(this::registerIntinoModule);
-	}
-
-	@Override
-	public void beforeModuleRemoved(@NotNull Project project, @NotNull Module module) {
 	}
 
 	@Override

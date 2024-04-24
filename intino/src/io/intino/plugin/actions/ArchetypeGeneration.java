@@ -2,6 +2,7 @@ package io.intino.plugin.actions;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.module.Module;
@@ -26,6 +27,12 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_FILE;
 
 public class ArchetypeGeneration extends AnAction {
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.BGT;
+	}
+
 	public void actionPerformed(AnActionEvent e) {
 		PsiFile data = e.getData(PSI_FILE);
 		if (data == null) return;
@@ -35,7 +42,7 @@ public class ArchetypeGeneration extends AnAction {
 				for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {
 					if (WebModuleType.is(module, WebModuleTypeBase.getInstance())) continue;
 					Configuration cnf = IntinoUtil.configurationOf(module);
-					if (cnf != null && cnf.artifact().box() != null && cnf.artifact().packageConfiguration().isRunnable())
+					if (cnf != null && cnf.artifact().packageConfiguration() != null && cnf.artifact().packageConfiguration().isRunnable())
 						new ArchetypeRenderer(module, (ArtifactLegioConfiguration) cnf).render(VfsUtil.virtualToIoFile(data.getVirtualFile()));
 				}
 				notifySuccess(e.getProject());

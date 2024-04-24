@@ -3,7 +3,6 @@ package io.intino.plugin.codeinsight.languageinjection;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import io.intino.Configuration;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.itrules.FrameBuilderContext;
@@ -17,8 +16,6 @@ import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.tara.Language;
-import io.intino.tara.dsls.Meta;
-import io.intino.tara.dsls.Proteo;
 import io.intino.tara.language.model.*;
 import io.intino.tara.language.model.rules.variable.NativeObjectRule;
 import io.intino.tara.language.model.rules.variable.NativeReferenceRule;
@@ -34,7 +31,6 @@ import java.util.Set;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.cleanQn;
 import static io.intino.plugin.codeinsight.languageinjection.helpers.QualifiedNameFormatter.qn;
 import static io.intino.plugin.lang.psi.resolve.ReferenceManager.resolveRule;
-import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.language.model.Primitive.*;
 import static io.intino.tara.language.model.Tag.Feature;
 import static io.intino.tara.language.model.Tag.Instance;
@@ -42,19 +38,15 @@ import static java.util.Collections.emptySet;
 
 @SuppressWarnings("Duplicates")
 public class NativeFormatter implements TemplateTags {
-
 	private final Imports allImports;
 	private final String workingPackage;
 	private final Language language;
-	private final boolean m0;
-	private Set<String> imports = new HashSet<>();
+	private final Set<String> imports = new HashSet<>();
 
 	NativeFormatter(Module module, String workingPackage, Language language) {
 		this.workingPackage = workingPackage;
 		allImports = new Imports(module.getProject());
 		this.language = language;
-		final Configuration conf = IntinoUtil.configurationOf(module);
-		this.m0 = conf != null && safe(() -> conf.artifact().model().level().isModel(), false);
 	}
 
 	private static String getLanguageScope(Parameter parameter, Language language) {
@@ -71,9 +63,7 @@ public class NativeFormatter implements TemplateTags {
 	}
 
 	public static String getSignature(Parameter parameter) {
-		if (!(parameter.rule() instanceof NativeRule)) return "";
-		final NativeRule rule = (NativeRule) parameter.rule();
-		return rule != null ? rule.signature() : null;
+		return !(parameter.rule() instanceof NativeRule rule) ? "" : rule.signature();
 	}
 
 	private static String getInterface(Parameter parameter) {
@@ -183,8 +173,7 @@ public class NativeFormatter implements TemplateTags {
 		context.add(SIGNATURE, getSignature((PsiClass) nativeInterface));
 		context.add(GENERATED_LANGUAGE, workingPackage.toLowerCase());
 		context.add(NATIVE_CONTAINER, cleanQn(buildContainerPath(variable.container(), variable.scope(), workingPackage)));
-		if (!(language instanceof Proteo) && !(language instanceof Meta))
-			context.add(LANGUAGE, language.languageName());
+		context.add(LANGUAGE, language.languageName());
 		if (ruleContainer.getRule() != null) context.add(RULE, ruleContainer.getRule().getText());
 		final String aReturn = getReturn((PsiClass) nativeInterface, variable.values().get(0).toString());
 		if (!aReturn.isEmpty() && !isMultiline) context.add(RETURN, aReturn);
@@ -200,8 +189,7 @@ public class NativeFormatter implements TemplateTags {
 		context.add(GENERATED_LANGUAGE, workingPackage.toLowerCase());
 		context.add(SCOPE, parameter.scope());
 		context.add(NATIVE_CONTAINER, cleanQn(buildContainerPath(parameter.container(), parameter.scope(), workingPackage)));
-		if (!(language instanceof Proteo) && !(language instanceof Meta))
-			context.add(LANGUAGE, getLanguageScope(parameter, language));
+		context.add(LANGUAGE, getLanguageScope(parameter, language));
 		if (signature != null) context.add(SIGNATURE, signature);
 		final String anInterface = getInterface(parameter);
 		if (anInterface != null) context.add(RULE, cleanQn(anInterface));
@@ -297,9 +285,9 @@ public class NativeFormatter implements TemplateTags {
 	}
 
 	private String wordType(Parameter parameter) {
-		if (parameter.rule() instanceof NativeWordRule)
-			return workingPackage.toLowerCase() + DOT + ((NativeWordRule) parameter.rule()).words().get(0);
-		return "";
+		return parameter.rule() instanceof NativeWordRule ?
+				workingPackage.toLowerCase() + DOT + ((NativeWordRule) parameter.rule()).words().get(0) :
+				"";
 	}
 
 }

@@ -6,7 +6,7 @@ intino
 module
 legio
 semantic.lib
-/Users/oroncal/workspace/infrastructure/tara/out/build/language/language-1.4.0.jar
+/Users/oroncal/workspace/infrastructure/tara/out/build/language/language-1.5.1.jar
 outputpath
 /Users/oroncal/workspace/infrastructure/intino-plugin/legio/gen
 final_outputpath

@@ -7,14 +7,11 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VFileProperty;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.RowIcon;
-import com.intellij.util.PlatformIcons;
 import io.intino.plugin.lang.psi.TaraModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,10 +22,12 @@ import java.util.Collections;
 class NodeView extends PsiFileNode implements Navigatable {
 	static final DataKey<NodeView> DATA_KEY = DataKey.create("form.array");
 	private final PsiFile taraFile;
+	private final Icon icon;
 
-	NodeView(Project project, TaraModel psiFile, ViewSettings settings) {
+	NodeView(Project project, TaraModel psiFile, ViewSettings settings, Icon icon) {
 		super(project, psiFile, settings);
 		taraFile = psiFile;
+		this.icon = icon;
 		myName = getName();
 	}
 
@@ -61,15 +60,14 @@ class NodeView extends PsiFileNode implements Navigatable {
 		return taraFile.canNavigate();
 	}
 
+
 	@Override
 	protected void updateImpl(@NotNull PresentationData data) {
 		PsiFile value = getValue();
 		if (value instanceof TaraModel) {
 			myName = getName();
 			data.setPresentableText(((TaraModel) value).getPresentableName());
-			final Icon icon = value.getIcon(Iconable.ICON_FLAG_READ_STATUS);
-			data.setIcon("Legio".equalsIgnoreCase(((TaraModel) value).dsl()) ?
-					icon : new RowIcon(icon, PlatformIcons.PACKAGE_LOCAL_ICON));
+			data.setIcon(this.icon);
 		} else data.setPresentableText(value.getName());
 		VirtualFile file = getVirtualFile();
 		if (file != null && file.is(VFileProperty.SYMLINK)) {

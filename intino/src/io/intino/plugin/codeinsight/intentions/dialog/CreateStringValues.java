@@ -35,7 +35,7 @@ public class CreateStringValues extends JDialog {
 	private final GridBagConstraints constraints = new GridBagConstraints();
 
 	public CreateStringValues(PsiElement element, String key) {
-		this.outputDsl = IntinoUtil.modelPackage(element);
+		this.outputDsl = IntinoUtil.dslGenerationPackage(element);
 		this.OKButton.addActionListener(e -> onOK());
 		this.newLanguage.addActionListener(e -> onNewLanguage());
 		this.cancelButton.addActionListener(e -> onCancel());

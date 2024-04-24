@@ -37,7 +37,7 @@ public class SyncNativeWithTara extends PsiElementBaseIntentionAction {
 		final PsiElement destiny = ReferenceManager.resolveJavaNativeImplementation(psiClass);
 		final Valued valued = valued(destiny);
 		return destiny != null && psiClass.getDocComment() != null &&
-				isAvailable(psiClass, IntinoUtil.modelPackage(destiny)) &&
+				isAvailable(psiClass, IntinoUtil.dslGenerationPackage(destiny)) &&
 				valued != null && !valued.values().isEmpty() && (valued.values().get(0) instanceof Primitive.Expression || valued.values().get(0) instanceof Primitive.MethodReference);
 	}
 

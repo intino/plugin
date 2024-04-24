@@ -1,6 +1,7 @@
 package io.intino.plugin.project;
 
 import com.intellij.ide.util.PropertiesComponent;
+import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 
@@ -11,42 +12,20 @@ import java.util.List;
 public class ArtifactorySensor {
 	public static final String Languages = "tara.dsls";
 	public static final String LanguageLibrary = "tara.dsl.";
-	public static final String BoxBuilder = "konos.builder";
-	public static final String ModelBuilder = "model.builder";
 	private final PropertiesComponent properties;
 	private final ArtifactoryConnector artifactory;
-	private final String modelSdk;
 
-	public ArtifactorySensor(List<Repository> repositories, String modelSdk) {
+	public ArtifactorySensor(List<Repository> repositories) {
 		this.artifactory = new ArtifactoryConnector(by(repositories));
-		this.modelSdk = modelSdk;
 		this.properties = PropertiesComponent.getInstance();
 	}
 
-	public void update(String language) {
-		if (language != null) languageVersions(language);
-		updateBuilders();
+	public void update(Configuration.Artifact.Dsl dsl) {
+		String name = dsl.name();
+		final List<String> versions = artifactory.dslVersions(name);
+		properties.setList(LanguageLibrary + name, versions);
 	}
 
-	private void updateBuilders() {
-		boxBuilderVersions();
-		modelBuilderVersions();
-	}
-
-	private void languageVersions(String language) {
-		final List<String> versions = artifactory.dslVersions(language);
-		if (!versions.isEmpty()) properties.setList(LanguageLibrary + language, versions);
-	}
-
-	private void boxBuilderVersions() {
-		final List<String> versions = artifactory.boxBuilderVersions();
-		if (!versions.isEmpty()) properties.setList(BoxBuilder, versions);
-	}
-
-	private void modelBuilderVersions() {
-		final List<String> versions = artifactory.modelBuilderVersions(modelSdk);
-		if (!versions.isEmpty()) properties.setList(ModelBuilder, versions);
-	}
 
 	@SafeVarargs
 	private List<Repository> by(List<Repository> repositories, Class<? extends Repository>... types) {

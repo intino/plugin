@@ -1,9 +1,9 @@
 package io.intino.legio.model.rules;
 
 import io.intino.tara.language.model.Mogram;
-import io.intino.tara.language.model.rules.NodeRule;
+import io.intino.tara.language.model.rules.MogramRule;
 
-public class CheckDuplicatedArguments implements NodeRule {
+public class CheckDuplicatedArguments implements MogramRule {
 
 
 	public boolean accept(Mogram node) {

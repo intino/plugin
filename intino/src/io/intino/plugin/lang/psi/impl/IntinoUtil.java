@@ -20,7 +20,7 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.intino.Configuration;
-import io.intino.Configuration.Artifact.Code;
+import io.intino.Configuration.Artifact.Dsl.Level;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.Valued;
@@ -60,16 +60,13 @@ public class IntinoUtil {
 	}
 
 	public static List<Mogram> findRootNode(PsiElement element, String identifier) {
-		List<Mogram> result = new ArrayList<>();
-		for (TaraModel taraFile : getModuleFiles(element.getContainingFile())) {
-			Collection<Mogram> nodes = taraFile.components();
-			extractNodesByName(identifier, result, nodes);
-		}
-		return result;
+		return Arrays.stream(getModuleFiles(element.getContainingFile()))
+				.flatMap(taraFile -> extractNodesByName(identifier, taraFile.components()).stream())
+				.collect(Collectors.toList());
 	}
 
-	private static void extractNodesByName(String identifier, List<Mogram> result, Collection<Mogram> nodes) {
-		result.addAll(nodes.stream().filter(mogram -> identifier.equals(mogram.name())).toList());
+	private static List<Mogram> extractNodesByName(String identifier, Collection<Mogram> nodes) {
+		return nodes.stream().filter(mogram -> identifier.equals(mogram.name())).toList();
 	}
 
 	public static File moduleRoot(Module module) {
@@ -91,12 +88,43 @@ public class IntinoUtil {
 		return LanguageManager.getLanguage(file.getVirtualFile() == null ? file.getOriginalFile() : file);
 	}
 
-	public static String modelPackage(@NotNull PsiElement element) {
-		if (!(element.getContainingFile() instanceof TaraModel)) return "";
+	public static String dslGenerationPackage(@NotNull PsiElement element) {
+		Configuration.Artifact.Dsl dsl = dsl(element);
+		if (dsl == null) return "";
 		final Module module = ModuleProvider.moduleOf(element);
+		String outputDsl = dsl.builder() != null ? dsl.builder().generationPackage() : dsl.name();
+		return safe(() -> configurationOf(module).artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "." + outputDsl);
+	}
+
+	public static String dslGenerationPackage(@NotNull Module module, String dslName) {
 		final Configuration conf = configurationOf(module);
 		if (conf == null) return "";
-		return safe(() -> conf.artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "." + conf.artifact().code().modelPackage());
+		Configuration.Artifact.Dsl dsl = dsl(conf, dslName);
+		if (dsl == null) return "";
+		return safe(() -> conf.artifact().code().generationPackage() + "." + dsl.builder().generationPackage());
+	}
+
+	@Nullable
+	public static Configuration.Artifact.Dsl dsl(@NotNull PsiElement element) {
+		if (!(element.getContainingFile() instanceof TaraModel)) return null;
+		final Module module = ModuleProvider.moduleOf(element);
+		final Configuration conf = configurationOf(module);
+		String dslName = dslOf(element);
+		if (conf == null || dslName == null) return null;
+		return dsl(conf, dslName);
+	}
+
+	@Nullable
+	private static Configuration.Artifact.Dsl dsl(Configuration conf, String dslName) {
+		return conf.artifact().dsls().stream().filter(d -> dslName.equalsIgnoreCase(d.name())).findFirst().orElse(null);
+	}
+
+	public static String dslOf(PsiElement element) {
+		PsiFile containingFile = element.getContainingFile();
+		if (!(containingFile instanceof TaraModel)) return "";
+		String[] split = containingFile.getName().split("\\.");
+		if (split.length >= 3) return split[split.length - 2];
+		return ((TaraModel) containingFile).getDSLDeclaration().getHeaderReference().getText();
 	}
 
 	public static boolean isTest(PsiElement dir, Module module) {
@@ -122,26 +150,12 @@ public class IntinoUtil {
 	}
 
 	public static String languageGraphPackage(@NotNull PsiElement element) {
-		if (!(element.getContainingFile() instanceof TaraModel)) return "";
-		final Configuration conf = configurationOf(element);
-		if (conf == null) return "";
-		Configuration.Artifact.Model.Language language = safe(() -> conf.artifact().model().language());
-		if (language == null) return null;
-		return language.generationPackage();
+		Configuration.Artifact.Dsl dsl = dsl(element);
+		return dsl == null ? null : dsl.generationPackage();
 	}
 
-	public static String modelPackage(@NotNull Module module) {
-		final Configuration conf = configurationOf(module);
-		if (conf == null) return "";
-		return safe(() -> {
-			Code code = conf.artifact().code();
-			return code.generationPackage() + "." + code.modelPackage();
-		});
-	}
-
-	public static Configuration.Artifact.Model.Level level(@NotNull PsiElement element) {
-		final Configuration configuration = configurationOf(element);
-		return safe(() -> configuration.artifact().model().level());
+	public static Level level(@NotNull PsiElement element) {
+		return safe(() -> dsl(element).level());
 	}
 
 	public static Configuration configurationOf(@NotNull PsiElement element) {
@@ -163,6 +177,10 @@ public class IntinoUtil {
 		Language language = getLanguage((PsiElement) mogram);
 		if (language == null) return null;
 		return language.constraints(mogram.resolve().type());
+	}
+
+	public static String getOrDefault(String value, String defaultValue) {
+		return value != null ? value : defaultValue;
 	}
 
 	@NotNull

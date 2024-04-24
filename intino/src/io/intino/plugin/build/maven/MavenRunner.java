@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dsl.OutputDsl;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.utils.FileSystemUtils;
@@ -45,35 +46,34 @@ public class MavenRunner {
 		this.module = module;
 	}
 
-	public void executeLanguage(Configuration conf) throws IOException, IntinoException {
+	public void buildLanguage(Configuration conf, OutputDsl outputDsl) throws IOException, IntinoException {
 		Configuration.Repository languageRepository = repository(conf);
 		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
 		Configuration.Artifact artifact = conf.artifact();
-		final File jar = new File(fileOfLanguage(artifact));
+		final File jar = new File(dslFile(outputDsl));
 		final File pom = new File(jar.getParentFile(), "pom.xml");
-		String pomContent = languagePom(languageRepository, artifact);
-		Files.writeString(pom.toPath(), pomContent);
-		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact, jar), "deploy:deploy-file");
+		Files.writeString(pom.toPath(), dslPom(languageRepository, artifact, outputDsl));
+		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact,outputDsl, jar), "deploy:deploy-file");
 		if (result != null && result.getExitCode() != 0)
 			throwException(result, "error.publishing.language", DISTRIBUTE);
 		else if (result == null)
 			throw new IOException(message("error.publishing.language", DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	private static String languagePom(Configuration.Repository languageRepository, Configuration.Artifact artifact) {
+	private static String dslPom(Configuration.Repository languageRepository, Configuration.Artifact artifact, OutputDsl outputDsl) {
 		return new PomTemplate().render(new FrameBuilder("pom", "deployFile")
 				.add("groupId", "tara.dsl")
-				.add("artifactId", artifact.model().outLanguage())
+				.add("artifactId", outputDsl.name())
 				.add("version", artifact.version())
 				.add("repository", new FrameBuilder("repository", "release").add("name", languageRepository.identifier()).add("url", languageRepository.url())));
 	}
 
 	@NotNull
-	private static String mavenOpts(Configuration.Repository languageRepository, Configuration.Artifact artifact, File jar) {
+	private static String mavenOpts(Configuration.Repository languageRepository, Configuration.Artifact artifact, OutputDsl outputDsl, File jar) {
 		return "-Durl=" + languageRepository.url() + " " +
 				"-DrepositoryId=" + languageRepository.identifier() + " " +
 				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + artifact.model().outLanguage() + " " +
+				"-DartifactId=" + outputDsl.name() + " " +
 				"-Dversion=" + artifact.version() + " " +
 				"-Dfile=" + jar;
 	}
@@ -160,10 +160,11 @@ public class MavenRunner {
 	}
 
 	@NotNull
-	private String fileOfLanguage(Configuration.Artifact artifact) {
+	private String dslFile(OutputDsl output) {
 		try {
-			Configuration.Artifact.Model model = artifact.model();
-			final String originalFile = LanguageManager.getLanguageDirectory(model.outLanguage()) + "/" + artifact.version() + "/" + model.outLanguage() + "-" + artifact.version() + ".jar";
+			String name = output.name();
+			if (name== null) return "";
+			final String originalFile = LanguageManager.getLanguageDirectory(name) + "/" + output.version() + "/" + name + "-" + output.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());
 			FileSystemUtils.copyFile(originalFile, destination.getAbsolutePath());

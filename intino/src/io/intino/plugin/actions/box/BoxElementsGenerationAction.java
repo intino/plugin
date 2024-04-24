@@ -18,6 +18,7 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import io.intino.Configuration;
+import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.IntinoAction;
@@ -28,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 import static com.intellij.notification.NotificationType.ERROR;
-import static io.intino.konos.compiler.shared.KonosBuildConstants.Mode;
 import static io.intino.plugin.project.Safe.safe;
 
 public class BoxElementsGenerationAction extends IntinoAction {
@@ -42,7 +42,7 @@ public class BoxElementsGenerationAction extends IntinoAction {
 		boolean enable = project != null && module != null;
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration)) enable = false;
-		else if (safe(() -> configuration.artifact().box()) == null) enable = false;
+		else if (safe(() -> configuration.artifact().dsls().isEmpty(), false)) enable = false;
 		e.getPresentation().setVisible(enable);
 		e.getPresentation().setEnabled(enable);
 		e.getPresentation().setIcon(IntinoIcons.GENARATION_16);
@@ -57,7 +57,8 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	@Override
 	public void execute(Module module) {
 		final Configuration configuration = IntinoUtil.configurationOf(module);
-		if (!(configuration instanceof ArtifactLegioConfiguration)||safe(() -> configuration.artifact().box()) == null) return;
+		if (!(configuration instanceof ArtifactLegioConfiguration) || safe(() -> configuration.artifact().dsls().isEmpty(), false))
+			return;
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading box elements", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
@@ -69,8 +70,10 @@ public class BoxElementsGenerationAction extends IntinoAction {
 	private void doExecute(Module module, ArtifactLegioConfiguration configuration) {
 		try {
 			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
-			KonosRunner konosRunner = new KonosRunner(module, configuration, Mode.OnlyElements, null);
-			konosRunner.runKonosCompiler();
+			Configuration.Artifact.Dsl dsl = safe(() -> configuration.artifact().dsl("Konos"));//TODO remove
+			if (dsl == null) return;
+			DslExportRunner runner = new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.OnlyElements, null);
+			runner.runExport();
 			notify(module);
 		} catch (IOException e) {
 			Logger.error(e);

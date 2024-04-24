@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 public class ConfigurationListener implements FileDocumentManagerListener {
-
 	private final Project project;
 
 	public ConfigurationListener(Project project) {

@@ -18,23 +18,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static io.intino.plugin.project.ArtifactorySensor.*;
+import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
+import static io.intino.plugin.project.ArtifactorySensor.Languages;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
 
 
 public class LegioCompletionContributor extends CompletionContributor {
 
 	public LegioCompletionContributor() {
-		inLanguageName();
-		inLanguageVersion();
+		inDslName();
+		inDslVersion();
 		inImportVersion();
-		inModelSdkVersion();
-		inBoxVersion();
-		inBoxLanguage();
 	}
 
-	private void inLanguageName() {
-		extend(CompletionType.BASIC, LegioFilters.inModelLanguage, new CompletionProvider<>() {
+	private void inDslName() {
+		extend(CompletionType.BASIC, LegioFilters.inDslName, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -44,8 +42,8 @@ public class LegioCompletionContributor extends CompletionContributor {
 		);
 	}
 
-	private void inLanguageVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inLanguageVersion, new CompletionProvider<>() {
+	private void inDslVersion() {
+		extend(CompletionType.BASIC, LegioFilters.inDslVersion, new CompletionProvider<>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
@@ -53,45 +51,12 @@ public class LegioCompletionContributor extends CompletionContributor {
 						if (!IntinoModuleType.isIntino(module)) return;
 						final Mogram container = (Mogram) TaraPsiUtil.getContainerOf(parameters.getOriginalPosition());
 						if (container == null) return;
-						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("language")).findAny().orElse(null);
+						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("name")).findAny().orElse(null);
 						if (name == null) return;
 						String languageName = name.values().get(0).toString();
 						final @Nullable List<String> values = PropertiesComponent.getInstance().getList(LanguageLibrary + languageName);
 						if (values == null) return;
 						for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
-					}
-				}
-		);
-	}
-
-	private void inBoxVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxVersion, new CompletionProvider<>() {
-					public void addCompletions(@NotNull CompletionParameters parameters,
-											   @NotNull ProcessingContext context,
-											   @NotNull CompletionResultSet resultSet) {
-						resolve(parameters, resultSet, BoxBuilder);
-					}
-				}
-		);
-	}
-
-	private void inBoxLanguage() {
-		extend(CompletionType.BASIC, LegioFilters.inBoxLanguage, new CompletionProvider<>() {
-					public void addCompletions(@NotNull CompletionParameters parameters,
-											   @NotNull ProcessingContext context,
-											   @NotNull CompletionResultSet resultSet) {
-						resultSet.addElement(LookupElementBuilder.create("Konos"));
-					}
-				}
-		);
-	}
-
-	private void inModelSdkVersion() {
-		extend(CompletionType.BASIC, LegioFilters.inModelSDKVersion, new CompletionProvider<>() {
-					public void addCompletions(@NotNull CompletionParameters parameters,
-											   @NotNull ProcessingContext context,
-											   @NotNull CompletionResultSet resultSet) {
-						resolve(parameters, resultSet, ModelBuilder);
 					}
 				}
 		);

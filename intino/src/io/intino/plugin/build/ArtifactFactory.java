@@ -1,6 +1,5 @@
 package io.intino.plugin.build;
 
-import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.ide.SaveAndSyncHandler;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -43,10 +42,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.intellij.configurationStore.StoreReloadManager.Companion;
 import static io.intino.plugin.TerminalWindow.runCommand;
 import static io.intino.plugin.build.FactoryPhaseChecker.collectModuleDependencies;
 import static io.intino.plugin.build.git.GitUtil.currentBranch;
-import static io.intino.plugin.project.Safe.safe;
 
 public class ArtifactFactory extends AbstractArtifactFactory {
 	private String stash;
@@ -207,13 +206,18 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private boolean needsToRebuild() {
-		Configuration.Artifact.Model model = safe(() -> configuration.artifact().model());
-		if (model == null) return false;
-		File languageFile = LanguageManager.getLanguageFile(model.outLanguage(), configuration.artifact().version());
-		return checker.shouldDistributeLanguage(phase, module) && !languageFile.exists() && hasModelFiles(((ArtifactLegioConfiguration) configuration).module());
+		var dsls = configuration.artifact().dsls();
+		if (dsls.isEmpty()) return false;
+		for (Configuration.Artifact.Dsl dsl : dsls) {
+			Configuration.Artifact.Dsl.OutputDsl outputDsl = dsl.outputDsl();
+			File languageFile = LanguageManager.getLanguageFile(outputDsl.name(), outputDsl.version());
+			if (checker.shouldDistributeLanguage(phase, module, dsl) && !languageFile.exists() && hasDslFiles(((ArtifactLegioConfiguration) configuration).module()))
+				return true;
+		}
+		return false;
 	}
 
-	private boolean hasModelFiles(Module module) {
+	private boolean hasDslFiles(Module module) {
 		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
 		if (!srcRoot.exists()) return false;
 		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
@@ -230,22 +234,27 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	private void saveAll() {
 		Application manager = ApplicationManager.getApplication();
 		if (manager.isWriteAccessAllowed()) FileDocumentManager.getInstance().saveAllDocuments();
-		StoreReloadManager.Companion.getInstance(project).blockReloadingProjectOnExternalChanges();
+		Companion.getInstance(project).blockReloadingProjectOnExternalChanges();
 	}
 
 	private void reloadProject() {
 		SaveAndSyncHandler.getInstance().refreshOpenFiles();
 		VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
-		StoreReloadManager.Companion.getInstance(project).unblockReloadingProjectOnExternalChanges();
+		Companion.getInstance(project).unblockReloadingProjectOnExternalChanges();
 	}
 
 	private void processSuccessMessages() {
 		final String message = String.join("\n", successMessages);
 		if (!message.isEmpty()) notify(module.getProject(), module.getName(), message);
-		String notificationMessage = MessageProvider.message(checker.shouldDistributeLanguage(phase, module) ? "success.language.publish.message" : "success.publish.message", configuration.artifact().name(), phase.participle());
+
+		String notificationMessage = MessageProvider.message(shouldDistributeAnyDsl() ? "success.language.publish.message" : "success.publish.message", configuration.artifact().name(), phase.participle());
 		if (phase.equals(FactoryPhase.DEPLOY))
 			notificationMessage = "Deployment of " + configuration.artifact().name() + " requested";
 		notify(module.getProject(), module.getName(), notificationMessage);
+	}
+
+	private boolean shouldDistributeAnyDsl() {
+		return configuration.artifact().dsls().stream().anyMatch(d -> checker.shouldDistributeLanguage(phase, module, d));
 	}
 
 	private void notify(Project project, String title, String body) {

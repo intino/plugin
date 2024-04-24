@@ -16,17 +16,16 @@ import org.jetbrains.jps.incremental.fs.CompilationRound;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
 import org.jetbrains.jps.incremental.storage.BuildDataManager;
-import org.jetbrains.jps.model.java.JavaResourceRootProperties;
-import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.module.JpsModuleSourceRoot;
-import org.jetbrains.jps.model.module.JpsTypedModuleSourceRoot;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.jetbrains.jps.intino.compiler.Directories.*;
+import static org.jetbrains.jps.intino.compiler.Directories.GEN;
+import static org.jetbrains.jps.intino.compiler.Directories.SRC;
+import static org.jetbrains.jps.intino.compiler.tara.IntinoPaths.getResourcesDirectory;
 import static org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE;
 
 public abstract class IntinoBuilder extends ModuleLevelBuilder {
@@ -40,7 +39,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 
 
 	protected void finish(CompileContext context, ModuleChunk chunk, OutputConsumer outputConsumer, Map<ModuleBuildTarget, String> finalOutputs, List<OutputItem> outputItems) throws IOException {
-		Map<ModuleBuildTarget, List<String>> generationOutputs = getStubGenerationOutputs(chunk);
+		Map<ModuleBuildTarget, List<String>> generationOutputs = getGenerationOutputs(chunk);
 		Map<ModuleBuildTarget, List<OutputItem>> compiled = processCompiledFiles(context, chunk, generationOutputs, generationOutputs.get(chunk.representativeTarget()), outputItems);
 		commit(context, chunk, outputConsumer, finalOutputs, compiled);
 	}
@@ -67,11 +66,6 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	}
 
 	protected abstract void copyGeneratedResources(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs);
-
-	protected File getResourcesDirectory(JpsModule module) {
-		final Iterator<JpsTypedModuleSourceRoot<JavaResourceRootProperties>> iterator = module.getSourceRoots(JavaResourceRootType.RESOURCE).iterator();
-		return iterator.hasNext() ? iterator.next().getFile() : new File(module.getSourceRoots().get(0).getFile().getParentFile(), RES);
-	}
 
 	protected Map<File, Boolean> collectChangedFiles(ModuleChunk chunk, DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws IOException {
 		final Map<File, Boolean> toCompile = new LinkedHashMap<>();
@@ -135,7 +129,6 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 				return null;
 			}
 			String moduleOutputPath = FileUtil.toCanonicalPath(moduleOutputDir.getPath());
-			assert moduleOutputPath != null;
 			finalOutputs.put(target, moduleOutputPath.endsWith("/") ? moduleOutputPath : moduleOutputPath + "/");
 		}
 		return finalOutputs;
@@ -192,7 +185,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 		}
 	}
 
-	private Map<ModuleBuildTarget, List<String>> getStubGenerationOutputs(ModuleChunk chunk) {
+	private Map<ModuleBuildTarget, List<String>> getGenerationOutputs(ModuleChunk chunk) {
 		final ModuleBuildTarget buildTarget = chunk.getTargets().iterator().next();
 		Map<ModuleBuildTarget, List<String>> generationOutputs = new HashMap<>();
 		File genRoot = new File(getGenDir(chunk.getModules().iterator().next()));

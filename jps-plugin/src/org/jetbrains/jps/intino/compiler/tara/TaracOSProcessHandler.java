@@ -8,28 +8,30 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.ContainerUtil;
-import io.intino.tara.builder.shared.TaraBuildConstants;
+import io.intino.builder.BuildConstants;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.incremental.messages.BuildMessage;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
+import org.jetbrains.jps.incremental.messages.CustomBuilderMessage;
 import org.jetbrains.jps.intino.compiler.OutputItem;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static io.intino.konos.compiler.shared.KonosBuildConstants.KONOSC;
-import static io.intino.tara.builder.shared.TaraBuildConstants.*;
-import static io.intino.tara.builder.shared.TaraCompilerMessageCategories.ERROR;
-import static io.intino.tara.builder.shared.TaraCompilerMessageCategories.WARNING;
+import static io.intino.builder.BuildConstants.*;
+import static io.intino.builder.CompilerMessage.WARNING;
 
 class TaracOSProcessHandler extends BaseOSProcessHandler {
 	private static final String TARA_COMPILER_IN_OPERATION = "Tara compiler in operation...";
 	private static final Logger LOG = Logger.getInstance(TaracOSProcessHandler.class);
 
 	private final List<OutputItem> compiledItems = new ArrayList<>();
-	private final List<CompilerMessage> compilerMessages = new ArrayList<>();
+	private final List<BuildMessage> compilerMessages = new ArrayList<>();
+	private final List<String> postCompileActionMessages = new ArrayList<>();
 	private final StringBuilder stdErr = new StringBuilder();
 	private final Consumer<String> statusUpdater;
 	private final StringBuilder outputBuffer = new StringBuilder();
@@ -41,10 +43,10 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 	}
 
 	private List<String> splitAndTrim(String compiled) {
-		return ContainerUtil.map(StringUtil.split(compiled, TaraBuildConstants.SEPARATOR), String::trim);
+		return ContainerUtil.map(StringUtil.split(compiled, BuildConstants.SEPARATOR), String::trim);
 	}
 
-	public void notifyTextAvailable(final String text, final Key outputType) {
+	public void notifyTextAvailable(final @NotNull String text, final @NotNull Key outputType) {
 		super.notifyTextAvailable(text, outputType);
 		System.out.println("tarac: " + text);
 		if (outputType == ProcessOutputTypes.SYSTEM) return;
@@ -65,23 +67,27 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 			updateStatus(trimmed.substring(PRESENTABLE_MESSAGE.length()));
 			return;
 		}
-		if (TaraBuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
+		if (BuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
 			updateStatus(null);
 			return;
 		}
 		if (StringUtil.isNotEmpty(text)) {
-			if (trimmed.startsWith(COMPILED_START)) {
-				outputBuffer.append(trimmed);
-				updateStatus("Finishing...");
-			} else if (trimmed.startsWith(MESSAGES_START)) {
-				outputBuffer.append(text);
-				processMessage();
-			}
-			if (trimmed.endsWith(COMPILED_END)) {
-				if (!trimmed.startsWith(COMPILED_START)) outputBuffer.append(trimmed);
-				processCompiledItems();
+			outputBuffer.append(trimmed);
+			if (trimmed.startsWith(COMPILED_START)) updateStatus("Finishing...");
+			else if (trimmed.startsWith(MESSAGES_START)) processMessage();
+			if (trimmed.endsWith(COMPILED_END)) processCompiledItems();
+			if (trimmed.startsWith(BUILD_END)) {
+				if (!postCompileActionMessages.isEmpty()) updateStatus("Updating source classes...");
+				collectPostCompileActionMessages();
+				compilerMessages.add(new CustomBuilderMessage(TARAC, ACTION_MESSAGE, String.join(MESSAGE_ACTION_SEPARATOR, postCompileActionMessages)));
 			}
 		}
+	}
+
+	private void collectPostCompileActionMessages() {
+		String substring = outputBuffer.substring(outputBuffer.indexOf(START_ACTIONS_MESSAGE), outputBuffer.indexOf(END_ACTIONS_MESSAGE));
+		String[] messages = substring.replace(START_ACTIONS_MESSAGE, "").split(END_ACTIONS_MESSAGE);
+		Collections.addAll(postCompileActionMessages, messages);
 	}
 
 	private void processMessage() {
@@ -102,7 +108,7 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 			lineInt = 0;
 			columnInt = 0;
 		}
-		BuildMessage.Kind kind = category.equals(ERROR)
+		BuildMessage.Kind kind = category.equals(io.intino.builder.CompilerMessage.ERROR)
 				? BuildMessage.Kind.ERROR
 				: category.equals(WARNING)
 				? BuildMessage.Kind.WARNING
@@ -116,10 +122,8 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 		if (outputBuffer.indexOf(COMPILED_END) == -1) return;
 		final String compiled = handleOutputBuffer(COMPILED_START, COMPILED_END);
 		final List<String> list = splitAndTrim(compiled);
-		String outputFile = list.get(0);
-		String sourceFile = list.get(1);
 
-		OutputItem item = new OutputItem(outputFile, sourceFile);
+		OutputItem item = new OutputItem(list.get(0), list.get(1));
 		LOG.info("Output: " + item);
 		compiledItems.add(item);
 	}
@@ -138,37 +142,35 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 		return compiledItems;
 	}
 
-	List<CompilerMessage> getCompilerMessages(String moduleName) {
-		List<CompilerMessage> messages = new ArrayList<>(compilerMessages);
+	List<BuildMessage> getCompilerMessages(String moduleName) {
+		List<BuildMessage> messages = new ArrayList<>(compilerMessages);
 		final StringBuilder unParsedBuffer = getStdErr();
-		if (unParsedBuffer.length() != 0) {
-			String msg = unParsedBuffer.toString();
-			if (msg.contains(TaraBuildConstants.NO_TARA)) {
-				msg = "Cannot compile Tara files: no Tara library is defined for module '" + moduleName + "'";
-				messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.INFO, msg));
-			}
+		if (!unParsedBuffer.isEmpty()) {
+			if (unParsedBuffer.toString().contains(BuildConstants.NO_BUILDER))
+				messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.INFO, "Cannot compile Tara files: no builder found for module '" + moduleName + "'"));
 		}
 		final int exitValue = getProcess().exitValue();
 		if (exitValue != 0) {
-			for (CompilerMessage message : messages)
+			for (BuildMessage message : messages)
 				if (message.getKind() == BuildMessage.Kind.ERROR)
 					return messages;
-			messages.add(new CompilerMessage(KONOSC, BuildMessage.Kind.ERROR, "Internal Tarac error:" + exitValue + ".\n" + getStdErr()));		}
+			messages.add(new CompilerMessage(TARAC, BuildMessage.Kind.ERROR, "Internal Tarac error:" + exitValue + ".\n" + getStdErr()));
+		}
 		return messages;
 	}
 
 	boolean shouldRetry() {
-		for (CompilerMessage message : compilerMessages) {
+		for (BuildMessage message : compilerMessages) {
 			if (message.getKind() == BuildMessage.Kind.ERROR) {
 //				LOG.debug("Error message: " + message);
 				return true;
 			}
-			if (message.getMessageText().contains(TaraBuildConstants.TARAC_STUB_GENERATION_FAILED)) {
+			if (message.getMessageText().contains(BuildConstants.BUILD_FAILED)) {
 				LOG.debug("Stub failed message: " + message);
 				return true;
 			}
 		}
-		if (getStdErr().length() > 0) {
+		if (!getStdErr().isEmpty()) {
 			if (Arrays.stream(getStdErr().toString().split("\n")).allMatch(l -> l.startsWith("WARNING:"))) return false;
 			LOG.debug("Non-empty stderr: '" + getStdErr() + "'");
 			LOG.error(getStdErr().toString());

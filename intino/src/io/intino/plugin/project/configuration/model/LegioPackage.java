@@ -1,5 +1,6 @@
 package io.intino.plugin.project.configuration.model;
 
+import com.intellij.psi.PsiFile;
 import io.intino.Configuration;
 import io.intino.plugin.lang.psi.TaraFacetApply;
 import io.intino.plugin.lang.psi.TaraMogram;
@@ -92,10 +93,11 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	}
 
 	public void mainClass(String qualifiedName) {
-		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> {
+		PsiFile containingFile = mogram.getContainingFile();
+		writeCommandAction(mogram.getProject(), containingFile).run(() -> {
 			if (this.mogram.appliedFacets().isEmpty()) ((TaraMogramImpl) this.mogram).applyFacet("Runnable");
 		});
-		writeCommandAction(mogram.getProject(), mogram.getContainingFile()).run(() -> {
+		writeCommandAction(mogram.getProject(), containingFile).run(() -> {
 			TaraFacetApply runnable = (TaraFacetApply) this.mogram.appliedFacets().get(0);
 			((TaraFacetApplyImpl) runnable).addParameter("mainClass", 0, List.of(qualifiedName));
 		});

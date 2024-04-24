@@ -17,13 +17,10 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
-import io.intino.plugin.project.configuration.model.LegioBox;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.intino.plugin.project.builders.BoxBuilderManager.ARTIFACT_ID;
-import static io.intino.plugin.project.builders.BoxBuilderManager.GROUP_ID;
 
 public class AllModuleDependencyPropagator {
 	private final Map<Module, ArtifactLegioConfiguration> modules;
@@ -44,7 +41,7 @@ public class AllModuleDependencyPropagator {
 				String[] coors = library.split(":");
 				Configuration.Artifact.Dependency dependency = dependency(configuration, coors);
 				String newVersion = newVersions.get(library);
-				if (dependency == null) updateBoxBuilder(configuration, newVersions, library, coors);
+				if (dependency == null) updateDsl(configuration, newVersions, library);
 				else if (!dependency.version().equals(newVersion)) {
 					String oldVersion = dependency.version();
 					dependency.version(newVersion);
@@ -70,12 +67,10 @@ public class AllModuleDependencyPropagator {
 		}
 	}
 
-
-	private void updateBoxBuilder(ArtifactLegioConfiguration configuration, Map<String, String> newVersions, String library, String[] identifier) {
-		if (identifier[0].equals(GROUP_ID) && identifier[1].equals(ARTIFACT_ID)) {
-			if (!newVersions.get(library).equals(configuration.artifact().box().version()))
-				((LegioBox) configuration.artifact().box()).version(newVersions.get(library));
-		}
+	private void updateDsl(ArtifactLegioConfiguration configuration, Map<String, String> newVersions, String library) {
+		configuration.artifact().dsls().stream()
+				.filter(dsl -> dsl.name().equalsIgnoreCase(library) && !newVersions.get(library).equals(dsl.version()))
+				.forEach(dsl -> dsl.version(newVersions.get(library)));
 	}
 
 	private Configuration.Artifact.Dependency dependency(ArtifactLegioConfiguration configuration, String[] library) {
@@ -110,8 +105,7 @@ public class AllModuleDependencyPropagator {
 		Map<String, List<String>> map = new LinkedHashMap<>();
 		for (Map.Entry<Module, ArtifactLegioConfiguration> entry : modules.entrySet()) {
 			ArtifactoryConnector connector = new ArtifactoryConnector(project, entry.getValue().repositories());
-			if (!map.containsKey(GROUP_ID + ":" + ARTIFACT_ID))
-				boxVersions(map, entry, connector);
+			entry.getValue().artifact().dsls().forEach(dsl -> dslVersions(map, connector, dsl));
 			entry.getValue().artifact().dependencies().stream().map(Configuration.Artifact.Dependency::identifier).map(identifier -> identifier.split(":")).forEach(split -> {
 				List<String> versions;
 				String artifactId = split[0] + ":" + split[1];
@@ -127,13 +121,10 @@ public class AllModuleDependencyPropagator {
 		return map;
 	}
 
-	private void boxVersions(Map<String, List<String>> map, Map.Entry<Module, ArtifactLegioConfiguration> entry, ArtifactoryConnector connector) {
-		Configuration.Artifact.Box box = entry.getValue().artifact().box();
-		if (box != null) {
-			List<String> boxVersions = connector.boxBuilderVersions();
-			if (!box.version().equals(boxVersions.get(boxVersions.size() - 1)))
-				map.put(GROUP_ID + ":" + ARTIFACT_ID, boxVersions);
-		}
+	private void dslVersions(Map<String, List<String>> map, ArtifactoryConnector connector, Configuration.Artifact.Dsl dsl) {
+		List<String> dslVersions = connector.dslVersions(dsl.name());
+		if (!dsl.version().equals(dslVersions.get(dslVersions.size() - 1)))
+			map.put(dsl.name(), dslVersions);
 	}
 
 	private List<String> filter(List<String> versions, String current) {

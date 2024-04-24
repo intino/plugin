@@ -10,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-import static io.intino.plugin.project.module.IntinoModuleType.Type.Business;
-
 public class IntinoModuleType extends JavaModuleType {
 
 	@SuppressWarnings("WeakerAccess")
@@ -36,14 +34,6 @@ public class IntinoModuleType extends JavaModuleType {
 		return module.getOptionValue(TARA_MODULE_OPTION_NAME) != null || module.getOptionValue(INTINO_MODULE_OPTION_NAME) != null;
 	}
 
-	public static Type type(Module module) {
-		if (module == null) return Business;
-		String optionValue = module.getOptionValue(INTINO_MODULE_OPTION_NAME);
-		if (optionValue != null && optionValue.equals("true")) optionValue = Business.name();
-		return optionValue != null ? Type.valueOf(optionValue) : null;
-	}
-
-
 	@NotNull
 	@Override
 	public String getName() {
@@ -61,10 +51,4 @@ public class IntinoModuleType extends JavaModuleType {
 	public Icon getNodeIcon(boolean isOpened) {
 		return IntinoIcons.MODEL_16;
 	}
-
-	public enum Type {
-		Business, Federation, DataAnalytic, Datahub, Archetype
-	}
-
-
 }

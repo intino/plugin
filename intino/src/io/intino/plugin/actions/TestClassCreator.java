@@ -11,32 +11,29 @@ import io.intino.Configuration;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.tara.Language;
-import io.intino.tara.dsls.MetaIdentifiers;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.intino.plugin.lang.psi.impl.IntinoUtil.modelPackage;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.dslGenerationPackage;
 
 class TestClassCreator {
-
-
 	static void creteTestClass(Module module, String dsl, String newName) {
 		final PsiDirectory psiDirectory = testDirectory(module);
 		if (psiDirectory == null) return;
 		final Configuration conf = IntinoUtil.configurationOf(module);
-		final PsiClass aClass = JavaDirectoryService.getInstance().createClass(psiDirectory, newName + "Test", "Tara" + (dsl.equals(MetaIdentifiers.PROTEO) ? "Ontology" : "") + "Test", false, templateParameters(module, conf, dsl, newName));
+		final PsiClass aClass = JavaDirectoryService.getInstance().createClass(psiDirectory, newName + "Test", "TaraTest", false, templateParameters(module, dsl, newName));
 		assert aClass != null;
 		VfsUtil.markDirtyAndRefresh(true, true, true, psiDirectory.getVirtualFile());
 	}
 
-	private static Map<String, String> templateParameters(Module module, Configuration conf, String dsl, String newName) {
+	private static Map<String, String> templateParameters(Module module, String dsl, String newName) {
 		Map<String, String> map = new HashMap<>();
 		map.put("NAME", newName);
 		final Language language = LanguageManager.getLanguage(module.getProject(), dsl);
 		map.put("APPLICATION", dsl);
-		map.put("WORKING_PACKAGE", modelPackage(module));
+		map.put("WORKING_PACKAGE", dslGenerationPackage(module, dsl));
 		if (language != null) map.put("PLATFORM", language.metaLanguage());
 		return map;
 	}

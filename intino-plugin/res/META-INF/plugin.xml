@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>7.2.6</version>
+	<version>8.0.0</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -27,8 +27,6 @@
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>
 		<fileType name="Stash" extensions="stash" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.StashFileType"/>
-		<fileType name="Konos" language="Tara" extensions="konos" fieldName="INSTANCE"
-				  implementationClass="io.intino.plugin.file.KonosFileType"/>
 		<fileType name="Legio" language="Tara" extensions="legio" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.LegioFileType"/>
 		<fileType name="Itrules" language="Itrules" extensions="itr" fieldName="INSTANCE"
@@ -93,7 +91,7 @@
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.RuleAnnotator"/>
 		<!--		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.AnnotationsAnnotator"/>-->
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.RuleAnnotator"/>
-
+		<iconProvider implementation="io.intino.plugin.IntinoIconProvider"/>
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.TaraNodeCompletionContributor"/>
 		<completion.contributor language="Tara"
@@ -157,16 +155,14 @@
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
-		<codeInsight.lineMarkerProvider language="Tara"
-										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
+<!--		<codeInsight.lineMarkerProvider language="Tara"-->
+<!--										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>-->
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DependencyAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArchetypeAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DataHubAnnotator"/>
-		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.BoxVersionAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactParametersAnnotator"/>
 		<annotator language="Tara"
@@ -176,7 +172,7 @@
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.MainClassAnnotator"/>
 		<annotator language="Tara"
-				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactModelAnnotator"/>
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactDslAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DuplicatedRepositoryAnnotator"/>
 		<intentionAction>
@@ -203,11 +199,7 @@
 		<moduleBuilder builderClass="io.intino.plugin.project.module.NewIntinoModuleBuilder"/>
 		<completion.contributor language="Tara"
 								implementationClass="io.intino.plugin.codeinsight.completion.LegioCompletionContributor"/>
-		<codeInsight.lineMarkerProvider language="Tara"
-										implementationClass="io.intino.plugin.codeinsight.linemarkers.InterfaceToJavaImplementation"/>
-		<consoleActionsPostProcessor
-				implementation="io.intino.plugin.toolwindows.remote.ConsoleActionsProcessor"/>
-
+		<consoleActionsPostProcessor implementation="io.intino.plugin.toolwindows.remote.ConsoleActionsProcessor"/>
 		<lang.parserDefinition language="Itrules"
 							   implementationClass="io.intino.plugin.itrules.lang.parser.ItrulesParserDefinition"/>
 		<lang.syntaxHighlighterFactory language="Itrules"
@@ -242,46 +234,55 @@
 					factoryClass="io.intino.plugin.toolwindows.metamodel.IntinoMetamodelWindowFactory"/>
 
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.FromBodyToExplicitParameters</className>
 			<category>Move To parameters</category>
 			<descriptionDirectoryName>FromBodyToExplicitParameters</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.InlineToIndentConverter</className>
 			<category>Indent operator</category>
 			<descriptionDirectoryName>InlineToIndentConverter</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.ConvertToMethodReference</className>
 			<category>Extract To method object</category>
 			<descriptionDirectoryName>ConvertToMethodReference</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.IndentToInlineConverter</className>
 			<category>Indent operator</category>
 			<descriptionDirectoryName>IndentToInlineConverter</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.ImplicitToExplicitParameters</className>
 			<category>Parameter view operator</category>
 			<descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.ExplicitToImplicitParameters</className>
 			<category>Parameter view operator</category>
 			<descriptionDirectoryName>ImplicitToExplicitParameters</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.ToBodyParameters</className>
 			<category>Parameter view operator</category>
 			<descriptionDirectoryName>ToBodyParameters</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.InlineToMultiline</className>
 			<category>String view operator</category>
 			<descriptionDirectoryName>InlineToMultiline</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
+			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.MultilineToInline</className>
 			<category>String view operator</category>
 			<descriptionDirectoryName>MultilineToInline</descriptionDirectoryName>
@@ -297,6 +298,7 @@
 <!--			<descriptionDirectoryName>CreateI18Value</descriptionDirectoryName>-->
 <!--		</intentionAction>-->
 		<intentionAction>
+			<language>JAVA</language>
 			<className>io.intino.plugin.codeinsight.intentions.SyncNativeWithTara</className>
 			<category>Sync native With tara</category>
 			<descriptionDirectoryName>SyncNativeWithTara</descriptionDirectoryName>
@@ -311,9 +313,7 @@
 	<projectListeners>
 		<listener class="io.intino.plugin.build.git.GitListener"
 				  topic="com.intellij.notification.Notifications"/>
-		<listener class="io.intino.plugin.build.TaraCompilerListener"
-				  topic="com.intellij.compiler.server.CustomBuilderMessageHandler"/>
-		<listener class="io.intino.plugin.build.KonosCompilerListener"
+		<listener class="io.intino.plugin.build.DslCompilerListener"
 				  topic="com.intellij.compiler.server.CustomBuilderMessageHandler"/>
 		<listener class="io.intino.plugin.codeinsight.languageinjection.imports.ImportsSaverService"
 				  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
@@ -346,9 +346,6 @@
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
 		</group>
 		<action id="NewTaraFile" class="io.intino.plugin.actions.CreateModelFileAction">
-			<add-to-group group-id="NewGroup" anchor="first"/>
-		</action>
-		<action id="NewBoxFile" class="io.intino.plugin.actions.CreateBoxFileAction">
 			<add-to-group group-id="NewGroup" anchor="first"/>
 		</action>
 		<action id="PurgeAndReloadConfigurationAction"

@@ -111,6 +111,16 @@ public class ConfigurationDependencyCreationAction extends PostCompileAction {
 			public void toModule(boolean toModule) {
 
 			}
+
+			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
+			}
 		};
 	}
 }

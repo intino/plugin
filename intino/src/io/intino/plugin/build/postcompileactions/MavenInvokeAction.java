@@ -6,7 +6,7 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import io.intino.plugin.CompilerConfiguration.Phase;
+import io.intino.builder.CompilerConfiguration.Phase;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.build.AbstractArtifactFactory;
 import io.intino.plugin.build.PostCompileAction;

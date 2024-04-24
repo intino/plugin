@@ -15,7 +15,7 @@ public class AnnotationsAnnotator extends TaraAnnotator {
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 		if (!(element instanceof Annotations) && !(element instanceof Flags)) return;
-		final Configuration.Artifact.Model.Level level = IntinoUtil.level(element);
+		final Configuration.Artifact.Dsl.Level level = IntinoUtil.level(element);
 		if (level == null) return;
 		if ((element instanceof Annotations && (level.isMetaModel() || level.isModel())) || (element instanceof Flags && (level.isModel())))
 			holder.newAnnotation(HighlightSeverity.ERROR, MessageProvider.message("reject.annotations.in.level")).range(element).create();

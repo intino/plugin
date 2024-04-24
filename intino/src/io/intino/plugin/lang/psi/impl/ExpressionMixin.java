@@ -53,7 +53,7 @@ public class ExpressionMixin extends ASTWrapperPsiElement {
 		final String indent = getIndent();
 		final String oldIndent = oldIndentation(replace);
 		final Expression expression = (Expression) (isMultiLine() ?
-				factory.createMultiLineExpression(replace.trim(), oldIndent.length() == 0 ? indent : oldIndent, indent, getQuote()) :
+				factory.createMultiLineExpression(replace.trim(), oldIndent.isEmpty() ? indent : oldIndent, indent, getQuote()) :
 				factory.createExpression(replace.trim().replaceAll("\n+\t+", " ")));
 		if (expression == null) return (PsiLanguageInjectionHost) this;
 		if (isMultiLine()) {

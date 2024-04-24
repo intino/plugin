@@ -23,7 +23,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class TaraPsiUtil {
-
 	private static final Logger LOG = Logger.getInstance(TaraPsiUtil.class.getName());
 
 	private TaraPsiUtil() {
@@ -105,7 +104,10 @@ public class TaraPsiUtil {
 	}
 
 	public static Mogram componentOfType(MogramContainer mogram, String type) {
-		return mogram == null ? null : mogram.components().stream().filter(c -> ((TaraMogramImpl) c).simpleType().equals(type)).findFirst().orElse(null);
+		return mogram == null ? null : mogram.components().stream()
+				.filter(c -> ((TaraMogramImpl) c).simpleType().equals(type))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public static String parameterValue(Mogram mogram, String name) {
@@ -121,9 +123,9 @@ public class TaraPsiUtil {
 		return parameter != null ? clean(parameter.values().get(0).toString()) : (parameters.size() > position ? clean(parameters.get(position).values().get(0).toString()) : null);
 	}
 
-	public static String parameterValue(Mogram node, String name, int position) {
-		if (node == null) return null;
-		List<Parameter> parameters = node.parameters();
+	public static String parameterValue(Mogram mogram, String name, int position) {
+		if (mogram == null) return null;
+		List<Parameter> parameters = mogram.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
 		return parameter != null ? clean(read(() -> parameter.values().get(0).toString())) :
 				parameterValueFromPosition(parameters, position, name);

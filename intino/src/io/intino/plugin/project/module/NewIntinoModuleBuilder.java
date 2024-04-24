@@ -33,12 +33,13 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.dsl.builder.Panel;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.LegioFileCreator;
 import io.intino.plugin.project.configuration.MavenConfiguration;
-import io.intino.plugin.project.configuration.ModuleTemplateDeployer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
@@ -47,6 +48,8 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,12 +57,12 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.moduleRoot;
 import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 import static java.io.File.separator;
 
 public class NewIntinoModuleBuilder extends StarterModuleBuilder {
-	private IntinoModuleType.Type intinoModuleType;
-	private List<IntinoWizardPanel.Components> components;
+	private List<String> selectedDsls = new ArrayList<>();
 	private boolean gorosFramework = false;
 
 	public NewIntinoModuleBuilder() {
@@ -117,7 +120,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		return new StarterPack(getBuilderId(),
 				List.of(new Starter("intino", "intino", getDependencyConfig("/starters/intino.pom"), Collections.emptyList())));
 	}
-	
+
 	@NotNull
 	@Override
 	public List<Class<? extends ModuleWizardStep>> getIgnoredSteps() {
@@ -147,7 +150,6 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
 		final ModuleWizardStep[] wizardSteps = super.createWizardSteps(wizardContext, modulesProvider);
 		final List<ModuleWizardStep> moduleWizardSteps = new ArrayList<>(Arrays.asList(wizardSteps));
-		moduleWizardSteps.add(new IntinoWizardStep(this));
 		if (!wizardContext.isCreatingNewProject()) {
 			final String suggestedGroup = suggestGroup(modulesProvider);
 			if (suggestedGroup != null) getStarterContext().setGroup(suggestedGroup);
@@ -201,7 +203,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
 		final Module module = rootModel.getModule();
-		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, intinoModuleType.name());
+		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, "true");
 	}
 
 	private void excludeDirectory(@NotNull ModifiableRootModel rootModel, ContentEntry contentEntry, String directory) {
@@ -216,7 +218,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 	@NotNull
 	@Override
 	protected StarterInitialStep createOptionsStep(@NotNull StarterContextProvider contextProvider) {
-		return new GorosSupportStep(contextProvider);
+		return new ModuleOptionsStep(contextProvider);
 	}
 
 	@Override
@@ -247,37 +249,68 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 	private void createIntinoFiles(@NotNull Project project, @Nullable Module module) {
 		if (module == null) return;
-		new ModuleTemplateDeployer(module, components, getStarterContext(), gorosFramework).deploy();
-		final VirtualFile file = new LegioFileCreator(module, components).getArtifact();
+		LegioFileCreator legioFileCreator = new LegioFileCreator(module, selectedDsls);
+		legioFileCreator.createProjectIfNotExist(module.getProject());
+		final VirtualFile file = legioFileCreator.getOrCreateArtifact(getStarterContext().getGroup());
+		if (gorosFramework) addModernizationToModule(module);
 		if (project.isInitialized()) FileEditorManager.getInstance(project).openFile(file, true);
 		else getApplication().invokeLater(() -> FileEditorManager.getInstance(project).openFile(file, true));
 		loadConfiguration(module);
 	}
+
+
+	private void addModernizationToModule(@Nullable Module module) {
+		try {
+			File file = new File(moduleRoot(module), "modernization.goros");
+			file.getParentFile().mkdirs();
+			Files.writeString(file.toPath(), ("<modernization>\n" +
+					"\t<platform></platform>\n" +
+					"\t<model></model>\n" +
+					"\t<project name=\"$project\" package=\"\" directory=\"\"/>\n" +
+					"\t<module name=\"$module\"/>\n" +
+					"\t<definitions excluded=\"\"/>\n" +
+					"</modernization>").replace("$project", module.getProject().getName()).replace("$module", module.getName()));
+			VirtualFile vFile = VfsUtil.findFileByIoFile(file, true);
+			if (vFile != null) vFile.refresh(true, false);
+		} catch (IOException ignored) {
+
+		}
+	}
+
 
 	private void loadConfiguration(Module module) {
 		final Configuration configuration = register(module, hasExternalProviders() ? newExternalProvider(module) : new MavenConfiguration(module).init());
 		configuration.reload();
 	}
 
-	public void setIntinoModuleType(IntinoModuleType.Type selected) {
-		this.intinoModuleType = selected;
-	}
-
-	public void setStartingComponents(List<IntinoWizardPanel.Components> components) {
-		this.components = components;
-	}
-
-	private class GorosSupportStep extends StarterInitialStep {
-		public GorosSupportStep(@NotNull StarterContextProvider contextProvider) {
+	private class ModuleOptionsStep extends StarterInitialStep {
+		public ModuleOptionsStep(@NotNull StarterContextProvider contextProvider) {
 			super(contextProvider);
 		}
 
 		@Override
 		protected void addFieldsAfter(@NotNull Panel layout) {
+			List<String> dsls = dsls();
+			dsls.add(0, "");
+			layout.row("DSL", row -> {
+				row.comboBox(dsls, null).getComponent()
+						.addActionListener(actionEvent -> {
+							JComboBox source = (JComboBox) actionEvent.getSource();
+							String value = source.getSelectedItem().toString();
+							selectedDsls.add(value);
+						});
+				return null;
+			});
 			layout.row("", row -> {
 				row.checkBox("Support Goros framework").getComponent().addActionListener(actionEvent -> gorosFramework = ((JBCheckBox) actionEvent.getSource()).isSelected());
 				return null;
 			});
 		}
+
+		private static List<String> dsls() {
+			ArtifactoryConnector artifactoryConnector = new ArtifactoryConnector(Collections.singletonList(ArtifactoryConnector.repository("intino-maven", Repositories.INTINO_RELEASES)));
+			return artifactoryConnector.dsls();
+		}
 	}
+
 }
