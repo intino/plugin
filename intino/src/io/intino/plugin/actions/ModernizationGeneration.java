@@ -38,7 +38,7 @@ public class ModernizationGeneration extends AnAction {
 
 	@Override
 	public @NotNull ActionUpdateThread getActionUpdateThread() {
-		return super.getActionUpdateThread();
+		return ActionUpdateThread.BGT;
 	}
 
 	@Override
