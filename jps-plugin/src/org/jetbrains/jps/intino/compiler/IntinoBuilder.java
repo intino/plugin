@@ -38,18 +38,15 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	}
 
 
-	protected void finish(CompileContext context, ModuleChunk chunk, OutputConsumer outputConsumer, Map<ModuleBuildTarget, String> finalOutputs, List<OutputItem> outputItems) throws IOException {
+	protected void finish(CompileContext context, ModuleChunk chunk, OutputConsumer outputConsumer, List<OutputItem> outputItems) throws IOException {
 		Map<ModuleBuildTarget, List<String>> generationOutputs = getGenerationOutputs(chunk);
 		Map<ModuleBuildTarget, List<OutputItem>> compiled = processCompiledFiles(context, chunk, generationOutputs, generationOutputs.get(chunk.representativeTarget()), outputItems);
-		commit(context, chunk, outputConsumer, finalOutputs, compiled);
+		commit(context, outputConsumer, compiled);
 	}
 
 	private void commit(CompileContext context,
-						ModuleChunk chunk,
 						OutputConsumer outputConsumer,
-						Map<ModuleBuildTarget, String> finalOutputs,
 						Map<ModuleBuildTarget, List<OutputItem>> compiled) throws IOException {
-		copyGeneratedResources(chunk, finalOutputs);
 		registerOutputs(context, outputConsumer, compiled);
 		removeOldClasses(context, compiled);
 	}
@@ -65,8 +62,6 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 		return true;
 	}
 
-	protected abstract void copyGeneratedResources(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs);
-
 	protected Map<File, Boolean> collectChangedFiles(ModuleChunk chunk, DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws IOException {
 		final Map<File, Boolean> toCompile = new LinkedHashMap<>();
 		dirtyFilesHolder.processDirtyFiles((target, file, sourceRoot) -> {
@@ -75,7 +70,8 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 		});
 		if (chunk.containsTests() || toCompile.isEmpty()) return toCompile;
 		for (JpsModule module : chunk.getModules())
-			module.getSourceRoots().stream().filter(s -> s.getRootType().equals(SOURCE)).forEach(root -> collectAllSuitableFilesIn(root.getFile(), toCompile));
+			module.getSourceRoots().stream().filter(s -> s.getRootType().equals(SOURCE))
+					.forEach(root -> collectAllSuitableFilesIn(root.getFile(), toCompile));
 		return toCompile;
 	}
 

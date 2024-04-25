@@ -32,6 +32,8 @@
 				  implementationClass="io.intino.plugin.file.LegioFileType"/>
 		<fileType name="Itrules" language="Itrules" extensions="itr" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.ItrulesFileType"/>
+		<fileType name="Konos" language="Tara" extensions="konos" fieldName="INSTANCE"
+				  implementationClass="io.intino.plugin.file.KonosFileType"/>
 		<fileType name="Goros" language="XML" extensions="goros" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.file.GorosFileType"/>
 		<fileType name="Archetype" language="Archetype" extensions="archetype" fieldName="INSTANCE"

@@ -19,7 +19,6 @@ import org.jetbrains.jps.intino.compiler.OutputItem;
 import org.jetbrains.jps.intino.model.JpsIntinoExtensionService;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
 import org.jetbrains.jps.model.JpsProject;
-import org.jetbrains.jps.model.module.JpsModule;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,13 +30,10 @@ import java.util.regex.Pattern;
 import static io.intino.builder.BuildConstants.*;
 import static org.jetbrains.jps.builders.java.JavaBuilderUtil.isCompileJavaIncrementally;
 import static org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode.*;
-import static org.jetbrains.jps.intino.compiler.CopyResourcesUtil.copy;
-import static org.jetbrains.jps.intino.compiler.tara.IntinoPaths.getResourcesDirectory;
 
 public class TaraBuilder extends IntinoBuilder {
 	private static final Logger LOG = Logger.getInstance(TaraBuilder.class.getName());
 	private static final String TARA_EXTENSION = "tara";
-	private static final String STASH = ".stash";
 	private final String builderName;
 	private JpsModuleConfiguration conf;
 	private static final Pattern taraFilePattern = Pattern.compile("\\.([a-z])+\\.tara$" + TARA_EXTENSION);
@@ -86,7 +82,7 @@ public class TaraBuilder extends IntinoBuilder {
 			if (exitCode != null) return exitCode;
 			compiled.addAll(result.successfullyCompiled());
 		}
-		finish(context, chunk, outputConsumer, finalOutputs, compiled);
+		finish(context, chunk, outputConsumer, compiled);
 		context.processMessage(new CustomBuilderMessage(TARAC, REFRESH_MESSAGE, chunk.getName() + REFRESH_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 		context.setDone(1);
 		return OK;
@@ -103,7 +99,7 @@ public class TaraBuilder extends IntinoBuilder {
 	@NotNull
 	@Override
 	public List<String> getCompilableFileExtensions() {
-		return Collections.singletonList(TARA_EXTENSION);
+		return List.of(TARA_EXTENSION, "konos");//FIXME maintaining for retrocompatibility
 	}
 
 	@Nullable
@@ -111,18 +107,7 @@ public class TaraBuilder extends IntinoBuilder {
 		return context.getProjectDescriptor().getEncodingConfiguration().getPreferredModuleChunkEncoding(chunk);
 	}
 
-	protected void copyGeneratedResources(ModuleChunk chunk, Map<ModuleBuildTarget, String> finalOutputs) {
-		for (JpsModule module : chunk.getModules()) {
-			final File resourcesDirectory = chunk.containsTests() ? IntinoPaths.testResourcesDirectory(module) : getResourcesDirectory(module);
-			if (!resourcesDirectory.exists()) resourcesDirectory.mkdirs();
-			File[] files = resourcesDirectory.listFiles((dir, name) -> name.endsWith(STASH));
-			for (File file : files == null ? new File[0] : files)
-				copy(file, new File(FileUtil.toSystemDependentName(finalOutputs.get(chunk.representativeTarget()))));
-		}
-	}
-
 	private Map<String, Map<String, Boolean>> files(Map<File, Boolean> toCompile) {
-
 		Map<String, Map<String, Boolean>> map = new LinkedHashMap<>();
 		for (Map.Entry<File, Boolean> file : toCompile.entrySet()) {
 			if (LOG.isDebugEnabled()) LOG.debug("Path to compile: " + file.getKey().getPath());
@@ -134,7 +119,6 @@ public class TaraBuilder extends IntinoBuilder {
 		}
 		return map;
 	}
-
 
 	private String dslOf(File file) {
 		Matcher matcher = taraFilePattern.matcher(file.getName());
@@ -164,6 +148,7 @@ public class TaraBuilder extends IntinoBuilder {
 	}
 
 	protected boolean isSuitableFile(String path) {
-		return conf != null && path.endsWith("." + TARA_EXTENSION);
+		return conf != null && (path.endsWith("." + TARA_EXTENSION)
+				|| path.endsWith(".konos"));//FIXME Maintain for retrocompatibility
 	}
 }

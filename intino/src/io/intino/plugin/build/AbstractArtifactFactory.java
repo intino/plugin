@@ -28,8 +28,8 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
 import io.intino.plugin.lang.LanguageManager;
-import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.settings.IntinoSettings;
@@ -55,6 +55,7 @@ import static io.intino.Configuration.Server.Type.Pre;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.*;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.dsl;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.lang.String.join;
@@ -181,7 +182,7 @@ public abstract class AbstractArtifactFactory {
 	private boolean hasDslFiles(Module module, Artifact.Dsl dsl) {
 		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
 		if (!srcRoot.exists()) return false;
-		return !FileUtils.listFiles(srcRoot.toNioPath().toFile(), new String[]{dsl.name() + "." + TaraFileType.INSTANCE.getDefaultExtension()}, true).isEmpty();
+		return TaraPsiUtil.read(() -> IntinoUtil.getTaraFilesOfModule(module).stream().anyMatch(f2 -> dsl.name().equalsIgnoreCase(dsl(f2).name())));
 	}
 
 	protected boolean askForReleaseDistribute() {

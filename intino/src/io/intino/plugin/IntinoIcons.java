@@ -33,7 +33,6 @@ public class IntinoIcons {
 
 	public static final Icon LEGIO_16 = RETINA ? scale(getIcon("/icons/files/artifact-32.png", IntinoIcons.class)) : getIcon("/icons/files/artifact-16.png", IntinoIcons.class);
 	public static final Icon ARCHETYPE_16 = RETINA ? scale(getIcon("/icons/files/archetype-32.png", IntinoIcons.class)) : getIcon("/icons/files/archetype-16.png", IntinoIcons.class);
-	public static final Icon KONOS_16 = RETINA ? scale(getIcon("/icons/files/box-32.png", IntinoIcons.class)) : getIcon("/icons/files/box-16.png", IntinoIcons.class);
 	public static final Icon GENARATION_16 = RETINA ? scale(getIcon("/icons/generate-32.png", IntinoIcons.class)) : getIcon("/icons/generate-16.png", IntinoIcons.class);
 
 	public static final Icon GOROS_13 = RETINA ? scale(getIcon("/icons/goros/goros-26.png", IntinoIcons.class)) : getIcon("/icons/goros/goros-13.png", IntinoIcons.class);
