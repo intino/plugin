@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ALL")
-public class CreateNodeRuleClassIntention extends ClassCreationIntention {
+public class CreateMogramRuleClassIntention extends ClassCreationIntention {
 
 	private static final String RULES_PACKAGE = ".rules";
 	private final Rule rule;
 	private final Mogram node;
 	private String rulesPath;
 
-	public CreateNodeRuleClassIntention(Rule rule) {
+	public CreateMogramRuleClassIntention(Rule rule) {
 		this.rule = rule;
 		this.node = TaraPsiUtil.getContainerByType((TaraRule) rule, Mogram.class);
 		if (node != null) this.rulesPath = IntinoUtil.dslGenerationPackage((PsiElement) node).toLowerCase() + RULES_PACKAGE;
@@ -88,7 +88,7 @@ public class CreateNodeRuleClassIntention extends ClassCreationIntention {
 	}
 
 	public PsiClass createClass(PsiDirectory destiny, String className, Map<String, String> additionalProperties) {
-		return JavaDirectoryService.getInstance().createClass(destiny, className, "NodeRule", false, additionalProperties);
+		return JavaDirectoryService.getInstance().createClass(destiny, className, "MogramRule", false, additionalProperties);
 	}
 
 	@Override

@@ -13,6 +13,8 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.project.configuration.maven.MavenTags.DSL_BUILDER_GENERATION_PACKAGE;
+
 public class MavenConfiguration implements Configuration {
 	private final Module module;
 	private final MavenProject maven;
@@ -141,7 +143,7 @@ public class MavenConfiguration implements Configuration {
 
 					@Override
 					public String generationPackage() {
-						return null;
+						return maven == null ? null : maven.getProperties().getProperty(DSL_BUILDER_GENERATION_PACKAGE);
 					}
 
 					@Override
@@ -164,7 +166,8 @@ public class MavenConfiguration implements Configuration {
 
 							@Override
 							public String artifactId() {
-								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_BUILDER_ARTIFACT_ID);							}
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_BUILDER_ARTIFACT_ID);
+							}
 
 							@Override
 							public String version() {
@@ -174,8 +177,8 @@ public class MavenConfiguration implements Configuration {
 							@Override
 							public String generationPackage() {
 								if (maven == null) return "";
-								String property = maven.getProperties().getProperty(MavenTags.DSL_BUILDER_GENERATION_PACKAGE);
-								return property == null? name():property;
+								String property = maven.getProperties().getProperty(DSL_BUILDER_GENERATION_PACKAGE);
+								return property == null ? name() : property;
 							}
 
 							@Override
@@ -210,7 +213,8 @@ public class MavenConfiguration implements Configuration {
 
 							@Override
 							public String artifactId() {
-								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_RUNTIME_ARTIFACT_ID);							}
+								return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_RUNTIME_ARTIFACT_ID);
+							}
 
 							@Override
 							public String version() {
@@ -271,7 +275,8 @@ public class MavenConfiguration implements Configuration {
 
 									@Override
 									public String artifactId() {
-										return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_OUTPUT_BUILDER_ARTIFACT_ID);							}
+										return maven == null ? "" : maven.getProperties().getProperty(MavenTags.DSL_OUTPUT_BUILDER_ARTIFACT_ID);
+									}
 
 									@Override
 									public String version() {

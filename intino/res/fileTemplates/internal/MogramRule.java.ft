@@ -1,11 +1,11 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
 import io.intino.tara.language.model.Mogram;
-import io.intino.tara.language.model.rules.NodeRule;
+import io.intino.tara.language.model.rules.MogramRule;
 
 import java.util.List;
 
-public class ${NAME} implements NodeRule {
+public class ${NAME} implements MogramRule {
 
 
 	public boolean accept(Mogram node) {

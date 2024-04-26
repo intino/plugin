@@ -6,7 +6,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
-import io.intino.plugin.codeinsight.annotators.fix.CreateNodeRuleClassIntention;
+import io.intino.plugin.codeinsight.annotators.fix.CreateMogramRuleClassIntention;
 import io.intino.plugin.codeinsight.languageinjection.helpers.Format;
 import io.intino.plugin.lang.psi.Rule;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
@@ -85,6 +85,6 @@ public class NodeRuleAnalyzer extends TaraAnalyzer {
 
 	private IntentionAction[] collectFixes() {
 		if (rule == null) return new IntentionAction[0];
-		return new IntentionAction[]{new CreateNodeRuleClassIntention(rule)};
+		return new IntentionAction[]{new CreateMogramRuleClassIntention(rule)};
 	}
 }

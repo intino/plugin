@@ -93,7 +93,7 @@ public class IntinoUtil {
 		if (dsl == null) return "";
 		final Module module = ModuleProvider.moduleOf(element);
 		String outputDsl = dsl.builder() != null ? dsl.builder().generationPackage() : dsl.name();
-		return safe(() -> configurationOf(module).artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "." + outputDsl);
+		return safe(() -> configurationOf(module).artifact().code().generationPackage()) + (isTest(element.getContainingFile(), module) ? ".test" : "." + outputDsl.toLowerCase());
 	}
 
 	public static String dslGenerationPackage(@NotNull Module module, String dslName) {

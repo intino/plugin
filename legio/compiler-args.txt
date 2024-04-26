@@ -25,9 +25,9 @@ src.path
 
 level
 MetaModel
-language
+dsl
 Proteo:1.0.0
-out.language
+out.dsl
 Legio
 groupId
 io.intino.legio
