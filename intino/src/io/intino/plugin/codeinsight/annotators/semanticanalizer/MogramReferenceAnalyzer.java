@@ -13,10 +13,10 @@ import io.intino.tara.language.semantics.errorcollector.SemanticFatalException;
 
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
-public class NodeReferenceAnalyzer extends TaraAnalyzer {
+public class MogramReferenceAnalyzer extends TaraAnalyzer {
 	private final TaraMogramReference nodeReference;
 
-	public NodeReferenceAnalyzer(TaraMogramReference nodeReference) {
+	public MogramReferenceAnalyzer(TaraMogramReference nodeReference) {
 		this.nodeReference = nodeReference;
 	}
 

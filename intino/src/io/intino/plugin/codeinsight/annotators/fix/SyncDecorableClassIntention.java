@@ -138,10 +138,4 @@ public class SyncDecorableClassIntention extends ClassCreationIntention {
 	private String validName(String name) {
 		return javaValidName().format(name).toString();
 	}
-
-
-	@Override
-	public boolean startInWriteAction() {
-		return true;
-	}
 }

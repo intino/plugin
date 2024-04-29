@@ -19,7 +19,6 @@ public class CreateClassFromMethodReferenceFix extends ClassCreationIntention {
 
 	public CreateClassFromMethodReferenceFix(Valued valued) {
 		this.valued = valued;
-
 	}
 
 	@Nls
@@ -57,5 +56,4 @@ public class CreateClassFromMethodReferenceFix extends ClassCreationIntention {
 	private String findReference(PsiElement element) {
 		return element.getPrevSibling().getLastChild().getLastChild().getLastChild().getText();
 	}
-
 }

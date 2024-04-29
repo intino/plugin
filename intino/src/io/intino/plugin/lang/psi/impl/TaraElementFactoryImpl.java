@@ -28,14 +28,14 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 		this.project = project;
 	}
 
-	public TaraMogram createNode(String name, String type) {
+	public TaraMogram createMogram(String name, String type) {
 		final TaraModelImpl file = createDummyFile(
 				type + " " + name + "\n"
 		);
 		return (TaraMogram) file.components().iterator().next();
 	}
 
-	public TaraMogram createNode(String name) {
+	public TaraMogram createMogram(String name) {
 		final TaraModelImpl file = createDummyFile(
 				"Concept" + " " + name + "\n"
 		);
@@ -64,7 +64,7 @@ public class TaraElementFactoryImpl extends TaraElementFactory {
 	}
 
 	public Identifier createNameIdentifier(String name) {
-		return PsiTreeUtil.getChildOfType(createNode(name).getSignature(), Identifier.class);
+		return PsiTreeUtil.getChildOfType(createMogram(name).getSignature(), Identifier.class);
 	}
 
 	public TaraVariable createVariable(String name, Primitive type) {

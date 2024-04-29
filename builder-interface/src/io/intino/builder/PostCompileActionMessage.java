@@ -9,7 +9,8 @@ public abstract class PostCompileActionMessage {
 	protected final String name;
 
 	public enum ObjectType {
-		FIELD, METHOD, CONFIGURATION_PARAMETER, CONFIGURATION_DEPENDENCY, MODULE, MAIN_CLASS, ARTIFACT_BUILD
+		FIELD, METHOD, CONFIGURATION_PARAMETER, CONFIGURATION_DEPENDENCY, MODULE, MAIN_CLASS, ARTIFACT_BUILD,
+		INVOKE_MAVEN //Deprecated
 	}
 
 	public PostCompileActionMessage(String module, File file, ObjectType objectType, String name) {

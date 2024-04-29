@@ -16,7 +16,9 @@ import io.intino.tara.language.model.Parameter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
 import static io.intino.plugin.project.ArtifactorySensor.Languages;
@@ -54,8 +56,11 @@ public class LegioCompletionContributor extends CompletionContributor {
 						final Parameter name = container.parameters().stream().filter(p -> p.name().equals("name")).findAny().orElse(null);
 						if (name == null) return;
 						String languageName = name.values().get(0).toString();
-						final @Nullable List<String> values = PropertiesComponent.getInstance().getList(LanguageLibrary + languageName);
-						if (values == null) return;
+						PropertiesComponent component = PropertiesComponent.getInstance();
+						List<String> list = component.getList(LanguageLibrary + languageName);
+						final @Nullable Set<String> values = new HashSet<>(list == null ? List.of() : list);
+						List<String> lower = component.getList(LanguageLibrary + languageName.toLowerCase());
+						if (lower != null) values.addAll(lower);
 						for (String value : values) resultSet.addElement(LookupElementBuilder.create(value));
 					}
 				}

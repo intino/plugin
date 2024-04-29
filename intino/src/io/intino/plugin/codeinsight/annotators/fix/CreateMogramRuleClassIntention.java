@@ -24,8 +24,6 @@ import java.util.Map;
 
 @SuppressWarnings("ALL")
 public class CreateMogramRuleClassIntention extends ClassCreationIntention {
-
-	private static final String RULES_PACKAGE = ".rules";
 	private final Rule rule;
 	private final Mogram node;
 	private String rulesPath;
@@ -90,10 +88,4 @@ public class CreateMogramRuleClassIntention extends ClassCreationIntention {
 	public PsiClass createClass(PsiDirectory destiny, String className, Map<String, String> additionalProperties) {
 		return JavaDirectoryService.getInstance().createClass(destiny, className, "MogramRule", false, additionalProperties);
 	}
-
-	@Override
-	public boolean startInWriteAction() {
-		return true;
-	}
-
 }

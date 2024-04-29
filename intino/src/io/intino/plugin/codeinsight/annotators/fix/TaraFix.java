@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 
 public abstract class TaraFix implements LocalQuickFix {
-
 	public static final TaraFix[] EMPTY_ARRAY = new TaraFix[0];
 
 	protected static boolean isQuickFixOnReadOnlyFile(PsiElement problemElement) {
@@ -51,8 +50,5 @@ public abstract class TaraFix implements LocalQuickFix {
 		}
 	}
 
-	protected abstract void doFix(Project project, ProblemDescriptor descriptor)
-			throws IncorrectOperationException;
-
-
+	protected abstract void doFix(Project project, ProblemDescriptor descriptor) throws IncorrectOperationException;
 }

@@ -11,10 +11,11 @@ import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class RemoveElementFix implements IntentionAction {
-	private final PsiElement myNode;
+	@SafeFieldForPreview
+	private final PsiElement element;
 
 	public RemoveElementFix(@NotNull final PsiElement origNode) {
-		myNode = origNode;
+		element = origNode;
 	}
 
 	@NotNull
@@ -28,12 +29,12 @@ public class RemoveElementFix implements IntentionAction {
 	}
 
 	public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-		return file.isValid() && myNode.isValid() && myNode.getManager().isInProject(myNode);
+		return file.isValid() && element.isValid() && element.getManager().isInProject(element);
 	}
 
 	public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
 		if (!FileModificationService.getInstance().prepareFileForWrite(file)) return;
-		myNode.delete();
+		element.delete();
 	}
 
 	public boolean startInWriteAction() {

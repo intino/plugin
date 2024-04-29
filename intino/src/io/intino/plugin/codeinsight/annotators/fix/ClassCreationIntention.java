@@ -12,12 +12,10 @@ import io.intino.plugin.errorreporting.TaraRuntimeException;
 import java.util.Collection;
 
 public abstract class ClassCreationIntention extends PsiElementBaseIntentionAction {
-
+	protected static final String RULES_PACKAGE = ".rules";
 	private static final String SRC = "src";
 	private static final String GEN = "gen";
 	protected static final String DOT = ".";
-	protected static final String SLASH = "/";
-
 
 	PsiDirectory findDestination(PsiFile file, final PsiDirectoryImpl srcDirectory, final String destinyName) {
 		PsiDirectory subdirectory = srcDirectory.findSubdirectory(destinyName);
@@ -51,5 +49,4 @@ public abstract class ClassCreationIntention extends PsiElementBaseIntentionActi
 			if (file.isDirectory() && GEN.equals(file.getName())) return file;
 		throw new TaraRuntimeException("gen directory not found");
 	}
-
 }

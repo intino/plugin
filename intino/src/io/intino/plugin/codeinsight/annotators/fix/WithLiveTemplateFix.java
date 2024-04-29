@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class WithLiveTemplateFix {
-
 	@Nullable("null means unable to open the editor")
 	static Editor positionCursor(@NotNull Project project, @NotNull PsiFile targetFile, @NotNull PsiElement element) {
 		TextRange range = element.getTextRange();

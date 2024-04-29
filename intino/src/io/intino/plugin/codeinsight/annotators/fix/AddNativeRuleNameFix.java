@@ -20,8 +20,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class AddNativeRuleNameFix extends WithLiveTemplateFix implements IntentionAction {
-
-
+	@SafeFieldForPreview
 	private final TaraVariable variable;
 
 	public AddNativeRuleNameFix(PsiElement element) {
@@ -75,6 +74,4 @@ public class AddNativeRuleNameFix extends WithLiveTemplateFix implements Intenti
 		((TemplateImpl) template).getTemplateContext().setEnabled(contextType(TaraTemplateContext.class), true);
 		return template;
 	}
-
-
 }

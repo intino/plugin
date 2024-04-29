@@ -87,7 +87,7 @@ public class ConfigurationReloader {
 		for (Artifact.Dsl dsl : dsls) {
 			var deps = resolve(dsl);
 			if (!dsl.builder().excludedPhases().contains(ExcludeCodeBaseGeneration))
-				artifactDependencies.add(0, asDependency(new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.effectiveVersion()),JavaScopes.COMPILE));
+				artifactDependencies.add(0, asDependency(new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.effectiveVersion()), JavaScopes.COMPILE));
 			artifactDependencies.add(0, asDependency(language(deps), JavaScopes.PROVIDED));
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
@@ -107,9 +107,7 @@ public class ConfigurationReloader {
 	}
 
 	private List<org.eclipse.aether.graph.Dependency> resolve(Artifact.Dsl dsl) {
-		final String effectiveVersion = dsl.effectiveVersion();
-		String version = effectiveVersion == null || effectiveVersion.isEmpty() ? dsl.version() : effectiveVersion;
-		return new LanguageResolver(module, repositories).resolve(dsl, version);
+		return new LanguageResolver(module, repositories).resolve(dsl);
 	}
 
 	private void register(DependencyCatalog dependencies) {

@@ -5,8 +5,8 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.ModelAnalyzer;
-import io.intino.plugin.codeinsight.annotators.semanticanalizer.NodeAnalyzer;
-import io.intino.plugin.codeinsight.annotators.semanticanalizer.NodeReferenceAnalyzer;
+import io.intino.plugin.codeinsight.annotators.semanticanalizer.MogramAnalyzer;
+import io.intino.plugin.codeinsight.annotators.semanticanalizer.MogramReferenceAnalyzer;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.lang.psi.TaraIdentifier;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -20,7 +20,7 @@ import java.awt.*;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
-public class NodeAnnotator extends TaraAnnotator {
+public class MogramAnnotator extends TaraAnnotator {
 
 	@Override
 	public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -31,7 +31,7 @@ public class NodeAnnotator extends TaraAnnotator {
 	}
 
 	private void asNode(AnnotationHolder holder, Mogram node) {
-		TaraAnalyzer analyzer = new NodeAnalyzer(node);
+		TaraAnalyzer analyzer = new MogramAnalyzer(node);
 		analyzeAndAnnotate(holder, analyzer);
 		if (analyzer.hasErrors()) return;
 		if (node.is(Tag.Instance)) addInstanceAnnotation(holder, node);
@@ -42,7 +42,7 @@ public class NodeAnnotator extends TaraAnnotator {
 	}
 
 	private void asNodeReference(AnnotationHolder holder, TaraMogramReference nodeReference) {
-		analyzeAndAnnotate(holder, new NodeReferenceAnalyzer(nodeReference));
+		analyzeAndAnnotate(holder, new MogramReferenceAnalyzer(nodeReference));
 	}
 
 	private void addInstanceAnnotation(AnnotationHolder holder, Mogram node) {

@@ -5,8 +5,6 @@ project
 intino
 module
 legio
-semantic.lib
-/Users/oroncal/workspace/infrastructure/tara/out/build/language/language-1.5.1.jar
 outputpath
 /Users/oroncal/workspace/infrastructure/intino-plugin/legio/gen
 final_outputpath
@@ -35,6 +33,12 @@ artifactId
 model
 version
 4.0.0
+builder.groupId
+io.intino.tara
+builder.artifactId
+builder
+builder.version
+1.2.0
 generation.package
 io.intino.legio.model
 make

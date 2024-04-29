@@ -11,10 +11,11 @@ import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
-public class RemoveNodeLinkFix implements IntentionAction {
+public class RemoveMogramReferenceFix implements IntentionAction {
+	@SafeFieldForPreview
 	private final TaraMogramReference conceptReference;
 
-	public RemoveNodeLinkFix(@NotNull final TaraMogramReference conceptReference) {
+	public RemoveMogramReferenceFix(@NotNull final TaraMogramReference conceptReference) {
 		this.conceptReference = conceptReference;
 	}
 

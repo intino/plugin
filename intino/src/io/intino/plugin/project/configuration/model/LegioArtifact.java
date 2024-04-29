@@ -14,6 +14,8 @@ import io.intino.plugin.lang.psi.impl.TaraMogramImpl;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.model.LegioDependency.*;
+import io.intino.plugin.project.configuration.model.retrocompatibility.LegioBox;
+import io.intino.plugin.project.configuration.model.retrocompatibility.LegioModel;
 import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.tara.language.model.Mogram;
 import org.jetbrains.annotations.NotNull;
@@ -91,9 +93,14 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	@Override
 	public List<Configuration.Artifact.Dsl> dsls() {
-		return componentsOfType(mogram, "Dsl").stream()
+		List<Dsl> dsls = componentsOfType(mogram, "Dsl").stream()
 				.map(d -> new LegioDsl(LegioArtifact.this, (TaraMogram) d))
 				.collect(toList());
+		Mogram model = componentOfType(mogram, "Model");
+		if (model != null) dsls.add(new LegioModel(this, (TaraMogram) model));
+		Mogram box = componentOfType(mogram, "Box");
+		if (box != null) dsls.add(new LegioBox(this, box));
+		return dsls;
 	}
 
 	@Override
@@ -306,12 +313,12 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private void addParameter(String p) {
 		TaraElementFactory factory = factory();
-		Mogram node = factory.createFullMogram("Parameter(name = \"" + p + "\")");
-		node.type("Artifact.Parameter");
-		((TaraMogramImpl) node).getSignature().getLastChild().getPrevSibling().delete();
+		Mogram mogram = factory.createFullMogram("Parameter(name = \"" + p + "\")");
+		mogram.type("Artifact.Parameter");
+		((TaraMogramImpl) mogram).getSignature().getLastChild().getPrevSibling().delete();
 		final PsiElement last = (PsiElement) this.mogram.components().get(this.mogram.components().size() - 1);
 		PsiElement separator = this.mogram.addAfter(factory.createBodyNewLine(), last);
-		this.mogram.addAfter((PsiElement) node, separator);
+		this.mogram.addAfter((PsiElement) mogram, separator);
 	}
 
 	private void addDependency(Dependency d) {

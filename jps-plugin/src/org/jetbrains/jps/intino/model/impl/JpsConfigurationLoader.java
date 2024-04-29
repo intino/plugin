@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ProjectBuildException;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration.Dsl;
@@ -35,20 +36,18 @@ class JpsConfigurationLoader {
 	}
 
 	JpsModuleConfiguration load() throws ProjectBuildException {
-		final JpsModuleConfiguration conf = new JpsModuleConfiguration();
 		File confFile = new File(JpsModelSerializationDataService.getBaseDirectory(module.getProject()), ".intino/artifacts/" + module.getName() + ".conf");
 		if (confFile.exists()) {
-			fillFromLegio(conf, confFile);
-			return conf;
+			return loadFromLegio(confFile);
 		}
 		final MavenProjectConfiguration maven = JpsMavenExtensionService.getInstance().getMavenProjectConfiguration(context.getProjectDescriptor().dataManager.getDataPaths());
-		if (maven == null) return conf;
+		if (maven == null) return new JpsModuleConfiguration();
 		final MavenModuleResourceConfiguration moduleMaven = maven.moduleConfigurations.get(module.getName());
-		fillFromMaven(conf, moduleMaven);
-		return conf;
+		return loadFromMaven(moduleMaven);
 	}
 
-	private void fillFromLegio(JpsModuleConfiguration conf, File confFile) throws ProjectBuildException {
+	private JpsModuleConfiguration loadFromLegio(File confFile) throws ProjectBuildException {
+		final JpsModuleConfiguration conf = new JpsModuleConfiguration();
 		try {
 			Map<String, String> parameters = Files.readAllLines(confFile.toPath()).stream().filter(l -> l.contains("=")).
 					collect(Collectors.toMap(s -> s.split("=")[0], s -> {
@@ -70,6 +69,7 @@ class JpsConfigurationLoader {
 			conf.dependencies = parameters.getOrDefault(CURRENT_DEPENDENCIES, "");
 		} catch (IOException ignored) {
 		}
+		return conf;
 	}
 
 	private Dsl toDsl(Map<String, String> parameters, JsonObject o) {
@@ -96,8 +96,15 @@ class JpsConfigurationLoader {
 				builderObj.get(prefix + BUILDER_GROUP_ID).getAsString(),
 				builderObj.get(prefix + BUILDER_ARTIFACT_ID).getAsString(),
 				builderObj.get(prefix + BUILDER_VERSION).getAsString(),
-				parameters.isEmpty() ? "" : parameters.get(GENERATION_PACKAGE) + "." + builderObj.get(BUILDER_GENERATION_PACKAGE).getAsString(),
+				parameters.isEmpty() ? "" : generationPackage(parameters, builderObj),
 				excludedPhases(builderObj));
+	}
+
+	@NotNull
+	private static String generationPackage(Map<String, String> parameters, JsonObject builderObj) {
+		String pack = parameters.get(GENERATION_PACKAGE);
+		String builderPack = builderObj.get(BUILDER_GENERATION_PACKAGE).getAsString();
+		return pack + (!builderPack.isEmpty() ? "." + builderPack : "");
 	}
 
 	private Dsl.OutDsl outDslOf(JsonObject object) {
@@ -105,8 +112,8 @@ class JpsConfigurationLoader {
 		String prefix = OUT_DSL + ".";
 		return new Dsl.OutDsl(
 				object.get(OUT_DSL).getAsString(),
-				builderOf(Map.of(), object, prefix),
-				runtimeOf(object, prefix)
+				object.has(OUT_DSL + "." + BUILDER_GROUP_ID) ? builderOf(Map.of(), object, prefix) : null,
+				object.has(OUT_DSL + "." + RUNTIME_GROUP_ID) ? runtimeOf(object, prefix) : null
 		);
 	}
 
@@ -115,8 +122,9 @@ class JpsConfigurationLoader {
 		return jsonElement == null ? null : jsonElement.getAsJsonArray().asList().stream().map(e -> e.getAsJsonPrimitive().getAsInt()).toList();
 	}
 
-	private void fillFromMaven(JpsModuleConfiguration conf, MavenModuleResourceConfiguration pom) {
-		if (pom == null) return;
+	private JpsModuleConfiguration loadFromMaven(MavenModuleResourceConfiguration pom) {
+		final JpsModuleConfiguration conf = new JpsModuleConfiguration();
+		if (pom == null) return conf;
 		final Map<String, String> props = pom.properties;
 		conf.groupId = pom.id.groupId;
 		conf.artifactId = pom.id.artifactId;
@@ -129,6 +137,7 @@ class JpsConfigurationLoader {
 				null,
 				new Dsl.OutDsl(props.getOrDefault(TARA + OUT_DSL, ""), null, null)
 		));
+		return conf;
 	}
 
 	private Builder builderOf(Map<String, String> props) {

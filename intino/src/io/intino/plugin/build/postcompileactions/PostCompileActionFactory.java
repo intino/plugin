@@ -17,7 +17,8 @@ public class PostCompileActionFactory {
 			return new ConfigurationDependencyCreationAction(module, parameters);
 		if (type.equals(MODULE.name())) return new ModuleCreationAction(module, parameters);
 		if (type.equals(MAIN_CLASS.name())) return new MainClassCreationAction(module, parameters);
-		if (type.equals(ARTIFACT_BUILD.name())) return new MavenInvokeAction(module, parameters);
+		if (type.equals(ARTIFACT_BUILD.name()) || type.equals(INVOKE_MAVEN.name()))
+			return new ArtifactBuildAction(module, parameters);
 		return null;
 	}
 }

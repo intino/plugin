@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 class AddRequiredAspectFix implements IntentionAction {
-
+	@SafeFieldForPreview
 	private final Mogram mogram;
 
 	public AddRequiredAspectFix(PsiElement element) {

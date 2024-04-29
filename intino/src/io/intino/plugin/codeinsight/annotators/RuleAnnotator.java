@@ -2,7 +2,7 @@ package io.intino.plugin.codeinsight.annotators;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
-import io.intino.plugin.codeinsight.annotators.semanticanalizer.NodeRuleAnalyzer;
+import io.intino.plugin.codeinsight.annotators.semanticanalizer.MogramRuleAnalyzer;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.VariableRuleClassAnalyzer;
 import io.intino.plugin.lang.psi.TaraRuleContainer;
@@ -25,6 +25,6 @@ public class RuleAnnotator extends TaraAnnotator {
 	private static TaraAnalyzer analyzer(TaraRuleContainer ruleContainer) {
 		return TaraPsiUtil.getContainerByType(ruleContainer, Variable.class) != null ?
 				new VariableRuleClassAnalyzer(ruleContainer) :
-				new NodeRuleAnalyzer(ruleContainer);
+				new MogramRuleAnalyzer(ruleContainer);
 	}
 }

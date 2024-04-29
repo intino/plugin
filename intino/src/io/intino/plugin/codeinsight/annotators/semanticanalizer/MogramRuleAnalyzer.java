@@ -24,13 +24,13 @@ import static io.intino.tara.dsls.MetaIdentifiers.FACET;
 import static io.intino.tara.dsls.MetaIdentifiers.META_FACET;
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.ERROR;
 
-public class NodeRuleAnalyzer extends TaraAnalyzer {
+public class MogramRuleAnalyzer extends TaraAnalyzer {
 	private static final String RULES_PACKAGE = ".rules.";
 	private final String rulesPackage;
 	private final Rule rule;
 	private final Mogram node;
 
-	public NodeRuleAnalyzer(TaraRuleContainer ruleContainer) {
+	public MogramRuleAnalyzer(TaraRuleContainer ruleContainer) {
 		this.node = TaraPsiUtil.getContainerByType(ruleContainer, Mogram.class);
 		this.rule = ruleContainer.getRule();
 		this.rulesPackage = IntinoUtil.dslGenerationPackage(ruleContainer).toLowerCase() + RULES_PACKAGE;

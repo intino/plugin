@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class ToLowerCaseInstanceFix extends PsiElementBaseIntentionAction {
-
 	private final TaraMogram mogram;
 
 	public ToLowerCaseInstanceFix(PsiElement element) {
@@ -45,5 +44,4 @@ public class ToLowerCaseInstanceFix extends PsiElementBaseIntentionAction {
 	public String getText() {
 		return "To lowercase";
 	}
-
 }

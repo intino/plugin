@@ -12,7 +12,6 @@ import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class NavigateToInterfaceFix implements IntentionAction {
-
 	private final TaraVariable variable;
 
 	public NavigateToInterfaceFix(PsiElement element) {

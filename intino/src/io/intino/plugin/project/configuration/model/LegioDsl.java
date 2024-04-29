@@ -1,6 +1,7 @@
 package io.intino.plugin.project.configuration.model;
 
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.TaraMogram;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import static io.intino.builder.BuildConstants.GENERATION_PACKAGE;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentOfType;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
-public class LegioDsl implements Configuration.Artifact.Dsl {
+public class LegioDsl implements Dsl {
 	private final LegioArtifact artifact;
 	private final TaraMogram mogram;
 	private String name;
@@ -27,6 +28,11 @@ public class LegioDsl implements Configuration.Artifact.Dsl {
 	public LegioDsl(LegioArtifact artifact, TaraMogram mogram) {
 		this.artifact = artifact;
 		this.mogram = mogram;
+	}
+
+	@Override
+	public String groupId() {
+		return LanguageManager.DSL_GROUP_ID;
 	}
 
 	@Override
@@ -81,8 +87,7 @@ public class LegioDsl implements Configuration.Artifact.Dsl {
 
 	@Override
 	public OutputDsl outputDsl() {
-		TaraMogram outputDsl = (TaraMogram) componentOfType(mogram, "OutputDsl");
-		return level().equals(Level.Model) ? null : new LegioOutputDsl(this, outputDsl);
+		return level().equals(Level.Model) ? null : new LegioOutputDsl(this, (TaraMogram) componentOfType(mogram, "OutputDsl"));
 	}
 
 	@Override

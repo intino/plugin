@@ -88,7 +88,7 @@
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ReferenceAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.DecorableAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.ResourceAnnotator"/>
-		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.NodeAnnotator"/>
+		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.MogramAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.DSLDeclarationAnnotator"/>
 		<annotator language="Tara" implementationClass="io.intino.plugin.codeinsight.annotators.RuleAnnotator"/>
@@ -348,7 +348,7 @@
 		<group id="intino" text="Intino" popup="true" class="io.intino.plugin.actions.IntinoActionGroup">
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
 		</group>
-		<action id="NewTaraFile" class="io.intino.plugin.actions.CreateModelFileAction">
+		<action id="NewTaraFile" class="io.intino.plugin.actions.CreateDslFileAction">
 			<add-to-group group-id="NewGroup" anchor="first"/>
 		</action>
 		<action id="PurgeAndReloadConfigurationAction"

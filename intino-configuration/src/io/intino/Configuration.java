@@ -116,6 +116,12 @@ public interface Configuration {
 				}
 			}
 
+			String groupId();
+
+			default String artifactId() {
+				return name();
+			}
+
 			String name();
 
 			String version();

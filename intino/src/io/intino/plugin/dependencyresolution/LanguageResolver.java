@@ -33,10 +33,9 @@ public class LanguageResolver {
 		this.repositories = repositories;
 	}
 
-	public List<Dependency> resolve(Dsl dsl, String version) {
+	public List<Dependency> resolve(Dsl dsl) {
 		if (dsl == null) return null;
-		List<Dependency> languageDependencies = new DslImporter(module, dsl, repositories).importLanguage();
-		LanguageManager.silentReload(this.module.getProject(), dsl.name(), version);
+		List<Dependency> languageDependencies = new DslImporter(module, repositories).importDsl(dsl);
 		new DslBuilderManager(module, repositories, dsl).resolveBuilder();
 		return languageDependencies;
 	}

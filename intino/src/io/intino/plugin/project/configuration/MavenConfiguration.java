@@ -4,6 +4,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import io.intino.Configuration;
+import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.project.configuration.maven.MavenHelper;
 import io.intino.plugin.project.configuration.maven.MavenTags;
 import io.intino.plugin.project.configuration.maven.ModuleMavenCreator;
@@ -124,6 +125,11 @@ public class MavenConfiguration implements Configuration {
 					@Override
 					public ConfigurationNode owner() {
 						return null;
+					}
+
+					@Override
+					public String groupId() {
+						return LanguageManager.DSL_GROUP_ID;
 					}
 
 					@Override

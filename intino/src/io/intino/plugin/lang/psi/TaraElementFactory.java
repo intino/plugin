@@ -16,11 +16,11 @@ public abstract class TaraElementFactory {
 		return project.getService(TaraElementFactory.class);
 	}
 
-	public abstract Mogram createNode(String name);
+	public abstract Mogram createMogram(String name);
 
 	public abstract Mogram createFullMogram(String code);
 
-	public abstract TaraMogram createNode(String name, String type);
+	public abstract TaraMogram createMogram(String name, String type);
 
 	public abstract TaraModelImpl createDummyFile(String text);
 

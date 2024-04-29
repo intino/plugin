@@ -21,7 +21,7 @@ public class LegioDslBuilder implements Configuration.Artifact.Dsl.Builder {
 	public LegioDslBuilder(LegioDsl dsl, TaraMogram mogram) {
 		this.dsl = dsl;
 		this.mogram = mogram;
-		attributes = dsl.attributes();
+		this.attributes = dsl.attributes();
 	}
 
 	@Override

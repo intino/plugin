@@ -26,8 +26,6 @@ import java.util.Map;
 
 @SuppressWarnings("ALL")
 public class CreateVariableRuleClassIntention extends ClassCreationIntention {
-
-	private static final String RULES_PACKAGE = ".rules";
 	private final Rule rule;
 	private final Variable variable;
 	private String rulesPath;

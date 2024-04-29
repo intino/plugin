@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.plugin.lang.LanguageManager;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
@@ -16,42 +17,39 @@ import org.eclipse.aether.resolution.DependencyResult;
 import java.util.List;
 import java.util.TreeMap;
 
-import static io.intino.plugin.lang.LanguageManager.DSL_GROUP_ID;
 import static org.apache.maven.artifact.Artifact.LATEST_VERSION;
 import static org.eclipse.aether.util.artifact.JavaScopes.COMPILE;
 
 public class DslImporter {
 	private final Module module;
-	private final Configuration.Artifact.Dsl dsl;
 	private final MavenDependencyResolver resolver;
 	private final List<Configuration.Repository> repositories;
 
-	public DslImporter(Module module, Configuration.Artifact.Dsl dsl, List<Configuration.Repository> repositories) {
+	public DslImporter(Module module, List<Configuration.Repository> repositories) {
 		this.module = module;
-		this.dsl = dsl;
 		this.resolver = new MavenDependencyResolver(new Repositories(this.module).map(repositories));
 		this.repositories = repositories;
 	}
 
-	List<Dependency> importLanguage() {
-		String dslName = dsl.name();
+	List<Dependency> importDsl(Dsl dsl) {
+		String dslName = dsl.artifactId();
 		if (dslName == null || dsl.version() == null) return null;
-		final String effectiveVersion = effectiveVersionOf(dslName, dsl.version());
-		final DependencyResult result = downloadLanguage(dslName, effectiveVersion);
+		final DependencyResult result = downloadLanguage(dsl);
 		if (result != null) {
-			dsl.effectiveVersion(effectiveVersion);
+			List<Dependency> dependencies = MavenDependencyResolver.dependenciesFrom(result, false);
+			dsl.effectiveVersion(dependencies.get(0).getArtifact().getVersion());
 			reload(dslName, module.getProject());
-			return MavenDependencyResolver.dependenciesFrom(result, false);
+			return dependencies;
 		}
 		return null;
 	}
 
-	private DependencyResult downloadLanguage(String name, String version) {
+	private DependencyResult downloadLanguage(Dsl dsl) {
 		try {
-			return resolver.resolve(new DefaultArtifact(DSL_GROUP_ID, name, "jar", version), COMPILE);
+			return resolver.resolve(new DefaultArtifact(dsl.groupId(), dsl.artifactId(), "jar", effectiveVersionOf(dsl)), COMPILE);
 		} catch (DependencyResolutionException e) {
 			try {
-				return resolver.resolve(new DefaultArtifact(DSL_GROUP_ID, name.toLowerCase(), "jar", version), COMPILE);
+				return resolver.resolve(new DefaultArtifact(dsl.groupId(), dsl.artifactId().toLowerCase(), "jar", effectiveVersionOf(dsl)), COMPILE);
 			} catch (DependencyResolutionException e2) {
 				error(e2);
 				return null;
@@ -67,10 +65,11 @@ public class DslImporter {
 		Bus.notify(new Notification("Intino", "Error connecting with Artifactory.", e.getMessage(), NotificationType.ERROR));
 	}
 
-	private String effectiveVersionOf(String dsl, String version) {
+	private String effectiveVersionOf(Dsl dsl) {
+		String version = dsl.effectiveVersion();
 		if (LATEST_VERSION.equals(version)) {
 			TreeMap<Long, String> versions = new TreeMap<>();
-			new ArtifactoryConnector(repositories).dslVersions(dsl).forEach(v -> versions.put(indexOf(v), v));
+			new ArtifactoryConnector(repositories).dslVersions(dsl.name()).forEach(v -> versions.put(indexOf(v), v));
 			return versions.isEmpty() ? LATEST_VERSION : versions.get(versions.lastKey());
 		}
 		return version;

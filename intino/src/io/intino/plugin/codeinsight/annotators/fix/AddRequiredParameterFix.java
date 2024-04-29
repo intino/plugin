@@ -48,8 +48,6 @@ class AddRequiredParameterFix extends WithLiveTemplateFix implements IntentionAc
 		}
 	}
 
-
-
 	@Nls
 	@NotNull
 	@Override

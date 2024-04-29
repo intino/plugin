@@ -22,12 +22,12 @@ import java.util.List;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 
-public class MavenInvokeAction extends PostCompileAction {
+public class ArtifactBuildAction extends PostCompileAction {
 	private static final Logger LOG = Logger.getInstance(AbstractArtifactFactory.class.getName());
 
 	private final List<String> parameters;
 
-	public MavenInvokeAction(Module module, List<String> parameters) {
+	public ArtifactBuildAction(Module module, List<String> parameters) {
 		super(module);
 		this.parameters = parameters;
 	}

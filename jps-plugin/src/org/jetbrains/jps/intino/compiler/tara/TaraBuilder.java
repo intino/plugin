@@ -58,7 +58,7 @@ public class TaraBuilder extends IntinoBuilder {
 				LOG.error(e.getMessage());
 				LOG.error(e.getStackTrace()[0].getClassName() + " " + e.getStackTrace()[0].getLineNumber());
 			}
-			throw new ProjectBuildException(e.getMessage());
+			throw new ProjectBuildException(e.getMessage(), e);
 		} finally {
 			if (start > 0 && LOG.isDebugEnabled())
 				LOG.debug(builderName + " took " + (System.currentTimeMillis() - start) + " on " + chunk.getName());
@@ -75,7 +75,7 @@ public class TaraBuilder extends IntinoBuilder {
 		Map<String, Map<String, Boolean>> files = files(toCompile);
 		IntinoPaths paths = IntinoPaths.load(chunk, finalOutputs, context.getProjectDescriptor().getProject());
 		List<OutputItem> compiled = new ArrayList<>();
-		for (String dsl : files.keySet()) {
+		for (String dsl : sort(new ArrayList<>(files.keySet()))) {
 			String runConfiguration = new RunConfigurationRenderer(project, chunk, conf, files.get(dsl), dsl, paths, isCompileJavaIncrementally(context), encoding).build();
 			CompilationResult result = new TaraRunner(project, chunk, dsl, runConfiguration, encoding).runTaraCompiler(context);
 			ExitCode exitCode = processResult(context, result);
@@ -86,6 +86,16 @@ public class TaraBuilder extends IntinoBuilder {
 		context.processMessage(new CustomBuilderMessage(TARAC, REFRESH_MESSAGE, chunk.getName() + REFRESH_MESSAGE_SEPARATOR + getGenDir(chunk.getModules().iterator().next())));
 		context.setDone(1);
 		return OK;
+	}
+
+	private Collection<String> sort(List<String> names) {
+		names.sort((s, t1) -> Integer.compare(indexOf(s), indexOf(t1)));
+		return names;
+	}
+
+	private int indexOf(String dsl) {
+		JpsModuleConfiguration.Dsl dslObj = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
+		return dslObj == null ? Integer.MAX_VALUE : conf.dsls.indexOf(dslObj);
 	}
 
 	@Nullable

@@ -75,6 +75,8 @@ class TaraRunner {
 			if (mainClass != null) return mainClass;
 		} catch (IOException ignored) {
 		}
+		if (mainJar.contains("konos")) return "io.intino.konos.KonoscRunner";
+		if (mainJar.contains("magritte")) return "io.intino.magritte.builder.MagrittecRunner";
 		throw new IOException("Main class not found in " + mainJar);
 	}
 

@@ -31,9 +31,9 @@ import java.util.Map;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.isTest;
 import static io.intino.plugin.project.Safe.safe;
 
-public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<TaraModelImpl> {
+public class CreateDslFileAction extends JavaCreateTemplateInPackageAction<TaraModelImpl> {
 
-	public CreateModelFileAction() {
+	public CreateDslFileAction() {
 		super(MessageProvider.message("new.file.menu.action.text"), MessageProvider.message("new.file.menu.action.description"), IntinoIcons.MODEL_16, true);
 	}
 
@@ -74,7 +74,7 @@ public class CreateModelFileAction extends JavaCreateTemplateInPackageAction<Tar
 	@Override
 	protected TaraModelImpl doCreate(PsiDirectory directory, String newName, String templateName) throws IncorrectOperationException {
 		String template = TaraTemplates.getTemplate("FILE");
-		String fileName = newName + "." + templateName.toLowerCase() + "." + TaraFileType.instance().getDefaultExtension();
+		String fileName = newName + "." + TaraFileType.instance().getDefaultExtension();
 		PsiFile file = TaraTemplatesFactory.createFromTemplate(directory, newName, fileName, template, true, "DSL", templateName);
 		final Module module = ModuleProvider.moduleOf(directory);
 		if (isTest(directory, module)) TestClassCreator.creteTestClass(module, template, newName);

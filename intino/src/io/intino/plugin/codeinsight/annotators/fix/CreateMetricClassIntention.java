@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CreateMetricClassIntention extends ClassCreationIntention {
-
-	private static final String RULES_PACKAGE = ".rules";
 	private final Rule rule;
 	private String rulesPath;
 	private final Variable variable;
@@ -79,10 +77,5 @@ public class CreateMetricClassIntention extends ClassCreationIntention {
 		if (variable.type().equals(Primitive.WORD)) return "Enum";
 		if (variable.type().equals(Primitive.RESOURCE)) return "java.io.File";
 		return variable.type().javaName();
-	}
-
-	@Override
-	public boolean startInWriteAction() {
-		return true;
 	}
 }

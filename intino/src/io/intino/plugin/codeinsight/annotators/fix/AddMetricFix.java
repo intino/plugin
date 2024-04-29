@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 class AddMetricFix extends PsiElementBaseIntentionAction {
-
 	private final Parameter parameter;
 	private final String[] parameters;
 
@@ -59,5 +58,4 @@ class AddMetricFix extends PsiElementBaseIntentionAction {
 	public String getText() {
 		return "Add metric";
 	}
-
 }

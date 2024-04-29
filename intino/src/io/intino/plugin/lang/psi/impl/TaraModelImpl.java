@@ -98,7 +98,7 @@ public class TaraModelImpl extends PsiFileBase implements TaraModel {
 	}
 
 	public Mogram addNode(String identifier) {
-		return (Mogram) addNode(TaraElementFactory.getInstance(getProject()).createNode(identifier));
+		return (Mogram) addNode(TaraElementFactory.getInstance(getProject()).createMogram(identifier));
 	}
 
 	public Import addImport(String reference) {

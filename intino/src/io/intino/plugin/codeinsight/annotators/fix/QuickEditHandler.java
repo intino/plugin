@@ -29,7 +29,6 @@ public class QuickEditHandler implements Disposable, DocumentListener {
 
 	private final Editor myEditor;
 	private final PsiMethod method;
-	private final Document myOrigDocument;
 
 	private final Document myNewDocument;
 	private final PsiFile file;
@@ -40,7 +39,7 @@ public class QuickEditHandler implements Disposable, DocumentListener {
 		myProject = project;
 		myEditor = editor;
 		this.method = method;
-		myOrigDocument = editor.getDocument();
+		Document myOrigDocument = editor.getDocument();
 		file = origFile;
 
 		// suppress possible errors as in injected mode
@@ -104,5 +103,4 @@ public class QuickEditHandler implements Disposable, DocumentListener {
 	@Override
 	public void dispose() {
 	}
-
 }

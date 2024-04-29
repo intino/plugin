@@ -43,10 +43,15 @@ public class RunConfigurationRenderer {
 		writer.write(PROJECT + NL + project.getName() + NL);
 		writer.write(MODULE + NL + module.getName() + NL);
 		writePaths(paths, writer);
-		if (conf != null) fillConfiguration(conf, writer);
 		writer.write(MAKE + NL + make + NL);
 		writer.write(TEST + NL + module.containsTests() + NL);
 		writer.write(ENCODING + NL + encoding + NL);
+		if (conf == null) return writer.toString();
+		if (!conf.groupId.isEmpty()) writer.write(GROUP_ID + NL + conf.groupId + NL);
+		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
+		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
+		Dsl dslConf = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
+		if (dslConf != null) fillDslConfiguration(dslConf, writer);
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
 		if (!conf.parentInterface.isEmpty()) writer.write(PARENT_INTERFACE + NL + conf.parentInterface + NL);
 		if (!conf.datahub.isEmpty()) {
@@ -58,27 +63,24 @@ public class RunConfigurationRenderer {
 		return writer.toString();
 	}
 
-	private void fillConfiguration(JpsModuleConfiguration conf, StringWriter writer) {
-		if (!conf.groupId.isEmpty()) writer.write(GROUP_ID + NL + conf.groupId + NL);
-		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
-		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
-		Dsl dslConf = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
-		if (dslConf != null) fillDslConfiguration(dslConf, writer);
-	}
-
-	private void fillDslConfiguration(Dsl conf, StringWriter writer) {
-		if (conf == null) return;
-		writer.write(DSL + NL + conf.name() + ":" + conf.version() + NL);
-		writer.write(LEVEL + NL + conf.level() + NL);
-		Builder builder = conf.builder();
+	private void fillDslConfiguration(Dsl dsl, StringWriter writer) {
+		if (dsl == null) return;
+		writer.write(DSL + NL + dsl.name() + ":" + dsl.version() + NL);
+		writer.write("language" + NL + dsl.name() + ":" + dsl.version() + NL);//FIXME retrocompatibility. Remove in following versions
+		writer.write(LEVEL + NL + dsl.level() + NL);
+		Builder builder = dsl.builder();
 		if (builder != null) {
 			if (builder.excludedPhases() != null)
 				writer.write(EXCLUDED_PHASES + NL + builder.excludedPhases().stream().map(Object::toString).collect(Collectors.joining(" ")) + NL);
 			writer.write(GENERATION_PACKAGE + NL + builder.generationPackage() + NL);
+			if (dsl.name().equalsIgnoreCase("Konos") && dsl.version().compareTo("12.0.0") < 0) {
+				writer.write("box." + GENERATION_PACKAGE + NL + builder.generationPackage() + ".box" + NL);//FIXME retrocompatibility. Remove in following versions
+			}
 		}
-		Dsl.OutDsl outDsl = conf.outDsl();
+		Dsl.OutDsl outDsl = dsl.outDsl();
 		if (outDsl != null) {
 			writer.write(OUT_DSL + NL + outDsl.name() + NL);
+			writer.write("out.language" + NL + outDsl.name() + NL); //FIXME retrocompatibility. Remove in following versions
 			Builder outBuilder = outDsl.builder();
 			if (outBuilder != null) {
 				writer.write(OUT_DSL + "." + BUILDER_GROUP_ID + NL + outBuilder.groupId() + NL);
