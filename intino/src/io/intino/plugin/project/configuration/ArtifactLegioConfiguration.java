@@ -9,7 +9,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.WebModuleType;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -72,7 +71,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 
 	public Configuration init() {
 		try {
-			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact", false) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
 					vFile = new LegioFileCreator(module, new String[0]).getArtifact();
@@ -132,7 +131,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 			refresh();
 			if (module.isDisposed() || module.getProject().isDisposed()) return;
 			try {
-				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact...", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading Artifact...", false) {
 							 @Override
 							 public void run(@NotNull ProgressIndicator indicator) {
 								 try {
@@ -174,7 +173,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 	}
 
 	public void reloadDependencies() {
-		reloader(UPDATE_POLICY_ALWAYS).reloadDependencies();
+		reloader().reloadDependencies();
 	}
 
 	@NotNull
@@ -183,8 +182,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 	}
 
 	@NotNull
-	private ConfigurationReloader reloader(String updatePolicy) {
-		return new ConfigurationReloader(module, ArtifactLegioConfiguration.this, updatePolicy);
+	private ConfigurationReloader reloader() {
+		return new ConfigurationReloader(module, ArtifactLegioConfiguration.this, UPDATE_POLICY_ALWAYS);
 	}
 
 	public void purgeAndReload() {
@@ -193,7 +192,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed())
 			application.runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		ProgressManager.getInstance().run(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		ProgressManager.getInstance().run(new Task.Backgroundable(module.getProject(), module.getName() + ": Purging and loading Configuration", false) {
 											  @Override
 											  public void run(@NotNull ProgressIndicator indicator) {
 												  reloading.set(true);

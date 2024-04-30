@@ -13,7 +13,6 @@ import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
-import org.eclipse.aether.util.artifact.JavaScopes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,6 +24,8 @@ import static io.intino.Configuration.Artifact.Dsl.Builder.ExcludedPhases.Exclud
 import static io.intino.Configuration.RunConfiguration;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
+import static org.eclipse.aether.util.artifact.JavaScopes.COMPILE;
+import static org.eclipse.aether.util.artifact.JavaScopes.PROVIDED;
 
 public class ConfigurationReloader {
 	private final Configuration configuration;
@@ -86,9 +87,12 @@ public class ConfigurationReloader {
 		if (archetype != null) artifactDependencies.add(0, archetype);
 		for (Artifact.Dsl dsl : dsls) {
 			var deps = resolve(dsl);
-			if (!dsl.builder().excludedPhases().contains(ExcludeCodeBaseGeneration))
-				artifactDependencies.add(0, asDependency(new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.effectiveVersion()), JavaScopes.COMPILE));
-			artifactDependencies.add(0, asDependency(language(deps), JavaScopes.PROVIDED));
+			if (!dsl.builder().excludedPhases().contains(ExcludeCodeBaseGeneration)) {
+				String dslCoors = new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.version());
+				if (dslCoors != null) artifactDependencies.add(0, asDependency(dslCoors, COMPILE));
+			}
+			String language = language(deps);
+			if (language != null) artifactDependencies.add(0, asDependency(language, PROVIDED));
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
 		if (!artifactDependencies.isEmpty()) dependencies.merge(resolver.resolve(artifactDependencies));
@@ -98,12 +102,11 @@ public class ConfigurationReloader {
 		else application.invokeLater(() -> register(dependencies));
 	}
 
-	@NotNull
 	private static String language(List<org.eclipse.aether.graph.Dependency> deps) {
 		return deps.stream().map(org.eclipse.aether.graph.Dependency::getArtifact)
 				.filter(d -> d.getArtifactId().equalsIgnoreCase("language"))
 				.findFirst().map(d -> String.join(":", d.getGroupId(), d.getArtifactId(), d.getVersion()))
-				.get();
+				.orElse(null);
 	}
 
 	private List<org.eclipse.aether.graph.Dependency> resolve(Artifact.Dsl dsl) {

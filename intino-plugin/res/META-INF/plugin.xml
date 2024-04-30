@@ -22,7 +22,7 @@
 		In addition, are presented new file icons and unified builder interface. for all of them
 	</change-notes>
 
-	<idea-version since-build="233.13135"/>
+	<idea-version since-build="241.9959.31"/>
 	<extensions defaultExtensionNs="com.intellij">
 		<fileType name="Tara" language="Tara" extensions="tara" fieldName="INSTANCE"
 				  implementationClass="io.intino.plugin.lang.file.TaraFileType"/>

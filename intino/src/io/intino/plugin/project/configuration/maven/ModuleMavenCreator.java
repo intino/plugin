@@ -12,7 +12,7 @@ import com.intellij.psi.PsiManager;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
-import org.jetbrains.idea.maven.buildtool.MavenImportSpec;
+import org.jetbrains.idea.maven.buildtool.MavenSyncSpec;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class ModuleMavenCreator {
-
 	private static final String POM_XML = "pom.xml";
 	private final Module module;
 
@@ -35,7 +34,7 @@ public class ModuleMavenCreator {
 		if (pomFile == null) return;
 		MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
 		manager.addManagedFilesOrUnignore(Collections.singletonList(pomFile));
-		manager.scheduleUpdateAllMavenProjects(MavenImportSpec.IMPLICIT_IMPORT);
+		manager.scheduleUpdateAllMavenProjects(MavenSyncSpec.full("creating pom"));
 		manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
 		FileEditorManager.getInstance(module.getProject()).openFile(pomFile, true);
 	}

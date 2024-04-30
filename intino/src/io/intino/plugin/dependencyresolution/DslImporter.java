@@ -37,7 +37,7 @@ public class DslImporter {
 		final DependencyResult result = downloadLanguage(dsl);
 		if (result != null) {
 			List<Dependency> dependencies = MavenDependencyResolver.dependenciesFrom(result, false);
-			dsl.effectiveVersion(dependencies.get(0).getArtifact().getVersion());
+			dsl.effectiveVersion(dependencies.get(0).getArtifact().getBaseVersion());
 			reload(dslName, module.getProject());
 			return dependencies;
 		}

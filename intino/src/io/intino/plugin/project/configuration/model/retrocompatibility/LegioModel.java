@@ -55,7 +55,7 @@ public class LegioModel implements Configuration.Artifact.Dsl {
 	@Override
 	public Level level() {
 		Attributes parameters = parameters();
-		if (parameters == null) return null;
+		if (parameters == null) return Level.MetaModel;
 		String level = ensureCompatibility(parameters.getValue("level"));
 		return level == null ? Level.MetaModel : Level.values()[Level.valueOf(level).ordinal() - 1];
 	}
