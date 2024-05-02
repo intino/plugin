@@ -175,7 +175,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		try {
 			String runtimeCoors = runtimeCoors(dsl.name(), dsl.version());
 			var dependencies = resolver.resolve(new DefaultArtifact(runtimeCoors), JavaScopes.COMPILE);
-			renderDependency(parent, module, runtimeCoors, dslLabel(dependencies));
+			renderDependency(parent, module, runtimeCoors, dslLabel(dsl, dependencies));
 		} catch (DependencyResolutionException ignored) {
 		}
 	}
@@ -223,11 +223,10 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		return dependency.identifier() + ":" + dependency.getClass().getInterfaces()[0].getSimpleName();
 	}
 
-
 	@NotNull
-	private String dslLabel(DependencyResult result) {
+	private String dslLabel(Configuration.Artifact.Dsl dsl, DependencyResult result) {
 		Artifact artifact = dependenciesFrom(result, false).get(0).getArtifact();
-		return label(artifact) + ":dsl";
+		return label(artifact) + ":" + dsl.name();
 	}
 
 	@NotNull
@@ -255,9 +254,9 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-			DefaultMutableTreeNode nodo = (DefaultMutableTreeNode) value;
-			if (tree.getModel().getRoot().equals(nodo)) setIcon(AllIcons.Nodes.ModuleGroup);
-			else if (nodo.getUserObject() instanceof ModuleNode) setIcon(AllIcons.Nodes.ModuleGroup);
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+			if (tree.getModel().getRoot().equals(node)) setIcon(AllIcons.Nodes.ModuleGroup);
+			else if (node.getUserObject() instanceof ModuleNode) setIcon(AllIcons.Nodes.ModuleGroup);
 			else setIcon(AllIcons.Nodes.PpLib);
 			return this;
 		}
@@ -298,12 +297,7 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 
 	}
 
-	private static class ModuleNode {
-		private final String name;
-
-		ModuleNode(String name) {
-			this.name = name;
-		}
+	private record ModuleNode(String name) {
 
 		@Override
 		public String toString() {
