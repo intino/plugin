@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.tara.language.semantics.errorcollector.SemanticNotification.Level.WARNING;
 
 public class MogramAnalyzer extends TaraAnalyzer {
@@ -36,7 +37,7 @@ public class MogramAnalyzer extends TaraAnalyzer {
 			if (language == null) return;
 			mogram.resolve();
 			new Checker(language).check(mogram);
-			String description = language.doc(mogram.type()).description();
+			String description = safe(() -> language.doc(mogram.type()).description(), "");
 			if (description.toLowerCase().startsWith("deprecated"))
 				results.put(((TaraMogram) mogram).getSignature(), new AnnotateAndFix(WARNING, mogram.doc(), DeprecatedErrorFixFactory.get("deprecated.mogram", (PsiElement) mogram)));
 		} catch (SemanticFatalException fatal) {

@@ -4,18 +4,18 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -29,9 +29,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import static com.intellij.psi.search.GlobalSearchScope.moduleScope;
 import static io.intino.builder.BuildConstants.*;
 import static io.intino.plugin.project.Safe.safe;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -44,9 +44,11 @@ public class DslExportRunner {
 	private static File argsFile;
 	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
+	private final Module module;
 	private final Configuration.Artifact.Dsl dsl;
 
 	public DslExportRunner(Module module, ArtifactLegioConfiguration conf, Configuration.Artifact.Dsl dsl, Mode mode, String outputPath) throws IOException, IntinoException {
+		this.module = module;
 		this.dsl = dsl;
 		argsFile = FileUtil.createTempFile("idea" + dsl.name() + "ToCompile", ".txt", false);
 		Path path = new DslBuilderManager(module, conf.repositories(), dsl).classpathFile();
@@ -56,7 +58,7 @@ public class DslExportRunner {
 		Logger.info("Classpath: " + String.join(":", classpath));
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), UTF_8))) {
 			writer.write(SRC_FILE + NL);
-			for (File file : sources(module, dsl)) writer.write(file.getAbsolutePath() + "#true" + NL);
+			for (File file : sources(module)) writer.write(file.getAbsolutePath() + "#true" + NL);
 			writer.write(NL);
 			writer.write(PROJECT + NL + module.getProject().getName() + NL);
 			writer.write(MODULE + NL + module.getName() + NL);
@@ -100,8 +102,9 @@ public class DslExportRunner {
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		vmParams.add("-Dfile.encoding=" + Charset.defaultCharset().displayName());
-		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(
-				getJavaExecutable(), mainClass(), Collections.emptyList(), classpath, vmParams, programParams);
+		final String mainClass = mainClass(classpath.get(0));
+		if (mainClass == null) throw new IOException("Main Class of runner not found");
+		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(getJavaExecutable(), mainClass, Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
 		final ExportOSProcessHandler handler = new ExportOSProcessHandler(process, this::save);
 		handler.startNotify();
@@ -115,7 +118,12 @@ public class DslExportRunner {
 		Logger.info("Output of export execution saved in: " + tempFile.toFile().getAbsolutePath());
 	}
 
-	private String mainClass() {
+	private String mainClass(String path) {
+		try (JarFile jarFile = new JarFile(new File(path))) {
+			String mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
+			if (mainClass != null) return mainClass;
+		} catch (IOException ignored) {
+		}
 		return null;
 	}
 
@@ -145,31 +153,25 @@ public class DslExportRunner {
 		return map;
 	}
 
-	public List<File> sources(Module module, Configuration.Artifact.Dsl dsl) {
+	public List<File> sources(Module module) {
 		if (module == null) return Collections.emptyList();
 		else {
 			Application application = ApplicationManager.getApplication();
 			return application.isReadAccessAllowed() ?
-					dslFiles(module, dsl) :
-					application.runReadAction((Computable<List<File>>) () -> dslFiles(module, dsl));
+					dslFiles(module) :
+					application.runReadAction((Computable<List<File>>) () -> dslFiles(module));
 		}
 	}
 
-	private List<File> dslFiles(Module module, Configuration.Artifact.Dsl dsl) {
-		List<File> dslFiles = new ArrayList<>();
-		String dslName = dsl.name();
-		FileTypeIndex.getFiles(TaraFileType.instance(), moduleScope(module)).stream()
-				.filter((o) -> o != null && !o.getCanonicalFile().getName().contains("Misc"))
-				.filter(f -> f.getName().endsWith("." + dslName + "." + TaraFileType.instance().getDefaultExtension()))
-				.forEach(file -> {
-					TaraModel model = (TaraModel) PsiManager.getInstance(module.getProject()).findFile(file);
-					if (model != null) dslFiles.add(new File(model.getVirtualFile().getPath()));
-				});
-		return dslFiles;
+	private List<File> dslFiles(Module module) {
+		List<TaraModel> models = IntinoUtil.getFilesOfModuleByFileType(module, TaraFileType.instance());
+		models.addAll(IntinoUtil.getFilesOfModuleByFileType(module, KonosFileType.instance()));
+		return models.stream().map(model -> new File(model.getVirtualFile().getPath())).toList();
 	}
 
 	private String getJavaExecutable() {
-		return SystemProperties.getJavaHome() + "/bin/java";
+		String homePath = safe(() -> ModuleRootManager.getInstance(this.module).getSdk().getHomePath(), SystemProperties.getJavaHome());
+		return homePath + "/bin/java";
 	}
 
 	private String getJavaVersion() {

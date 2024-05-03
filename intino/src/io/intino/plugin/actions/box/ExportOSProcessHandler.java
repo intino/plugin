@@ -1,8 +1,6 @@
 package io.intino.plugin.actions.box;
 
 import com.intellij.execution.process.ProcessIOExecutorService;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.openapi.util.Key;
 import com.intellij.util.io.BaseInputStreamReader;
 import com.intellij.util.io.BaseOutputReader;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +24,8 @@ public class ExportOSProcessHandler {
 	public void startNotify() {
 		InputStream inputStream = process.getInputStream();
 		InputStream errStream = process.getErrorStream();
-		new SimpleOutputReader(new BaseInputStreamReader(inputStream, Charset.defaultCharset()), ProcessOutputTypes.STDOUT, BaseOutputReader.Options.NON_BLOCKING, "Stream of KonosRunner");
-		new SimpleOutputReader(new BaseInputStreamReader(errStream, Charset.defaultCharset()), ProcessOutputTypes.STDERR, BaseOutputReader.Options.NON_BLOCKING, "Stream of KonosRunner");
+		new SimpleOutputReader(new BaseInputStreamReader(inputStream, Charset.defaultCharset()), BaseOutputReader.Options.NON_BLOCKING, "Stream of KonosRunner");
+		new SimpleOutputReader(new BaseInputStreamReader(errStream, Charset.defaultCharset()), BaseOutputReader.Options.NON_BLOCKING, "Stream of KonosRunner");
 	}
 
 	public void waitFor() throws InterruptedException {
@@ -35,11 +33,9 @@ public class ExportOSProcessHandler {
 	}
 
 	protected class SimpleOutputReader extends BaseOutputReader {
-		private final Key myProcessOutputType;
 
-		public SimpleOutputReader(Reader reader, Key outputType, BaseOutputReader.Options options, @NotNull String presentableName) {
+		public SimpleOutputReader(Reader reader, BaseOutputReader.Options options, @NotNull String presentableName) {
 			super(reader, options);
-			myProcessOutputType = outputType;
 			start(presentableName);
 		}
 
