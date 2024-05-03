@@ -182,7 +182,11 @@ public abstract class AbstractArtifactFactory {
 	private boolean hasDslFiles(Module module, Artifact.Dsl dsl) {
 		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
 		if (!srcRoot.exists()) return false;
-		return TaraPsiUtil.read(() -> IntinoUtil.getTaraFilesOfModule(module).stream().anyMatch(f2 -> dsl.name().equalsIgnoreCase(dsl(f2).name())));
+		return TaraPsiUtil.read(() -> IntinoUtil.getTaraFilesOfModule(module)
+				.stream().anyMatch(f2 -> {
+					String name = safe(() -> dsl(f2).name());
+					return name != null && dsl.name().equalsIgnoreCase(name);
+				}));
 	}
 
 	protected boolean askForReleaseDistribute() {

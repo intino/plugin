@@ -108,6 +108,7 @@ public class LanguageManager {
 
 	@SuppressWarnings("unused")
 	public static File getLanguageFile(String dsl, String version) {
+		if (dsl == null) return null;
 		return LanguageLoader.composeLanguagePath(getLanguageDirectory(dsl).getPath(), dsl, version);
 	}
 

@@ -124,7 +124,7 @@ public class IntinoUtil {
 		if (!(containingFile instanceof TaraModel)) return "";
 		String[] split = containingFile.getName().split("\\.");
 		if (split.length >= 3) return split[split.length - 2];
-		return ((TaraModel) containingFile).getDSLDeclaration().getHeaderReference().getText();
+		return safe(() -> ((TaraModel) containingFile).getDSLDeclaration().getHeaderReference().getText());
 	}
 
 	public static boolean isTest(PsiElement dir, Module module) {
