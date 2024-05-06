@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.box;
+package io.intino.plugin.actions.export;
 
 import com.intellij.execution.process.ProcessIOExecutorService;
 import com.intellij.util.io.BaseInputStreamReader;

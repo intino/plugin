@@ -202,8 +202,6 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		contentEntry.addSourceFolder(srcVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", false));
 		contentEntry.addSourceFolder(genVfile, JavaSourceRootType.SOURCE, JpsJavaExtensionService.getInstance().createSourceRootProperties("", true));
 		contentEntry.addSourceFolder(resVfile, JavaResourceRootType.RESOURCE, JpsJavaExtensionService.getInstance().createResourceRootProperties("", false));
-		final Module module = rootModel.getModule();
-		module.setOption(IntinoModuleType.INTINO_MODULE_OPTION_NAME, "true");
 	}
 
 	private void excludeDirectory(@NotNull ModifiableRootModel rootModel, ContentEntry contentEntry, String directory) {

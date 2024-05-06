@@ -63,6 +63,7 @@ public class PluginRunner {
 			writePaths(collectPaths(module), writer);
 			if (conf != null) fillConfiguration(conf, writer);
 			writer.write(ENCODING + NL + UTF_8 + NL);
+			writer.write(INVOKED_PHASE + NL + phase.name() + NL);
 		}
 	}
 
@@ -86,7 +87,7 @@ public class PluginRunner {
 	}
 
 	private void writePaths(Map<String, String> paths, Writer writer) throws IOException {
-		writer.write(OUTPUTPATH + NL + paths.get(OUTPUTPATH) + NL);
+		if (paths.get(OUTPUTPATH) != null) writer.write(OUTPUTPATH + NL + paths.get(OUTPUTPATH) + NL);
 		writer.write(FINAL_OUTPUTPATH + NL + paths.get(FINAL_OUTPUTPATH) + NL);
 		writer.write(RES_PATH + NL + paths.get(RES_PATH) + NL);
 		if (paths.containsKey(INTINO_PROJECT_PATH))
@@ -131,6 +132,7 @@ public class PluginRunner {
 		if (resourcesRoot != null) map.put(RES_PATH, resourcesRoot.getPath());
 		List<VirtualFile> sourceRoots = IntinoUtil.getSourceRoots(module);
 		sourceRoots.stream().filter(f -> new File(f.getPath()).getName().equals("src")).findFirst().ifPresent(src -> map.put(SRC_PATH, src.getPath()));
+		sourceRoots.stream().filter(f -> new File(f.getPath()).getName().equals("gen")).findFirst().ifPresent(gen -> map.put(OUTPUTPATH, gen.getPath()));
 		map.put(FINAL_OUTPUTPATH, CompilerModuleExtension.getInstance(module).getCompilerOutputUrl().replace("file://", ""));
 		File intinoDirectory = IntinoDirectory.of(module.getProject());
 		if (intinoDirectory.exists()) map.put(INTINO_PROJECT_PATH, intinoDirectory.getAbsolutePath());

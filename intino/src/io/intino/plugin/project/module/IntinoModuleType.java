@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.ModuleTypeManager;
 import io.intino.plugin.IntinoIcons;
+import io.intino.plugin.project.configuration.LegioFileCreator;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,25 +14,22 @@ import javax.swing.*;
 public class IntinoModuleType extends JavaModuleType {
 
 	@SuppressWarnings("WeakerAccess")
-	public static final String INTINO_MODULE_OPTION_NAME = "io.intino.tara.isIntinoModule";
-	public static final String INTINO_GROUPID_OPTION_NAME = "io.intino.groupId";
-	public static final String TARA_MODULE_OPTION_NAME = "io.intino.tara.isTaraModule";
-	private static final String TARA_MODULE = "TARA_MODULE";
+	private static final String INTINO_MODULE = "INTINO_MODULE";
 
 	public IntinoModuleType(@NonNls String id) {
 		super(id);
 	}
 
 	public IntinoModuleType() {
-		this(TARA_MODULE);
+		this(INTINO_MODULE);
 	}
 
 	public static boolean isIntino(Module module) {
-		return module != null && !module.isDisposed() && (isIntinoModule(module) || ModuleType.is(module, ModuleTypeManager.getInstance().findByID(TARA_MODULE)));
+		return module != null && !module.isDisposed() && (isIntinoModule(module) || ModuleType.is(module, ModuleTypeManager.getInstance().findByID(INTINO_MODULE)));
 	}
 
 	private static boolean isIntinoModule(Module module) {
-		return module.getOptionValue(TARA_MODULE_OPTION_NAME) != null || module.getOptionValue(INTINO_MODULE_OPTION_NAME) != null;
+		return new LegioFileCreator(module).legioFile().exists();
 	}
 
 	@NotNull

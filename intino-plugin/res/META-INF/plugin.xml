@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.0.2</version>
+	<version>8.0.3</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -377,7 +377,7 @@
 			<add-to-group group-id="intino"/>
 		</action>
 		<action id="IntinoGenerate"
-				class="io.intino.plugin.actions.box.BoxElementsGenerationAction"
+				class="io.intino.plugin.actions.export.BoxElementsGenerationAction"
 				text="Generate Web Elements Code"
 				description="Generates web elements code">
 			<keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>

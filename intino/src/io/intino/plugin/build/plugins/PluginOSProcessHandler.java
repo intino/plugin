@@ -96,7 +96,10 @@ public class PluginOSProcessHandler {
 	}
 
 	private void collectPostCompileActionMessages() {
-		String substring = outputBuffer.substring(outputBuffer.indexOf(START_ACTIONS_MESSAGE), outputBuffer.indexOf(END_ACTIONS_MESSAGE));
+		int start = outputBuffer.indexOf(START_ACTIONS_MESSAGE);
+		int end = outputBuffer.indexOf(END_ACTIONS_MESSAGE);
+		if (start == -1 || end == -1) return;
+		String substring = outputBuffer.substring(start, end);
 		postCompileActions.addAll(Arrays.stream(substring.replace(START_ACTIONS_MESSAGE, "").split(MESSAGE_ACTION_END)).map(this::createCompileAction).toList());
 	}
 

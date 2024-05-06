@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.box;
+package io.intino.plugin.actions.export;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -15,6 +15,7 @@ import com.intellij.util.SystemProperties;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -47,7 +48,7 @@ public class DslExportRunner {
 	private final Module module;
 	private final Configuration.Artifact.Dsl dsl;
 
-	public DslExportRunner(Module module, ArtifactLegioConfiguration conf, Configuration.Artifact.Dsl dsl, Mode mode, String outputPath) throws IOException, IntinoException {
+	public DslExportRunner(Module module, ArtifactLegioConfiguration conf, Configuration.Artifact.Dsl dsl, Mode mode, FactoryPhase factoryPhase, String outputPath) throws IOException, IntinoException {
 		this.module = module;
 		this.dsl = dsl;
 		argsFile = FileUtil.createTempFile("idea" + dsl.name() + "ToCompile", ".txt", false);
@@ -65,6 +66,7 @@ public class DslExportRunner {
 			writePaths(collectPaths(module, outputPath), writer);
 			fillConfiguration(conf, mode, writer);
 			writer.write(ENCODING + NL + UTF_8 + NL);
+			writer.write(INVOKED_PHASE + NL + factoryPhase.name() + NL);
 		}
 	}
 
@@ -81,7 +83,7 @@ public class DslExportRunner {
 		}
 		if (safe(() -> conf.artifact().distribution().release()) != null) {
 			final Configuration.Repository release = conf.artifact().distribution().release();
-			writer.write(SNAPSHOT_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
 		}
 	}
 

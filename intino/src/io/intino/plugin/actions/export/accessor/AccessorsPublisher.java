@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.box.accessor;
+package io.intino.plugin.actions.export.accessor;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;

@@ -12,10 +12,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Plugin.Phase;
 import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
-import io.intino.plugin.actions.box.DslExportRunner;
-import io.intino.plugin.actions.box.accessor.AccessorsPublisher;
+import io.intino.plugin.actions.export.DslExportRunner;
+import io.intino.plugin.actions.export.accessor.AccessorsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.plugins.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -30,7 +31,6 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static com.intellij.notification.NotificationType.ERROR;
-import static io.intino.Configuration.Artifact.Plugin.Phase.Export;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ExportAction {
@@ -63,7 +63,7 @@ public class ExportAction {
 			if (version == null || version.isEmpty()) return;
 			try {
 				File temp = Files.createTempDirectory(dsl.name() + "_accessors").toFile();
-				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, temp.getAbsolutePath()).runExport();
+				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, factoryPhase, temp.getAbsolutePath()).runExport();
 				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);
 				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
 				else publisher.publish();
@@ -88,7 +88,7 @@ public class ExportAction {
 
 	private void runPlugins(Module module, FactoryPhase factoryPhase, ArtifactLegioConfiguration configuration, ProgressIndicator indicator) {
 		List<Configuration.Artifact.Plugin> intinoPlugins = safeList(() -> configuration.artifact().plugins());
-		intinoPlugins.stream().filter(i -> i.phase() == Export).forEach(plugin -> new PluginExecutor(module, factoryPhase, configuration, plugin, indicator).execute());
+		intinoPlugins.stream().filter(i -> i.phase() == Phase.Export).forEach(plugin -> new PluginExecutor(module, factoryPhase, configuration, plugin, indicator).execute());
 	}
 
 	private void withTask(Task.Backgroundable runnable) {

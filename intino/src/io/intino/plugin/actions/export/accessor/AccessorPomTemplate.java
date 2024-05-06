@@ -1,4 +1,4 @@
-package io.intino.plugin.actions.box.accessor;
+package io.intino.plugin.actions.export.accessor;
 
 import io.intino.itrules.RuleSet;
 import io.intino.itrules.Template;

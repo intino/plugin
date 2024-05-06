@@ -1,9 +1,10 @@
-package io.intino.plugin.actions.box;
+package io.intino.plugin.actions.export;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
@@ -22,6 +23,7 @@ import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.actions.IntinoAction;
+import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,12 @@ import static io.intino.plugin.project.Safe.safe;
 
 public class BoxElementsGenerationAction extends IntinoAction {
 	private static final Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(BoxElementsGenerationAction.class);
+
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.BGT;
+	}
 
 	@Override
 	public void update(AnActionEvent e) {
@@ -72,7 +80,7 @@ public class BoxElementsGenerationAction extends IntinoAction {
 			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
 			Configuration.Artifact.Dsl dsl = safe(() -> configuration.artifact().dsl("Konos"));//TODO remove
 			if (dsl == null) return;
-			DslExportRunner runner = new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.OnlyElements, null);
+			DslExportRunner runner = new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.OnlyElements, FactoryPhase.INSTALL, null);
 			runner.runExport();
 			notify(module);
 		} catch (IOException e) {
