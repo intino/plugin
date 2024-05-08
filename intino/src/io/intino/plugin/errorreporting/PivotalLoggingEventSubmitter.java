@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import static io.intino.plugin.actions.SubmitFeedbackAction.*;
 
 public class PivotalLoggingEventSubmitter {
-
 	private static final String TRACKER = "www.pivotaltracker.com/services/v5/projects/";
 	private static final String TRACKER_URL = "https://" + TRACKER + "/";
 	private static final String COMMENTS = "/comments";

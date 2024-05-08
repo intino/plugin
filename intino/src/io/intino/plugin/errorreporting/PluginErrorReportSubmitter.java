@@ -36,9 +36,8 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 	private static final String PROJECT = "1022010";
 	private static final String TOKEN = "ae3d1e4d4bcb011927e2768d7aa39f3a";
 
-
 	@NonNls
-	public String getReportActionText() {
+	public @NotNull String getReportActionText() {
 		return PluginErrorReportSubmitterBundle.message("report.error.to.plugin.vendor");
 	}
 
@@ -111,6 +110,4 @@ public class PluginErrorReportSubmitter extends ErrorReportSubmitter {
 			LOG.error(e);
 		}
 	}
-
-
 }

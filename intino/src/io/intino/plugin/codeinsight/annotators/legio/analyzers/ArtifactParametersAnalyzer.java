@@ -5,18 +5,19 @@ import io.intino.Configuration;
 import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.legio.fix.AddParameterFix;
 import io.intino.plugin.codeinsight.annotators.semanticanalizer.TaraAnalyzer;
-import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.dependencyresolution.LanguageResolver;
+import io.intino.plugin.dependencyresolution.Repositories;
 import io.intino.plugin.lang.psi.TaraMogram;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.tara.language.model.Mogram;
-import io.intino.tara.language.model.Parameter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -38,52 +39,34 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (configuration == null || configuration.artifact().dsls().isEmpty()) return;
 		Map<String, String> dslParameters = collectDslParameters();
-		Map<String, String> notFoundParameters = dslParameters.keySet().stream().filter(parameter -> !isDeclared(parameter)).collect(Collectors.toMap(parameter -> parameter, dslParameters::get, (a, b) -> b, LinkedHashMap::new));
+		Set<String> declared = configuration.artifact().parameters().stream().map(Configuration.Parameter::name).collect(Collectors.toSet());
+		Map<String, String> notFoundParameters = dslParameters.keySet().stream().filter(p -> !declared.contains(p)).collect(Collectors.toMap(parameter -> parameter, dslParameters::get));
 		if (!notFoundParameters.isEmpty())
 			results.put(((TaraMogram) artifactMogram).getSignature(),
-					new AnnotateAndFix(ERROR, message("dsl.parameters.missing", "Dsl", new AddParameterFix((PsiElement) artifactMogram, notFoundParameters))));
-	}
-
-	private boolean isDeclared(String parameter) {
-		for (Mogram mogram : artifactMogram.components()) {
-			final Parameter parameterNode = nameParameter(mogram);
-			if (mogram.type().endsWith("Parameter") && parameterNode != null && !parameterNode.values().isEmpty() && parameter.equals(parameterNode.values().get(0).toString()))
-				return true;
-		}
-		return false;
-	}
-
-	private Parameter nameParameter(Mogram node) {
-		for (Parameter parameter : node.parameters())
-			if (parameter.name().equals("name") || parameter.position() == 0) return parameter;
-		return null;
+					new AnnotateAndFix(ERROR, message("dsl.parameters.missing", "Dsl"), new AddParameterFix((PsiElement) artifactMogram, notFoundParameters)));
 	}
 
 	private Map<String, String> collectDslParameters() {
-		Map<String, String> map = new LinkedHashMap<>();
 		for (Configuration.Artifact.Dsl dsl : configuration.artifact().dsls()) {
 			if (dsl.name() == null) continue;
-			final File languageFile = LanguageManager.getLanguageFile(dsl.name(), dsl.effectiveVersion());
-			if (languageFile != null && languageFile.exists()) map.putAll(parameters(languageFile));
+			String runtimeCoors = new LanguageResolver(configuration.module(), Collections.emptyList()).runtimeCoors(dsl);
+			String[] parts = runtimeCoors.split(":");
+			File file = new File(Repositories.LOCAL, String.join(File.separator, parts[0].replace(".", File.separator), parts[1], parts[2]));
+			return parameters(new File(file, parts[1] + "-" + parts[2] + ".jar"));
 		}
-		return map;
+		return Map.of();
 	}
 
 	private Map<String, String> parameters(File languageFile) {
-		Map<String, String> parameters = new HashMap<>();
 		try (final JarFile jarFile = new JarFile(languageFile)) {
 			final Manifest manifest = jarFile.getManifest();
-			add(manifest, "framework", parameters);
-			add(manifest, "runtime", parameters);
+			Attributes parameters = manifest.getAttributes("parameters");
+			Map<String, String> keys = parameters.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString(), (o, o2) -> o, LinkedHashMap::new));
+			Set<String> names = keys.entrySet().stream().filter(e -> e.getKey().endsWith("_name")).map(Map.Entry::getValue).collect(Collectors.toSet());
+			return names.stream().collect(Collectors.toMap(n -> n, n -> keys.getOrDefault(n + "_defaultValue", ""), (n1, n2) -> n1, LinkedHashMap::new));
 		} catch (IOException ignored) {
+			return Map.of();
 		}
-		return parameters;
 	}
 
-	private static void add(Manifest manifest, String name, Map<String, String> map) {
-		final Attributes attributes = manifest.getAttributes(name);
-		if (attributes != null)
-			for (Map.Entry<Object, Object> entry : attributes.entrySet())
-				map.put(entry.getKey().toString(), entry.getValue().toString());
-	}
 }

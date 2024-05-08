@@ -47,7 +47,6 @@ import static com.intellij.openapi.module.WebModuleTypeBase.WEB_MODULE;
 import static com.intellij.openapi.roots.ModuleRootManager.getInstance;
 import static io.intino.Configuration.Artifact.Package.Mode.LibrariesLinkedByManifest;
 import static io.intino.Configuration.Artifact.Package.Mode.ModulesAndLibrariesLinkedByManifest;
-import static io.intino.plugin.dependencyresolution.LanguageResolver.runtimeCoors;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.io.File.separator;
@@ -234,10 +233,10 @@ public class PomCreator {
 		List<String> dependencies = new ArrayList<>();
 		for (Artifact.Dsl dsl : configuration.artifact().dsls()) {
 			if (dsl != null) {
-				final String dslCoors = findLanguageId(dsl);
-				if (!dslCoors.isEmpty()) {
-					dependencies.add(dslCoors);
-					builder.add("dependency", createDependencyFrame(dslCoors.split(":")));
+				final String runtimeCoors = runtimeCoors(dsl);
+				if (!runtimeCoors.isEmpty()) {
+					dependencies.add(runtimeCoors);
+					builder.add("dependency", createDependencyFrame(runtimeCoors.split(":")));
 				}
 			}
 		}
@@ -257,7 +256,7 @@ public class PomCreator {
 				filter(d -> (d.toModule()) && !d.scope().equalsIgnoreCase("test") && dependencies.add(d.identifier())).
 				forEach(d -> addDependantModuleLibraries(builder, d, dependencies));
 		configuration.artifact().dsls().stream()
-				.map(d -> runtimeCoors(d.name(), d.version()))
+				.map(d -> LanguageResolver.runtimeCoors(d.name(), d.version()))
 				.filter(id -> id != null && !id.isEmpty())
 				.forEach(id -> builder.add("dependency", createDependencyFrame(id.split(":"))));
 	}
@@ -425,10 +424,10 @@ public class PomCreator {
 		}
 	}
 
-	private String findLanguageId(Artifact.Dsl dsl) {
+	private String runtimeCoors(Artifact.Dsl dsl) {
 		if (allModulesSeparated())
-			return runtimeCoors(dsl.name(), dsl.version());
-		return LanguageResolver.moduleDependencyOf(module, dsl.name(), dsl.version()) != null ? "" : runtimeCoors(dsl.name(), dsl.version());
+			return LanguageResolver.runtimeCoors(dsl.name(), dsl.version());
+		return LanguageResolver.moduleDependencyOf(module, dsl.name(), dsl.version()) != null ? "" : LanguageResolver.runtimeCoors(dsl.name(), dsl.version());
 	}
 
 	private Frame createDependencyFrame(Dependency d) {
