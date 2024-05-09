@@ -28,6 +28,7 @@ import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
 import io.intino.plugin.deploy.ArtifactDeployer;
 import io.intino.plugin.deploy.ArtifactDeployer.DeployResult;
 import io.intino.plugin.lang.LanguageManager;
+import io.intino.plugin.lang.psi.TaraModel;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
@@ -55,7 +56,7 @@ import static io.intino.Configuration.Server.Type.Pre;
 import static io.intino.itrules.formatters.StringFormatters.firstUpperCase;
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.*;
-import static io.intino.plugin.lang.psi.impl.IntinoUtil.dsl;
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.dslOf;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.lang.String.join;
@@ -164,7 +165,10 @@ public abstract class AbstractArtifactFactory {
 		updateProgressIndicator(indicator, message("language.action", firstUpperCase().format(lifeCyclePhase.gerund().toLowerCase()).toString()));
 		Configuration conf = IntinoUtil.configurationOf(module);
 		for (Artifact.Dsl dsl : conf.artifact().dsls()) {
-			if (!checker.shouldDistributeLanguage(lifeCyclePhase, module, dsl) || !hasDslFiles(module, dsl)) continue;
+			if (!checker.shouldDistributeLanguage(lifeCyclePhase, module, dsl) || !hasDslFiles(module, dsl)) {
+				LOG.warn("Language not distributed: " + (!hasDslFiles(module, dsl) ? "No files" : "No repo"));
+				continue;
+			}
 			try {
 				File dslFile = dslFilePath(dsl.outputDsl());
 				if (dslFile == null || !dslFile.exists()) {
@@ -182,11 +186,11 @@ public abstract class AbstractArtifactFactory {
 	private boolean hasDslFiles(Module module, Artifact.Dsl dsl) {
 		VirtualFile srcRoot = IntinoUtil.getSrcRoot(module);
 		if (!srcRoot.exists()) return false;
-		return TaraPsiUtil.read(() -> IntinoUtil.getTaraFilesOfModule(module)
-				.stream().anyMatch(f2 -> {
-					String name = safe(() -> dsl(f2).name());
-					return name != null && dsl.name().equalsIgnoreCase(name);
-				}));
+		String dslName = dsl.name();
+		return TaraPsiUtil.read(() -> {
+			List<TaraModel> taraFilesOfModule = IntinoUtil.getTaraFilesOfModule(module);
+			return taraFilesOfModule.stream().anyMatch(f -> dslName.equalsIgnoreCase(safe(() -> dslOf(f))));
+		});
 	}
 
 	protected boolean askForReleaseDistribute() {
