@@ -133,7 +133,7 @@ public class ModuleDependencyPropagator {
 
 	private void dslVersions(Map<String, List<String>> map, ArtifactoryConnector connector, Configuration.Artifact.Dsl dsl) {
 		List<String> dslVersions = connector.dslVersions(dsl.name());
-		if (!dsl.version().equals(dslVersions.get(dslVersions.size() - 1)))
+		if (!dslVersions.isEmpty() && !dsl.version().equals(dslVersions.get(dslVersions.size() - 1)))
 			map.put(dsl.name(), dslVersions);
 	}
 

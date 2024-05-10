@@ -50,6 +50,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 		for (Configuration.Artifact.Dsl dsl : configuration.artifact().dsls()) {
 			if (dsl.name() == null) continue;
 			String runtimeCoors = new LanguageResolver(configuration.module(), Collections.emptyList()).runtimeCoors(dsl);
+			if (runtimeCoors == null) continue;
 			String[] parts = runtimeCoors.split(":");
 			File file = new File(Repositories.LOCAL, String.join(File.separator, parts[0].replace(".", File.separator), parts[1], parts[2]));
 			return parameters(new File(file, parts[1] + "-" + parts[2] + ".jar"));

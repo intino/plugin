@@ -33,7 +33,10 @@ public class LegioOutputDslBuilder implements OutputBuilder {
 
 	@Override
 	public String version() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "version", 2), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(BUILDER_VERSION))));
+		boolean versionFollower = mogram != null && mogram.appliedFacets().stream().anyMatch(a -> a.type().equals("ArtifactVersionFollower"));
+		return versionFollower ?
+				root().artifact().version() :
+				getOrDefault(TaraPsiUtil.parameterValue(mogram, "version", 2), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(BUILDER_VERSION))));
 	}
 
 	@Override

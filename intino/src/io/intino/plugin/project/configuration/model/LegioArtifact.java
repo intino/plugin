@@ -124,15 +124,15 @@ public class LegioArtifact implements Configuration.Artifact {
 		List<Dependency> dependencies = new ArrayList<>();
 		for (Mogram dependency : nodes) {
 			if (((TaraMogramImpl) dependency).simpleType().equals("Compile"))
-				dependencies.add(new LegioCompile((TaraMogram) dependency));
+				dependencies.add(new LegioCompile(this, (TaraMogram) dependency));
 			else if (((TaraMogramImpl) dependency).simpleType().equals("Test"))
-				dependencies.add(new LegioTest((TaraMogram) dependency));
+				dependencies.add(new LegioTest(this, (TaraMogram) dependency));
 			else if (((TaraMogramImpl) dependency).simpleType().equals("Runtime"))
-				dependencies.add(new LegioRuntime((TaraMogram) dependency));
+				dependencies.add(new LegioRuntime(this, (TaraMogram) dependency));
 			else if (((TaraMogramImpl) dependency).simpleType().equals("Provided"))
-				dependencies.add(new LegioProvided((TaraMogram) dependency));
+				dependencies.add(new LegioProvided(this, (TaraMogram) dependency));
 			else if (((TaraMogramImpl) dependency).simpleType().equals("Web"))
-				dependencies.add(new LegioWeb((TaraMogram) dependency));
+				dependencies.add(new LegioWeb(this, (TaraMogram) dependency));
 		}
 		return dependencies;
 	}
@@ -144,7 +144,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		nodes.addAll(stream(((TaraMogram) imports).getChildren()).filter(c -> c instanceof Mogram).map(c -> (Mogram) c).toList());
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
-				map(d -> new LegioWeb((TaraMogram) d)).
+				map(d -> new LegioWeb(this,(TaraMogram) d)).
 				collect(toList());
 	}
 

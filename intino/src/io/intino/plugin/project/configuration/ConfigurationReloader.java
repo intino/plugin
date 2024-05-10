@@ -92,7 +92,8 @@ public class ConfigurationReloader {
 				if (dslCoors != null) artifactDependencies.add(0, asDependency(dslCoors, COMPILE));
 			}
 			String language = language(deps);
-			if (language != null) artifactDependencies.add(0, asDependency(language, PROVIDED));
+			if (language != null && !dsl.level().isModel())
+				artifactDependencies.add(0, asDependency(language, PROVIDED));
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
 		if (!artifactDependencies.isEmpty()) dependencies.merge(resolver.resolve(artifactDependencies));

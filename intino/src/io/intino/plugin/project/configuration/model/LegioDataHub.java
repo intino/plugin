@@ -7,7 +7,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 public class LegioDataHub extends LegioDependency implements Configuration.Artifact.Dependency.DataHub {
 
 	public LegioDataHub(LegioArtifact artifact, TaraMogram node) {
-		super(node);
+		super(artifact, node);
 	}
 
 	@Override

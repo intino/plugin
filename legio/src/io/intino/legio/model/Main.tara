@@ -17,10 +17,10 @@ Concept:{1..1}:Named Artifact
 		Concept:{0..1} OutputDsl
 			var string name = empty
 			Concept:{0..1}:CheckVersionFollower Runtime extends Library
-				var string version = empty
-				Facet ArtifactVersionFollower
+				Facet ArtifactVersionFollower > var string version =empty
 			Concept:{0..1}:CheckVersionFollower Builder extends Library
-				Facet ArtifactVersionFollower
+				Facet ArtifactVersionFollower > var string version =empty
+
 	!!Deprecated: Change by Dsl definiton
 	Concept:{0..1} Model
 		var string language
@@ -40,7 +40,7 @@ Concept:{1..1}:Named Artifact
 	Concept:{0..1} DataHub extends Artifact.Imports.Dependency
 	Concept:{0..1} Archetype extends Artifact.Imports.Dependency
 	Concept:{0..1} Imports
-		Concept Dependency extends Library
+		Concept:CheckVersionFollower Dependency extends Library
 			var string effectiveVersion = "" is private
 			var boolean transitive = true
 			var boolean resolved = false is private
@@ -52,8 +52,10 @@ Concept:{1..1}:Named Artifact
 			sub Runtime
 			sub Provided
 			sub Test
-		Concept Web extends Library
+			Facet ArtifactVersionFollower > var string version = empty
+		Concept:CheckVersionFollower Web extends Library
 			var boolean resolved = false is private
+			Facet ArtifactVersionFollower > var string version = empty
 	Concept:{0..1} WebImports
 		var string webDirectory = "lib"
 		Concept Resolution

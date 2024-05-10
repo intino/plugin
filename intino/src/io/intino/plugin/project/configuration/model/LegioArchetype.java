@@ -7,7 +7,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 public class LegioArchetype extends LegioDependency implements Configuration.Artifact.Dependency.Archetype {
 
 	public LegioArchetype(LegioArtifact artifact, TaraMogram mogram) {
-		super(mogram);
+		super(artifact, mogram);
 	}
 
 	@Override

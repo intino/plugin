@@ -19,9 +19,11 @@ import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.parameterValue;
 
 public class LegioDependency implements Configuration.Artifact.Dependency {
+	private final LegioArtifact artifact;
 	private final TaraMogram mogram;
 
-	public LegioDependency(TaraMogram mogram) {
+	public LegioDependency(LegioArtifact artifact, TaraMogram mogram) {
+		this.artifact = artifact;
 		this.mogram = mogram;
 	}
 
@@ -37,7 +39,10 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 
 	@Override
 	public String version() {
-		return parameterValue(mogram, "version", 2);
+		boolean versionFollower = mogram != null && mogram.appliedFacets().stream().anyMatch(a -> a.type().equals("ArtifactVersionFollower"));
+		return versionFollower ?
+				root().artifact().version() :
+				parameterValue(mogram, "version", 2);
 	}
 
 	@Override
@@ -96,12 +101,12 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 
 	@Override
 	public Configuration root() {
-		return null;
+		return artifact.root();
 	}
 
 	@Override
 	public Configuration.ConfigurationNode owner() {
-		return null;
+		return artifact;
 	}
 
 	public static class LegioExclude implements Exclude {
@@ -124,32 +129,32 @@ public class LegioDependency implements Configuration.Artifact.Dependency {
 	}
 
 	static class LegioCompile extends LegioDependency implements Configuration.Artifact.Dependency.Compile {
-		LegioCompile(TaraMogram node) {
-			super(node);
+		LegioCompile(LegioArtifact artifact, TaraMogram node) {
+			super(artifact, node);
 		}
 	}
 
 	static class LegioTest extends LegioDependency implements Configuration.Artifact.Dependency.Test {
-		LegioTest(TaraMogram node) {
-			super(node);
+		LegioTest(LegioArtifact artifact, TaraMogram node) {
+			super(artifact, node);
 		}
 	}
 
 	static class LegioRuntime extends LegioDependency implements Configuration.Artifact.Dependency.Runtime {
-		LegioRuntime(TaraMogram node) {
-			super(node);
+		LegioRuntime(LegioArtifact artifact, TaraMogram node) {
+			super(artifact, node);
 		}
 	}
 
 	static class LegioProvided extends LegioDependency implements Configuration.Artifact.Dependency.Provided {
-		LegioProvided(TaraMogram node) {
-			super(node);
+		LegioProvided(LegioArtifact artifact, TaraMogram node) {
+			super(artifact, node);
 		}
 	}
 
 	static class LegioWeb extends LegioDependency implements Configuration.Artifact.Dependency.Web {
-		LegioWeb(TaraMogram node) {
-			super(node);
+		LegioWeb(LegioArtifact artifact, TaraMogram node) {
+			super(artifact, node);
 		}
 	}
 }
