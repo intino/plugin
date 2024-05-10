@@ -142,6 +142,7 @@ public abstract class AbstractArtifactFactory {
 
 	private void buildModule(Module module, ArtifactLegioConfiguration configuration, FactoryPhase phase, ProgressIndicator indicator) throws IOException {
 		buildLanguages(phase, indicator);
+		if (!errorMessages.isEmpty()) return;
 		buildArtifact(phase, indicator);
 		indicator.setText("Tagging version...");
 		if (phase.ordinal() > INSTALL.ordinal() && !isSnapshot()) {

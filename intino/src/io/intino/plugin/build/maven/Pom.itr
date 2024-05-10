@@ -10,6 +10,9 @@ def type(pom) type(deployFile)
 		<repositories>
 				$repository+release...[$NL]
 		</repositories>
+		<dependencies>
+			$dependency...[$NL]
+		</dependencies>
 	</project>
 end
 

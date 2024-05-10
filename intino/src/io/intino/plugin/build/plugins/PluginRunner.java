@@ -25,6 +25,7 @@ import org.jetbrains.jps.incremental.ExternalProcessUtil;
 import org.jetbrains.jps.incremental.messages.CompilerMessage;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -73,7 +74,6 @@ public class PluginRunner {
 		writer.write(VERSION + NL + conf.artifact().version() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + NL);
-		writer.write(INVOKED_PHASE + NL + phase.name() + NL);
 		for (Configuration.Repository repository : conf.repositories())
 			writer.write(REPOSITORY + NL + repository.identifier() + "#" + repository.url() + NL);
 		if (safe(() -> conf.artifact().distribution().snapshot()) != null) {
@@ -102,7 +102,7 @@ public class PluginRunner {
 		List<String> programParams = List.of(argsFile.getPath());
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
-		vmParams.add("-Dfile.encoding=" + System.getProperty("file.encoding"));
+		vmParams.add("-Dfile.encoding=" + Charset.defaultCharset().displayName());
 		String mainClass = mainClass();
 		if (mainClass == null) throw new IntinoException("Main class of plugin not found. Please declare in manifest");
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(

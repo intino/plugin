@@ -32,6 +32,8 @@ public class LegioOutputDslRuntime implements Configuration.Artifact.Dsl.Runtime
 
 	@Override
 	public String version() {
+		boolean versionFollower = mogram != null && mogram.appliedFacets().stream().anyMatch(a -> a.type().equals("ArtifactVersionFollower"));
+		if (versionFollower) return root().artifact().version();
 		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "version", 2), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_VERSION))));
 	}
 

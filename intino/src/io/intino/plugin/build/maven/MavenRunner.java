@@ -8,11 +8,14 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import io.intino.Configuration;
+import io.intino.Configuration.Artifact.Dsl;
 import io.intino.Configuration.Artifact.Dsl.OutputDsl;
+import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.utils.FileSystemUtils;
 import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.LanguageManager;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
@@ -30,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
@@ -47,36 +51,65 @@ public class MavenRunner {
 	}
 
 	public void buildLanguage(Configuration conf, OutputDsl outputDsl) throws IOException, IntinoException {
-		Configuration.Repository languageRepository = repository(conf);
-		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
+		Configuration.Repository distRepository = repository(conf);
+		if (distRepository == null) throw new IOException(message("none.distribution.language.repository"));
 		Configuration.Artifact artifact = conf.artifact();
-		final File jar = new File(dslFile(outputDsl));
-		jar.renameTo(new File(jar.getParentFile(), jar.getName().toLowerCase()));
-		final File pom = new File(jar.getParentFile(), "pom.xml");
-		Files.writeString(pom.toPath(), dslPom(languageRepository, artifact, outputDsl));
-		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact, outputDsl, jar), "deploy:deploy-file");
+		final File jar = jarFile(outputDsl);
+		final File pom = pomFile(outputDsl, jar, distRepository, artifact);
+		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(distRepository, artifact, outputDsl, jarFile(outputDsl), pom), "deploy:deploy-file");
 		if (result != null && result.getExitCode() != 0)
 			throwException(result, "error.publishing.language", DISTRIBUTE);
 		else if (result == null)
 			throw new IOException(message("error.publishing.language", DISTRIBUTE, "Maven HOME not found"));
 	}
 
-	private static String dslPom(Configuration.Repository languageRepository, Configuration.Artifact artifact, OutputDsl outputDsl) {
+	private @NotNull File pomFile(OutputDsl outputDsl, File jar, Configuration.Repository distRepository, Configuration.Artifact artifact) throws IOException {
+		final File pom = new File(jar.getParentFile(), "pom.xml");
+		Files.writeString(pom.toPath(), dslPom(distRepository, artifact, outputDsl));
+		return pom;
+	}
+
+	private @NotNull File jarFile(OutputDsl outputDsl) {
+		File jar = new File(dslFile(outputDsl));
+		File dest = new File(jar.getParentFile(), jar.getName().toLowerCase());
+		jar.renameTo(dest);
+		return dest;
+	}
+
+	private String dslPom(Configuration.Repository repository, Configuration.Artifact artifact, OutputDsl outputDsl) {
 		return new PomTemplate().render(new FrameBuilder("pom", "deployFile")
 				.add("groupId", "tara.dsl")
-				.add("artifactId", outputDsl.name())
+				.add("artifactId", outputDsl.name().toLowerCase())
 				.add("version", artifact.version())
-				.add("repository", new FrameBuilder("repository", "release").add("name", languageRepository.identifier()).add("url", languageRepository.url())));
+				.add("dependency", languageDependency(outputDsl, repository))
+				.add("repository", new FrameBuilder("repository", "release").add("name", repository.identifier()).add("url", repository.url())));
+	}
+
+	private Frame languageDependency(OutputDsl outputDsl, Configuration.Repository languageRepository) {
+		return language(new LanguageResolver(module, List.of(languageRepository)).resolve((Dsl) outputDsl.owner()));
+	}
+
+	private Frame language(List<org.eclipse.aether.graph.Dependency> deps) {
+		return deps.stream().map(org.eclipse.aether.graph.Dependency::getArtifact)
+				.filter(d -> d.getArtifactId().equalsIgnoreCase("language"))
+				.findFirst()
+				.map(d -> new FrameBuilder("dependency")
+						.add("groupId", d.getGroupId())
+						.add("artifactId", d.getArtifactId())
+						.add("scope", "compile")
+						.add("version", d.getVersion()).toFrame())
+				.orElse(null);
 	}
 
 	@NotNull
-	private static String mavenOpts(Configuration.Repository languageRepository, Configuration.Artifact artifact, OutputDsl outputDsl, File jar) {
-		return "-Durl=" + languageRepository.url() + " " +
-				"-DrepositoryId=" + languageRepository.identifier() + " " +
+	private static String mavenOpts(Configuration.Repository repository, Configuration.Artifact artifact, OutputDsl outputDsl, File jar, File pomFile) {
+		return "-Durl=" + repository.url() + " " +
+				"-DrepositoryId=" + repository.identifier() + " " +
 				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + outputDsl.name() + " " +
+				"-DartifactId=" + outputDsl.name().toLowerCase() + " " +
 				"-Dversion=" + artifact.version() + " " +
-				"-Dfile=" + jar;
+				"-Dfile=" + jar.getAbsolutePath() + " " +
+				"-DpomFile=" + pomFile.getAbsolutePath();
 	}
 
 	private Configuration.Repository repository(Configuration configuration) throws IntinoException {

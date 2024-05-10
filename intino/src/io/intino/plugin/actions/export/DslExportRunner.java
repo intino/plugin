@@ -79,7 +79,7 @@ public class DslExportRunner {
 		writer.write(LEVEL + NL + dsl.level() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + "." + dsl.builder().generationPackage() + NL);
-		writer.write(COMPILATION_MODE + NL + mode + NL);
+		writer.write(COMPILATION_MODE + NL + mode.name() + NL);
 		if (safe(() -> conf.artifact().distribution().snapshot()) != null) {
 			final Configuration.Repository snapshot = conf.artifact().distribution().snapshot();
 			writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
