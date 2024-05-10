@@ -51,7 +51,11 @@ public class RunConfigurationRenderer {
 		if (!conf.artifactId.isEmpty()) writer.write(ARTIFACT_ID + NL + conf.artifactId + NL);
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
 		Dsl dslConf = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
-		if (dslConf != null) fillDslConfiguration(dslConf, writer);
+		if (dslConf != null) {
+			if (!dslConf.name().equalsIgnoreCase("Konos") || dslConf.version().compareTo("12.0.0") >= 0)
+				writer.write(COMPILATION_MODE + NL + "Build" + NL);
+			fillDslConfiguration(dslConf, writer);
+		}
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
 		if (!conf.parentInterface.isEmpty()) writer.write(PARENT_INTERFACE + NL + conf.parentInterface + NL);
 		if (!conf.datahub.isEmpty()) {

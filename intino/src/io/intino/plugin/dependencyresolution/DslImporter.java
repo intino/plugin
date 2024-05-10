@@ -8,11 +8,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dsl;
+import io.intino.plugin.archetype.Formatters;
 import io.intino.plugin.lang.LanguageManager;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -49,12 +51,16 @@ public class DslImporter {
 			return resolver.resolve(new DefaultArtifact(dsl.groupId(), dsl.artifactId(), "jar", effectiveVersionOf(dsl)), COMPILE);
 		} catch (DependencyResolutionException e) {
 			try {
-				return resolver.resolve(new DefaultArtifact(dsl.groupId(), dsl.artifactId().toLowerCase(), "jar", effectiveVersionOf(dsl)), COMPILE);
+				return resolver.resolve(new DefaultArtifact(dsl.groupId(), legacyMode(dsl.artifactId()), "jar", effectiveVersionOf(dsl)), COMPILE);
 			} catch (DependencyResolutionException e2) {
 				error(e2);
 				return null;
 			}
 		}
+	}
+
+	private static @NotNull String legacyMode(String dsl) {
+		return dsl.toLowerCase().equals(dsl) ? Formatters.firstUpperCase(dsl) : dsl.toLowerCase();
 	}
 
 	private void reload(String fileName, Project project) {

@@ -61,6 +61,7 @@ public class ArtifactParametersAnalyzer extends TaraAnalyzer {
 		try (final JarFile jarFile = new JarFile(languageFile)) {
 			final Manifest manifest = jarFile.getManifest();
 			Attributes parameters = manifest.getAttributes("parameters");
+			if (parameters == null) return Collections.emptyMap();
 			Map<String, String> keys = parameters.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString(), (o, o2) -> o, LinkedHashMap::new));
 			Set<String> names = keys.entrySet().stream().filter(e -> e.getKey().endsWith("_name")).map(Map.Entry::getValue).collect(Collectors.toSet());
 			return names.stream().collect(Collectors.toMap(n -> n, n -> keys.getOrDefault(n + "_defaultValue", ""), (n1, n2) -> n1, LinkedHashMap::new));

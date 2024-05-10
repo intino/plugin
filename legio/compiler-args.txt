@@ -30,6 +30,8 @@ Legio
 groupId
 io.intino.legio
 artifactId
+compilation.mode
+Build
 model
 version
 4.0.0

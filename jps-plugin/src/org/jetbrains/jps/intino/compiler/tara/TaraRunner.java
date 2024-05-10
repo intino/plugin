@@ -49,9 +49,14 @@ class TaraRunner {
 
 	private List<String> loadClassPath(String intinoDirectory, String moduleName) throws IOException {
 		File classPathFile = new File(intinoDirectory, dsl + File.separator + moduleName + File.separator + "compiler.classpath");
-		if (!classPathFile.exists()) classPathFile = new File(intinoDirectory, "compiler.classpath");
-		if (!classPathFile.exists())
+		if (!classPathFile.exists()) {
+			LOG.warn("Can't find classpath: " + classPathFile.getAbsolutePath());
+			classPathFile = new File(intinoDirectory, "compiler.classpath");
+		}
+		if (!classPathFile.exists()) {
+			LOG.warn("Can't find classpath: " + classPathFile.getAbsolutePath());
 			throw new IOException("Unable to find builder classpath. Please reload configuration. If the error persists, check your your internet connection and the defined artifactories");
+		}
 		return Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).split(":"));
 	}
 

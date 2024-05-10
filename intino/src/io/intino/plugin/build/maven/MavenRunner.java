@@ -51,9 +51,10 @@ public class MavenRunner {
 		if (languageRepository == null) throw new IOException(message("none.distribution.language.repository"));
 		Configuration.Artifact artifact = conf.artifact();
 		final File jar = new File(dslFile(outputDsl));
+		jar.renameTo(new File(jar.getParentFile(), jar.getName().toLowerCase()));
 		final File pom = new File(jar.getParentFile(), "pom.xml");
 		Files.writeString(pom.toPath(), dslPom(languageRepository, artifact, outputDsl));
-		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact,outputDsl, jar), "deploy:deploy-file");
+		final InvocationResult result = invokeMavenWithConfigurationAndOptions(pom, mavenOpts(languageRepository, artifact, outputDsl, jar), "deploy:deploy-file");
 		if (result != null && result.getExitCode() != 0)
 			throwException(result, "error.publishing.language", DISTRIBUTE);
 		else if (result == null)
@@ -163,7 +164,7 @@ public class MavenRunner {
 	private String dslFile(OutputDsl output) {
 		try {
 			String name = output.name();
-			if (name== null) return "";
+			if (name == null) return "";
 			final String originalFile = LanguageManager.getLanguageDirectory(name) + "/" + output.version() + "/" + name + "-" + output.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");
 			final File destination = new File(deployLanguage.toFile(), new File(originalFile).getName());

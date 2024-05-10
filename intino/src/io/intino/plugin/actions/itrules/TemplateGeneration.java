@@ -3,6 +3,7 @@ package io.intino.plugin.actions.itrules;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.module.Module;
@@ -46,13 +47,18 @@ public class TemplateGeneration extends GenerationAction {
 		return templateGenerator;
 	}
 
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.BGT;
+	}
+
 	@NotNull
 	private TemplateGenerator createTask(Module module, VirtualFile rulesFile, String title, File destiny) throws Exception {
 		return new TemplateGenerator(rulesFile, module, title, destiny, getPackage(rulesFile, module));
 	}
 
 	private void error(Project project, String message) {
-		Notifications.Bus.notify(new Notification("Itrules", "Error reading template", message, ERROR), project);
+		Notifications.Bus.notify(new Notification("Intino", "Error reading template", message, ERROR), project);
 	}
 
 	@NotNull
@@ -62,7 +68,7 @@ public class TemplateGeneration extends GenerationAction {
 
 	private void notify(Project project, VirtualFile rulesFile) {
 		Notifications.Bus.notify(
-				new Notification("Itrules", "Itrules", getDestinyFile(rulesFile).getName() + " generated", NotificationType.INFORMATION), project);
+				new Notification("Intino", "Itrules", getDestinyFile(rulesFile).getName() + " generated", NotificationType.INFORMATION), project);
 	}
 
 	private String getPackage(VirtualFile file, Module module) throws Exception {

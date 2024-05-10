@@ -74,6 +74,9 @@ public class DslExportRunner {
 		writer.write(GROUP_ID + NL + conf.artifact().groupId() + NL);
 		writer.write(ARTIFACT_ID + NL + conf.artifact().name() + NL);
 		writer.write(VERSION + NL + conf.artifact().version() + NL);
+		writer.write(DSL + NL + dsl.name() + ":" + dsl.version() + NL);
+		writer.write("language" + NL + dsl.name() + ":" + dsl.version() + NL);//FIXME retrocompatibility. Remove in following versions
+		writer.write(LEVEL + NL + dsl.level() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + "." + dsl.builder().generationPackage() + NL);
 		writer.write(COMPILATION_MODE + NL + mode + NL);

@@ -2,6 +2,7 @@ package io.intino.plugin.actions;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationInfo;
@@ -37,6 +38,11 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 		e.getPresentation().setVisible(true);
 		e.getPresentation().setEnabled(true);
 		e.getPresentation().setIcon(IntinoIcons.MODEL_16);
+	}
+
+	@Override
+	public @NotNull ActionUpdateThread getActionUpdateThread() {
+		return ActionUpdateThread.EDT;
 	}
 
 	@Override

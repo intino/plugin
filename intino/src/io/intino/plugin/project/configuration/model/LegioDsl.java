@@ -39,7 +39,7 @@ public class LegioDsl implements Dsl {
 	public String name() {
 		if (name == null) {
 			String value = parameterValue(mogram, "name", 0);
-			return name = value != null ? value.toLowerCase() : null;
+			return name = value;
 		}
 		return name;
 	}

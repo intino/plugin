@@ -70,7 +70,7 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 		});
 		if (chunk.containsTests() || toCompile.isEmpty()) return toCompile;
 		for (JpsModule module : chunk.getModules())
-			module.getSourceRoots().stream().filter(s -> s.getRootType().equals(SOURCE))
+			module.getSourceRoots().stream().filter(s -> s.getRootType().equals(SOURCE) && !s.getRootType().isForTests())
 					.forEach(root -> collectAllSuitableFilesIn(root.getFile(), toCompile));
 		return toCompile;
 	}

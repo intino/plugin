@@ -85,12 +85,11 @@ Concept:{1..1}:Named Artifact
         	var string resourceDirectory = empty
         Facet WindowsApp with Runnable
         	var string windowsIcon
-		Facet LinuxServiceRPM with Runnable
+		Facet LinuxService with Runnable
 			var string user
 			var RunConfiguration runConfiguration
 			var boolean restartOnFailure
 			var integer managementPort
-			var boolean distribute
 
 	has Parameter
 	Concept:{0..1} Distribution
