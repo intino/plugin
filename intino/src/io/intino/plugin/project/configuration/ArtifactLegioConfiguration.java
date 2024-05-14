@@ -284,6 +284,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 		} catch (IOException e) {
 			LOG.error(e);
 		}
+		else confFile().delete();
 	}
 
 	@NotNull

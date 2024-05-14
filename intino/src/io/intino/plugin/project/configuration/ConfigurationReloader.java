@@ -25,7 +25,6 @@ import static io.intino.Configuration.RunConfiguration;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static org.eclipse.aether.util.artifact.JavaScopes.COMPILE;
-import static org.eclipse.aether.util.artifact.JavaScopes.PROVIDED;
 
 public class ConfigurationReloader {
 	private final Configuration configuration;
@@ -93,7 +92,9 @@ public class ConfigurationReloader {
 			}
 			String language = language(deps);
 			if (language != null && !dsl.level().isModel())
-				artifactDependencies.add(0, asDependency(language, PROVIDED));
+				artifactDependencies.add(0, asDependency(language, COMPILE));
+			else
+				artifactDependencies.add(0, asDependency("io.intino.tara:language:1.6.0", COMPILE));//FIXME done for retro-compatibility
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
 		if (!artifactDependencies.isEmpty()) dependencies.merge(resolver.resolve(artifactDependencies));

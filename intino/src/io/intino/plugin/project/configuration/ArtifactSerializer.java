@@ -70,8 +70,8 @@ public class ArtifactSerializer {
 		object.add(LEVEL, new JsonPrimitive(dsl.level().name()));
 		if (dsl.generationPackage() != null)
 			object.add(DSL_GENERATION_PACKAGE, new JsonPrimitive(dsl.generationPackage()));
-		if (dsl.builder() != null) object.add(BUILDER, objectOf(dsl.builder()));
-		if (dsl.runtime() != null) object.add(RUNTIME, objectOf(dsl.runtime()));
+		if (dsl.builder() != null && dsl.builder().groupId() != null) object.add(BUILDER, objectOf(dsl.builder()));
+		if (dsl.runtime() != null && dsl.runtime().groupId() != null) object.add(RUNTIME, objectOf(dsl.runtime()));
 		if (dsl.outputDsl() != null) object.add(OUT_DSL, objectOf(dsl.outputDsl()));
 		return object;
 	}

@@ -234,7 +234,7 @@ public class PomCreator {
 		for (Artifact.Dsl dsl : configuration.artifact().dsls()) {
 			if (dsl != null) {
 				final String runtimeCoors = runtimeCoors(dsl);
-				if (!runtimeCoors.isEmpty()) {
+				if (runtimeCoors != null && !runtimeCoors.isEmpty()) {
 					dependencies.add(runtimeCoors);
 					builder.add("dependency", createDependencyFrame(runtimeCoors.split(":")));
 				}
