@@ -1,15 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package io.intino.plugin.itrules.lang.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static io.intino.plugin.itrules.lang.psi.ItrulesTypes.*;
-import static io.intino.plugin.itrules.lang.parser.ItrulesParserUtil.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+
+import static io.intino.plugin.itrules.lang.parser.ItrulesParserUtil.*;
+import static io.intino.plugin.itrules.lang.psi.ItrulesTypes.*;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class ItrulesParser implements PsiParser, LightPsiParser {
@@ -42,6 +42,7 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
   //          | DASH
   //          | UNDERDASH
   //          | MARK
+  //          | FORMATTER
   //          | LEFT_SQUARE
   //          | RIGHT_SQUARE
   //          | IDENTIFIER_KEY
@@ -62,6 +63,7 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
   //          | DASH
   //          | UNDERDASH
   //          | MARK
+  //          | FORMATTER
   //          | LEFT_SQUARE
   //          | RIGHT_SQUARE
   //          | IDENTIFIER_KEY
@@ -75,6 +77,7 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, DASH);
     if (!r) r = consumeToken(b, UNDERDASH);
     if (!r) r = consumeToken(b, MARK);
+    if (!r) r = consumeToken(b, FORMATTER);
     if (!r) r = consumeToken(b, LEFT_SQUARE);
     if (!r) r = consumeToken(b, RIGHT_SQUARE);
     if (!r) r = consumeToken(b, IDENTIFIER_KEY);

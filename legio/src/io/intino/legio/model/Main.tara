@@ -167,7 +167,7 @@ Concept Library is abstract
 	var string artifactId
 	var string version
 
-Concept:{0..1} Project
+Concept:{0..1}:Named Project
 	var string description = empty
 	Concept:{0..1} Scm
 		var string url

@@ -121,7 +121,7 @@ public class MavenRunner {
 	public void executeArtifact(FactoryPhase phase) throws IOException {
 		final File pom;
 		try {
-			pom = new PomCreator(module).frameworkPom(phase);
+			pom = new PomCreator(module).artifactPom(phase);
 		} catch (IntinoException e) {
 			LOG.error(e);
 			throw new IOException(message("error.creating.pom"));

@@ -63,6 +63,6 @@ public class AddParameterFix extends WithLiveTemplateFix implements IntentionAct
 
 	@Override
 	public boolean startInWriteAction() {
-		return true;
+		return false;
 	}
 }

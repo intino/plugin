@@ -5,7 +5,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dsl;
 import io.intino.plugin.archetype.Formatters;
@@ -40,7 +39,7 @@ public class DslImporter {
 		if (result != null) {
 			List<Dependency> dependencies = MavenDependencyResolver.dependenciesFrom(result, false);
 			dsl.effectiveVersion(dependencies.get(0).getArtifact().getBaseVersion());
-			reload(dslName, module.getProject());
+			reload(dsl, module.getProject());
 			return dependencies;
 		}
 		return null;
@@ -63,8 +62,8 @@ public class DslImporter {
 		return dsl.toLowerCase().equals(dsl) ? Formatters.firstUpperCase(dsl) : dsl.toLowerCase();
 	}
 
-	private void reload(String fileName, Project project) {
-		LanguageManager.reloadLanguage(project, FileUtil.getNameWithoutExtension(fileName));
+	private void reload(Dsl dsl, Project project) {
+		LanguageManager.reloadLanguage(project, dsl.name(), dsl.version());
 	}
 
 	private void error(Exception e) {

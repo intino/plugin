@@ -399,7 +399,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		}
 	}
 
-	private record LegioPlugin(LegioArtifact artifact, TaraMogram mogram) implements Plugin {
+	public record LegioPlugin(LegioArtifact artifact, TaraMogram mogram) implements Plugin {
 
 		@Override
 		public String groupId() {

@@ -21,6 +21,7 @@ root ::= (SCAPED_CHAR
          | DASH
          | UNDERDASH
          | MARK
+         | FORMATTER
          | LEFT_SQUARE
          | RIGHT_SQUARE
          | IDENTIFIER_KEY

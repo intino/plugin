@@ -166,7 +166,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 	private void createPom() {
 		if (ModuleType.get(module) instanceof WebModuleType) return;
 		try {
-			new PomCreator(module).frameworkPom(FactoryPhase.PACKAGE);
+			new PomCreator(module).artifactPom(FactoryPhase.PACKAGE);
 		} catch (IntinoException e) {
 			LOG.error(e);
 		}

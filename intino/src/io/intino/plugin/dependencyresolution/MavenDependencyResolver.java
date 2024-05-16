@@ -19,6 +19,7 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.classpath.ClasspathTransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 import org.eclipse.aether.util.repository.SimpleResolutionErrorPolicy;
 import org.jetbrains.annotations.NotNull;
@@ -84,6 +85,17 @@ public class MavenDependencyResolver {
 	public MavenDependencyResolver(String localRepository, List<RemoteRepository> remoteRepos) {
 		init(localRepository);
 		this.remoteRepos = remoteRepos.isEmpty() ? List.of(DEFAULT_REPO_REMOTE) : remoteRepos;
+	}
+
+	public boolean isDownloaded(DefaultArtifact artifact) {
+		File directory = new File(session.getLocalRepository().getBasedir(), artifact.getGroupId().replace(".", File.separator) + File.separator + artifact.getArtifactId() + File.separator + artifact.getVersion());
+		File file = new File(directory, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getExtension());
+		try {
+			if (!file.exists()) resolve(artifact, JavaScopes.COMPILE);
+			return file.exists();
+		} catch (DependencyResolutionException e) {
+			return false;
+		}
 	}
 
 	public static MetadataResult metadata(DefaultArtifact artifact) {

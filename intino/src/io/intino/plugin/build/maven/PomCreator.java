@@ -67,8 +67,8 @@ public class PomCreator {
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
-	public File frameworkPom(FactoryPhase phase) throws IntinoException {
-		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : frameworkPom(pomFile(), phase);
+	public File artifactPom(FactoryPhase phase) throws IntinoException {
+		return ModuleTypeWithWebFeatures.isAvailable(module) ? webPom(pomFile(), phase) : artifactPom(pomFile(), phase);
 	}
 
 	private File webPom(File pom, FactoryPhase phase) {
@@ -83,20 +83,24 @@ public class PomCreator {
 		return pom;
 	}
 
-	private File frameworkPom(File pom, FactoryPhase phase) throws IntinoException {
+	private File artifactPom(File pom, FactoryPhase phase) throws IntinoException {
 		Artifact.Package build = safe(() -> configuration.artifact().packageConfiguration());
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
-		final String[] languageLevel = {"1.8"};
-		final Application application = ApplicationManager.getApplication();
-		if (application.isReadAccessAllowed()) languageLevel[0] = languageLevel();
-		else application.runReadAction((Computable<String>) () -> languageLevel[0] = languageLevel());
-		builder.add("sdk", languageLevel[0]);
-		fillFramework(build, builder);
+		builder.add("sdk", langaugeLevel());
+		fillArtifactPom(build, builder);
 //		if (phase.ordinal() > INSTALL.ordinal() && !version().isSnapshot())
 //			builder.add("dependencyCheck", "dependencyCheck");
 		writePom(pom, builder.toFrame(), new PomTemplate());
 		return pom;
+	}
+
+	private String langaugeLevel() {
+		final String[] languageLevel = {"11"};
+		final Application application = ApplicationManager.getApplication();
+		if (application.isReadAccessAllowed()) languageLevel[0] = languageLevel();
+		else application.runReadAction((Computable<String>) () -> languageLevel[0] = languageLevel());
+		return languageLevel[0];
 	}
 
 	@NotNull
@@ -123,7 +127,7 @@ public class PomCreator {
 		builder.add("pom").add("groupId", artifact.groupId()).add("artifactId", artifact.name()).add("version", artifact.version());
 	}
 
-	private void fillFramework(Artifact.Package pack, FrameBuilder builder) {
+	private void fillArtifactPom(Artifact.Package pack, FrameBuilder builder) {
 		if (ApplicationManager.getApplication().isReadAccessAllowed()) fillDirectories(builder);
 		else ApplicationManager.getApplication().runReadAction(() -> fillDirectories(builder));
 		final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
@@ -233,10 +237,10 @@ public class PomCreator {
 		List<String> dependencies = new ArrayList<>();
 		for (Artifact.Dsl dsl : configuration.artifact().dsls()) {
 			if (dsl != null) {
-				final String runtimeCoors = runtimeCoors(dsl);
-				if (runtimeCoors != null && !runtimeCoors.isEmpty()) {
-					dependencies.add(runtimeCoors);
-					builder.add("dependency", createDependencyFrame(runtimeCoors.split(":")));
+				final String[] runtimeCoors = runtimeCoors(dsl);
+				if (runtimeCoors != null) {
+					dependencies.add(String.join(":", runtimeCoors));
+					builder.add("dependency", createDependencyFrame(runtimeCoors));
 				}
 			}
 		}
@@ -424,10 +428,10 @@ public class PomCreator {
 		}
 	}
 
-	private String runtimeCoors(Artifact.Dsl dsl) {
-		if (allModulesSeparated())
-			return LanguageResolver.runtimeCoors(dsl.name(), dsl.version());
-		return LanguageResolver.moduleDependencyOf(module, dsl.name(), dsl.version()) != null ? "" : LanguageResolver.runtimeCoors(dsl.name(), dsl.version());
+	private String[] runtimeCoors(Artifact.Dsl dsl) {
+		Artifact.Dsl.Runtime runtime = dsl.runtime();
+		if (runtime == null || runtime.groupId() == null) return null;
+		return new String[]{runtime.groupId(), runtime.artifactId(), runtime.version()};
 	}
 
 	private Frame createDependencyFrame(Dependency d) {

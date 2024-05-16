@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.0.6</version>
+	<version>8.0.7</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -166,6 +166,8 @@
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArchetypeAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DataHubAnnotator"/>
+		<annotator language="Tara"
+				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.IntinoPluginAnnotator"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.ArtifactParametersAnnotator"/>
 		<annotator language="Tara"

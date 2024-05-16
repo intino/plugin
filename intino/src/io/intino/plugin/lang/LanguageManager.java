@@ -2,6 +2,7 @@ package io.intino.plugin.lang;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -20,9 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static io.intino.plugin.project.Safe.safe;
 import static java.io.File.separator;
@@ -54,8 +53,14 @@ public class LanguageManager {
 	}
 
 	@Nullable
-	public static Language getLanguage(Project project, String dsl) {
-		return getLanguage(project, dsl, LATEST);
+	public static Language getLanguage(Project project, String dslName) {
+		Configuration.Artifact.Dsl dsl = Arrays.stream(ModuleManager.getInstance(project).getModules())
+				.map(IntinoUtil::configurationOf)
+				.map(c -> safe(() -> c.artifact().dsl(dslName)))
+				.filter(Objects::nonNull)
+				.findFirst().orElse(null);
+		if (dsl == null) return getLanguage(project, dslName, LATEST);
+		return getLanguage(project, dsl.name(), dsl.version());
 	}
 
 	@Nullable
@@ -73,22 +78,22 @@ public class LanguageManager {
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public static void reloadLanguage(Project project, String dsl) {
+	public static void reloadLanguage(Project project, String dsl, String version) {
 		if (dsl == null) return;
 		final File languageDirectory = getLanguageDirectory(dsl);
 		if (!languageDirectory.exists()) return;
-		Language language = LanguageLoader.loadLatest(dsl, languageDirectory.getPath());
+		Language language = LanguageLoader.load(dsl, version, languageDirectory.getPath());
 		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public static void reloadLanguage(Project project, String dsl, String version) {
+	private static void reloadLanguage(Project project, String dsl) {
 		if (dsl == null) return;
 		final File languageDirectory = getLanguageDirectory(dsl);
 		if (!languageDirectory.exists()) return;
-		Language language = LanguageLoader.load(dsl, version, languageDirectory.getPath());
+		Language language = LanguageLoader.loadLatest(dsl, languageDirectory.getPath());
 		if (language == null) return;
 		addLanguage(project, dsl, language);
 		PsiManager.getInstance(project).dropResolveCaches();
@@ -113,7 +118,10 @@ public class LanguageManager {
 	}
 
 	public static File getLanguageDirectory(String dsl) {
-		return new File(getLanguagesRepository().getPath(), DSL_GROUP_ID.replace(".", separator) + separator + dsl.toLowerCase());
+		File file = new File(getLanguagesRepository().getPath(), DSL_GROUP_ID.replace(".", separator) + separator + dsl);
+		if (!file.exists())
+			return new File(getLanguagesRepository().getPath(), DSL_GROUP_ID.replace(".", separator) + separator + dsl.toLowerCase());
+		return file;
 	}
 
 	public static Map<String, Object> getImportedLanguageInfo(String dsl) {

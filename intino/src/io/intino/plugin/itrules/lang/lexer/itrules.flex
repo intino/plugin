@@ -19,6 +19,7 @@ ENDRULE             = "end"
 DASH                = "-"
 UNDERDASH           = "_"
 MARK                = "$" {IDENTIFIER_KEY}
+FORMATTER           = "+" {IDENTIFIER_KEY}
 LEFT_SQUARE         = "["
 RIGHT_SQUARE        = "]"
 IDENTIFIER_KEY      = [:jletter:] ([:jletterdigit:] | {UNDERDASH} | {DASH})*
@@ -28,6 +29,7 @@ IDENTIFIER_KEY      = [:jletter:] ([:jletterdigit:] | {UNDERDASH} | {DASH})*
 	{DEFRULE}                       {   return ItrulesTypes.DEFRULE; }
 	{ENDRULE}                       {   return ItrulesTypes.ENDRULE; }
 	{MARK}                          {   return ItrulesTypes.MARK; }
+  	{FORMATTER}                     {   return ItrulesTypes.FORMATTER; }
 	{LEFT_SQUARE}                   {   return ItrulesTypes.LEFT_SQUARE; }
 	{RIGHT_SQUARE}                  {   return ItrulesTypes.RIGHT_SQUARE; }
 	{SCAPED_CHAR}                   {   return ItrulesTypes.SCAPED_CHAR; }

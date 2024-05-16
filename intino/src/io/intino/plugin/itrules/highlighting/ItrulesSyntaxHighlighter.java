@@ -12,9 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
+
 public class ItrulesSyntaxHighlighter extends SyntaxHighlighterBase implements ItrulesTypes {
     public static final TextAttributesKey KEYWORD = TextAttributesKey.createTextAttributesKey("Itrules_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
     public static final TextAttributesKey IDENTIFIER = TextAttributesKey.createTextAttributesKey("Itrules_IDENTIFIER", DefaultLanguageHighlighterColors.STRING);
+    public static final TextAttributesKey FORMATTER = createTextAttributesKey("Itrules_FORMATTER", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
     private static final Map<IElementType, TextAttributesKey> KEYS;
 
     static {
@@ -22,6 +25,7 @@ public class ItrulesSyntaxHighlighter extends SyntaxHighlighterBase implements I
         KEYS.put(ItrulesTypes.DEFRULE, KEYWORD);
         KEYS.put(ItrulesTypes.ENDRULE, KEYWORD);
         KEYS.put(ItrulesTypes.MARK, IDENTIFIER);
+        KEYS.put(ItrulesTypes.FORMATTER, FORMATTER);
         KEYS.put(ItrulesTypes.SCAPED_CHAR, IDENTIFIER);
         KEYS.put(ItrulesTypes.LEFT_SQUARE, KEYWORD);
         KEYS.put(ItrulesTypes.RIGHT_SQUARE, KEYWORD);

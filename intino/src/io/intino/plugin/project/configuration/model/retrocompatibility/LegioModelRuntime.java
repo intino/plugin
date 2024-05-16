@@ -49,7 +49,7 @@ public class LegioModelRuntime implements Configuration.Artifact.Dsl.Runtime {
 	}
 
 	private String runtimeCoors(Attributes parameters) {
-		if (isMagritteLibrary(model.name())) return magritteID(model.version());
+		if (isMagritteLibrary(model.name())) return magritteID(model.realVersion());
 		String framework = parameters.getValue("framework");
 		return framework != null ? framework : coors(parameters);
 	}

@@ -48,7 +48,7 @@ public class LegioModel implements Configuration.Artifact.Dsl {
 		return version = realVersion();
 	}
 
-	private String realVersion() {
+	String realVersion() {
 		return TaraPsiUtil.parameterValue(mogram, "version", 1);
 	}
 
