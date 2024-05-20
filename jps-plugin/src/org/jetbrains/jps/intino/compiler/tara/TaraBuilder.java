@@ -72,11 +72,11 @@ public class TaraBuilder extends IntinoBuilder {
 		final Map<File, Boolean> toCompile = collectChangedFiles(chunk, dirtyFilesHolder);
 		if (conf == null || toCompile.isEmpty()) return NOTHING_DONE;
 		String encoding = encoding(context, chunk);
-		Map<String, Map<String, Boolean>> files = files(toCompile);
+		Map<String, Map<String, Boolean>> filesByDsl = files(toCompile);
 		IntinoPaths paths = IntinoPaths.load(chunk, finalOutputs, context.getProjectDescriptor().getProject());
 		List<OutputItem> compiled = new ArrayList<>();
-		for (String dsl : sort(new ArrayList<>(files.keySet()))) {
-			String runConfiguration = new RunConfigurationRenderer(project, chunk, conf, files.get(dsl), dsl, paths, isCompileJavaIncrementally(context), encoding).build();
+		for (String dsl : sort(new ArrayList<>(filesByDsl.keySet()))) {
+			String runConfiguration = new RunConfigurationRenderer(project, chunk, conf, filesByDsl.get(dsl), dsl, paths, isCompileJavaIncrementally(context), encoding).build();
 			CompilationResult result = new TaraRunner(project, chunk, dsl, runConfiguration, encoding).runTaraCompiler(context);
 			ExitCode exitCode = processResult(context, result);
 			if (exitCode != null) return exitCode;
@@ -135,7 +135,7 @@ public class TaraBuilder extends IntinoBuilder {
 		if (matcher.find()) return matcher.group(1);
 		try {
 			String line = Files.readString(file.toPath()).trim().lines().findFirst().get();
-			return line.contains("dsl ") ? line.split("dsl ")[1] : null;
+			return line.contains("dsl ") ? line.split("dsl ")[1].toLowerCase() : null;
 		} catch (IOException e) {
 			return null;
 		}

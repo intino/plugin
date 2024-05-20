@@ -58,9 +58,9 @@ public class LegioModelBuilder implements Configuration.Artifact.Dsl.Builder {
 
 	@NotNull
 	private static ExcludedPhases code(String e) {
-		return e.contains("Code") ?
-				ExcludedPhases.ExcludeCodeBaseGeneration :
-				ExcludedPhases.ExcludeLanguageGeneration;
+		return e.contains("Language") ?
+				ExcludedPhases.ExcludeLanguageGeneration :
+				ExcludedPhases.ExcludeCodeBaseGeneration;
 	}
 
 	@Override

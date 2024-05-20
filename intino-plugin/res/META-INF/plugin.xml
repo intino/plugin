@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.0.7</version>
+	<version>8.0.8</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -327,8 +327,6 @@
 		<listener class="io.intino.plugin.project.configuration.ConfigurationListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
 		<listener class="io.intino.plugin.actions.itrules.ItrFileDocumentManagerListener"
-				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
-		<listener class="io.intino.plugin.toolwindows.factory.LanguageFileDocumentManagerListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
 		<listener class="io.intino.plugin.codeinsight.languageinjection.JavaFragmentDocumentManagerListener"
 				  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>

@@ -72,8 +72,11 @@ public class AccessorsPublisher {
 	}
 
 	private void mvn(File serviceDirectory, String goal) throws IOException {
+		if (serviceDirectory.getName().contains("#")) return;
 		String[] name = serviceDirectory.getName().split("#");
+		if (name.length < 2) return;
 		final File pom = generatePom(serviceDirectory, name[0], name[1]);
+		if (!pom.exists()) return;
 		final InvocationResult result = new MavenRunner(module).invokeMavenWithConfiguration(pom, goal);
 		if (result != null && result.getExitCode() != 0) {
 			if (result.getExecutionException() != null)

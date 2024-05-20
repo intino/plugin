@@ -126,7 +126,8 @@ public class MavenDependencyResolver {
 	@NotNull
 	private DependencyRequest request(List<Artifact.Dependency> deps) {
 		return new DependencyRequest(new CollectRequest(deps.stream()
-				.map(d -> new Dependency(artifactOf(d), d.scope().toLowerCase()).setExclusions(exclusionsOf(d))).toList(), null, remoteRepos), null);
+				.map(d -> new Dependency(artifactOf(d), d.scope().toLowerCase()).setExclusions(exclusionsOf(d)))
+				.toList(), null, remoteRepos), null);
 	}
 
 	@NotNull
@@ -140,6 +141,7 @@ public class MavenDependencyResolver {
 
 	private static RepositorySystemSession buildSession(String localRepo) {
 		var session = MavenRepositorySystemUtils.newSession();
+		session.setConfigProperty("aether.connector.requestTimeout", 20_000);
 		return session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository(localRepo)))
 				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(CACHE_DISABLED, 0));
 	}

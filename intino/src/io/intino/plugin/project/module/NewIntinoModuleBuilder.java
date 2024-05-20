@@ -51,10 +51,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static io.intino.plugin.lang.psi.impl.IntinoUtil.moduleRoot;
@@ -62,7 +60,7 @@ import static io.intino.plugin.project.configuration.ConfigurationManager.*;
 import static java.io.File.separator;
 
 public class NewIntinoModuleBuilder extends StarterModuleBuilder {
-	private List<String> selectedDsls = new ArrayList<>();
+	private final List<String> selectedDsls = new ArrayList<>();
 	private boolean gorosFramework = false;
 
 	public NewIntinoModuleBuilder() {
@@ -288,7 +286,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 
 		@Override
 		protected void addFieldsAfter(@NotNull Panel layout) {
-			List<String> dsls = dsls();
+			List<String> dsls = new ArrayList<>(dsls());
 			dsls.add(0, "");
 			layout.row("DSL", row -> {
 				row.comboBox(dsls, null).getComponent()
@@ -305,9 +303,9 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 			});
 		}
 
-		private static List<String> dsls() {
+		private static Set<String> dsls() {
 			ArtifactoryConnector artifactoryConnector = new ArtifactoryConnector(Collections.singletonList(ArtifactoryConnector.repository("intino-maven", Repositories.INTINO_RELEASES)));
-			return artifactoryConnector.dsls();
+			return artifactoryConnector.dsls().stream().map(String::toLowerCase).collect(Collectors.toSet());
 		}
 	}
 
