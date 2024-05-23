@@ -1,91 +1,91 @@
-def type(method & multiple)
-	public static java.util.List<$type> $name($scope self[, $parameter...[,]]) {
+def type(method, multiple)
+	public static java.util.List<$type> $name($scope self<<, $parameter...[,]>>) {
 		$body
 	}
 end
 
 def type(method)
-	public static $type+list $name($scope self[, $parameter...[,]]) {
+	public static $type+list $name($scope self<<, $parameter...[,]>>) {
 		$body
 	}
 end
 
-def attribute(value:instant) trigger(type)
+def attribute(this, instant) AND trigger(type)
 	java.time.Instant
 end
 
-def attribute(value:date) trigger(type)
+def attribute(this, date) AND trigger(type)
 	Date
 end
 
-def attribute(value:time) trigger(type)
+def attribute(this, time) AND trigger(type)
 	java.time.LocalTime
 end
 
-def attribute(value:Double) trigger(type)
+def attribute(this, Double) AND trigger(type)
 	double
 end
 
-def attribute(value:INTEGER) trigger(type)
+def attribute(this, INTEGER) AND trigger(type)
 	int
 end
 
-def attribute(value:OBJECT) trigger(type)
+def attribute(this, OBJECT) AND trigger(type)
 	Object
 end
 
-def attribute(value:RESOURCE) trigger(type)
+def attribute(this, RESOURCE) AND trigger(type)
 	java.net.URL
 end
 
-def attribute(value:resource) trigger(type)
+def attribute(this, resource) AND trigger(type)
 	java.net.URL
 end
 
-def attribute(value:string) trigger(type)
+def attribute(this, string) AND trigger(type)
 	String
 end
 
-def attribute(value:boolean) trigger(type)
+def attribute(this, boolean) AND trigger(type)
 	boolean
 end
 
-def attribute(value:int) trigger(list)
+def attribute(this, int) AND trigger(list)
 	Integer
 end
 
-def attribute(value:instant) trigger(list)
+def attribute(this, instant) AND trigger(list)
 	java.time.Instant
 end
 
-def attribute(value:date) trigger(list)
+def attribute(this, date) AND trigger(list)
 	Date
 end
 
-def attribute(value:time) trigger(list)
+def attribute(this, time) AND trigger(list)
 	java.time.LocalTime
 end
 
-def attribute(value:double) trigger(list)
+def attribute(this, double) AND trigger(list)
 	Double
 end
 
-def attribute(value:OBJECT) trigger(list)
+def attribute(this, OBJECT) AND trigger(list)
 	Object
 end
 
-def attribute(value:boolean) trigger(list)
+def attribute(this, boolean) AND trigger(list)
 	Boolean
 end
 
-def attribute(value:string) trigger(list)
+def attribute(this, string) AND trigger(list)
 	String
 end
 
-def attribute(value:resource) trigger(list)
+def attribute(this, resource) AND trigger(list)
 	java.net.URL
 end
 
-def attribute(value:type) trigger(list)
+def attribute(this, type) AND trigger(list)
 	Concept
 end

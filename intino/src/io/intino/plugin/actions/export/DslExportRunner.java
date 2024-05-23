@@ -107,7 +107,8 @@ public class DslExportRunner {
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
 		vmParams.add("-Dfile.encoding=" + Charset.defaultCharset().displayName());
-		final String mainClass = mainClass(classpath.get(0));
+		String mainClass = mainClass(classpath.get(0));
+		if (mainClass == null && dsl.name().equalsIgnoreCase("konos")) mainClass = "io.intino.konos.KonoscRunner";
 		if (mainClass == null) throw new IOException("Main Class of runner not found");
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(getJavaExecutable(), mainClass, Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));

@@ -1,34 +1,44 @@
 package io.intino.plugin.codeinsight.intentions;
 
-import io.intino.itrules.RuleSet;
-import io.intino.itrules.Template;
+import io.intino.itrules.template.Rule;
+import io.intino.itrules.template.Template;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.intino.itrules.template.condition.predicates.Predicates.*;
+import static io.intino.itrules.template.outputs.Outputs.*;
 
 public class MethodTemplate extends Template {
 
-	public RuleSet ruleSet() {
-		return new RuleSet().add(
-				rule().condition((allTypes("method", "multiple"))).output(literal("public static java.util.List<")).output(mark("type")).output(literal("> ")).output(mark("name")).output(literal("(")).output(mark("scope")).output(literal(" self")).output(expression().output(literal(", ")).output(mark("parameter").multiple(","))).output(literal(") {\n\t")).output(mark("body")).output(literal("\n}")),
-				rule().condition((type("method"))).output(literal("public static ")).output(mark("type", "list")).output(literal(" ")).output(mark("name")).output(literal("(")).output(mark("scope")).output(literal(" self")).output(expression().output(literal(", ")).output(mark("parameter").multiple(","))).output(literal(") {\n\t")).output(mark("body")).output(literal("\n}")),
-				rule().condition((attribute("value", "instant")), (trigger("type"))).output(literal("java.time.Instant")),
-				rule().condition((attribute("value", "date")), (trigger("type"))).output(literal("Date")),
-				rule().condition((attribute("value", "time")), (trigger("type"))).output(literal("java.time.LocalTime")),
-				rule().condition((attribute("value", "Double")), (trigger("type"))).output(literal("double")),
-				rule().condition((attribute("value", "INTEGER")), (trigger("type"))).output(literal("int")),
-				rule().condition((attribute("value", "OBJECT")), (trigger("type"))).output(literal("Object")),
-				rule().condition((attribute("value", "RESOURCE")), (trigger("type"))).output(literal("java.net.URL")),
-				rule().condition((attribute("value", "resource")), (trigger("type"))).output(literal("java.net.URL")),
-				rule().condition((attribute("value", "string")), (trigger("type"))).output(literal("String")),
-				rule().condition((attribute("value", "boolean")), (trigger("type"))).output(literal("boolean")),
-				rule().condition((attribute("value", "int")), (trigger("list"))).output(literal("Integer")),
-				rule().condition((attribute("value", "instant")), (trigger("list"))).output(literal("java.time.Instant")),
-				rule().condition((attribute("value", "date")), (trigger("list"))).output(literal("Date")),
-				rule().condition((attribute("value", "time")), (trigger("list"))).output(literal("java.time.LocalTime")),
-				rule().condition((attribute("value", "double")), (trigger("list"))).output(literal("Double")),
-				rule().condition((attribute("value", "OBJECT")), (trigger("list"))).output(literal("Object")),
-				rule().condition((attribute("value", "boolean")), (trigger("list"))).output(literal("Boolean")),
-				rule().condition((attribute("value", "string")), (trigger("list"))).output(literal("String")),
-				rule().condition((attribute("value", "resource")), (trigger("list"))).output(literal("java.net.URL")),
-				rule().condition((attribute("value", "type")), (trigger("list"))).output(literal("Concept"))
-		);
+	public List<Rule> ruleSet() {
+		List<Rule> rules = new ArrayList<>();
+		rules.add(rule().condition(allTypes("method", "multiple")).output(literal("public static java.util.List<")).output(placeholder("type")).output(literal("> ")).output(placeholder("name")).output(literal("(")).output(placeholder("scope")).output(literal(" self")).output(expression().output(literal(", ")).output(placeholder("parameter").multiple(","))).output(literal(") {\n\t")).output(placeholder("body")).output(literal("\n}")));
+		rules.add(rule().condition(allTypes("method")).output(literal("public static ")).output(placeholder("type", "list")).output(literal(" ")).output(placeholder("name")).output(literal("(")).output(placeholder("scope")).output(literal(" self")).output(expression().output(literal(", ")).output(placeholder("parameter").multiple(","))).output(literal(") {\n\t")).output(placeholder("body")).output(literal("\n}")));
+		rules.add(rule().condition(all(attribute("","instant"), trigger("type"))).output(literal("java.time.Instant")));
+		rules.add(rule().condition(all(attribute("","date"), trigger("type"))).output(literal("Date")));
+		rules.add(rule().condition(all(attribute("","time"), trigger("type"))).output(literal("java.time.LocalTime")));
+		rules.add(rule().condition(all(attribute("","Double"), trigger("type"))).output(literal("double")));
+		rules.add(rule().condition(all(attribute("","INTEGER"), trigger("type"))).output(literal("int")));
+		rules.add(rule().condition(all(attribute("","OBJECT"), trigger("type"))).output(literal("Object")));
+		rules.add(rule().condition(all(attribute("","RESOURCE"), trigger("type"))).output(literal("java.net.URL")));
+		rules.add(rule().condition(all(attribute("","resource"), trigger("type"))).output(literal("java.net.URL")));
+		rules.add(rule().condition(all(attribute("","string"), trigger("type"))).output(literal("String")));
+		rules.add(rule().condition(all(attribute("","boolean"), trigger("type"))).output(literal("boolean")));
+		rules.add(rule().condition(all(attribute("","int"), trigger("list"))).output(literal("Integer")));
+		rules.add(rule().condition(all(attribute("","instant"), trigger("list"))).output(literal("java.time.Instant")));
+		rules.add(rule().condition(all(attribute("","date"), trigger("list"))).output(literal("Date")));
+		rules.add(rule().condition(all(attribute("","time"), trigger("list"))).output(literal("java.time.LocalTime")));
+		rules.add(rule().condition(all(attribute("","double"), trigger("list"))).output(literal("Double")));
+		rules.add(rule().condition(all(attribute("","OBJECT"), trigger("list"))).output(literal("Object")));
+		rules.add(rule().condition(all(attribute("","boolean"), trigger("list"))).output(literal("Boolean")));
+		rules.add(rule().condition(all(attribute("","string"), trigger("list"))).output(literal("String")));
+		rules.add(rule().condition(all(attribute("","resource"), trigger("list"))).output(literal("java.net.URL")));
+		rules.add(rule().condition(all(attribute("","type"), trigger("list"))).output(literal("Concept")));
+		return rules;
+	}
+
+	public String render(Object object) {
+		return new io.intino.itrules.Engine(this).render(object);
 	}
 }

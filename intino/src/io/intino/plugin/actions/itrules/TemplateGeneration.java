@@ -6,20 +6,27 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.Configuration;
+import io.intino.plugin.IntinoException;
+import io.intino.plugin.lang.psi.impl.IntinoUtil;
+import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
 
 import static com.intellij.notification.NotificationType.ERROR;
+import static io.intino.plugin.project.configuration.model.DependencyFactory.createCompile;
 
 public class TemplateGeneration extends GenerationAction {
-
+	private static final String[] ItRulesCoors = new String[]{"io.intino.itrules", "engine", "2.0.0"};
 	private static final String JAVA = ".java";
 
 	public void actionPerformed(@NotNull AnActionEvent e) {
@@ -35,16 +42,36 @@ public class TemplateGeneration extends GenerationAction {
 	public TemplateGenerator createTemplate(Project project, VirtualFile rulesFile) {
 		if (checkDocument(project, rulesFile)) return null;
 		TemplateGenerator templateGenerator;
-		File destiny = getDestinyFile(rulesFile);
+		File outputFile = outputFile(rulesFile);
+		Module module = getModuleOf(project, rulesFile);
 		try {
-			templateGenerator = createTask(getModuleOf(project, rulesFile), rulesFile, "Generate Template", destiny);
+			templateGenerator = createTask(module, rulesFile, outputFile);
 		} catch (Exception e1) {
 			error(project, e1.getMessage());
 			return null;
 		}
 		ProgressManager.getInstance().run(templateGenerator);
-		refreshFiles(destiny);
+		refreshFiles(outputFile);
+		addItrulesEngineToConfiguration(module);
 		return templateGenerator;
+	}
+
+	private void addItrulesEngineToConfiguration(Module module) {
+		Configuration configuration = IntinoUtil.configurationOf(module);
+		if (!(configuration instanceof ArtifactLegioConfiguration legio)) return;
+		Configuration.Artifact.Dependency dep = legio.artifact().dependencies().stream().filter(d -> d.groupId().equals(ItRulesCoors[0]) && d.artifactId().equals(ItRulesCoors[1])).findFirst().orElse(null);
+		if (dep == null)
+			legio.artifact().addDependencies(createCompile(ItRulesCoors[0], ItRulesCoors[1], ItRulesCoors[2]));
+		else if (!dep.version().equals(ItRulesCoors[2]) && isHigher(dep.version())) dep.version(ItRulesCoors[2]);
+	}
+
+	private boolean isHigher(String version) {
+		try {
+			return new Version(ItRulesCoors[2]).compareTo(new Version(version)) > 0;
+		} catch (IntinoException e) {
+			Logger.getInstance(this.getClass()).error(e);
+			return false;
+		}
 	}
 
 	@Override
@@ -53,8 +80,8 @@ public class TemplateGeneration extends GenerationAction {
 	}
 
 	@NotNull
-	private TemplateGenerator createTask(Module module, VirtualFile rulesFile, String title, File destiny) throws Exception {
-		return new TemplateGenerator(rulesFile, module, title, destiny, getPackage(rulesFile, module));
+	private TemplateGenerator createTask(Module module, VirtualFile rulesFile, File destination) {
+		return new TemplateGenerator(rulesFile, module, "Generate Template", destination, getPackage(rulesFile, module));
 	}
 
 	private void error(Project project, String message) {
@@ -62,16 +89,16 @@ public class TemplateGeneration extends GenerationAction {
 	}
 
 	@NotNull
-	private File getDestinyFile(VirtualFile rulesFile) {
+	private File outputFile(VirtualFile rulesFile) {
 		return new File(rulesFile.getParent().getPath(), classSimpleName(rulesFile.getName()) + "Template" + JAVA);
 	}
 
 	private void notify(Project project, VirtualFile rulesFile) {
 		Notifications.Bus.notify(
-				new Notification("Intino", "Itrules", getDestinyFile(rulesFile).getName() + " generated", NotificationType.INFORMATION), project);
+				new Notification("Intino", "Itrules", outputFile(rulesFile).getName() + " generated", NotificationType.INFORMATION), project);
 	}
 
-	private String getPackage(VirtualFile file, Module module) throws Exception {
+	private String getPackage(VirtualFile file, Module module) {
 		String path = file.getParent().getPath();
 		final VirtualFile virtualFile = srcRoot(module);
 		return virtualFile == null ? "" : format(path, virtualFile.getPath());

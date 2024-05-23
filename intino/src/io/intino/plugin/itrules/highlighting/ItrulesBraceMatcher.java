@@ -13,7 +13,7 @@ public class ItrulesBraceMatcher implements PairedBraceMatcher {
 
     public ItrulesBraceMatcher() {
         pairs = new BracePair[]{
-                new BracePair(ItrulesTypes.LEFT_SQUARE, ItrulesTypes.RIGHT_SQUARE, false),
+                new BracePair(ItrulesTypes.LEFT_EXPR, ItrulesTypes.RIGHT_EXPR, false),
         };
     }
 

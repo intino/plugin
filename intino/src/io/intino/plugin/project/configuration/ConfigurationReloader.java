@@ -87,8 +87,9 @@ public class ConfigurationReloader {
 		for (Artifact.Dsl dsl : dsls) {
 			var deps = resolve(dsl);
 			if (!dsl.builder().excludedPhases().contains(ExcludeCodeBaseGeneration)) {
-				String dslCoors = new LanguageResolver(module, repositories).runtimeCoors(dsl, dsl.version());
-				if (dslCoors != null) artifactDependencies.add(0, asDependency(dslCoors, COMPILE));
+				Artifact.Dsl.Runtime runtime = dsl.runtime();
+				if (runtime != null)
+					artifactDependencies.add(0, asDependency(String.join(":", runtime.groupId(), runtime.artifactId(), runtime.version()), COMPILE));
 			}
 			String language = language(deps);
 			if (language != null && !dsl.level().isModel())

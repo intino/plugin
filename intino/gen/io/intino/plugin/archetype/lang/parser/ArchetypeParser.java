@@ -1,15 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package io.intino.plugin.archetype.lang.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static io.intino.plugin.archetype.lang.psi.ArchetypeTypes.*;
-import static io.intino.plugin.archetype.lang.parser.ArchetypeParserUtil.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+
+import static io.intino.plugin.archetype.lang.parser.ArchetypeParserUtil.*;
+import static io.intino.plugin.archetype.lang.psi.ArchetypeTypes.*;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class ArchetypeParser implements PsiParser, LightPsiParser {

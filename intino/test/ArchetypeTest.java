@@ -2,7 +2,6 @@ import io.intino.plugin.IntinoException;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

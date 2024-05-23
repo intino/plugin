@@ -6,7 +6,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -47,7 +46,7 @@ public class ProjectLegioConfiguration implements ProjectConfiguration {
 
 	public ProjectConfiguration init() {
 		try {
-			withTask(new Task.Backgroundable(ijProject, ijProject.getName() + ": Reloading", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			withTask(new Task.Backgroundable(ijProject, ijProject.getName() + ": Reloading", false) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
 					vFile = new LegioFileCreator(null, Collections.emptyList()).getProject(myProject);
@@ -96,7 +95,7 @@ public class ProjectLegioConfiguration implements ProjectConfiguration {
 			refresh();
 			if (ijProject.isDisposed()) return;
 			try {
-				withTask(new Task.Backgroundable(ijProject, ijProject + ": Reloading project...", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				withTask(new Task.Backgroundable(ijProject, ijProject + ": Reloading project...", false) {
 							 @Override
 							 public void run(@NotNull ProgressIndicator indicator) {
 								 try {

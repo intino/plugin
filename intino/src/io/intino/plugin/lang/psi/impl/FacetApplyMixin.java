@@ -12,7 +12,7 @@ import io.intino.plugin.lang.psi.TaraParameters;
 import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.Parameter;
 import io.intino.tara.language.model.Primitive;
-import io.intino.tara.language.model.rules.NodeRule;
+import io.intino.tara.language.model.rules.MogramRule;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -83,7 +83,7 @@ public class FacetApplyMixin extends ASTWrapperPsiElement {
 		return application.<String>runReadAction(() -> ((TaraFacetApply) this).getMetaIdentifier().getText());
 	}
 
-	public NodeRule ruleOf(Mogram component) {
+	public MogramRule ruleOf(Mogram component) {
 		return null;//TODO
 	}
 

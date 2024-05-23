@@ -6,9 +6,9 @@ def type(pom)
 	<groupId>$group+lowercase</groupId>
 	<artifactId>$artifact+lowercase</artifactId>
 	<version>$version</version>
-	[<licenses>
+	<<~<licenses>
 		$license...[$NL]
-	</licenses>]
+	</licenses>~>>
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
@@ -58,14 +58,14 @@ def type(pom)
 </project>
 end
 
-def type(repository & Distribution & snapshot) trigger(distribution)
+def type(repository, Distribution, snapshot) AND trigger(distribution)
 	<snapshotRepository>
 		<id>$name</id>
 		<url>$url</url>
 	</snapshotRepository>
 end
 
-def type(repository) type(Distribution) trigger(distribution)
+def type(repository, Distribution) AND trigger(distribution)
 	<repository>
 		<id>$name</id>
 		<url>$url</url>
@@ -75,7 +75,7 @@ end
 def trigger(distribution)
 end
 
-def type(repository) !type(distribution) trigger(release)
+def type(repository) AND NOT type(distribution) AND trigger(release)
 	<repository>
 		<id>$name-~$random</id>
 		<url>$url</url>
@@ -83,21 +83,21 @@ def type(repository) !type(distribution) trigger(release)
 end
 
 
-def type(GPL) trigger(license)
+def type(GPL) AND trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 	</license>
 end
 
-def type(BSD) trigger(license)
+def type(BSD) AND trigger(license)
 	<license>
 		<name>BSD 3-Clause License</name>
 		<url>https://opensource.org/licenses/BSD-3-Clause</url>
 	</license>
 end
 
-def type(rest) trigger(dependency)
+def type(rest) AND trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>rest-accessor</artifactId>
@@ -105,7 +105,7 @@ def type(rest) trigger(dependency)
 	</dependency>
 end
 
-def type(jmx) trigger(dependency)
+def type(jmx) AND trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>jmx</artifactId>
@@ -118,7 +118,7 @@ def type(jmx) trigger(dependency)
     </dependency>
 end
 
-def type(messaging) trigger(dependency)
+def type(messaging) AND trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>terminal-jms</artifactId>
@@ -127,11 +127,11 @@ def type(messaging) trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>json</artifactId>
-		<version>$[1.0.0, 2.0.0)</version>
+		<version>[1.0.0, 2.0.0)</version>
 	</dependency>
 end
 
-def type(analytic) trigger(dependency)
+def type(analytic) AND trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>led</artifactId>

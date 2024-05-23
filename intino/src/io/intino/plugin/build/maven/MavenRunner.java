@@ -1,12 +1,20 @@
 package io.intino.plugin.build.maven;
 
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.Executor;
+import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.impl.DefaultJavaProgramRunner;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessListener;
+import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dsl;
 import io.intino.Configuration.Artifact.Dsl.OutputDsl;
@@ -22,16 +30,16 @@ import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
+import org.jetbrains.idea.maven.execution.RunnerBundle;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +47,8 @@ import static io.intino.plugin.MessageProvider.message;
 import static io.intino.plugin.build.FactoryPhase.DISTRIBUTE;
 import static io.intino.plugin.project.Safe.safe;
 import static org.jetbrains.idea.maven.execution.MavenExecutionOptions.LoggingLevel.ERROR;
+import static org.jetbrains.idea.maven.execution.MavenRunConfigurationType.createRunnerAndConfigurationSettings;
+import static org.jetbrains.idea.maven.execution.MavenRunConfigurationType.generateName;
 
 public class MavenRunner {
 	private static final Logger LOG = Logger.getInstance(MavenRunner.class.getName());
@@ -152,30 +162,19 @@ public class MavenRunner {
 		return invokeMavenWithConfigurationAndOptions(pom, "", phases);
 	}
 
-	public synchronized InvocationResult invokeMavenWithConfigurationAndOptions(File pom, String mvnOptions, String... phases) {
+	public synchronized InvocationResult invokeMavenWithConfigurationAndOptions(File pom, String mvnOptions, String... goals) {
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
 		generalSettings.setOutputLevel(ERROR);
 		generalSettings.setPrintErrorStackTraces(false);
-		ArrayList<String> goals = new ArrayList<>();
-		Collections.addAll(goals, phases);
 		generalSettings.setFailureBehavior(MavenExecutionOptions.FailureMode.AT_END);
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), goals, Collections.emptyList());
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, pom.getParent(), pom.getName(), List.of(goals), Collections.emptyList());
 		InvocationResult result = new InvocationResult();
 		synchronized (monitor) {
 			ApplicationManager.getApplication().invokeLater(() -> {
-				ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
-					@Override
-					public void processTerminated(@NotNull ProcessEvent event) {
-						result.exitCode(event.getExitCode());
-						synchronized (monitor) {
-							monitor.notify();
-						}
-					}
-
-				});
 				MavenRunnerSettings runnerSettings = new MavenRunnerSettings();
 				runnerSettings.setVmOptions((mvnOptions + " -Djansi.passthrough=true").trim());
-				MavenRunConfigurationType.runConfiguration(module.getProject(), parameters, generalSettings, runnerSettings, callback);
+				RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(generalSettings, runnerSettings, parameters, module.getProject(), runnerName(pom, parameters), false);
+				runConfiguration(module.getProject(), configSettings, callback(result));
 			}, ModalityState.nonModal());
 			try {
 				monitor.wait();
@@ -183,6 +182,40 @@ public class MavenRunner {
 			}
 		}
 		return result;
+	}
+
+	private @NotNull String runnerName(File pom, MavenRunnerParameters parameters) {
+		return pom.getParentFile().getName() + generateName(module.getProject(), parameters);
+	}
+
+
+	public static void runConfiguration(Project project, RunnerAndConfigurationSettings configSettings, ProgramRunner.Callback callback) {
+		ProgramRunner<?> runner = DefaultJavaProgramRunner.getInstance();
+		Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+		ExecutionEnvironment environment = new ExecutionEnvironment(executor, runner, configSettings, project);
+		environment.putUserData(new Key<>("IS_DELEGATE_BUILD"), false);
+		environment.setCallback(callback);
+		ApplicationManager.getApplication().invokeAndWait(() -> {
+			try {
+				runner.execute(environment);
+			} catch (ExecutionException e) {
+				MavenUtil.showError(project, RunnerBundle.message("notification.title.failed.to.execute.maven.goal"), e);
+			}
+		});
+	}
+
+	private static ProgramRunner.@NotNull Callback callback(InvocationResult result) {
+		ProgramRunner.Callback callback = d -> d.getProcessHandler().addProcessListener(new ProcessListener() {
+			@Override
+			public void processTerminated(@NotNull ProcessEvent event) {
+				result.exitCode(event.getExitCode());
+				synchronized (monitor) {
+					monitor.notify();
+				}
+			}
+
+		});
+		return callback;
 	}
 
 	private InvocationResult invokeMaven(File pom, FactoryPhase lifeCyclePhase) {

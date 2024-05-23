@@ -3,7 +3,7 @@ def type(function)
 
 	$imports...[$NL]
 
-	class $name+FirstUpperCase implements[ $scope+lowercase.functions.? ]$rule+FirstUpperCase, io.intino.magritte.framework.Function {
+	class $name+FirstUpperCase implements<< $scope+lowercase.functions.? >>$rule+FirstUpperCase, io.intino.magritte.framework.Function {
 		$nativeContainer self;
 
 		@Override
@@ -24,7 +24,7 @@ def type(reactive)
 
 end
 
-def type(list) trigger(format)
+def type(list) AND trigger(format)
 	java.util.List<$value+javaType>
 end
 
@@ -32,34 +32,34 @@ def trigger(format)
 	$value+javaType
 end
 
-def attribute(this:instant) trigger(javaType)
+def attribute(this, instant) AND trigger(javaType)
 	java.time.Instant
 end
 
-def attribute(this:Instant) trigger(javaType)
+def attribute(this, Instant) AND trigger(javaType)
 	java.time.Instant
 end
 
-def attribute(this:Date) trigger(javaType)
+def attribute(this, Date) AND trigger(javaType)
 	Date
 end
 
-def attribute(this:date) trigger(javaType)
+def attribute(this, date) AND trigger(javaType)
 	Date
 end
 
-def attribute(this:time) trigger(javaType)
+def attribute(this, time) AND trigger(javaType)
 	java.time.LocalTime
 end
 
-def attribute(this:Time) trigger(javaType)
+def attribute(this, Time) AND trigger(javaType)
 	java.time.LocalTime
 end
 
-def attribute(this:Resource) trigger(javaType)
+def attribute(this, Resource) AND trigger(javaType)
 	java.net.URL
 end
 
-def attribute(this:resource) trigger(javaType)
+def attribute(this, resource) AND trigger(javaType)
 	java.net.URL
 end

@@ -10,7 +10,7 @@ import io.intino.plugin.project.module.ModuleProvider;
 import io.intino.tara.language.model.Metric;
 import io.intino.tara.language.model.Primitive;
 import io.intino.tara.language.model.Variable;
-import io.intino.tara.language.model.rules.NodeRule;
+import io.intino.tara.language.model.rules.MogramRule;
 import io.intino.tara.language.model.rules.variable.NativeObjectRule;
 import io.intino.tara.language.model.rules.variable.VariableRule;
 import org.jetbrains.annotations.NotNull;
@@ -60,13 +60,13 @@ public class OutDefinedReferenceSolver extends TaraReferenceSolver {
 	public Object[] getVariants() {
 		final Variable variableContainer = TaraPsiUtil.getContainerByType(myElement, Variable.class);
 		if (variableContainer != null) return variableVariants(variableContainer);
-		return nodeRuleVariants();
+		return mogramRuleVariants();
 	}
 
-	private Object[] nodeRuleVariants() {
+	private Object[] mogramRuleVariants() {
 		if (outputDsl == null) return new Object[0];
 		final JavaPsiFacade java = JavaPsiFacade.getInstance(myElement.getProject());
-		return classes(java.findPackage(outputDsl.toLowerCase() + ".rules"), NodeRule.class).toArray();
+		return classes(java.findPackage(outputDsl.toLowerCase() + ".rules"), MogramRule.class).toArray();
 	}
 
 	private Object[] variableVariants(Variable variable) {

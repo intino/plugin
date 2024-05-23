@@ -9,7 +9,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.WebModuleType;
 import com.intellij.openapi.module.WebModuleTypeBase;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -36,7 +35,7 @@ public class ArchetypeGeneration extends AnAction {
 	public void actionPerformed(AnActionEvent e) {
 		PsiFile data = e.getData(PSI_FILE);
 		if (data == null) return;
-		this.withTask(new Task.Backgroundable(e.getProject(), e.getProject().getName() + ": Generating archetypes...", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		this.withTask(new Task.Backgroundable(e.getProject(), e.getProject().getName() + ": Generating archetypes...", false) {
 			@Override
 			public void run(@NotNull ProgressIndicator progressIndicator) {
 				for (Module module : ModuleManager.getInstance(e.getProject()).getModules()) {

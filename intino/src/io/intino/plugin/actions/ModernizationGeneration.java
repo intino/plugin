@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -47,7 +46,7 @@ public class ModernizationGeneration extends AnAction {
 		PsiFile context = e.getData(PSI_FILE);
 		if (context == null) return;
 		try {
-			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Modernizing to Goros", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Modernizing to Goros", false) {
 				@Override
 				public void run(@NotNull ProgressIndicator indicator) {
 					try {

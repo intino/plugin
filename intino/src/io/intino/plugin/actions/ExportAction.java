@@ -6,7 +6,6 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -44,7 +43,7 @@ public class ExportAction {
 			return;
 		}
 		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				runDslExports(phase, module, (ArtifactLegioConfiguration) configuration, indicator);

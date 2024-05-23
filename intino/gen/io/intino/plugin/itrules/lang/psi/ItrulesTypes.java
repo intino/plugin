@@ -6,14 +6,16 @@ import com.intellij.psi.tree.IElementType;
 public interface ItrulesTypes {
 
 
+  IElementType AND = new ItrulesTokenType("AND");
   IElementType DASH = new ItrulesTokenType("DASH");
   IElementType DEFRULE = new ItrulesTokenType("DEFRULE");
   IElementType ENDRULE = new ItrulesTokenType("ENDRULE");
   IElementType FORMATTER = new ItrulesTokenType("FORMATTER");
   IElementType IDENTIFIER_KEY = new ItrulesTokenType("IDENTIFIER_KEY");
-  IElementType LEFT_SQUARE = new ItrulesTokenType("LEFT_SQUARE");
+  IElementType LEFT_EXPR = new ItrulesTokenType("LEFT_EXPR");
   IElementType MARK = new ItrulesTokenType("MARK");
-  IElementType RIGHT_SQUARE = new ItrulesTokenType("RIGHT_SQUARE");
+  IElementType OR = new ItrulesTokenType("OR");
+  IElementType RIGHT_EXPR = new ItrulesTokenType("RIGHT_EXPR");
   IElementType SCAPED_CHAR = new ItrulesTokenType("SCAPED_CHAR");
   IElementType TEXT = new ItrulesTokenType("TEXT");
   IElementType UNDERDASH = new ItrulesTokenType("UNDERDASH");

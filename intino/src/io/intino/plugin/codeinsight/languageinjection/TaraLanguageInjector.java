@@ -8,7 +8,6 @@ import com.intellij.psi.LanguageInjector;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.itrules.Template;
 import io.intino.plugin.lang.psi.Expression;
 import io.intino.plugin.lang.psi.Valued;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -30,20 +29,20 @@ public class TaraLanguageInjector implements LanguageInjector {
 
 	private static String defaultPrefix() {
 		return "package org.sample;\n" +
-				"public class Loading implements io.intino.magritte.framework.Function {" +
-				"\tContainer $;" +
-				"public void sample() {";
+			   "public class Loading implements io.intino.magritte.framework.Function {" +
+			   "\tContainer $;" +
+			   "public void sample() {";
 	}
 
 	private static String suffix() {
 		return "\n\t}\n\n" +
-				"\tpublic void self(io.intino.magritte.framework.Layer context) {\n" +
-				"\t}\n" +
-				"\n" +
-				"\tpublic Class<? extends io.intino.magritte.framework.Layer> selfClass() {\n" +
-				"\t\treturn null;\n" +
-				"\t}\n" +
-				"}";
+			   "\tpublic void self(io.intino.magritte.framework.Layer context) {\n" +
+			   "\t}\n" +
+			   "\n" +
+			   "\tpublic Class<? extends io.intino.magritte.framework.Layer> selfClass() {\n" +
+			   "\t\treturn null;\n" +
+			   "\t}\n" +
+			   "}";
 	}
 
 	@Override
@@ -87,7 +86,7 @@ public class TaraLanguageInjector implements LanguageInjector {
 		final io.intino.tara.Language language = IntinoUtil.getLanguage(expression.getOriginalElement().getContainingFile());
 		final Module module = moduleOf(expression);
 		if (language == null || module == null) return "";
-		Template template = new ExpressionInjectionTemplate();
+		var template = new ExpressionInjectionTemplate();
 		String prefix = template.render(buildFrame(expression, language, module));
 		return prefix.isEmpty() ? defaultPrefix() : prefix;
 	}

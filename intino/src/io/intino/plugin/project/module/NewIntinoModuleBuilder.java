@@ -17,7 +17,6 @@ import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -223,7 +222,7 @@ public class NewIntinoModuleBuilder extends StarterModuleBuilder {
 		setContentEntryPath(project.getBasePath() + separator + getName());
 		setModuleFilePath(project.getBasePath() + separator + getName() + separator + getName() + ModuleFileType.DOT_DEFAULT_EXTENSION);
 		final Module module = super.commitModule(project, model);
-		withTask(new Task.Backgroundable(project, " Setting up git repository", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(project, " Setting up git repository", false) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				GitRepositoryInitializer.getInstance().initRepository(project, VfsUtil.findFileByIoFile(new File(project.getBasePath()), true), true);

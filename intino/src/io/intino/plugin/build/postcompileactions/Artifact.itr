@@ -1,4 +1,4 @@
-def type(artifact & legio)
+def type(artifact, legio)
 	dsl Legio
 
 	Artifact(groupId = "$groupId+lowercase", version = "1.0.0") $artifactId+lowercase

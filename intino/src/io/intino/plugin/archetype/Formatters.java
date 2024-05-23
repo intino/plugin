@@ -1,8 +1,8 @@
 package io.intino.plugin.archetype;
 
 
+import io.intino.itrules.Engine;
 import io.intino.itrules.Formatter;
-import io.intino.itrules.Template;
 
 public class Formatters {
 
@@ -93,19 +93,19 @@ public class Formatters {
 	}
 
 
-	public static Template customize(Template template) {
-		template.add("validname", validName());
-		template.add("snakeCaseToCamelCase", snakeCaseToCamelCase());
-		template.add("camelCaseToSnakeCase", camelCaseToSnakeCase());
-		template.add("returnType", returnType());
-		template.add("returnTypeFormatter", returnTypeFormatter());
-		template.add("quoted", quoted());
-		template.add("validPackage", validPackage());
-		template.add("subpath", subPath());
-		template.add("shortType", shortType());
-		template.add("quoted", quoted());
-		template.add("customParameter", customParameter());
-		return template;
+	public static Engine customize(Engine engine) {
+		engine.add("validname", validName());
+		engine.add("snakeCaseToCamelCase", snakeCaseToCamelCase());
+		engine.add("camelCaseToSnakeCase", camelCaseToSnakeCase());
+		engine.add("returnType", returnType());
+		engine.add("returnTypeFormatter", returnTypeFormatter());
+		engine.add("quoted", quoted());
+		engine.add("validPackage", validPackage());
+		engine.add("subpath", subPath());
+		engine.add("shortType", shortType());
+		engine.add("quoted", quoted());
+		engine.add("customParameter", customParameter());
+		return engine;
 	}
 
 	private static Formatter customParameter() {

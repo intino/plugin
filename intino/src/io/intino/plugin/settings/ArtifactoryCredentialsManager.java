@@ -1,6 +1,7 @@
 package io.intino.plugin.settings;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.intino.itrules.Engine;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import org.w3c.dom.Document;
@@ -67,7 +68,7 @@ class ArtifactoryCredentialsManager {
 		FrameBuilder builder = new FrameBuilder("artifactory");
 		builder.add("server", credentials.stream().
 				map(credential -> new FrameBuilder("server").add("name", credential.serverId).add(USERNAME, credential.username).add(PASSWORD, credential.password).toFrame()).toArray(Frame[]::new));
-		write(new ArtifactorySettingsTemplate().render(builder));
+		write(new Engine(new ArtifactorySettingsTemplate()).render(builder));
 	}
 
 	private static void write(String settings) {
@@ -160,14 +161,14 @@ class ArtifactoryCredentialsManager {
 
 	private String configurationText() {
 		return "\t<configuration>\n" +
-				"\t\t<timeout>5000</timeout>\n" +
-				"\t\t<httpConfiguration>\n" +
-				"\t\t\t<all>\n" +
-				"\t\t\t\t<connectionTimeout>5000</connectionTimeout>\n" +
-				"\t\t\t\t<readTimeout>5000</readTimeout>\n" +
-				"\t\t\t</all>\n" +
-				"\t\t</httpConfiguration>\n" +
-				"\t</configuration>";
+			   "\t\t<timeout>5000</timeout>\n" +
+			   "\t\t<httpConfiguration>\n" +
+			   "\t\t\t<all>\n" +
+			   "\t\t\t\t<connectionTimeout>5000</connectionTimeout>\n" +
+			   "\t\t\t\t<readTimeout>5000</readTimeout>\n" +
+			   "\t\t\t</all>\n" +
+			   "\t\t</httpConfiguration>\n" +
+			   "\t</configuration>";
 	}
 
 	private Node createServers() {

@@ -20,9 +20,9 @@ def type(pom)
 		</properties>
 
 		<build>
-			<outputDirectory>[$default?../]out/production/$name</outputDirectory>
-			<testOutputDirectory>[$default?../]out/test/$name</testOutputDirectory>
-			<directory>[$default?../]out/build/$name</directory>
+			<outputDirectory><<$default?../>>out/production/$name</outputDirectory>
+			<testOutputDirectory><<$default?../>>out/test/$name</testOutputDirectory>
+			<directory><<$default?../>>out/build/$name</directory>
 			<resources>
 				<resource>
 					<directory>$${basedir}/../.tara/refactors</directory>
@@ -58,7 +58,7 @@ def type(pom)
 	</project>
 end
 
-def type(parent) trigger(parentModule)
+def type(parent) AND trigger(parentModule)
     <dependency>
         <groupId>$groupId</groupId>
         <artifactId>$artifactId</artifactId>
@@ -66,7 +66,7 @@ def type(parent) trigger(parentModule)
     </dependency>
 end
 
-def type(magritte) trigger(magritte)
+def type(magritte) AND trigger(magritte)
     <dependency>
         <groupId>io.intino.magritte</groupId>
         <artifactId>framework</artifactId>

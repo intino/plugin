@@ -234,7 +234,7 @@ public abstract class AbstractArtifactFactory {
 	}
 
 	protected boolean isSupportBranch() {
-		return startingBranch.toLowerCase().startsWith("support");
+		return startingBranch != null && startingBranch.toLowerCase().startsWith("support");
 	}
 
 	private void cleanBuildDirectory() {

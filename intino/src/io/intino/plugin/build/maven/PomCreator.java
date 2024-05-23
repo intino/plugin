@@ -17,9 +17,10 @@ import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Artifact.Package.Mode;
 import io.intino.Configuration.Repository;
+import io.intino.itrules.Engine;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.itrules.Template;
+import io.intino.itrules.template.Template;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
@@ -83,7 +84,7 @@ public class PomCreator {
 		return pom;
 	}
 
-	private File artifactPom(File pom, FactoryPhase phase) throws IntinoException {
+	private File artifactPom(File pom, FactoryPhase phase) {
 		Artifact.Package build = safe(() -> configuration.artifact().packageConfiguration());
 		FrameBuilder builder = new FrameBuilder();
 		fillMavenId(builder);
@@ -197,7 +198,7 @@ public class PomCreator {
 		return dependantModules.stream().anyMatch(dm -> {
 			Artifact artifact = IntinoUtil.configurationOf(dm).artifact();
 			return artifact.name().equals(dependency.artifactId()) && artifact.groupId().equals(dependency.groupId()) &&
-					artifact.version().equals(dependency.version());
+				   artifact.version().equals(dependency.version());
 		});
 	}
 
@@ -270,8 +271,8 @@ public class PomCreator {
 			Configuration configuration = IntinoUtil.configurationOf(m);
 			Artifact artifact = configuration.artifact();
 			return artifact.groupId().equalsIgnoreCase(dependency.groupId()) &&
-					artifact.name().equalsIgnoreCase(dependency.artifactId()) &&
-					artifact.version().equalsIgnoreCase(dependency.version());
+				   artifact.name().equalsIgnoreCase(dependency.artifactId()) &&
+				   artifact.version().equalsIgnoreCase(dependency.version());
 		}).findFirst().orElse(null);
 	}
 
@@ -472,7 +473,7 @@ public class PomCreator {
 
 	private void writePom(File pom, Frame frame, Template template) {
 		try {
-			Files.write(pom.toPath(), template.render(frame).getBytes());
+			Files.writeString(pom.toPath(), new Engine(template).render(frame));
 		} catch (IOException e) {
 			LOG.error("Error creating pomFile to publish action: " + e.getMessage());
 		}

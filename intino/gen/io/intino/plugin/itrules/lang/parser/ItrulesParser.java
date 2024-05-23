@@ -40,11 +40,13 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
   //          | DEFRULE
   //          | ENDRULE
   //          | DASH
+  //          | OR
+  //          | AND
   //          | UNDERDASH
   //          | MARK
   //          | FORMATTER
-  //          | LEFT_SQUARE
-  //          | RIGHT_SQUARE
+  //          | LEFT_EXPR
+  //          | RIGHT_EXPR
   //          | IDENTIFIER_KEY
   //          | TEXT)*
   static boolean root(PsiBuilder b, int l) {
@@ -61,11 +63,13 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
   //          | DEFRULE
   //          | ENDRULE
   //          | DASH
+  //          | OR
+  //          | AND
   //          | UNDERDASH
   //          | MARK
   //          | FORMATTER
-  //          | LEFT_SQUARE
-  //          | RIGHT_SQUARE
+  //          | LEFT_EXPR
+  //          | RIGHT_EXPR
   //          | IDENTIFIER_KEY
   //          | TEXT
   private static boolean root_0(PsiBuilder b, int l) {
@@ -75,11 +79,13 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, DEFRULE);
     if (!r) r = consumeToken(b, ENDRULE);
     if (!r) r = consumeToken(b, DASH);
+    if (!r) r = consumeToken(b, OR);
+    if (!r) r = consumeToken(b, AND);
     if (!r) r = consumeToken(b, UNDERDASH);
     if (!r) r = consumeToken(b, MARK);
     if (!r) r = consumeToken(b, FORMATTER);
-    if (!r) r = consumeToken(b, LEFT_SQUARE);
-    if (!r) r = consumeToken(b, RIGHT_SQUARE);
+    if (!r) r = consumeToken(b, LEFT_EXPR);
+    if (!r) r = consumeToken(b, RIGHT_EXPR);
     if (!r) r = consumeToken(b, IDENTIFIER_KEY);
     if (!r) r = consumeToken(b, TEXT);
     return r;

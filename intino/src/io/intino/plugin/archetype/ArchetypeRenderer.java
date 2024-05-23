@@ -11,14 +11,15 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.intino.itrules.Engine;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import io.intino.itrules.Template;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.PsiUtil;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeGrammar;
 import io.intino.plugin.archetype.lang.antlr.ArchetypeParser;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
@@ -53,8 +54,13 @@ public class ArchetypeRenderer {
 		FrameBuilder builder = new FrameBuilder("archetype");
 		builder.add("package", configuration.artifact().code().generationPackage()).add("artifact", artifactId);
 		builder.add("node", root.node().stream().map(this::frameOf).filter(Objects::nonNull).toArray(Frame[]::new));
-		writeFrame(new File(gen(), configuration.artifact().code().generationPackage().replace(".", "/")), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), template().render(builder.toFrame()));
+		String output = Formatters.customize(new Engine(new ArchetypeTemplate())).render(builder.toFrame());
+		writeFrame(directory(), Formatters.snakeCaseToCamelCase().format("Archetype").toString(), output);
 		refreshDirectory(gen());
+	}
+
+	private @NotNull File directory() {
+		return new File(gen(), configuration.artifact().code().generationPackage().replace(".", "/"));
 	}
 
 	private void refreshDirectory(File dir) {
@@ -122,10 +128,6 @@ public class ArchetypeRenderer {
 		if (p == null) return "default";
 		if (p.REGEX() != null) return "regex";
 		return "timetag";
-	}
-
-	private Template template() {
-		return Formatters.customize(new ArchetypeTemplate());
 	}
 
 	private VirtualFile createGenDirectory(Module module) {

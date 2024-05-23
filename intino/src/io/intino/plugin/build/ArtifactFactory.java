@@ -13,7 +13,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleTypeWithWebFeatures;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -104,7 +103,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void compileUI() {
-		webDependencies(module).forEach(m -> runCommand(module.getProject(), m, "npm run build"));
+		webDependencies(module).forEach(m -> runCommand(module.getProject(), m,"Building UI Components", "npm run build"));
 	}
 
 	public List<String> webDependencies(Module module) {
@@ -159,7 +158,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 
 	private void process(FinishCallback callback, boolean distributed) {
 		saveAll();
-		withTask(new Task.Backgroundable(project, firstUpperCase(phase.gerund()) + " Artifact", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		withTask(new Task.Backgroundable(project, firstUpperCase(phase.gerund()) + " Artifact", true) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				if (!distributed) {

@@ -1,15 +1,27 @@
 package io.intino.plugin.build.postcompileactions;
 
-import io.intino.itrules.RuleSet;
-import io.intino.itrules.Template;
+import io.intino.itrules.template.Rule;
+import io.intino.itrules.template.Template;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.intino.itrules.template.condition.predicates.Predicates.allTypes;
+import static io.intino.itrules.template.condition.predicates.Predicates.trigger;
+import static io.intino.itrules.template.outputs.Outputs.literal;
+import static io.intino.itrules.template.outputs.Outputs.placeholder;
 
 public class ArtifactTemplate extends Template {
 
-	public RuleSet ruleSet() {
-		return new RuleSet().add(
-				rule().condition((allTypes("artifact", "legio"))).output(literal("dsl Legio\n\nArtifact(groupId = \"")).output(mark("groupId", "lowercase")).output(literal("\", version = \"1.0.0\") ")).output(mark("artifactId", "lowercase")).output(literal("\n\tWebImports\n\t\tWebArtifact(\"io.intino.alexandria\", \"ui-framework-elements\", \"")).output(mark("uiversion")).output(literal("\") alexandria-ui-elements\n\n")).output(mark("repository").multiple("\n\n")),
-				rule().condition((type("repository"))).output(literal("Repository(\"")).output(mark("id")).output(literal("\")\n\t")).output(mark("url").multiple("\n")),
-				rule().condition((trigger("url"))).output(literal("Release(\"")).output(mark("")).output(literal("\")"))
-		);
+	public List<Rule> ruleSet() {
+		List<Rule> rules = new ArrayList<>();
+		rules.add(rule().condition(allTypes("artifact", "legio")).output(literal("dsl Legio\n\nArtifact(groupId = \"")).output(placeholder("groupId", "lowercase")).output(literal("\", version = \"1.0.0\") ")).output(placeholder("artifactId", "lowercase")).output(literal("\n\tWebImports\n\t\tWebArtifact(\"io.intino.alexandria\", \"ui-framework-elements\", \"")).output(placeholder("uiversion")).output(literal("\") alexandria-ui-elements\n\n")).output(placeholder("repository").multiple("\n\n")));
+		rules.add(rule().condition(allTypes("repository")).output(literal("Repository(\"")).output(placeholder("id")).output(literal("\")\n\t")).output(placeholder("url").multiple("\n")));
+		rules.add(rule().condition(trigger("url")).output(literal("Release(\"")).output(placeholder("")).output(literal("\")")));
+		return rules;
+	}
+
+	public String render(Object object) {
+		return new io.intino.itrules.Engine(this).render(object);
 	}
 }

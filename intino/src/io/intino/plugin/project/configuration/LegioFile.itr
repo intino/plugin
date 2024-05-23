@@ -1,4 +1,4 @@
-def type(legio & project)
+def type(legio, project)
 	dsl Legio
 
 	Project("describes here your project") $name
@@ -7,11 +7,11 @@ def type(legio & project)
 
 end
 
-def type(legio & empty)
+def type(legio, empty)
 	dsl Legio
 
-	Artifact(groupId = "[$groupId?org.example]", version = "1.0.0") $name
-		[$dsl...[$NL]]
+	Artifact(groupId = "<<$groupId?org.example>>", version = "1.0.0") $name
+		<<$dsl...[$NL]>>
 		Imports
 			Test(groupId = "junit", artifactId = "junit", version = "4.13")
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
@@ -19,25 +19,25 @@ def type(legio & empty)
 end
 
 
-def type(legio) !type(empty)
+def type(legio) AND NOT type(empty)
 	dsl Legio
 
 	Artifact(groupId = "$groupId", version = "$version") $artifactId
-		[$dsl...[$NL]]
-		Imports[
-			$dependency...[$NL]]
+		<<$dsl...[$NL]>>
+		Imports<<
+			$dependency...[$NL]>>
 		Package(mode = ModulesAndLibrariesLinkedByManifest)
-		[$distribution...[$NL]]
+		<<$distribution...[$NL]>>
 
-	[$repository...[$NL]]
+	<<$repository...[$NL]>>
 end
 
-def type(release) trigger(repository)
+def type(release) AND trigger(repository)
 	Repository(identifier = "$id")
 		Release(url = "$url")
 end
 
-def type(snapshot) trigger(repository)
+def type(snapshot) AND trigger(repository)
 	Repository(identifier = "$id")
 		Snapshot(url = "$url")
 end

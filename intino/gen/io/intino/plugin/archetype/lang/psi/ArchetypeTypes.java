@@ -1,10 +1,10 @@
 // This is a generated file. Not intended for manual editing.
 package io.intino.plugin.archetype.lang.psi;
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-import io.intino.plugin.archetype.lang.psi.impl.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+import io.intino.plugin.archetype.lang.psi.impl.ArchetypeStringValueImpl;
 
 public interface ArchetypeTypes {
 

@@ -19,10 +19,12 @@ root ::= (SCAPED_CHAR
          | DEFRULE
          | ENDRULE
          | DASH
+         | OR
+         | AND
          | UNDERDASH
          | MARK
          | FORMATTER
-         | LEFT_SQUARE
-         | RIGHT_SQUARE
+         | LEFT_EXPR
+         | RIGHT_EXPR
          | IDENTIFIER_KEY
          | TEXT)*;
