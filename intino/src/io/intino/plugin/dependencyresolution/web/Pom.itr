@@ -39,7 +39,7 @@ def type(pom)
 	</project>
 end
 
-def attribute(this, node) AND trigger(node)
+def attribute(this, node) and trigger(node)
     <execution>
         <id>install Mogram and npm</id>
         <goals>

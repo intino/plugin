@@ -24,7 +24,7 @@ def type(reactive)
 
 end
 
-def type(list) AND trigger(format)
+def type(list) and trigger(format)
 	java.util.List<$value+javaType>
 end
 
@@ -32,34 +32,34 @@ def trigger(format)
 	$value+javaType
 end
 
-def attribute(this, instant) AND trigger(javaType)
+def attribute(this, instant) and trigger(javaType)
 	java.time.Instant
 end
 
-def attribute(this, Instant) AND trigger(javaType)
+def attribute(this, Instant) and trigger(javaType)
 	java.time.Instant
 end
 
-def attribute(this, Date) AND trigger(javaType)
+def attribute(this, Date) and trigger(javaType)
 	Date
 end
 
-def attribute(this, date) AND trigger(javaType)
+def attribute(this, date) and trigger(javaType)
 	Date
 end
 
-def attribute(this, time) AND trigger(javaType)
+def attribute(this, time) and trigger(javaType)
 	java.time.LocalTime
 end
 
-def attribute(this, Time) AND trigger(javaType)
+def attribute(this, Time) and trigger(javaType)
 	java.time.LocalTime
 end
 
-def attribute(this, Resource) AND trigger(javaType)
+def attribute(this, Resource) and trigger(javaType)
 	java.net.URL
 end
 
-def attribute(this, resource) AND trigger(javaType)
+def attribute(this, resource) and trigger(javaType)
 	java.net.URL
 end

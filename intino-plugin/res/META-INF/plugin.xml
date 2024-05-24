@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.0.8</version>
+	<version>8.1.0</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -412,6 +412,12 @@
 					text="Generate Java Template"
 					description="Generates the corresponding Java representation of the template">
 				<keyboard-shortcut keymap="$default" first-keystroke="control shift G"/>
+				<add-to-group group-id="EditorPopupMenu" anchor="last"/>
+				<add-to-group group-id="ToolsMenu" anchor="last"/>
+			</action>
+			<action id="itrules.migrate" class="io.intino.plugin.actions.itrules.UpgradeTemplateAction"
+					text="Upgrade Template from Itrules to Last Version"
+					description="Upgrades the sintax of the itrules language to last specification">
 				<add-to-group group-id="EditorPopupMenu" anchor="last"/>
 				<add-to-group group-id="ToolsMenu" anchor="last"/>
 			</action>

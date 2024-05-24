@@ -1,4 +1,4 @@
-def type(pom) AND type(deployFile)
+def type(pom) and type(deployFile)
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -8,7 +8,7 @@ def type(pom) AND type(deployFile)
 		<name>$artifactId+lowercase</name>
 		<version>$version</version>
 		<repositories>
-				$repository+release...[$NL]
+		    $repository+release...[$NL]
 		</repositories>
 		<<~<dependencies>
 			$dependency...[$NL]
@@ -283,7 +283,7 @@ def trigger(resourceTestDirectory)
 	<testResource><directory>$this</directory></testResource>
 end
 
-def type(repository) AND type(Distribution) AND trigger(distribution)
+def type(repository) and type(Distribution) and trigger(distribution)
 	<repository>
 		<id>$name</id>
 		<name>$name</name>
@@ -303,7 +303,7 @@ end
 def trigger(distribution)
 end
 
-def type(repository) AND NOT type(Distribution) AND trigger(release)
+def type(repository) and not type(Distribution) and trigger(release)
 	<repository>
 		<id>$name$type</id>
 		<url>$url</url>
@@ -318,7 +318,7 @@ def trigger(parameter)
 	<$name~_defaultValue><<$value>></$name~_defaultValue>
 end
 
-def type(dependency) AND trigger(dependency)
+def type(dependency) and trigger(dependency)
 	<dependency>
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
@@ -347,21 +347,21 @@ def trigger(scm)
 
 end
 
-def type(GPL) AND trigger(license)
+def type(GPL) and trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 	</license>
 end
 
-def type(LGPL) AND trigger(license)
+def type(LGPL) and trigger(license)
 	<license>
 		<name>GNU Lesser General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
 	</license>
 end
 
-def type(BSD) AND trigger(license)
+def type(BSD) and trigger(license)
 	<license>
 		<name>BSD 3-Clause License</name>
 		<url>https://opensource.org/licenses/BSD-3-Clause</url>
@@ -432,7 +432,7 @@ def trigger(windows)
 	</plugin>
 end
 
-def type(copyDependencies) AND trigger(classpath)
+def type(copyDependencies) and trigger(classpath)
 	<classpathPrefix><<$classpathPrefix?dependency>>/</classpathPrefix>
 end
 

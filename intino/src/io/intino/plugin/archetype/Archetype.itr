@@ -50,7 +50,7 @@ def type(archetype)
     }
 end
 
-def type(Mogram, leaf, list, regex) AND attribute(parameter) AND trigger(relativeGetter)
+def type(Mogram, leaf, list, regex) and attribute(parameter) and trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
@@ -60,7 +60,7 @@ def type(Mogram, leaf, list, regex) AND attribute(parameter) AND trigger(relativ
 	}
 end
 
-def type(Mogram, leaf, list) AND trigger(relativeGetter)
+def type(Mogram, leaf, list) and trigger(relativeGetter)
 	public java.util.List<String> $name+snakeCaseToCamelCase+firstLowerCase(<<$parameter+signature...[, ]>>) {
 	    if(!new File(root, "$filePath").exists()) return Collections.emptyList();
 		return java.util.Arrays.stream(new File(root, "$filePath").listFiles()).
@@ -70,19 +70,19 @@ def type(Mogram, leaf, list) AND trigger(relativeGetter)
 	}
 end
 
-def type(Mogram, leaf) AND attribute(parameter) AND trigger(relativeGetter)
+def type(Mogram, leaf) and attribute(parameter) and trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return "$filePath"[$parameter+replace...[]];
 	}
 end
 
-def type(Mogram, leaf) AND trigger(relativeGetter)
+def type(Mogram, leaf) and trigger(relativeGetter)
 	public String $name+snakeCaseToCamelCase+firstLowerCase() {
 		return "$filePath";
 	}
 end
 
-def type(Mogram, leaf, list, regex) AND trigger(getter)
+def type(Mogram, leaf, list, regex) and trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase(<<$parameter+signature...[, ]>>) {
 	    new File(root, "$filePath"<<$parameter+replace...[]>>).mkdirs();
 		return java.util.Arrays.stream(new File(root, "$filePath"<<$parameter+replace...[]>>).listFiles()).
@@ -91,7 +91,7 @@ def type(Mogram, leaf, list, regex) AND trigger(getter)
 	}
 end
 
-def type(Mogram, leaf, list) AND trigger(getter)
+def type(Mogram, leaf, list) and trigger(getter)
 	public java.util.List<File> $name+snakeCaseToCamelCase+firstLowerCase(<<$parameter+signature...[, ]>>) {
 	    new File(root, "$filePath"<<$parameter+replace...[]>>).mkdirs();
 		return java.util.Arrays.stream(new File(root, "$filePath"<<$parameter+replace...[]>>).listFiles()).
@@ -100,19 +100,19 @@ def type(Mogram, leaf, list) AND trigger(getter)
 	}
 end
 
-def type(Mogram, leaf) AND trigger(getter)
+def type(Mogram, leaf) and trigger(getter)
 	public File $name+snakeCaseToCamelCase+firstLowerCase(<<$parameter+signature...[, ]>>) {
 		return createParent(new File(root, "$filePath"<<$parameter+replace...[]>>));
 	}
 end
 
-def type(Mogram, leaf) AND trigger(getter)
+def type(Mogram, leaf) and trigger(getter)
 	public File $name+snakeCaseToCamelCase+firstLowerCase() {
 		return createParent(new File(root, "$filePath"));
 	}
 end
 
-def type(Mogram, splitted) AND trigger(relativeGetter)
+def type(Mogram, splitted) and trigger(relativeGetter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name, split);
 	}
@@ -128,13 +128,13 @@ def trigger(split)
 	}
 end
 
-def type(node) AND trigger(relativeGetter)
+def type(node) and trigger(relativeGetter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, name<<, $parameter+name...[, ]>>);
 	}
 end
 
-def type(Mogram, splitted) AND trigger(getter)
+def type(Mogram, splitted) and trigger(getter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase(String split) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root, split);
 	}
@@ -155,13 +155,13 @@ def type(Mogram, splitted) AND trigger(getter)
 	}
 end
 
-def type(node) AND trigger(getter)
+def type(node) and trigger(getter)
 	public $name+snakeCaseToCamelCase+firstUpperCase $name+snakeCaseToCamelCase+firstLowerCase($parameter+signature...[, ]) {
 		return new $name+snakeCaseToCamelCase+firstUpperCase(root[, $parameter+name...[, ]]);
 	}
 end
 
-def type(Mogram, splitted) AND NOT type(leaf) AND trigger(relativeClass)
+def type(Mogram, splitted) and not type(leaf) and trigger(relativeClass)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 		private final String name;
@@ -182,7 +182,7 @@ def type(Mogram, splitted) AND NOT type(leaf) AND trigger(relativeClass)
 	}
 end
 
-def type(node) AND NOT(type(splitted) OR type(leaf)) AND trigger(relativeClass)
+def type(node) and not(type(splitted) or type(leaf)) and trigger(relativeClass)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 		private final String name;
@@ -203,7 +203,7 @@ def type(node) AND NOT(type(splitted) OR type(leaf)) AND trigger(relativeClass)
 	}
 end
 
-def type(Mogram, splitted) AND NOT type(leaf) AND trigger(class)
+def type(Mogram, splitted) and not type(leaf) and trigger(class)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 
@@ -222,7 +222,7 @@ def type(Mogram, splitted) AND NOT type(leaf) AND trigger(class)
 	}
 end
 
-def type(node) AND NOT(type(splitted) OR type(leaf)) AND trigger(class)
+def type(node) and not(type(splitted) or type(leaf)) and trigger(class)
 	public static class $name+snakeCaseToCamelCase+firstUpperCase {
 		private final File root;
 
@@ -241,7 +241,7 @@ def type(node) AND NOT(type(splitted) OR type(leaf)) AND trigger(class)
 	}
 end
 
-def type(timetag) AND trigger(signature)
+def type(timetag) and trigger(signature)
 	io.intino.alexandria.Timetag $value
 end
 
@@ -253,7 +253,7 @@ def trigger(name)
 	$value
 end
 
-def type(timetag) AND trigger(replace)
+def type(timetag) and trigger(replace)
 	.replace("{$value}", $value.toString())
 end
 

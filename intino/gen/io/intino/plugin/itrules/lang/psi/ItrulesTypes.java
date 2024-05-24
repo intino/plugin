@@ -13,7 +13,9 @@ public interface ItrulesTypes {
   IElementType FORMATTER = new ItrulesTokenType("FORMATTER");
   IElementType IDENTIFIER_KEY = new ItrulesTokenType("IDENTIFIER_KEY");
   IElementType LEFT_EXPR = new ItrulesTokenType("LEFT_EXPR");
-  IElementType MARK = new ItrulesTokenType("MARK");
+  IElementType PLACEHOLDER = new ItrulesTokenType("PLACEHOLDER");
+  IElementType MULTIPLE = new ItrulesTokenType("MULTIPLE");
+  IElementType NOT = new ItrulesTokenType("NOT");
   IElementType OR = new ItrulesTokenType("OR");
   IElementType RIGHT_EXPR = new ItrulesTokenType("RIGHT_EXPR");
   IElementType SCAPED_CHAR = new ItrulesTokenType("SCAPED_CHAR");

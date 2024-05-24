@@ -58,7 +58,7 @@ def type(pom)
 	</project>
 end
 
-def type(parent) AND trigger(parentModule)
+def type(parent) and trigger(parentModule)
     <dependency>
         <groupId>$groupId</groupId>
         <artifactId>$artifactId</artifactId>
@@ -66,7 +66,7 @@ def type(parent) AND trigger(parentModule)
     </dependency>
 end
 
-def type(magritte) AND trigger(magritte)
+def type(magritte) and trigger(magritte)
     <dependency>
         <groupId>io.intino.magritte</groupId>
         <artifactId>framework</artifactId>

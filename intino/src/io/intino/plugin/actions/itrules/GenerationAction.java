@@ -46,11 +46,11 @@ public abstract class GenerationAction extends AnAction implements DumbAware {
 		return false;
 	}
 
-	protected void refreshFiles(File destiny) {
+	protected void refreshFiles(File destination) {
 		Set<File> generatedFiles = new HashSet<>();
-		generatedFiles.add(destiny);
+		generatedFiles.add(destination);
 		LocalFileSystem.getInstance().refreshIoFiles(generatedFiles, true, false, null);
-		final VirtualFile vFile = VfsUtil.findFileByIoFile(destiny, true);
+		final VirtualFile vFile = VfsUtil.findFileByIoFile(destination, true);
 		if (vFile != null) VfsUtil.markDirtyAndRefresh(true, false, false, vFile);
 	}
 

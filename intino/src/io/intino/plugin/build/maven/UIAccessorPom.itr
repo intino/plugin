@@ -74,7 +74,7 @@ def type(pom)
     </project>
 end
 
-def type(package) AND trigger(build)
+def type(package) and trigger(build)
     <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
@@ -98,7 +98,7 @@ def type(package) AND trigger(build)
     </plugin>
 end
 
-def type(repository, Distribution) AND trigger(distribution)
+def type(repository, Distribution) and trigger(distribution)
 	<repository>
 		<id>$name</id>
 		<name>$name</name>
@@ -106,7 +106,7 @@ def type(repository, Distribution) AND trigger(distribution)
 	</repository>
 end
 
-def attribute(this, false) AND trigger(nodeInstalled)
+def attribute(this, false) and trigger(nodeInstalled)
     <execution>
         <id>install node and npm</id>
         <goals>

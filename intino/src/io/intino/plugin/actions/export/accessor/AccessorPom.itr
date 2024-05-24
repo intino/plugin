@@ -58,14 +58,14 @@ def type(pom)
 </project>
 end
 
-def type(repository, Distribution, snapshot) AND trigger(distribution)
+def type(repository, Distribution, snapshot) and trigger(distribution)
 	<snapshotRepository>
 		<id>$name</id>
 		<url>$url</url>
 	</snapshotRepository>
 end
 
-def type(repository, Distribution) AND trigger(distribution)
+def type(repository, Distribution) and trigger(distribution)
 	<repository>
 		<id>$name</id>
 		<url>$url</url>
@@ -75,7 +75,7 @@ end
 def trigger(distribution)
 end
 
-def type(repository) AND NOT type(distribution) AND trigger(release)
+def type(repository) and not type(distribution) and trigger(release)
 	<repository>
 		<id>$name-~$random</id>
 		<url>$url</url>
@@ -83,21 +83,21 @@ def type(repository) AND NOT type(distribution) AND trigger(release)
 end
 
 
-def type(GPL) AND trigger(license)
+def type(GPL) and trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 	</license>
 end
 
-def type(BSD) AND trigger(license)
+def type(BSD) and trigger(license)
 	<license>
 		<name>BSD 3-Clause License</name>
 		<url>https://opensource.org/licenses/BSD-3-Clause</url>
 	</license>
 end
 
-def type(rest) AND trigger(dependency)
+def type(rest) and trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>rest-accessor</artifactId>
@@ -105,7 +105,7 @@ def type(rest) AND trigger(dependency)
 	</dependency>
 end
 
-def type(jmx) AND trigger(dependency)
+def type(jmx) and trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>jmx</artifactId>
@@ -118,7 +118,7 @@ def type(jmx) AND trigger(dependency)
     </dependency>
 end
 
-def type(messaging) AND trigger(dependency)
+def type(messaging) and trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>terminal-jms</artifactId>
@@ -131,7 +131,7 @@ def type(messaging) AND trigger(dependency)
 	</dependency>
 end
 
-def type(analytic) AND trigger(dependency)
+def type(analytic) and trigger(dependency)
 	<dependency>
 		<groupId>io.intino.alexandria</groupId>
 		<artifactId>led</artifactId>

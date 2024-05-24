@@ -10,82 +10,82 @@ def type(method)
 	}
 end
 
-def attribute(this, instant) AND trigger(type)
+def attribute(this, instant) and trigger(type)
 	java.time.Instant
 end
 
-def attribute(this, date) AND trigger(type)
+def attribute(this, date) and trigger(type)
 	Date
 end
 
-def attribute(this, time) AND trigger(type)
+def attribute(this, time) and trigger(type)
 	java.time.LocalTime
 end
 
-def attribute(this, Double) AND trigger(type)
+def attribute(this, Double) and trigger(type)
 	double
 end
 
-def attribute(this, INTEGER) AND trigger(type)
+def attribute(this, INTEGER) and trigger(type)
 	int
 end
 
-def attribute(this, OBJECT) AND trigger(type)
+def attribute(this, OBJECT) and trigger(type)
 	Object
 end
 
-def attribute(this, RESOURCE) AND trigger(type)
+def attribute(this, RESOURCE) and trigger(type)
 	java.net.URL
 end
 
-def attribute(this, resource) AND trigger(type)
+def attribute(this, resource) and trigger(type)
 	java.net.URL
 end
 
-def attribute(this, string) AND trigger(type)
+def attribute(this, string) and trigger(type)
 	String
 end
 
-def attribute(this, boolean) AND trigger(type)
+def attribute(this, boolean) and trigger(type)
 	boolean
 end
 
-def attribute(this, int) AND trigger(list)
+def attribute(this, int) and trigger(list)
 	Integer
 end
 
-def attribute(this, instant) AND trigger(list)
+def attribute(this, instant) and trigger(list)
 	java.time.Instant
 end
 
-def attribute(this, date) AND trigger(list)
+def attribute(this, date) and trigger(list)
 	Date
 end
 
-def attribute(this, time) AND trigger(list)
+def attribute(this, time) and trigger(list)
 	java.time.LocalTime
 end
 
-def attribute(this, double) AND trigger(list)
+def attribute(this, double) and trigger(list)
 	Double
 end
 
-def attribute(this, OBJECT) AND trigger(list)
+def attribute(this, OBJECT) and trigger(list)
 	Object
 end
 
-def attribute(this, boolean) AND trigger(list)
+def attribute(this, boolean) and trigger(list)
 	Boolean
 end
 
-def attribute(this, string) AND trigger(list)
+def attribute(this, string) and trigger(list)
 	String
 end
 
-def attribute(this, resource) AND trigger(list)
+def attribute(this, resource) and trigger(list)
 	java.net.URL
 end
 
-def attribute(this, type) AND trigger(list)
+def attribute(this, type) and trigger(list)
 	Concept
 end
