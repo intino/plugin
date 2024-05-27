@@ -86,7 +86,7 @@ public class TemplateGenerator extends Task.Modal {
 	}
 
 	private void error(Project project, String message) {
-		Notifications.Bus.notify(new Notification("Intino", "Error generating template", message, NotificationType.ERROR), project);
+		Notifications.Bus.notify(new Notification("Intino", "Error generating template: " + rulesFile.getName(), message, NotificationType.ERROR), project);
 	}
 }
 

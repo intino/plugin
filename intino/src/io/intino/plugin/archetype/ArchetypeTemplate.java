@@ -42,4 +42,8 @@ public class ArchetypeTemplate extends Template {
 	public String render(Object object) {
 		return new io.intino.itrules.Engine(this).render(object);
 	}
+
+	public String render(Object object, java.util.Map<String, io.intino.itrules.Formatter> formatters) {
+		return new io.intino.itrules.Engine(this).addAll(formatters).render(object);
+	}
 }

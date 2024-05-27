@@ -413,12 +413,14 @@
 					description="Generates the corresponding Java representation of the template">
 				<keyboard-shortcut keymap="$default" first-keystroke="control shift G"/>
 				<add-to-group group-id="EditorPopupMenu" anchor="last"/>
+				<add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 				<add-to-group group-id="ToolsMenu" anchor="last"/>
 			</action>
-			<action id="itrules.migrate" class="io.intino.plugin.actions.itrules.UpgradeTemplateAction"
-					text="Upgrade Template from Itrules to Last Version"
-					description="Upgrades the sintax of the itrules language to last specification">
+			<action id="itrules.upgrade" class="io.intino.plugin.actions.itrules.UpgradeTemplateAction"
+					text="Upgrade Template from ItRules to Last Version"
+					description="Upgrades the syntax of the itrules language to last specification">
 				<add-to-group group-id="EditorPopupMenu" anchor="last"/>
+				<add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 				<add-to-group group-id="ToolsMenu" anchor="last"/>
 			</action>
 		</group>

@@ -15,8 +15,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import io.intino.plugin.actions.ActionUtils;
 import io.intino.plugin.file.ItrulesFileType;
-import io.intino.plugin.itrules.lang.ItrulesIcons;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.HashSet;
@@ -26,16 +24,16 @@ import java.util.Set;
 public abstract class GenerationAction extends AnAction implements DumbAware {
 	public static final Logger LOG = Logger.getInstance("itrules: Generate");
 
-	public void update(@NotNull AnActionEvent e) {
-		ActionUtils.selectedFilesAre(e, ItrulesFileType.instance().getDefaultExtension());
-		e.getPresentation().setIcon(ItrulesIcons.ICON_13);
-	}
 
-	protected List<VirtualFile> getVirtualFile(AnActionEvent e) {
+	protected List<VirtualFile> itrFiles(AnActionEvent e) {
 		List<VirtualFile> rulesFiles = ActionUtils.getFilesFromEvent(e, ItrulesFileType.instance().getDefaultExtension());
 		LOG.info("actionPerformed " + (rulesFiles.isEmpty() ? "NONE" : rulesFiles));
 		if (rulesFiles.isEmpty()) return null;
 		return rulesFiles;
+	}
+
+	protected List<VirtualFile> javaFiles(AnActionEvent e) {
+		return ActionUtils.getFilesFromEvent(e, "java");
 	}
 
 	protected boolean projectExists(AnActionEvent e, Project project) {

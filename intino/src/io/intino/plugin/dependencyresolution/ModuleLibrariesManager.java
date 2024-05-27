@@ -2,6 +2,7 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.*;
@@ -25,15 +26,18 @@ import static io.intino.plugin.dependencyresolution.IntinoLibrary.libraryIdentif
 public class ModuleLibrariesManager {
 	private final Module module;
 	private final IntinoLibrary table;
+	private final ModuleRootManager moduleRootManager;
 
 	public ModuleLibrariesManager(Module module) {
 		this.module = module;
 		this.table = new IntinoLibrary(module.getProject());
+		this.moduleRootManager = ModuleRootManager.getInstance(module);
 	}
 
 	public void merge(DependencyCatalog catalog) {
 		removeInvalidDependencies(catalog);
 		addNewDependencies(catalog);
+		ApplicationManager.getApplication().invokeAndWait(() -> WriteAction.run(moduleRootManager.getModifiableModel()::commit));
 	}
 
 	private void addNewDependencies(DependencyCatalog catalog) {
@@ -46,20 +50,14 @@ public class ModuleLibrariesManager {
 	}
 
 	public boolean isAlreadyAdded(Module moduleReference) {
-		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> {
-			ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-			return Arrays.asList(model.getModuleDependencies()).contains(moduleReference);
-		});
+		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> Arrays.asList(moduleRootManager.getModifiableModel().getModuleDependencies()).contains(moduleReference));
 	}
 
 	public boolean isAlreadyAdded(Dependency dependency) {
 		String label = IntinoLibrary.libraryLabelOf(dependency.getArtifact());
 		Module moduleDependency = moduleOf(libraryIdentifierOf(dependency.getArtifact()));
-		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> {
-			ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-			return Arrays.stream(model.getOrderEntries())
-					.anyMatch(entry -> asLibrary(entry, label) || asModuleDependency(entry, moduleDependency));
-		});
+		return ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> Arrays.stream(moduleRootManager.getModifiableModel().getOrderEntries())
+				.anyMatch(entry -> asLibrary(entry, label) || asModuleDependency(entry, moduleDependency)));
 	}
 
 	private boolean asModuleDependency(OrderEntry entry, Module moduleDependency) {
@@ -89,7 +87,7 @@ public class ModuleLibrariesManager {
 	}
 
 	private void removeInvalidDependencies(DependencyCatalog catalog) {
-		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> ModuleRootManager.getInstance(module).getModifiableModel());
+		final ModifiableRootModel rootModel = ApplicationManager.getApplication().runReadAction((Computable<ModifiableRootModel>) () -> moduleRootManager.getModifiableModel());
 		final Application application = ApplicationManager.getApplication();
 		if (application.isWriteAccessAllowed() || !rootModel.isWritable())
 			removeInvalidEntries(rootModel, catalog).commit();

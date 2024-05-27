@@ -14,6 +14,9 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
+import io.intino.plugin.actions.ActionUtils;
+import io.intino.plugin.file.ItrulesFileType;
+import io.intino.plugin.itrules.lang.ItrulesIcons;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
@@ -29,10 +32,15 @@ public class TemplateGeneration extends GenerationAction {
 	private static final String[] ItRulesCoors = new String[]{"io.intino.itrules", "engine", "2.0.0"};
 	private static final String JAVA = ".java";
 
+	public void update(@NotNull AnActionEvent e) {
+		ActionUtils.selectedFilesAre(e, ItrulesFileType.instance().getDefaultExtension());
+		e.getPresentation().setIcon(ItrulesIcons.ICON_13);
+	}
+
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		Project project = e.getData(PlatformDataKeys.PROJECT);
 		if (projectExists(e, project)) return;
-		List<VirtualFile> rulesFiles = getVirtualFile(e);
+		List<VirtualFile> rulesFiles = itrFiles(e);
 		rulesFiles.forEach(r -> {
 			final TemplateGenerator generator = createTemplate(project, r);
 			if (generator != null) notify(project, r);
@@ -56,20 +64,26 @@ public class TemplateGeneration extends GenerationAction {
 		return templateGenerator;
 	}
 
-	private void addItrulesEngineToConfiguration(Module module) {
+	public static void addItrulesEngineToConfiguration(Module module) {
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration legio)) return;
 		Configuration.Artifact.Dependency dep = legio.artifact().dependencies().stream().filter(d -> d.groupId().equals(ItRulesCoors[0]) && d.artifactId().equals(ItRulesCoors[1])).findFirst().orElse(null);
-		if (dep == null)
+		if (dep == null) {
 			legio.artifact().addDependencies(createCompile(ItRulesCoors[0], ItRulesCoors[1], ItRulesCoors[2]));
-		else if (!dep.version().equals(ItRulesCoors[2]) && isHigher(dep.version())) dep.version(ItRulesCoors[2]);
+			((ArtifactLegioConfiguration) configuration).reloadDependencies();
+			((ArtifactLegioConfiguration) configuration).refresh();
+		} else if (!dep.version().equals(ItRulesCoors[2]) && isHigher(dep.version())) {
+			dep.version(ItRulesCoors[2]);
+			((ArtifactLegioConfiguration) configuration).reloadDependencies();
+			((ArtifactLegioConfiguration) configuration).refresh();
+		}
 	}
 
-	private boolean isHigher(String version) {
+	private static boolean isHigher(String version) {
 		try {
 			return new Version(ItRulesCoors[2]).compareTo(new Version(version)) > 0;
 		} catch (IntinoException e) {
-			Logger.getInstance(this.getClass()).error(e);
+			Logger.getInstance(TemplateGeneration.class).error(e);
 			return false;
 		}
 	}

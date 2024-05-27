@@ -6,6 +6,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -14,18 +15,23 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.intellij.notification.NotificationType.ERROR;
+import static com.intellij.openapi.command.WriteCommandAction.writeCommandAction;
+import static io.intino.plugin.actions.itrules.TemplateGeneration.addItrulesEngineToConfiguration;
 import static java.util.regex.Pattern.DOTALL;
 
 public class UpgradeTemplateAction extends GenerationAction {
@@ -38,12 +44,35 @@ public class UpgradeTemplateAction extends GenerationAction {
 
 	public void actionPerformed(@NotNull AnActionEvent e) {
 		Project project = e.getData(PlatformDataKeys.PROJECT);
+		Module module = e.getData(PlatformDataKeys.MODULE);
 		if (projectExists(e, project)) return;
-		List<VirtualFile> rulesFiles = getVirtualFile(e);
-		rulesFiles.forEach(r -> {
+		itrFiles(e).forEach(r -> {
 			var generator = upgradeTemplate(project, r);
 			if (generator != null) notify(project, r);
 		});
+		addItrulesEngineToConfiguration(module);
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			PsiClass newClass = JavaPsiFacade.getInstance(project).findClass("io.intino.itrules.template.Template", GlobalSearchScope.allScope(project));
+			javaFiles(e).stream().map(j -> PsiManager.getInstance(project).findFile(j)).forEach(j -> replaceTemplateImport(project, (PsiJavaFile) j, newClass));
+		});
+	}
+
+	private void replaceTemplateImport(Project project, PsiJavaFile j, PsiClass newClass) {
+		PsiImportStatement singleClassImportStatement = j.getImportList().findSingleClassImportStatement("io.intino.itrules.Template");
+		if (singleClassImportStatement != null) {
+			if (newClass != null) writeCommandAction(project, j).run(() -> {
+				singleClassImportStatement.delete();
+				j.getImportList().add(newClass);
+			});
+			else {
+				Path path = j.getVirtualFile().toNioPath();
+				try {
+					Files.writeString(path, Files.readString(path).replace("io.intino.itrules.Template", "io.intino.itrules.template.Template"));
+				} catch (IOException e) {
+					LOG.error(e);
+				}
+			}
+		}
 	}
 
 	private Upgrade upgradeTemplate(Project project, VirtualFile rulesFile) {
@@ -150,7 +179,7 @@ public class UpgradeTemplateAction extends GenerationAction {
 		}
 
 		private static String mapHeader(String l) {
-			if (l.contains(" and ") || l.contains(" not") || l.contains(" or(") || l.contains(" or ")) return l;
+			if (l.contains(" and ") || l.contains(" not(") || l.contains(" not ") || l.contains(" or(") || l.contains(" or ")) return l;
 			String result = l.replace(") ", ") and ")
 					.replace(" &", ",")
 					.replace("&:", ",");
