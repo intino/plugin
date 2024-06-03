@@ -13,6 +13,7 @@ import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.*;
 import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.configuration.model.LegioRunConfiguration;
+import io.intino.plugin.project.configuration.model.retrocompatibility.LegioModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -94,8 +95,8 @@ public class ConfigurationReloader {
 			String language = language(deps);
 			if (language != null && !dsl.level().isModel())
 				artifactDependencies.add(0, asDependency(language, COMPILE));
-			else
-				artifactDependencies.add(0, asDependency("io.intino.tara:language:1.6.0", COMPILE));//FIXME done for retro-compatibility
+			else if (dsl instanceof LegioModel)
+				artifactDependencies.add(0, asDependency("io.intino.tara:language:LATEST", COMPILE));//FIXME done for retro-compatibility
 		}
 		ImportsResolver resolver = new ImportsResolver(module, updatePolicy, repositories, indicator);
 		if (!artifactDependencies.isEmpty()) dependencies.merge(resolver.resolve(artifactDependencies));

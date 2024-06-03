@@ -28,19 +28,24 @@ public class ArtifactSerializer {
 
 	public String serialize() {
 		String content = GROUP_ID + EQ + artifact.groupId() + NL +
-				ARTIFACT_ID + EQ + artifact.name() + NL +
-				VERSION + EQ + artifact.version() + NL +
-				PARAMETERS + EQ + artifact.parameters().stream().map(Configuration.Parameter::name).collect(Collectors.joining(";")) + NL +
-				GENERATION_PACKAGE + EQ + artifact.code().generationPackage() + NL;
+						 ARTIFACT_ID + EQ + artifact.name() + NL +
+						 VERSION + EQ + artifact.version() + NL +
+						 PARAMETERS + EQ + artifact.parameters().stream().map(Configuration.Parameter::name).collect(Collectors.joining(";")) + NL +
+						 GENERATION_PACKAGE + EQ + artifact.code().generationPackage() + NL;
 		content += serializeDsls(artifact.dsls());
 		content += serialize(artifact.datahub());
 		content += serialize(artifact.archetype());
+		String dependencies = serializeDependencies();
+		if (!dependencies.isEmpty()) content += CURRENT_DEPENDENCIES + EQ + dependencies;
+		return content;
+	}
+
+	public String serializeDependencies() {
 		List<String> dependencies = artifact.dependencies().stream()
 				.filter(d -> d.scope().equalsIgnoreCase(JavaScopes.COMPILE) && d.groupId().startsWith("io.intino"))
 				.map(Configuration.Artifact.Dependency::identifier)
 				.collect(toList());
-		if (!dependencies.isEmpty()) content += CURRENT_DEPENDENCIES + EQ + String.join(",", dependencies) + NL;
-		return content;
+		return !dependencies.isEmpty() ? String.join(",", dependencies) + NL : "";
 	}
 
 	@NotNull

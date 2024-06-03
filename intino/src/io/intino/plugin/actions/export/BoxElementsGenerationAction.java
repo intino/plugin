@@ -68,20 +68,20 @@ public class BoxElementsGenerationAction extends IntinoAction {
 		withTask(new Task.Backgroundable(module.getProject(), module.getName() + ": Reloading box elements", false) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
-				doExecute(module, (ArtifactLegioConfiguration) configuration);
+				doExecute(module, (ArtifactLegioConfiguration) configuration, indicator);
 			}
 		});
 	}
 
-	private void doExecute(Module module, ArtifactLegioConfiguration configuration) {
+	private void doExecute(Module module, ArtifactLegioConfiguration configuration, @NotNull ProgressIndicator indicator) {
 		try {
 			ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
 			Configuration.Artifact.Dsl dsl = safe(() -> configuration.artifact().dsl("Konos"));//TODO remove
 			if (dsl == null) return;
-			DslExportRunner runner = new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.OnlyElements, FactoryPhase.INSTALL, null);
+			DslExportRunner runner = new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.OnlyElements, FactoryPhase.INSTALL, null, indicator);
 			runner.runExport();
 			notify(module);
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			Logger.error(e);
 		} catch (IntinoException e) {
 			notifyError(e.getMessage(), module);

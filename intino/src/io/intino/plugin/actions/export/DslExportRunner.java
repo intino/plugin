@@ -3,6 +3,7 @@ package io.intino.plugin.actions.export;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.Computable;
@@ -16,6 +17,7 @@ import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
+import io.intino.plugin.build.PostCompileAction;
 import io.intino.plugin.file.KonosFileType;
 import io.intino.plugin.lang.file.TaraFileType;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -23,7 +25,9 @@ import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.DslBuilderManager;
 import io.intino.plugin.project.IntinoDirectory;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.plugin.project.configuration.ArtifactSerializer;
 import org.jetbrains.jps.incremental.ExternalProcessUtil;
+import org.jetbrains.jps.incremental.messages.CompilerMessage;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -36,6 +40,7 @@ import java.util.stream.Collectors;
 import static io.intino.builder.BuildConstants.*;
 import static io.intino.plugin.project.Safe.safe;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jetbrains.jps.incremental.messages.BuildMessage.Kind.ERROR;
 
 public class DslExportRunner {
 	private static final com.intellij.openapi.diagnostic.Logger Logger = com.intellij.openapi.diagnostic.Logger.getInstance(DslExportRunner.class);
@@ -43,15 +48,17 @@ public class DslExportRunner {
 	private static final char NL = '\n';
 	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
+	private final ProgressIndicator indicator;
 	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
 	private final Module module;
 	private final Configuration.Artifact.Dsl dsl;
 
-	public DslExportRunner(Module module, ArtifactLegioConfiguration conf, Configuration.Artifact.Dsl dsl, Mode mode, FactoryPhase factoryPhase, String outputPath) throws IOException, IntinoException {
+	public DslExportRunner(Module module, ArtifactLegioConfiguration conf, Configuration.Artifact.Dsl dsl, Mode mode, FactoryPhase factoryPhase, String outputPath, ProgressIndicator indicator) throws IOException, IntinoException {
 		this.module = module;
 		this.dsl = dsl;
 		argsFile = FileUtil.createTempFile("idea" + dsl.name() + "ToCompile", ".txt", false);
+		this.indicator = indicator;
 		Path path = new DslBuilderManager(module, conf.repositories(), dsl).classpathFile();
 		if (!path.toFile().exists())
 			throw new IntinoException("Classpath of compiler not found. Please Reload configuration in order to attach it.");
@@ -88,6 +95,10 @@ public class DslExportRunner {
 			final Configuration.Repository release = conf.artifact().distribution().release();
 			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
 		}
+		if (!conf.artifact().dependencies().isEmpty()) {
+			String content = new ArtifactSerializer(conf.artifact()).serializeDependencies();
+			if (!content.isEmpty()) writer.write(CURRENT_DEPENDENCIES + NL + content);
+		}
 	}
 
 	private void writePaths(Map<String, String> paths, Writer writer) throws IOException {
@@ -102,7 +113,7 @@ public class DslExportRunner {
 		writer.write(NL);
 	}
 
-	public void runExport() throws IOException {
+	public void runExport() throws IOException, IntinoException, InterruptedException {
 		List<String> programParams = List.of(argsFile.getPath());
 		List<String> vmParams = new ArrayList<>(getJavaVersion().startsWith("1.8") ? new ArrayList<>() : List.of("--add-opens=java.base/java.nio=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED"));
 		vmParams.add("-Xmx" + COMPILER_MEMORY + "m");
@@ -112,16 +123,19 @@ public class DslExportRunner {
 		if (mainClass == null) throw new IOException("Main Class of runner not found");
 		final List<String> cmd = ExternalProcessUtil.buildJavaCommandLine(getJavaExecutable(), mainClass, Collections.emptyList(), classpath, vmParams, programParams);
 		final Process process = Runtime.getRuntime().exec(ArrayUtil.toStringArray(cmd));
-		final ExportOSProcessHandler handler = new ExportOSProcessHandler(process, this::save);
-		handler.startNotify();
-		try {
-			handler.waitFor();
-		} catch (InterruptedException e) {
-			Logger.error(e);
+		final ExportOSProcessHandler handler = new ExportOSProcessHandler(process, module, dsl, indicator);
+		handler.listen();
+		handler.waitFor();
+		for (CompilerMessage compilerMessage : handler.compilerMessages())
+			if (compilerMessage.getKind().equals(ERROR))
+				throw new IntinoException(compilerMessage.getMessageText());
+		indicator.setText("Executing post compile actions...");
+		List<PostCompileAction> postCompileActions = handler.postCompileActions();
+		if (!postCompileActions.isEmpty()) {
+			postCompileActions.get(0).execute();
+			postCompileActions.stream().skip(1).parallel().forEach(PostCompileAction::execute);
 		}
-		Path tempFile = Files.createTempFile("export", "runner");
-		Files.writeString(tempFile, output.toString());
-		Logger.info("Output of export execution saved in: " + tempFile.toFile().getAbsolutePath());
+		indicator.setText(null);
 	}
 
 	private String mainClass(String path) {
@@ -131,10 +145,6 @@ public class DslExportRunner {
 		} catch (IOException ignored) {
 		}
 		return null;
-	}
-
-	private void save(String line) {
-		output.append(line).append("\n");
 	}
 
 	private Map<String, String> collectPaths(Module module, String outputPath) {

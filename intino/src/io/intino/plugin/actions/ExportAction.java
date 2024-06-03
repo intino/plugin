@@ -62,11 +62,11 @@ public class ExportAction {
 			if (version == null || version.isEmpty()) return;
 			try {
 				File temp = Files.createTempDirectory(dsl.name() + "_accessors").toFile();
-				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, factoryPhase, temp.getAbsolutePath()).runExport();
+				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, factoryPhase, temp.getAbsolutePath(), indicator).runExport();
 				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);
 				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
 				else publisher.publish();
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				Logger.error(e);
 			} catch (IntinoException e) {
 				notifyError(e.getMessage(), module);

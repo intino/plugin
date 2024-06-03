@@ -44,7 +44,7 @@ public class LegioModel implements Configuration.Artifact.Dsl {
 
 	@Override
 	public String version() {
-		if ("proteo".equalsIgnoreCase(name())) return version = "1.0.0";
+		if ("proteo".equalsIgnoreCase(name())) return version = "1.0.2";
 		return version = realVersion();
 	}
 
