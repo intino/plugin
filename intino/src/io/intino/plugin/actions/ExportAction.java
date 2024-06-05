@@ -15,13 +15,13 @@ import io.intino.Configuration.Artifact.Plugin.Phase;
 import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.export.DslExportRunner;
-import io.intino.plugin.actions.export.accessor.ExportsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.plugins.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioDistribution;
+import io.intino.plugin.project.configuration.model.retrocompatibility.LegioModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -58,18 +58,16 @@ public class ExportAction {
 			return;
 		}
 		for (Configuration.Artifact.Dsl dsl : configuration.artifact().dsls()) {
+			if (dsl instanceof LegioModel) continue;//FIXME remove when not necessary
 			final String version = dsl.version();
 			if (version == null || version.isEmpty()) return;
 			try {
 				File temp = Files.createTempDirectory(dsl.name() + "_export").toFile();
 				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, factoryPhase, temp.getAbsolutePath(), indicator).runExport();
-				ExportsPublisher publisher = new ExportsPublisher(module, configuration, temp);
-				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
-				else publisher.publish();
 			} catch (IOException | InterruptedException e) {
 				Logger.error(e);
 			} catch (IntinoException e) {
-				notifyError(e.getMessage(), module);
+				notifyError(e.getMessage(), dsl, module);
 			}
 		}
 	}
@@ -95,7 +93,11 @@ public class ExportAction {
 	}
 
 
+	private void notifyError(String message, Configuration.Artifact.Dsl dsl, Module module) {
+		Bus.notify(new Notification("Intino", "Export of dsl " + dsl.name() + " cannot be generated. ", message, ERROR), module.getProject());
+	}
+
 	private void notifyError(String message, Module module) {
-		Bus.notify(new Notification("Intino", "Elements cannot be generated. ", message, ERROR), module.getProject());
+		Bus.notify(new Notification("Intino", "Export " + module.getName() + " cannot be generated. ", message, ERROR), module.getProject());
 	}
 }

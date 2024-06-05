@@ -24,7 +24,6 @@ import static com.intellij.notification.NotificationType.INFORMATION;
 
 public class ArtifactBuildAction extends PostCompileAction {
 	private static final Logger LOG = Logger.getInstance(AbstractArtifactFactory.class.getName());
-
 	private final List<String> parameters;
 
 	public ArtifactBuildAction(Module module, List<String> parameters) {
