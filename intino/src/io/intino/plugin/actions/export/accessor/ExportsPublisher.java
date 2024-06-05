@@ -31,14 +31,14 @@ import static com.intellij.notification.NotificationType.ERROR;
 import static com.intellij.notification.NotificationType.INFORMATION;
 import static io.intino.plugin.project.Safe.safe;
 
-public class AccessorsPublisher {
+public class ExportsPublisher {
 	private static final Logger LOG = Logger.getInstance("Publishing Accessor:");
 	private static final String ACCESSOR = "-accessor";
 	private final Module module;
 	private final File root;
 	private final ArtifactLegioConfiguration conf;
 
-	public AccessorsPublisher(Module module, ArtifactLegioConfiguration conf, File root) {
+	public ExportsPublisher(Module module, ArtifactLegioConfiguration conf, File root) {
 		this.module = module;
 		this.conf = conf;
 		this.root = root;

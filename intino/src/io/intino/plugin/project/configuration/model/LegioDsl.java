@@ -134,4 +134,9 @@ public class LegioDsl implements Dsl {
 	public TaraMogram mogram() {
 		return mogram;
 	}
+
+	@Override
+	public String toString() {
+		return name() + ":" + version();
+	}
 }

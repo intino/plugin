@@ -15,7 +15,7 @@ import io.intino.Configuration.Artifact.Plugin.Phase;
 import io.intino.builder.BuildConstants;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.actions.export.DslExportRunner;
-import io.intino.plugin.actions.export.accessor.AccessorsPublisher;
+import io.intino.plugin.actions.export.accessor.ExportsPublisher;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.plugins.PluginExecutor;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
@@ -43,7 +43,7 @@ public class ExportAction {
 			return;
 		}
 		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments());
-		withTask(new Task.Backgroundable(module.getProject(), "Exporting accessors of " + module.getName(), true) {
+		withTask(new Task.Backgroundable(module.getProject(), "Exporting " + module.getName(), true) {
 			@Override
 			public void run(@NotNull ProgressIndicator indicator) {
 				runDslExports(phase, module, (ArtifactLegioConfiguration) configuration, indicator);
@@ -61,9 +61,9 @@ public class ExportAction {
 			final String version = dsl.version();
 			if (version == null || version.isEmpty()) return;
 			try {
-				File temp = Files.createTempDirectory(dsl.name() + "_accessors").toFile();
+				File temp = Files.createTempDirectory(dsl.name() + "_export").toFile();
 				new DslExportRunner(module, configuration, dsl, BuildConstants.Mode.Export, factoryPhase, temp.getAbsolutePath(), indicator).runExport();
-				AccessorsPublisher publisher = new AccessorsPublisher(module, configuration, temp);
+				ExportsPublisher publisher = new ExportsPublisher(module, configuration, temp);
 				if (factoryPhase == FactoryPhase.INSTALL) publisher.install();
 				else publisher.publish();
 			} catch (IOException | InterruptedException e) {

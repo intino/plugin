@@ -308,14 +308,14 @@ public class IntinoUtil {
 
 	@NotNull
 	private static List<TaraModel> filesOf(Module module, FileType fileType) {
-		List<TaraModel> taraFiles = new ArrayList<>();
-		if (module == null) return taraFiles;
+		List<TaraModel> list = new ArrayList<>();
+		if (module == null) return list;
 		Collection<VirtualFile> files = FileTypeIndex.getFiles(fileType, GlobalSearchScope.moduleScope(module));
 		files.stream().filter(Objects::nonNull).forEach(file -> {
-			TaraModel taraFile = (TaraModel) PsiManager.getInstance(module.getProject()).findFile(file);
-			if (taraFile != null) taraFiles.add(taraFile);
+			TaraModel newFiles = (TaraModel) PsiManager.getInstance(module.getProject()).findFile(file);
+			if (newFiles != null) list.add(newFiles);
 		});
-		return taraFiles;
+		return list;
 	}
 
 	public static List<Mogram> getAllNodesOfFile(TaraModel model) {
