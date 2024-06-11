@@ -49,6 +49,7 @@ public class IntinoPaths {
 			paths.srcRoots = new String[]{testSourceRoot != null ? testSourceRoot.getFile().getAbsolutePath() : null};
 		else paths.srcRoots = getSourceRoots(module).stream()
 				.map(root -> root.getFile().getAbsolutePath())
+				.filter(r -> !r.equals(paths.genRoot))
 				.toArray(String[]::new);
 		return paths;
 	}

@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>io.intino.tara</groupId>
 			<artifactId>language</artifactId>
-			<version>1.6.0</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.intino.alexandria</groupId>
@@ -114,7 +114,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<dependency>
 			<groupId>io.intino</groupId>
 			<artifactId>cesar-api-accessor</artifactId>

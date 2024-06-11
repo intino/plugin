@@ -40,7 +40,7 @@ public class TerminalWindow {
 		return "ssh " + tunnels.stream().map(Object::toString).collect(Collectors.joining(" ")) + user + "@" + server + "-p" + port;
 	}
 
-	private static void run(Project project, String workingDir, String command, String title) {
+	private static void run(Project project, String workingDir, String title, String command) {
 		final ShellTerminalWidget[] widget = new ShellTerminalWidget[1];
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			widget[0] = ShellTerminalWidget.toShellJediTermWidgetOrThrow(TerminalToolWindowManager.getInstance(project).createShellWidget(workingDir, command, true, true));

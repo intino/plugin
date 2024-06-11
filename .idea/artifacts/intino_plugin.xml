@@ -60,11 +60,11 @@
           <element id="library" level="project" name="Maven: org.apache.maven:maven-builder-support:3.9.6" />
           <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-utils:3.5.1" />
           <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-sec-dispatcher:2.0" />
-          <element id="library" level="project" name="Maven: io.intino.tara:language:1.6.0" />
           <element id="library" level="project" name="additional: builder-interface-2.0.0" />
           <element id="library" level="project" name="Maven: commons-io:commons-io:2.16.1" />
           <element id="library" level="project" name="Maven: io.intino.itrules:dsl:1.0.0" />
           <element id="library" level="project" name="Maven: io.intino.itrules:engine:2.0.0" />
+          <element id="library" level="project" name="Maven: io.intino.tara:language:1.6.1" />
         </element>
       </element>
     </root>

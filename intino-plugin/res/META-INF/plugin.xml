@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.1.2</version>
+	<version>8.1.3</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -158,8 +158,8 @@
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
 		<codeInsight.lineMarkerProvider language="Tara"
 										implementationClass="io.intino.plugin.codeinsight.linemarkers.RunLineMarkerProvider"/>
-<!--		<codeInsight.lineMarkerProvider language="Tara"-->
-<!--										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>-->
+		<codeInsight.lineMarkerProvider language="Tara"
+										implementationClass="io.intino.plugin.codeinsight.linemarkers.konos.ProcessLineMarkerProvider"/>
 		<annotator language="Tara"
 				   implementationClass="io.intino.plugin.codeinsight.annotators.legio.DependencyAnnotator"/>
 		<annotator language="Tara"

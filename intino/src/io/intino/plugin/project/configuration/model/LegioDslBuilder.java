@@ -41,7 +41,7 @@ public class LegioDslBuilder implements Configuration.Artifact.Dsl.Builder {
 
 	@Override
 	public String generationPackage() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "generationPackage", 3), dsl.name());
+		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "generationPackage", 3), dsl.name().toLowerCase());
 	}
 
 
