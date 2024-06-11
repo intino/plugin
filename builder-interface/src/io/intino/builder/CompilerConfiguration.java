@@ -49,8 +49,7 @@ public class CompilerConfiguration {
 	private String groupID;
 	private String artifactID;
 	private String version;
-	private Phase phase;
-	private final ModelConfiguration model;
+	private final DslConfiguration dsl;
 	private boolean verbose;
 	private File tempDirectory;
 	private File datahubLibrary;
@@ -64,9 +63,11 @@ public class CompilerConfiguration {
 	private File serviceDirectory;
 	private File configurationDirectory;
 	private List<String> parameters = new ArrayList<>();
+	private BuildConstants.Mode mode = BuildConstants.Mode.Build;
 	private final List<Configuration.Repository> repositories = new ArrayList<>();
 	private Configuration.Repository releaseDistributionRepository;
 	private Configuration.Repository snapshotDistributionRepository;
+	private Phase invokedPhase;
 
 	public CompilerConfiguration() {
 		setWarningLevel(1);
@@ -75,7 +76,7 @@ public class CompilerConfiguration {
 		encoding = System.getProperty("file.encoding", "UTF8");
 		encoding = System.getProperty("tara.source.encoding", encoding);
 		sourceEncoding(encoding);
-		this.model = new ModelConfiguration();
+		this.dsl = new DslConfiguration();
 		try {
 			tempDirectory = Files.createTempDirectory("_intino_").toFile();
 		} catch (IOException e) {
@@ -103,12 +104,12 @@ public class CompilerConfiguration {
 	}
 
 
-	public Phase phase() {
-		return phase;
+	public Phase invokedPhase() {
+		return invokedPhase;
 	}
 
-	public CompilerConfiguration phase(Phase phase) {
-		this.phase = phase;
+	public CompilerConfiguration invokedPhase(Phase phase) {
+		this.invokedPhase = phase;
 		return this;
 	}
 
@@ -184,8 +185,8 @@ public class CompilerConfiguration {
 		this.module = module;
 	}
 
-	public ModelConfiguration model() {
-		return model;
+	public DslConfiguration dsl() {
+		return dsl;
 	}
 
 	public boolean isVerbose() {
@@ -311,6 +312,13 @@ public class CompilerConfiguration {
 		this.outDirectory = file;
 	}
 
+	public void mode(String mode) {
+		this.mode = BuildConstants.Mode.valueOf(mode);
+	}
+
+	public BuildConstants.Mode mode() {
+		return mode;
+	}
 
 	public List<String> currentDependencies() {
 		return this.currentDependencies == null ? Collections.emptyList() : currentDependencies;
@@ -340,16 +348,14 @@ public class CompilerConfiguration {
 		return this;
 	}
 
-	public static class ModelConfiguration {
-
-		private String language;
+	public static class DslConfiguration {
+		private String name;
 		private Level level;
 		private String outDsl;
 		private String generationPackage;
 
-
-		public String language() {
-			return language;
+		public String name() {
+			return name;
 		}
 
 		public void outDsl(String outDsl) {
@@ -360,8 +366,8 @@ public class CompilerConfiguration {
 			return outDsl;
 		}
 
-		public void language(String language) {
-			this.language = language;
+		public void name(String dsl) {
+			this.name = dsl;
 		}
 
 		public void level(Level level) {

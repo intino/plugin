@@ -1,7 +1,6 @@
 package io.intino.builder;
 
 import io.intino.Configuration;
-import io.intino.Configuration.Artifact.Dsl;
 
 import java.io.*;
 import java.util.Arrays;
@@ -65,9 +64,6 @@ public class CompilationInfoExtractor {
 			case SRC_PATH:
 				configuration.srcDirectory(new File(reader.readLine()));
 				break;
-			case TMP_PATH:
-				configuration.setTempDirectory(new File(reader.readLine()));
-				break;
 			case RES_PATH:
 				configuration.resDirectory(new File(reader.readLine()));
 				break;
@@ -78,13 +74,16 @@ public class CompilationInfoExtractor {
 				configuration.module(reader.readLine());
 				break;
 			case DSL:
-				configuration.model().language(reader.readLine());
+				configuration.dsl().name(reader.readLine());
 				break;
 			case DSL_GENERATION_PACKAGE:
-				configuration.model().generationPackage(reader.readLine());
+				configuration.dsl().generationPackage(reader.readLine());
 				break;
 			case PARENT_INTERFACE:
 				configuration.parentInterface(reader.readLine());
+				break;
+			case DATAHUB:
+				configuration.datahubLibrary(findLibraryInRepository(reader.readLine()));
 				break;
 			case CURRENT_DEPENDENCIES:
 				configuration.currentDependencies(Arrays.asList(reader.readLine().split(",")));
@@ -95,8 +94,8 @@ public class CompilationInfoExtractor {
 			case RELEASE_DISTRIBUTION:
 				configuration.releaseDistributionRepository(confOf(reader.readLine().split("#")));
 				break;
-			case REPOSITORY:
-				configuration.addRepository(confOf(reader.readLine().split("#")));
+			case ARCHETYPE:
+				configuration.archetypeLibrary(findLibraryInRepository(reader.readLine()));
 				break;
 			case PROJECT_PATH:
 				configuration.projectDirectory(new File(reader.readLine()));
@@ -105,7 +104,7 @@ public class CompilationInfoExtractor {
 				configuration.moduleDirectory(new File(reader.readLine()));
 				break;
 			case LEVEL:
-				configuration.model().level(Dsl.Level.valueOf(reader.readLine()));
+				configuration.dsl().level(Configuration.Artifact.Dsl.Level.valueOf(reader.readLine()));
 				break;
 			case GROUP_ID:
 				configuration.groupId(reader.readLine());
@@ -119,6 +118,9 @@ public class CompilationInfoExtractor {
 			case PARAMETERS:
 				configuration.parameters(reader.readLine().split(";"));
 				break;
+			case INVOKED_PHASE:
+				configuration.invokedPhase(io.intino.builder.CompilerConfiguration.Phase.valueOf(reader.readLine()));
+				break;
 			case GENERATION_PACKAGE:
 				configuration.generationPackage(reader.readLine());
 				break;
@@ -128,10 +130,9 @@ public class CompilationInfoExtractor {
 			case INTINO_PROJECT_PATH:
 				configuration.intinoProjectDirectory(new File(reader.readLine()));
 				break;
-			case INVOKED_PHASE:
-				configuration.phase(CompilerConfiguration.Phase.valueOf(reader.readLine().toUpperCase()));
+			case COMPILATION_MODE:
+				configuration.mode(reader.readLine());
 				break;
-
 			default:
 				break;
 		}
