@@ -30,7 +30,6 @@ public class CompilerConfiguration {
 		LOG.addHandler(infoHandler);
 	}
 
-
 	public enum Phase {
 		COMPILE, PACKAGE, INSTALL, DISTRIBUTE;
 	}
@@ -254,6 +253,11 @@ public class CompilerConfiguration {
 
 	public File configurationDirectory() {
 		return configurationDirectory;
+	}
+
+	public CompilerConfiguration configurationDirectory(File configurationDirectory) {
+		this.configurationDirectory = configurationDirectory;
+		return this;
 	}
 
 	public File resDirectory() {
