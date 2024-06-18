@@ -174,9 +174,11 @@ public class DependencyTreeView extends SimpleToolWindowPanel {
 		if (dsl.name() == null) return;
 		try {
 			String runtimeCoors = runtimeCoors(dsl.name(), dsl.version());
+			if (runtimeCoors == null) return;
 			var dependencies = resolver.resolve(new DefaultArtifact(runtimeCoors), JavaScopes.COMPILE);
 			renderDependency(parent, module, runtimeCoors, dslLabel(dsl, dependencies));
 		} catch (DependencyResolutionException ignored) {
+
 		}
 	}
 
