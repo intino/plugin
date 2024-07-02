@@ -95,12 +95,12 @@ public class LegioDsl implements Dsl {
 		Attributes attributes = attributes();
 		if (attributes == null) return Level.MetaModel;
 		String level = ensureCompatibility(attributes.getValue("level"));
-		return level == null ? Level.MetaModel : Level.values()[Level.valueOf(level).ordinal() - 1];
+		return level == null ? Level.MetaModel : Level.valueOf(level);
 	}
 
 	private String ensureCompatibility(String level) {
-		if ("Product".equalsIgnoreCase(level)) return Level.MetaModel.name();
 		if ("Platform".equalsIgnoreCase(level)) return Level.MetaMetaModel.name();
+		if ("Product".equalsIgnoreCase(level)) return Level.MetaModel.name();
 		if ("Solution".equalsIgnoreCase(level)) return Level.Model.name();
 		return level;
 	}

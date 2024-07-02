@@ -49,7 +49,6 @@ public class DslExportRunner {
 	private static final int COMPILER_MEMORY = 1024;
 	private static File argsFile;
 	private final ProgressIndicator indicator;
-	private final StringBuilder output = new StringBuilder();
 	private final List<String> classpath;
 	private final Module module;
 	private final Configuration.Artifact.Dsl dsl;
