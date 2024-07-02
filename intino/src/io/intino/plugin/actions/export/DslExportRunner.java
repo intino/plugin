@@ -59,6 +59,7 @@ public class DslExportRunner {
 		this.module = module;
 		this.dsl = dsl;
 		argsFile = FileUtil.createTempFile("idea" + dsl.name() + "ToCompile", ".txt", false);
+		Logger.info("DslExporter argsFile: " + argsFile.getAbsolutePath());
 		sources = sources(module, dsl);
 		this.indicator = indicator;
 		Path path = new DslBuilderManager(module, conf.repositories(), dsl).classpathFile();

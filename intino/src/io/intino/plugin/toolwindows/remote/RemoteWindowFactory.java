@@ -37,6 +37,6 @@ public class RemoteWindowFactory implements ToolWindowFactory, DumbAware {
 	@Override
 	public Object isApplicableAsync(@NotNull Project project, @NotNull Continuation<? super Boolean> $completion) {
 		final Module[] modules = ModuleManager.getInstance(project).getModules();
-		return modules.length == 0 ? IntinoDirectory.of(project).exists() : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof ArtifactLegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).getArtifact() != null);
+		return modules.length == 0 ? IntinoDirectory.exists(project) : Arrays.stream(modules).anyMatch(module -> IntinoUtil.configurationOf(module) instanceof ArtifactLegioConfiguration || new LegioFileCreator(module, Collections.emptyList()).getArtifact() != null);
 	}
 }

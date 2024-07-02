@@ -23,6 +23,7 @@ import io.intino.plugin.project.configuration.Version;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.intellij.notification.NotificationType.ERROR;
@@ -114,14 +115,13 @@ public class TemplateGeneration extends GenerationAction {
 
 	private String getPackage(VirtualFile file, Module module) {
 		String path = file.getParent().getPath();
-		final VirtualFile virtualFile = srcRoot(module);
+		final VirtualFile virtualFile = srcRoot(module, file);
 		return virtualFile == null ? "" : format(path, virtualFile.getPath());
 	}
 
-	private VirtualFile srcRoot(Module module) {
+	private VirtualFile srcRoot(Module module, VirtualFile file) {
 		VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots();
-		for (VirtualFile sourceRoot : sourceRoots) if (sourceRoot.getName().equals("src")) return sourceRoot;
-		return null;
+		return Arrays.stream(sourceRoots).filter(sourceRoot -> file.getPath().startsWith(sourceRoot.getPath())).findFirst().orElse(null);
 	}
 
 	private String format(String path, String modulePath) {
