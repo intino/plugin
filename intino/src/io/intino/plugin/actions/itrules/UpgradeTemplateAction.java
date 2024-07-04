@@ -118,6 +118,7 @@ public class UpgradeTemplateAction extends GenerationAction {
 				String content = mapHeaders(file);
 				content = mapExpressions(content);
 				content = removeEscapeCharacter(content);
+				content = removeEndRule(content);
 				Files.writeString(file.toPath(), content);
 			} catch (IOException e) {
 				LOG.error(e);
@@ -178,9 +179,16 @@ public class UpgradeTemplateAction extends GenerationAction {
 			return l.startsWith("def");
 		}
 
+		private String removeEndRule(String content) {
+			return content.replace("\nend", "");
+		}
+
 		private static String mapHeader(String l) {
-			if (l.contains(" and ") || l.contains(" not(") || l.contains(" not ") || l.contains(" or(") || l.contains(" or ")) return l;
-			String result = l.replace(") ", ") and ")
+			String result = l;
+			if (l.startsWith("def")) result = l.replaceFirst("def", "rule");
+			if (result.contains(" and ") || result.contains(" not(") || result.contains(" not ") || result.contains(" or(") || result.contains(" or "))
+				return result;
+			result = result.replace(") ", ") and ")
 					.replace(" &", ",")
 					.replace("&:", ",");
 			if (result.contains("|")) {

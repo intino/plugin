@@ -17,13 +17,12 @@
 
 root ::= (SCAPED_CHAR
          | DEFRULE
-         | ENDRULE
          | DASH
          | OR
          | AND
          | NOT
          | UNDERDASH
-         | MARK
+         | PLACEHOLDER
          | FORMATTER
          | LEFT_EXPR
          | RIGHT_EXPR
