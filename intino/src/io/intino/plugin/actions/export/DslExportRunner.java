@@ -65,7 +65,7 @@ public class DslExportRunner {
 		if (!path.toFile().exists()) {
 			throw new IntinoException("Classpath of compiler not found. Please Reload configuration in order to attach it.");
 		}
-		this.classpath = Arrays.asList(Files.readString(path).replace("$HOME", System.getProperty("user.home")).split(":"));
+		this.classpath = Arrays.stream(Files.readString(path).split(":")).map(f -> f.replace("$HOME", System.getProperty("user.home"))).toList();
 		Logger.info("Classpath: " + String.join(":", classpath));
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(argsFile), UTF_8))) {
 			writer.write(SRC_FILE + NL);
@@ -107,10 +107,12 @@ public class DslExportRunner {
 	}
 
 	private String mainClass(String path) {
+		Logger.info("Main Class of: " + path);
 		try (JarFile jarFile = new JarFile(new File(path))) {
 			String mainClass = jarFile.getManifest().getMainAttributes().getValue("Main-Class");
 			if (mainClass != null) return mainClass;
-		} catch (IOException ignored) {
+		} catch (IOException e) {
+			Logger.error(e);
 		}
 		return null;
 	}
