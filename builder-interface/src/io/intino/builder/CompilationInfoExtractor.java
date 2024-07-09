@@ -88,11 +88,17 @@ public class CompilationInfoExtractor {
 			case CURRENT_DEPENDENCIES:
 				configuration.currentDependencies(Arrays.asList(reader.readLine().split(",")));
 				break;
+			case SNAPSHOT_IMPORT:
+				configuration.addRepository(snapshotConfOf(reader.readLine().split("#")));
+				break;
+			case RELEASE_IMPORT:
+				configuration.addRepository(releaseConfOf(reader.readLine().split("#")));
+				break;
 			case SNAPSHOT_DISTRIBUTION:
-				configuration.snapshotDistributionRepository(confOf(reader.readLine().split("#")));
+				configuration.snapshotDistributionRepository(snapshotConfOf(reader.readLine().split("#")));
 				break;
 			case RELEASE_DISTRIBUTION:
-				configuration.releaseDistributionRepository(confOf(reader.readLine().split("#")));
+				configuration.releaseDistributionRepository(releaseConfOf(reader.readLine().split("#")));
 				break;
 			case ARCHETYPE:
 				configuration.archetypeLibrary(findLibraryInRepository(reader.readLine()));
@@ -138,8 +144,47 @@ public class CompilationInfoExtractor {
 		}
 	}
 
-	private static Configuration.Repository confOf(String[] split) {
-		return new Configuration.Repository() {
+	private static Configuration.Repository releaseConfOf(String[] split) {
+		return new Configuration.Repository.Release() {
+			@Override
+			public String identifier() {
+				return split[0];
+			}
+
+			@Override
+			public String url() {
+				return split[1];
+			}
+
+			@Override
+			public String user() {
+				return null;
+			}
+
+			@Override
+			public String password() {
+				return null;
+			}
+
+			@Override
+			public UpdatePolicy updatePolicy() {
+				return null;
+			}
+
+			@Override
+			public Configuration root() {
+				return null;
+			}
+
+			@Override
+			public Configuration.ConfigurationNode owner() {
+				return null;
+			}
+		};
+	}
+
+	private static Configuration.Repository snapshotConfOf(String[] split) {
+		return new Configuration.Repository.Snapshot() {
 			@Override
 			public String identifier() {
 				return split[0];
@@ -180,7 +225,7 @@ public class CompilationInfoExtractor {
 	private static File findLibraryInRepository(String library) {
 		String[] split = library.split(":");
 		File directory = new File(System.getProperty("user.home") + separator + ".m2" + separator + "repository" +
-				separator + split[0].replace(".", separator) + separator + split[1] + separator + split[2]);
+								  separator + split[0].replace(".", separator) + separator + split[1] + separator + split[2]);
 		return new File(directory, split[1] + "-" + split[2] + ".jar");
 	}
 

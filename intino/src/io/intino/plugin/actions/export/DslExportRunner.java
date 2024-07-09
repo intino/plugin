@@ -15,6 +15,7 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.SystemProperties;
 import io.intino.Configuration;
 import io.intino.Configuration.Parameter;
+import io.intino.Configuration.Repository.Snapshot;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.build.PostCompileAction;
@@ -135,6 +136,8 @@ public class DslExportRunner {
 			final Configuration.Repository release = conf.artifact().distribution().release();
 			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
 		}
+		for (Configuration.Repository repository : conf.repositories())
+			writer.write((repository instanceof Snapshot ? SNAPSHOT_IMPORT : RELEASE_IMPORT) + NL + repository.identifier() + "#" + repository.url() + NL);
 		if (!conf.artifact().dependencies().isEmpty()) {
 			String content = new ArtifactSerializer(conf.artifact()).serializeDependencies();
 			if (!content.isEmpty()) writer.write(CURRENT_DEPENDENCIES + NL + content);
