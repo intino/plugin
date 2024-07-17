@@ -53,6 +53,7 @@ public class DslImporter {
 				return resolver.resolve(new DefaultArtifact(dsl.groupId(), legacyMode(dsl.artifactId()), "jar", effectiveVersionOf(dsl)), COMPILE);
 			} catch (DependencyResolutionException e2) {
 				error(e);
+				error(e2);
 				return null;
 			}
 		}

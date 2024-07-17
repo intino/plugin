@@ -91,12 +91,12 @@ public class MavenRunner {
 				.add("groupId", "tara.dsl")
 				.add("artifactId", outputDsl.name().toLowerCase())
 				.add("version", artifact.version())
-				.add("dependency", languageDependency(outputDsl, repository))
+				.add("dependency", languageDependency(outputDsl, artifact))
 				.add("repository", new FrameBuilder("repository", "release").add("name", repository.identifier()).add("url", repository.url())));
 	}
 
-	private Frame languageDependency(OutputDsl outputDsl, Configuration.Repository languageRepository) {
-		return language(new LanguageResolver(module, List.of(languageRepository)).resolve((Dsl) outputDsl.owner()));
+	private Frame languageDependency(OutputDsl outputDsl, Configuration.Artifact artifact) {
+		return language(new LanguageResolver(module, artifact.root().repositories()).resolve((Dsl) outputDsl.owner()));
 	}
 
 	private Frame language(List<org.eclipse.aether.graph.Dependency> deps) {
@@ -114,12 +114,12 @@ public class MavenRunner {
 	@NotNull
 	private static String mavenOpts(Configuration.Repository repository, Configuration.Artifact artifact, OutputDsl outputDsl, File jar, File pomFile) {
 		return "-Durl=" + repository.url() + " " +
-				"-DrepositoryId=" + repository.identifier() + " " +
-				"-DgroupId=tara.dsl " +
-				"-DartifactId=" + outputDsl.name().toLowerCase() + " " +
-				"-Dversion=" + artifact.version() + " " +
-				"-Dfile=" + jar.getAbsolutePath() + " " +
-				"-DpomFile=" + pomFile.getAbsolutePath();
+			   "-DrepositoryId=" + repository.identifier() + " " +
+			   "-DgroupId=tara.dsl " +
+			   "-DartifactId=" + outputDsl.name().toLowerCase() + " " +
+			   "-Dversion=" + artifact.version() + " " +
+			   "-Dfile=" + jar.getAbsolutePath() + " " +
+			   "-DpomFile=" + pomFile.getAbsolutePath();
 	}
 
 	private Configuration.Repository repository(Configuration configuration) throws IntinoException {
