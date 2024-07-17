@@ -38,13 +38,12 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
   /* ********************************************************** */
   // (SCAPED_CHAR
   //          | DEFRULE
-  //          | ENDRULE
   //          | DASH
   //          | OR
   //          | AND
   //          | NOT
   //          | UNDERDASH
-  //          | MARK
+  //          | PLACEHOLDER
   //          | FORMATTER
   //          | LEFT_EXPR
   //          | RIGHT_EXPR
@@ -62,13 +61,12 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
 
   // SCAPED_CHAR
   //          | DEFRULE
-  //          | ENDRULE
   //          | DASH
   //          | OR
   //          | AND
   //          | NOT
   //          | UNDERDASH
-  //          | MARK
+  //          | PLACEHOLDER
   //          | FORMATTER
   //          | LEFT_EXPR
   //          | RIGHT_EXPR
@@ -79,7 +77,6 @@ public class ItrulesParser implements PsiParser, LightPsiParser {
     boolean r;
     r = consumeToken(b, SCAPED_CHAR);
     if (!r) r = consumeToken(b, DEFRULE);
-    if (!r) r = consumeToken(b, ENDRULE);
     if (!r) r = consumeToken(b, DASH);
     if (!r) r = consumeToken(b, OR);
     if (!r) r = consumeToken(b, AND);

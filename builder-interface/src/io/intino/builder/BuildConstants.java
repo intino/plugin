@@ -51,9 +51,11 @@ public class BuildConstants {
 	public static final String EXCLUDED_PHASES = "excluded_phases";
 	public static final String DSL_GENERATION_PACKAGE = "dsl.generation.package";
 	public static final String PARENT_INTERFACE = "parent.interface";
-	public static final String RELEASE_DISTRIBUTION = "distribution.release";
 	public static final String REPOSITORY = "repository";
+	public static final String RELEASE_DISTRIBUTION = "distribution.release";
 	public static final String SNAPSHOT_DISTRIBUTION = "distribution.snapshot";
+	public static final String RELEASE_IMPORT = "import.release";
+	public static final String SNAPSHOT_IMPORT = "import.snapshot";
 	public static final String INTINO_PROJECT_PATH = "intino.project.path";
 	public static final String GENERATION_PACKAGE = "generation.package";
 	public static final String COMPILATION_MODE = "compilation.mode";

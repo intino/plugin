@@ -1,7 +1,5 @@
 package org.jetbrains.jps.intino.model.impl;
 
-
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.JpsElementChildRole;
 import org.jetbrains.jps.model.ex.JpsElementBase;
@@ -11,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguration> implements JpsElement {
-	static final JpsElementChildRole<JpsModuleConfiguration> ROLE = JpsElementChildRoleBase.create("tara-conf");
-
+	static final JpsElementChildRole<JpsModuleConfiguration> ROLE = JpsElementChildRoleBase.create("intino-conf");
 
 	public String groupId = "";
 	public String artifactId = "";
@@ -36,16 +33,4 @@ public class JpsModuleConfiguration extends JpsElementBase<JpsModuleConfiguratio
 		public record OutDsl(String name, Builder builder, Runtime runtime) {
 		}
 	}
-
-	@NotNull
-	@Override
-	public JpsModuleConfiguration createCopy() {
-		return new JpsModuleConfiguration();
-	}
-
-	@Override
-	public void applyChanges(@NotNull JpsModuleConfiguration modified) {
-
-	}
-
 }

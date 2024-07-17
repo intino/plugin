@@ -13,8 +13,8 @@ import io.intino.plugin.itrules.lang.psi.ItrulesTypes;
 
 %xstate HEADER, BODY
 SCAPED_CHAR         = "$$" | "$<<" | "$>>"
-DEFRULE             = "def"
-
+DEFRULE             = "rule"
+DEFRULE2             = \n"rule"
 NOT                 = "not"
 OR                  = "or"
 AND                 = "and"
@@ -28,7 +28,6 @@ RIGHT_EXPR          = ">>"
 MULTIPLE			= "...[" (~']')* "]"
 IDENTIFIER_KEY      = [:jletter:] ([:jletterdigit:] | {UNDERDASH} | {DASH})*
 NEWLINE             = [\r|\n|\r\n]
-ENDRULE             = {NEWLINE} "end"
 %%
 <YYINITIAL> {
 	{DEFRULE}                      {   yybegin(HEADER); return ItrulesTypes.DEFRULE; }
@@ -44,7 +43,8 @@ ENDRULE             = {NEWLINE} "end"
 }
 
 <BODY> {
-    "~end"                         {   return ItrulesTypes.TEXT;}
+    "~rule"                        {   return ItrulesTypes.TEXT;}
+ 	{DEFRULE2}                     {   yybegin(HEADER); return ItrulesTypes.DEFRULE; }
 	{PLACEHOLDER}                  {   return ItrulesTypes.PLACEHOLDER; }
     {MULTIPLE}                     {   return ItrulesTypes.MULTIPLE; }
   	{FORMATTER}                    {   return ItrulesTypes.FORMATTER; }
@@ -52,7 +52,6 @@ ENDRULE             = {NEWLINE} "end"
 	{RIGHT_EXPR}                   {   return ItrulesTypes.RIGHT_EXPR; }
 	{SCAPED_CHAR}                  {   return ItrulesTypes.SCAPED_CHAR; }
     ~('\$' | '\r' | '\n' | '<')+   { return ItrulesTypes.TEXT;}
-	{ENDRULE}                      {   yybegin(YYINITIAL); return ItrulesTypes.ENDRULE; }
 	[^]                            { return ItrulesTypes.TEXT;}
 	.                              { return ItrulesTypes.TEXT;}
 }
