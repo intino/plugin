@@ -24,8 +24,8 @@ public class CreateItrFileAction extends JavaCreateTemplateInPackageAction<Itrul
 
 	@Override
 	protected void buildDialog(Project project, PsiDirectory directory, CreateFileFromTemplateDialog.Builder builder) {
-		builder.setTitle("Enter name for the new Itrules Template");
-		builder.addKind("itr template", ItrulesIcons.ICON_13, "");
+		builder.setTitle("Enter Name for the New Itrules Template");
+		builder.addKind("Itr template", ItrulesIcons.ICON_13, "");
 	}
 
 	@Override

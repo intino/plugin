@@ -44,7 +44,7 @@
                         <configuration>
                             <target>
                                 <java fork="true" className="io.intino.tara.builder.TaracRunner"
-                                      classPath="${user.home}/.m2/repository/io/intino/tara/builder/1.0.0/builder-1.0.0.jar:${user.home}/.m2/repository/io/intino/tara/language/1.4.0/language-1.4.0.jar:${user.home}/.m2/repository/io/intino/tara/builder-constants/1.0.0/builder-constants-1.0.0.jar:${user.home}/.m2/repository/io/intino/configuration/1.0.0/configuration-1.0.0.jar:${user.home}/.m2/repository/io/intino/itrules/engine/1.0.0/engine-1.0.0.jar:${user.home}/.m2/repository/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar:${user.home}/.m2/repository/org/antlr/antlr4-runtime/4.12.0/antlr4-runtime-4.12.0.jar">
+                                      classPath="${user.home}/.m2/repository/io/intino/tara/builder/1.2.0/builder-1.2.0.jar:${user.home}/.m2/repository/io/intino/tara/language/1.4.0/language-1.4.0.jar:${user.home}/.m2/repository/io/intino/tara/builder-constants/1.0.0/builder-constants-1.0.0.jar:${user.home}/.m2/repository/io/intino/configuration/1.0.0/configuration-1.0.0.jar:${user.home}/.m2/repository/io/intino/itrules/engine/1.0.0/engine-1.0.0.jar:${user.home}/.m2/repository/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar:${user.home}/.m2/repository/org/antlr/antlr4-runtime/4.12.0/antlr4-runtime-4.12.0.jar">
                                     <arg path="/Users/oroncal/workspace/infrastructure/intino-plugin/legio/compiler-args.txt"/>
                                 </java>
                             </target>

@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.intellij.openapi.diagnostic.Logger;
 import io.intino.Configuration;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.eclipse.aether.util.artifact.JavaScopes;
@@ -17,7 +16,6 @@ import static io.intino.builder.BuildConstants.*;
 import static java.util.stream.Collectors.toList;
 
 public class ArtifactSerializer {
-	private static final Logger LOG = Logger.getInstance(ArtifactSerializer.class.getName());
 	public static final String EQ = "=";
 	public static final String NL = "\n";
 	private final LegioArtifact artifact;
@@ -117,7 +115,7 @@ public class ArtifactSerializer {
 			object.add(OUT_DSL + "." + BUILDER_VERSION, new JsonPrimitive(builder.version()));
 		}
 		Configuration.Artifact.Dsl.Runtime runtime = outputDsl.runtime();
-		if (runtime != null) {
+		if (runtime != null && runtime.groupId() != null && runtime.artifactId() != null && runtime.version() != null) {
 			object.add(OUT_DSL + "." + RUNTIME_GROUP_ID, new JsonPrimitive(runtime.groupId()));
 			object.add(OUT_DSL + "." + RUNTIME_ARTIFACT_ID, new JsonPrimitive(runtime.artifactId()));
 			object.add(OUT_DSL + "." + RUNTIME_VERSION, new JsonPrimitive(runtime.version()));

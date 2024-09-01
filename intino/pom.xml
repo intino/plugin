@@ -138,7 +138,7 @@
 		<dependency>
 			<groupId>io.intino.itrules</groupId>
 			<artifactId>dsl</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.antlr</groupId>

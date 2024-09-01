@@ -11,7 +11,6 @@ import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjec
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectEx;
-import com.intellij.openapi.util.Computable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,13 +45,4 @@ public class LegioProjectDataService extends AbstractProjectDataService<ProjectD
 		});
 	}
 
-	@Override
-	public @NotNull Computable<Collection<Project>> computeOrphanData(Collection<? extends DataNode<ProjectData>> toImport, @NotNull ProjectData projectData, @NotNull Project project, @NotNull IdeModifiableModelsProvider modelsProvider) {
-		return null;
-	}
-
-	@Override
-	public void removeData(Computable<? extends Collection<? extends Project>> toRemove, Collection<? extends DataNode<ProjectData>> toIgnore, @NotNull ProjectData projectData, @NotNull Project project, @NotNull IdeModifiableModelsProvider modelsProvider) {
-
-	}
 }
