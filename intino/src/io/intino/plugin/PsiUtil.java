@@ -41,7 +41,6 @@ import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
-import org.junit.Assert;
 
 import java.io.File;
 import java.util.*;
@@ -218,7 +217,7 @@ public final class PsiUtil {
 			}
 			psiTree = StringUtil.join(psiLines, "\n");
 			reparsedTree = StringUtil.join(reparsedLines, "\n");
-			Assert.assertEquals(reparsedTree, psiTree);
+			Objects.equals(reparsedTree, psiTree);
 		}
 	}
 
