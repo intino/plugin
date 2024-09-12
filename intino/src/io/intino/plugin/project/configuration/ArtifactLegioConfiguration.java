@@ -17,7 +17,6 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.FileContentUtil;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
 import io.intino.plugin.build.FactoryPhase;
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
 import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
-import static java.util.Collections.singleton;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
 import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 
@@ -147,7 +145,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 									 save();
 									 refresh();
 									 restartCodeAnalyzer();
-									 FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile.getVirtualFile()), true);
+//									 FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile.getVirtualFile()), true);
 									 reloading.set(false);
 								 } catch (Throwable ignored) {
 									 reloading.set(false);
