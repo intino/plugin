@@ -52,7 +52,11 @@ NEWLINE             = [\r|\n|\r\n]
 	{LEFT_EXPR}                    {   return ItrulesTypes.LEFT_EXPR; }
 	{RIGHT_EXPR}                   {   return ItrulesTypes.RIGHT_EXPR; }
 	{SCAPED_CHAR}                  {   return ItrulesTypes.SCAPED_CHAR; }
-    [^$\\r\\n<]+                   { return ItrulesTypes.TEXT; }
+	{NEWLINE}					   {   return ItrulesTypes.TEXT;}
+
+    [^$\n<>]+                   { return ItrulesTypes.TEXT; }
+      [^]                                 { return ItrulesTypes.TEXT;}
+
 	.                              { return ItrulesTypes.TEXT;}
 }
 
