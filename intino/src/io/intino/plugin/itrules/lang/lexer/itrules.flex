@@ -54,12 +54,12 @@ NEWLINE             = [\r|\n|\r\n]
 	{SCAPED_CHAR}                  {   return ItrulesTypes.SCAPED_CHAR; }
 	{NEWLINE}					   {   return ItrulesTypes.TEXT;}
 
-    [^$\n<>]+                   { return ItrulesTypes.TEXT; }
-      [^]                                 { return ItrulesTypes.TEXT;}
+    [^$\n<>]+                      { return ItrulesTypes.TEXT; }
+      [^]                          { return ItrulesTypes.TEXT;}
 
 	.                              { return ItrulesTypes.TEXT;}
 }
 
 
-[^]                                 { return ItrulesTypes.TEXT;}
-.                                   { return ItrulesTypes.TEXT;}
+[^]                                { return ItrulesTypes.TEXT;}
+.                                  { return ItrulesTypes.TEXT;}
