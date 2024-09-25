@@ -1,5 +1,6 @@
 package io.intino.plugin.itrules.lang.lexer;
 
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import io.intino.plugin.itrules.lang.psi.ItrulesTypes;
 
@@ -51,8 +52,7 @@ NEWLINE             = [\r|\n|\r\n]
 	{LEFT_EXPR}                    {   return ItrulesTypes.LEFT_EXPR; }
 	{RIGHT_EXPR}                   {   return ItrulesTypes.RIGHT_EXPR; }
 	{SCAPED_CHAR}                  {   return ItrulesTypes.SCAPED_CHAR; }
-    ~('\$' | '\r' | '\n' | '<')+   { return ItrulesTypes.TEXT;}
-	[^]                            { return ItrulesTypes.TEXT;}
+    [^$\\r\\n<]+                   { return ItrulesTypes.TEXT; }
 	.                              { return ItrulesTypes.TEXT;}
 }
 

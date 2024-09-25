@@ -10,7 +10,6 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.application.ApplicationConfigurationProducer;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -79,8 +78,6 @@ public class IntinoConfigurationProducer extends ApplicationConfigurationProduce
 		} catch (ClassCastException e) {
 			LOG.error(getConfigurationFactory() + " produced wrong type", e);
 			return null;
-		} catch (ProcessCanceledException e) {
-			throw e;
 		} catch (Throwable e) {
 			LOG.error(e);
 			return null;
