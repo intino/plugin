@@ -36,6 +36,7 @@ import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
+import io.intino.tara.Language;
 import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
@@ -171,6 +172,8 @@ public abstract class AbstractArtifactFactory {
 				continue;
 			}
 			try {
+				Language language = LanguageManager.getLanguage(project, dsl.name(), dsl.effectiveVersion());
+				if (language != null && language.isTerminalLanguage()) continue;
 				File dslFile = dslFilePath(dsl.outputDsl());
 				if (dslFile == null || !dslFile.exists()) {
 					errorMessages.add("Output Dsl " + dsl.name() + " not found. Please compile module to generate it.");
