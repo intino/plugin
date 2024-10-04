@@ -85,7 +85,9 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 	}
 
 	private void collectPostCompileActionMessages() {
-		String substring = outputBuffer.substring(outputBuffer.indexOf(START_ACTIONS_MESSAGE), outputBuffer.indexOf(END_ACTIONS_MESSAGE));
+		int start = outputBuffer.indexOf(START_ACTIONS_MESSAGE);
+		if (start < 0) return;
+		String substring = outputBuffer.substring(start, outputBuffer.indexOf(END_ACTIONS_MESSAGE));
 		String[] messages = substring.replace(START_ACTIONS_MESSAGE, "").split(END_ACTIONS_MESSAGE);
 		Collections.addAll(postCompileActionMessages, messages);
 	}
