@@ -52,8 +52,11 @@ public class RunConfigurationRenderer {
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
 		Dsl dslConf = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
 		if (dslConf != null) {
-			if (!dslConf.name().equalsIgnoreCase("Konos") || dslConf.version().compareTo("12.0.0") >= 0)
+			if (!dslConf.name().equalsIgnoreCase("Konos") || dslConf.version().compareTo("12.0.0") >= 0)//FIXME retrocompatibility. Remove in following versions
 				writer.write(COMPILATION_MODE + NL + "Build" + NL);
+			else if (dslConf.name().equalsIgnoreCase("Konos")) {
+				writer.write(COMPILATION_MODE + NL + "Normal" + NL);
+			}
 			fillDslConfiguration(dslConf, writer);
 		}
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
