@@ -60,7 +60,7 @@ public class CompilationInfoExtractor {
 			case RES_PATH -> configuration.resDirectory(new File(reader.readLine()));
 			case PROJECT -> configuration.setProject(reader.readLine());
 			case MODULE -> configuration.module(reader.readLine());
-			case TEST -> configuration.test(true);
+			case TEST -> configuration.test(Boolean.parseBoolean(reader.readLine()));
 			case DSL -> {
 				String dsl = reader.readLine();
 				String[] split = dsl.split(":");
