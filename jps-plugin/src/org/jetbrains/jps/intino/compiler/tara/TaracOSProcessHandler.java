@@ -134,7 +134,7 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 		final int start = outputBuffer.indexOf(startMarker);
 		final int end = outputBuffer.indexOf(endMarker);
 		if (start > end)
-			throw new AssertionError("Malformed Tarac output: " + outputBuffer.toString());
+			throw new AssertionError("Malformed Tarac output: " + outputBuffer);
 		String text = outputBuffer.substring(start + startMarker.length(), end);
 		outputBuffer.delete(start, end + endMarker.length());
 		return text.trim();
