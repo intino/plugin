@@ -71,7 +71,7 @@ public class CompilerConfiguration {
 	private Configuration.Repository snapshotDistributionRepository;
 	private File localRepository;
 	private Phase invokedBuildPhase;
-	private List<Integer> excludedInternalSteps = new ArrayList<>();
+	private final List<Integer> excludedInternalSteps = new ArrayList<>();
 
 	public CompilerConfiguration() {
 		setWarningLevel(1);
@@ -80,7 +80,7 @@ public class CompilerConfiguration {
 		encoding = System.getProperty("tara.source.encoding", encoding);
 		sourceEncoding(encoding);
 		this.dsl = new DslConfiguration();
-		this.localRepository = new File(System.getProperty("user.home") + String.join(File.separator, ".m2", "repository"));
+		this.localRepository = new File(String.join(File.separator, System.getProperty("user.home"), ".m2", "repository"));
 		try {
 			tempDirectory = Files.createTempDirectory("_intino_").toFile();
 		} catch (IOException e) {

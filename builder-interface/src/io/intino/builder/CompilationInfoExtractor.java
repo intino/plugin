@@ -67,6 +67,7 @@ public class CompilationInfoExtractor {
 				configuration.dsl().name(split[0]);
 				configuration.dsl().version(split[1]);
 			}
+			case OUT_DSL -> configuration.dsl().outDsl(reader.readLine());
 			case OUT_DSL + "." + BUILDER_GROUP_ID -> configuration.dsl().builder().groupId(reader.readLine());
 			case OUT_DSL + "." + BUILDER_ARTIFACT_ID -> configuration.dsl().builder().artifactId(reader.readLine());
 			case OUT_DSL + "." + BUILDER_VERSION -> configuration.dsl().builder().version(reader.readLine());
