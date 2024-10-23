@@ -111,7 +111,10 @@ public class ArtifactDeployer {
 	}
 
 	private List<Parameter> extractParameters(RunConfiguration configuration) {
-		return configuration.finalArguments().entrySet().stream().map(this::parametersFromNode).collect(toList());
+		return configuration.finalArguments().entrySet().stream()
+				.filter(p -> !p.getValue().equals("empty"))
+				.map(this::parametersFromNode)
+				.collect(toList());
 	}
 
 	private Parameter parametersFromNode(Map.Entry<String, String> node) {
