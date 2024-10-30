@@ -97,7 +97,7 @@ public class ArtifactSerializer {
 
 	private JsonElement objectOf(Configuration.Artifact.Dsl.Runtime runtime) {
 		JsonObject object = new JsonObject();
-		if (runtime.groupId() == null) return object;
+		if (runtime.groupId() == null || runtime.groupId().isEmpty()) return object;
 		object.add(RUNTIME_GROUP_ID, new JsonPrimitive(runtime.groupId()));
 		object.add(RUNTIME_ARTIFACT_ID, new JsonPrimitive(runtime.artifactId()));
 		object.add(RUNTIME_VERSION, new JsonPrimitive(runtime.version()));

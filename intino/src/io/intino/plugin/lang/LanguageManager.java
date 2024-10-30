@@ -60,7 +60,10 @@ public class LanguageManager {
 				.filter(Objects::nonNull)
 				.findFirst().orElse(null);
 		if (dsl == null) return getLanguage(project, dslName, LATEST);
-		return getLanguage(project, dsl.name(), dsl.version());
+		Language language = getLanguage(project, dsl.name(), dsl.version());
+		if (language == null)
+			return LanguageLoader.loadLatest(dsl.name(), getLanguageDirectory(dsl.name()).getPath());
+		return language;
 	}
 
 	@Nullable
