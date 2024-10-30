@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>io.intino.plugin</id>
 	<name>Intino</name>
-	<version>8.2.7</version>
+	<version>8.2.8</version>
 	<category>Build Tools</category>
 	<vendor email="info@intino.io" url="https://www.intino.io">intino.io</vendor>
 	<depends>com.intellij.modules.java</depends>
@@ -18,8 +18,7 @@
         konos dsl for layered architecture modeling and legio dsl for continuous integration modeling.
     ]]></description>
 	<change-notes>
-		Now DSLs are reflected in Legio configuration.
-		In addition, are presented new file icons and unified builder interface. for all of them
+		Fixed git main branch issues
 	</change-notes>
 
 	<idea-version since-build="241.9959.31"/>
