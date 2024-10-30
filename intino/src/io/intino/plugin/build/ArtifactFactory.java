@@ -22,6 +22,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.refactoring.ui.InfoDialog;
+import git4idea.GitBranch;
 import git4idea.commands.GitCommandResult;
 import io.intino.Configuration;
 import io.intino.plugin.IntinoException;
@@ -77,7 +78,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 				if (startingBranch != null && !isSupportBranch() && !isHotFixBranch() && !isMasterBranch() && !askForReleaseDistribute())
 					return;
 				if (startingBranch != null && !isSupportBranch() && !isHotFixBranch() && !isMasterBranch())
-					checkoutMasterAndMerge();
+					checkoutMainAndMerge();
 			} catch (IntinoException e) {
 				errorMessages.add(e.getMessage());
 			}
@@ -103,7 +104,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 	}
 
 	private void compileUI() {
-		webDependencies(module).forEach(m -> runCommand(module.getProject(), m,"Building UI Components", "npm run build"));
+		webDependencies(module).forEach(m -> runCommand(module.getProject(), m, "Building UI Components", "npm run build"));
 	}
 
 	public List<String> webDependencies(Module module) {
@@ -131,16 +132,17 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		});
 	}
 
-	private void checkoutMasterAndMerge() {
-		withSyncTask("Checking out to Master and merging", () -> {
+	private void checkoutMainAndMerge() {
+		withSyncTask("Checking out to Main and merging", () -> {
 			stash = "intino:" + module.getName() + ":" + Instant.now().toString();
 			GitUtil.stashChanges(module, stash);
-			GitCommandResult result = GitUtil.checkoutTo(module, "master");
+			GitBranch main = GitUtil.mainBranch(module);
+			GitCommandResult result = GitUtil.checkoutTo(module, main.getName());
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 				return;
 			}
-			result = GitUtil.pull(module, "master");
+			result = GitUtil.pull(module, main.getName());
 			if (!result.success()) {
 				errorMessages.add("git error:\n" + String.join("\n", result.getErrorOutput()));
 				return;

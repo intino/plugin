@@ -9,10 +9,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
+import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
+import git4idea.branch.GitBranchesCollection;
 import git4idea.commands.*;
 import git4idea.push.GitPushParamsImpl;
 import git4idea.repo.GitRepository;
@@ -67,6 +69,21 @@ public class GitUtil {
 			});
 		} else repository.update();
 		return repository.getCurrentBranchName();
+	}
+
+	public static @Nullable GitBranch mainBranch(@NotNull Module module) {
+		GitRepository repository = repository(module);
+		if (repository == null) return null;
+		Application application = ApplicationManager.getApplication();
+		if (application.isDispatchThread()) {
+			withSyncVoidTask(module.getProject(), "Refreshing vcs", () -> {
+				repository.update();
+				return true;
+			});
+		} else repository.update();
+		GitBranchesCollection branches = repository.getBranches();
+		if (branches.findBranchByName("main") != null) return branches.findBranchByName("main");
+		return branches.findBranchByName("master");
 	}
 
 
