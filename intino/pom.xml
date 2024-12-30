@@ -75,21 +75,6 @@
 			<version>1.2.3</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven.resolver</groupId>
-			<artifactId>maven-resolver-transport-classpath</artifactId>
-			<version>1.9.13</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.maven.resolver</groupId>
-					<artifactId>maven-resolver-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven.resolver</groupId>
-					<artifactId>maven-resolver-spi</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>io.intino.goros</groupId>
 			<artifactId>shifter</artifactId>
 			<version>2.0.0</version>
@@ -102,18 +87,6 @@
 			<systemPath>${user.home}/.m2/repository/tara/dsl/legio/${project.version}/Legio-${project.version}.jar
 			</systemPath>
 		</dependency>
-
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-settings-builder</artifactId>
-			<version>3.9.6</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 		<dependency>
 			<groupId>io.intino</groupId>
 			<artifactId>cesar-api-accessor</artifactId>
@@ -122,6 +95,22 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven.resolver</groupId>
+			<artifactId>maven-resolver-transport-classpath</artifactId>
+			<version>1.9.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.maven.resolver</groupId>
+					<artifactId>maven-resolver-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven.resolver</groupId>
+					<artifactId>maven-resolver-spi</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

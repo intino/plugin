@@ -5,16 +5,16 @@ import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.configuration.ConfigurationManager;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.CoroutineScope;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ApplicationInitializedListener implements com.intellij.ide.ApplicationInitializedListener {
 
+	@Nullable
 	@Override
-	public Object execute(@NotNull CoroutineScope asyncScope, @NotNull Continuation<? super Unit> $completion) {
+	public Object execute(@NotNull Continuation<? super Unit> $completion) {
 		LanguageManager.register(new tara.dsl.Legio());
 		ConfigurationManager.registerProvider(ArtifactLegioConfiguration.class);
 		return null;
-//		return com.intellij.ide.ApplicationInitializedListener.super.execute(asyncScope, $completion);
 	}
 }

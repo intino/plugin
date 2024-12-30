@@ -19,7 +19,6 @@
           <element id="library" level="project" name="Maven: javax.validation:validation-api:1.1.0.Final" />
           <element id="library" level="project" name="Maven: org.cactoos:cactoos:0.16" />
           <element id="library" level="project" name="Maven: es.nitaur.markdown:txtmark:0.16" />
-          <element id="library" level="project" name="Maven: javax.inject:javax.inject:1" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:logger:2.1.0" />
           <element id="library" level="module" name="Maven: tara.dsl:legio:4.0.0" module-name="plugin" />
           <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.10.1" />
@@ -45,26 +44,20 @@
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.5" />
           <element id="library" level="project" name="Maven: com.jcabi:jcabi-aspects:0.22.5" />
           <element id="library" level="project" name="Maven: com.jcabi:jcabi-log:0.17.2" />
-          <element id="library" level="project" name="Maven: org.apache.maven.resolver:maven-resolver-transport-classpath:1.9.13" />
-          <element id="library" level="project" name="Maven: org.apache.maven.resolver:maven-resolver-util:1.9.13" />
           <element id="library" level="project" name="Maven: org.aspectj:aspectjrt:1.8.7" />
-          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.5" />
           <element id="library" level="project" name="Maven: org.antlr:antlr4-runtime:4.12.0" />
           <element id="library" level="project" name="Maven: commons-codec:commons-codec:1.11" />
           <element id="library" level="project" name="Maven: io.intino.goros:shifter:2.0.0" />
           <element id="library" level="project" name="Maven: io.intino.alexandria:rest-accessor:3.1.5" />
-          <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-interpolation:1.26" />
-          <element id="library" level="project" name="Maven: org.apache.maven:maven-settings:3.9.6" />
-          <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-cipher:2.0" />
-          <element id="library" level="project" name="Maven: org.apache.maven:maven-settings-builder:3.9.6" />
-          <element id="library" level="project" name="Maven: org.apache.maven:maven-builder-support:3.9.6" />
-          <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-utils:3.5.1" />
-          <element id="library" level="project" name="Maven: org.codehaus.plexus:plexus-sec-dispatcher:2.0" />
           <element id="library" level="project" name="additional: builder-interface-2.0.0" />
           <element id="library" level="project" name="Maven: commons-io:commons-io:2.16.1" />
           <element id="library" level="project" name="Maven: io.intino.tara:language:1.6.1" />
           <element id="library" level="project" name="Maven: io.intino.itrules:engine:2.0.1" />
           <element id="library" level="project" name="Maven: io.intino.itrules:dsl:1.1.1" />
+          <element id="library" level="project" name="Maven: io.intino:builder-interface:2.2.0" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.5" />
+          <element id="library" level="project" name="Maven: org.apache.maven.resolver:maven-resolver-transport-classpath:1.9.13" />
+          <element id="library" level="project" name="Maven: org.apache.maven.resolver:maven-resolver-util:1.9.13" />
         </element>
       </element>
     </root>

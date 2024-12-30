@@ -8,6 +8,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.ThrowableComputable;
+import com.intellij.openapi.vcs.LocalFilePath;
+import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
@@ -26,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static git4idea.commands.GitImpl.REBASE_CONFIG_PARAMS;
+import static git4idea.history.GitHistoryUtils.getCurrentRevision;
 
 public class GitUtil {
 	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
@@ -47,7 +50,7 @@ public class GitUtil {
 		if (relativeFilePath.startsWith("/")) relativeFilePath = relativeFilePath.substring(1);
 		GitLineHandler handler = new GitLineHandler(module.getProject(), vcsRoot, GitCommand.STATUS);
 		GitCommandResult result = (GitCommandResult) withSyncTask(module.getProject(), "Checking vcs", () -> Git.getInstance().runCommand(handler));
-		if (result.success()) {
+		if (result != null && result.success()) {
 			String finalRelativeFilePath = relativeFilePath;
 			return (!upToDate(result.getOutput())) && (!finalRelativeFilePath.isEmpty() && result.getOutput().stream().anyMatch(l -> l.contains(finalRelativeFilePath)));
 		}
@@ -64,11 +67,11 @@ public class GitUtil {
 		Application application = ApplicationManager.getApplication();
 		if (application.isDispatchThread()) {
 			withSyncVoidTask(module.getProject(), "Refreshing vcs", () -> {
-				repository.update();
+				git4idea.GitUtil.updateRepositories(List.of(repository));
 				return true;
 			});
-		} else repository.update();
-		return repository.getCurrentBranchName();
+		} else git4idea.GitUtil.updateRepositories(List.of(repository));
+		return repository.getCurrentBranch().getName();
 	}
 
 	public static @Nullable GitBranch mainBranch(@NotNull Module module) {
@@ -77,10 +80,10 @@ public class GitUtil {
 		Application application = ApplicationManager.getApplication();
 		if (application.isDispatchThread()) {
 			withSyncVoidTask(module.getProject(), "Refreshing vcs", () -> {
-				repository.update();
+				git4idea.GitUtil.updateRepositories(List.of(repository));
 				return true;
 			});
-		} else repository.update();
+		} else git4idea.GitUtil.updateRepositories(List.of(repository));
 		GitBranchesCollection branches = repository.getBranches();
 		if (branches.findBranchByName("main") != null) return branches.findBranchByName("main");
 		return branches.findBranchByName("master");
@@ -127,7 +130,7 @@ public class GitUtil {
 	}
 
 	private static String stashList(@NotNull Module module) {
-		final GitLineHandler handler = new GitLineHandler(module.getProject(), repository(module).getRoot(), GitCommand.STASH);
+		final GitLineHandler handler = new GitLineHandler(module.getProject(), repository(module).getRepositoryFiles().getRootDir(), GitCommand.STASH);
 		handler.addParameters("list");
 		StringBuilder builder = new StringBuilder();
 		handler.addLineListener(stringBuilderListener(builder));
@@ -158,12 +161,22 @@ public class GitUtil {
 
 	public static GitCommandResult mergeBranchIntoCurrent(Module module, String branch) {
 		GitRepository repository = repository(module);
-		String beforeRevision = repository.getCurrentRevision();
+		String beforeRevision = currentRevision(module);
 		Git git = Git.getInstance();
 		GitCommandResult result = git.merge(repository, branch, Collections.emptyList(), soutListener("merge branch " + branch));
 		if (!result.success()) git.resetMerge(repository, beforeRevision);
 		return result;
 	}
+
+
+	public static @Nullable String currentRevision(Module module) {
+		try {
+			return getCurrentRevision(module.getProject(), new LocalFilePath(GitUtil.repository(module).getRepositoryFiles().getRootDir().getPath(), true), null).asString();
+		} catch (VcsException e) {
+			return null;
+		}
+	}
+
 
 	public static GitCommandResult pull(@NotNull Module module, String branch) {
 		List<VirtualFile> gitRoots = GitRepositoryAction.getGitRoots(module.getProject(), GitVcs.getInstance(module.getProject()));

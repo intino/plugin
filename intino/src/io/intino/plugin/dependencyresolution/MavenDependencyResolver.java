@@ -142,6 +142,7 @@ public class MavenDependencyResolver {
 	private static RepositorySystemSession buildSession(String localRepo) {
 		var session = MavenRepositorySystemUtils.newSession();
 		session.setConfigProperty("aether.connector.requestTimeout", 20_000);
+		session.setSystemProperty("java.version", "17");
 		return session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, new LocalRepository(localRepo)))
 				.setResolutionErrorPolicy(new SimpleResolutionErrorPolicy(CACHE_DISABLED, 0));
 	}

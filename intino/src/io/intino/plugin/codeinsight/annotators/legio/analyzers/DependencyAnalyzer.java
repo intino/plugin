@@ -38,10 +38,14 @@ public class DependencyAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		if (configuration == null || !configuration.inited()) return;
 		final Artifact.Dependency dependency = findDependencyNode();
-		if (dependency == null || !isResolved(dependency))
+		if (dependency == null && hasNotEmptyValues() || !isResolved(dependency))
 			results.put(((TaraMogram) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.ERROR, message("reject.dependency.not.found")));
 		else if (dependency.toModule() && !hasSameVersion(findModule(dependency), dependency.version()))
 			results.put(((TaraMogram) dependencyNode).getSignature(), new TaraAnnotator.AnnotateAndFix(Level.WARNING, message("warning.module.dependency.with.different.version")));
+	}
+
+	private boolean hasNotEmptyValues() {
+		return dependencyNode.parameters().stream().anyMatch(p -> p.values().stream().anyMatch(value -> value instanceof String));
 	}
 
 	public boolean isResolved(Artifact.Dependency dependency) {
