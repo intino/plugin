@@ -22,8 +22,13 @@ public class ArtifactorySensor {
 
 	public void update(Configuration.Artifact.Dsl dsl) {
 		String name = dsl.name();
-		final List<String> versions = artifactory.dslVersions(name);
-		properties.setList(LanguageLibrary + name, versions);
+		update(name);
+	}
+
+	public void update(String dsl) {
+		List<String> versions = artifactory.dslVersions(dsl);
+		if (versions.isEmpty()) versions = artifactory.dslVersions(dsl.toLowerCase());
+		properties.setList(LanguageLibrary + dsl, versions);
 	}
 
 

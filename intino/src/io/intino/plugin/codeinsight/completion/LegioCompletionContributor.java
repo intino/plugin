@@ -7,8 +7,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.util.ProcessingContext;
 import io.intino.Configuration;
 import io.intino.plugin.dependencyresolution.ArtifactoryConnector;
-import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
+import io.intino.plugin.project.ArtifactorySensor;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import io.intino.plugin.project.module.IntinoModuleType;
 import io.intino.tara.language.model.Mogram;
@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.intino.plugin.lang.psi.impl.IntinoUtil.configurationOf;
 import static io.intino.plugin.project.ArtifactorySensor.LanguageLibrary;
 import static io.intino.plugin.project.ArtifactorySensor.Languages;
 import static io.intino.plugin.project.module.ModuleProvider.moduleOf;
@@ -58,6 +59,10 @@ public class LegioCompletionContributor extends CompletionContributor {
 						String languageName = name.values().get(0).toString();
 						PropertiesComponent component = PropertiesComponent.getInstance();
 						List<String> list = component.getList(LanguageLibrary + languageName);
+						if (list == null|| list.isEmpty()) {
+							new ArtifactorySensor(configurationOf(module).repositories()).update(languageName);
+							list = component.getList(LanguageLibrary + languageName);
+						}
 						final @Nullable Set<String> values = new HashSet<>(list == null ? List.of() : list);
 						List<String> lower = component.getList(LanguageLibrary + languageName.toLowerCase());
 						if (lower != null) values.addAll(lower);
@@ -80,7 +85,7 @@ public class LegioCompletionContributor extends CompletionContributor {
 
 	private void resolveDependency(CompletionParameters parameters, CompletionResultSet resultSet) {
 		final Module module = moduleOf(parameters.getOriginalFile());
-		final Configuration configuration = IntinoUtil.configurationOf(module);
+		final Configuration configuration = configurationOf(module);
 		if (!(configuration instanceof ArtifactLegioConfiguration)) return;
 		final List<String> values = new ArtifactoryConnector(module.getProject(), configuration.repositories())
 				.versions(artifactFrom(TaraPsiUtil.getContainerNodeOf(parameters.getOriginalPosition())));

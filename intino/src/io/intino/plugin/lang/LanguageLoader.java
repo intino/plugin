@@ -71,7 +71,7 @@ class LanguageLoader {
 
 	private static ClassLoader createClassLoader(File jar) {
 		try {
-			return new URLClassLoader(new URL[]{jar.toURI().toURL()}, LanguageLoader.class.getClassLoader());
+			return new URLClassLoader(new URL[]{jar.toURI().toURL()}, Language.class.getClassLoader());
 		} catch (MalformedURLException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
