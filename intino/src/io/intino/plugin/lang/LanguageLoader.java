@@ -7,10 +7,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 class LanguageLoader {
@@ -29,12 +33,24 @@ class LanguageLoader {
 		try {
 			File jar = composeLanguagePath(languageDirectory, name, version);
 			if (!jar.exists()) return null;
-			final ClassLoader classLoader = createClassLoader(jar);
+			var tempJar = version.contains("SNAPSHOT") ? toTempFile(jar) : jar;
+			if (tempJar == null) return null;
+			final ClassLoader classLoader = createClassLoader(tempJar);
 			if (classLoader == null) return null;
 			Class<?> cls = classLoader.loadClass(LANGUAGES_PACKAGE + "." + Format.snakeCasetoCamelCase().format(name).toString());
 			return (Language) cls.getConstructors()[0].newInstance();
 		} catch (ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException | Error |
 				 InvocationTargetException e) {
+			return null;
+		}
+	}
+
+	private static File toTempFile(File jar) {
+		try {
+			Path tempFile = Files.createTempFile(jar.getName(), ".jar");
+			Files.copy(jar.toPath(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+			return tempFile.toFile();
+		} catch (IOException e) {
 			return null;
 		}
 	}
