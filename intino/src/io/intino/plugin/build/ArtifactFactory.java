@@ -171,6 +171,7 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 					}
 					if (!checker.webServiceIsCompiled(module)) {
 						errorMessages.add("Impossible to build UI services. Please build them manually");
+						notifyErrors();
 						return;
 					}
 				}
