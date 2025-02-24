@@ -334,7 +334,7 @@ public abstract class AbstractArtifactFactory {
 			return deployment.server().type().equals(Dev) || deployment.server().type().equals(Pre);
 		}).toList();
 		if (deployments.isEmpty()) {
-			errorMessages.add("No suitable deployment has been declared in the artifact.");
+			errorMessages.add("No suitable deployment has been declared in the artifact. Snapshot versions can only be deployed on Dev or Pre servers");
 			return Collections.emptyList();
 		} else if (deployments.size() > 1) {
 			final Window[] parent = new Window[1];
