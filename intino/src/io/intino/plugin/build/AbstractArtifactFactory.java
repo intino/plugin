@@ -334,7 +334,7 @@ public abstract class AbstractArtifactFactory {
 			return deployment.server().type().equals(Dev) || deployment.server().type().equals(Pre);
 		}).toList();
 		if (deployments.isEmpty()) {
-			errorMessages.add("Not Suitable Destinations have been found");
+			errorMessages.add("No suitable deployment has been declared in the artifact.");
 			return Collections.emptyList();
 		} else if (deployments.size() > 1) {
 			final Window[] parent = new Window[1];
