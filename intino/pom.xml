@@ -115,6 +115,11 @@
 			<version>2.2.2</version>
 		</dependency>
 		<dependency>
+			<groupId>io.intino.alexandria</groupId>
+			<artifactId>message</artifactId>
+			<version>4.1.2</version>
+		</dependency>
+		<dependency>
 			<groupId>com.jcabi</groupId>
 			<artifactId>jcabi-ssh</artifactId>
 			<version>1.6.1</version>
