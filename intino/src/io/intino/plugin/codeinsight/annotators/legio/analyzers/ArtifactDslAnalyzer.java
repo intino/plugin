@@ -43,8 +43,7 @@ public class ArtifactDslAnalyzer extends TaraAnalyzer {
 		if (configuration == null || dslMogram == null) return;
 		final Parameter languageNameParameter = dslMogram.parameters().stream().filter(p -> p.name().equals("name")).findFirst().orElse(null);
 		if (languageNameParameter == null) return;
-		final String dslName = languageNameParameter.values().get(0).toString();
-		if (dslName == null) return;
+		String dslName = languageNameParameter.values().get(0).toString().replace("\"", "");
 		String version = version();
 		Dsl dsl = safe(() -> configuration.artifact().dsl(dslName));
 		if (dsl == null) {
@@ -100,7 +99,7 @@ public class ArtifactDslAnalyzer extends TaraAnalyzer {
 		return dslMogram.parameters().stream()
 				.filter(parameter -> parameter.name().equals("version"))
 				.findFirst()
-				.map(parameter -> parameter.values().get(0).toString())
+				.map(parameter -> parameter.values().get(0).toString().replace("\"",""))
 				.orElse(null);
 	}
 }

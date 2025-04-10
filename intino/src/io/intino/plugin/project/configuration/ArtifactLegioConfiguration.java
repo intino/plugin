@@ -136,7 +136,6 @@ public class ArtifactLegioConfiguration implements Configuration {
 							 public void run(@NotNull ProgressIndicator indicator) {
 								 try {
 									 reloading.set(true);
-									 TaraModel legioFile = legioFile();
 									 final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
 									 indicator.setText("Resolving dsls...");
 									 reloader.reloadDsls();
@@ -147,7 +146,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 									 save();
 									 refresh();
 									 restartCodeAnalyzer();
-									 FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile.getVirtualFile()), true);
+									 ApplicationManager.getApplication().invokeLater(() -> FileContentUtil.reparseFiles(module.getProject(), singleton(legioFile().getVirtualFile()), true));
 									 reloading.set(false);
 								 } catch (Throwable ignored) {
 									 reloading.set(false);

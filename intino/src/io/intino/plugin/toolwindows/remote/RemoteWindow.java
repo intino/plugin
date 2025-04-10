@@ -67,7 +67,7 @@ public class RemoteWindow {
 	}
 
 	private void subscribeToEvents() {
-		project.getMessageBus().connect().subscribe(REMOTE_CONSOLE, this::reload);
+		project.getMessageBus().connect().subscribe(REMOTE_CONSOLE, (IntinoRemoteConsoleListener) this::reload);
 	}
 
 	public void reload() {

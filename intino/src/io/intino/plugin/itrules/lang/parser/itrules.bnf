@@ -21,6 +21,7 @@ root ::= (SCAPED_CHAR
          | OR
          | AND
          | NOT
+         | MULTIPLE
          | UNDERDASH
          | PLACEHOLDER
          | FORMATTER

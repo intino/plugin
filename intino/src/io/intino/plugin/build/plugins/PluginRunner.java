@@ -76,13 +76,15 @@ public class PluginRunner {
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + NL);
 		for (Configuration.Repository repository : conf.repositories())
 			writer.write(REPOSITORY + NL + repository.identifier() + "#" + repository.url() + NL);
-		if (safe(() -> conf.artifact().distribution().snapshot()) != null) {
-			final Configuration.Repository snapshot = conf.artifact().distribution().snapshot();
-			writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
-		}
-		if (safe(() -> conf.artifact().distribution().release()) != null) {
-			final Configuration.Repository release = conf.artifact().distribution().release();
-			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+		if (conf.artifact().distribution() != null) {
+			if (safe(() -> conf.artifact().distribution().onArtifactory().snapshot()) != null) {
+				final Configuration.Repository snapshot = conf.artifact().distribution().onArtifactory().snapshot();
+				writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
+			}
+			if (safe(() -> conf.artifact().distribution().onArtifactory().release()) != null) {
+				final Configuration.Repository release = conf.artifact().distribution().onArtifactory().release();
+				writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+			}
 		}
 	}
 

@@ -32,12 +32,15 @@ public class CompilerConfiguration {
 
 	public enum Phase {
 		COMPILE, PACKAGE, INSTALL, DISTRIBUTE;
+
 	}
 
+	public static final String LANGUAGE_PACKAGE = "tara.dsl";
 	private int warningLevel;
 	private String sourceEncoding;
 	private String project;
 	private String module;
+	private boolean test;
 	private String parentInterface;
 	private boolean debug;
 	private final List<File> sources = new ArrayList<>();
@@ -66,16 +69,18 @@ public class CompilerConfiguration {
 	private final List<Configuration.Repository> repositories = new ArrayList<>();
 	private Configuration.Repository releaseDistributionRepository;
 	private Configuration.Repository snapshotDistributionRepository;
-	private Phase invokedPhase;
+	private File localRepository;
+	private Phase invokedBuildPhase;
+	private final List<Integer> excludedInternalSteps = new ArrayList<>();
 
 	public CompilerConfiguration() {
 		setWarningLevel(1);
 		setDebug(false);
-		String encoding;
-		encoding = System.getProperty("file.encoding", "UTF8");
+		String encoding = System.getProperty("file.encoding", "UTF8");
 		encoding = System.getProperty("tara.source.encoding", encoding);
 		sourceEncoding(encoding);
 		this.dsl = new DslConfiguration();
+		this.localRepository = new File(String.join(File.separator, System.getProperty("user.home"), ".m2", "repository"));
 		try {
 			tempDirectory = Files.createTempDirectory("_intino_").toFile();
 		} catch (IOException e) {
@@ -102,14 +107,21 @@ public class CompilerConfiguration {
 		this.sourceEncoding = encoding;
 	}
 
-
 	public Phase invokedPhase() {
-		return invokedPhase;
+		return invokedBuildPhase;
 	}
 
 	public CompilerConfiguration invokedPhase(Phase phase) {
-		this.invokedPhase = phase;
+		this.invokedBuildPhase = phase;
 		return this;
+	}
+
+	public List<Integer> excludedInternalSteps() {
+		return excludedInternalSteps;
+	}
+
+	public void addExcludedInternalSteps(List<Integer> steps) {
+		excludedInternalSteps.addAll(steps);
 	}
 
 	public void addRepository(Configuration.Repository repository) {
@@ -118,6 +130,10 @@ public class CompilerConfiguration {
 
 	public List<Configuration.Repository> repositories() {
 		return repositories;
+	}
+
+	public File localRepository() {
+		return localRepository;
 	}
 
 	public boolean getDebug() {
@@ -134,6 +150,19 @@ public class CompilerConfiguration {
 
 	public void setTempDirectory(File tempDirectory) {
 		this.tempDirectory = tempDirectory;
+	}
+
+	public CompilerConfiguration localRepository(File localRepository) {
+		this.localRepository = localRepository;
+		return this;
+	}
+
+	public boolean test() {
+		return test;
+	}
+
+	public void test(boolean b) {
+		this.test = b;
 	}
 
 	public String project() {
@@ -227,7 +256,22 @@ public class CompilerConfiguration {
 		return genDirectory;
 	}
 
-	public File serviceDirectory() {
+	public File rulesDirectory() {
+		final String rulesPackage = (generationPackage() == null ? module.toLowerCase() : generationPackage().toLowerCase().replace(".", File.separator)) + File.separator + "rules";
+		final File file = new File(srcDirectory, rulesPackage);
+		if (file.exists()) return file;
+		return null;
+	}
+
+	public File functionsDirectory() {
+		final String functionsPackage = (generationPackage() == null ? module.toLowerCase() : generationPackage().toLowerCase().replace(".", File.separator)) + File.separator + "functions";
+		final File file = new File(srcDirectory, functionsPackage);
+		if (file.exists()) return file;
+		return null;
+	}
+
+	@Deprecated
+	public File webModuleDirectory() {
 		return webModuleDirectory;
 	}
 
@@ -239,7 +283,8 @@ public class CompilerConfiguration {
 		return projectDirectory;
 	}
 
-	public void serviceDirectory(File serviceDirectory) {
+	@Deprecated
+	public void webModuleDirectory(File serviceDirectory) {
 		this.webModuleDirectory = serviceDirectory;
 	}
 
@@ -356,7 +401,10 @@ public class CompilerConfiguration {
 		private String name;
 		private Level level;
 		private String outDsl;
+		private final Library runtime = new Library();
+		private final Library builder = new Library();
 		private String generationPackage;
+		private String version;
 
 		public String name() {
 			return name;
@@ -370,14 +418,34 @@ public class CompilerConfiguration {
 			return outDsl;
 		}
 
-		public void name(String dsl) {
+		public DslConfiguration name(String dsl) {
 			this.name = dsl;
+			return this;
 		}
 
+		public DslConfiguration version(String version) {
+			this.version = version;
+			return this;
+		}
+
+		public Library runtime() {
+			return runtime;
+		}
+
+		public Library builder() {
+			return builder;
+		}
+
+		public String version() {
+			return version;
+		}
+
+		@Deprecated
 		public void level(Level level) {
 			this.level = level;
 		}
 
+		@Deprecated
 		public Level level() {
 			return level;
 		}
@@ -390,4 +458,48 @@ public class CompilerConfiguration {
 			this.generationPackage = generationPackage;
 		}
 	}
+
+	@Override
+	public CompilerConfiguration clone() {
+		try {
+			return (CompilerConfiguration) super.clone();
+		} catch (CloneNotSupportedException e) {
+			LOG.info(e.getMessage());
+			return null;
+		}
+	}
+
+	public static class Library {
+		private String groupId;
+		private String artifactId;
+		private String version;
+
+		public String groupId() {
+			return groupId;
+		}
+
+		public String artifactId() {
+			return artifactId;
+		}
+
+		public String version() {
+			return version;
+		}
+
+		public Library groupId(String groupId) {
+			this.groupId = groupId;
+			return this;
+		}
+
+		public Library artifactId(String artifactId) {
+			this.artifactId = artifactId;
+			return this;
+		}
+
+		public Library version(String version) {
+			this.version = version;
+			return this;
+		}
+	}
+
 }

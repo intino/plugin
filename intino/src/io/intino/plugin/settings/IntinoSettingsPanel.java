@@ -32,7 +32,6 @@ public class IntinoSettingsPanel {
 	private JButton generateButton;
 	private JTextField bitbucketToken;
 	private JTextField modelMemory;
-	private JTextField boxMemory;
 
 	IntinoSettingsPanel() {
 		tracker.setBorder(BorderFactory.createTitledBorder("Issue Tracker"));
@@ -62,7 +61,6 @@ public class IntinoSettingsPanel {
 		cesarUrl.setText(settings.cesarUrl());
 		bitbucketToken.setText(settings.bitbucketToken());
 		modelMemory.setText(String.valueOf(settings.modelMemory()));
-		boxMemory.setText(String.valueOf(settings.boxMemory()));
 	}
 
 	void applyConfigurationData(IntinoSettings settings) {
@@ -74,7 +72,6 @@ public class IntinoSettingsPanel {
 		settings.bitbucketToken(bitbucketToken.getText());
 		try {
 			settings.modelMemory(Integer.parseInt(modelMemory.getText()));
-			settings.boxMemory(Integer.parseInt(boxMemory.getText()));
 		} catch (NumberFormatException ignored) {
 		}
 		settings.saveState();

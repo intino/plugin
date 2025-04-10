@@ -48,11 +48,7 @@ class NodeView extends PsiFileNode implements Navigatable {
 	public String getName() {
 		return FileUtil.getNameWithoutExtension(file.getName());
 	}
-
-	public void navigate(boolean requestFocus) {
-		file.navigate(requestFocus);
-	}
-
+	
 	public boolean canNavigateToSource() {
 		return file.canNavigateToSource();
 	}

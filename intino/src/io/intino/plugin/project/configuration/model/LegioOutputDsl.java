@@ -37,7 +37,8 @@ public class LegioOutputDsl implements Configuration.Artifact.Dsl.OutputDsl {
 
 	@Override
 	public Configuration.Artifact.Dsl.Runtime runtime() {
-		return new LegioOutputDslRuntime(this, (TaraMogram) componentOfType(mogram, "Runtime"));
+		LegioOutputDslRuntime runtime = new LegioOutputDslRuntime(this, (TaraMogram) componentOfType(mogram, "Runtime"));
+		return runtime.groupId() == null ? null : runtime;
 	}
 
 	@Override

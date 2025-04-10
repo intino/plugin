@@ -79,7 +79,7 @@ public class ArtifactDeployer {
 	}
 
 	private List<Configuration.Parameter> incorrectParameters(Map<String, String> arguments) {
-		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name()) || arguments.get(p.name()) == null).toList();
+		return configuration.artifact().parameters().stream().filter(p -> !arguments.containsKey(p.name())).toList();
 	}
 
 	private ProcessDeployment createDeployment(Artifact.Package packageConfiguration, Deployment destination) {
@@ -111,11 +111,14 @@ public class ArtifactDeployer {
 	}
 
 	private List<Parameter> extractParameters(RunConfiguration configuration) {
-		return configuration.finalArguments().entrySet().stream().map(this::parametersFromNode).collect(toList());
+		return configuration.finalArguments().entrySet().stream()
+				.filter(p -> p.getValue() != null)
+				.map(this::parameterOf)
+				.collect(toList());
 	}
 
-	private Parameter parametersFromNode(Map.Entry<String, String> node) {
-		return new Parameter().name(node.getKey()).value(node.getValue());
+	private Parameter parameterOf(Map.Entry<String, String> entry) {
+		return new Parameter().name(entry.getKey()).value(entry.getValue());
 	}
 
 	private List<Artifactory> artifactories() {

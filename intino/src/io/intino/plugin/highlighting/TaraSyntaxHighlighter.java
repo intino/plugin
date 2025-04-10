@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.TokenType;
@@ -20,6 +21,7 @@ import com.intellij.ui.JBColor;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -149,23 +151,27 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	@NotNull
 	@Override
 	public Lexer getHighlightingLexer() {
-		if (project == null) {
+		project = loadProject();
+		return new TaraHighlighterLexAdapter(project);
+	}
+
+	public static @Nullable Project loadProject() {
+		try {
 			final DataContext[] result = {null};
 			if (!EventQueue.isDispatchThread()) {
 				try {
 					final Application application = ApplicationManager.getApplication();
-//						application.acquireReadActionLock().close();
-//						application.invokeAndWait(() -> result[0] = syncContext());
+					result[0] = application.runReadAction((Computable<DataContext>) TaraSyntaxHighlighter::syncContext);
 				} catch (Throwable ignored) {
 				}
 			} else result[0] = syncContext();
-			project = result[0] != null ? result[0].getData(LangDataKeys.PROJECT) : WindowManager.getInstance().getAllProjectFrames()[0].getProject();
+			return result[0] != null ? result[0].getData(LangDataKeys.PROJECT) : WindowManager.getInstance().getAllProjectFrames()[0].getProject();
+		} catch (Exception e) {
+			return null;
 		}
-
-		return new TaraHighlighterLexAdapter(project);
 	}
 
-	private DataContext syncContext() {
+	private static DataContext syncContext() {
 		try {
 			return DataManager.getInstance().getDataContextFromFocusAsync().blockingGet(100);
 		} catch (Throwable e) {

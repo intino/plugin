@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static com.intellij.notification.NotificationType.ERROR;
+import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 
 public class ExportAction {
@@ -73,11 +74,13 @@ public class ExportAction {
 	}
 
 	private boolean hasDistribution(ArtifactLegioConfiguration configuration) {
-		LegioDistribution distribution = configuration.artifact().distribution();
-		if (distribution == null) return false;
 		try {
-			if (new Version(configuration.artifact().version()).isSnapshot()) return distribution.snapshot() != null;
-			return distribution.release() != null;
+			LegioDistribution distribution = configuration.artifact().distribution();
+			if (distribution == null) return false;
+			if (distribution.onSonatype() != null) return true;
+			if (new Version(configuration.artifact().version()).isSnapshot())
+				return safe(() -> distribution.onArtifactory().snapshot()) != null;
+			return safe(() -> distribution.onArtifactory().release()) != null;
 		} catch (IntinoException e) {
 			return false;
 		}

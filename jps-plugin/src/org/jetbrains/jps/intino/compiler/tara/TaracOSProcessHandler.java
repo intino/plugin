@@ -85,7 +85,9 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 	}
 
 	private void collectPostCompileActionMessages() {
-		String substring = outputBuffer.substring(outputBuffer.indexOf(START_ACTIONS_MESSAGE), outputBuffer.indexOf(END_ACTIONS_MESSAGE));
+		int start = outputBuffer.indexOf(START_ACTIONS_MESSAGE);
+		if (start < 0) return;
+		String substring = outputBuffer.substring(start, outputBuffer.indexOf(END_ACTIONS_MESSAGE));
 		String[] messages = substring.replace(START_ACTIONS_MESSAGE, "").split(END_ACTIONS_MESSAGE);
 		Collections.addAll(postCompileActionMessages, messages);
 	}
@@ -132,7 +134,7 @@ class TaracOSProcessHandler extends BaseOSProcessHandler {
 		final int start = outputBuffer.indexOf(startMarker);
 		final int end = outputBuffer.indexOf(endMarker);
 		if (start > end)
-			throw new AssertionError("Malformed Tarac output: " + outputBuffer.toString());
+			throw new AssertionError("Malformed Tarac output: " + outputBuffer);
 		String text = outputBuffer.substring(start + startMarker.length(), end);
 		outputBuffer.delete(start, end + endMarker.length());
 		return text.trim();

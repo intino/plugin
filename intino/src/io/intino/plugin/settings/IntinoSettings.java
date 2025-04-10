@@ -99,16 +99,8 @@ public class IntinoSettings implements PersistentStateComponent<IntinoSettings.S
 		myState.modelMemory = memory;
 	}
 
-	public void boxMemory(int memory) {
-		myState.boxMemory = memory;
-	}
-
 	public int modelMemory() {
 		return myState.modelMemory;
-	}
-
-	public int boxMemory() {
-		return myState.boxMemory;
 	}
 
 	public Map<String, List<Tunnel>> tunnels() {

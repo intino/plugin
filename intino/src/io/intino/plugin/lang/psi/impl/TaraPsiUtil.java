@@ -120,15 +120,20 @@ public class TaraPsiUtil {
 		if (facet == null) return null;
 		List<Parameter> parameters = facet.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null ? clean(parameter.values().get(0).toString()) : (parameters.size() > position ? clean(parameters.get(position).values().get(0).toString()) : null);
+		return parameter != null ? clean(parameter.values().get(0).toString()) : (parameters.size() > position ? clean(toString(parameters.get(position))) : null);
 	}
 
 	public static String parameterValue(Mogram mogram, String name, int position) {
 		if (mogram == null) return null;
 		List<Parameter> parameters = mogram.parameters();
 		Parameter parameter = parameters.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);
-		return parameter != null ? clean(read(() -> parameter.values().get(0).toString())) :
+		return parameter != null ? clean(read(() -> toString(parameter))) :
 				parameterValueFromPosition(parameters, position, name);
+	}
+
+	private static String toString(Parameter parameter) {
+		Object o = parameter.values().get(0);
+		return o instanceof EmptyMogram ? null : o.toString();
 	}
 
 	public static List<String> parameterValues(Mogram mogram, String name, int position) {
@@ -146,8 +151,7 @@ public class TaraPsiUtil {
 			Parameter parameter = parameters.get(position);
 			if (parameter.name() != null && !parameter.name().isEmpty() && !parameter.name().equals(name)) return null;
 			Object v = parameter.values().get(0);
-			if (v instanceof EmptyNode) return null;
-			return clean(v.toString());
+			return v instanceof EmptyNode ? null : clean(v.toString());
 		}) : null;
 	}
 
@@ -267,8 +271,8 @@ public class TaraPsiUtil {
 			if (element == null) return null;
 			PsiElement aElement = element.getOriginalElement();
 			while ((aElement.getParent() != null)
-					&& !(aElement.getParent() instanceof TaraModel)
-					&& !(aElement.getParent() instanceof Mogram))
+				   && !(aElement.getParent() instanceof TaraModel)
+				   && !(aElement.getParent() instanceof Mogram))
 				aElement = aElement.getParent();
 			return (aElement.getParent() != null) ? (Mogram) aElement.getParent() : null;
 		} catch (NullPointerException e) {
@@ -292,7 +296,7 @@ public class TaraPsiUtil {
 	public static Body getBodyContextOf(PsiElement element) {
 		PsiElement aElement = element;
 		while ((aElement.getParent() != null)
-				&& !(aElement.getParent() instanceof Body))
+			   && !(aElement.getParent() instanceof Body))
 			aElement = aElement.getParent();
 		return (Body) aElement.getParent();
 	}

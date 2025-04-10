@@ -1,6 +1,8 @@
 package org.jetbrains.jps.intino.compiler.tara;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
+import org.jetbrains.jps.intino.compiler.Version;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration.Dsl;
 import org.jetbrains.jps.intino.model.impl.JpsModuleConfiguration.Dsl.Builder;
@@ -52,8 +54,11 @@ public class RunConfigurationRenderer {
 		if (!conf.version.isEmpty()) writer.write(VERSION + NL + conf.version + NL);
 		Dsl dslConf = conf.dsls.stream().filter(d -> d.name().equalsIgnoreCase(dsl)).findFirst().orElse(null);
 		if (dslConf != null) {
-			if (!dslConf.name().equalsIgnoreCase("Konos") || dslConf.version().compareTo("12.0.0") >= 0)
+			if (!dslConf.name().equalsIgnoreCase("Konos") || versionOf(dslConf.version()).compareTo(versionOf("12.0.0")) >= 0)//FIXME retrocompatibility. Remove in following versions
 				writer.write(COMPILATION_MODE + NL + "Build" + NL);
+			else if (dslConf.name().equalsIgnoreCase("Konos")) {
+				writer.write(COMPILATION_MODE + NL + "Normal" + NL);
+			}
 			fillDslConfiguration(dslConf, writer);
 		}
 		if (!conf.parameters.isEmpty()) writer.write(PARAMETERS + NL + conf.parameters + NL);
@@ -71,15 +76,17 @@ public class RunConfigurationRenderer {
 		if (dsl == null) return;
 		writer.write(DSL + NL + dsl.name() + ":" + dsl.version() + NL);
 		writer.write("language" + NL + dsl.name() + ":" + dsl.version() + NL);//FIXME retrocompatibility. Remove in following versions
-		writer.write(LEVEL + NL + dsl.level() + NL);
+		Version version = versionOf(dsl.version());
+		if (dsl.name().equalsIgnoreCase("Konos") && version.compareTo(versionOf("12.0.0")) < 0) {
+			writer.write(LEVEL + NL + "Solution" + NL);
+		} else writer.write(LEVEL + NL + dsl.level() + NL);
 		Builder builder = dsl.builder();
 		if (builder != null) {
 			if (builder.excludedPhases() != null)
 				writer.write(EXCLUDED_PHASES + NL + builder.excludedPhases().stream().map(Object::toString).collect(Collectors.joining(" ")) + NL);
 			writer.write(GENERATION_PACKAGE + NL + builder.generationPackage() + NL);
-			if (dsl.name().equalsIgnoreCase("Konos") && dsl.version().compareTo("12.0.0") < 0) {
+			if (dsl.name().equalsIgnoreCase("Konos") && version.compareTo(versionOf("12.0.0")) < 0)
 				writer.write("box." + GENERATION_PACKAGE + NL + builder.generationPackage() + ".box" + NL);//FIXME retrocompatibility. Remove in following versions
-			}
 		}
 		Dsl.OutDsl outDsl = dsl.outDsl();
 		if (outDsl != null) {
@@ -114,5 +121,17 @@ public class RunConfigurationRenderer {
 		writer.write(NL);
 	}
 
+
+	private static @NotNull Version versionOf(String dslConf) {
+		try {
+			return new Version(dslConf);
+		} catch (Exception e) {
+			try {
+				return new Version("1.0.0");
+			} catch (Exception ex) {
+				return null;
+			}
+		}
+	}
 }
 

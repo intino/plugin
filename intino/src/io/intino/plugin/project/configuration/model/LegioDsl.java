@@ -77,7 +77,8 @@ public class LegioDsl implements Dsl {
 
 	@Override
 	public Runtime runtime() {
-		return new LegioDslRuntime(this, attributes());
+		LegioDslRuntime legioDslRuntime = new LegioDslRuntime(this, attributes());
+		return legioDslRuntime.groupId() == null ? null : legioDslRuntime;
 	}
 
 	@Override

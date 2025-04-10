@@ -36,6 +36,7 @@ import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.settings.IntinoSettings;
 import io.intino.plugin.toolwindows.IntinoTopics;
 import io.intino.plugin.toolwindows.remote.IntinoRemoteConsoleListener;
+import io.intino.tara.Language;
 import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
@@ -171,6 +172,8 @@ public abstract class AbstractArtifactFactory {
 				continue;
 			}
 			try {
+				Language language = LanguageManager.getLanguage(project, dsl.name(), dsl.effectiveVersion());
+				if (language != null && language.isTerminalLanguage()) continue;
 				File dslFile = dslFilePath(dsl.outputDsl());
 				if (dslFile == null || !dslFile.exists()) {
 					errorMessages.add("Output Dsl " + dsl.name() + " not found. Please compile module to generate it.");
@@ -212,7 +215,7 @@ public abstract class AbstractArtifactFactory {
 	protected boolean isDistributed(Artifact artifact) {
 		String identifier = artifact.groupId() + ":" + artifact.name().toLowerCase();
 		if (artifact.distribution() == null) return false;
-		List<String> versions = new ArtifactoryConnector(project, Collections.singletonList(artifact.distribution().release()))
+		List<String> versions = new ArtifactoryConnector(project, artifact.distribution().onArtifactory() != null ? Collections.singletonList(artifact.distribution().onArtifactory().release()) : List.of())
 				.versions(identifier);
 		return versions.contains(artifact.version());
 	}
@@ -331,7 +334,7 @@ public abstract class AbstractArtifactFactory {
 			return deployment.server().type().equals(Dev) || deployment.server().type().equals(Pre);
 		}).toList();
 		if (deployments.isEmpty()) {
-			errorMessages.add("Not Suitable Destinations have been found");
+			errorMessages.add("No suitable deployment has been declared in the artifact. Snapshot versions can only be deployed on Dev or Pre servers");
 			return Collections.emptyList();
 		} else if (deployments.size() > 1) {
 			final Window[] parent = new Window[1];

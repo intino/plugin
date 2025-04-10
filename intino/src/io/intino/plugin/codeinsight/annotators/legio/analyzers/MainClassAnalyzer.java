@@ -26,7 +26,7 @@ public class MainClassAnalyzer extends TaraAnalyzer {
 	public void analyze() {
 		final Parameter parameter = mainClassParameter();
 		if (module == null || parameter == null) return;
-		final PsiClass aClass = JavaPsiFacade.getInstance(module.getProject()).findClass(parameter.values().get(0).toString(), allScope(module.getProject()));
+		final PsiClass aClass = JavaPsiFacade.getInstance(module.getProject()).findClass(parameter.values().get(0).toString().replace("\"", ""), allScope(module.getProject()));
 		if (aClass == null)
 			results.put((PsiElement) parameter, new TaraAnnotator.AnnotateAndFix(SemanticNotification.Level.ERROR, message("class.not.found")));
 	}

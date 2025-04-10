@@ -35,8 +35,8 @@ public class FactoryPhaseChecker {
 			if (!ModuleTypeWithWebFeatures.isAvailable(dependency)) continue;
 			final CompilerModuleExtension extension = CompilerModuleExtension.getInstance(dependency);
 			if (extension == null || extension.getCompilerOutputUrl() == null ||
-					!new File(pathOf(extension.getCompilerOutputUrl())).exists() ||
-					Objects.requireNonNull(new File(pathOf(extension.getCompilerOutputUrl())).list((dir, name) -> !name.startsWith("."))).length == 0)
+				!new File(pathOf(extension.getCompilerOutputUrl())).exists() ||
+				Objects.requireNonNull(new File(pathOf(extension.getCompilerOutputUrl())).list((dir, name) -> !name.startsWith("."))).length == 0)
 				return false;
 		}
 		return true;
@@ -71,16 +71,18 @@ public class FactoryPhaseChecker {
 
 	private boolean noDistributionRepository(FactoryPhase lifeCyclePhase, Configuration configuration) {
 		try {
-			return lifeCyclePhase.mavenActions().contains("deploy") && repositoryExists(configuration);
+			return lifeCyclePhase.mavenActions().contains("deploy") && !distributionRegistered(configuration);
 		} catch (IntinoException e) {
 			return false;
 		}
 	}
 
-	private boolean repositoryExists(Configuration configuration) throws IntinoException {
+	private boolean distributionRegistered(Configuration configuration) throws IntinoException {
 		Version version = new Version(configuration.artifact().version());
-		if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot()) == null;
-		return safe(() -> configuration.artifact().distribution().release()) == null;
+		if (safe(() -> configuration.artifact().distribution().onSonatype()) != null) return true;
+		if (version.isSnapshot())
+			return safe(() -> configuration.artifact().distribution().onArtifactory().snapshot()) != null;
+		return safe(() -> configuration.artifact().distribution().onArtifactory().release()) != null;
 	}
 
 

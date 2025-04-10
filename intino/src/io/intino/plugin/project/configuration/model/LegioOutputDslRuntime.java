@@ -12,6 +12,7 @@ import static io.intino.plugin.lang.psi.impl.IntinoUtil.getOrDefault;
 import static io.intino.plugin.project.Safe.safe;
 
 public class LegioOutputDslRuntime implements Configuration.Artifact.Dsl.Runtime {
+	public static final String EMPTY = "empty";
 	private final LegioOutputDsl outputDsl;
 	private final TaraMogram mogram;
 
@@ -22,12 +23,14 @@ public class LegioOutputDslRuntime implements Configuration.Artifact.Dsl.Runtime
 
 	@Override
 	public String groupId() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "groupId", 0), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_GROUP_ID))));
+		String groupId = getOrDefault(TaraPsiUtil.parameterValue(mogram, "groupId", 0), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_GROUP_ID))));
+		return groupId.equals(EMPTY) ? null : groupId;
 	}
 
 	@Override
 	public String artifactId() {
-		return getOrDefault(TaraPsiUtil.parameterValue(mogram, "artifactId", 1), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_ARTIFACT_ID))));
+		String artifactId = getOrDefault(TaraPsiUtil.parameterValue(mogram, "artifactId", 1), safe(() -> outputDsl.owner().attributes().getValue(normalizeForManifest(RUNTIME_ARTIFACT_ID))));
+		return artifactId.equals(EMPTY) ? null : artifactId;
 	}
 
 	@Override

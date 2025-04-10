@@ -35,9 +35,8 @@ public class BlockManager {
 		int length = (size > 0) ? size : Math.abs(size * 2) + 1;
 		IElementType[] actions = new IElementType[length];
 		if (size > 0) return new IElementType[]{TokenType.NEW_LINE_INDENT};
-		else
-			for (int i = 0; i < actions.length; i++)
-				actions[i] = (i % 2 == 0) ? TaraTypes.NEWLINE : TaraTypes.DEDENT;
+		else for (int i = 0; i < actions.length; i++)
+			actions[i] = (i % 2 == 0) ? TaraTypes.NEWLINE : TaraTypes.DEDENT;
 		return actions;
 	}
 

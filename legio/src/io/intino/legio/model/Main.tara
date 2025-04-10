@@ -99,11 +99,13 @@ Concept:{1..1}:Named Artifact
 	has Parameter
 	Concept:{0..1} Distribution
 		var boolean distributeLanguage = true
+		Concept Sonatype
+			var string identifier
 		Concept Artifactory
 			var string identifier
 			Concept:{0..1} Release > var string url
 			Concept:{0..1} Snapshot > var string url
-		Concept:{0..1} OnBitbucket
+		Concept:{0..1} Bitbucket
 			var string owner
 			var string slugName
 

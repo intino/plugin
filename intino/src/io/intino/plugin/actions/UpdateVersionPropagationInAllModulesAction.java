@@ -55,7 +55,7 @@ public class UpdateVersionPropagationInAllModulesAction extends UpdateVersionAct
 	}
 
 	private boolean hasDistribution(ArtifactLegioConfiguration c) {
-		return safe(() -> c.artifact().distribution().release()) != null;
+		return safe(() -> c.artifact().distribution().onArtifactory().release()) != null;
 	}
 
 	private Boolean isRunnable(ArtifactLegioConfiguration c) {

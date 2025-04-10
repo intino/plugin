@@ -27,7 +27,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 		extend(CompletionType.BASIC, TaraFilters.AfterNewLine,
 				new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						if (!(parameters.getPosition().getContext() instanceof MetaIdentifier)) return;
 						final CompletionUtils completionUtils = new CompletionUtils(parameters, resultSet);
@@ -41,7 +41,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 		extend(CompletionType.BASIC, TaraFilters.afterAs,
 				new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						if (!(parameters.getPosition().getContext() instanceof MetaIdentifier)) return;
 						final CompletionUtils completionUtils = new CompletionUtils(parameters, resultSet);
@@ -55,7 +55,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 		extend(CompletionType.BASIC, TaraFilters.afterNodeIdentifier,
 				new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						resultSet.addElement(create("extends "));
 						resultSet.addElement(create("is "));
@@ -69,7 +69,7 @@ public class TaraNodeCompletionContributor extends CompletionContributor {
 		extend(CompletionType.BASIC, TaraFilters.inParameterName,
 				new CompletionProvider<CompletionParameters>() {
 					public void addCompletions(@NotNull CompletionParameters parameters,
-											   ProcessingContext context,
+											   @NotNull ProcessingContext context,
 											   @NotNull CompletionResultSet resultSet) {
 						if (!(parameters.getPosition().getContext() instanceof Identifier)) return;
 						final CompletionUtils completionUtils = new CompletionUtils(parameters, resultSet);

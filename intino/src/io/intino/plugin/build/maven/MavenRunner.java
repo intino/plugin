@@ -18,6 +18,7 @@ import com.intellij.openapi.util.Key;
 import io.intino.Configuration;
 import io.intino.Configuration.Artifact.Dsl;
 import io.intino.Configuration.Artifact.Dsl.OutputDsl;
+import io.intino.Configuration.Distribution.ArtifactoryDistribution;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
 import io.intino.plugin.IntinoException;
@@ -123,9 +124,10 @@ public class MavenRunner {
 	}
 
 	private Configuration.Repository repository(Configuration configuration) throws IntinoException {
+		ArtifactoryDistribution dist = safe(() -> configuration.artifact().distribution().onArtifactory());
 		Version version = new Version(configuration.artifact().version());
-		if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot());
-		return safe(() -> configuration.artifact().distribution().release());
+		if (version.isSnapshot()) return safe(() -> dist.snapshot());
+		return safe(() -> dist.release());
 	}
 
 	public void executeArtifact(FactoryPhase phase) throws IOException {

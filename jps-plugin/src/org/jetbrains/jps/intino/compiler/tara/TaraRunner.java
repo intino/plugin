@@ -36,7 +36,7 @@ class TaraRunner {
 	private final String encoding;
 	private final ModuleChunk module;
 
-	TaraRunner(final JpsProject project, final ModuleChunk module, String dsl,  String runConfiguration, String encoding) throws IOException {
+	TaraRunner(final JpsProject project, final ModuleChunk module, String dsl, String runConfiguration, String encoding) throws IOException {
 		this.module = module;
 		this.dsl = dsl;
 		this.runConfiguration = runConfiguration;
@@ -55,7 +55,7 @@ class TaraRunner {
 		}
 		if (!classPathFile.exists()) {
 			LOG.warn("Can't find classpath: " + classPathFile.getAbsolutePath());
-			throw new IOException("Unable to find builder classpath. Please reload configuration. If the error persists, check your your internet connection and the defined artifactories");
+			throw new IOException("Unable to find builder classpath for " + dsl + " . Please reload configuration. If the error persists, check your your internet connection and the defined artifactories");
 		}
 		return Arrays.asList(new String(Files.readAllBytes(classPathFile.toPath())).split(":"));
 	}

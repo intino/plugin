@@ -17,7 +17,10 @@ public class LegioDslRuntime implements Configuration.Artifact.Dsl.Runtime {
 
 	@Override
 	public String groupId() {
-		return attributes == null ? null : attributes.getValue(normalizeForManifest(RUNTIME_GROUP_ID));
+		if (attributes == null) return null;
+		String value = attributes.getValue(normalizeForManifest(RUNTIME_GROUP_ID));
+		if (value != null && !value.equals("null")) return value;
+		return null;
 	}
 
 	@Override

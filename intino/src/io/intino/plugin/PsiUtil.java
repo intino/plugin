@@ -20,18 +20,17 @@ import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.*;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.stubs.StubTextInconsistencyException;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.PlatformTestUtil;
-import com.intellij.testFramework.UsefulTestCase;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Contract;
@@ -41,7 +40,6 @@ import org.jetbrains.jps.model.JpsElement;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
-import org.junit.Assert;
 
 import java.io.File;
 import java.util.*;
@@ -175,24 +173,6 @@ public final class PsiUtil {
 		});
 	}
 
-	public static void checkErrorElements(@NotNull PsiElement element) {
-		StringBuilder err = null;
-		int s = 0;
-		String text = element.getText();
-		for (PsiErrorElement error : SyntaxTraverser.psiTraverser().withRoot(element).filter(PsiErrorElement.class)) {
-			if (err == null) err = new StringBuilder();
-			TextRange r = error.getTextRange();
-			if (r.getStartOffset() < s) continue;
-			err.append(text, s, r.getStartOffset()).append("<error desc=\"");
-			err.append(error.getErrorDescription()).append("\">");
-			err.append(error.getText()).append("</error>");
-			s = r.getEndOffset();
-		}
-		if (err == null) return;
-		err.append(text, s, text.length());
-		UsefulTestCase.assertSameLines(text, err.toString());
-	}
-
 	public static void checkFileStructure(@NotNull PsiFile file) {
 		compareFromAllRoots(file, f -> DebugUtil.psiTreeToString(f, true));
 	}
@@ -218,7 +198,7 @@ public final class PsiUtil {
 			}
 			psiTree = StringUtil.join(psiLines, "\n");
 			reparsedTree = StringUtil.join(reparsedLines, "\n");
-			Assert.assertEquals(reparsedTree, psiTree);
+			Objects.equals(reparsedTree, psiTree);
 		}
 	}
 

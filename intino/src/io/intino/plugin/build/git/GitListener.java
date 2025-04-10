@@ -46,7 +46,7 @@ public class GitListener implements Notifications {
 
 	private void analyzeCommits(int numberOfCommits, GitRepository repository) {
 		try {
-			List<GitCommit> history = GitHistoryUtils.history(project, repository.getRoot()).subList(0, numberOfCommits);
+			List<GitCommit> history = GitHistoryUtils.history(project, repository.getRepositoryFiles().getRootDir()).subList(0, numberOfCommits);
 			history.stream()
 					.flatMap(c -> c.getAffectedPaths().stream().filter(fp -> fp.getName().equals(LegioFileType.ARTIFACT_LEGIO)).map(FilePath::getIOFile).distinct())
 					.distinct()

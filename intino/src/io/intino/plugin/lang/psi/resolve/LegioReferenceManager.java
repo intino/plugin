@@ -2,6 +2,7 @@ package io.intino.plugin.lang.psi.resolve;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiElement;
+import io.intino.ProjectConfiguration;
 import io.intino.plugin.lang.psi.*;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.lang.psi.impl.TaraPsiUtil;
@@ -118,7 +119,9 @@ public class LegioReferenceManager {
 		if (containingFile.getVirtualFile() != null) {
 			Module moduleOfDocument = ModuleProvider.moduleOf(containingFile);
 			if (moduleOfDocument == null) return null;
-			TaraModel projectFile = ((ProjectLegioConfiguration) ConfigurationManager.projectConfigurationOf(moduleOfDocument)).legioFile();
+			ProjectConfiguration configuration = ConfigurationManager.projectConfigurationOf(moduleOfDocument);
+			if (configuration == null) return null;
+			TaraModel projectFile = ((ProjectLegioConfiguration) configuration).legioFile();
 			if (projectFile != null)
 				model = projectFile.getPresentableName().equals(identifier.getText()) ? projectFile : null;
 		}
