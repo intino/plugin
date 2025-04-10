@@ -96,7 +96,7 @@ public class RestartAction extends AnAction implements DumbAware, IntinoConsoleA
 	}
 
 	public void update() {
-		update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
+		update(new AnActionEvent(dataContext, new Presentation(), ActionPlaces.UNKNOWN, ActionUiKind.NONE, null, 0, ActionManager.getInstance()));
 	}
 
 	@Nullable

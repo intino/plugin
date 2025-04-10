@@ -100,7 +100,7 @@ public class ListenLogAction extends AnAction implements DumbAware, IntinoConsol
 	}
 
 	public void update() {
-		update(new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0));
+		update(new AnActionEvent(dataContext, new Presentation(), ActionPlaces.UNKNOWN, ActionUiKind.NONE, null, 0, ActionManager.getInstance()));
 	}
 
 	private void update(Presentation p) {

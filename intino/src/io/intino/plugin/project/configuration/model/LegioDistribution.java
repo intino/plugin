@@ -18,26 +18,36 @@ public class LegioDistribution implements Configuration.Distribution {
 	}
 
 	@Override
-	public Configuration.Repository release() {
-		Mogram artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
+	public ArtifactoryDistribution onArtifactory() {
+		Mogram artifactory = componentOfType(node, "Artifactory");
 		if (artifactory == null) return null;
-		Mogram release = TaraPsiUtil.componentOfType(artifactory, "Release");
-		if (release == null) return null;
-		return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraMogram) release);
+		return new ArtifactoryDistribution() {
+			@Override
+			public Configuration.Repository release() {
+				Mogram release = TaraPsiUtil.componentOfType(artifactory, "Release");
+				if (release == null) return null;
+				return new LegioRepository.LegioReleaseRepository(artifact.root(), (TaraMogram) release);
+			}
+
+			@Override
+			public Configuration.Repository snapshot() {
+				Mogram snapshot = TaraPsiUtil.componentOfType(artifactory, "Snapshot");
+				if (snapshot == null) return null;
+				return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraMogram) snapshot);
+			}
+		};
 	}
 
 	@Override
-	public Configuration.Repository snapshot() {
-		Mogram artifactory = TaraPsiUtil.componentOfType(node, "Artifactory");
-		if (artifactory == null) return null;
-		Mogram snapshot = TaraPsiUtil.componentOfType(artifactory, "Snapshot");
-		if (snapshot == null) return null;
-		return new LegioRepository.LegioSnapshotRepository(artifact.root(), (TaraMogram) snapshot);
+	public SonatypeDistribution onSonatype() {
+		Mogram sonatype = componentOfType(node, "Sonatype");
+		if (sonatype == null) return null;
+		return () -> parameterValue(sonatype, "identifier", 0);
 	}
 
 	@Override
 	public BitBucketDistribution onBitbucket() {
-		Mogram onBitbucket = componentOfType(node, "OnBitbucket");
+		Mogram onBitbucket = componentOfType(node, "Bitbucket");
 		if (onBitbucket == null) return null;
 		return new BitBucketDistribution() {
 

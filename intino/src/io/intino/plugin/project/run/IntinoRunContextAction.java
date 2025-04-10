@@ -47,18 +47,23 @@ public class IntinoRunContextAction extends RunContextAction {
 		this.runConfiguration = (Mogram) runConfiguration;
 	}
 
+
 	@Override
-	protected void perform(ConfigurationContext context) {
+	protected void perform(@NotNull RunnerAndConfigurationSettings configuration, @NotNull ConfigurationContext context) {
+		performAction(context);
+	}
+
+	private void performAction(@NotNull ConfigurationContext context) {
 		final RunManagerEx runManager = (RunManagerEx) context.getRunManager();
 		DataContext dataContext = context.getDefaultDataContext();
 		ReadAction.nonBlocking(() -> context.findExisting() != null ? context.findExisting() : context.getConfiguration())
-				.finishOnUiThread(ModalityState.nonModal(), existingConfiguration -> perform(runManager, existingConfiguration, dataContext))
+				.finishOnUiThread(ModalityState.nonModal(), existingConfiguration -> performAction(runManager, existingConfiguration, dataContext))
 				.submit(AppExecutorUtil.getAppExecutorService());
 	}
 
-	private void perform(RunManagerEx runManager,
-						 RunnerAndConfigurationSettings configuration,
-						 DataContext dataContext) {
+	private void performAction(RunManagerEx runManager,
+							   RunnerAndConfigurationSettings configuration,
+							   DataContext dataContext) {
 		if (runManager.findConfigurationByName(configuration.getName()) == null)
 			runManager.addConfiguration(configuration);
 		if (runManager.shouldSetRunConfigurationFromContext()) runManager.setSelectedConfiguration(configuration);
@@ -95,7 +100,7 @@ public class IntinoRunContextAction extends RunContextAction {
 
 							@Override
 							public PopupStep<?> onChosen(final ConfigurationFromContext producer, final boolean finalChoice) {
-								perform(producer);
+								performAction(producer);
 								return FINAL_CHOICE;
 							}
 						});
@@ -104,12 +109,12 @@ public class IntinoRunContextAction extends RunContextAction {
 				else if (editor != null) popup.showInBestPositionFor(editor);
 				else popup.showInBestPositionFor(dataContext);
 			} else {
-				perform(producers.get(0));
+				performAction(producers.get(0));
 			}
 			return;
 		}
 		setRunParameters(existing);
-		perform(context);
+		performAction(context);
 	}
 
 	@NotNull
@@ -119,9 +124,9 @@ public class IntinoRunContextAction extends RunContextAction {
 				: configurationType.getDisplayName();
 	}
 
-	private void perform(final ConfigurationFromContext conf) {
+	private void performAction(final ConfigurationFromContext conf) {
 		setRunParameters(conf.getConfigurationSettings());
-		conf.onFirstRun(context, () -> perform(context));
+		conf.onFirstRun(context, () -> performAction(context));
 	}
 
 	private void setRunParameters(RunnerAndConfigurationSettings configurationSettings) {

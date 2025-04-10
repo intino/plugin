@@ -215,7 +215,7 @@ public abstract class AbstractArtifactFactory {
 	protected boolean isDistributed(Artifact artifact) {
 		String identifier = artifact.groupId() + ":" + artifact.name().toLowerCase();
 		if (artifact.distribution() == null) return false;
-		List<String> versions = new ArtifactoryConnector(project, Collections.singletonList(artifact.distribution().release()))
+		List<String> versions = new ArtifactoryConnector(project, artifact.distribution().onArtifactory() != null ? Collections.singletonList(artifact.distribution().onArtifactory().release()) : List.of())
 				.versions(identifier);
 		return versions.contains(artifact.version());
 	}

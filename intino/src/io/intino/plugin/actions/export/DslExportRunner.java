@@ -128,13 +128,15 @@ public class DslExportRunner {
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
 		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + "." + dsl.builder().generationPackage() + NL);
 		writer.write(COMPILATION_MODE + NL + mode.name() + NL);
-		if (safe(() -> conf.artifact().distribution().snapshot()) != null) {
-			final Configuration.Repository snapshot = conf.artifact().distribution().snapshot();
-			writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
-		}
-		if (safe(() -> conf.artifact().distribution().release()) != null) {
-			final Configuration.Repository release = conf.artifact().distribution().release();
-			writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+		if (conf.artifact().distribution().onArtifactory() != null) {
+			if (safe(() -> conf.artifact().distribution().onArtifactory().snapshot()) != null) {
+				final Configuration.Repository snapshot = conf.artifact().distribution().onArtifactory().snapshot();
+				writer.write(SNAPSHOT_DISTRIBUTION + NL + snapshot.identifier() + "#" + snapshot.url() + NL);
+			}
+			if (safe(() -> conf.artifact().distribution().onArtifactory().release()) != null) {
+				final Configuration.Repository release = conf.artifact().distribution().onArtifactory().release();
+				writer.write(RELEASE_DISTRIBUTION + NL + release.identifier() + "#" + release.url() + NL);
+			}
 		}
 		for (Configuration.Repository repository : conf.repositories())
 			writer.write((repository instanceof Snapshot ? SNAPSHOT_IMPORT : RELEASE_IMPORT) + NL + repository.identifier() + "#" + repository.url() + NL);

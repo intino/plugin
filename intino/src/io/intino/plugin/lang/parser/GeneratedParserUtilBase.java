@@ -338,7 +338,7 @@ class GeneratedParserUtilBase {
 	}
 
 	public static boolean isWhitespaceOrComment(@NotNull PsiBuilder builder, @Nullable IElementType type) {
-		return ((PsiBuilderImpl) ((Builder) builder).getDelegate()).whitespaceOrComment(type);
+		return ((PsiBuilderImpl) ((Builder) builder).getDelegate()).isWhitespaceOrComment(type);
 	}
 
 	// here's the new section API for compact parsers & less IntelliJ platform API exposure

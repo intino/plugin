@@ -1,4 +1,4 @@
-def type(pom) and type(deployFile)
+rule type(pom) and type(deployFile)
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -14,9 +14,8 @@ def type(pom) and type(deployFile)
 			$dependency...[$NL]
 		</dependencies>~>>
 	</project>
-end
 
-def type(pom)
+rule type(pom)
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -186,21 +185,25 @@ def type(pom)
 				<<$gpgSign<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.7</version>
 					<executions>
-					  <execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-						  <goal>sign</goal>
-						</goals>
-					  </execution>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+							<configuration>
+								<keyname>$${gpg.keyname}</keyname>
+								<passphraseServerId>$${gpg.keyname}</passphraseServerId>
+							</configuration>
+						</execution>
 					</executions>
 				</plugin>~>>
 				<<$attachSources<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.3.1</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -213,7 +216,7 @@ def type(pom)
 				<<$attachJavaDoc<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.6.2</version>
+					<version>3.11.2</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -223,9 +226,19 @@ def type(pom)
 						</execution>
 					</executions>
 					</plugin>~>>
+				<<~<plugin>
+					<groupId>org.sonatype.central</groupId>
+					<artifactId>central-publishing-maven-plugin</artifactId>
+					<version>0.7.0</version>
+					<extensions>true</extensions>
+					<configuration>
+						<publishingServerId>$sonatype</publishingServerId>
+						 <autoPublish>true</autoPublish>
+					</configuration>
+				</plugin>~>>
 				<<$osx>>
 				<<$windows>>
-				<<$mavenPlugin...[$NL]>>
+				<<$mavenPlugin...[$NL]~>>
 			</plugins>
 		</build>
 
@@ -233,29 +246,28 @@ def type(pom)
 			$repository+release...[$NL]
 		</repositories>
 
-		<distributionManagement>
+		<<~<distributionManagement>
 			$repository+distribution...[$NL]
-		</distributionManagement>
+		</distributionManagement>~>>
 
 		<dependencies>
 			$dependency...[$NL]
 		</dependencies>
 	</project>
-end
 
-def trigger(sourceDirectory)
+rule trigger(sourceDirectory)
 	<source>$this</source>
-end
 
-def trigger(testModuleDependency)
+rule trigger(testModuleDependency)
 	<source>$this</source>
-end
 
-def trigger(moduleDependency)
+rule trigger(moduleDependency)
 	<source>$this</source>
-end
 
-def trigger(dependencyCheck)
+rule trigger(identifier)
+	$identifier
+
+rule trigger(dependencyCheck)
 	<plugin>
 		<groupId>org.owasp</groupId>
 		<artifactId>dependency-check-maven</artifactId>
@@ -273,52 +285,44 @@ def trigger(dependencyCheck)
 			</execution>
 		</executions>
 	</plugin>
-end
 
-def trigger(resourceDirectory)
+rule trigger(resourceDirectory)
 	<resource><directory>$this</directory></resource>
-end
 
-def trigger(resourceTestDirectory)
+rule trigger(resourceTestDirectory)
 	<testResource><directory>$this</directory></testResource>
-end
 
-def type(repository) and type(Distribution) and trigger(distribution)
+rule type(repository) and type(Distribution) and trigger(distribution)
 	<repository>
 		<id>$name</id>
 		<name>$name</name>
 		<url>$url</url>
 	</repository>
-end
 
-def trigger(developer)
+rule trigger(developer)
 	 <developer>
 		 <name>$name</name>
 		 <email>$email</email>
 		 <organization>$organization</organization>
 		 <organizationUrl>$organizationUrl</organizationUrl>
 	</developer>
-end
 
-def trigger(distribution)
-end
+rule trigger(distribution)
 
-def type(repository) and not type(Distribution) and trigger(release)
+rule type(repository) and not type(Distribution) and trigger(release)
 	<repository>
 		<id>$name$type</id>
 		<url>$url</url>
 		<<~<snapshots><enabled>$snapshot</enabled></snapshots>~>>
 	</repository>
-end
 
-def trigger(parameter)
+rule trigger(parameter)
 	<$name~_name>$name</$name~_name>
 	<$name~_description><<$description?no description>></$name~_description>
 	<$name~_required><<$required?false>></$name~_required>
 	<$name~_defaultValue><<$value>></$name~_defaultValue>
-end
 
-def type(dependency) and trigger(dependency)
+rule type(dependency) and trigger(dependency)
 	<dependency>
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
@@ -328,16 +332,14 @@ def type(dependency) and trigger(dependency)
 			$exclusion...[$NL]
 		</exclusions>~>>
 	</dependency>
-end
 
-def trigger(exclusion)
+rule trigger(exclusion)
 	<exclusion>
 		<groupId>$groupId</groupId>
 		<artifactId>$artifactId</artifactId>
 	</exclusion>
-end
 
-def trigger(scm)
+rule trigger(scm)
 	<scm>
 		<url>$url</url>
 		<connection>$connection</connection>
@@ -345,30 +347,26 @@ def trigger(scm)
 		<tag>$tag</tag>
 	</scm>
 
-end
 
-def type(GPL) and trigger(license)
+rule type(GPL) and trigger(license)
 	<license>
 		<name>The GNU General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 	</license>
-end
 
-def type(LGPL) and trigger(license)
+rule type(LGPL) and trigger(license)
 	<license>
 		<name>GNU Lesser General Public License v3.0</name>
 		<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
 	</license>
-end
 
-def type(BSD) and trigger(license)
+rule type(BSD) and trigger(license)
 	<license>
 		<name>BSD 3-Clause License</name>
 		<url>https://opensource.org/licenses/BSD-3-Clause</url>
 	</license>
-end
 
-def trigger(osx)
+rule trigger(osx)
 	<plugin>
 		<groupId>sh.tak.appbundler</groupId>
 		<artifactId>appbundle-maven-plugin</artifactId>
@@ -387,9 +385,8 @@ def trigger(osx)
 			</execution>
 		</executions>
 	</plugin>
-end
 
-def trigger(windows)
+rule trigger(windows)
 	<plugin>
 		<groupId>com.akathist.maven.plugins.launch4j</groupId>
 		<artifactId>launch4j-maven-plugin</artifactId>
@@ -430,13 +427,11 @@ def trigger(windows)
 			</execution>
 		</executions>
 	</plugin>
-end
 
-def type(copyDependencies) and trigger(classpath)
+rule type(copyDependencies) and trigger(classpath)
 	<classpathPrefix><<$classpathPrefix?dependency>>/</classpathPrefix>
-end
 
-def trigger(copyDependencies)
+rule trigger(copyDependencies)
 	<plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-dependency-plugin</artifactId>
@@ -459,4 +454,3 @@ def trigger(copyDependencies)
 			</execution>
 		</executions>
 	</plugin>
-end

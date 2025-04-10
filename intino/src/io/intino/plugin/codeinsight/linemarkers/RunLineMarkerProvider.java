@@ -98,7 +98,7 @@ public class RunLineMarkerProvider extends LineMarkerProviderDescriptor {
 	private String getText(@NotNull AnAction action, @NotNull PsiElement element) {
 		DataContext parent = getContext();
 		DataContext dataContext = SimpleDataContext.getSimpleContext(CommonDataKeys.PSI_ELEMENT, element, parent);
-		AnActionEvent event = AnActionEvent.createFromAnAction(action, null, STATUS_BAR_PLACE, dataContext);
+		AnActionEvent event = AnActionEvent.createEvent(action,dataContext, new Presentation(), STATUS_BAR_PLACE, ActionUiKind.NONE, null);
 		ApplicationManager.getApplication().invokeLater(() -> action.update(event));
 		Presentation presentation = event.getPresentation();
 		return presentation.isEnabled() && presentation.isVisible() ? presentation.getText() : null;

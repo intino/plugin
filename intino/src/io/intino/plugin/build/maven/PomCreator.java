@@ -16,7 +16,9 @@ import io.intino.Configuration;
 import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Artifact.Dependency;
 import io.intino.Configuration.Artifact.Package.Mode;
+import io.intino.Configuration.Distribution.SonatypeDistribution;
 import io.intino.Configuration.Repository;
+import io.intino.ProjectConfiguration;
 import io.intino.itrules.Engine;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
@@ -26,6 +28,7 @@ import io.intino.plugin.build.FactoryPhase;
 import io.intino.plugin.dependencyresolution.LanguageResolver;
 import io.intino.plugin.lang.psi.impl.IntinoUtil;
 import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
+import io.intino.plugin.project.configuration.ConfigurationManager;
 import io.intino.plugin.project.configuration.Version;
 import io.intino.plugin.project.configuration.model.LegioArtifact;
 import org.jetbrains.annotations.NotNull;
@@ -61,10 +64,12 @@ public class PomCreator {
 	private final Module module;
 	private final ArtifactLegioConfiguration configuration;
 	private final Mode packageType;
+	private final ProjectConfiguration projectConfiguration;
 
 	public PomCreator(Module module) {
 		this.module = module;
 		this.configuration = (ArtifactLegioConfiguration) IntinoUtil.configurationOf(module);
+		projectConfiguration = ConfigurationManager.projectConfigurationOf(module);
 		this.packageType = safe(() -> configuration.artifact().packageConfiguration()) == null ? null : configuration.artifact().packageConfiguration().mode();
 	}
 
@@ -142,6 +147,14 @@ public class PomCreator {
 		addDependencies(builder);
 		if (ApplicationManager.getApplication().isReadAccessAllowed()) addRepositories(builder);
 		else ApplicationManager.getApplication().runReadAction(() -> addRepositories(builder));
+		if (ApplicationManager.getApplication().isReadAccessAllowed()) addSonatype(builder);
+		else ApplicationManager.getApplication().runReadAction(() -> addSonatype(builder));
+	}
+
+	private void addSonatype(FrameBuilder builder) {
+		SonatypeDistribution dist = safe(() -> configuration.artifact().distribution().onSonatype());
+		if (dist == null) return;
+		builder.add("sonatype", dist.identifier());
 	}
 
 	private void addPlugins(FrameBuilder builder) {
@@ -218,16 +231,17 @@ public class PomCreator {
 
 	private void addRepositories(FrameBuilder builder) {
 		configuration.repositories().forEach(r -> builder.add("repository", createRepositoryFrame(r)));
-		Repository repository = repository();
+		Repository repository = distributionRepository();
 		if (repository != null)
 			builder.add("repository", createDistributionRepositoryFrame(repository, "release"));
 	}
 
-	private Configuration.Repository repository() {
+	private Configuration.Repository distributionRepository() {
 		try {
-			Version version = version();
-			if (version.isSnapshot()) return safe(() -> configuration.artifact().distribution().snapshot());
-			return safe(() -> configuration.artifact().distribution().release());
+			if (safe(() -> configuration.artifact().distribution().onArtifactory()) == null) return null;
+			if (version().isSnapshot())
+				return safe(() -> configuration.artifact().distribution().onArtifactory().snapshot());
+			return safe(() -> configuration.artifact().distribution().onArtifactory().release());
 		} catch (IntinoException e) {
 			LOG.error(e);
 			return null;
@@ -337,11 +351,12 @@ public class PomCreator {
 	}
 
 	private void configureBuild(FrameBuilder builder, Artifact artifact, Artifact.Package aPackage) {
+		boolean sonatypeDistribution = safe(() -> artifact.distribution().onSonatype()) != null;
 		if (artifact.url() != null) builder.add("url", artifact.url());
 		if (artifact.description() != null) builder.add("description", artifact.description());
-		if (aPackage.attachSources()) builder.add("attachSources", " ");
-		if (aPackage.signArtifactWithGpg()) builder.add("gpgSign", " ");
-		if (aPackage.attachDoc()) builder.add("attachJavaDoc", " ");
+		if (aPackage.attachSources() || sonatypeDistribution) builder.add("attachSources", " ");
+		if (aPackage.signArtifactWithGpg() || sonatypeDistribution) builder.add("gpgSign", " ");
+		if (aPackage.attachDoc() || sonatypeDistribution) builder.add("attachJavaDoc", " ");
 		if (aPackage.isRunnable()) {
 			if (aPackage.macOsConfiguration() != null) builder.add("osx", osx(aPackage));
 			if (aPackage.windowsConfiguration() != null) builder.add("windows", windows(aPackage));
@@ -360,20 +375,51 @@ public class PomCreator {
 			addMVOptions(builder, aPackage.defaultJVMOptions());
 		if (aPackage.finalName() != null && !aPackage.finalName().isEmpty())
 			builder.add("finalName", aPackage.finalName());
-		builder.add("developer", artifact.developers().stream().map(d -> new FrameBuilder("developer").
+		if (artifact.license() != null)
+			builder.add("license", new FrameBuilder("license", artifact.license().type().name()).toFrame());
+		addDevelopers(builder, artifact);
+		addScm(builder, artifact);
+	}
+
+	private void addDevelopers(FrameBuilder builder, Artifact artifact) {
+		List<Artifact.Developer> developers = artifact.developers();
+		if (!developers.isEmpty()) builder.add("developer", developers.stream().map(d -> new FrameBuilder("developer").
 				add("name", d.name()).
 				add("email", d.email()).
 				add("organization", d.organization()).
 				add("organizationUrl", d.organizationUrl()).
 				toFrame()).toArray(Frame[]::new));
-		if (artifact.license() != null)
-			builder.add("license", new FrameBuilder("license", artifact.license().type().name()).toFrame());
-		if (artifact.license() != null) {
-			Artifact.Scm scm = artifact.scm();
-			builder.add("scm", new FrameBuilder("scm").add("url", scm.url()).
+		else {
+			List<ProjectConfiguration.Project.Developer> projectDevelopers = safe(() -> projectConfiguration.project().developers());
+			if (projectDevelopers != null && !projectDevelopers.isEmpty())
+				builder.add("developer", projectDevelopers.stream().map(d -> new FrameBuilder("developer").
+						add("name", d.name()).
+						add("email", d.email()).
+						add("organization", d.organization()).
+						add("organizationUrl", d.organizationUrl()).
+						toFrame()).toArray(Frame[]::new));
+		}
+	}
+
+	private void addScm(FrameBuilder builder, Artifact artifact) {
+		Artifact.Scm scm = artifact.scm();
+		if (scm != null) {
+			if (artifact.url() == null) builder.add("url", scm.url());
+			builder.add("scm", new FrameBuilder("scm")
+					.add("url", scm.url()).
 					add("connection", scm.connection()).
 					add("developerConnection", scm.developerConnection()).
 					add("tag", scm.tag()).toFrame());
+		} else {
+			ProjectConfiguration.Project.Scm projectScm = safe(() -> projectConfiguration.project().scm());
+			if (projectScm != null) {
+				if (artifact.url() == null) builder.add("url", projectScm.url());
+				builder.add("scm", new FrameBuilder("scm")
+						.add("url", projectScm.url()).
+						add("connection", projectScm.connection()).
+						add("developerConnection", projectScm.developerConnection()).
+						add("tag", projectScm.tag()).toFrame());
+			}
 		}
 	}
 

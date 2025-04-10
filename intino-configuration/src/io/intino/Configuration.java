@@ -236,7 +236,7 @@ public interface Configuration {
 
 		interface License {
 			enum LicenseType {
-				GLP, BSD, LGPL
+				GPL, BSD, LGPL
 			}
 
 			LicenseType type();
@@ -365,13 +365,24 @@ public interface Configuration {
 	}
 
 	interface Distribution {
-		Repository release();
 
-		Repository snapshot();
+		ArtifactoryDistribution onArtifactory();
+
+		SonatypeDistribution onSonatype();
 
 		BitBucketDistribution onBitbucket();
 
 		boolean distributeLanguage();
+
+		interface ArtifactoryDistribution {
+			Repository release();
+
+			Repository snapshot();
+		}
+
+		interface SonatypeDistribution {
+			String identifier();
+		}
 
 		interface BitBucketDistribution {
 			String owner();
