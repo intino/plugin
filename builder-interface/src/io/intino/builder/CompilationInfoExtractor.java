@@ -80,6 +80,7 @@ public class CompilationInfoExtractor {
 			case CURRENT_DEPENDENCIES -> configuration.currentDependencies(Arrays.asList(reader.readLine().split(",")));
 			case SNAPSHOT_IMPORT -> configuration.addRepository(snapshotConfOf(reader.readLine().split("#")));
 			case RELEASE_IMPORT -> configuration.addRepository(releaseConfOf(reader.readLine().split("#")));
+			case REPOSITORY_PATH -> configuration.localRepository(new File(reader.readLine()));
 			case EXCLUDED_PHASES ->
 					configuration.addExcludedInternalSteps(Arrays.stream(reader.readLine().split(",")).map(Integer::parseInt).toList());
 			case SNAPSHOT_DISTRIBUTION ->
