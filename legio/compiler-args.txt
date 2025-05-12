@@ -24,7 +24,7 @@ src.path
 level
 MetaModel
 dsl
-Proteo:1.0.0
+Proteo:1.0.4
 out.dsl
 Legio
 groupId
@@ -41,7 +41,7 @@ io.intino.tara
 builder.artifactId
 builder
 builder.version
-1.2.0
+1.2.7
 generation.package
 io.intino.legio.model
 make
