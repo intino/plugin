@@ -10,7 +10,7 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.Forbidden;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.Unauthorized;
-import io.intino.cesar.box.ApiAccessor;
+import io.intino.cesar.box.CesarApiAccessor;
 import io.intino.cesar.box.schemas.ProcessDeployment;
 import io.intino.cesar.box.schemas.ProcessDeployment.Artifactory;
 import io.intino.cesar.box.schemas.ProcessDeployment.Packaging.Parameter;
@@ -72,7 +72,7 @@ public class ArtifactDeployer {
 			List<Configuration.Parameter> incorrectParameters = incorrectParameters(deployment.runConfiguration().finalArguments());
 			if (!incorrectParameters.isEmpty())
 				throw new IntinoException("Parameters missed: " + incorrectParameters.stream().map(Configuration.Parameter::name).collect(Collectors.joining("; ")));
-			new ApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployApplication(createDeployment(aPackage, deployment));
+			new CesarApiAccessor(urlOf(cesar.getKey()), cesar.getValue()).postDeployApplication(createDeployment(aPackage, deployment));
 		} catch (Forbidden | BadRequest | InternalServerError | Unauthorized e) {
 			throw new IntinoException(e.getMessage());
 		}

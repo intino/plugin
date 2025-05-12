@@ -126,7 +126,8 @@ public class DslExportRunner {
 		writer.write("language" + NL + dsl.name() + ":" + dsl.version() + NL);//FIXME retrocompatibility. Remove in following versions
 		writer.write(LEVEL + NL + dsl.level() + NL);
 		writer.write(PARAMETERS + NL + conf.artifact().parameters().stream().map(Parameter::name).collect(Collectors.joining(";")) + NL);
-		writer.write(GENERATION_PACKAGE + NL + conf.artifact().code().generationPackage() + "." + dsl.builder().generationPackage() + NL);
+
+		writer.write(GENERATION_PACKAGE + NL + generationPackage(dsl, conf) + NL);
 		writer.write(COMPILATION_MODE + NL + mode.name() + NL);
 		if (safe(() -> conf.artifact().distribution().onArtifactory()) != null) {
 			if (safe(() -> conf.artifact().distribution().onArtifactory().snapshot()) != null) {
@@ -156,6 +157,11 @@ public class DslExportRunner {
 		writer.write(MODULE_PATH + NL + paths.get(MODULE_PATH) + NL);
 		writer.write(SRC_PATH + NL + paths.get(SRC_PATH) + NL);
 		writer.write(NL);
+	}
+
+	private static String generationPackage(Configuration.Artifact.Dsl dsl, ArtifactLegioConfiguration conf) {
+		String builderGenerationPackage = dsl.builder().generationPackage();
+		return conf.artifact().code().generationPackage() + (builderGenerationPackage == null || builderGenerationPackage.isEmpty() ? "" : "." + builderGenerationPackage);
 	}
 
 	private Map<String, String> collectPaths(Module module, String outputPath) {

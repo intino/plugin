@@ -6,7 +6,7 @@ import io.intino.alexandria.exceptions.BadRequest;
 import io.intino.alexandria.exceptions.InternalServerError;
 import io.intino.alexandria.exceptions.NotFound;
 import io.intino.alexandria.exceptions.Unauthorized;
-import io.intino.cesar.box.ApiAccessor;
+import io.intino.cesar.box.CesarApiAccessor;
 import io.intino.cesar.box.schemas.Application;
 import io.intino.cesar.box.schemas.Server;
 import io.intino.plugin.IntinoException;
@@ -23,7 +23,7 @@ import static io.intino.plugin.settings.IntinoSettings.getInstance;
 public class CesarAccessor {
 	private static final Logger LOG = Logger.getInstance(CesarAccessor.class.getName());
 	private final Project project;
-	private ApiAccessor accessor;
+	private CesarApiAccessor accessor;
 	private Map.Entry<String, String> credentials;
 
 	public CesarAccessor(Project project) {
@@ -38,7 +38,7 @@ public class CesarAccessor {
 		this.accessor = createAccessor(timeoutMillis);
 	}
 
-	public ApiAccessor accessor() {
+	public CesarApiAccessor accessor() {
 		return accessor;
 	}
 
@@ -116,9 +116,9 @@ public class CesarAccessor {
 		}
 	}
 
-	private ApiAccessor createAccessor(int timeoutMillis) {
+	private CesarApiAccessor createAccessor(int timeoutMillis) {
 		if (credentials == null) return null;
-		return new ApiAccessor(urlOf(credentials.getKey().trim()), timeoutMillis, credentials.getValue());
+		return new CesarApiAccessor(urlOf(credentials.getKey().trim()), timeoutMillis, credentials.getValue());
 	}
 
 	private Map.Entry<String, String> credentials() {
