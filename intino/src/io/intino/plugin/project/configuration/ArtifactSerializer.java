@@ -106,7 +106,7 @@ public class ArtifactSerializer {
 
 	private static JsonObject objectOf(Configuration.Artifact.Dsl.OutputDsl outputDsl) {
 		JsonObject object = new JsonObject();
-		object.add(OUT_DSL, new JsonPrimitive(outputDsl.name()));
+		object.add(OUT_DSL, new JsonPrimitive(outputDsl.artifactId()));
 		object.add(OUT_DSL_VERSION, new JsonPrimitive(outputDsl.version()));
 		Configuration.Artifact.Dsl.OutputBuilder builder = outputDsl.builder();
 		if (builder != null) {

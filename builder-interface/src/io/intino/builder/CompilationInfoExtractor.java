@@ -64,8 +64,9 @@ public class CompilationInfoExtractor {
 			case DSL -> {
 				String dsl = reader.readLine();
 				String[] split = dsl.split(":");
-				configuration.dsl().name(split[0]);
-				configuration.dsl().version(split[1]);
+				configuration.dsl().groupId(split[0]);
+				configuration.dsl().artifactId(split[1]);
+				configuration.dsl().version(split[2]);
 			}
 			case OUT_DSL -> configuration.dsl().outDsl(reader.readLine());
 			case OUT_DSL + "." + BUILDER_GROUP_ID -> configuration.dsl().builder().groupId(reader.readLine());
@@ -186,7 +187,7 @@ public class CompilationInfoExtractor {
 	private static File findLibraryInRepository(String library) {
 		String[] split = library.split(":");
 		File directory = new File(System.getProperty("user.home") + separator + ".m2" + separator + "repository" +
-								  separator + split[0].replace(".", separator) + separator + split[1] + separator + split[2]);
+				separator + split[0].replace(".", separator) + separator + split[1] + separator + split[2]);
 		return new File(directory, split[1] + "-" + split[2] + ".jar");
 	}
 

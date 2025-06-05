@@ -51,7 +51,7 @@ public class LanguageResolver {
 		final List<Module> modules = Arrays.stream(ModuleManager.getInstance(languageModule.getProject()).getModules()).filter(m -> !m.equals(languageModule)).toList();
 		for (Module m : modules) {
 			final Configuration configuration = IntinoUtil.configurationOf(m);
-			if (configuration != null || safe(() -> configuration.artifact().dsls().stream().anyMatch(d -> language.equalsIgnoreCase(d.outputDsl().name())), false))
+			if (configuration != null || safe(() -> configuration.artifact().dsls().stream().anyMatch(d -> language.equalsIgnoreCase(d.outputDsl().artifactId())), false))
 				return m;
 		}
 		return null;

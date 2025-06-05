@@ -90,6 +90,7 @@ Concept:{1..1}:Named Artifact
         	var string resourceDirectory = empty
         Facet WindowsApp with Runnable
         	var string windowsIcon
+        Facet Container with Runnable
 		Facet LinuxService with Runnable
 			var string user
 			var RunConfiguration runConfiguration

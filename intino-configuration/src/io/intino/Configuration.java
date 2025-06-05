@@ -144,7 +144,9 @@ public interface Configuration {
 
 			interface OutputDsl extends ConfigurationNode {
 
-				String name();
+				String groupId();
+
+				String artifactId();
 
 				String version();
 
@@ -327,6 +329,8 @@ public interface Configuration {
 			String defaultJVMOptions();
 
 			String mainClass();
+
+			boolean isContainer();
 
 			MacOs macOsConfiguration();
 

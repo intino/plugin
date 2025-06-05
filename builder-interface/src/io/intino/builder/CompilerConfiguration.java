@@ -35,7 +35,6 @@ public class CompilerConfiguration {
 
 	}
 
-	public static final String LANGUAGE_PACKAGE = "tara.dsl";
 	private int warningLevel;
 	private String sourceEncoding;
 	private String project;
@@ -398,16 +397,17 @@ public class CompilerConfiguration {
 	}
 
 	public static class DslConfiguration {
-		private String name;
+		private String groupId = "tara.dsl";
+		private String artifactId;
+		private String version;
 		private Level level;
 		private String outDsl;
 		private final Library runtime = new Library();
 		private final Library builder = new Library();
 		private String generationPackage;
-		private String version;
 
-		public String name() {
-			return name;
+		public String artifactId() {
+			return artifactId;
 		}
 
 		public void outDsl(String outDsl) {
@@ -418,8 +418,8 @@ public class CompilerConfiguration {
 			return outDsl;
 		}
 
-		public DslConfiguration name(String dsl) {
-			this.name = dsl;
+		public DslConfiguration artifactId(String artifactId) {
+			this.artifactId = artifactId;
 			return this;
 		}
 
@@ -456,6 +456,15 @@ public class CompilerConfiguration {
 
 		public void generationPackage(String generationPackage) {
 			this.generationPackage = generationPackage;
+		}
+
+		public String groupId() {
+			return groupId;
+		}
+
+		public DslConfiguration groupId(String groupId) {
+			this.groupId = groupId;
+			return this;
 		}
 	}
 

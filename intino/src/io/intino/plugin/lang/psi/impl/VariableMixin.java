@@ -59,7 +59,7 @@ public class VariableMixin extends ASTWrapperPsiElement {
 
 	public String scope() {
 		Configuration.Artifact.Dsl dsl = IntinoUtil.dsl(this);
-		return dsl != null ? safe(() -> dsl.outputDsl().name()) : "";
+		return dsl != null ? safe(() -> dsl.outputDsl().artifactId()) : "";
 	}
 
 	@Nullable

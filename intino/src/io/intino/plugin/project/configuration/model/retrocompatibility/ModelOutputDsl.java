@@ -19,7 +19,12 @@ public class ModelOutputDsl implements Configuration.Artifact.Dsl.OutputDsl {
 	}
 
 	@Override
-	public String name() {
+	public String groupId() {
+		return "tara.dsl";
+	}
+
+	@Override
+	public String artifactId() {
 		String outLanguage = TaraPsiUtil.parameterValue(mogram, "outLanguage");
 		return outLanguage == null ? artifact.name() : outLanguage;
 	}

@@ -258,7 +258,14 @@ public class MavenConfiguration implements Configuration {
 							}
 
 							@Override
-							public String name() {
+							public String groupId() {
+								if (maven == null) return null;
+								final String groupId = maven.getProperties().getProperty(MavenTags.GROUP_ID);
+								return groupId != null ? groupId : "";
+							}
+
+							@Override
+							public String artifactId() {
 								if (maven == null) return null;
 								final String outDSL = maven.getProperties().getProperty(MavenTags.OUT_DSL);
 								return outDSL != null ? outDSL : "";

@@ -349,7 +349,7 @@ public abstract class AbstractArtifactFactory {
 
 
 	private File dslFilePath(OutputDsl outDsl) {
-		String name = outDsl.name();
+		String name = outDsl.artifactId();
 		if (name == null) return null;
 		return new File(LanguageManager.getLanguageDirectory(name) + File.separator + outDsl.version() + File.separator + name + "-" + outDsl.version() + JAR_EXTENSION);
 	}

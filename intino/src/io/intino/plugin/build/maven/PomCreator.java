@@ -211,7 +211,7 @@ public class PomCreator {
 		return dependantModules.stream().anyMatch(dm -> {
 			Artifact artifact = IntinoUtil.configurationOf(dm).artifact();
 			return artifact.name().equals(dependency.artifactId()) && artifact.groupId().equals(dependency.groupId()) &&
-				   artifact.version().equals(dependency.version());
+					artifact.version().equals(dependency.version());
 		});
 	}
 
@@ -285,8 +285,8 @@ public class PomCreator {
 			Configuration configuration = IntinoUtil.configurationOf(m);
 			Artifact artifact = configuration.artifact();
 			return artifact.groupId().equalsIgnoreCase(dependency.groupId()) &&
-				   artifact.name().equalsIgnoreCase(dependency.artifactId()) &&
-				   artifact.version().equalsIgnoreCase(dependency.version());
+					artifact.name().equalsIgnoreCase(dependency.artifactId()) &&
+					artifact.version().equalsIgnoreCase(dependency.version());
 		}).findFirst().orElse(null);
 	}
 
@@ -360,6 +360,8 @@ public class PomCreator {
 		if (aPackage.isRunnable()) {
 			if (aPackage.macOsConfiguration() != null) builder.add("osx", osx(aPackage));
 			if (aPackage.windowsConfiguration() != null) builder.add("windows", windows(aPackage));
+			if (aPackage.isContainer())
+				builder.add("docker", new FrameBuilder().add("mainClass", aPackage.mainClass()));
 		}
 		final Artifact.Package.Mode type = aPackage.mode();
 		if (type.equals(LibrariesLinkedByManifest) || type.equals(ModulesAndLibrariesLinkedByManifest)) {

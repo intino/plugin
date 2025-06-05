@@ -46,7 +46,7 @@ public class CreateDslFileAction extends JavaCreateTemplateInPackageAction<TaraM
 		final Configuration conf = IntinoUtil.configurationOf(module);
 		for (Dsl dsl : conf.artifact().dsls())
 			if (isTest(directory, module))
-				builder.addKind(dsl.outputDsl().name(), IntinoIcons.fileIcon(dsl.name()), dsl.outputDsl().name());
+				builder.addKind(dsl.outputDsl().artifactId(), IntinoIcons.fileIcon(dsl.name()), dsl.outputDsl().artifactId());
 			else builder.addKind(dsl.name(), IntinoIcons.fileIcon(dsl.name()), dsl.name());
 	}
 

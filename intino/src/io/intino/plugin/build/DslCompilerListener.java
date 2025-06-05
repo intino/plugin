@@ -65,7 +65,7 @@ public class DslCompilerListener implements com.intellij.compiler.server.CustomB
 
 	@Override
 	public void messageReceived(String builderId, String messageType, String messageText) {
-		if(!TARAC.equalsIgnoreCase(builderId)) return;
+		if (!TARAC.equalsIgnoreCase(builderId)) return;
 		if (BuildConstants.ACTION_MESSAGE.equals(messageType)) {
 			final List<String> messages = Arrays.asList(messageText.split(BuildConstants.MESSAGE_ACTION_START));
 			final Module[] module = {null};
@@ -105,7 +105,7 @@ public class DslCompilerListener implements com.intellij.compiler.server.CustomB
 		final Configuration configuration = IntinoUtil.configurationOf(module);
 		Configuration.Artifact.Dsl dsl = safe(() -> configuration.artifact().dsl(dslName));
 		if (configuration != null && dsl != null) {
-			LanguageManager.reloadLanguage(project, dsl.outputDsl().name(), dsl.outputDsl().version());
+			LanguageManager.reloadLanguage(project, dsl.outputDsl().artifactId(), dsl.outputDsl().version());
 		}
 	}
 

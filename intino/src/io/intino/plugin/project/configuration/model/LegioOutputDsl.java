@@ -19,10 +19,15 @@ public class LegioOutputDsl implements Configuration.Artifact.Dsl.OutputDsl {
 	}
 
 	@Override
-	public String name() {
+	public String artifactId() {
 		if (name == null)
 			name = getOrDefault(TaraPsiUtil.parameterValue(mogram, "name", 0), ((Configuration.Artifact) dsl.owner()).name());
 		return name;
+	}
+
+	@Override
+	public String groupId() {
+		return "tara.dsl";
 	}
 
 	@Override

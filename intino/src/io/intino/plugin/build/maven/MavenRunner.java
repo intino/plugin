@@ -89,8 +89,8 @@ public class MavenRunner {
 
 	private String dslPom(Configuration.Repository repository, Configuration.Artifact artifact, OutputDsl outputDsl) {
 		return new PomTemplate().render(new FrameBuilder("pom", "deployFile")
-				.add("groupId", "tara.dsl")
-				.add("artifactId", outputDsl.name().toLowerCase())
+				.add("groupId", outputDsl.artifactId())
+				.add("artifactId", outputDsl.artifactId().toLowerCase())
 				.add("version", artifact.version())
 				.add("dependency", languageDependency(outputDsl, artifact))
 				.add("repository", new FrameBuilder("repository", "release").add("name", repository.identifier()).add("url", repository.url())));
@@ -117,7 +117,7 @@ public class MavenRunner {
 		return "-Durl=" + repository.url() + " " +
 			   "-DrepositoryId=" + repository.identifier() + " " +
 			   "-DgroupId=tara.dsl " +
-			   "-DartifactId=" + outputDsl.name().toLowerCase() + " " +
+			   "-DartifactId=" + outputDsl.artifactId().toLowerCase() + " " +
 			   "-Dversion=" + artifact.version() + " " +
 			   "-Dfile=" + jar.getAbsolutePath() + " " +
 			   "-DpomFile=" + pomFile.getAbsolutePath();
@@ -231,7 +231,7 @@ public class MavenRunner {
 	@NotNull
 	private String dslFile(OutputDsl output) {
 		try {
-			String name = output.name();
+			String name = output.artifactId();
 			if (name == null) return "";
 			final String originalFile = LanguageManager.getLanguageDirectory(name) + "/" + output.version() + "/" + name + "-" + output.version() + ".jar";
 			final Path deployLanguage = Files.createTempDirectory("deployLanguage");

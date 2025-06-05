@@ -64,6 +64,15 @@ public class LegioPackage implements Configuration.Artifact.Package {
 	}
 
 	@Override
+	public boolean isContainer() {
+		if (mogram == null) return false;
+		List<Facet> facets = mogram.appliedFacets();
+		if (facets == null || facets.isEmpty()) return false;
+		Facet facet = facets.stream().filter(a -> a.type().contains("Container")).findFirst().orElse(null);
+		return facet != null;
+	}
+
+	@Override
 	public boolean signArtifactWithGpg() {
 		return Boolean.parseBoolean(read(() -> parameterValue(mogram, "signArtifactWithGpg", 6)));
 	}
