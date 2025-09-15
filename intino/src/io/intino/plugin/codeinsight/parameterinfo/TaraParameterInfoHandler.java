@@ -95,9 +95,9 @@ public class TaraParameterInfoHandler implements ParameterInfoHandlerWithTabActi
 	}
 
 	private List<Constraint.Parameter> collectParameterConstraints(List<Constraint> nodeConstraints, TaraFacetApply inFacet) {
-		List<Constraint> scopeAllows = nodeConstraints;
-		if (inFacet != null) scopeAllows = collectFacetParameterConstraints(nodeConstraints, inFacet.fullType());
-		return scopeAllows.stream().
+		List<Constraint> scopeConstraints = nodeConstraints;
+		if (inFacet != null) scopeConstraints = collectFacetParameterConstraints(nodeConstraints, inFacet.fullType());
+		return scopeConstraints.stream().
 				filter(constraint -> constraint instanceof Constraint.Parameter).
 				map(constraint -> (Constraint.Parameter) constraint).toList();
 	}

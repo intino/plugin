@@ -41,11 +41,22 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 	}
 
 	private List<String> notFoundArguments(List<String> parameters) {
-		return parameters.stream().filter(parameter -> !isDeclared(parameter)).toList();
+		List<String> arguments = runConfigurationNode.components().stream()
+				.filter(p -> p.type().endsWith("Argument"))
+				.map(this::nameParameterNode)
+				.filter(Objects::nonNull)
+				.filter(a -> !a.values().isEmpty())
+				.map(a -> a.values().get(0).toString())
+				.toList();
+		return parameters.stream().filter(arguments::contains).toList();
 	}
 
 	private List<String> collectRequiredParameters() {
-		return configuration.artifact().parameters().stream().filter(p -> p.value() == null).map(Configuration.Parameter::name).filter(Objects::nonNull).toList();
+		return configuration.artifact().parameters().stream()
+				.filter(p -> p.value() == null)
+				.map(Configuration.Parameter::name)
+				.filter(Objects::nonNull)
+				.toList();
 	}
 
 	@NotNull
@@ -53,15 +64,6 @@ public class RunConfigurationAnalyzer extends TaraAnalyzer {
 		return configuration.artifact().deployments().stream().
 				anyMatch(destination -> destination != null && destination.runConfiguration() != null && runConfigurationNode.name().equals(destination.runConfiguration().name())) ?
 				Level.ERROR : Level.WARNING;
-	}
-
-	private boolean isDeclared(String parameter) {
-		for (Mogram component : runConfigurationNode.components()) {
-			final Parameter nameParameterNode = nameParameterNode(component);
-			if (component.type().endsWith("Argument") && nameParameterNode != null && !nameParameterNode.values().isEmpty() && parameter.equals(nameParameterNode.values().get(0).toString()))
-				return true;
-		}
-		return false;
 	}
 
 	private Parameter nameParameterNode(Mogram node) {

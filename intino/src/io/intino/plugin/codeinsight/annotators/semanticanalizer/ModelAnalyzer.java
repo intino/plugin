@@ -1,7 +1,7 @@
 package io.intino.plugin.codeinsight.annotators.semanticanalizer;
 
 import com.intellij.psi.PsiElement;
-import io.intino.plugin.codeinsight.annotators.TaraAnnotator;
+import io.intino.plugin.codeinsight.annotators.TaraAnnotator.AnnotateAndFix;
 import io.intino.plugin.codeinsight.annotators.fix.FixFactory;
 import io.intino.plugin.errorreporting.TaraRuntimeException;
 import io.intino.plugin.lang.psi.TaraModel;
@@ -52,7 +52,7 @@ public class ModelAnalyzer extends TaraAnalyzer {
 		return list;
 	}
 
-	private TaraAnnotator.AnnotateAndFix annotateAndFix(SemanticException e, PsiElement destiny) {
-		return new TaraAnnotator.AnnotateAndFix(ERROR, e.getMessage(), FixFactory.get(e.key(), destiny));
+	private AnnotateAndFix annotateAndFix(SemanticException e, PsiElement destination) {
+		return new AnnotateAndFix(ERROR, e.getMessage(), FixFactory.get(e.key(), destination));
 	}
 }

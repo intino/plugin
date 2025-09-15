@@ -2,8 +2,10 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.net.ProxyConfiguration;
+import com.intellij.util.net.ProxyConfiguration.StaticProxyConfiguration;
+import com.intellij.util.net.ProxyCredentialStore;
+import com.intellij.util.net.ProxySettings;
 import io.intino.Configuration;
 import io.intino.Configuration.Repository;
 import io.intino.alexandria.logger.Logger;
@@ -15,7 +17,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -96,15 +97,25 @@ public class Repositories {
 	}
 
 	private static void addProxies(RemoteRepository.Builder builder, String url) {
-		final HttpConfigurable proxyConf = HttpConfigurable.getInstance();
-		if (proxyConf.isHttpProxyEnabledForUrl(url))
-			builder.setProxy(new Proxy("http", proxyConf.PROXY_HOST, proxyConf.PROXY_PORT, auth(proxyConf)));
+		ProxyConfiguration proxyConfig = ProxySettings.getInstance().getProxyConfiguration();
+		if (proxyConfig instanceof StaticProxyConfiguration staticConfig) {
+			String host = staticConfig.getHost();
+			int port = staticConfig.getPort();
+			if (!host.isEmpty()) {
+				Authentication auth = getAuthentication(host, port);
+				builder.setProxy(new Proxy("http", host, port, auth));
+			}
+		}
 	}
 
-
-	@Nullable
-	private static Authentication auth(HttpConfigurable proxyConf) {
-		return proxyConf.getProxyLogin() != null && !proxyConf.getProxyLogin().isEmpty() ?
-				new AuthenticationBuilder().addUsername(proxyConf.getProxyLogin()).addPassword(proxyConf.getPlainProxyPassword()).build() : null;
+	private static Authentication getAuthentication(String host, int port) {
+		Authentication auth = null;
+		var creds = ProxyCredentialStore.getInstance().getCredentials(host, port);
+		if (creds != null) auth = new AuthenticationBuilder()
+				.addUsername(creds.getUserName())
+				.addPassword(creds.getPasswordAsString())
+				.build();
+		return auth;
 	}
+
 }
