@@ -64,6 +64,7 @@ public class CompilationInfoExtractor {
 			case DSL -> {
 				String dsl = reader.readLine();
 				String[] split = dsl.split(":");
+				if (split.length != 3) throw new IllegalArgumentException("Invalid DSL syntax: " + dsl);
 				configuration.dsl().groupId(split[0]);
 				configuration.dsl().artifactId(split[1]);
 				configuration.dsl().version(split[2]);

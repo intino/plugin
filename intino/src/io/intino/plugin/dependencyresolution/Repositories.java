@@ -2,6 +2,7 @@ package io.intino.plugin.dependencyresolution;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.util.net.ProxyConfiguration;
 import com.intellij.util.net.ProxyConfiguration.StaticProxyConfiguration;
 import com.intellij.util.net.ProxyCredentialStore;
