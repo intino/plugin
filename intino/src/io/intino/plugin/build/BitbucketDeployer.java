@@ -22,6 +22,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -92,8 +93,9 @@ public class BitbucketDeployer {
 
 	private URL url() {
 		try {
-			return new URL("https://api.bitbucket.org/2.0/repositories/" + bitbucket.owner() + "/" + bitbucket.slugName() + "/downloads");
-		} catch (MalformedURLException e) {
+			String path = "https://api.bitbucket.org/2.0/repositories/" + bitbucket.owner() + "/" + bitbucket.slugName() + "/downloads";
+			return URI.create(path).toURL();
+		} catch (IllegalArgumentException | MalformedURLException e) {
 			logger.error(e.getMessage(), e);
 			return null;
 		}

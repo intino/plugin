@@ -11,7 +11,6 @@ import io.intino.Configuration.Artifact.WebArtifact;
 import io.intino.Configuration.Repository;
 import io.intino.plugin.dependencyresolution.MavenDependencyResolver;
 import io.intino.plugin.dependencyresolution.Repositories;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -27,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 public class WebArtifactResolver {
 	private static final Logger logger = Logger.getInstance(PackageJsonCreator.class.getName());
@@ -129,9 +129,9 @@ public class WebArtifactResolver {
 	private List<RemoteRepository> repos() {
 		Repositories repositoryManager = new Repositories(module);
 		List<RemoteRepository> repos = repositoryManager.map(repositories);
-		repos.add(repositoryManager.maven(ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY));
+		repos.add(repositoryManager.maven(UPDATE_POLICY_DAILY));
 		if (repos.stream().noneMatch(r -> r.getUrl().equals(INTINO_RELEASES)))
-			repos.add(repositoryManager.intino(ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY));
+			repos.add(repositoryManager.intino(UPDATE_POLICY_DAILY));
 		return repos;
 	}
 

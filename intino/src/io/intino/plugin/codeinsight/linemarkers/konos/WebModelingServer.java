@@ -17,7 +17,7 @@ import org.jetbrains.io.Responses;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class WebModelingServer extends RestService {
 
 	static void open(String processId, Module module, File file) {
 		try {
-			BrowserUtil.browse(new URL("http://localhost:" + BuiltInServerOptions.getInstance().getEffectiveBuiltInServerPort() + "/process?process=" + processId + "&file=" + file.getAbsolutePath()));
+			BrowserUtil.browse(URI.create("http://localhost:" + BuiltInServerOptions.getInstance().getEffectiveBuiltInServerPort() + "/process?process=" + processId + "&file=" + file.getAbsolutePath()).toURL());
 		} catch (MalformedURLException e) {
 			logger.error(e);
 		}

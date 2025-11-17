@@ -11,7 +11,7 @@ import io.intino.plugin.project.configuration.ArtifactLegioConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -72,8 +72,8 @@ public class BuildFixer {
 
 	private String pathOf(String path) {
 		try {
-			return new URL(path).getFile();
-		} catch (MalformedURLException e) {
+			return URI.create(path).toURL().getFile();
+		} catch (IllegalArgumentException | MalformedURLException e) {
 			return path;
 		}
 	}

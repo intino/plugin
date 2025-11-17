@@ -26,7 +26,6 @@ import java.util.List;
 
 import static io.intino.Configuration.Repository.Snapshot;
 import static io.intino.plugin.dependencyresolution.ArtifactoryConnector.MAVEN_URL;
-import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
 import static org.eclipse.aether.repository.RepositoryPolicy.CHECKSUM_POLICY_WARN;
 
 public class Repositories {
@@ -39,6 +38,7 @@ public class Repositories {
 	}
 
 	public static List<RemoteRepository> of(Module module) {
+
 		Configuration configuration = IntinoUtil.configurationOf(module);
 		return new Repositories(module).read(configuration.repositories());
 	}
@@ -82,7 +82,7 @@ public class Repositories {
 	public RemoteRepository local() {
 		try {
 			return new RemoteRepository.Builder("local", "default", LOCAL.toURI().toURL().toString())
-					.setPolicy(new RepositoryPolicy(true, UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN))
+					.setPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_DAILY, CHECKSUM_POLICY_WARN))
 					.build();
 		} catch (MalformedURLException e) {
 			Logger.error(e);

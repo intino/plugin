@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -102,8 +102,8 @@ public class LinuxServiceGenerator {
 	private String pathOf(String path) {
 		if (path.startsWith("file://")) return path.substring("file://".length());
 		try {
-			return new URL(path).getFile();
-		} catch (MalformedURLException e) {
+			return URI.create(path).toURL().getFile();
+		} catch (IllegalArgumentException | MalformedURLException e) {
 			return path;
 		}
 	}

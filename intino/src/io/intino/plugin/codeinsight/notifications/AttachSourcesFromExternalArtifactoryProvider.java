@@ -29,7 +29,8 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.util.*;
 
-import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
+
 
 public class AttachSourcesFromExternalArtifactoryProvider implements AttachSourcesProvider {
 

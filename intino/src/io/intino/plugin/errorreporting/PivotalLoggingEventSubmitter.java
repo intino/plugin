@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,7 +107,7 @@ public class PivotalLoggingEventSubmitter {
 	}
 
 	private HttpURLConnection createConnection(String method, String url) throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) (new URL(url).openConnection());
+		HttpURLConnection connection = (HttpURLConnection) (URI.create(url).toURL().openConnection());
 		connection.setDoOutput(true);
 		connection.setRequestProperty("Content-Type", "application/json");
 		connection.setRequestProperty("X-TrackerToken", token);

@@ -281,7 +281,7 @@ public class GeneratedParserUtilBase {
 			for (int i = -1; ; i--) {
 				IElementType type = builder_.rawLookup(i);
 				int tokenStart = builder_.rawTokenTypeStart(i);
-				if (((PsiBuilderImpl) ((Builder) builder_).getDelegate()).whitespaceOrComment(type)) {
+				if (((Builder) builder_).getDelegate().isWhitespaceOrComment(type)) {
 					diff = completionState.offset - tokenStart;
 				} else if (type != null && tokenStart < completionState.offset) {
 					CharSequence fragment = builder_.getOriginalText().subSequence(tokenStart, completionState.offset);
@@ -766,7 +766,7 @@ public class GeneratedParserUtilBase {
 			for (Variant variant : list) {
 				if (position == variant.position) {
 					String text = variant.object.toString();
-					long hash = StringHash.calc(text);
+					long hash = StringHash.buz(text);
 					for (int i = 0; i < count; i++) {
 						if (hashes[i] == hash) continue loop;
 					}
@@ -778,7 +778,7 @@ public class GeneratedParserUtilBase {
 			Arrays.sort(strings);
 			count = 0;
 			for (String s : strings) {
-				if (s.length() == 0) continue;
+				if (s.isEmpty()) continue;
 				if (count++ > 0) {
 					if (count > MAX_VARIANTS_TO_DISPLAY) {
 						sb.append(" and ...");
@@ -880,13 +880,9 @@ public class GeneratedParserUtilBase {
 		public boolean equals(Object o) {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
-
 			Variant variant = (Variant) o;
-
 			if (position != variant.position) return false;
-			if (!this.object.equals(variant.object)) return false;
-
-			return true;
+			return this.object.equals(variant.object);
 		}
 
 		@Override

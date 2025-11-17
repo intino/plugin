@@ -37,6 +37,7 @@ import io.intino.plugin.project.configuration.model.LegioServer;
 import io.intino.tara.Resolver;
 import io.intino.tara.language.model.Mogram;
 import io.intino.tara.language.model.MogramContainer;
+import org.eclipse.aether.repository.RepositoryPolicy;
 import org.jetbrains.annotations.NotNull;
 import tara.dsl.Legio;
 
@@ -52,8 +53,7 @@ import static io.intino.plugin.lang.psi.impl.TaraPsiUtil.componentsOfType;
 import static io.intino.plugin.project.Safe.safe;
 import static io.intino.plugin.project.Safe.safeList;
 import static java.util.Collections.singleton;
-import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
-import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_ALWAYS;
 
 
 public class ArtifactLegioConfiguration implements Configuration {
@@ -77,7 +77,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 					vFile = new LegioFileCreator(module, new String[0]).getArtifact();
 					TaraModel legioFile = legioFile();
 					ApplicationManager.getApplication().runReadAction(() -> legioFile.components().forEach(resolver::resolve));
-					final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
+					final ConfigurationReloader reloader = reloader(indicator, RepositoryPolicy.UPDATE_POLICY_DAILY);
 					indicator.setText("Resolving dsls...");
 					reloader.reloadDsls();
 					reloader.reloadArtifactoriesMetaData();
@@ -136,7 +136,7 @@ public class ArtifactLegioConfiguration implements Configuration {
 							 public void run(@NotNull ProgressIndicator indicator) {
 								 try {
 									 reloading.set(true);
-									 final ConfigurationReloader reloader = reloader(indicator, UPDATE_POLICY_DAILY);
+									 final ConfigurationReloader reloader = reloader(indicator, RepositoryPolicy.UPDATE_POLICY_DAILY);
 									 indicator.setText("Resolving dsls...");
 									 reloader.reloadDsls();
 									 indicator.setText("Resolving imports...");

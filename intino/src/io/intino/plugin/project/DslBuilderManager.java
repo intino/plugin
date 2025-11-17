@@ -27,7 +27,7 @@ import java.util.*;
 
 import static io.intino.plugin.dependencyresolution.MavenDependencyResolver.dependenciesFrom;
 import static io.intino.plugin.dependencyresolution.Repositories.INTINO_RELEASES;
-import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_DAILY;
+import static org.eclipse.aether.repository.RepositoryPolicy.UPDATE_POLICY_DAILY;
 
 
 public class DslBuilderManager {

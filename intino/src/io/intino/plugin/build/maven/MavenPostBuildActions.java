@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
 import static io.intino.Configuration.Artifact.Package.Mode;
 import static io.intino.plugin.project.Safe.safe;
@@ -58,8 +58,8 @@ public class MavenPostBuildActions {
 
 	private String pathOf(String path) {
 		try {
-			return new URL(path).getFile();
-		} catch (MalformedURLException e) {
+			return URI.create(path).toURL().getFile();
+		} catch (IllegalArgumentException | MalformedURLException e) {
 			return path;
 		}
 	}

@@ -37,7 +37,8 @@ import org.jetbrains.jps.model.java.JpsJavaSdkType;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -471,8 +472,8 @@ public class PomCreator {
 	private String pathOf(String path) {
 		if (path.startsWith("file://")) return path.substring("file://".length());
 		try {
-			return new URL(path).getFile();
-		} catch (MalformedURLException e) {
+			return new URI(path).toURL().getFile();
+		} catch (MalformedURLException | URISyntaxException e) {
 			return path;
 		}
 	}

@@ -25,6 +25,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,8 +134,8 @@ public class ArtifactManager {
 
 	public static URL urlOf(String cesar) {
 		try {
-			return new URL(cesar.startsWith("http") ? cesar : "https://" + cesar);
-		} catch (MalformedURLException e) {
+			return URI.create(cesar.startsWith("http") ? cesar : "https://" + cesar).toURL();
+		} catch (MalformedURLException | IllegalArgumentException e) {
 			LOG.error(e.getMessage());
 			return null;
 		}

@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,7 @@ public class ArtifactoryConnector {
 	public ArtifactoryConnector(Configuration.Repository repository) {
 		this(List.of(repository));
 	}
+
 	public ArtifactoryConnector(List<Configuration.Repository> repositories) {
 		this.repositories = new ArrayList<>(repositories);
 		this.repositories.add(mavenRepository());
@@ -42,7 +44,7 @@ public class ArtifactoryConnector {
 
 	@NotNull
 	private Configuration.Repository.Release mavenRepository() {
-		return repository("maven2","https://repo.maven.apache.org/maven2/");
+		return repository("maven2", "https://repo.maven.apache.org/maven2/");
 	}
 
 	@NotNull
@@ -103,7 +105,8 @@ public class ArtifactoryConnector {
 	public List<String> dslVersions(String dsl) {
 		try {
 			for (Configuration.Repository repo : repositories) {
-				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml");
+				String path = repo.url() + "/" + "tara/dsl" + "/" + dsl + "/maven-metadata.xml";
+				URL url = URI.create(path).toURL();
 				final String mavenMetadata = read(connect(url));
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
@@ -117,7 +120,7 @@ public class ArtifactoryConnector {
 		try {
 			for (Configuration.Repository repo : repositories) {
 				String spec = repo.url() + (repo.url().endsWith("/") ? "" : "/") + artifact.replace(":", "/").replace(".", "/") + "/maven-metadata.xml";
-				URL url = new URL(spec);
+				URL url = URI.create(spec).toURL();
 				final String mavenMetadata = read(connect(repo.identifier(), url));
 				if (!mavenMetadata.isEmpty()) return extractVersions(mavenMetadata);
 			}
