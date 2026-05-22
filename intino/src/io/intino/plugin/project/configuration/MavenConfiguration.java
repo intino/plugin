@@ -352,6 +352,11 @@ public class MavenConfiguration implements Configuration {
 			}
 
 			@Override
+			public List<PackDependency> packDependencies() {
+				return null;
+			}
+
+			@Override
 			public List<WebResolution> webResolutions() {
 				return null;
 			}

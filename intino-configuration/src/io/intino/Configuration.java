@@ -65,6 +65,8 @@ public interface Configuration {
 
 		List<Artifact.WebComponent> webComponents();
 
+		List<Artifact.PackDependency> packDependencies();
+
 		List<Artifact.WebResolution> webResolutions();
 
 		List<Artifact.WebArtifact> webArtifacts();
@@ -255,6 +257,12 @@ public interface Configuration {
 		}
 
 		interface WebComponent {
+			String name();
+
+			String version();
+		}
+
+		interface PackDependency {
 			String name();
 
 			String version();

@@ -2,6 +2,7 @@ package io.intino.plugin;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
@@ -30,7 +31,6 @@ import com.intellij.psi.impl.DebugUtil;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.stubs.StubTextInconsistencyException;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.testFramework.PlatformTestUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Contract;
@@ -485,8 +485,9 @@ public final class PsiUtil {
 	@NotNull
 	@Contract(pure = true)
 	public static Sdk addJdkAnnotations(@NotNull Sdk sdk) {
-		String path = FileUtil.toSystemIndependentName(PlatformTestUtil.getCommunityPath()) + "/java/jdkAnnotations";
+		String path = FileUtil.toSystemIndependentName(PathManager.getHomePath()) + "/java/jdkAnnotations";
 		VirtualFile root = LocalFileSystem.getInstance().findFileByPath(path);
+		if (root == null) return sdk;
 		return addRootsToJdk(sdk, AnnotationOrderRootType.getInstance(), root);
 	}
 

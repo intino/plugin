@@ -7,10 +7,10 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import git4idea.GitCommit;
-import git4idea.history.GitHistoryUtils;
+import git4idea.commands.Git;
+import git4idea.commands.GitCommand;
+import git4idea.commands.GitCommandResult;
+import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
 import io.intino.plugin.actions.ReloadConfigurationAction;
 import io.intino.plugin.file.LegioFileType;
@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GitListener implements Notifications {
@@ -45,15 +46,25 @@ public class GitListener implements Notifications {
 	}
 
 	private void analyzeCommits(int numberOfCommits, GitRepository repository) {
-		try {
-			List<GitCommit> history = GitHistoryUtils.history(project, repository.getRepositoryFiles().getRootDir()).subList(0, numberOfCommits);
-			history.stream()
-					.flatMap(c -> c.getAffectedPaths().stream().filter(fp -> fp.getName().equals(LegioFileType.ARTIFACT_LEGIO)).map(FilePath::getIOFile).distinct())
-					.distinct()
-					.forEach(a -> invalidateCacheAndReload(configurationOf(a)));
-		} catch (VcsException e) {
-			logger.error(e);
+		changedArtifactFiles(numberOfCommits, repository).forEach(a -> invalidateCacheAndReload(configurationOf(a)));
+	}
+
+	@NotNull
+	private List<File> changedArtifactFiles(int numberOfCommits, GitRepository repository) {
+		GitLineHandler handler = new GitLineHandler(project, repository.getRoot(), GitCommand.LOG);
+		handler.addParameters("--name-only", "--pretty=format:", "-n", String.valueOf(numberOfCommits));
+		GitCommandResult result = Git.getInstance().runCommand(handler);
+		if (!result.success()) {
+			logger.warn("Unable to read git history: " + String.join("\n", result.getErrorOutput()));
+			return Collections.emptyList();
 		}
+		return result.getOutput().stream()
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.filter(s -> s.endsWith(LegioFileType.ARTIFACT_LEGIO))
+				.map(path -> new File(repository.getRoot().getPath(), path))
+				.distinct()
+				.toList();
 	}
 
 	private void invalidateCacheAndReload(ArtifactLegioConfiguration conf) {

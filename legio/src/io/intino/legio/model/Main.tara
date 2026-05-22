@@ -58,6 +58,9 @@ Concept:{1..1}:Named Artifact
 			Facet ArtifactVersionFollower > var string version = empty
 	Concept:{0..1} WebImports
 		var string webDirectory = "lib"
+		Concept PackDependency
+			var string name
+			var string version
 		Concept Resolution
 			var string name
 			var string version

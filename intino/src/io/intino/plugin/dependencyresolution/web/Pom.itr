@@ -1,4 +1,4 @@
-def type(pom)
+rule type(pom)
 	<?xml version="1.0" encoding="UTF-8"?>
 	<project xmlns="http://maven.apache.org/POM/4.0.0"
 			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -37,9 +37,8 @@ def type(pom)
 			</plugins>
 		</build>
 	</project>
-end
 
-def attribute(this, node) and trigger(node)
+rule attribute(this, node) and trigger(node)
     <execution>
         <id>install Mogram and npm</id>
         <goals>
@@ -47,4 +46,3 @@ def attribute(this, node) and trigger(node)
         </goals>
         <phase>generate-resources</phase>
     </execution>
-end

@@ -3,6 +3,7 @@ package io.intino.plugin.toolwindows.factory;
 import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.WriteIntentReadAction;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -68,7 +69,7 @@ public class IntinoFactoryView extends JPanel {
 		lastAction = Instant.now();
 		final CompilerManager compilerManager = CompilerManager.getInstance(project);
 		CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{selectedModule()}, true);
-		compilerManager.make(scope, null);
+		WriteIntentReadAction.run((Runnable) () -> compilerManager.make(scope, null));
 	}
 
 	private void build(Operation operation, int modifiers) {
@@ -92,7 +93,7 @@ public class IntinoFactoryView extends JPanel {
 	private void saveConfiguration(Module module) {
 		if (module == null || ModuleTypeWithWebFeatures.isAvailable(module)) return;
 		final FileDocumentManager manager = FileDocumentManager.getInstance();
-		manager.saveAllDocuments();
+		WriteIntentReadAction.run((Runnable) manager::saveAllDocuments);
 	}
 
 	private void exportAccessors(int modifiers) {
@@ -183,7 +184,9 @@ public class IntinoFactoryView extends JPanel {
 
 	private Module selectedModule() {
 		final DataContext resultSync = getContext();
-		Module module = resultSync != null ? resultSync.getData(LangDataKeys.MODULE) : null;
+		Module module = resultSync != null
+				? WriteIntentReadAction.compute(() -> resultSync.getData(LangDataKeys.MODULE))
+				: null;
 		if (module == null) {
 			ModuleSelectorDialog dialog = new ModuleSelectorDialog(this.project);
 			dialog.show();

@@ -54,6 +54,7 @@ public class LanguageManager {
 
 	@Nullable
 	public static Language getLanguage(Project project, String dslName) {
+		if (project == null || dslName == null) return null;
 		Configuration.Artifact.Dsl dsl = Arrays.stream(ModuleManager.getInstance(project).getModules())
 				.map(IntinoUtil::configurationOf)
 				.map(c -> safe(() -> c.artifact().dsl(dslName)))

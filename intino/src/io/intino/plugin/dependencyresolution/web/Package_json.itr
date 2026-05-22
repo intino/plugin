@@ -1,37 +1,17 @@
-def type(package)
+rule type(package)
     {
         "name": "$artifactId",
         "version": "$version",
         "description": "",
         "main": "src/App.js",
         "scripts": {
-            "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
-            "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode development --watch"
+            "build": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' webpack --mode production",
+            "dev": "NODE_OPTIONS='--openssl-legacy-provider --no-deprecation' webpack --mode development --watch"
         },
         "author": "",
         "license": "ISC",
         "devDependencies": {
-            "@babel/core": "^7.4.5",
-            "@babel/plugin-proposal-class-properties": "^7.4.4",
-            "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-            "@babel/preset-env": "^7.4.5",
-            "@babel/preset-react": "^7.0.0",
-            "acorn": "^6.1.1",
-            "babel-loader": "^8.0.6",
-            "babel-plugin-dynamic-import-webpack": "^1.1.0",
-            "circular-dependency-plugin": "^5.0.2",
-            "copy-webpack-plugin": "^5.0.3",
-            "css-loader": "^2.1.1",
-            "html-loader": "^0.5.5",
-            "html-webpack-plugin": "^3.2.0",
-            "jss": "^9.8.7",
-            "prop-types": "^15.7.2",
-            $fsevents
-            "style-loader": "^0.23.1",
-            "styled-components": "^4.3.1",
-            "webpack": "^4.34.0",
-            "webpack-cli": "^3.3.4",
-            "webpack-dev-server": "^3.7.1"
+            $packDependency+dependency...[,$NL]
         },
         "dependencies": {
             $dependency...[,$NL]
@@ -40,16 +20,12 @@ def type(package)
         	$resolution...[,$NL]
         }
     }
-end
 
-def trigger(dependency)
+rule trigger(dependency)
      "$name": "$version"
-end
 
-def trigger(resolution)
+rule trigger(resolution)
      "$name": "$version"
-end
 
-def trigger(fsevents)
+rule trigger(fsevents)
     "fsevents": "^2.1.2",
-end

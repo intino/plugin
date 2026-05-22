@@ -4,11 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.util.SystemInfoRt;
 import io.intino.Configuration.Artifact;
 import io.intino.Configuration.Repository;
 import io.intino.itrules.Frame;
 import io.intino.itrules.FrameBuilder;
-import org.apache.commons.lang3.SystemProperties;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -22,11 +22,13 @@ public class PackageJsonCreator {
 	private final List<Artifact.WebComponent> webComponents;
 	private final List<Artifact.WebResolution> resolutions;
 	private final WebArtifactResolver webArtifactResolver;
+	private final List<Artifact.PackDependency> packDeps;
 
 	public PackageJsonCreator(Module module, Artifact artifact, List<Repository> repositories, File destination) {
 		this.artifact = artifact;
 		this.webComponents = artifact.webComponents();
 		this.resolutions = artifact.webResolutions();
+		this.packDeps = artifact.packDependencies();
 		this.webArtifactResolver = new WebArtifactResolver(module, artifact, repositories, destination);
 
 	}
@@ -47,16 +49,17 @@ public class PackageJsonCreator {
 		Map<String, String> dependencies = collectDependencies(packages);
 		dependencies.forEach((key, value) -> builder.add("dependency", new FrameBuilder().add("name", key).add("version", value)));
 		resolutions.forEach(resolution -> builder.add("resolution", resolutionFrameFrom(resolution)));
+		packDeps.forEach(packDep -> builder.add("packDependency", packDepFrameFrom(packDep)));
 		packages.stream().map(this::resolutionFrameFrom).filter(Objects::nonNull).forEach(frames -> builder.add("resolution", frames));
 		return builder;
 	}
 
 	private static boolean isWindows() {
-		return SystemProperties.getOsName().toLowerCase().startsWith("windows");
+		return SystemInfoRt.isWindows;
 	}
 
 	private static boolean isMacOS() {
-		return SystemProperties.getOsName().toLowerCase().startsWith("mac");
+		return SystemInfoRt.isMac;
 	}
 
 	@NotNull
@@ -84,6 +87,9 @@ public class PackageJsonCreator {
 		return new FrameBuilder().add("name", resolution.name()).add("version", resolution.version()).toFrame();
 	}
 
+	private Frame packDepFrameFrom(Artifact.PackDependency p) {
+		return new FrameBuilder().add("name", p.name()).add("version", p.version()).toFrame();
+	}
 
 	private Map<String, String> dependenciesFrom(JsonObject object) {
 		Map<String, String> map = new HashMap<>();

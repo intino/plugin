@@ -8,8 +8,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.vcs.LocalFilePath;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
@@ -28,8 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static git4idea.commands.GitImpl.REBASE_CONFIG_PARAMS;
-import static git4idea.history.GitHistoryUtils.getCurrentRevision;
-
 public class GitUtil {
 	private static final Logger logger = Logger.getInstance(GitUtil.class.getName());
 
@@ -170,11 +166,13 @@ public class GitUtil {
 
 
 	public static @Nullable String currentRevision(Module module) {
-		try {
-			return getCurrentRevision(module.getProject(), new LocalFilePath(GitUtil.repository(module).getRepositoryFiles().getRootDir().getPath(), true), null).asString();
-		} catch (VcsException e) {
-			return null;
-		}
+		GitRepository repository = repository(module);
+		if (repository == null) return null;
+		GitLineHandler handler = new GitLineHandler(module.getProject(), repository.getRepositoryFiles().getRootDir(), GitCommand.REV_PARSE);
+		handler.addParameters("HEAD");
+		GitCommandResult result = Git.getInstance().runCommand(handler);
+		if (!result.success() || result.getOutput().isEmpty()) return null;
+		return result.getOutput().get(0).trim();
 	}
 
 

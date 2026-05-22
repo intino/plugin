@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.WriteIntentReadAction;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -92,8 +93,10 @@ public class ArtifactFactory extends AbstractArtifactFactory {
 		else {
 			final CompilerManager compilerManager = CompilerManager.getInstance(project);
 			CompileScope scope = compilerManager.createModulesCompileScope(new Module[]{module}, true);
-			if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
-			else compilerManager.make(scope, processArtifact(callback));
+			WriteIntentReadAction.run((Runnable) () -> {
+				if (needsToRebuild()) compilerManager.compile(scope, processArtifact(callback));
+				else compilerManager.make(scope, processArtifact(callback));
+			});
 		}
 		if (isHotFixBranch() || isSupportBranch()) noticeUserAboutChanges();
 	}

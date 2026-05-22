@@ -144,7 +144,7 @@ public class LegioArtifact implements Configuration.Artifact {
 		nodes.addAll(stream(((TaraMogram) imports).getChildren()).filter(c -> c instanceof Mogram).map(c -> (Mogram) c).toList());
 		return nodes.stream().
 				filter(d -> d.type().equals("Web") || d.type().equals("Artifact.Imports.Web")).
-				map(d -> new LegioWeb(this,(TaraMogram) d)).
+				map(d -> new LegioWeb(this, (TaraMogram) d)).
 				collect(toList());
 	}
 
@@ -154,6 +154,15 @@ public class LegioArtifact implements Configuration.Artifact {
 		if (imports == null) return Collections.emptyList();
 		return componentsOfType(imports, "WebComponent").stream().
 				map(d -> new LegioWebComponent((TaraMogram) d)).
+				collect(toList());
+	}
+
+	@Override
+	public List<PackDependency> packDependencies() {
+		Mogram imports = componentOfType(mogram, "WebImports");
+		if (imports == null) return Collections.emptyList();
+		return componentsOfType(imports, "PackDependency").stream().
+				map(d -> new LegioPackDependency((TaraMogram) d)).
 				collect(toList());
 	}
 
@@ -348,6 +357,19 @@ public class LegioArtifact implements Configuration.Artifact {
 
 	private TaraElementFactory factory() {
 		return TaraElementFactory.getInstance(this.mogram.getProject());
+	}
+
+	private record LegioPackDependency(TaraMogram node) implements PackDependency {
+
+		@Override
+		public String name() {
+			return parameterValue(node, "name", 0);
+		}
+
+		@Override
+		public String version() {
+			return parameterValue(node, "version", 1);
+		}
 	}
 
 	private record LegioWebComponent(TaraMogram node) implements WebComponent {
