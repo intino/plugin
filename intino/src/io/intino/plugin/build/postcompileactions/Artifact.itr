@@ -1,18 +1,36 @@
-def type(artifact, legio)
+rule type(artifact, legio)
 	dsl Legio
 
 	Artifact(groupId = "$groupId+lowercase", version = "1.0.0") $artifactId+lowercase
 		WebImports
+			PackDependency("@babel/core", "^7.4.5")
+			PackDependency("@babel/plugin-proposal-class-properties", "^7.4.4")
+			PackDependency("@babel/plugin-syntax-dynamic-import", "^7.2.0")
+			PackDependency("@babel/preset-env", "^7.4.5")
+			PackDependency("@babel/preset-react", "^7.0.0")
+			PackDependency("acorn", "^6.1.1")
+			PackDependency("babel-loader", "^8.0.6")
+			PackDependency("babel-plugin-dynamic-import-webpack", "^1.1.0")
+			PackDependency("circular-dependency-plugin", "^5.0.2")
+			PackDependency("copy-webpack-plugin", "^14.0.0")
+			PackDependency("css-loader", "^7.1.4")
+			PackDependency("fsevents", "^2.1.2")
+			PackDependency("html-loader", "^5.1.0")
+			PackDependency("html-webpack-plugin", "^5.6.7")
+			PackDependency("jss", "^9.8.7")
+			PackDependency("prop-types", "^15.7.2")
+			PackDependency("style-loader", "^0.23.1")
+			PackDependency("styled-components", "^4.3.1")
+			PackDependency("webpack", "^5.106.2")
+			PackDependency("webpack-cli", "^7.0.2")
+			PackDependency("webpack-dev-server", "^5.2.4")
 			WebArtifact("io.intino.alexandria", "ui-framework-elements", "$uiversion") alexandria-ui-elements
 
 	$repository...[$NL$NL]
-end
 
-def type(repository)
+rule type(repository)
 	Repository("$id")
 		$url...[$NL]
-end
 
-def trigger(url)
+rule trigger(url)
 	Release("$this")
-end
