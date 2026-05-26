@@ -18,7 +18,10 @@ rule type(package)
         },
         "resolutions" : {
         	$resolution...[,$NL]
-        }
+        },
+        "overrides" : {
+			$resolution...[,$NL]
+		}
     }
 
 rule trigger(dependency)
