@@ -1,35 +1,40 @@
 package io.intino.plugin.project.module;
 
-import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.ModuleTypeManager;
 import io.intino.plugin.IntinoIcons;
 import io.intino.plugin.project.configuration.LegioFileCreator;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class IntinoModuleType extends JavaModuleType {
+public class IntinoModuleType extends ModuleType<NewIntinoModuleBuilder> {
 
 	@SuppressWarnings("WeakerAccess")
-	private static final String INTINO_MODULE = "INTINO_MODULE";
-
-	public IntinoModuleType(@NonNls String id) {
-		super(id);
-	}
+	public static final String INTINO_MODULE = "INTINO_MODULE";
 
 	public IntinoModuleType() {
-		this(INTINO_MODULE);
+		super(INTINO_MODULE);
+	}
+
+	public static ModuleType<?> getModuleType() {
+		ModuleType<?> moduleType = ModuleTypeManager.getInstance().findByID(INTINO_MODULE);
+		return moduleType != null ? moduleType : ModuleType.EMPTY;
 	}
 
 	public static boolean isIntino(Module module) {
-		return module != null && !module.isDisposed() && (isIntinoModule(module) || ModuleType.is(module, ModuleTypeManager.getInstance().findByID(INTINO_MODULE)));
+		return module != null && !module.isDisposed() && (isIntinoModule(module) || ModuleType.is(module, getModuleType()));
 	}
 
 	private static boolean isIntinoModule(Module module) {
 		return new LegioFileCreator(module).legioFile().exists();
+	}
+
+	@NotNull
+	@Override
+	public NewIntinoModuleBuilder createModuleBuilder() {
+		return new NewIntinoModuleBuilder();
 	}
 
 	@NotNull

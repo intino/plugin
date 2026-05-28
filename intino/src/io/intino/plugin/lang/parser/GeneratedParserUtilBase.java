@@ -824,7 +824,7 @@ class GeneratedParserUtilBase {
 			for (Variant variant : list) {
 				if (position == variant.position) {
 					String text = variant.object.toString();
-					long hash = StringHash.calc(text);
+					long hash = StringHash.buz(text);
 					for (int i = 0; i < count; i++) {
 						if (hashes[i] == hash) continue loop;
 					}

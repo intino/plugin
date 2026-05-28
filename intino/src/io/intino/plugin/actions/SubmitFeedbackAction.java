@@ -1,7 +1,6 @@
 package io.intino.plugin.actions;
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -20,6 +19,7 @@ import io.intino.plugin.errorreporting.PivotalLoggingEventSubmitter;
 import io.intino.plugin.errorreporting.PluginErrorReportSubmitterBundle;
 import io.intino.plugin.settings.IntinoSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Properties;
 
@@ -60,33 +60,32 @@ public class SubmitFeedbackAction extends AnAction implements DumbAware {
 	}
 
 	private void sendReport(Project project, String reportTitle, String reportDescription, String type) {
-		IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(PluginId.getId("io.intino.plugin"));
+		PluginDescriptor plugin = PluginManager.getPluginByClass(getClass());
 		final Properties properties = createErrorProperties(plugin, reportTitle, reportDescription, type);
 		final IntinoSettings settings = IntinoSettings.getInstance(project);
 		PivotalLoggingEventSubmitter submitter = new PivotalLoggingEventSubmitter(properties, settings.trackerProjectId(), settings.trackerApiToken());
 		submitter.submit();
 	}
 
-	private Properties createErrorProperties(PluginDescriptor descriptor, String title, String description, String type) {
+	private Properties createErrorProperties(@Nullable PluginDescriptor descriptor, String title, String description, String type) {
 		Properties properties = new Properties();
-		PluginId descPluginId = descriptor.getPluginId();
 		properties.put(IDE_VERSION_PROPERTY_KEY, ApplicationInfo.getInstance().getMajorVersion() + "." + ApplicationInfo.getInstance().getMinorVersion());
-		if (descPluginId != null && !StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
-			properties.put(PLUGIN_ID_PROPERTY_KEY, descPluginId.getIdString());
-		if (descriptor instanceof IdeaPluginDescriptor) {
-			IdeaPluginDescriptor ideaPluginDescriptor = (IdeaPluginDescriptor) descriptor;
-			if (!StringUtil.isEmptyOrSpaces(ideaPluginDescriptor.getName()))
-				properties.put(PLUGIN_NAME_PROPERTY_KEY, ideaPluginDescriptor.getName());
-			String descVersion = ideaPluginDescriptor.getVersion();
+		if (descriptor != null) {
+			PluginId descPluginId = descriptor.getPluginId();
+			if (descPluginId != null && !StringUtil.isEmptyOrSpaces(descPluginId.getIdString()))
+				properties.put(PLUGIN_ID_PROPERTY_KEY, descPluginId.getIdString());
+			if (!StringUtil.isEmptyOrSpaces(descriptor.getName()))
+				properties.put(PLUGIN_NAME_PROPERTY_KEY, descriptor.getName());
+			String descVersion = descriptor.getVersion();
 			if (!StringUtil.isEmptyOrSpaces(descVersion))
 				properties.put(PLUGIN_VERSION_PROPERTY_KEY, descVersion);
-			if (description != null)
-				properties.put(REPORT_DESCRIPTION, description);
-			if (title != null)
-				properties.put(REPORT_TITLE, title);
-			if (type != null)
-				properties.put(REPORT_TYPE, type);
 		}
+		if (description != null)
+			properties.put(REPORT_DESCRIPTION, description);
+		if (title != null)
+			properties.put(REPORT_TITLE, title);
+		if (type != null)
+			properties.put(REPORT_TYPE, type);
 		return properties;
 	}
 }

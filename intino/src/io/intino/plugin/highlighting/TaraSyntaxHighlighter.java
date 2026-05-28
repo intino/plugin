@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
@@ -17,7 +17,6 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.ui.JBColor;
 import io.intino.plugin.lang.psi.TaraTypes;
 import io.intino.plugin.messages.MessageProvider;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +45,7 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	private static final TextAttributesKey BRACKETS = createTextAttributesKey("Tara_BRACKETS", DefaultLanguageHighlighterColors.BRACKETS);
 	private static final TextAttributesKey SEMICOLON_KEY = createTextAttributesKey("Tara_SEMICOLON", DefaultLanguageHighlighterColors.SEMICOLON);
 	private static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("Tara_TARA_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
-	public static final TextAttributesKey UNRESOLVED_ACCESS = createTextAttributesKey("Tara_UNRESOLVED_ACCESS", referenceNotFoundTextAttributes());
+	public static final TextAttributesKey UNRESOLVED_ACCESS = createTextAttributesKey("Tara_UNRESOLVED_ACCESS", CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES);
 	public static final TextAttributesKey DOCUMENTATION = createTextAttributesKey("Tara_COMMENT", DefaultLanguageHighlighterColors.DOC_COMMENT);
 
 	private static final Map<TextAttributesKey, Pair<String, HighlightSeverity>> DISPLAY_NAMES = new HashMap<>();
@@ -136,10 +135,6 @@ public class TaraSyntaxHighlighter extends SyntaxHighlighterBase implements Tara
 	}
 
 	public TaraSyntaxHighlighter() {
-	}
-
-	private static TextAttributes referenceNotFoundTextAttributes() {
-		return new TextAttributes(JBColor.RED, null, null, null, Font.BOLD);
 	}
 
 	private static Project project;

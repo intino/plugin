@@ -128,8 +128,8 @@ public class ProjectLegioConfiguration implements ProjectConfiguration {
 	private void restartCodeAnalyzer() {
 		Application application = ApplicationManager.getApplication();
 		DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(ijProject);
-		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile);
-		else application.runReadAction(() -> codeAnalyzer.restart(legioFile));
+		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile, "reload-legio-configuration");
+		else application.runReadAction(() -> codeAnalyzer.restart(legioFile, "reload-legio-configuration"));
 	}
 
 	public TaraModel legioFile() {

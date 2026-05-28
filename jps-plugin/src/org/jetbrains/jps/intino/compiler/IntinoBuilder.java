@@ -21,6 +21,7 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRoot;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.jetbrains.jps.intino.compiler.Directories.GEN;
@@ -45,8 +46,8 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	}
 
 	private void commit(CompileContext context,
-						OutputConsumer outputConsumer,
-						Map<ModuleBuildTarget, List<OutputItem>> compiled) throws IOException {
+	                    OutputConsumer outputConsumer,
+	                    Map<ModuleBuildTarget, List<OutputItem>> compiled) throws IOException {
 		registerOutputs(context, outputConsumer, compiled);
 		removeOldClasses(context, compiled);
 	}
@@ -104,9 +105,10 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 			try {
 				BuildDataManager dm = context.getProjectDescriptor().dataManager;
 				SourceToOutputMapping mapping = dm.getSourceToOutputMap(entry.getKey());
-				for (String source : mapping.getSources()) {
+				for (@NotNull Iterator<@NotNull String> it = mapping.getSourcesIterator(); it.hasNext(); ) {
+					String source = it.next();
 					if (new File(source).exists()) continue;
-					mapping.remove(source);
+					mapping.remove(Path.of(source));
 					FSOperations.markDeleted(context, new File(source));
 				}
 			} catch (IOException e) {
@@ -131,10 +133,10 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	}
 
 	private Map<ModuleBuildTarget, List<OutputItem>> processCompiledFiles(CompileContext context,
-																		  ModuleChunk chunk,
-																		  Map<ModuleBuildTarget, List<String>> generationOutputs,
-																		  List<String> compilerOutput,
-																		  List<OutputItem> successfullyCompiled) throws IOException {
+	                                                                      ModuleChunk chunk,
+	                                                                      Map<ModuleBuildTarget, List<String>> generationOutputs,
+	                                                                      List<String> compilerOutput,
+	                                                                      List<OutputItem> successfullyCompiled) throws IOException {
 		ProjectDescriptor pd = context.getProjectDescriptor();
 		final Map<ModuleBuildTarget, List<OutputItem>> compiled = new HashMap<>();
 		for (final OutputItem item : successfullyCompiled)
@@ -144,12 +146,12 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 	}
 
 	private void processOutputItem(CompileContext context,
-								   ModuleChunk chunk,
-								   Map<ModuleBuildTarget, List<String>> generationOutputs,
-								   List<String> compilerOutputs,
-								   ProjectDescriptor pd,
-								   Map<ModuleBuildTarget, List<OutputItem>> compiled,
-								   OutputItem item) throws IOException {
+	                               ModuleChunk chunk,
+	                               Map<ModuleBuildTarget, List<String>> generationOutputs,
+	                               List<String> compilerOutputs,
+	                               ProjectDescriptor pd,
+	                               Map<ModuleBuildTarget, List<OutputItem>> compiled,
+	                               OutputItem item) throws IOException {
 		if (Utils.IS_TEST_MODE || LOG.isDebugEnabled()) LOG.info("compiled=" + item);
 		final JavaSourceRootDescriptor rd = pd.getBuildRootIndex().findJavaRootDescriptor(context, new File(item.getSourcePath()));
 		if (rd != null) {
@@ -163,10 +165,10 @@ public abstract class IntinoBuilder extends ModuleLevelBuilder {
 
 
 	private void ensureCorrectOutput(ModuleChunk chunk,
-									 OutputItem item,
-									 Map<ModuleBuildTarget, List<String>> generationOutputs,
-									 List<String> compilerOutput,
-									 @NotNull ModuleBuildTarget srcTarget) throws IOException {
+	                                 OutputItem item,
+	                                 Map<ModuleBuildTarget, List<String>> generationOutputs,
+	                                 List<String> compilerOutput,
+	                                 @NotNull ModuleBuildTarget srcTarget) throws IOException {
 		if (chunk.getModules().size() > 1 && !srcTarget.equals(chunk.representativeTarget())) {
 			File output = new File(item.getSourcePath());
 			String srcTargetOutput = generationOutputs.get(srcTarget).get(0);

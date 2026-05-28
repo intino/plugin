@@ -152,7 +152,7 @@
 		<extendWordSelectionHandler implementation="io.intino.plugin.archetype.lang.psi.ArchetypeSelectionHandler"/>
 		<extendWordSelectionHandler implementation="io.intino.plugin.lang.psi.TaraSelectionHandler"/>
 		<basicWordSelectionFilter implementation="io.intino.plugin.lang.psi.TaraBasicWordSelectionFilter"/>
-		<moduleType id="TARA_MODULE" implementationClass="io.intino.plugin.project.module.IntinoModuleType"/>
+		<moduleType id="INTINO_MODULE" implementationClass="io.intino.plugin.project.module.IntinoModuleType"/>
 		<httpRequestHandler implementation="io.intino.plugin.codeinsight.linemarkers.konos.WebModelingServer"/>
 		<runConfigurationProducer implementation="io.intino.plugin.project.run.IntinoConfigurationProducer"/>
 		<codeInsight.lineMarkerProvider language="Tara"
@@ -277,24 +277,20 @@
 			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.ToBodyParameters</className>
 			<category>Parameter view operator</category>
-			<descriptionDirectoryName>ToBodyParameters</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
 			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.InlineToMultiline</className>
 			<category>String view operator</category>
-			<descriptionDirectoryName>InlineToMultiline</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
 			<language>Tara</language>
 			<className>io.intino.plugin.codeinsight.intentions.MultilineToInline</className>
 			<category>String view operator</category>
-			<descriptionDirectoryName>MultilineToInline</descriptionDirectoryName>
 		</intentionAction>
 		<intentionAction>
 			<className>io.intino.plugin.codeinsight.intentions.EditElementDocumentation</className>
 			<category>Set documentation</category>
-			<descriptionDirectoryName>EditElementDocumentation</descriptionDirectoryName>
 		</intentionAction>
 <!--		<intentionAction>-->
 <!--			<className>io.intino.plugin.codeinsight.intentions.CreateI18Value</className>-->

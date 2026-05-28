@@ -15,6 +15,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -146,6 +147,7 @@ public class MetamodelWindow {
 		private final PsiTreeChangeListener myTreeChangeListener;
 		private Editor myCurrentEditor;
 		private MessageBusConnection myMessageBus;
+		private Disposable myListenersDisposable;
 
 		public EditorListener(Project project) {
 			myProject = project;
@@ -209,7 +211,7 @@ public class MetamodelWindow {
 			if (myCurrentEditor != newEditor) myCurrentEditor.getCaretModel().removeCaretListener(this);
 			MetamodelWindow.this.selectElementAtCaret();
 			if (newEditor != null) myCurrentEditor = newEditor;
-			myCurrentEditor.getCaretModel().addCaretListener(this, IntinoSettings.getInstance(myProject));
+			if (myListenersDisposable != null) myCurrentEditor.getCaretModel().addCaretListener(this, myListenersDisposable);
 		}
 
 
@@ -220,20 +222,22 @@ public class MetamodelWindow {
 		}
 
 		public void start() {
+			if (myListenersDisposable != null) return;
 			IntinoSettings pluginDisposable = IntinoSettings.getInstance(myProject);
-			myMessageBus = myProject.getMessageBus().connect(pluginDisposable);
+			myListenersDisposable = Disposer.newDisposable();
+			Disposer.register(pluginDisposable, myListenersDisposable);
+			myMessageBus = myProject.getMessageBus().connect(myListenersDisposable);
 			myMessageBus.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, this);
-			PsiManager.getInstance(myProject).addPsiTreeChangeListener(myTreeChangeListener, pluginDisposable);
+			PsiManager.getInstance(myProject).addPsiTreeChangeListener(myTreeChangeListener, myListenersDisposable);
 			myCurrentEditor = FileEditorManager.getInstance(myProject).getSelectedTextEditor();
-			if (myCurrentEditor != null) myCurrentEditor.getCaretModel().addCaretListener(this, pluginDisposable);
+			if (myCurrentEditor != null) myCurrentEditor.getCaretModel().addCaretListener(this, myListenersDisposable);
 		}
 
 		public void stop() {
-			if (myMessageBus != null) {
-				myMessageBus.disconnect();
-				myMessageBus = null;
-			}
-			PsiManager.getInstance(myProject).removePsiTreeChangeListener(myTreeChangeListener);
+			if (myListenersDisposable == null) return;
+			Disposer.dispose(myListenersDisposable);
+			myListenersDisposable = null;
+			myMessageBus = null;
 		}
 
 		@Override

@@ -252,8 +252,8 @@ public class ArtifactLegioConfiguration implements Configuration {
 	private void restartCodeAnalyzer() {
 		Application application = ApplicationManager.getApplication();
 		DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(module.getProject());
-		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile());
-		else application.runReadAction(() -> codeAnalyzer.restart(legioFile()));
+		if (application.isReadAccessAllowed()) codeAnalyzer.restart(legioFile(), "reload-legio-configuration");
+		else application.runReadAction(() -> codeAnalyzer.restart(legioFile(), "reload-legio-configuration"));
 	}
 
 	public VirtualFile legiovFile() {

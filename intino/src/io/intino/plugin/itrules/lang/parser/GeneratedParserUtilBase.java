@@ -281,7 +281,7 @@ public class GeneratedParserUtilBase {
             for (int i = -1; ; i--) {
                 IElementType type = builder_.rawLookup(i);
                 int tokenStart = builder_.rawTokenTypeStart(i);
-                if (((PsiBuilderImpl) ((Builder) builder_).getDelegate()).whitespaceOrComment(type)) {
+                if (((PsiBuilderImpl) ((Builder) builder_).getDelegate()).isWhitespaceOrComment(type)) {
                     diff = completionState.offset - tokenStart;
                 } else if (type != null && tokenStart < completionState.offset) {
                     CharSequence fragment = builder_.getOriginalText().subSequence(tokenStart, completionState.offset);
@@ -766,7 +766,7 @@ public class GeneratedParserUtilBase {
             for (Variant variant : list) {
                 if (position == variant.position) {
                     String text = variant.object.toString();
-                    long hash = StringHash.calc(text);
+                    long hash = StringHash.buz(text);
                     for (int i = 0; i < count; i++) {
                         if (hashes[i] == hash) continue loop;
                     }

@@ -25,7 +25,7 @@ public class TerminalWindow {
 		if (window == null) return;
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			@NotNull TerminalWidget widget = TerminalToolWindowManager.getInstance(project)
-					.createShellWidget(System.getProperty("user.home"), "ssh " + server, true, true);
+						.createNewSession(System.getProperty("user.home"), "ssh " + server, null, true, true);
 			widget.sendCommandToExecute(buildSshChain(user, server, port, tunnels));
 		});
 	}
@@ -43,7 +43,7 @@ public class TerminalWindow {
 	private static void run(Project project, String workingDir, String title, String command) {
 		final ShellTerminalWidget[] widget = new ShellTerminalWidget[1];
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			widget[0] = ShellTerminalWidget.toShellJediTermWidgetOrThrow(TerminalToolWindowManager.getInstance(project).createShellWidget(workingDir, command, true, true));
+			widget[0] = ShellTerminalWidget.toShellJediTermWidgetOrThrow(TerminalToolWindowManager.getInstance(project).createNewSession(workingDir, command, null, true, true));
 			run(command, widget[0]);
 		});
 		widget[0].asNewWidget().getTerminalTitle().change(state -> {
