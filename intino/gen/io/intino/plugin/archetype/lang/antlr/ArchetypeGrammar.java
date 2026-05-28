@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.List;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "deprecation"})
 public class ArchetypeGrammar extends Parser {
 	static {
 		RuntimeMetaData.checkVersion("4.10.1", RuntimeMetaData.VERSION);
@@ -67,7 +67,6 @@ public class ArchetypeGrammar extends Parser {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public String[] getTokenNames() {
 		return _SYMBOLIC_NAMES;
 	}

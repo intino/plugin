@@ -9,7 +9,10 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.Exclusion;
-import org.eclipse.aether.impl.*;
+import org.eclipse.aether.impl.ArtifactDescriptorReader;
+import org.eclipse.aether.impl.MetadataGeneratorFactory;
+import org.eclipse.aether.impl.VersionRangeResolver;
+import org.eclipse.aether.impl.VersionResolver;
 import org.eclipse.aether.metadata.DefaultMetadata;
 import org.eclipse.aether.metadata.Metadata;
 import org.eclipse.aether.repository.LocalRepository;
@@ -45,25 +48,26 @@ public class MavenDependencyResolver {
 	}
 
 	private static void loadService() {
-		DefaultServiceLocator locator = new DefaultServiceLocator();
-		locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
-			@Override
-			public void serviceCreationFailed(Class<?> type, Class<?> impl, Throwable exception) {
-				throw new IllegalStateException("Maven service creation failed: " + type.getName() + " -> " + impl.getName(), exception);
-			}
-		});
-		locator.addService(ArtifactDescriptorReader.class, DefaultArtifactDescriptorReader.class);
-		locator.addService(VersionResolver.class, DefaultVersionResolver.class);
-		locator.addService(VersionRangeResolver.class, DefaultVersionRangeResolver.class);
-		locator.addService(MetadataGeneratorFactory.class, SnapshotMetadataGeneratorFactory.class);
-		locator.addService(MetadataGeneratorFactory.class, VersionsMetadataGeneratorFactory.class);
-		locator.addService(ModelCacheFactory.class, DefaultModelCacheFactory.class);
-		locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
-		locator.addService(TransporterFactory.class, FileTransporterFactory.class);
-		locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
-		locator.addService(TransporterFactory.class, ClasspathTransporterFactory.class);
-		system = locator.getService(RepositorySystem.class);
-		if (system == null) throw new IllegalStateException("Cannot initialize Maven repository system");
+		try {
+			Class<?> locatorClass = Class.forName("org.eclipse.aether.impl.DefaultServiceLocator");
+			Object locator = locatorClass.getDeclaredConstructor().newInstance();
+			var addService = locatorClass.getMethod("addService", Class.class, Class.class);
+			addService.invoke(locator, ArtifactDescriptorReader.class, DefaultArtifactDescriptorReader.class);
+			addService.invoke(locator, VersionResolver.class, DefaultVersionResolver.class);
+			addService.invoke(locator, VersionRangeResolver.class, DefaultVersionRangeResolver.class);
+			addService.invoke(locator, MetadataGeneratorFactory.class, SnapshotMetadataGeneratorFactory.class);
+			addService.invoke(locator, MetadataGeneratorFactory.class, VersionsMetadataGeneratorFactory.class);
+			addService.invoke(locator, ModelCacheFactory.class, DefaultModelCacheFactory.class);
+			addService.invoke(locator, RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
+			addService.invoke(locator, TransporterFactory.class, FileTransporterFactory.class);
+			addService.invoke(locator, TransporterFactory.class, HttpTransporterFactory.class);
+			addService.invoke(locator, TransporterFactory.class, ClasspathTransporterFactory.class);
+			var getService = locatorClass.getMethod("getService", Class.class);
+			system = (RepositorySystem) getService.invoke(locator, RepositorySystem.class);
+			if (system == null) throw new IllegalStateException("Cannot initialize Maven repository system");
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Cannot initialize Maven repository system", e);
+		}
 	}
 
 	private static void init() {

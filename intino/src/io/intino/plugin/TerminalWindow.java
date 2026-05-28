@@ -1,31 +1,30 @@
 package io.intino.plugin;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.terminal.ui.TerminalWidget;
 import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.terminal.ShellTerminalWidget;
 import org.jetbrains.plugins.terminal.TerminalToolWindowManager;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jetbrains.plugins.terminal.TerminalToolWindowFactory.TOOL_WINDOW_ID;
 
 public class TerminalWindow {
-	private static final Logger LOG = Logger.getInstance(TerminalWindow.class.getName());
-
 	public static void openSSh(Project project, String user, String server, int port, List<Tunnel> tunnels) {
 		ToolWindow window = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID);
 		if (window == null) return;
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			@NotNull TerminalWidget widget = TerminalToolWindowManager.getInstance(project)
-						.createNewSession(System.getProperty("user.home"), "ssh " + server, null, true, true);
+			@NotNull TerminalWidget widget = TerminalToolWindowManager.getInstance(project).createNewSession();
+			widget.getTerminalTitle().change(state -> {
+				state.setApplicationTitle("ssh " + server);
+				state.setUserDefinedTitle("ssh " + server);
+				return Unit.INSTANCE;
+			});
 			widget.sendCommandToExecute(buildSshChain(user, server, port, tunnels));
 		});
 	}
@@ -41,22 +40,22 @@ public class TerminalWindow {
 	}
 
 	private static void run(Project project, String workingDir, String title, String command) {
-		final ShellTerminalWidget[] widget = new ShellTerminalWidget[1];
+		final TerminalWidget[] widget = new TerminalWidget[1];
 		ApplicationManager.getApplication().invokeAndWait(() -> {
-			widget[0] = ShellTerminalWidget.toShellJediTermWidgetOrThrow(TerminalToolWindowManager.getInstance(project).createNewSession(workingDir, command, null, true, true));
-			run(command, widget[0]);
+			widget[0] = TerminalToolWindowManager.getInstance(project).createNewSession();
+			widget[0].sendCommandToExecute(withWorkingDir(workingDir, command));
 		});
-		widget[0].asNewWidget().getTerminalTitle().change(state -> {
+		widget[0].getTerminalTitle().change(state -> {
 			state.setApplicationTitle(title);
 			state.setUserDefinedTitle(title);
 			return Unit.INSTANCE;
 		});
 		try {
 			Thread.sleep(5000);
-			while (!widget[0].hasRunningCommands()) {
+			while (!widget[0].isCommandRunning()) {
 				Thread.sleep(100);
 			}
-			while (widget[0].hasRunningCommands()) {
+			while (widget[0].isCommandRunning()) {
 				Thread.sleep(100);
 			}
 		} catch (InterruptedException ignored) {
@@ -64,12 +63,13 @@ public class TerminalWindow {
 
 	}
 
-	private static void run(String command, ShellTerminalWidget widget) {
-		try {
-			widget.executeCommand(command);
-		} catch (IOException e) {
-			LOG.error(e);
-		}
+	private static String withWorkingDir(String workingDir, String command) {
+		if (workingDir == null || workingDir.isBlank()) return command;
+		return "cd " + shellQuote(workingDir) + " && " + command;
+	}
+
+	private static String shellQuote(String value) {
+		return "'" + value.replace("'", "'\"'\"'") + "'";
 	}
 
 	public static class Tunnel {

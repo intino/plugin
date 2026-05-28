@@ -91,7 +91,7 @@ public class ArtifactoryConnector {
 		List<String> dsls = new ArrayList<>();
 		try {
 			for (Configuration.Repository repo : repositories) {
-				URL url = new URL(repo.url() + "/" + "tara/dsl" + "/");
+				URL url = URI.create(repo.url() + "/" + "tara/dsl" + "/").toURL();
 				final String result = new String(read(connect(url)));
 				if (result.isEmpty()) continue;
 				dsls.addAll(extractLanguages(result));

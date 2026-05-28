@@ -7,10 +7,10 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerKeys;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
@@ -62,7 +62,7 @@ public class QuickEditHandler implements Disposable, DocumentListener {
 			public void editorReleased(@NotNull EditorFactoryEvent event) {
 				if (event.getEditor().getDocument() != myNewDocument) return;
 				if (--useCount > 0) return;
-				if (Boolean.TRUE.equals(origFile.getVirtualFile().getUserData(FileEditorManagerImpl.CLOSING_TO_REOPEN)))
+				if (Boolean.TRUE.equals(origFile.getVirtualFile().getUserData(FileEditorManagerKeys.CLOSING_TO_REOPEN)))
 					return;
 
 				Disposer.dispose(QuickEditHandler.this);
