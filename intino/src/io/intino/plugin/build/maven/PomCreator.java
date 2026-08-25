@@ -183,7 +183,7 @@ public class PomCreator {
 		Path other = Paths.get(path);
 		Path modulePath = moduleDirectory().toPath();
 		try {
-			return modulePath.relativize(other.toAbsolutePath()).toFile().getPath();
+			return modulePath.relativize(other.toAbsolutePath()).toFile().getPath().replace("\\","/");
 		} catch (IllegalArgumentException e) {
 			return path;
 		}
