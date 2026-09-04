@@ -1,6 +1,5 @@
 package io.intino.plugin.actions;
 
-import com.intellij.ide.IdeBundle;
 import com.intellij.ide.IdeView;
 import com.intellij.ide.actions.CreateDirectoryOrPackageHandler;
 import com.intellij.ide.util.DirectoryChooserUtil;
@@ -13,6 +12,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.util.PlatformIcons;
+import io.intino.plugin.IntinoBundle;
 
 public class CreatePackageAction extends DumbAwareAction {
 
@@ -34,7 +34,14 @@ public class CreatePackageAction extends DumbAwareAction {
 		final PsiDirectory directory = DirectoryChooserUtil.getOrChooseDirectory(view);
 		if (directory == null) return;
 		CreateDirectoryOrPackageHandler validator = new CreateDirectoryOrPackageHandler(project, directory, false, ".");
-		Messages.showInputDialog(project, IdeBundle.message("prompt.enter.new.package.name"), IdeBundle.message("title.new.package"), Messages.getQuestionIcon(), "", validator);
+		Messages.showInputDialog(
+			project,
+			IntinoBundle.message("dialog.create.package.prompt"),
+			IntinoBundle.message("dialog.create.package.title"),
+			Messages.getQuestionIcon(),
+			"",
+			validator
+		);
 		final PsiFileSystemItem result = validator.getCreatedElement();
 		if (result != null) view.selectElement(result);
 	}

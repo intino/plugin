@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
@@ -36,6 +37,9 @@ public class PluginOSProcessHandler {
 	private final Module module;
 	private final Configuration.Artifact.Plugin plugin;
 	private final ProgressIndicator indicator;
+	private final Object stateLock = new Object();
+	private SimpleOutputReader outputReader;
+	private SimpleOutputReader errorReader;
 	private final StringBuilder outputBuffer = new StringBuilder();
 	private final List<OutputItem> compiledItems = new ArrayList<>();
 	private final List<CompilerMessage> compilerMessages = new ArrayList<>();
@@ -49,12 +53,14 @@ public class PluginOSProcessHandler {
 	}
 
 	public void listen() {
-		new SimpleOutputReader(new BaseInputStreamReader(process.getInputStream(), defaultCharset()), NON_BLOCKING, "Stream of PluginRunner");
-		new SimpleOutputReader(new BaseInputStreamReader(process.getErrorStream(), defaultCharset()), NON_BLOCKING, "Error Stream of PluginRunner");
+		outputReader = new SimpleOutputReader(new BaseInputStreamReader(process.getInputStream(), defaultCharset()), NON_BLOCKING, "Stream of PluginRunner");
+		errorReader = new SimpleOutputReader(new BaseInputStreamReader(process.getErrorStream(), defaultCharset()), NON_BLOCKING, "Error Stream of PluginRunner");
 	}
 
 	public void waitFor() throws InterruptedException {
 		process.waitFor();
+		if (outputReader != null) outputReader.waitFor();
+		if (errorReader != null) errorReader.waitFor();
 	}
 
 	public StringBuilder outputBuffer() {
@@ -74,23 +80,25 @@ public class PluginOSProcessHandler {
 	}
 
 	private void processOutput(String text) {
-		final String trimmed = text.trim();
-		if (trimmed.startsWith(PRESENTABLE_MESSAGE)) {
-			indicator.setText(trimmed.substring(PRESENTABLE_MESSAGE.length()));
-			return;
-		}
-		if (BuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
-			indicator.setText(null);
-			return;
-		}
-		if (StringUtil.isNotEmpty(text)) {
-			outputBuffer.append(trimmed);
-			if (trimmed.startsWith(COMPILED_START)) indicator.setText("Finishing...");
-			else if (trimmed.startsWith(MESSAGES_START)) processMessage();
-			if (trimmed.endsWith(COMPILED_END)) processCompiledItems();
-			if (trimmed.startsWith(BUILD_END)) {
-				collectPostCompileActionMessages();
-				if (!postCompileActions.isEmpty()) indicator.setText("Executing post compile actions...");
+		synchronized (stateLock) {
+			final String trimmed = text.trim();
+			if (trimmed.startsWith(PRESENTABLE_MESSAGE)) {
+				indicator.setText(trimmed.substring(PRESENTABLE_MESSAGE.length()));
+				return;
+			}
+			if (BuildConstants.CLEAR_PRESENTABLE.equals(trimmed)) {
+				indicator.setText(null);
+				return;
+			}
+			if (StringUtil.isNotEmpty(text)) {
+				outputBuffer.append(trimmed);
+				if (trimmed.startsWith(COMPILED_START)) indicator.setText("Finishing...");
+				else if (trimmed.startsWith(MESSAGES_START)) processMessage();
+				if (trimmed.endsWith(COMPILED_END)) processCompiledItems();
+				if (trimmed.startsWith(BUILD_END)) {
+					collectPostCompileActionMessages();
+					if (!postCompileActions.isEmpty()) indicator.setText("Executing post compile actions...");
+				}
 			}
 		}
 	}
@@ -100,13 +108,18 @@ public class PluginOSProcessHandler {
 		int end = outputBuffer.indexOf(END_ACTIONS_MESSAGE);
 		if (start == -1 || end == -1) return;
 		String substring = outputBuffer.substring(start, end);
-		postCompileActions.addAll(Arrays.stream(substring.replace(START_ACTIONS_MESSAGE, "").split(MESSAGE_ACTION_END)).map(this::createCompileAction).toList());
+		postCompileActions.addAll(Arrays.stream(substring.replace(START_ACTIONS_MESSAGE, "").split(MESSAGE_ACTION_END)).map(this::createCompileAction).filter(Objects::nonNull).toList());
 	}
 
 	private void processCompiledItems() {
 		if (outputBuffer.indexOf(COMPILED_END) == -1) return;
 		final String compiled = handleOutputBuffer(COMPILED_START, COMPILED_END);
+		if (compiled == null) return;
 		final List<String> list = splitAndTrim(compiled);
+		if (list.size() < 2) {
+			LOG.warn("Malformed compiled output: " + compiled);
+			return;
+		}
 		String outputFile = list.get(0);
 		String sourceFile = list.get(1);
 
@@ -118,8 +131,12 @@ public class PluginOSProcessHandler {
 	private void processMessage() {
 		if (outputBuffer.indexOf(MESSAGES_END) == -1) return;
 		String text = handleOutputBuffer(MESSAGES_START, MESSAGES_END);
+		if (text == null) return;
 		List<String> tokens = splitAndTrim(text);
-		LOG.assertTrue(tokens.size() > 4, "Wrong number of output params");
+		if (tokens.size() < 5) {
+			LOG.warn("Wrong number of output params: " + tokens);
+			return;
+		}
 		String category = tokens.get(0);
 		String message = tokens.get(1);
 		String url = tokens.get(2);
@@ -147,15 +164,22 @@ public class PluginOSProcessHandler {
 	private PostCompileAction createCompileAction(String m) {
 		m = m.replace(BuildConstants.MESSAGE_ACTION_END, "");
 		List<String> split = List.of(m.split(SEPARATOR));
+		if (split.size() < 2) {
+			LOG.warn("Malformed post compile action: " + m);
+			return null;
+		}
 		return PostCompileActionFactory.get(module, split.get(1), split.subList(2, split.size()));
 	}
 
 
+	@Nullable
 	private String handleOutputBuffer(String startMarker, String endMarker) {
 		final int start = outputBuffer.indexOf(startMarker);
 		final int end = outputBuffer.indexOf(endMarker);
-		if (start > end)
-			throw new AssertionError("Malformed Tarac output: " + outputBuffer);
+		if (start == -1 || end == -1 || start > end) {
+			LOG.warn("Malformed Tarac output between markers " + startMarker + " and " + endMarker + ": " + outputBuffer);
+			return null;
+		}
 		String text = outputBuffer.substring(start + startMarker.length(), end);
 		outputBuffer.delete(start, end + endMarker.length());
 		return text.trim();
