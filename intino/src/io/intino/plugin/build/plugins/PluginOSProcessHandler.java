@@ -24,9 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.intellij.openapi.diagnostic.Logger.getInstance;
-import static com.intellij.util.io.BaseOutputReader.Options.NON_BLOCKING;
+import static com.intellij.util.io.BaseOutputReader.Options.BLOCKING;
 import static io.intino.builder.BuildConstants.*;
 import static io.intino.builder.CompilerMessage.WARNING;
 import static java.nio.charset.Charset.defaultCharset;
@@ -53,14 +54,25 @@ public class PluginOSProcessHandler {
 	}
 
 	public void listen() {
-		outputReader = new SimpleOutputReader(new BaseInputStreamReader(process.getInputStream(), defaultCharset()), NON_BLOCKING, "Stream of PluginRunner");
-		errorReader = new SimpleOutputReader(new BaseInputStreamReader(process.getErrorStream(), defaultCharset()), NON_BLOCKING, "Error Stream of PluginRunner");
+		outputReader = new SimpleOutputReader(new BaseInputStreamReader(process.getInputStream(), defaultCharset()), BLOCKING, "Stream of PluginRunner");
+		errorReader = new SimpleOutputReader(new BaseInputStreamReader(process.getErrorStream(), defaultCharset()), BLOCKING, "Error Stream of PluginRunner");
 	}
 
 	public void waitFor() throws InterruptedException {
-		process.waitFor();
-		if (outputReader != null) outputReader.waitFor();
-		if (errorReader != null) errorReader.waitFor();
+		try {
+			while (!process.waitFor(200, TimeUnit.MILLISECONDS)) {
+				if (indicator.isCanceled()) {
+					process.destroy();
+					if (!process.waitFor(5, TimeUnit.SECONDS)) process.destroyForcibly();
+					throw new InterruptedException("Plugin build cancelled");
+				}
+			}
+			if (outputReader != null) outputReader.waitFor();
+			if (errorReader != null) errorReader.waitFor();
+		} catch (InterruptedException e) {
+			process.destroyForcibly();
+			throw e;
+		}
 	}
 
 	public StringBuilder outputBuffer() {
